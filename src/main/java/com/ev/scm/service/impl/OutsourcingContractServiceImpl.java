@@ -343,7 +343,8 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
 
     @Override
     public R audit(Long id) {
-        return null;
+        OutsourcingContractDO outsourcingContractDO = this.get(id);
+        return R.ok();
     }
 
     @Override
