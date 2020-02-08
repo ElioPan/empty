@@ -33,6 +33,7 @@ public class DeptController extends BaseController {
 	@GetMapping()
 	@RequiresPermissions("system:sysDept:sysDept")
 	String dept() {
+		System.out.println("测试自动发布");
 		return prefix + "/dept";
 	}
 
