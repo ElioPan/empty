@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.PaymentformDao">
+
+	<select id="get" resultType="Map">
+		select payf.`id`,company.name as `company`,`total_receivables` as `totalReceivables`,`pay_date` as payDate,`drawee`,`pay_num` as `payNum`,dictc.name as `payType`,
+			   dict.name as `auditStatus`,usera.username as `auditor`,payf.`auditor_time` as auditorTime,userc.username as `createBy`,payf.`create_time` as createTime,
+			   useru.username as `updateBy`,payf.`update_time` as updateTime,payf.`del_flag` as delFlag
+			from cus_paymentform payf left join cus_dictionary dict on payf.audit_status = dict.id left join sys_company company on payf.company = company.id
+				left join sys_user usera on payf.auditor = usera.user_id left join sys_user userc on payf.create_by = userc.user_id 
+				left join sys_user useru on payf.update_by = useru.user_id left join cus_dictionary dictc on payf.pay_type = dictc.id
+			where payf.id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.PaymentformDO">
+		select `id`,`company`,`total_receivables`,`pay_date`,`drawee`,`pay_num`,`pay_type`,`audit_status`,`auditor`,`auditor_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_paymentform
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="company != null and company != ''"> and company = #{company} </if>
+		  		  <if test="totalReceivables != null and totalReceivables != ''"> and total_receivables = #{totalReceivables} </if>
+		  		  <if test="payDate != null and payDate != ''"> and pay_date = #{payDate} </if>
+		  		  <if test="drawee != null and drawee != ''"> and drawee = #{drawee} </if>
+		  		  <if test="payNum != null and payNum != ''"> and pay_num = #{payNum} </if>
+		  		  <if test="payType != null and payType != ''"> and pay_type = #{payType} </if>
+		  		  <if test="maxNo != null and maxNo != ''"> and LEFT(inhead_code,12) = #{maxNo} </if>
+		  		  <if test="auditStatus != null and auditStatus != ''"> and audit_status = #{auditStatus} </if>
+		  		  <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+		  		  <if test="auditorTime != null and auditorTime != ''"> and auditor_time = #{auditorTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_paymentform
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="company != null and company != ''"> and company = #{company} </if>
+		  		  <if test="totalReceivables != null and totalReceivables != ''"> and total_receivables = #{totalReceivables} </if>
+		  		  <if test="payDate != null and payDate != ''"> and pay_date = #{payDate} </if>
+		  		  <if test="drawee != null and drawee != ''"> and drawee = #{drawee} </if>
+		  		  <if test="payNum != null and payNum != ''"> and pay_num = #{payNum} </if>
+		  		  <if test="payType != null and payType != ''"> and pay_type = #{payType} </if>
+		  		  <if test="auditStatus != null and auditStatus != ''"> and audit_status = #{auditStatus} </if>
+		  		  <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+		  		  <if test="auditorTime != null and auditorTime != ''"> and auditor_time = #{auditorTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	
+	<select id="listApi" resultType="Map">
+		select payf.`id`,company.name as `company`,`total_receivables` as `totalReceivables`,`pay_date` as `payDate`,`drawee`,`pay_num` as `payNum`,dictc.name as `payType`,
+			   dict.name as `auditStatus`,usera.username as `auditor`,`auditor_time` as `auditorTime`,userc.username as `createBy`,payf.`create_time` as `createTime`,
+			   useru.username as `updateBy`,payf.`update_time` as `updateTime`,payf.`del_flag` as `delFlag`,`pid`,`document_date` as `documentDate`,`due_date` as `dueDate`,
+			   `pay_money` as `payMoney`,`amount_paid` as `amountPaid`,`this_pay` as `thisPay`,`unpay_money` as `unpayMoney`,`pay_account` as `payAccount`,
+			   dictm.name as `settlementMethod`,`settlement_num` as `settlementNum`,`remarks`,`source_num` as `sourceNum`,dicts.name as `sourceType`,
+			   `paymentform_id` as `paymentformId`,payfitem.`del_flag` as `delFlag`
+			from cus_paymentform payf left join cus_paymentform_item payfitem on payf.id = payfitem.`paymentform_id` 
+				left join cus_dictionary dict on payf.audit_status = dict.id left join sys_company company on payf.company = company.id
+				left join sys_user usera on payf.auditor = usera.user_id left join sys_user userc on payf.create_by = userc.user_id 
+				left join sys_user useru on payf.update_by = useru.user_id left join cus_dictionary dicts on payfitem.source_type = dicts.id
+				left join cus_dictionary dictc on payf.pay_type = dictc.id left join cus_dictionary dictm on payfitem.settlement_method = dictm.id
+        <where>  
+		  		  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(pay_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(pay_date,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+				  <if test="payNum != null and payNum != ''"> and pay_num = #{payNum} </if>
+				  <if test="company != null and company != ''"> and company = #{company} </if>
+				  <if test="sourceNum != null and sourceNum != ''"> and source_num = #{sourceNum} </if>
+				  <if test="drawee != null and drawee != ''"> and drawee = #{drawee} </if>
+				  <if test="payAccount != null and payAccount != ''"> and pay_account = #{payAccount} </if>
+				  <if test="settlementMethod != null and settlementMethod != ''"> and settlement_method = #{settlementMethod} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="countApi" resultType="int">
+		select count(*) from cus_paymentform payf left join cus_paymentform_item payfitem on payf.id = payfitem.`paymentform_id` 
+				left join cus_dictionary dict on payf.audit_status = dict.id left join sys_company company on payf.company = company.id
+				left join sys_user usera on payf.auditor = usera.user_id left join sys_user userc on payf.create_by = userc.user_id 
+				left join sys_user useru on payf.update_by = useru.user_id left join cus_dictionary dicts on payfitem.source_type = dicts.id
+				left join cus_dictionary dictc on payf.pay_type = dictc.id left join cus_dictionary dictm on payfitem.settlement_method = dictm.id
+		 <where>  
+		  		  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(pay_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(pay_date,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+				  <if test="payNum != null and payNum != ''"> and pay_num = #{payNum} </if>
+				  <if test="company != null and company != ''"> and company = #{company} </if>
+				  <if test="sourceNum != null and sourceNum != ''"> and source_num = #{sourceNum} </if>
+				  <if test="drawee != null and drawee != ''"> and drawee = #{drawee} </if>
+				  <if test="payAccount != null and payAccount != ''"> and pay_account = #{payAccount} </if>
+				  <if test="settlementMethod != null and settlementMethod != ''"> and settlement_method = #{settlementMethod} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.PaymentformDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_paymentform
+		(
+			`company`, 
+			`total_receivables`, 
+			`pay_date`, 
+			`drawee`, 
+			`pay_num`, 
+			`pay_type`, 
+			`audit_status`, 
+			`auditor`, 
+			`auditor_time`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{company}, 
+			#{totalReceivables}, 
+			#{payDate}, 
+			#{drawee}, 
+			#{payNum}, 
+			#{payType}, 
+			#{auditStatus}, 
+			#{auditor}, 
+			#{auditorTime}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.PaymentformDO">
+		update cus_paymentform 
+		<set>
+			<if test="company != null">`company` = #{company}, </if>
+			<if test="totalReceivables != null">`total_receivables` = #{totalReceivables}, </if>
+			<if test="payDate != null">`pay_date` = #{payDate}, </if>
+			<if test="drawee != null">`drawee` = #{drawee}, </if>
+			<if test="payNum != null">`pay_num` = #{payNum}, </if>
+			<if test="payType != null">`pay_type` = #{payType}, </if>
+			<if test="auditStatus != null">`audit_status` = #{auditStatus}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="auditorTime != null">`auditor_time` = #{auditorTime}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<update id="reverseAudit" parameterType="Long">
+		update cus_paymentform set `audit_status` = 178 where id = #{id}
+	</update>
+	
+	<update id="audit" parameterType="Long">
+		update cus_paymentform set `audit_status` = 179 where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_paymentform where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_paymentform where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

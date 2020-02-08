@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.InventoryPlanFitlossDao">
+
+	<select id="get" resultType="com.ev.scm.domain.InventoryPlanFitlossDO">
+		select `id`,`head_id`,`body_id`,`code`,`document_type` from scm_inventory_plan_fitloss where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.InventoryPlanFitlossDO">
+		select `id`,`head_id`,`body_id`,`code`,`document_type` from scm_inventory_plan_fitloss
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="headId != null and headId != ''"> and head_id = #{headId} </if>
+		  		  <if test="bodyId != null and bodyId != ''"> and body_id = #{bodyId} </if>
+		  		  <if test="code != null and code != ''"> and code = #{code} </if>
+		  		  <if test="documentType != null and documentType != ''"> and document_type = #{documentType} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from scm_inventory_plan_fitloss
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="headId != null and headId != ''"> and head_id = #{headId} </if>
+		  		  <if test="bodyId != null and bodyId != ''"> and body_id = #{bodyId} </if>
+		  		  <if test="code != null and code != ''"> and code = #{code} </if>
+		  		  <if test="documentType != null and documentType != ''"> and document_type = #{documentType} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.InventoryPlanFitlossDO" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_inventory_plan_fitloss
+		(
+			`head_id`, 
+			`body_id`, 
+			`code`, 
+			`document_type`
+		)
+		values
+		(
+			#{headId}, 
+			#{bodyId}, 
+			#{code}, 
+			#{documentType}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.InventoryPlanFitlossDO">
+		update scm_inventory_plan_fitloss
+		<set>
+			<if test="headId != null">`head_id` = #{headId}, </if>
+			<if test="bodyId != null">`body_id` = #{bodyId}, </if>
+			<if test="code != null">`code` = #{code}, </if>
+			<if test="documentType != null">`document_type` = #{documentType}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from scm_inventory_plan_fitloss where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from scm_inventory_plan_fitloss where id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+    <!--查找scm_stock_in_item根据盘盈单是否已经生成了其他入库-->
+	<select id="countOfOtherByPY" resultType="int">
+
+	  select count(*) from scm_stock_in_item
+	  where source_code = (select DISTINCT code  from scm_inventory_plan_fitloss WHERE  head_id=#{headId} AND  document_type=#{documentType})
+
+	</select>
+
+
+	<!--查找scm_stock_in_item根据盘盈单是否已经生成了其他出库-->
+	<select id="countOfOutByPK" resultType="int">
+
+		select count(*) from scm_stock_out_item
+		where source_code = (select DISTINCT code  from scm_inventory_plan_fitloss WHERE  head_id=#{headId} AND  document_type=#{documentType})
+
+	</select>
+
+
+	<select id="countOfYKCount" resultType="int">
+
+		select count(*) from scm_inventory_plan_fitloss WHERE  head_id=#{headId} AND  document_type= #{documentType}
+
+	</select>
+
+
+
+</mapper>

@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.FrdbDao">
+
+	<select id="get" resultType="com.ev.custom.domain.FrdbDO">
+		select `id`,`device_type`,`device_model`,`fr_no`,`fr_appearence`,`fr_type`,`fr_reason`,`deal_method`,`description`,`up_user`,`up_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_frdb where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.FrdbDO">
+		select `id`,`device_type`,`device_model`,`fr_no`,`fr_appearence`,`fr_type`,`fr_reason`,`deal_method`,`description`,`up_user`,`up_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_frdb
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="deviceType != null and deviceType != ''"> and device_type = #{deviceType} </if>
+		  		  <if test="deviceModel != null and deviceModel != ''"> and device_model = #{deviceModel} </if>
+		  		  <if test="frNo != null and frNo != ''"> and fr_no = #{frNo} </if>
+		  		  <if test="frAppearence != null and frAppearence != ''"> and fr_appearence = #{frAppearence} </if>
+		  		  <if test="frType != null and frType != ''"> and fr_type = #{frType} </if>
+		  		  <if test="frReason != null and frReason != ''"> and fr_reason = #{frReason} </if>
+		  		  <if test="dealMethod != null and dealMethod != ''"> and deal_method = #{dealMethod} </if>
+		  		  <if test="description != null and description != ''"> and description = #{description} </if>
+		  		  <if test="upUser != null and upUser != ''"> and up_user = #{upUser} </if>
+		  		  <if test="upTime != null and upTime != ''"> and up_time = #{upTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_frdb
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="deviceType != null and deviceType != ''"> and device_type = #{deviceType} </if>
+		  		  <if test="deviceModel != null and deviceModel != ''"> and device_model = #{deviceModel} </if>
+		  		  <if test="frNo != null and frNo != ''"> and fr_no = #{frNo} </if>
+		  		  <if test="frAppearence != null and frAppearence != ''"> and fr_appearence = #{frAppearence} </if>
+		  		  <if test="frType != null and frType != ''"> and fr_type = #{frType} </if>
+		  		  <if test="frReason != null and frReason != ''"> and fr_reason = #{frReason} </if>
+		  		  <if test="dealMethod != null and dealMethod != ''"> and deal_method = #{dealMethod} </if>
+		  		  <if test="description != null and description != ''"> and description = #{description} </if>
+		  		  <if test="upUser != null and upUser != ''"> and up_user = #{upUser} </if>
+		  		  <if test="upTime != null and upTime != ''"> and up_time = #{upTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		frdb.id,
+		frdb.device_type,
+		frdb.device_model,
+		frdb.fr_no,
+		frdb.fr_appearence,
+		frdb.fr_type,
+		frdb.fr_reason,
+		frdb.deal_method,
+		frdb.description,
+		frdb.up_user,
+		frdb.up_time,
+		frdb.create_by,
+		frdb.create_time,
+		frdb.update_by,
+		frdb.update_time,
+		frdb.del_flag,
+		devicetype.name as devicetypename,
+		frtype.name as frtypename,
+		upuser.name as upusername
+		FROM
+		cus_frdb frdb
+		LEFT JOIN cus_dictionary devicetype on devicetype.id = frdb.device_type
+		LEFT JOIN cus_dictionary frtype on frtype.id = frdb.fr_type
+		LEFT JOIN sys_user upuser ON upuser.user_id = frdb.up_user
+		<where>
+			<if test="id != null and id != ''"> and frdb.id = #{id} </if>
+			<if test="deviceType != null and deviceType != ''"> and frdb.device_type = #{deviceType} </if>
+			<if test="deviceModel != null and deviceModel != ''"> and frdb.device_model = #{deviceModel} </if>
+			<if test="frNo != null and frNo != ''"> and frdb.fr_no = #{frNo} </if>
+			<if test="frAppearence != null and frAppearence != ''"> and frdb.fr_appearence = #{frAppearence} </if>
+			<if test="frType != null and frType != ''"> and frdb.fr_type = #{frType} </if>
+			<if test="frReason != null and frReason != ''"> and frdb.fr_reason = #{frReason} </if>
+			<if test="dealMethod != null and dealMethod != ''"> and frdb.deal_method = #{dealMethod} </if>
+			<if test="description != null and description != ''"> and frdb.description = #{description} </if>
+			<if test="upUser != null and upUser != ''"> and frdb.up_user = #{upUser} </if>
+			<if test="upTime != null and upTime != ''"> and frdb.up_time = #{upTime} </if>
+			<if test="createBy != null and createBy != ''"> and frdb.create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and frdb.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and frdb.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and frdb.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and frdb.del_flag = #{delFlag} </if>
+			<if test="upUserName != null and upUserName != ''"> and upuser.name = #{upUserName} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="int">
+		SELECT
+		count(1)
+		FROM
+		cus_frdb frdb
+		LEFT JOIN cus_dictionary devicetype on devicetype.id = frdb.device_type
+		LEFT JOIN cus_dictionary frtype on frtype.id = frdb.fr_type
+		LEFT JOIN sys_user upuser ON upuser.user_id = frdb.up_user
+		<where>
+			<if test="id != null and id != ''"> and frdb.id = #{id} </if>
+			<if test="deviceType != null and deviceType != ''"> and frdb.device_type = #{deviceType} </if>
+			<if test="deviceModel != null and deviceModel != ''"> and frdb.device_model = #{deviceModel} </if>
+			<if test="frNo != null and frNo != ''"> and frdb.fr_no = #{frNo} </if>
+			<if test="frAppearence != null and frAppearence != ''"> and frdb.fr_appearence = #{frAppearence} </if>
+			<if test="frType != null and frType != ''"> and frdb.fr_type = #{frType} </if>
+			<if test="frReason != null and frReason != ''"> and frdb.fr_reason = #{frReason} </if>
+			<if test="dealMethod != null and dealMethod != ''"> and frdb.deal_method = #{dealMethod} </if>
+			<if test="description != null and description != ''"> and frdb.description = #{description} </if>
+			<if test="upUser != null and upUser != ''"> and frdb.up_user = #{upUser} </if>
+			<if test="upTime != null and upTime != ''"> and frdb.up_time = #{upTime} </if>
+			<if test="createBy != null and createBy != ''"> and frdb.create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and frdb.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and frdb.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and frdb.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and frdb.del_flag = #{delFlag} </if>
+			<if test="upUserName != null and upUserName != ''"> and upuser.name = #{upUserName} </if>
+		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.FrdbDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_frdb
+		(
+			`device_type`, 
+			`device_model`, 
+			`fr_no`, 
+			`fr_appearence`, 
+			`fr_type`, 
+			`fr_reason`, 
+			`deal_method`, 
+			`description`, 
+			`up_user`, 
+			`up_time`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{deviceType}, 
+			#{deviceModel}, 
+			#{frNo}, 
+			#{frAppearence}, 
+			#{frType}, 
+			#{frReason}, 
+			#{dealMethod}, 
+			#{description}, 
+			#{upUser}, 
+			#{upTime}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.FrdbDO">
+		update cus_frdb 
+		<set>
+			<if test="deviceType != null">`device_type` = #{deviceType}, </if>
+			<if test="deviceModel != null">`device_model` = #{deviceModel}, </if>
+			<if test="frNo != null">`fr_no` = #{frNo}, </if>
+			<if test="frAppearence != null">`fr_appearence` = #{frAppearence}, </if>
+			<if test="frType != null">`fr_type` = #{frType}, </if>
+			<if test="frReason != null">`fr_reason` = #{frReason}, </if>
+			<if test="dealMethod != null">`deal_method` = #{dealMethod}, </if>
+			<if test="description != null">`description` = #{description}, </if>
+			<if test="upUser != null">`up_user` = #{upUser}, </if>
+			<if test="upTime != null">`up_time` = #{upTime}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_frdb where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_frdb where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

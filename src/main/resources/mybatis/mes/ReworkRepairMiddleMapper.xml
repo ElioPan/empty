@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.ReworkRepairMiddleDao">
+
+	<select id="get" resultType="com.ev.mes.domain.ReworkRepairMiddleDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_rework_repair_middle 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.ReworkRepairMiddleDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_rework_repair_middle
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_rework_repair_middle
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`plan_id`,`type`,`source_id`
+	</sql>
+
+    <sql id="sql_condition">
+       				 <where>
+                            <if test="id != null and id != ''"> and id = #{id} </if>
+                            <if test="planId != null and planId != ''"> and plan_id = #{planId} </if>
+                            <if test="type != null and type != ''"> and type = #{type} </if>
+                            <if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.ReworkRepairMiddleDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_rework_repair_middle
+		(
+			`plan_id`, 
+			`type`, 
+			`source_id`
+		)
+		values
+		(
+			#{planId}, 
+			#{type}, 
+			#{sourceId}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.ReworkRepairMiddleDO">
+		update mes_rework_repair_middle 
+		<set>
+			<if test="planId != null">`plan_id` = #{planId}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="sourceId != null">`source_id` = #{sourceId}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_rework_repair_middle where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_rework_repair_middle where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<delete id="removeByPlanId">
+		delete from mes_rework_repair_middle where plan_id = #{value}
+	</delete>
+
+
+	<select id="canDelReportAboutMiddle" resultType="int">
+		SELECT
+		count(1)
+		from
+		mes_rework_repair_middle  a
+		WHERE
+		a.`type`=#{type}
+		AND
+		a.source_id in
+		<foreach item="item" collection="sourceId" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+
+
+
+</mapper>

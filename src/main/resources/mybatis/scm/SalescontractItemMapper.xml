@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.SalescontractItemDao">
+
+	<select id="get" resultType="com.ev.scm.domain.SalescontractItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_salescontract_item 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.SalescontractItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_salescontract_item
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from scm_salescontract_item
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`salescontract_id`,`materiel_id`,`is_check`,`count`,`tax_amount`,`tax_rate`,`unit_price`,`tax_unit_price`,`amount`,`delivery_date`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> and id = #{id} </if>
+                            <if test="salescontractId != null and salescontractId != ''"> and salescontract_id = #{salescontractId} </if>
+                            <if test="materielId != null and materielId != ''"> and materiel_id = #{materielId} </if>
+                            <if test="isCheck != null"> and is_check = #{isCheck} </if>
+                            <if test="count != null and count != ''"> and count = #{count} </if>
+                            <if test="taxAmount != null and taxAmount != ''"> and tax_amount = #{taxAmount} </if>
+                            <if test="taxRate != null and taxRate != ''"> and tax_rate = #{taxRate} </if>
+                            <if test="unitPrice != null and unitPrice != ''"> and unit_price = #{unitPrice} </if>
+                            <if test="taxUnitPrice != null and taxUnitPrice != ''"> and tax_unit_price = #{taxUnitPrice} </if>
+                            <if test="amount != null and amount != ''"> and amount = #{amount} </if>
+                            <if test="deliveryDate != null and deliveryDate != ''"> and delivery_date = #{deliveryDate} </if>
+                            <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+                            <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.SalescontractItemDO" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_salescontract_item
+		(
+			`salescontract_id`, 
+			`materiel_id`,
+			`is_check`,
+			`count`, 
+			`tax_amount`, 
+			`tax_rate`, 
+			`unit_price`, 
+			`tax_unit_price`, 
+			`amount`, 
+			`delivery_date`, 
+			`remarks`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{salescontractId}, 
+			#{materielId},
+			#{isCheck},
+			#{count}, 
+			#{taxAmount}, 
+			#{taxRate}, 
+			#{unitPrice}, 
+			#{taxUnitPrice}, 
+			#{amount}, 
+			#{deliveryDate}, 
+			#{remarks}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.SalescontractItemDO">
+		update scm_salescontract_item 
+		<set>
+			<if test="salescontractId != null">`salescontract_id` = #{salescontractId}, </if>
+			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
+            <if test="isCheck != null">`is_check` = #{isCheck}, </if>
+			<if test="count != null">`count` = #{count}, </if>
+			<if test="taxAmount != null">`tax_amount` = #{taxAmount}, </if>
+			<if test="taxRate != null">`tax_rate` = #{taxRate}, </if>
+			<if test="unitPrice != null">`unit_price` = #{unitPrice}, </if>
+			<if test="taxUnitPrice != null">`tax_unit_price` = #{taxUnitPrice}, </if>
+			<if test="amount != null">`amount` = #{amount}, </if>
+			<if test="deliveryDate != null">`delivery_date` = #{deliveryDate}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from scm_salescontract_item where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from scm_salescontract_item where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+    <delete id="batchRemoveBySalesContractIds">
+        delete from scm_salescontract_item where `salescontract_id` in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--自定义-->
+    <select id="listByContract" resultType="map">
+        SELECT
+			item.`id` AS id,
+			item.`materiel_id` AS materielId,
+			materiel.serial_no AS materielSerialNo,
+			materiel.name AS materielName,
+			materiel.specification AS specification,
+			unitUom.name AS unitUomName,
+			IF(item.is_check=0,'是','否') AS isCheck,
+			item.`count` AS count,
+			item.tax_amount AS taxAmount,
+			item.tax_rate AS taxRate,
+			item.unit_price AS unitPrice,
+			item.`tax_unit_price` AS taxUnitPrice,
+			item.amount AS amount,
+			item.delivery_date AS deliveryDate,
+			item.remarks AS remarks
+        <include refid="sql_contract_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by id
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+    <select id="countByContract" resultType="map">
+        SELECT
+        count(*) AS totalCount,
+        SUM(item.count) AS totalSaleCount,
+        SUM(item.tax_amount) AS totalTaxAmount
+        <include refid="sql_contract_condition"/>
+    </select>
+
+    <sql id="sql_contract_condition">
+        FROM scm_salescontract_item item
+        LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
+        LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
+        <where>
+            <if test="id != null and id != ''"> and item.id = #{id} </if>
+            <if test="salescontractId != null and salescontractId != ''"> and item.salescontract_id = #{salescontractId} </if>
+        </where>
+    </sql>
+
+	
+</mapper>

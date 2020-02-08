@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+	<div class="wrapper wrapper-content ">
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="ibox float-e-margins">
+					<div class="ibox-content">
+						<form class="form-horizontal m-t" id="signupForm">
+							<div class="form-group">	
+								<label class="col-sm-3 control-label">报告名称：</label>
+								<div class="col-sm-8">
+									<input id="reportName" name="reportName" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">编制人：</label>
+								<div class="col-sm-8">
+									<input id="userId" name="userId" class="form-control" type="text">
+								</div>
+							</div>
+                                                        <!-- 
+                                                                                                          选择编制人后，部门自动显示该人所属部门
+                                                        <div class="form-group">  
+                              <label class="col-sm-3 control-label">编制部门：</label>
+                              <div class="col-sm-8">
+                                <input id="userId" name="userId" class="form-control" type="text">
+                              </div>
+                            </div> -->
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">严重性：</label>
+								<div class="col-sm-8">
+									<input id="ponderance" name="ponderance" class="form-control" type="text">
+								</div>
+							</div>
+														<!-- 
+                                                            8D报告编号自动生成
+                                                        <div class="form-group">	
+								<label class="col-sm-3 control-label">8D报告编号：</label>
+								<div class="col-sm-8">
+									<input id="reportNo" name="reportNo" class="form-control" type="text">
+								</div>
+							</div> -->
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">类型：</label>
+								<div class="col-sm-8">
+									<input id="reportType" name="reportType" class="form-control" type="text">
+								</div>
+							</div>
+														
+                                                        <div class="form-group">	
+								<label class="col-sm-3 control-label">报告状态：</label>
+								<div class="col-sm-8">
+									<input id="status" name="status" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">详细描述：</label>
+								<div class="col-sm-8">
+									<input id="detailContent" name="detailContent" class="form-control" type="text">
+								</div>
+							</div>
+														 <div class="form-group">	
+								<label class="col-sm-3 control-label">分析主要原因：</label>
+								<div class="col-sm-8">
+									<input id="analyzeReason" name="analyzeReason" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">效果分析：</label>
+								<div class="col-sm-8">
+									<input id="resultContent" name="resultContent" class="form-control" type="text">
+								</div>
+							</div>
+														<!-- <div class="form-group">	
+								<label class="col-sm-3 control-label">验收人：</label>
+								<div class="col-sm-8">
+									<input id="checkId" name="checkId" class="form-control" type="text">
+								</div>
+							</div> -->
+														<!-- <div class="form-group">	
+								<label class="col-sm-3 control-label">验收状态：</label>
+								<div class="col-sm-8">
+									<input id="checkStatus" name="checkStatus" class="form-control" type="text">
+								</div>
+							</div> -->
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">编制时间：</label>
+								<div class="col-sm-8">
+									<input id="createTime" name="createTime" class="form-control" type="text">
+								</div>
+							</div>
+														<!-- <div class="form-group">	
+								<label class="col-sm-3 control-label">创建者：</label>
+								<div class="col-sm-8">
+									<input id="createBy" name="createBy" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">修改人：</label>
+								<div class="col-sm-8">
+									<input id="updateBy" name="updateBy" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">修改时间：</label>
+								<div class="col-sm-8">
+									<input id="updateTime" name="updateTime" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">删除状态：</label>
+								<div class="col-sm-8">
+									<input id="delFlag" name="delFlag" class="form-control" type="text">
+								</div>
+							</div> -->
+																					<div class="form-group">
+								<div class="col-sm-8 col-sm-offset-3">
+									<button type="submit" class="btn btn-primary">提交</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+	</div>
+	</div>
+	<div th:include="include::footer"></div>
+	<script type="text/javascript" src="/js/appjs/custom/qualityReport/add.js">
+	</script>
+</body>
+</html>

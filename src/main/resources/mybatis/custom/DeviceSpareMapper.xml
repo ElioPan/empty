@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.DeviceSpareDao">
+
+	<select id="get" resultType="com.ev.custom.domain.DeviceSpareDO">
+		select `id`,`device_id`,`spare_id`,`amount`,`spare_locationid`,`def1`,`def2`,`def3`,`def4`,`def5`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_device_spare where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.DeviceSpareDO">
+		select `id`,`device_id`,`spare_id`,`amount`,`spare_locationid`,`def1`,`def2`,`def3`,`def4`,`def5`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_device_spare
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and device_id = #{deviceId} </if>
+		  		  <if test="spareId != null and spareId != ''"> and spare_id = #{spareId} </if>
+		  		  <if test="amount != null and amount != ''"> and amount = #{amount} </if>
+		  		  <if test="spareLocationid != null and spareLocationid != ''"> and spare_locationid = #{spareLocationid} </if>
+		  		  <if test="def1 != null and def1 != ''"> and def1 = #{def1} </if>
+		  		  <if test="def2 != null and def2 != ''"> and def2 = #{def2} </if>
+		  		  <if test="def3 != null and def3 != ''"> and def3 = #{def3} </if>
+		  		  <if test="def4 != null and def4 != ''"> and def4 = #{def4} </if>
+		  		  <if test="def5 != null and def5 != ''"> and def5 = #{def5} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_device_spare
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and device_id = #{deviceId} </if>
+		  		  <if test="spareId != null and spareId != ''"> and spare_id = #{spareId} </if>
+		  		  <if test="amount != null and amount != ''"> and amount = #{amount} </if>
+		  		  <if test="spareLocationid != null and spareLocationid != ''"> and spare_locationid = #{spareLocationid} </if>
+		  		  <if test="def1 != null and def1 != ''"> and def1 = #{def1} </if>
+		  		  <if test="def2 != null and def2 != ''"> and def2 = #{def2} </if>
+		  		  <if test="def3 != null and def3 != ''"> and def3 = #{def3} </if>
+		  		  <if test="def4 != null and def4 != ''"> and def4 = #{def4} </if>
+		  		  <if test="def5 != null and def5 != ''"> and def5 = #{def5} </if>
+			 <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			 <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			 <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			 <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			 <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.DeviceSpareDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_device_spare
+		(
+			`device_id`, 
+			`spare_id`, 
+			`amount`, 
+			`spare_locationid`, 
+			`def1`, 
+			`def2`, 
+			`def3`, 
+			`def4`,
+			`def5`,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
+			`del_flag`
+		)
+		values
+		(
+			#{deviceId}, 
+			#{spareId}, 
+			#{amount}, 
+			#{spareLocationid}, 
+			#{def1}, 
+			#{def2}, 
+			#{def3}, 
+			#{def4}, 
+			#{def5},
+			#{createBy},
+			#{createTime},
+			#{updateBy},
+			#{updateTime},
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.DeviceSpareDO">
+		update cus_device_spare 
+		<set>
+			<if test="deviceId != null">`device_id` = #{deviceId}, </if>
+			<if test="spareId != null">`spare_id` = #{spareId}, </if>
+			<if test="amount != null">`amount` = #{amount}, </if>
+			<if test="spareLocationid != null">`spare_locationid` = #{spareLocationid}, </if>
+			<if test="def1 != null">`def1` = #{def1}, </if>
+			<if test="def2 != null">`def2` = #{def2}, </if>
+			<if test="def3 != null">`def3` = #{def3}, </if>
+			<if test="def4 != null">`def4` = #{def4}, </if>
+			<if test="def5 != null">`def5` = #{def5}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_device_spare where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from cus_device_spare where id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+     <!--查询已关联主设备的备件-->
+	<select id="getRelatedSpareParts" resultType="map">
+	select
+         csp.id,
+         csp.serial_no as code,
+         csp.name,
+         csp.specification as type,
+         a.name as spartTypeName,
+         cd.name as loacationName
+		 from cus_materiel csp
+		left JOIN cus_device_spare cds on cds.spare_id=csp.id
+		left JOIN cus_facility_location cd on csp.default_location=cd.id
+    	left JOIN cus_dictionary a on csp.type=a.id
+		<where>
+			<if test="id != null and id != ''"> and cds.id = #{id} </if>
+			<if test="deviceId != null and deviceId != ''"> and cds.device_id = #{deviceId} </if>
+			<if test="spareId != null and spareId != ''"> and cds.spare_id = #{spareId} </if>
+			<if test="amount != null and amount != ''"> and cds.amount = #{amount} </if>
+			<if test="spareLocationid != null and spareLocationid != ''"> and cds.spare_locationid = #{spareLocationid} </if>
+			<if test="createBy != null and createBy != ''"> and cds.create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and cds.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and cds.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and cds.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and cds.del_flag = #{delFlag} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="countRelatedSpareParts" resultType="int">
+			select
+			count(*)
+			from cus_materiel csp
+			left JOIN cus_device_spare cds on cds.spare_id=csp.id
+			left JOIN cus_facility_location cd on csp.default_location=cd.id
+			left JOIN cus_dictionary a on csp.type=a.id
+			<where>
+				<if test="id != null and id != ''"> and cds.id = #{id} </if>
+				<if test="deviceId != null and deviceId != ''"> and cds.device_id = #{deviceId} </if>
+				<if test="spareId != null and spareId != ''"> and cds.spare_id = #{spareId} </if>
+				<if test="amount != null and amount != ''"> and cds.amount = #{amount} </if>
+				<if test="spareLocationid != null and spareLocationid != ''"> and cds.spare_locationid = #{spareLocationid} </if>
+				<if test="createBy != null and createBy != ''"> and cds.create_by = #{createBy} </if>
+				<if test="createTime != null and createTime != ''"> and cds.create_time = #{createTime} </if>
+				<if test="updateBy != null and updateBy != ''"> and cds.update_by = #{updateBy} </if>
+				<if test="updateTime != null and updateTime != ''"> and cds.update_time = #{updateTime} </if>
+				<if test="delFlag != null and delFlag != ''"> and cds.del_flag = #{delFlag} </if>
+			</where>
+	</select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<!--删除设备和备件的绑定关系，单条或者多条删除-->
+	<delete id="removeDeviceSpare" parameterType="long">
+		delete from cus_device_spare
+		where
+		device_id = #{id} AND
+		spare_id in
+		<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+	<!--     public int removeDeviceSpare(@Param(value = "list")List<Long> list ,@Param(value = "id")Long id );   -->
+
+	<!--统计未关联备件的行数-->
+	<select id="countSparesNoDevice" resultType="int">
+		select count(*)
+		from cus_spare_part csp
+        WHERE
+        csp.id NOT IN (select cds.spare_id from cus_device_spare cds)
+	</select>
+
+</mapper>

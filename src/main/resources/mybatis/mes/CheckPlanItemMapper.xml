@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.CheckPlanItemDao">
+
+	<select id="get" resultType="com.ev.mes.domain.CheckPlanItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_check_plan_item 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.CheckPlanItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_check_plan_item
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_check_plan_item
+		<include refid="sql_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.CheckPlanItemDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_check_plan_item
+		(
+			`plan_id`, 
+			`project_id`, 
+			`remark`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{planId}, 
+			#{projectId}, 
+			#{remark}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.CheckPlanItemDO">
+		update mes_check_plan_item 
+		<set>
+			<if test="planId != null">`plan_id` = #{planId}, </if>
+			<if test="projectId != null">`project_id` = #{projectId}, </if>
+			<if test="remark != null">`remark` = #{remark}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_check_plan_item where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_check_plan_item where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<sql id="sql_column_list">
+		`id`,`plan_id`,`project_id`,`remark`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="planId != null and planId != ''"> and plan_id = #{planId} </if>
+		  		  <if test="projectId != null and projectId != ''"> and project_id = #{projectId} </if>
+		  		  <if test="remark != null and remark != ''"> and remark = #{remark} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</sql>
+
+
+
+
+	<select id="listOfDetail" resultType="map">
+		SELECT
+		a.`id`,
+		a.`project_id` as projectId,
+		a.`remark`,
+		b.code ,
+		b.name ,
+		b.norm,
+		d.name as normName,
+		b.method ,
+		b.instrument_name as instrumentName
+		FROM mes_check_plan_item a
+		LEFT JOIN mes_check_project b on a.project_id=b.id
+		LEFT JOIN cus_dictionary d on b.norm=d.id
+		WHERE
+		a.plan_id=#{id}
+
+	</select>
+
+
+		<select id="canDeletOfProject" resultType="int">
+			SELECT
+				count(*)
+			FROM
+				mes_check_plan_item
+			WHERE
+            del_flag = 0
+			and
+				project_id in
+			<foreach item="item" collection="id" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</select>
+
+
+
+
+	
+</mapper>

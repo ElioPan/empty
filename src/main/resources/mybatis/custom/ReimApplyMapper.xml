@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.ReimApplyDao">
+
+	<select id="get" resultType="com.ev.custom.domain.ReimApplyDO">
+		select `id`,`account_receivable`,`description`,`create_by`,`create_time`,`update_by`,`update_time`,`status`,`process_instance_id`,`del_flag` from cus_reim_apply where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.ReimApplyDO">
+		select `id`,`account_receivable`,`description`,`create_by`,`create_time`,`update_by`,`update_time`,`status`,`process_instance_id`,`del_flag` from cus_reim_apply
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="accountReceivable != null and accountReceivable != ''"> and account_receivable = #{accountReceivable} </if>
+		  		  <if test="description != null and description != ''"> and description = #{description} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="processInstanceId != null and processInstanceId != ''"> and process_instance_id = #{processInstanceId} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_reim_apply
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="accountReceivable != null and accountReceivable != ''"> and account_receivable = #{accountReceivable} </if>
+		  		  <if test="description != null and description != ''"> and description = #{description} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="processInstanceId != null and processInstanceId != ''"> and process_instance_id = #{processInstanceId} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+
+
+	<select id="getReimHead" resultType="map">
+		select
+		a.id,
+		a.process_instance_id as process_instance_id,
+		a.create_by as createBy,
+		b.name as   createByName,
+		a.status as  status,
+		c.name as statusName,
+		b.dept_id as deptId,
+		e.name as deptName
+		FROM
+		cus_reim_apply a
+		LEFT JOIN   sys_user  b on  a.create_by=b.user_id
+		LEFT JOIN   cus_dictionary  c on  a.status=c.id
+		LEFT JOIN   sys_dept  e on  b.dept_id=e.dept_id
+		WHERE
+		  a.id=#{id}
+	</select>
+
+	<select id="getReimItem" resultType="map">
+		select
+		a.*,
+		a.type ,
+		c.name as typeName
+		FROM
+		cus_reim_apply_item a
+		LEFT JOIN   cus_dictionary  c on  a.type=c.id
+		WHERE
+		a.reim_apply_id =#{id}
+	</select>
+
+	<select id="getSumOfCount" resultType="map">
+		select
+		sum(a.rei_count) as  reimCount
+		FROM
+		cus_reim_apply_item a
+		WHERE
+		a.reim_apply_id =#{id}
+	</select>
+
+	<select id="listForMap" resultType="map">
+		select * from (
+		SELECT
+		b.oneReiCount,
+		views.reimType as reimType,
+		views.reimTypeName as reimTypeName,
+		apply.id as id,
+		apply.account_receivable as accountreceivable,
+		apply.description as description,
+		apply.create_by as createby,
+		createuser.name as createuser,
+		apply.create_time as createtime,
+		apply.update_by as updateby,
+		apply.update_time as updatetime,
+		apply.del_flag as delflag,
+		apply.status as statusId,
+		statusdic.value as statusvalue,
+		statusdic.name as statusname,
+		assignuser.user_id as assignid,
+		dept.dept_id as deptid,
+		dept.id_path as idPath,
+		dept.name as deptname,
+		apply.process_instance_id as processinstanceid
+		FROM
+		cus_reim_apply apply
+ 		<!--LEFT JOIN cus_reim_apply_item a on apply.id = a.reim_apply_id-->
+		LEFT JOIN view_reim_apply_item_type views on apply.id = views.reim_apply_id
+		LEFT JOIN act_ru_task task on task.PROC_INST_ID_ = apply.process_instance_id
+		LEFT JOIN sys_user createuser on createuser.user_id = apply.create_by
+		LEFT JOIN sys_dept dept on dept.dept_id = createuser.dept_id
+		LEFT JOIN sys_user assignuser on assignuser.user_id = task.ASSIGNEE_
+		LEFT JOIN cus_dictionary statusdic on statusdic.id = apply.status
+		LEFT JOIN view_reim_apply_onereimcount b on apply.id = b.reim_apply_id) view_reim_apply
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="accountReceivable != null and accountReceivable != ''"> and accountreceivable = #{accountReceivable} </if>
+			<if test="description != null and description != ''"> and description = #{description} </if>
+
+
+			 <if test="createBy != null and createBy != ''"> and createby = #{createBy} </if>
+			<if test="createByName != null and createUser != ''"> and createuser like CONCAT (#{createByName},'%')</if>
+
+			<if test="status != null and status != ''"> and statusId != #{status} </if>
+			<if test="statusOther != null and statusOther != ''"> and statusId != #{statusOther} </if>
+
+			<if test="idPath != null and idPath != ''"> and idPath like CONCAT (#{idPath},'%') </if>
+			<if test="assignId != null and assignId != ''"> and assignid = #{assignId} </if>
+
+
+			 <if test="createTime != null and createTime != ''"> and createtime = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and updateby = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and updatetime = #{updateTime} </if>
+
+			<if test="processInstanceId != null and processInstanceId != ''"> and processinstanceid = #{processInstanceId} </if>
+			<if test="delFlag != null and delFlag != ''"> and delflag = #{delFlag} </if>
+
+			<if test="deptId != null and deptId != ''"> and deptid = #{deptId} </if>
+
+			<if test="beginTime != null and beginTime!= ''"> and  DATE_FORMAT(createtime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{beginTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(createtime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc , createtime DESC ,statusId desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="map">
+		select
+		count(1) as counts ,
+		sum(reiCount) as allReiCount
+		from (
+		SELECT
+		a.oneReiCount as reiCount,
+		apply.id as id,
+		apply.account_receivable as accountreceivable,
+		apply.description as description,
+		apply.create_by as createby,
+		createuser.name as createuser,
+		apply.create_time as createtime,
+		apply.update_by as updateby,
+		apply.update_time as updatetime,
+		apply.del_flag as delflag,
+		apply.status as statusId,
+		statusdic.value as statusvalue,
+		statusdic.name as statusname,
+		assignuser.user_id as assignid,
+		dept.dept_id as deptid,
+		dept.id_path as idPath,
+		dept.name as deptname,
+		apply.process_instance_id as processinstanceid
+		FROM
+		cus_reim_apply apply
+		LEFT JOIN view_reim_apply_onereimcount a on apply.id = a.reim_apply_id
+		LEFT JOIN act_ru_task task on task.PROC_INST_ID_ = apply.process_instance_id
+		LEFT JOIN sys_user createuser on createuser.user_id = apply.create_by
+		LEFT JOIN sys_dept dept on dept.dept_id = createuser.dept_id
+		LEFT JOIN sys_user assignuser on assignuser.user_id = task.ASSIGNEE_
+		LEFT JOIN cus_dictionary statusdic on statusdic.id = apply.status
+		)
+		view_reim_apply
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="accountReceivable != null and accountReceivable != ''"> and accountreceivable = #{accountReceivable} </if>
+			<if test="description != null and description != ''"> and description = #{description} </if>
+
+
+			<if test="createBy != null and createBy != ''"> and createby = #{createBy} </if>
+			<if test="createByName != null and createUser != ''"> and createuser like CONCAT (#{createByName},'%')</if>
+
+			<if test="status != null and status != ''"> and statusId != #{status} </if>
+			<if test="statusOther != null and statusOther != ''"> and statusId != #{statusOther} </if>
+			<if test="statusOfCount != null and statusOfCount != ''"> and statusId = #{statusOfCount} </if>
+
+			<if test="idPath != null and idPath != ''"> and idPath like CONCAT (#{idPath},'%') </if>
+			<if test="assignId != null and assignId != ''"> and assignid = #{assignId} </if>
+
+
+			<if test="createTime != null and createTime != ''"> and createtime = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and updateby = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and updatetime = #{updateTime} </if>
+
+			<if test="processInstanceId != null and processInstanceId != ''"> and processinstanceid = #{processInstanceId} </if>
+			<if test="delFlag != null and delFlag != ''"> and delflag = #{delFlag} </if>
+
+			<if test="deptId != null and deptId != ''"> and deptid = #{deptId} </if>
+
+			<if test="beginTime != null and beginTime!= ''"> and  DATE_FORMAT(createtime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{beginTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(createtime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+
+		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.ReimApplyDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_reim_apply
+		(
+			`account_receivable`, 
+			`description`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`status`, 
+			`process_instance_id`, 
+			`del_flag`
+		)
+		values
+		(
+			#{accountReceivable}, 
+			#{description}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{status}, 
+			#{processInstanceId}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.ReimApplyDO">
+		update cus_reim_apply 
+		<set>
+			<if test="accountReceivable != null">`account_receivable` = #{accountReceivable}, </if>
+			<if test="description != null">`description` = #{description}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="processInstanceId != null">`process_instance_id` = #{processInstanceId}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_reim_apply where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_reim_apply where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

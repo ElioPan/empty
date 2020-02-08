@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.StockDao">
+
+
+	<select id="get" resultType="com.ev.scm.domain.StockDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM scm_stock
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.StockDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM scm_stock
+		<include refid="sql_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY ${sort} ${order}
+			</when>
+			<otherwise>
+				ORDER BY id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		SELECT COUNT(*) FROM scm_stock
+		<include refid="sql_condition"/>
+	</select>
+
+	<sql id="sql_column_list">
+		`id`,`entering_time`,`materiel_id`,`code`,`batch`,`available_count`,`count`,`unit_price`,`amount`,`source_company`,`warehouse`,`wareh_location`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+	<sql id="sql_condition">
+		<where>
+			<if test="maxNo != null and maxNo != ''"> and LEFT(code,12) = #{maxNo} </if>
+			<if test="id != null and id != ''"> AND id = #{id} </if>
+			<if test="enteringTime != null and enteringTime != ''"> AND entering_time = #{enteringTime} </if>
+			<if test="materielId != null and materielId != ''"> AND materiel_id = #{materielId} </if>
+			<if test="code != null and code != ''"> AND code = #{code} </if>
+			<if test="batch != null and batch != ''"> AND batch = #{batch} </if>
+			<if test="availableCount != null and availableCount != ''"> AND available_count = #{availableCount} </if>
+			<if test="count != null and count != ''"> AND count = #{count} </if>
+			<if test="unitPrice != null and unitPrice != ''"> AND unit_price = #{unitPrice} </if>
+			<if test="amount != null and amount != ''"> AND amount = #{amount} </if>
+			<if test="sourceCompany != null and sourceCompany != ''"> AND source_company = #{sourceCompany} </if>
+			<if test="warehouse != null and warehouse != ''"> AND warehouse = #{warehouse} </if>
+			<if test="warehLocation != null and warehLocation != ''"> AND wareh_location = #{warehLocation} </if>
+			<if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+		</where>
+	</sql>
+
+	<insert id="save" parameterType="com.ev.scm.domain.StockDO" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO scm_stock
+		(
+		`entering_time`,
+		`materiel_id`,
+		`code`,
+		`batch`,
+		`available_count`,
+		`count`,
+		`unit_price`,
+		`amount`,
+		`source_company`,
+		`warehouse`,
+		`wareh_location`,
+		`create_by`,
+		`create_time`,
+		`update_by`,
+		`update_time`,
+		`del_flag`
+		)
+		VALUES
+		(
+		#{enteringTime},
+		#{materielId},
+		#{code},
+		#{batch},
+		#{availableCount},
+		#{count},
+		#{unitPrice},
+		#{amount},
+		#{sourceCompany},
+		#{warehouse},
+		#{warehLocation},
+		#{createBy},
+		#{createTime},
+		#{updateBy},
+		#{updateTime},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.scm.domain.StockDO">
+		UPDATE scm_stock
+		<set>
+			<if test="enteringTime != null">`entering_time` = #{enteringTime}, </if>
+			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
+			<if test="code != null">`code` = #{code}, </if>
+			<if test="batch != null">`batch` = #{batch}, </if>
+			<if test="availableCount != null">`available_count` = #{availableCount}, </if>
+			<if test="count != null">`count` = #{count}, </if>
+			<if test="unitPrice != null">`unit_price` = #{unitPrice}, </if>
+			<if test="amount != null">`amount` = #{amount}, </if>
+			<if test="sourceCompany != null">`source_company` = #{sourceCompany}, </if>
+			<if test="warehouse != null">`warehouse` = #{warehouse}, </if>
+			<if test="warehLocation != null">`wareh_location` = #{warehLocation}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<delete id="remove">
+		DELETE FROM scm_stock WHERE id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		DELETE FROM scm_stock WHERE id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+
+
+
+	<select id="getProCountForMap" resultType="com.ev.scm.domain.StockDO">
+		select `id`,`count`,`unit_price` from scm_stock
+		<where>
+			<if test="proId != null and proId != ''"> and materiel_id = #{proId} </if>
+			<if test="batch != null and batch != ''"> and batch = #{batch} </if>
+			<if test="warehLocation != null and warehLocation != ''"> and wareh_location = #{warehLocation} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+			and `count`>0
+		</where>
+	</select>
+
+    <!-- 批量保存库存明细 -->
+    <insert id="batchSave" parameterType="List" useGeneratedKeys="true" keyProperty="id">
+        insert into scm_stock
+        (
+        `entering_time`,
+        `materiel_id`,
+        `code`,
+        `batch`,
+        `available_count`,
+        `count`,
+        `unit_price`,
+        `amount`,
+        `source_company`,
+        `warehouse`,
+        `wareh_location`,
+        `create_by`,
+        `create_time`,
+        `update_by`,
+        `update_time`,
+        `del_flag`
+        )
+        values
+        <foreach collection="list" item="obj" separator=",">
+            (
+            #{obj.enteringTime},
+            #{obj.materielId},
+            #{obj.code},
+            #{obj.batch},
+            #{obj.availableCount},
+            #{obj.count},
+            #{obj.unitPrice},
+            #{obj.amount},
+            #{obj.sourceCompany},
+            #{obj.warehouse},
+            #{obj.warehLocation},
+            #{obj.createBy},
+            #{obj.createTime},
+            #{obj.updateBy},
+            #{obj.updateTime},
+            #{obj.delFlag}
+            )
+        </foreach>
+    </insert>
+
+</mapper>

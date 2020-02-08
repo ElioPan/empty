@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.OutsourcingContractDao">
+
+	<select id="get" resultType="com.ev.scm.domain.OutsourcingContractDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_outsourcing_contract 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.OutsourcingContractDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_outsourcing_contract
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+			<otherwise>
+                ORDER BY id DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+        SELECT COUNT(*) FROM scm_outsourcing_contract
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`supplier_id`,`purchase_person`,`contract_code`,`contract_type`,`contract_date`,`contract_expire_date`,`audit_sign`,`invoiced_amount`,`uninvoiced_amount`,`auditor`,`audit_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`close_status`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> AND id = #{id} </if>
+                            <if test="supplierId != null and supplierId != ''"> AND supplier_id = #{supplierId} </if>
+                            <if test="purchasePerson != null and purchasePerson != ''"> AND purchase_person = #{purchasePerson} </if>
+                            <if test="contractCode != null and contractCode != ''"> AND contract_code = #{contractCode} </if>
+                            <if test="contractType != null and contractType != ''"> AND contract_type = #{contractType} </if>
+                            <if test="contractDate != null and contractDate != ''"> AND contract_date = #{contractDate} </if>
+                            <if test="contractExpireDate != null and contractExpireDate != ''"> AND contract_expire_date = #{contractExpireDate} </if>
+                            <if test="auditSign != null and auditSign != ''"> AND audit_sign = #{auditSign} </if>
+                            <if test="invoicedAmount != null and invoicedAmount != ''"> AND invoiced_amount = #{invoicedAmount} </if>
+                            <if test="uninvoicedAmount != null and uninvoicedAmount != ''"> AND uninvoiced_amount = #{uninvoicedAmount} </if>
+                            <if test="auditor != null and auditor != ''"> AND auditor = #{auditor} </if>
+                            <if test="auditTime != null and auditTime != ''"> AND audit_time = #{auditTime} </if>
+                            <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+                            <if test="closeStatus != null and closeStatus != ''"> AND close_status = #{closeStatus} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.OutsourcingContractDO" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO scm_outsourcing_contract
+		(
+			`supplier_id`, 
+			`purchase_person`, 
+			`contract_code`, 
+			`contract_type`, 
+			`contract_date`, 
+			`contract_expire_date`, 
+			`audit_sign`, 
+			`invoiced_amount`, 
+			`uninvoiced_amount`, 
+			`auditor`, 
+			`audit_time`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`, 
+			`close_status`
+		)
+		VALUES
+		(
+			#{supplierId}, 
+			#{purchasePerson}, 
+			#{contractCode}, 
+			#{contractType}, 
+			#{contractDate}, 
+			#{contractExpireDate}, 
+			#{auditSign}, 
+			#{invoicedAmount}, 
+			#{uninvoicedAmount}, 
+			#{auditor}, 
+			#{auditTime}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}, 
+			#{closeStatus}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.OutsourcingContractDO">
+		UPDATE scm_outsourcing_contract
+		<set>
+			<if test="supplierId != null">`supplier_id` = #{supplierId}, </if>
+			<if test="purchasePerson != null">`purchase_person` = #{purchasePerson}, </if>
+			<if test="contractCode != null">`contract_code` = #{contractCode}, </if>
+			<if test="contractType != null">`contract_type` = #{contractType}, </if>
+			<if test="contractDate != null">`contract_date` = #{contractDate}, </if>
+			<if test="contractExpireDate != null">`contract_expire_date` = #{contractExpireDate}, </if>
+			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+			<if test="invoicedAmount != null">`invoiced_amount` = #{invoicedAmount}, </if>
+			<if test="uninvoicedAmount != null">`uninvoiced_amount` = #{uninvoicedAmount}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="auditTime != null">`audit_time` = #{auditTime}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}, </if>
+			<if test="closeStatus != null">`close_status` = #{closeStatus}</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="remove">
+		DELETE FROM scm_outsourcing_contract WHERE id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+        DELETE FROM scm_outsourcing_contract WHERE id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+    <!--自定义-->
+    <select id="listForMap" resultType="map">
+        SELECT
+        item.`id`,
+        outsourcing.`id` AS outsourcingContractId,
+        outsourcing.contract_date AS contractDate,
+        outsourcing.`contract_code` AS `contractCode`,
+        dict.`name` AS contractTypeName,
+        IF(outsourcing.close_status=0,'未关闭','关闭') AS closeStatusName,
+        supplier.`name` AS supplierName,
+        materiel.serial_no AS materielSerialNo,
+        materiel.name AS materielName,
+        materiel.specification AS specification,
+        unitUom.name AS unitUomName,
+        IF(item.is_check=0,'是','否') AS isCheck,
+        bom.`serialno` AS bomSerialNo,
+        IF(item.is_quota=0,'是','否') AS isQuota,
+        item.`count` AS count,
+        item.`unit_price` AS unitPrice,
+        item.`tax_rate` AS taxRate,
+        item.`amount` AS amount,
+        item.`taxes` AS taxes,
+        item.`tax_unit_price` AS taxUnitPrice,
+        item.`tax_amount` AS taxAmount,
+        item.`delivery_date` AS deliveryDate,
+        dica.`name` AS auditSignName,
+        dics.`id` AS sourceType,
+        dics.`name` AS sourceTypeName,
+        item.source_code AS sourceCode,
+        outsourcing.`contract_code` AS code,
+        '委外合同' AS　thisSourceTypeName,
+        outsourcing.`create_time` AS createTime
+        <include refid="sql_map_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by outsourcing.`id` desc,item.`id`
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+    <select id="countForMap" resultType="map">
+        SELECT
+        COUNT(*) AS total,
+        SUM(item.`count`) AS totalCount,
+        SUM(item.`amount`) AS totalAmount,
+        SUM(item.`tax_amount`) AS totalTaxAmount
+        <include refid="sql_map_condition"/>
+    </select>
+
+    <sql id="sql_map_condition">
+        FROM
+        scm_outsourcing_contract_item item
+        LEFT JOIN scm_outsourcing_contract outsourcing ON outsourcing.id = item.contract_id
+        LEFT JOIN mes_bom bom ON  bom.id = item.bom_id
+        LEFT JOIN cus_dictionary dict ON  dict.id = outsourcing.contract_type
+        LEFT JOIN cus_supplier supplier ON supplier.id = outsourcing.supplier_id
+        LEFT JOIN sys_user cuser ON cuser.user_id = outsourcing.create_by
+        LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
+        LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
+        LEFT JOIN cus_dictionary dica ON dica.id = outsourcing.audit_sign
+        LEFT JOIN cus_dictionary dics ON dics.`id` = item.`source_type`
+        <where>
+            <if test="id != null and id != ''"> and item.id = #{id} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(outsourcing.contract_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(outsourcing.contract_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="contractCode != null and contractCode != ''"> and outsourcing.contract_code = #{contractCode} </if>
+            <if test="supplierName != null and supplierName != ''"> and supplier.`name` LIKE #{supplierName} </if>
+            <if test="materielName != null and materielName != ''"> and materiel.`name` LIKE #{materielName} </if>
+            <!--高级查询-->
+            <if test="contractType != null and contractType != ''"> and contract_type = #{contractType} </if>
+            <if test="specification != null and specification != ''"> and materiel.`specification` LIKE #{specification} </if>
+            <if test="auditSign != null and auditSign != ''"> and outsourcing.audit_sign = #{auditSign} </if>
+            <if test="createByName != null and createByName != ''"> and cuser.name LIKE #{createByName} </if>
+            <if test="closeStatus != null"> and close_status = #{closeStatus} </if>
+
+            <!--导入关联单据查询-->
+            <if test="createStartTime != null and createStartTime != ''"> and  DATE_FORMAT(outsourcing.create_by,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
+            <if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(outsourcing.create_by,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
+            <if test="fuzzyInquire != null and fuzzyInquire != ''"> and CONCAT(materiel.`name`,materiel.`specification`,materiel.`serial_no`,outsourcing.`contract_code`,supplier.`name`) LIKE #{fuzzyInquire} </if>
+            <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+            <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+            <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+        </where>
+    </sql>
+
+	
+</mapper>

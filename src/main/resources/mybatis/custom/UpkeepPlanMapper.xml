@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.UpkeepPlanDao">
+
+
+    <select id="get" resultType="com.ev.custom.domain.UpkeepPlanDO">
+        SELECT
+        <include refid="sql_column_list"/>
+        FROM cus_upkeep_plan
+        WHERE id = #{value}
+    </select>
+
+    <select id="list" resultType="com.ev.custom.domain.UpkeepPlanDO">
+        SELECT
+        <include refid="sql_column_list"/>
+        FROM cus_upkeep_plan
+        <include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by id desc
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+    <select id="count" resultType="int">
+        select count(*) from cus_upkeep_plan
+        <include refid="sql_condition"/>
+    </select>
+
+    <insert id="save" parameterType="com.ev.custom.domain.UpkeepPlanDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_upkeep_plan
+		(
+		`work_orderNo`,
+		`name`,
+		`device_id`,
+		`engineer_id`,
+		`cellphone`,
+		`type`,
+		`man_hour`,
+		`status`,
+		`result`,
+		`content`,
+		`interval_time`,
+		`expireDay`,
+		`start_time`,
+		`end_time`,
+		`create_time`,
+		`create_by`,
+		`dept_id`,
+		`delet_status`,
+		`update_by`,
+		`update_time`,
+		`del_flag`
+		)
+		values
+		(
+		#{workOrderno},
+		#{name},
+		#{deviceId},
+		#{engineerId},
+		#{cellphone},
+		#{type},
+		#{manHour},
+		#{status},
+		#{result},
+		#{content},
+		#{intervalTime},
+		#{expireday},
+		#{startTime},
+		#{endTime},
+		#{createTime},
+		#{createBy},
+		#{deptId},
+		#{deletStatus},
+		#{updateBy},
+		#{updateTime},
+		#{delFlag}
+		)
+	</insert>
+
+    <update id="update" parameterType="com.ev.custom.domain.UpkeepPlanDO">
+        update cus_upkeep_plan
+        <set>
+            <if test="workOrderno != null">`work_orderNo` = #{workOrderno}, </if>
+            <if test="name != null">`name` = #{name}, </if>
+            <if test="deviceId != null">`device_id` = #{deviceId}, </if>
+            <if test="engineerId != null">`engineer_id` = #{engineerId}, </if>
+            <if test="cellphone != null">`cellphone` = #{cellphone}, </if>
+            <if test="type != null">`type` = #{type}, </if>
+            <if test="manHour != null">`man_hour` = #{manHour}, </if>
+            <if test="status != null">`status` = #{status}, </if>
+            <if test="result != null">`result` = #{result}, </if>
+            <if test="content != null">`content` = #{content}, </if>
+            <if test="intervalTime != null">`interval_time` = #{intervalTime}, </if>
+            <if test="expireday != null">`expireDay` = #{expireday}, </if>
+            <if test="startTime != null">`start_time` = #{startTime}, </if>
+            <if test="endTime != null">`end_time` = #{endTime}, </if>
+            <if test="createTime != null">`create_time` = #{createTime}, </if>
+            <if test="createBy != null">`create_by` = #{createBy}, </if>
+            <if test="deptId != null">`dept_id` = #{deptId}, </if>
+            <if test="deletStatus != null">`delet_status` = #{deletStatus}, </if>
+            <if test="updateBy != null">`update_by` = #{updateBy}, </if>
+            <if test="updateTime != null">`update_time` = #{updateTime}, </if>
+            <if test="delFlag != null">`del_flag` = #{delFlag}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="remove">
+		delete from cus_upkeep_plan where id = #{value}
+	</delete>
+
+    <delete id="batchRemove">
+        delete from cus_upkeep_plan where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <sql id="sql_column_list">
+		`id`,`work_orderNo`,`name`,`device_id`,`engineer_id`,`cellphone`,`type`,`man_hour`,`status`,`result`,`content`,`interval_time`,`expireDay`,`start_time`,`end_time`,`create_time`,`create_by`,`dept_id`,`delet_status`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+            <if test="maxNo != null and maxNo != ''"> and LEFT(work_orderNo,12) = #{maxNo} </if>
+            <if test="id != null and id != ''"> and id = #{id} </if>
+            <if test="workOrderno != null and workOrderno != ''"> and work_orderNo = #{workOrderno} </if>
+            <if test="name != null and name != ''"> and name = #{name} </if>
+            <if test="deviceId != null and deviceId != ''"> and device_id = #{deviceId} </if>
+            <if test="engineerId != null and engineerId != ''"> and engineer_id = #{engineerId} </if>
+            <if test="cellphone != null and cellphone != ''"> and cellphone = #{cellphone} </if>
+            <if test="type != null and type != ''"> and type = #{type} </if>
+            <if test="manHour != null and manHour != ''"> and man_hour = #{manHour} </if>
+            <if test="status != null and status != ''"> and status = #{status} </if>
+            <if test="result != null and result != ''"> and result = #{result} </if>
+            <if test="content != null and content != ''"> and content = #{content} </if>
+            <if test="intervalTime != null and intervalTime != ''"> and interval_time = #{intervalTime} </if>
+            <if test="expireday != null and expireday != ''"> and expireDay = #{expireday} </if>
+            <if test="startTime != null and startTime != ''"> and start_time = #{startTime} </if>
+            <if test="endTime != null and endTime != ''"> and end_time = #{endTime} </if>
+            <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+            <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+            <if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
+            <if test="deletStatus != null and deletStatus != ''"> and delet_status = #{deletStatus} </if>
+            <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+            <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+            <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+            and delet_status is null
+        </where>
+    </sql>
+
+
+    <select id="countOfList" resultType="int">
+        select
+        count(1)
+        from cus_upkeep_plan cup
+        LEFT JOIN  cus_device  cd      on cup.device_id=cd.id
+        LEFT JOIN  cus_dictionary cdry on cup.status=cdry.id
+        LEFT JOIN  sys_user   yu       on cup.engineer_id=yu.user_id
+        LEFT JOIN   sys_dept     sdept ON cup.dept_id=sdept.dept_id
+        <where>
+            <if test="createBy != null and createBy != ''"> and cup.create_by = #{createBy} </if>
+            <if test="workOrderno != null and workOrderno != ''"> and cup.work_orderNo = #{workOrderno} </if>
+            <if test="deviceId != null and deviceId != ''"> and cup.device_id = #{deviceId} </if>
+
+            <if test="engineerId != null and engineerId != ''"> and cup.engineer_id = #{engineerId} </if>
+
+            <if test="name != null and name != ''"> and cup.name  like  CONCAT('%',#{name},'%') </if>
+
+            <if test="idPath != null and idPath != ''"> and  sdept.id_path like  CONCAT('%',#{idPath},'%')</if>
+
+            <if test="status != null and status != ''"> and cup.status = #{status} </if>
+            <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(cup.start_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(cup.start_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+
+            <if test="lodwnUserId != null and lodwnUserId != ''"> and (cup.create_by=#{lodwnUserId} OR (cup.engineer_id=#{lodwnUserId} AND cup.status <![CDATA[<>]]> 146))</if>
+
+            and (cup.delet_status is null)
+        </where>
+    </select>
+
+
+    <select id="getPlanListByUserId" resultType="map">
+        select
+        cup.id,
+        IFNULL(cup.start_time,'') as startTime,
+        IFNULL(cup.end_time,'') as endTime,
+        cup.end_time as realityEndTime,
+        cup.device_id as deviceId,
+        cd.name as deviceName,
+        cup.work_orderNo,
+        case  when  cup.man_hour is null  then 0
+        when cup.man_hour is not null then cup.man_hour
+        end man_hour,
+        cup.name,
+        cup.engineer_id,
+        cup.status,
+        cd.model,
+        cdry.name as statusName,
+        yu.name as userName
+        from cus_upkeep_plan cup
+        LEFT JOIN  cus_device  cd      on cup.device_id=cd.id
+        LEFT JOIN  cus_dictionary cdry on cup.status=cdry.id
+        LEFT JOIN  sys_user   yu       on cup.engineer_id=yu.user_id
+        LEFT JOIN   sys_dept        sdept ON cup.dept_id=sdept.dept_id
+        <where>
+            <if test="createBy != null and createBy != ''"> and cup.create_by = #{createBy} </if>
+            <if test="workOrderno != null and workOrderno != ''"> and cup.work_orderNo = #{workOrderno} </if>
+            <if test="deviceId != null and deviceId != ''"> and cup.device_id = #{deviceId} </if>
+
+            <if test="engineerId != null and engineerId != ''"> and cup.engineer_id = #{engineerId} </if>
+
+            <if test="name != null and name != ''"> and cup.name  like  CONCAT('%',#{name},'%') </if>
+
+            <if test="idPath != null and idPath != ''"> and  sdept.id_path like  CONCAT('%',#{idPath},'%')</if>
+
+            <if test="status != null and status != ''"> and cup.status = #{status} </if>
+
+            <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(cup.start_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(cup.start_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+
+            <if test="lodwnUserId != null and lodwnUserId != ''"> and (cup.create_by=#{lodwnUserId} OR (cup.engineer_id=#{lodwnUserId} AND cup.status <![CDATA[<>]]> 146))</if>
+
+            and (cup.delet_status  is null)
+        </where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order},cup.id desc
+            </when>
+            <otherwise>
+                order by  IF(cup.status=146,0,1),cup.status ASC,cup.start_time DESC,cup.id DESC
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+
+    <select id="getNoticeValidPlanid" resultType="map">
+        select
+        c.id,
+        c.plan_id,
+        c.begin_time,
+        c.end_time
+        from cus_notice  c
+        where
+        c.begin_time &lt;=(select date_format(now(),'%Y-%m-%d %H-%I-%S'))
+        and
+        c.end_time   &gt;=(select date_format(now(),'%Y-%m-%d %H-%I-%S'))
+        and
+        c.plan_id in
+        (select a.id
+        from cus_upkeep_plan a
+        LEFT JOIN sys_dept d ON a.dept_id=d.dept_id
+        <where>
+            <if test="engineerId != null and engineerId != ''">a.engineer_id= #{engineerId}</if>
+            <if test="1==1">and a.status=129</if>  <!--129计划启用-->
+            <!--<if test="status!=null">and a.status=#{status}</if>-->
+            <if test="dept_id!= null">and d.id_path like CONCAT('%',#{idPath},'%')</if>
+        </where>
+        )
+        and
+        c.plan_type ='UPKEEP_PLAN'
+        and
+        c.id  not in (select b.message_id from cus_upkeep_record b)
+    </select>
+
+
+
+    <select id="getPlanstatusByEndTime" resultType="Long">
+		select
+		c.id
+		from cus_upkeep_plan  c
+		where
+		c.end_time &lt;=(select date_format(now(),'%Y-%m-%d %H-%I-%S'))
+		and
+		c.status!=131
+	</select>
+
+    <delete id="updateStatus">
+        update
+        cus_upkeep_plan
+        set
+        status=131
+        WHERE
+        id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="getPlanMsgById" resultType="map">
+	select
+   	 	a.type as  planTypeLeve,
+	    e.name as planTypeLeveName,
+    	a.work_orderNo AS plan_orderNo,
+     	a.id as plan_id,
+     	case  when  a.man_hour is null  then 0
+      		  when a.man_hour is not null then a.man_hour
+ 			  end manHour,
+			a.name as plan_name,
+			b.serialno as deviceSerialno,
+			b.id as device_id,
+			j.name as deviceTypeName,
+			b.name AS device_name,
+			b.model  as device_model,
+			b.dept_id as deviceUseDeptId,
+			c.name as deviceUsedeptName,
+      		b.user_id as deviceUserId,
+			d.name as deviceUserman,
+			b.site as deviceSite,
+			a.dept_id as upkeepDeptId,
+			f.name as upkeepDeptName,
+			a.engineer_id as engineerId,
+			g.name as engineerName,
+			a.cellphone as engineer_phone,
+			a.start_time ,
+			a.status,
+			k.name as statusName,
+			a.end_time,
+			a.expireday,
+			a.interval_time,
+			i.name as  create_dept,
+			h.name as  create_name,
+			a.create_time,
+			a.content
+		from  cus_upkeep_plan  a
+		LEFT JOIN  cus_device  b  ON a.device_id=b.id
+		LEFT JOIN  sys_dept    c  ON b.dept_id=c.dept_id
+		LEFT JOIN  sys_user    d  ON b.user_id=d.user_id
+		LEFT JOIN cus_dictionary   e  ON a.type=e.id
+		LEFT JOIN  sys_dept    f  ON a.dept_id=f.dept_id
+		LEFT JOIN  sys_user    g  ON a.engineer_id=g.user_id
+		LEFT JOIN  sys_user    h  ON a.create_by=h.user_id
+		LEFT JOIN  sys_dept    i  ON h.dept_id=i.dept_id
+		LEFT JOIN cus_dictionary   j  ON b.type=j.id
+		LEFT JOIN cus_dictionary   k  ON a.status=k.id
+		where  a.id=#{id}
+    </select>
+
+
+    <select id="getProMsgById" resultType="map">
+		select
+			a.id,
+			a.project_id as proId,
+			b.name,
+			b.function
+		from  cus_upkeep_plan_project  a
+		LEFT JOIN  cus_upkeep_project  b  ON a.project_id=b.id
+		where  a.plan_id=#{id}
+	</select>
+
+
+    <select id="getPartMsgById" resultType="map">
+	   select
+	  		a.remark,
+		    b.id as spart_id,
+			b.serial_no  as apart_code,
+			b.name as spart_name,
+			a.amount,
+			b.specification as spart_type,
+			c.name as unit_name,
+			a.spart_price as spart_price,
+			CASE  WHEN a.amount!=0 then a.amount*b.sale_price END money,
+			a.spart_sum as spart_sum,
+			d.name	as location_name
+		from  cus_upkeep_plan_part  a
+		LEFT JOIN  cus_materiel b  ON a.part_id=b.id
+		LEFT JOIN  cus_dictionary c  ON b.unit_uom=c.id
+		LEFT JOIN  cus_facility_location d  ON b.default_location=d.id
+		where  a.plan_id=#{id}
+	</select>
+
+    <select id="predecessorById" resultType="map">
+		SELECT
+		e.id as message_id,
+		CASE  WHEN a.id is not NULL  then NULL
+					END 'id',
+		a.id as plan_id,
+		b.name as deviceName,
+		b.serialno as device_serialno,
+		b.model    as deviceModelas,
+		a.work_orderNo as work_orderNo,
+		c.name  as dept_name,
+		d.name as username,
+		e.begin_time as start_time,
+		e.end_time   as end_time,
+		a.man_hour   as man_hour,
+		CASE  WHEN a.content is NULL  then NULL
+					WHEN a.content ='' then NULL
+					END 'cost',
+		CASE  WHEN a.status=129 then   NULL
+					WHEN a.status=131 then  NULL
+					END 'record_result',
+		CASE  WHEN a.status=129 then '待处理'
+					WHEN a.status=131 then '待处理'
+					END 'result_name'
+		from cus_upkeep_plan    a
+		LEFT JOIN   cus_device  b   ON    a.device_id=b.id
+		LEFT JOIN   sys_dept    c   ON    a.dept_id=c.dept_id
+		LEFT  JOIN sys_user     d   ON  a.engineer_id=d.user_id
+		LEFT  JOIN cus_notice   e   ON  a.id=e.plan_id
+		where
+		a.id =#{plan_id}
+		and
+		e.id=#{id}
+	</select>
+
+
+
+    <select id="checkTimeByNoticeId" resultType="int">
+		select
+           count(*)
+		from cus_notice  c
+		where
+			c.begin_time &lt;=(select date_format(now(),'%Y-%m-%d %H-%I-%S'))
+			and
+			c.end_time   &gt;=(select date_format(now(),'%Y-%m-%d %H-%I-%S'))
+			and
+			c.plan_type ='UPKEEP_PLAN'
+			and
+			c.id = #{id}
+	</select>
+
+
+    <select id="getNoticeMsg" resultType="map">
+		select
+		c.id,
+		c.plan_id,
+		c.begin_time,
+		c.end_time
+		from cus_notice  c
+		where
+		c.id =#{id}
+	</select>
+
+
+    <update id="deletOfPlan" parameterType="map">
+        update
+        cus_upkeep_plan
+        SET
+        delet_status=1,
+        `status`=131
+        WHERE
+        id in
+        <foreach item="item" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+</mapper>

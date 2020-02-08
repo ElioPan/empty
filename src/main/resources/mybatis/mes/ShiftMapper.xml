@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.ShiftDao">
+
+	<select id="get" resultType="com.ev.mes.domain.ShiftDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_shift 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.ShiftDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_shift
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_shift
+		<include refid="sql_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.ShiftDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_shift
+		(
+			`code`, 
+			`name`, 
+			`start_time`, 
+			`end_time`, 
+			`man_hour`, 
+			`remark`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{code}, 
+			#{name}, 
+			#{startTime}, 
+			#{endTime}, 
+			#{manHour}, 
+			#{remark}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.ShiftDO">
+		update mes_shift 
+		<set>
+			<if test="code != null">`code` = #{code}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="startTime != null">`start_time` = #{startTime}, </if>
+			<if test="endTime != null">`end_time` = #{endTime}, </if>
+			<if test="manHour != null">`man_hour` = #{manHour}, </if>
+			<if test="remark != null">`remark` = #{remark}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_shift where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_shift where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<sql id="sql_column_list">
+		`id`,`code`,`name`,`start_time`,`end_time`,`man_hour`,`remark`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>
+				  <if test="maxNo != null and maxNo != ''"> and LEFT(code,12) = #{maxNo} </if>
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="code != null and code != ''"> and code = #{code} </if>
+			     <if test="name != null and name != ''"> and name like CONCAT('%',#{name},'%')</if>
+
+		  		  <if test="startTime != null and startTime != ''"> and start_time = #{startTime} </if>
+		  		  <if test="endTime != null and endTime != ''"> and end_time = #{endTime} </if>
+		  		  <if test="manHour != null and manHour != ''"> and man_hour = #{manHour} </if>
+		  		  <if test="remark != null and remark != ''"> and remark = #{remark} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+					and del_flag = 0
+		  		</where>
+	</sql>
+
+
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		`id`,
+		`code`,
+		`name`,
+		`start_time` as startTime,
+		`end_time` AS endTime,
+		`man_hour` AS manHour,
+		`remark`,
+		`create_by` AS createBy,
+		`create_time` AS createTime,
+		`update_by` AS updateBy,
+		`update_time` AS updateTime
+		FROM mes_shift
+		<where>
+
+			<if test="name != null and name != ''"> and name like CONCAT('%',#{name},'%')</if>
+		    and del_flag = 0
+
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+
+	<update id="deletOfShift" parameterType="map">
+		update
+		mes_shift
+		set
+		`del_flag` = 1
+		where id in
+		<foreach item="id" collection="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</update>
+
+
+	
+</mapper>

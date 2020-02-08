@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.ReceiptItemDao">
+
+	<select id="get" resultType="Map">
+		select `rid`,`document_date` as `documentDate`,`receivable_date` as receivableDate,`receivable_money` as `receivableMoney`,`received_money` as `receivedMoney`,
+			   `this_receivable` as `thisReceivable`,`unpay_money` as `unpayMoney`,`pay_account` as `payAccount`,dictc.name as `settlementMethod`,
+			   `settlement_num` as `settlementNum`,`remarks`,dicts.name as `sourceType`,`source_num` as `sourceNum`,`receipt_id` as `receiptId`,recpitem.`del_flag` as `delFlag`
+			from cus_receipt_item recpitem left join cus_dictionary dicts on recpitem.source_type = dicts.id left join cus_dictionary dictc on recpitem.settlement_method = dictc.id
+			where receipt_id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.ReceiptItemDO">
+		select `rid`,`document_date`,`receivable_date`,`receivable_money`,`received_money`,`this_receivable`,`unpay_money`,`pay_account`,`settlement_method`,`settlement_num`,`remarks`,`source_type`,`source_num`,`receipt_id`,`del_flag` from cus_receipt_item
+        <where>  
+		  		  <if test="rid != null and rid != ''"> and rid = #{rid} </if>
+		  		  <if test="documentDate != null and documentDate != ''"> and document_date = #{documentDate} </if>
+		  		  <if test="receivableDate != null and receivableDate != ''"> and receivable_date = #{receivableDate} </if>
+		  		  <if test="receivableMoney != null and receivableMoney != ''"> and receivable_money = #{receivableMoney} </if>
+		  		  <if test="receivedMoney != null and receivedMoney != ''"> and received_money = #{receivedMoney} </if>
+		  		  <if test="thisReceivable != null and thisReceivable != ''"> and this_receivable = #{thisReceivable} </if>
+		  		  <if test="unpayMoney != null and unpayMoney != ''"> and unpay_money = #{unpayMoney} </if>
+		  		  <if test="payAccount != null and payAccount != ''"> and pay_account = #{payAccount} </if>
+		  		  <if test="settlementMethod != null and settlementMethod != ''"> and settlement_method = #{settlementMethod} </if>
+		  		  <if test="settlementNum != null and settlementNum != ''"> and settlement_num = #{settlementNum} </if>
+		  		  <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+		  		  <if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+		  		  <if test="sourceNum != null and sourceNum != ''"> and source_num = #{sourceNum} </if>
+		  		  <if test="receiptId != null and receiptId != ''"> and receipt_id = #{receiptId} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by rid desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_receipt_item
+		 <where>  
+		  		  <if test="rid != null and rid != ''"> and rid = #{rid} </if>
+		  		  <if test="documentDate != null and documentDate != ''"> and document_date = #{documentDate} </if>
+		  		  <if test="receivableDate != null and receivableDate != ''"> and receivable_date = #{receivableDate} </if>
+		  		  <if test="receivableMoney != null and receivableMoney != ''"> and receivable_money = #{receivableMoney} </if>
+		  		  <if test="receivedMoney != null and receivedMoney != ''"> and received_money = #{receivedMoney} </if>
+		  		  <if test="thisReceivable != null and thisReceivable != ''"> and this_receivable = #{thisReceivable} </if>
+		  		  <if test="unpayMoney != null and unpayMoney != ''"> and unpay_money = #{unpayMoney} </if>
+		  		  <if test="payAccount != null and payAccount != ''"> and pay_account = #{payAccount} </if>
+		  		  <if test="settlementMethod != null and settlementMethod != ''"> and settlement_method = #{settlementMethod} </if>
+		  		  <if test="settlementNum != null and settlementNum != ''"> and settlement_num = #{settlementNum} </if>
+		  		  <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+		  		  <if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+		  		  <if test="sourceNum != null and sourceNum != ''"> and source_num = #{sourceNum} </if>
+		  		  <if test="receiptId != null and receiptId != ''"> and receipt_id = #{receiptId} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.ReceiptItemDO" useGeneratedKeys="true" keyProperty="rid">
+		insert into cus_receipt_item
+		(
+			`document_date`, 
+			`receivable_date`, 
+			`receivable_money`, 
+			`received_money`, 
+			`this_receivable`, 
+			`unpay_money`, 
+			`pay_account`, 
+			`settlement_method`, 
+			`settlement_num`, 
+			`remarks`, 
+			`source_type`, 
+			`source_num`, 
+			`receipt_id`, 
+			`del_flag`
+		)
+		values
+		(
+			#{documentDate}, 
+			#{receivableDate}, 
+			#{receivableMoney}, 
+			#{receivedMoney}, 
+			#{thisReceivable}, 
+			#{unpayMoney}, 
+			#{payAccount}, 
+			#{settlementMethod}, 
+			#{settlementNum}, 
+			#{remarks}, 
+			#{sourceType}, 
+			#{sourceNum}, 
+			#{receiptId}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.ReceiptItemDO">
+		update cus_receipt_item 
+		<set>
+			<if test="documentDate != null">`document_date` = #{documentDate}, </if>
+			<if test="receivableDate != null">`receivable_date` = #{receivableDate}, </if>
+			<if test="receivableMoney != null">`receivable_money` = #{receivableMoney}, </if>
+			<if test="receivedMoney != null">`received_money` = #{receivedMoney}, </if>
+			<if test="thisReceivable != null">`this_receivable` = #{thisReceivable}, </if>
+			<if test="unpayMoney != null">`unpay_money` = #{unpayMoney}, </if>
+			<if test="payAccount != null">`pay_account` = #{payAccount}, </if>
+			<if test="settlementMethod != null">`settlement_method` = #{settlementMethod}, </if>
+			<if test="settlementNum != null">`settlement_num` = #{settlementNum}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="sourceType != null">`source_type` = #{sourceType}, </if>
+			<if test="sourceNum != null">`source_num` = #{sourceNum}, </if>
+			<if test="receiptId != null">`receipt_id` = #{receiptId}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where rid = #{rid}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_receipt_item where receipt_id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_receipt_item where rid in 
+		<foreach item="rid" collection="array" open="(" separator="," close=")">
+			#{rid}
+		</foreach>
+	</delete>
+
+</mapper>

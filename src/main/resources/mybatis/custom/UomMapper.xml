@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.UomDao">
+
+	<select id="get" resultType="com.ev.custom.domain.UomDO">
+		select  
+		<include refid="sql_column_list"/> 
+		from cus_uom where id = #{value}
+	</select>
+	
+	<select id="getByName" resultType="com.ev.custom.domain.UomDO">
+		select 
+		<include refid="sql_column_list"/>  
+		from cus_uom where `short_name` = #{value}
+	</select>
+	
+	<select id="list" resultType="com.ev.custom.domain.UomDO">
+		select 
+		<include refid="sql_column_list"/>  
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="listForMap" resultType="map">
+		select uom.id as id,uom.serial_no as serialNo,uom.name as name,uom.short_name as shortName,dic.name as uomType from cus_uom uom left join cus_dictionary dic on dic.id=uom.uom_type
+		<include refid="sql_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*)
+		<include refid="sql_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.UomDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_uom
+		(
+			`serial_no`, 
+			`name`, 
+			`short_name`, 
+			`uom_type`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{serialNo}, 
+			#{name}, 
+			#{shortName}, 
+			#{uomType}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.UomDO">
+		update cus_uom 
+		<set>
+			<if test="serialNo != null">`serial_no` = #{serialNo}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="shortName != null">`short_name` = #{shortName}, </if>
+			<if test="uomType != null">`uom_type` = #{uomType}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_uom where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_uom where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<sql id="sql_column_list">
+		`id`,`serial_no`,`name`,`short_name`,`uom_type`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+	
+	<sql id="sql_condition">
+		from cus_uom
+		<where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="serialNo != null and serialNo != ''"> and serial_no = #{serialNo} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="shortName != null and shortName != ''"> and short_name = #{shortName} </if>
+		  		  <if test="uomType != null and uomType != ''"> and uom_type = #{uomType} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</sql>
+
+</mapper>

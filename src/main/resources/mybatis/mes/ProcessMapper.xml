@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.ProcessDao">
+
+	<select id="get" resultType="com.ev.mes.domain.ProcessDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_process 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.ProcessDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_process
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_process
+		<include refid="sql_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.ProcessDO" useGeneratedKeys="true" keyProperty="id">
+			insert into mes_process
+		(
+			`code`,
+			`name`,
+			`standard`,
+			`type`,
+			`man_hour`,
+			`labour_price`,
+			`dept_id`,
+			`operator`,
+			`demand`,
+			`whether_examine`,
+			`whether_collect`,
+			`device_id`,
+			`check_plan_id`,
+			`remark`,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
+			`del_flag`,
+			`audit_id`,
+			`audit_sign`,
+			`use_status`
+		)
+		values
+		(
+			#{code},
+			#{name},
+			#{standard},
+			#{type},
+			#{manHour},
+			#{labourPrice},
+			#{deptId},
+			#{operator},
+			#{demand},
+			#{whetherExamine},
+			#{whetherCollect},
+			#{deviceId},
+			#{checkPlanId},
+			#{remark},
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag},
+			#{auditId},
+			#{auditSign},
+			#{useStatus}
+
+
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.ProcessDO">
+		update mes_process 
+		<set>
+			<if test="code != null">`code` = #{code}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="standard != null">`standard` = #{standard}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="manHour != null">`man_hour` = #{manHour}, </if>
+			<if test="labourPrice != null">`labour_price` = #{labourPrice}, </if>
+			<if test="deptId != null">`dept_id` = #{deptId}, </if>
+			<if test="operator != null">`operator` = #{operator}, </if>
+			<if test="demand != null">`demand` = #{demand}, </if>
+			<if test="whetherExamine != null">`whether_examine` = #{whetherExamine}, </if>
+			<if test="whetherCollect != null">`whether_collect` = #{whetherCollect}, </if>
+			<if test="deviceId != null">`device_id` = #{deviceId}, </if>
+			<if test="checkPlanId != null">`check_plan_id` = #{checkPlanId}, </if>
+			<if test="remark != null">`remark` = #{remark}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag},</if>
+			<if test="auditId != null">`audit_id` = #{auditId}, </if>
+			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+			<if test="useStatus != null">`use_status` = #{useStatus} </if>
+
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_process where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_process where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<sql id="sql_column_list">
+		`id`,`code`,`name`,`standard`,
+		`type`,`man_hour`,`labour_price`,
+		`dept_id`,`operator`,`demand`,`whether_examine`,
+		`whether_collect`,`device_id`,`check_plan_id`,
+		`remark`,`create_by`,`create_time`,`update_by`,
+		`update_time`,`del_flag`,
+		`audit_id`,
+		`audit_sign`,
+		`use_status`
+	</sql>
+
+	<sql id="sql_condition">
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="code != null and code != ''"> and code = #{code} </if>
+			<if test="name != null and name != ''"> and name = #{name} </if>
+			<if test="standard != null and standard != ''"> and standard = #{standard} </if>
+			<if test="type != null and type != ''"> and type = #{type} </if>
+			<if test="manHour != null and manHour != ''"> and man_hour = #{manHour} </if>
+			<if test="labourPrice != null and labourPrice != ''"> and labour_price = #{labourPrice} </if>
+			<if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
+			<if test="operator != null and operator != ''"> and operator = #{operator} </if>
+			<if test="demand != null and demand != ''"> and demand = #{demand} </if>
+			<if test="whetherExamine != null and whetherExamine != ''"> and whether_examine = #{whetherExamine} </if>
+			<if test="whetherCollect != null and whetherCollect != ''"> and whether_collect = #{whetherCollect} </if>
+			<if test="deviceId != null and deviceId != ''"> and device_id = #{deviceId} </if>
+			<if test="checkPlanId != null and checkPlanId != ''"> and check_plan_id = #{checkPlanId} </if>
+			<if test="remark != null and remark != ''"> and remark = #{remark} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+			<if test="auditId != null and auditId != ''"> and audit_id = #{auditId} </if>
+			<if test="auditSign != null and auditSign != ''"> and audit_sign = #{auditSign} </if>
+			<if test="useStatus != null and useStatus != ''"> and use_status = #{useStatus} </if>
+		</where>
+	</sql>
+
+
+
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		a.id,
+		a.code,
+		a.name,
+		a.standard,
+		a.type,
+		a.remark,
+		b.name as typeName,
+		a.man_hour as manHour,
+		a.labour_price as labourPrice,
+		a.dept_id as deptId,
+		d.name as deptName,
+		a.operator ,
+		e.name as operatorName,
+		a.demand,
+		a.whether_examine as whetherExamine,
+		a.whether_collect as whetherCollect,
+		a.device_id as deviceId,
+		c.name as deviceName,
+
+		a.audit_id as auditId,
+		f.name as auditName,
+		a.audit_sign as auditSign,
+		g.name as auditSignName,
+		a.use_status as useStatus,
+		CASE WHEN a.use_status=1 THEN '启用'
+		     WHEN use_status=0 THEN  '禁用'
+		     END  useStatusName,
+		a.check_plan_id as checkPlanId
+		FROM mes_process a
+		LEFT JOIN cus_dictionary b on a.type=b.id
+		LEFT JOIN cus_device c on a.device_id=c.id
+		LEFT JOIN sys_dept d on a.dept_id=d.dept_id
+		LEFT JOIN sys_user e on a.operator=e.user_id
+		LEFT JOIN sys_user f on a.audit_id=f.user_id
+		LEFT JOIN cus_dictionary g on a.audit_sign=g.id
+		<where>
+			<if test="maxNo != null and maxNo != ''"> and LEFT(a.code,12) = #{maxNo} </if>
+			<if test="id != null and id != ''"> and a.id = #{id} </if>
+			<if test="code != null and code != ''"> and a.code = #{code} </if>
+			<if test="name != null and name != ''"> and a.name like CONCAT('%',#{name},'%') </if>
+			<if test="useStatus != null"> and a.use_status = #{useStatus} </if>
+			<if test="auditSign != null and auditSign != ''"> and a.audit_sign = #{auditSign} </if>
+
+			 and a.del_flag = 0
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countListForMap" resultType="int">
+		select
+		count(*)
+		FROM mes_process a
+		LEFT JOIN cus_dictionary b on a.type=b.id
+		LEFT JOIN cus_device c on a.device_id=c.id
+		LEFT JOIN sys_dept d on a.dept_id=d.dept_id
+		LEFT JOIN sys_user e on a.operator=e.user_id
+		LEFT JOIN sys_user f on a.audit_id=f.user_id
+		LEFT JOIN cus_dictionary g on a.audit_sign=g.id
+		<where>
+			<if test="maxNo != null and maxNo != ''"> and LEFT(a.code,12) = #{maxNo} </if>
+			<if test="id != null and id != ''"> and a.id = #{id} </if>
+			<if test="code != null and code != ''"> and a.code = #{code} </if>
+			<if test="name != null and name != ''"> and a.name like CONCAT('%',#{name},'%') </if>
+			<if test="useStatus != null"> and a.use_status = #{useStatus} </if>
+			<if test="auditSign != null and auditSign != ''"> and a.audit_sign = #{auditSign} </if>
+			and a.del_flag = 0
+		</where>
+	</select>
+
+
+	<update id="deletOfProcess" parameterType="map">
+		update
+		mes_process
+		set
+		`del_flag` = 1
+		where id in
+		<foreach item="id" collection="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</update>
+
+
+
+	
+</mapper>

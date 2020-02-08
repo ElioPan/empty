@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.CraftDao">
+
+	<select id="get" resultType="com.ev.mes.domain.CraftDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM mes_craft
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.CraftDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM mes_craft
+		<include refid="sql_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from mes_craft
+		<include refid="sql_condition"/>
+	</select>
+
+	<insert id="save" parameterType="com.ev.mes.domain.CraftDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_craft
+		(
+			`code`,
+			`name`,
+			`version`,
+			`remark`,
+			`audit_id`,
+			`use_status`,
+			`audit_sign`,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
+			`del_flag`
+		)
+		values
+		(
+			#{code},
+			#{name},
+			#{version},
+			#{remark},
+			#{auditId},
+			#{useStatus},
+			#{auditSign},
+			#{createBy},
+			#{createTime},
+			#{updateBy},
+			#{updateTime},
+			#{delFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.mes.domain.CraftDO">
+		update mes_craft
+		<set>
+			<if test="code != null">`code` = #{code}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="version != null">`version` = #{version}, </if>
+			<if test="remark != null">`remark` = #{remark}, </if>
+			<if test="auditId != null">`audit_id` = #{auditId}, </if>
+			<if test="useStatus != null">`use_status` = #{useStatus}, </if>
+			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from mes_craft where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from mes_craft where id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<sql id="sql_column_list">
+		`id`,`code`,`name`,`version`,`remark`,`audit_id`,`use_status`,`audit_sign`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+	<sql id="sql_condition">
+		<where>
+			<if test="maxNo != null and maxNo != ''"> and LEFT(code,12) = #{maxNo} </if>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="code != null and code != ''"> and code = #{code} </if>
+			<if test="name != null and name != ''"> and name = #{name} </if>
+			<if test="version != null and version != ''"> and version = #{version} </if>
+			<if test="remark != null and remark != ''"> and remark = #{remark} </if>
+			<if test="auditId != null and auditId != ''"> and audit_id = #{auditId} </if>
+			<if test="useStatus != null and useStatus != ''"> and use_status = #{useStatus} </if>
+			<if test="auditSign != null and auditSign != ''"> and audit_sign = #{auditSign} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+	</sql>
+
+
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		a.id as craftId,
+		a.code,
+		a.name,
+		a.remark,
+		a.audit_sign,
+
+		c.name as auditSignName,
+		a.use_status as useStatus,
+		case when a.use_status=1 then '启用'
+		when a.use_status=0 then '禁用'
+		end useStatusName,
+		a.version,
+		a.create_time as createTime,
+		a.create_by as createBy,
+		f.name as createName,
+		a.audit_id as auditId,
+		g.name as auditName
+		FROM mes_craft  a
+		LEFT JOIN cus_dictionary  c on a.audit_sign=c.id
+		LEFT JOIN sys_user  f on a.create_by=f.user_id
+		LEFT JOIN sys_user  g on a.audit_id =g.user_id
+		<where>
+			<if test="id != null and id != ''"> and a.id = #{id} </if>
+			<if test="code != null and code != ''"> and a.code = #{code} </if>
+			<if test="name != null and name != ''"> and a.name  like CONCAT('%',#{name},'%') </if>
+			<if test="version != null and version != ''"> and a.version = #{version} </if>
+			<if test="remark != null and remark != ''"> and a.remark = #{remark} </if>
+			<if test="auditId != null and auditId != ''"> and a.audit_id = #{auditId} </if>
+			<if test="useStatus != null "> and a.use_status = #{useStatus} </if>
+			<if test="auditSign != null and auditSign != ''"> and a.audit_sign = #{auditSign} </if>
+			<if test="createBy != null and createBy != ''"> and a.create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and a.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and a.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and a.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and a.del_flag = #{delFlag} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by a.id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="countListForMap" resultType="int">
+		SELECT
+		count(*)
+		FROM mes_craft  a
+		LEFT JOIN cus_dictionary  c on a.audit_sign=c.id
+		LEFT JOIN sys_user  f on a.create_by=f.user_id
+		LEFT JOIN sys_user  g on a.audit_id =g.user_id
+		<where>
+			<if test="id != null and id != ''"> and a.id = #{id} </if>
+			<if test="code != null and code != ''"> and a.code = #{code} </if>
+			<if test="name != null and name != ''"> and a.name  like CONCAT('%',#{name},'%') </if>
+			<if test="version != null and version != ''"> and a.version = #{version} </if>
+			<if test="remark != null and remark != ''"> and a.remark = #{remark} </if>
+			<if test="auditId != null and auditId != ''"> and a.audit_id = #{auditId} </if>
+			<if test="useStatus != null "> and a.use_status = #{useStatus} </if>
+			<if test="auditSign != null and auditSign != ''"> and a.audit_sign = #{auditSign} </if>
+			<if test="createBy != null and createBy != ''"> and a.create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and a.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and a.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and a.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and a.del_flag = #{delFlag} </if>
+		</where>
+	</select>
+
+	<select id="listBodyForMap" resultType="map">
+		SELECT
+		b.id as  itemId,
+		b.process_id as processId,
+		e.name  as processName,
+		e.`code` as  processCode,
+		e.type,
+		d.name as typeName,
+		e.standard,
+		b.demand,
+		b.dept_id as deptId,
+		a.name as deptName,
+		b.operator,
+		f.name as operatorName,
+		b.auto_dispatch as autoDispatch,
+		b.whether_outsource  as whetherOutsource,
+		b.whether_collect		as whetherCollect,
+		b.whether_examine	as whetherExamine,
+		b.device_id as deviceId,
+		g.name as deviceName,
+		b.man_hour	as manHour,
+		b.labour_price	 as labourPrice,
+		b.total_hour as  totalHour
+		FROM
+		mes_craft_item b
+		LEFT JOIN mes_process  e on b.process_id=e.id
+		LEFT JOIN cus_dictionary  d on e.type=d.id
+		LEFT JOIN sys_dept  a on b.dept_id=a.dept_id
+		LEFT JOIN sys_user  f on b.operator=f.user_id
+		LEFT JOIN cus_device  g on b.device_id=g.id
+		LEFT JOIN mes_craft  h on b.craft_id=h.id
+		<where>
+			<if test="id != null and id != ''"> and h.id = #{id} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by b.id ASC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+
+	</select>
+
+	<select id="countListBodyForMap" resultType="int">
+		SELECT
+		count(*)
+		FROM
+		mes_craft_item b
+		LEFT JOIN mes_process  e on b.process_id=e.id
+		LEFT JOIN cus_dictionary  d on e.type=d.id
+		LEFT JOIN sys_dept  a on b.dept_id=a.dept_id
+		LEFT JOIN sys_user  f on b.operator=f.user_id
+		LEFT JOIN cus_device  g on b.device_id=g.id
+		LEFT JOIN mes_craft  h on b.craft_id=h.id
+		<where>
+			<if test="id != null and id != ''"> and h.id = #{id} </if>
+		</where>
+
+	</select>
+
+
+	<select id="canDelet" resultType="int">
+		select
+		COUNT(id)
+		from
+		mes_craft
+		where
+		audit_sign=178
+		AND id in
+		<foreach item="id" collection="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+
+
+	<select id="isQuote" resultType="int">
+		select
+		COUNT(tec_route_id)
+		from
+		mes_working_procedure_plan
+		where
+		tec_route_id IN
+		<foreach item="id" collection="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+
+
+	<select id="getOneCraftDetail" resultType="map">
+		SELECT
+			a.id as craftId,
+			a.code,
+			a.name,
+			a.remark,
+			a.audit_sign,
+			c.name as auditSignName,
+			a.use_status as useStatus,
+			case when a.use_status=1 then '启用'
+		   		 when a.use_status=0 then '禁用'
+		         end useStatusName,
+			a.version,
+			a.create_time as createTime,
+			a.create_by as createBy,
+			f.name as createName,
+			a.audit_id as auditId,
+			g.name as auditName
+		FROM mes_craft  a
+		LEFT JOIN cus_dictionary  c on a.audit_sign=c.id
+		LEFT JOIN sys_user  f on a.create_by=f.user_id
+		LEFT JOIN sys_user  g on a.audit_id =g.user_id
+		where
+			a.id=#{id}
+	</select>
+</mapper>

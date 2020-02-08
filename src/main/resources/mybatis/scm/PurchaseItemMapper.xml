@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.PurchaseItemDao">
+
+	<select id="get" resultType="com.ev.scm.domain.PurchaseItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_purchase_item 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.PurchaseItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_purchase_item
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from scm_purchase_item
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`purchase_id`,`materiel_id`,`count`,`unit_price`,`amount`,`source_type`,`source_code`,`source_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> and id = #{id} </if>
+                            <if test="purchaseId != null and purchaseId != ''"> and purchase_id = #{purchaseId} </if>
+                            <if test="materielId != null and materielId != ''"> and materiel_id = #{materielId} </if>
+                            <if test="count != null and count != ''"> and count = #{count} </if>
+                            <if test="unitPrice != null and unitPrice != ''"> and unit_price = #{unitPrice} </if>
+                            <if test="amount != null and amount != ''"> and amount = #{amount} </if>
+                            <if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+                            <if test="sourceCode != null and sourceCode != ''"> and source_code = #{sourceCode} </if>
+                            <if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
+                            <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.PurchaseItemDO" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_purchase_item
+		(
+			`purchase_id`, 
+			`materiel_id`, 
+			`count`, 
+			`unit_price`, 
+			`amount`, 
+			`source_type`, 
+			`source_code`, 
+			`source_id`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{purchaseId}, 
+			#{materielId}, 
+			#{count}, 
+			#{unitPrice}, 
+			#{amount}, 
+			#{sourceType}, 
+			#{sourceCode}, 
+			#{sourceId}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.PurchaseItemDO">
+		update scm_purchase_item 
+		<set>
+			<if test="purchaseId != null">`purchase_id` = #{purchaseId}, </if>
+			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
+			<if test="count != null">`count` = #{count}, </if>
+			<if test="unitPrice != null">`unit_price` = #{unitPrice}, </if>
+			<if test="amount != null">`amount` = #{amount}, </if>
+			<if test="sourceType != null">`source_type` = #{sourceType}, </if>
+			<if test="sourceCode != null">`source_code` = #{sourceCode}, </if>
+			<if test="sourceId != null">`source_id` = #{sourceId}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from scm_purchase_item where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from scm_purchase_item where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<delete id="batchRemoveByPurcahseId">
+		delete
+		from
+		scm_purchase_item
+		where
+		purchase_id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="detailOfItem" resultType="map">
+		SELECT
+			d.id,
+			d.materiel_id as materielId,
+			e.name as materielName,
+			e.serial_no as serialNo,
+			e.specification,
+			e.unit_uom as unitUom,
+			f.name as unitUomName,
+			d.count,
+			d.unit_price as unitPrice,
+			d.amount,
+			d.source_type as sourceType,
+			h.name as sourceTypeName,
+			d.source_code as sourceCode
+		FROM
+		scm_purchase_item d
+		LEFT JOIN  cus_materiel e on d.materiel_id=e.id
+		LEFT JOIN  cus_dictionary f on e.unit_uom=f.id
+		LEFT JOIN  cus_dictionary h on d.source_type=h.id
+		WHERE
+		 d.purchase_id =#{purchaseId}
+	</select>
+
+	<select id="aggregate" resultType="map">
+		SELECT
+			SUM(d.count) AS totalCount,
+			SUM(d.amount) AS totalAmount
+		FROM
+		scm_purchase_item d
+		WHERE
+		d.purchase_id =#{purchaseId}
+	</select>
+
+
+</mapper>

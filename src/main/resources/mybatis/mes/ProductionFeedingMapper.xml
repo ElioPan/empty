@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.ProductionFeedingDao">
+
+	<select id="get" resultType="com.ev.mes.domain.ProductionFeedingDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_production_feeding 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.ProductionFeedingDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_production_feeding
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="listForMap" resultType="map">
+		SELECT 
+			feeding.`id` AS id,
+			feeding.`production_plan_id` AS productionPlanId,
+            contract.`contract_code` AS contractCode,
+            contract.`delivery_date` AS contractDeliveryDate,
+			plan.`plan_no` AS planNo,
+			feeding.`materiel_id` AS materielId, 
+			material.serial_no AS materialSerialNo,
+			material.name AS materialName,
+			material.specification AS specification,
+			unituom.id AS unitUomId,
+			unituom.name AS unitUomName,
+			feeding.`pro_dept` AS proDept, 
+			dept.`name` AS proDeptName,
+			feeding.`plan_count` AS planCount,
+            IFNULL(plan.`plan_start_time`,'') AS planStartTime,
+            IFNULL(plan.`plan_end_time`,'') AS planEndTime,
+			IFNULL(plan.`delivery_date`,'') AS deliveryDate,
+			<!-- 上为列表字段 下为详情字段-->
+			feeding.`type` AS typeId, 
+			dictt.`name` AS typeName,
+			feeding.`feeding_no` AS feedingNo,
+			feeding.`create_time` AS createTime, 
+			feeding.`is_quota` AS isQuota,
+			feeding.`create_by` AS createrId, 
+			createuser.`name` AS  createrName,
+			feeding.`auditor` AS audituserId,
+			audituser.`name` AS audituserName,
+            feeding.`status` AS  statusId,
+            dicts.`name` AS status
+		<include refid="sql_map_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order},feeding.id DESC
+            </when>
+			<otherwise>
+                ORDER BY feeding.id DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="countForMap" resultType="int">
+		SELECT COUNT(*) 
+		<include refid="sql_map_condition"/>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_production_feeding
+		<include refid="sql_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.ProductionFeedingDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_production_feeding
+		(
+			`production_plan_id`, 
+			`type`, 
+			`feeding_no`, 
+			`status`, 
+			`materiel_id`, 
+			`pro_dept`, 
+			`plan_count`, 
+			`is_quota`, 
+			`auditor`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{productionPlanId}, 
+			#{type}, 
+			#{feedingNo}, 
+			#{status}, 
+			#{materielId}, 
+			#{proDept}, 
+			#{planCount}, 
+			#{isQuota}, 
+			#{auditor}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.ProductionFeedingDO">
+		update mes_production_feeding 
+		<set>
+			<if test="productionPlanId != null">`production_plan_id` = #{productionPlanId}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="feedingNo != null">`feeding_no` = #{feedingNo}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
+			<if test="proDept != null">`pro_dept` = #{proDept}, </if>
+			<if test="planCount != null">`plan_count` = #{planCount}, </if>
+			<if test="isQuota != null">`is_quota` = #{isQuota}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_production_feeding where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_production_feeding where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<sql id="sql_column_list">
+		`id`,`production_plan_id`,`outsource_contract_item_id`,`type`,`feeding_no`,`status`,`materiel_id`,`pro_dept`,`plan_count`,`is_quota`,`auditor`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="productionPlanId != null and productionPlanId != ''"> and production_plan_id = #{productionPlanId} </if>
+                  <if test="outsourceContractItemId != null and outsourceContractItemId != ''"> and outsource_contract_item_id = #{outsourceContractItemId} </if>
+		  		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  		  <if test="feedingNo != null and feedingNo != ''"> and feeding_no = #{feedingNo} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="materielId != null and materielId != ''"> and materiel_id = #{materielId} </if>
+		  		  <if test="proDept != null and proDept != ''"> and pro_dept = #{proDept} </if>
+		  		  <if test="planCount != null and planCount != ''"> and plan_count = #{planCount} </if>
+		  		  <if test="isQuota != null and isQuota != ''"> and is_quota = #{isQuota} </if>
+		  		  <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</sql>
+	
+	<sql id="sql_map_condition">
+		FROM mes_production_feeding feeding
+		LEFT JOIN mes_production_plan plan ON plan.`id` = feeding.`production_plan_id`
+        LEFT JOIN scm_outsourcing_contract_item contractItem ON contractItem.`id` = feeding.`outsource_contract_item_id`
+        LEFT JOIN scm_outsourcing_contract contract ON contract.`id` = contractItem.`contract_id`
+        LEFT JOIN cus_materiel material ON material.`id` = feeding.`materiel_id`
+		LEFT JOIN cus_dictionary unituom ON unituom.id = material.`unit_uom`
+		LEFT JOIN sys_dept dept ON dept.`dept_id`=feeding.`pro_dept`
+		<!-- 上为列表关联表 下为详情关联表 -->
+		LEFT JOIN cus_dictionary dictt ON dictt.id = feeding.`type`
+        LEFT JOIN cus_dictionary dicts ON dicts.id = feeding.`status`
+		LEFT JOIN sys_user createuser ON createuser.`user_id`=feeding.`create_by`
+		LEFT JOIN sys_user audituser ON audituser.`user_id`=feeding.`auditor`
+		
+		<where>  
+		  		 	<if test="id != null and id != ''"> and feeding.id = #{id} </if>
+		  		 	<if test="startTime != null and startTime != ''">  and  DATE_FORMAT(feeding.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+		 	 		<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(feeding.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		  			<if test="serialNo != null and serialNo != ''"> and material.serial_no = #{serialNo} </if>
+		  		 	<if test="productionPlanNo != null and productionPlanNo != ''"> and plan.`plan_no` = #{productionPlanNo} </if>
+                    <if test="contractCode != null and contractCode != ''"> and contract.`contract_code` = #{contractCode} </if>
+                    <if test="deptId != null and deptId != ''"> and feeding.`pro_dept` = #{deptId} </if>
+		  			<if test="status != null and status != ''"> and feeding.status = #{status} </if>
+		  			<!-- 上为列表查询字段 -->
+		  		</where>
+	</sql>
+	
+</mapper>

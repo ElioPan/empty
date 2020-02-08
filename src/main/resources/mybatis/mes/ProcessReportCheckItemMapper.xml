@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.ProcessReportCheckItemDao">
+
+	<select id="get" resultType="com.ev.mes.domain.ProcessReportCheckItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_process_report_check_item 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.ProcessReportCheckItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_process_report_check_item
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_process_report_check_item
+		<include refid="sql_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.ProcessReportCheckItemDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_process_report_check_item
+		(
+			`report_check_id`, 
+			`rejects_reason`, 
+			`rejects_count`, 
+			`dispose`, 
+			`project_id`,
+			`normn`,
+			`actual_value`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`,
+			`unit`,
+			`whether_check`,
+			`result`
+		)
+		values
+		(
+			#{reportCheckId}, 
+			#{rejectsReason}, 
+			#{rejectsCount}, 
+			#{dispose}, 
+			#{projectId},
+			#{normn},
+			#{actualValue}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag},
+			#{unit},
+			#{whetherCheck},
+			#{result}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.ProcessReportCheckItemDO">
+		update mes_process_report_check_item 
+		<set>
+			<if test="reportCheckId != null">`report_check_id` = #{reportCheckId}, </if>
+			<if test="rejectsReason != null">`rejects_reason` = #{rejectsReason}, </if>
+			<if test="rejectsCount != null">`rejects_count` = #{rejectsCount}, </if>
+			<if test="dispose != null">`dispose` = #{dispose}, </if>
+			<if test="projectId != null">`project_id` = #{projectId}, </if>
+			<if test="normn != null">`normn` = #{normn}, </if>
+			<if test="actualValue != null">`actual_value` = #{actualValue}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag},</if>
+			<if test="unit != null">`unit` = #{unit},</if>
+			<if test="whetherCheck != null">`whether_check` = #{whetherCheck},</if>
+			<if test="result != null">`result` = #{result}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_process_report_check_item where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_process_report_check_item where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<sql id="sql_column_list">
+		`id`,`report_check_id`,`rejects_reason`,`rejects_count`,`dispose`,`project_id`, `normn`,`actual_value`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`unit`,`whether_check`,`result`
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="reportCheckId != null and reportCheckId != ''"> and report_check_id = #{reportCheckId} </if>
+		  		  <if test="rejectsReason != null and rejectsReason != ''"> and rejects_reason = #{rejectsReason} </if>
+		  		  <if test="rejectsCount != null and rejectsCount != ''"> and rejects_count = #{rejectsCount} </if>
+		  		  <if test="dispose != null and dispose != ''"> and dispose = #{dispose} </if>
+					<if test="projectId != null and projectId != ''"> and project_id = #{projectId} </if>
+					<if test="normn != null and normn != ''"> and normn = #{normn} </if>
+		  		  <if test="actualValue != null and actualValue != ''"> and actual_value = #{actualValue} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+					<if test="unit != null and unit != ''"> and unit = #{unit} </if>
+					<if test="whetherCheck != null and whetherCheck != ''"> and whether_check = #{whetherCheck} </if>
+					<if test="result != null and result != ''"> and result = #{result} </if>
+		  		</where>
+	</sql>
+
+	<delete id="removeByReportId">
+		delete
+		from
+		mes_process_report_check_item
+		where
+		report_check_id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<select id="detailByCheckId" resultType="map">
+		SELECT
+			a.id ,
+			a.rejects_reason as rejectsReason,
+			d.name as rejectsReasonName,
+			a.rejects_count as rejectsCount,
+			f.name as materiaName,
+			a.dispose,
+			c.name as disposeName,
+			a.project_id as projectId,
+			e.name as projectName,
+			a.actual_value as actualValue,
+			a.normn as norm,
+			a.unit as unit,
+			a.whether_check as whetherCheck,
+			a.result,
+			g.name as resultName,
+			e.remark,
+			e.method
+		FROM
+			mes_process_report_check_item a
+		LEFT JOIN  mes_process_report_check b on a.report_check_id=b.id
+		LEFT JOIN  cus_materiel    f  on  b.materia_id=f.id
+		LEFT JOIN  cus_dictionary   c on  a.dispose=c.id
+		LEFT JOIN   mes_poor   d on  a.rejects_reason=d.id
+		LEFT JOIN   mes_check_project   e on a.project_id=e.id
+		LEFT JOIN  cus_dictionary   g on  a.result=g.id
+        where
+	    b.id=#{value}
+	</select>
+
+
+
+
+	
+</mapper>

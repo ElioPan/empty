@@ -1,0 +1,191 @@
+package com.ev.mes.domain;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+/**
+ * 生产计划单(变更历史)
+ * 
+ * @author ev-monitor
+ * @email 286600136@qq.com
+ * @date 2019-11-21 08:27:23
+ */
+@ApiModel(value = "生产计划单(变更历史)")
+public class ProductionPlanAlterationDO implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	//
+	@ApiModelProperty(value = "")
+	private Long id;
+	//
+	@ApiModelProperty(value = "生产计划ID")
+	private Long productionPlanId;
+	// 变更项目(1.计划生产数量2.计划开工时间3.计划完工时间4.生产部门)
+	@ApiModelProperty(value = "变更项目(1.计划生产数量2.计划开工时间3.计划完工时间4.生产部门)")
+	private String alterationProject;
+	// 变更前
+	@ApiModelProperty(value = "变更前")
+	private String afterAlteration;
+	// 变更后
+	@ApiModelProperty(value = "变更后")
+	private String beforeAlteration;
+	// 创建人
+	@ApiModelProperty(value = "创建人")
+	private Long createBy;
+	// 创建时间
+	@ApiModelProperty(value = "创建时间")
+	private Date createTime;
+	// 修改人
+	@ApiModelProperty(value = "修改人")
+	private Long updateBy;
+	// 修改时间
+	@ApiModelProperty(value = "修改时间")
+	private Date updateTime;
+	// 删除状态
+	@ApiModelProperty(value = "删除状态")
+	private Integer delFlag;
+
+	/**
+	 * 设置：
+	 */
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	/**
+	 * 获取：
+	 */
+	public Long getId() {
+		return id;
+	}
+
+	/**
+	 * 设置：变更项目(1.计划生产数量2.计划开工时间3.计划完工时间4.生产部门)
+	 */
+	public void setAlterationProject(String alterationProject) {
+		this.alterationProject = alterationProject;
+	}
+
+	/**
+	 * 获取：变更项目(1.计划生产数量2.计划开工时间3.计划完工时间4.生产部门)
+	 */
+	public String getAlterationProject() {
+		return alterationProject;
+	}
+
+	/**
+	 * 设置：变更前
+	 */
+	public void setAfterAlteration(String afterAlteration) {
+		this.afterAlteration = afterAlteration;
+	}
+
+	/**
+	 * 获取：变更前
+	 */
+	public String getAfterAlteration() {
+		return afterAlteration;
+	}
+
+	/**
+	 * 设置：变更后
+	 */
+	public void setBeforeAlteration(String beforeAlteration) {
+		this.beforeAlteration = beforeAlteration;
+	}
+
+	/**
+	 * 获取：变更后
+	 */
+	public String getBeforeAlteration() {
+		return beforeAlteration;
+	}
+
+	/**
+	 * 设置：创建人
+	 */
+	public void setCreateBy(Long createBy) {
+		this.createBy = createBy;
+	}
+
+	/**
+	 * 获取：创建人
+	 */
+	public Long getCreateBy() {
+		return createBy;
+	}
+
+	/**
+	 * 设置：创建时间
+	 */
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	/**
+	 * 获取：创建时间
+	 */
+	public Date getCreateTime() {
+		return createTime;
+	}
+
+	/**
+	 * 设置：修改人
+	 */
+	public void setUpdateBy(Long updateBy) {
+		this.updateBy = updateBy;
+	}
+
+	/**
+	 * 获取：修改人
+	 */
+	public Long getUpdateBy() {
+		return updateBy;
+	}
+
+	/**
+	 * 设置：修改时间
+	 */
+	public void setUpdateTime(Date updateTime) {
+		this.updateTime = updateTime;
+	}
+
+	/**
+	 * 获取：修改时间
+	 */
+	public Date getUpdateTime() {
+		return updateTime;
+	}
+
+	/**
+	 * 设置：删除状态
+	 */
+	public void setDelFlag(Integer delFlag) {
+		this.delFlag = delFlag;
+	}
+
+	/**
+	 * 获取：删除状态
+	 */
+	public Integer getDelFlag() {
+		return delFlag;
+	}
+	
+	/**
+	 * 设置：生产计划ID
+	 */
+	public Long getProductionPlanId() {
+		return productionPlanId;
+	}
+	
+	/**
+	 * 获取：生产计划ID
+	 */
+	public void setProductionPlanId(Long productionPlanId) {
+		this.productionPlanId = productionPlanId;
+	}
+	
+}

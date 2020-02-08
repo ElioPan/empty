@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.WorkingProcedureDetailDao">
+
+	<select id="get" resultType="com.ev.mes.domain.WorkingProcedureDetailDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_working_procedure_detail 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.WorkingProcedureDetailDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_working_procedure_detail
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="listForMap" resultType="map">
+		SELECT 
+		    <!-- workingplan.`id`,
+			workingplan.`work_order_no` AS planNo, 
+			workingplan.`status` AS planStatusId,
+			dicts.`name` AS planStatusName,
+			workingplan.`client_id` AS clientId,  
+			client.`name` AS clientName, 
+			workingplan.`delivery_date` AS deliveryDate, 
+			workingplan.`materiel_id`, 
+			material.serial_no AS materialSerialNo,
+			material.name AS materialName,
+			material.specification AS specification,
+			unituom.id AS unitUomId,
+			unituom.name AS unitUomName, -->
+			
+			process.`code` AS processCode,
+			process.`name` AS processName,
+			detail.`plan_start_time` AS planStartTime,
+			detail.`plan_end_time` AS planEndTime,
+			detail.`plan_count` AS planCount,
+			reportcount.`completion_count_total` AS completionCount,
+			reportcount.`conformity_count_total` AS conformityCount,
+			reportcount.`scrap_count_total` AS scrapCount,
+			reportcount.`rework_count_total` AS reworkCount,
+			detail.is_dispatching AS `processStatusId`,
+			dictds.name AS `processStatusName`,
+			<!--跟踪记录使用  -->
+			detail.`reality_end_time` AS realityEndTime,
+			detail.`reality_start_time` AS realityStartTime
+			
+			<!-- ,
+			workingplan.`source_id` AS sourceId, 
+			workingplan.`source_no` AS sourceNo,
+			workingplan.`source_type` AS sourceTypeId,
+			dictst.`name` AS sourceTypeName -->
+		<include refid="sql_map_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by detail.id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="countForMap" resultType="map">
+		SELECT  
+		count(*) AS total,
+		SUM(IFNULL(detail.`plan_count`,0)) AS planCounts,
+		SUM(IFNULL(reportcount.`completion_count_total`,0)) AS completionCounts,
+		SUM(IFNULL(reportcount.`conformity_count_total`,0)) AS conformityCounts,
+		SUM(IFNULL(reportcount.`scrap_count_total`,0)) AS scrapCounts,
+		SUM(IFNULL(reportcount.`rework_count_total`,0)) AS reworkCounts
+		<include refid="sql_map_condition"/>
+	</select>
+	
+	<sql id="sql_map_condition">
+		FROM mes_working_procedure_detail detail
+		LEFT JOIN mes_process process ON process.`id` = detail.`process_id`
+		LEFT JOIN cus_dictionary  dictds ON dictds.`id` = detail.`is_dispatching`
+		<!-- LEFT JOIN cus_client client ON client.`id`=workingplan.`client_id` -->
+		<!-- LEFT JOIN cus_materiel material ON material.`id`= workingplan.`materiel_id`
+		LEFT JOIN cus_dictionary unituom ON unituom.id = material.`unit_uom` -->
+		<!-- LEFT JOIN mes_process process ON process.`id` = plan.`tec_route_id` -->
+		LEFT JOIN view_mes_report_count reportcount ON reportcount.`id` =  detail.`id`
+		<where>  
+		  		 	<if test="planId != null and planId != ''"> and detail.plan_id = #{planId} </if>
+		  		</where>
+	</sql>
+	
+	<select id="listByPlanId" resultType="map">
+		SELECT 
+		    detail.`id` AS id,
+			detail.`process_id` AS processId, 
+			process.`code` AS processCode,
+			process.`name` AS processName,
+			detail.`demand` AS demand,
+            detail.`process_type` AS processTypeId,
+            dicp.`name` AS processTypeName,
+			detail.`dept_id` AS deptId, 
+			dept.`name` AS deptName,
+			detail.`operator` AS operatorId, 
+			operatoruser.`name` AS operatorName,
+			detail.`is_examine` AS isExamine, 
+			detail.`is_outsource` AS isOutsource, 
+			detail.`is_collect` AS isCollect, 
+			detail.`device_id` AS deviceId, 
+			device.`name` AS deviceName,
+			detail.`is_auto` AS isAuto,
+            detail.`standard` AS  standard,
+			detail.`is_dispatching` AS statusId,
+			dict.`name` AS statusName, 
+			detail.`plan_count` AS planCount, 
+			detail.`plan_start_time` AS planStartTime, 
+			detail.`plan_end_time` AS planEndTime, 
+			detail.`total_hour` AS totalHour, 
+			detail.`man_hour` AS manHour, 
+			detail.`labour_price` AS labourPrice,
+			<!-- 完工数量 -->
+			detail.`reality_end_time` AS realityEndTime,
+			detail.`reality_start_time` AS realityStartTime,
+			detail.completion_count AS completionCount
+			
+			FROM mes_working_procedure_detail  detail
+			LEFT JOIN  mes_process process ON process.`id`=detail.`process_id`
+            LEFT JOIN  cus_dictionary dicp ON dicp.`id`=detail.`process_type`
+			LEFT JOIN cus_dictionary dict ON dict.`id`=detail.`is_dispatching`
+			LEFT JOIN sys_dept dept ON dept.`dept_id`=detail.`dept_id`
+			LEFT JOIN sys_user operatoruser ON operatoruser.`user_id`=detail.`operator`
+			LEFT JOIN cus_device device ON device.`id`=detail.`device_id`
+            WHERE detail.`plan_id` = #{value}
+            ORDER BY detail.id 
+	</select>
+
+    <select id="listByDetailId" resultType="map">
+        SELECT
+        detail.`id` AS id,
+        detail.`process_id` AS processId,
+        process.`code` AS processCode,
+        process.`name` AS processName,
+        detail.`demand` AS demand,
+        detail.`process_type` AS processTypeId,
+        dicp.`name` AS processTypeName,
+        detail.`dept_id` AS deptId,
+        dept.`name` AS deptName,
+        detail.`operator` AS operatorId,
+        operatoruser.`name` AS operatorName,
+        detail.`is_examine` AS isExamine,
+        detail.`is_outsource` AS isOutsource,
+        detail.`is_collect` AS isCollect,
+        detail.`device_id` AS deviceId,
+        device.`name` AS deviceName,
+        detail.`is_auto` AS isAuto,
+        detail.`standard` AS  standard,
+        detail.`is_dispatching` AS statusId,
+        dict.`name` AS statusName,
+        detail.`plan_count` AS planCount,
+        detail.`plan_start_time` AS planStartTime,
+        detail.`plan_end_time` AS planEndTime,
+        detail.`total_hour` AS totalHour,
+        detail.`man_hour` AS manHour,
+        detail.`labour_price` AS labourPrice,
+        <!-- 完工数量 -->
+        detail.`reality_end_time` AS realityEndTime,
+        detail.`reality_start_time` AS realityStartTime,
+        detail.completion_count AS completionCount
+
+        FROM mes_working_procedure_detail  detail
+        LEFT JOIN  mes_process process ON process.`id`=detail.`process_id`
+        LEFT JOIN  cus_dictionary dicp ON dicp.`id`=detail.`process_type`
+        LEFT JOIN cus_dictionary dict ON dict.`id`=detail.`is_dispatching`
+        LEFT JOIN sys_dept dept ON dept.`dept_id`=detail.`dept_id`
+        LEFT JOIN sys_user operatoruser ON operatoruser.`user_id`=detail.`operator`
+        LEFT JOIN cus_device device ON device.`id`=detail.`device_id`
+        WHERE detail.id = #{value}
+    </select>
+
+
+    <select id="getDetailByPlanId" resultType="map">
+		SELECT
+			a.id,
+			a.foreign_id as foreignId,
+			a.whether_check as whetherCheck,
+			a.pro_id as proId,
+			b.name as proName,
+			a.remark,
+			b.code,
+			b.norm,
+			b.method,
+			b.instrument_name as  instrument,
+			b.remark
+		FROM mes_process_check a
+		LEFT JOIN mes_check_project b on a.pro_id=b.id
+        LEFT JOIN mes_working_procedure_detail c on a.foreign_id=c.id
+        <where>
+            <if test="planId != null and planId != ''"> and c.plan_id = #{planId} </if>
+            <if test="type != null and type != ''"> and a.type = #{type} </if>
+            <if test="bodyId != null and bodyId != ''"> and c.id = #{bodyId} </if>
+        </where>
+		ORDER BY
+		   a.foreign_id
+	</select>
+	
+	<select id="getDispatchItemlist" resultType="map">
+		   SELECT
+			a.id as dispatchId,
+			a.`code` AS dispatchCode,
+			b.process_id as processId,
+			c.name as processName,
+			c.`code` AS processCode,
+			a.operator,
+			a.device_id as deviceId,
+			a.start_time as startTime,
+			a.end_time as endTime,
+			a.plan_count as planCount
+			FROM
+			mes_dispatch_item   a
+			LEFT JOIN mes_working_procedure_detail b  on a.foriegn_id=b.id
+			LEFT JOIN mes_working_procedure_plan  g  on b.plan_id=g.id
+			LEFT JOIN mes_process c  on b.process_id=c.id
+            WHERE b.`plan_id` = #{value} AND a.status <![CDATA[<> 234]]>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_working_procedure_detail
+		<include refid="sql_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.WorkingProcedureDetailDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_working_procedure_detail
+		(
+			`plan_id`, 
+			`process_id`,
+			`process_type`,
+			`demand`, 
+			`dept_id`, 
+			`operator`, 
+			`is_examine`, 
+			`is_outsource`, 
+			`is_collect`, 
+			`device_id`, 
+			`device_name`, 
+			`is_auto`, 
+			`is_dispatching`, 
+			`plan_count`, 
+			`plan_start_time`, 
+			`plan_end_time`, 
+			`standard`, 
+			`total_hour`, 
+			`man_hour`, 
+			`labour_price`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`,
+			`already_count`, 
+			`completion_count`,
+			`reality_end_time`,
+			`reality_start_time`,
+			`before_split_id`
+		)
+		values
+		(
+			#{planId}, 
+			#{processId},
+			#{processType},
+			#{demand}, 
+			#{deptId}, 
+			#{operator}, 
+			#{isExamine}, 
+			#{isOutsource}, 
+			#{isCollect}, 
+			#{deviceId}, 
+			#{deviceName}, 
+			#{isAuto}, 
+			#{isDispatching}, 
+			#{planCount}, 
+			#{planStartTime}, 
+			#{planEndTime}, 
+			#{standard}, 
+			#{totalHour}, 
+			#{manHour}, 
+			#{labourPrice}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag},
+			#{alreadyCount}, 
+			#{completionCount},
+			#{realityEndTime},
+			#{realityStartTime},
+			#{beforeSplitId}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.WorkingProcedureDetailDO">
+		update mes_working_procedure_detail 
+		<set>
+			<if test="planId != null">`plan_id` = #{planId}, </if>
+			<if test="processId != null">`process_id` = #{processId}, </if>
+            <if test="processType != null">`process_type` = #{processType}, </if>
+			<if test="demand != null">`demand` = #{demand}, </if>
+			<if test="deptId != null">`dept_id` = #{deptId}, </if>
+			<if test="operator != null">`operator` = #{operator}, </if>
+			<if test="isExamine != null">`is_examine` = #{isExamine}, </if>
+			<if test="isOutsource != null">`is_outsource` = #{isOutsource}, </if>
+			<if test="isCollect != null">`is_collect` = #{isCollect}, </if>
+			<if test="deviceId != null">`device_id` = #{deviceId}, </if>
+			<if test="deviceName != null">`device_name` = #{deviceName}, </if>
+			<if test="isAuto != null">`is_auto` = #{isAuto}, </if>
+			<if test="isDispatching != null">`is_dispatching` = #{isDispatching}, </if>
+			<if test="planCount != null">`plan_count` = #{planCount}, </if>
+			<if test="planStartTime != null">`plan_start_time` = #{planStartTime}, </if>
+			<if test="planEndTime != null">`plan_end_time` = #{planEndTime}, </if>
+			<if test="standard != null">`standard` = #{standard}, </if>
+			<if test="totalHour != null">`total_hour` = #{totalHour}, </if>
+			<if test="manHour != null">`man_hour` = #{manHour}, </if>
+			<if test="labourPrice != null">`labour_price` = #{labourPrice}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}, </if>
+			<if test="alreadyCount != null">`already_count` = #{alreadyCount}, </if>
+			<if test="completionCount != null">`completion_count` = #{completionCount}, </if>
+			<if test="realityEndTime != null">`reality_end_time` = #{realityEndTime}, </if>
+			<if test="realityStartTime != null">`reality_start_time` = #{realityStartTime}, </if>
+			<if test="beforeSplitId != null">`before_split_id` = #{beforeSplitId} </if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<update id="updateByPlanId" parameterType="com.ev.mes.domain.WorkingProcedureDetailDO">
+		update mes_working_procedure_detail 
+		<set>
+			<if test="processId != null">`process_id` = #{processId}, </if>
+            <if test="processType != null">`process_type` = #{processType}, </if>
+			<if test="demand != null">`demand` = #{demand}, </if>
+			<if test="deptId != null">`dept_id` = #{deptId}, </if>
+			<if test="operator != null">`operator` = #{operator}, </if>
+			<if test="isExamine != null">`is_examine` = #{isExamine}, </if>
+			<if test="isOutsource != null">`is_outsource` = #{isOutsource}, </if>
+			<if test="isCollect != null">`is_collect` = #{isCollect}, </if>
+			<if test="deviceId != null">`device_id` = #{deviceId}, </if>
+			<if test="deviceName != null">`device_name` = #{deviceName}, </if>
+			<if test="isAuto != null">`is_auto` = #{isAuto}, </if>
+			<if test="isDispatching != null">`is_dispatching` = #{isDispatching}, </if>
+			<if test="planCount != null">`plan_count` = #{planCount}, </if>
+			<if test="planStartTime != null">`plan_start_time` = #{planStartTime}, </if>
+			<if test="planEndTime != null">`plan_end_time` = #{planEndTime}, </if>
+			<if test="standard != null">`standard` = #{standard}, </if>
+			<if test="totalHour != null">`total_hour` = #{totalHour}, </if>
+			<if test="manHour != null">`man_hour` = #{manHour}, </if>
+			<if test="labourPrice != null">`labour_price` = #{labourPrice}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag},</if>
+			<if test="alreadyCount != null">`already_count` = #{alreadyCount}, </if>
+			<if test="completionCount != null">`completion_count` = #{completionCount},</if>
+			<if test="realityEndTime != null">`reality_end_time` = #{realityEndTime}, </if>
+			<if test="realityStartTime != null">`reality_start_time` = #{realityStartTime},</if>
+			<if test="beforeSplitId != null">`before_split_id` = #{beforeSplitId}</if>
+		</set>
+		where plan_id = #{planId}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_working_procedure_detail where id = #{value}
+	</delete>
+	
+	<delete id="removeByHeadId">
+		delete from mes_working_procedure_detail where plan_id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_working_procedure_detail where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<sql id="sql_column_list">
+		`id`,`plan_id`,`process_id`,`process_type`,`demand`,`dept_id`,`operator`,`is_examine`,`is_outsource`,`is_collect`,`device_id`,`device_name`,`is_auto`,`is_dispatching`,`plan_count`,`plan_start_time`,`plan_end_time`,`standard`,`total_hour`,`man_hour`,`labour_price`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`already_count`,`completion_count`,`reality_end_time`,`reality_start_time`,`before_split_id`
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="planId != null and planId != ''"> and plan_id = #{planId} </if>
+		  		  <if test="processId != null and processId != ''"> and process_id = #{processId} </if>
+                    <if test="processType != null and processType != ''"> and process_type = #{processType} </if>
+		  		  <if test="demand != null and demand != ''"> and demand = #{demand} </if>
+		  		  <if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
+		  		  <if test="operator != null and operator != ''"> and operator = #{operator} </if>
+		  		  <if test="isExamine != null and isExamine != ''"> and is_examine = #{isExamine} </if>
+		  		  <if test="isOutsource != null and isOutsource != ''"> and is_outsource = #{isOutsource} </if>
+		  		  <if test="isCollect != null and isCollect != ''"> and is_collect = #{isCollect} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and device_id = #{deviceId} </if>
+		  		  <if test="deviceName != null and deviceName != ''"> and device_name = #{deviceName} </if>
+		  		  <if test="isAuto != null and isAuto != ''"> and is_auto = #{isAuto} </if>
+		  		  <if test="isDispatching != null and isDispatching != ''"> and is_dispatching = #{isDispatching} </if>
+		  		  <if test="planCount != null and planCount != ''"> and plan_count = #{planCount} </if>
+		  		  <if test="planStartTime != null and planStartTime != ''"> and plan_start_time = #{planStartTime} </if>
+		  		  <if test="planEndTime != null and planEndTime != ''"> and plan_end_time = #{planEndTime} </if>
+		  		  <if test="standard != null and standard != ''"> and standard = #{standard} </if>
+		  		  <if test="totalHour != null and totalHour != ''"> and total_hour = #{totalHour} </if>
+		  		  <if test="manHour != null and manHour != ''"> and man_hour = #{manHour} </if>
+		  		  <if test="labourPrice != null and labourPrice != ''"> and labour_price = #{labourPrice} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		  <if test="alreadyCount != null and alreadyCount != ''"> and already_count = #{alreadyCount} </if>
+		  		  <if test="completionCount != null and completionCount != ''"> and completion_count = #{completionCount} </if>
+		  		  <if test="beforeSplitId != null and beforeSplitId != ''"> and before_split_id = #{beforeSplitId} </if>
+		  		  <if test="idList!= null "> and `before_split_id` in
+						<foreach item="item" collection="idList" open="(" separator="," close=")"  index="index">
+							<if test="item!=null">
+							  #{item}
+							</if>
+						</foreach>
+				  </if>
+		  		</where>
+	</sql>
+	
+</mapper>

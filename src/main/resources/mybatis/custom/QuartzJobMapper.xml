@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.QuartzJobDao">
+
+	<select id="get" resultType="com.ev.custom.domain.QuartzJobDO">
+		select `id`,`name`,`cron_expression`,`description`,`job_class_name`,`parameter`,`status`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_quartz_job where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.QuartzJobDO">
+		select `id`,`name`,`cron_expression`,`description`,`job_class_name`,`parameter`,`status`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_quartz_job
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="cronExpression != null and cronExpression != ''"> and cron_expression = #{cronExpression} </if>
+		  		  <if test="description != null and description != ''"> and description = #{description} </if>
+		  		  <if test="jobClassName != null and jobClassName != ''"> and job_class_name = #{jobClassName} </if>
+		  		  <if test="parameter != null and parameter != ''"> and parameter = #{parameter} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_quartz_job
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="cronExpression != null and cronExpression != ''"> and cron_expression = #{cronExpression} </if>
+		  		  <if test="description != null and description != ''"> and description = #{description} </if>
+		  		  <if test="jobClassName != null and jobClassName != ''"> and job_class_name = #{jobClassName} </if>
+		  		  <if test="parameter != null and parameter != ''"> and parameter = #{parameter} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.QuartzJobDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_quartz_job
+		(
+			`name`, 
+			`cron_expression`, 
+			`description`, 
+			`job_class_name`, 
+			`parameter`, 
+			`status`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{name}, 
+			#{cronExpression}, 
+			#{description}, 
+			#{jobClassName}, 
+			#{parameter}, 
+			#{status}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.QuartzJobDO">
+		update cus_quartz_job 
+		<set>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="cronExpression != null">`cron_expression` = #{cronExpression}, </if>
+			<if test="description != null">`description` = #{description}, </if>
+			<if test="jobClassName != null">`job_class_name` = #{jobClassName}, </if>
+			<if test="parameter != null">`parameter` = #{parameter}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_quartz_job where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_quartz_job where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

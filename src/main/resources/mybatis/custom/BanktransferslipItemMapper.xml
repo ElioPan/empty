@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.BanktransferslipItemDao">
+
+	<select id="get" resultType="Map">
+		select `tid`,`transferred_account` as transferredAccount,`transfer_account` as transferAccount,`money`,dict.name as settlementMethod,
+			   `settlement_number` as settlementNumber,`remarks`,`banktransferslip_id` as banktransferslipId,bankitem.`del_flag` as delFlag
+			from cus_banktransferslip_item  bankitem left join cus_dictionary dict on bankitem.settlement_method = dict.id
+			where banktransferslip_id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.BanktransferslipItemDO">
+		select `tid`,`transferred_account`,`transfer_account`,`money`,`settlement_method`,`settlement_number`,`remarks`,`banktransferslip_id`,`del_flag` from cus_banktransferslip_item
+        <where>  
+		  		  <if test="tid != null and tid != ''"> and tid = #{tid} </if>
+		  		  <if test="transferredAccount != null and transferredAccount != ''"> and transferred_account = #{transferredAccount} </if>
+		  		  <if test="transferAccount != null and transferAccount != ''"> and transfer_account = #{transferAccount} </if>
+		  		  <if test="money != null and money != ''"> and money = #{money} </if>
+		  		  <if test="settlementMethod != null and settlementMethod != ''"> and settlement_method = #{settlementMethod} </if>
+		  		  <if test="settlementNumber != null and settlementNumber != ''"> and settlement_number = #{settlementNumber} </if>
+		  		  <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+		  		  <if test="banktransferslipId != null and banktransferslipId != ''"> and banktransferslip_id = #{banktransferslipId} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by tid desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_banktransferslip_item
+		 <where>  
+		  		  <if test="tid != null and tid != ''"> and tid = #{tid} </if>
+		  		  <if test="transferredAccount != null and transferredAccount != ''"> and transferred_account = #{transferredAccount} </if>
+		  		  <if test="transferAccount != null and transferAccount != ''"> and transfer_account = #{transferAccount} </if>
+		  		  <if test="money != null and money != ''"> and money = #{money} </if>
+		  		  <if test="settlementMethod != null and settlementMethod != ''"> and settlement_method = #{settlementMethod} </if>
+		  		  <if test="settlementNumber != null and settlementNumber != ''"> and settlement_number = #{settlementNumber} </if>
+		  		  <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+		  		  <if test="banktransferslipId != null and banktransferslipId != ''"> and banktransferslip_id = #{banktransferslipId} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.BanktransferslipItemDO" useGeneratedKeys="true" keyProperty="tid">
+		insert into cus_banktransferslip_item
+		(
+			`transferred_account`, 
+			`transfer_account`, 
+			`money`, 
+			`settlement_method`, 
+			`settlement_number`, 
+			`remarks`, 
+			`banktransferslip_id`, 
+			`del_flag`
+		)
+		values
+		(
+			#{transferredAccount}, 
+			#{transferAccount}, 
+			#{money}, 
+			#{settlementMethod}, 
+			#{settlementNumber}, 
+			#{remarks}, 
+			#{banktransferslipId}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.BanktransferslipItemDO">
+		update cus_banktransferslip_item 
+		<set>
+			<if test="transferredAccount != null">`transferred_account` = #{transferredAccount}, </if>
+			<if test="transferAccount != null">`transfer_account` = #{transferAccount}, </if>
+			<if test="money != null">`money` = #{money}, </if>
+			<if test="settlementMethod != null">`settlement_method` = #{settlementMethod}, </if>
+			<if test="settlementNumber != null">`settlement_number` = #{settlementNumber}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="banktransferslipId != null">`banktransferslip_id` = #{banktransferslipId}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where tid = #{tid}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_banktransferslip_item where banktransferslip_id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_banktransferslip_item where tid in 
+		<foreach item="tid" collection="array" open="(" separator="," close=")">
+			#{tid}
+		</foreach>
+	</delete>
+
+</mapper>

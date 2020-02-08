@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.DailyReportDao">
+
+	<select id="get" resultType="com.ev.custom.domain.DailyReportDO">
+		select `id`,`com_content`,`uncom_content`,`need_concert_content`,`wait_contet`,`must_contet`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`status` from cus_daily_report where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.DailyReportDO">
+		select `id`,`com_content`,`uncom_content`,`need_concert_content`,`wait_contet`,`must_contet`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`status` from cus_daily_report
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="comContent != null and comContent != ''"> and com_content = #{comContent} </if>
+			<if test="uncomContent != null and uncomContent != ''"> and uncom_content = #{uncomContent} </if>
+			<if test="needConcertContent != null and needConcertContent != ''"> and need_concert_content = #{needConcertContent} </if>
+			<if test="waitContet != null and waitContet != ''"> and wait_contet = #{waitContet} </if>
+			<if test="mustContet != null and mustContet != ''"> and must_contet = #{mustContet} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+			<if test="status != null and status != ''"> and status = #{status} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from cus_daily_report
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="comContent != null and comContent != ''"> and com_content = #{comContent} </if>
+			<if test="uncomContent != null and uncomContent != ''"> and uncom_content = #{uncomContent} </if>
+			<if test="needConcertContent != null and needConcertContent != ''"> and need_concert_content = #{needConcertContent} </if>
+			<if test="waitContet != null and waitContet != ''"> and wait_contet = #{waitContet} </if>
+			<if test="mustContet != null and mustContet != ''"> and must_contet = #{mustContet} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+			<if test="status != null and status != ''"> and status = #{status} </if>
+		</where>
+	</select>
+
+	<insert id="save" parameterType="com.ev.custom.domain.DailyReportDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_daily_report
+		(
+		`com_content`,
+		`uncom_content`,
+		`need_concert_content`,
+		`wait_contet`,
+		`must_contet`,
+		`create_by`,
+		`create_time`,
+		`update_by`,
+		`update_time`,
+		`del_flag`,
+		`status`
+		)
+		values
+		(
+		#{comContent},
+		#{uncomContent},
+		#{needConcertContent},
+		#{waitContet},
+		#{mustContet},
+		#{createBy},
+		#{createTime},
+		#{updateBy},
+		#{updateTime},
+		#{delFlag},
+		#{status}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.custom.domain.DailyReportDO">
+		update cus_daily_report
+		<set>
+			<if test="comContent != null">`com_content` = #{comContent}, </if>
+			<if test="uncomContent != null">`uncom_content` = #{uncomContent}, </if>
+			<if test="needConcertContent != null">`need_concert_content` = #{needConcertContent}, </if>
+			<if test="waitContet != null">`wait_contet` = #{waitContet}, </if>
+			<if test="mustContet != null">`must_contet` = #{mustContet}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}, </if>
+			<if test="status != null">`status` = #{status}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from cus_daily_report where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from cus_daily_report where id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		<if test="beSentPeopleId != null and beSentPeopleId!= ''">
+			case when uassoc.sign=1 then 3
+			when uassoc.sign is null then 1
+			end sign,
+			case when uassoc.sign=1 then '已读'
+			when uassoc.sign is null then '未读'
+			end readStatus,
+			uassoc.user_id as userId,
+		</if>
+		daily.id as id,
+		daily.com_content as comContent,
+		daily.uncom_content as uncomCOntent,
+		daily.need_concert_content as needConcertContent,
+		daily.wait_contet as waitContent,
+		daily.must_contet as mustContent,
+		daily.create_by as createBy,
+		daily.create_time as createTime,
+		daily.update_by as updateBy,
+		daily.update_time as updateTime,
+		daily.del_flag as delFlag,
+		daily.status as status,
+		b.name as `statusName`,
+		dept.dept_id as deptId,
+		dept.id_path as idPath,
+		dept.name as deptName,
+		employee.name as userName
+		FROM
+		cus_daily_report daily
+		LEFT JOIN sys_user employee ON employee.user_id = daily.create_by
+		LEFT JOIN cus_dictionary b ON b.id = daily.status
+		LEFT JOIN sys_dept dept ON dept.dept_id = employee.dept_id
+		<if test="beSentPeopleId != null and beSentPeopleId!= ''"> LEFT JOIN cus_user_assoc uassoc on uassoc.assoc_id = daily.id and uassoc.assoc_type = 'DAILY_REPORT_TARGET'</if>
+		LEFT JOIN view_daliyReport_Sender a ON daily.id = a.assoc_id
+		<where>
+			<if test="sign ==1"> and a.sign is null </if>
+			<if test="beSentPeopleId != null and beSentPeopleId!= ''"> and uassoc.user_id  =#{beSentPeopleId} </if>
+			<if test="id != null and id != ''"> and daily.id = #{id} </if>
+			<if test="comContent != null and comContent != ''"> and daily.com_content = #{comContent} </if>
+			<if test="uncomContent != null and uncomContent != ''"> and daily.uncom_content = #{uncomContent} </if>
+			<if test="needConcertContent != null and needConcertContent != ''"> and daily.need_concert_content = #{needConcertContent} </if>
+			<if test="waitContet != null and waitContet != ''"> and daily.wait_contet = #{waitContet} </if>
+			<if test="mustContet != null and mustContet != ''"> and daily.must_contet = #{mustContet} </if>
+			<if test="userName != null and userName != ''"> AND employee.name  like CONCAT ('%',#{userName},'%') </if>
+			<if test="createTime != null and createTime != ''"> and daily.create_time = #{createTime} </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(daily.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(daily.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="updateBy != null and updateBy != ''"> and daily.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and daily.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and daily.del_flag = #{delFlag} </if>
+			<if test="deptName != null and deptName != ''"> and dept.name = #{deptName} </if>
+			<if test="deptId != null and deptId != ''"> and dept.dept_id = #{deptId} </if>
+			<if test="idPath != null and idPath != ''"> and dept.id_path like CONCAT (#{idPath},'%') </if>
+			<if test="status != null and status != ''"> and daily.status = #{status} </if>
+			<if test="createBy != null and createBy != ''"> and daily.create_by = #{createBy} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by daily.create_time DESC ,daily.status desc <if test="beSentPeopleId != null and beSentPeopleId!= ''">,sign asc</if>
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="int">
+		SELECT
+		count(1)
+		FROM
+		cus_daily_report daily
+		LEFT JOIN sys_user employee ON employee.user_id = daily.create_by
+		LEFT JOIN cus_dictionary b ON b.id = daily.status
+		LEFT JOIN sys_dept dept ON dept.dept_id = employee.dept_id
+		<if test="beSentPeopleId != null and beSentPeopleId!= ''"> LEFT JOIN cus_user_assoc uassoc on uassoc.assoc_id = daily.id and uassoc.assoc_type = 'DAILY_REPORT_TARGET'</if>
+		LEFT JOIN view_daliyReport_Sender a ON daily.id = a.assoc_id
+		<where>
+			<if test="sign ==1"> and a.sign is null </if>
+			<if test="beSentPeopleId != null and beSentPeopleId!= ''"> and uassoc.user_id  =#{beSentPeopleId} </if>
+			<if test="id != null and id != ''"> and daily.id = #{id} </if>
+			<if test="comContent != null and comContent != ''"> and daily.com_content = #{comContent} </if>
+			<if test="uncomContent != null and uncomContent != ''"> and daily.uncom_content = #{uncomContent} </if>
+			<if test="needConcertContent != null and needConcertContent != ''"> and daily.need_concert_content = #{needConcertContent} </if>
+			<if test="waitContet != null and waitContet != ''"> and daily.wait_contet = #{waitContet} </if>
+			<if test="mustContet != null and mustContet != ''"> and daily.must_contet = #{mustContet} </if>
+			<if test="userName != null and userName != ''"> AND employee.name  like CONCAT ('%',#{userName},'%') </if>
+			<if test="createTime != null and createTime != ''"> and daily.create_time = #{createTime} </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(daily.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(daily.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="updateBy != null and updateBy != ''"> and daily.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and daily.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and daily.del_flag = #{delFlag} </if>
+			<if test="deptName != null and deptName != ''"> and dept.name = #{deptName} </if>
+			<if test="deptId != null and deptId != ''"> and dept.dept_id = #{deptId} </if>
+			<if test="idPath != null and idPath != ''"> and dept.id_path like CONCAT (#{idPath},'%') </if>
+			<if test="status != null and status != ''"> and daily.status = #{status} </if>
+			<if test="createBy != null and createBy != ''"> and daily.create_by = #{createBy} </if>
+		</where>
+
+	</select>
+
+
+     <!-- 发给我的数量
+	<select id="countOfQuantyForward" resultType="int">
+		SELECT
+		   count(assoc_id)
+		from
+		   view_daliyreport_sender
+		where user_id like  CONCAT('%',#{beSentPeopleId},'%')
+	</select>
+	-->
+
+	<!-- 发给我的 未读取的数量-->
+	<select id="countOfQuantyForward" resultType="int">
+	select
+		COUNT(aa.assoc_id)
+	from
+		(select concat(',',group_concat(`a`.`user_id` separator ','),',') AS user_id ,  a.`assoc_id`, a.sign from  cus_user_assoc a
+		where  assoc_type='DAILY_REPORT_TARGET'  GROUP BY  a.`assoc_id`,sign
+		)  aa
+	where
+		aa.user_id like  CONCAT('%',CONCAT(',',#{beSentPeopleId},','),'%')  <!-- CONCAT(CONCAT(',',#{beSentPeopleId}),',%')-->
+	  and
+	  aa.assoc_id in (select id from cus_daily_report where status!=146)
+	  and
+	  aa.sign is null
+	</select>
+
+
+
+	<select id="listOfCanDelet" resultType="map">
+	select
+	`id`,
+	`status`
+	from cus_daily_report
+		<where>
+
+		<if test="id!= null"> and id in
+			<foreach item="item" collection="id" open="(" separator="," close=")"  index="index">
+					#{item}
+			</foreach>
+		</if>
+		<if test="status!= null"> and status =#{status}</if>
+		</where>
+	</select>
+
+	<select id="dailyOfDetail" resultType="map">
+  select
+		a.`id`,
+		a.`com_content` as com_content,
+		a.`uncom_content` as uncom_content,
+		a.`need_concert_content` as need_concert_content,
+		a.`wait_contet` as wait_contet,
+		a.`must_contet` as must_contet,
+		a.`create_by` as create_by,
+		a.`create_time` as create_time,
+		a.`update_by` as update_by,
+		a.`update_time` as update_time,
+		a.`del_flag` as del_flag,
+		a.`status` as status,
+		b.name as createByName,
+		b.dept_id as deptId,
+		c.name as deptName
+		from
+		cus_daily_report a
+		LEFT JOIN sys_user b on  a.create_by =b.user_id
+		LEFT JOIN sys_dept c on  b.dept_id =c.dept_id
+		WHERE
+		a.id=#{id}
+	</select>
+
+
+
+	<select id="haveOrNot" resultType="int">
+		select
+		  count(a.createTime)
+		from
+		(
+			select
+			create_by as createBy,
+			date_format(create_time,'%Y-%m-%d') as createTime
+			from
+			cus_daily_report
+		)a
+		where
+			a.createTime=date_format( now(),'%Y-%m-%d')
+		and
+			a.createBy=#{value}
+	</select>
+
+</mapper>

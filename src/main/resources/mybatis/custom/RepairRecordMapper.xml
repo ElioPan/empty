@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.RepairRecordDao">
+
+	<select id="get" resultType="com.ev.custom.domain.RepairRecordDO">
+		select `id`,`type`,`level`,`usage`,`status`,`create_by`,`create_time`,`start_time`,`end_time`,`man_hour`,`cost`,`content`,`cause`,`solution`,`event_id`,`update_by`,`update_time`,`del_flag`,`off_time`,`off_hour` from cus_repair_record where id = #{value}
+	</select>
+
+	<select id="getByEventId" resultType="com.ev.custom.domain.RepairRecordDO">
+		select `id`,`type`,`level`,`usage`,`status`,`create_by`,`create_time`,`start_time`,`end_time`,`man_hour`,`cost`,`content`,`cause`,`solution`,`event_id`,`update_by`,`update_time`,`del_flag`,`off_time`,`off_hour` from cus_repair_record 
+		where event_id = #{value}
+		order by id desc
+		LIMIT 1
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.RepairRecordDO">
+		select `id`,`type`,`level`,`usage`,`status`,`create_by`,`create_time`,`start_time`,`end_time`,`man_hour`,`cost`,`content`,`cause`,`solution`,`event_id`,`update_by`,`update_time`,`del_flag`,`off_time`,`off_hour` from cus_repair_record
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  		  <if test="level != null and level != ''"> and level = #{level} </if>
+		  		  <if test="usage != null and usage != ''"> and usage = #{usage} </if>
+		  		  <if test="startTime != null and startTime != ''"> and start_time = #{startTime} </if>
+		  		  <if test="endTime != null and endTime != ''"> and end_time = #{endTime} </if>
+		  		  <if test="manHour != null and manHour != ''"> and man_hour = #{manHour} </if>
+		  		  <if test="cost != null and cost != ''"> and cost = #{cost} </if>
+		  		  <if test="content != null and content != ''"> and content = #{content} </if>
+		  		  <if test="cause != null and cause != ''"> and cause = #{cause} </if>
+		  		  <if test="solution != null and solution != ''"> and solution = #{solution} </if>
+		  		  <if test="eventId != null and eventId != ''"> and event_id = #{eventId} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+				  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+				  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+				  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+				  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+				  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+				  <if test="offTime != null and offTime != ''"> and off_time = #{offTime} </if>		  		  
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="listForMap" resultType="map">
+		SELECT
+		record.`id` AS id,
+		repairevent.`work_orderNo` AS workOrederNo,
+		record.`event_id` AS eventId,
+		device.`id` AS deviceId,
+		device.serialno AS deviceSerialno,
+		device.`name` AS deviceName,
+		IFNULL(record.`start_time`,'') AS startTime,
+        IFNULL(record.`end_time`,'') AS endTime,
+		record.`off_hour` AS offHour,
+		record.`off_time` AS offTime,
+		dict.`name` AS typeName,
+		dict.`id` AS typeId,
+		dicu.`name` AS usageName,
+		dicu.`id` AS usageId,
+		dics.`name` AS statusName,
+		dics.`id` AS statusId,
+		record.`cause` AS cause,
+		record.`solution` AS solution,
+		record.`man_hour` AS manHour,
+		record.`cost` AS cost,
+		engineeruser.`user_id` AS heldPersonId,
+		engineeruser.`name` AS heldPersonName
+		FROM cus_repair_record record
+		LEFT JOIN cus_repair_event repairevent ON repairevent.`id`=record.`event_id`
+		LEFT JOIN sys_user engineeruser ON engineeruser.`user_id`=record.`create_by`
+		LEFT JOIN cus_device device ON device.`id`=repairevent.`device_id`
+		LEFT JOIN cus_dictionary dict ON dict.`id`=record.`type`
+		LEFT JOIN cus_dictionary dicu ON dicu.`id`=record.`usage` 
+		LEFT JOIN cus_dictionary dics ON dics.`id`=record.`status`
+		LEFT JOIN view_repair_cc_person ccperson ON ccperson.task_id = repairevent.id
+        <where>  
+		  		  <if test="id != null and id != ''"> and record.id = #{id} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and device.`id` = #{deviceId} and (record.status = 115 OR record.status = 116)</if>
+		  		  <if test="deviceSerialno != null and deviceSerialno != ''"> and device.`serialno` LIKE CONCAT('%',CONCAT(#{deviceSerialno},'%'))</if>
+		  		  <if test="deviceName != null and deviceName != ''"> and device.`name` LIKE CONCAT('%',CONCAT(#{deviceName},'%'))</if>
+		  		  <if test="deviceQuery != null and deviceQuery != ''"> and CONCAT(device.`name`,device.`serialno`) LIKE CONCAT('%',CONCAT(#{deviceQuery},'%'))</if>
+		  		  <if test="type != null and type != ''"> and record.type = #{type} </if>
+		  		  <if test="usage != null and usage != ''"> and record.usage = #{usage} </if>
+		  		  <if test="status != null and status != ''"> and record.status = #{status} </if>
+		  		  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(record.start_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(record.start_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		  		  <if test="eventId != null and eventId != ''"> and record.event_id = #{eventId} </if>
+				  <if test="createBy != null and createBy != ''"> and record.create_by = #{createBy} </if>
+				  <if test="createTime != null and createTime != ''"> and record.create_time = #{createTime} </if>
+				  <if test="updateBy != null and updateBy != ''"> and record.update_by = #{updateBy} </if>
+				  <if test="updateTime != null and updateTime != ''"> and record.update_time = #{updateTime} </if>
+				  <if test="userId != null and userId != ''"> and (record.`create_by` = #{userId} OR ((repairevent.`create_by`=#{userId} OR ccperson.`cc_person` LIKE CONCAT(#{userId},'%')) and record.status <![CDATA[<>]]> 146))</if>
+				  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order},id DESC
+            </when>
+			<otherwise>
+                ORDER BY id DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="countForMap" resultType="map">
+		SELECT  
+		count(*) AS count,
+        SUM(record.`off_hour`) AS offHourTotal,
+		SUM(record.`man_hour`) AS manHourTotal,
+		SUM(record.`cost`) AS costTotal
+		FROM cus_repair_record record
+		LEFT JOIN cus_repair_event repairevent ON repairevent.`id`=record.`event_id`
+		LEFT JOIN sys_user engineeruser ON engineeruser.`user_id`=record.`create_by`
+		LEFT JOIN cus_device device ON device.`id`=repairevent.`device_id`
+		LEFT JOIN cus_dictionary dict ON dict.`id`=record.`type`
+		LEFT JOIN cus_dictionary dicu ON dicu.`id`=record.`usage` 
+		LEFT JOIN cus_dictionary dics ON dics.`id`=record.`status`
+		LEFT JOIN view_repair_cc_person ccperson ON ccperson.task_id = repairevent.id
+       <where>  
+		  		  <if test="id != null and id != ''"> and record.id = #{id} </if>
+		  		   <if test="deviceId != null and deviceId != ''"> and device.`id` = #{deviceId} and (record.status = 115 OR record.status = 116)</if>
+		  		  <if test="deviceSerialno != null and deviceSerialno != ''"> and device.`serialno` LIKE CONCAT('%',CONCAT(#{deviceSerialno},'%'))</if>
+		  		  <if test="deviceName != null and deviceName != ''"> and device.`name` LIKE CONCAT('%',CONCAT(#{deviceName},'%'))</if>
+		  		  <if test="deviceQuery != null and deviceQuery != ''"> and CONCAT(device.`name`,device.`serialno`) LIKE CONCAT('%',CONCAT(#{deviceQuery},'%'))</if>
+		  		  <if test="type != null and type != ''"> and record.type = #{type} </if>
+		  		  <if test="usage != null and usage != ''"> and record.usage = #{usage} </if>
+		  		  <if test="status != null and status != ''"> and record.status = #{status} </if>
+		  		  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(record.start_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(record.start_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		  		  <if test="eventId != null and eventId != ''"> and record.event_id = #{eventId} </if>
+				  <if test="createBy != null and createBy != ''"> and record.create_by = #{createBy} </if>
+				  <if test="createTime != null and createTime != ''"> and record.create_time = #{createTime} </if>
+				  <if test="updateBy != null and updateBy != ''"> and record.update_by = #{updateBy} </if>
+				  <if test="updateTime != null and updateTime != ''"> and record.update_time = #{updateTime} </if>
+				  <if test="userId != null and userId != ''"> and (record.`create_by` = #{userId} OR ((repairevent.`create_by`=#{userId} OR ccperson.`cc_person` LIKE CONCAT(#{userId},'%')) and record.status <![CDATA[<>]]> 146))</if>
+				  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_repair_record
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  		  <if test="level != null and level != ''"> and level = #{level} </if>
+		  		  <if test="usage != null and usage != ''"> and usage = #{usage} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="startTime != null and startTime != ''"> and start_time = #{startTime} </if>
+		  		  <if test="endTime != null and endTime != ''"> and end_time = #{endTime} </if>
+		  		  <if test="manHour != null and manHour != ''"> and man_hour = #{manHour} </if>
+		  		  <if test="cost != null and cost != ''"> and cost = #{cost} </if>
+		  		  <if test="content != null and content != ''"> and content = #{content} </if>
+		  		  <if test="cause != null and cause != ''"> and cause = #{cause} </if>
+		  		  <if test="solution != null and solution != ''"> and solution = #{solution} </if>
+		  		  <if test="eventId != null and eventId != ''"> and event_id = #{eventId} </if>
+				  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+				  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+				  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>	
+				  <if test="offTime != null and offTime != ''"> and off_time = #{offTime} </if>		  		  
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.RepairRecordDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_repair_record
+		(
+			`type`, 
+			`level`, 
+			`usage`, 
+			`status`, 
+			`create_by`, 
+			`create_time`, 
+			`start_time`, 
+			`end_time`, 
+			`man_hour`, 
+			`cost`, 
+			`content`, 
+			`cause`, 
+			`solution`, 
+			`event_id`, 
+
+			`update_by`, 
+
+			`update_time`, 
+
+			`del_flag`,
+			`off_time`,
+			`off_hour`
+		)
+		values
+		(
+			#{type}, 
+			#{level}, 
+			#{usage}, 
+			#{status}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{startTime}, 
+			#{endTime}, 
+			#{manHour}, 
+			#{cost}, 
+			#{content}, 
+			#{cause}, 
+			#{solution}, 
+			#{eventId}, 
+
+			#{updateBy}, 
+
+			#{updateTime}, 
+
+			#{delFlag},
+			#{offTime},
+			#{offHour}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.RepairRecordDO">
+		update cus_repair_record 
+		<set>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="level != null">`level` = #{level}, </if>
+			<if test="usage != null">`usage` = #{usage}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="startTime != null">`start_time` = #{startTime}, </if>
+			<if test="endTime != null">`end_time` = #{endTime}, </if>
+			<if test="manHour != null">`man_hour` = #{manHour}, </if>
+			<if test="cost != null">`cost` = #{cost}, </if>
+			<if test="content != null">`content` = #{content}, </if>
+			<if test="cause != null">`cause` = #{cause}, </if>
+			<if test="solution != null">`solution` = #{solution}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}, </if>
+			<if test="eventId != null">`event_id` = #{eventId},</if>
+			<if test="offTime != null">`off_time` = #{offTime}</if>
+			<if test="offHour != null">`off_hour` = #{offHour}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_repair_record where event_id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_repair_record where event_id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="getFaultRank" resultType="map">
+		SELECT 
+		COUNT(*) AS typeCount, 
+		dict.`name` AS typeName
+		FROM cus_repair_record record 
+		LEFT JOIN cus_dictionary dict ON dict.`id`=record.`type`
+		WHERE record.`type` IS NOT NULL
+		GROUP BY record.`type`
+		ORDER BY typeCount DESC 
+	</select>
+	
+	<select id="getRepairPowerAvgTime" resultType="map">
+		SELECT
+			device.`name` AS deviceName,
+			repairevent.device_id AS deviceId,
+			AVG(
+				TIMESTAMPDIFF(
+					HOUR,
+					record.start_time,
+					record.end_time
+				)
+			) AS avgTime
+		FROM
+			cus_repair_record record
+		LEFT JOIN cus_repair_event repairevent ON repairevent.id = record.event_id
+		LEFT JOIN cus_device device ON device.id = repairevent.device_id
+		GROUP BY
+			repairevent.device_id
+		ORDER BY
+			repairevent.device_id,
+			repairevent.create_time DESC
+	</select>
+	
+	<select id="getRepairPowerTaktTime" resultType="map">
+		SELECT
+			r1.deviceName,
+			r1.deviceId,
+			AVG(
+				IFNULL(
+					TIMESTAMPDIFF(
+						HOUR,
+						r2.createTime,
+						r1.createTime
+					),
+					0
+				)
+			) AS avgTime
+		FROM
+			(
+				SELECT
+					(@rownum := @rownum + 1) AS rownum,
+					r1.*
+				FROM
+					(
+						SELECT
+							device.`name` AS deviceName,
+							repairevent.create_time AS createTime,
+							repairevent.device_id AS deviceId
+						FROM
+							cus_repair_event repairevent
+						LEFT JOIN cus_device device ON device.id = repairevent.device_id
+					) r1,
+					(SELECT @rownum := 0) r
+				ORDER BY
+					r1.deviceId,
+					r1.createTime DESC
+			) r1
+		LEFT JOIN (
+			SELECT
+				(@tworownum := @tworownum + 1) AS rownum,
+				r2.*
+			FROM
+				(
+					SELECT
+						device.`name` AS deviceName,
+						repairevent.create_time AS createTime,
+						repairevent.device_id AS deviceId
+					FROM
+						cus_repair_event repairevent
+					LEFT JOIN cus_device device ON device.id = repairevent.device_id
+				) r2,
+				(SELECT @tworownum := 0) r
+			ORDER BY
+				r2.deviceId,
+				r2.createTime DESC
+		) r2 ON r1.deviceId = r2.deviceId
+		AND r1.deviceName = r2.deviceName
+		AND r1.rownum = r2.rownum - 1
+		GROUP BY
+			r1.deviceId
+	</select>
+
+</mapper>

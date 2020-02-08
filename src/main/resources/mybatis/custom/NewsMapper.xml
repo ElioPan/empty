@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.NewsDao">
+
+	<select id="get" resultType="com.ev.custom.domain.NewsDO">
+		select `id`,`title`,`type`,`text`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_news where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.NewsDO">
+		select `id`,`title`,`type`,`text`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_news
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="title != null and title != ''"> and title = #{title} </if>
+		  		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  		  <if test="text != null and text != ''"> and text = #{text} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_news
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="title != null and title != ''"> and title = #{title} </if>
+		  		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  		  <if test="text != null and text != ''"> and text = #{text} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+
+	<select id="listForMap" resultType="map">
+		select * from
+		(SELECT
+		news.id as id,
+		news.title as title,
+		news.type as typeId,
+		news.text as text,
+		news.create_by as createby,
+		news.create_time as createttime,
+		news.update_by as updateby,
+		news.update_time as updatetime,
+		news.del_flag as delflag,
+		typedic.name as typename,
+		typedic.value as typevalue,
+		createuser.name as createbyname
+		FROM
+		cus_news news
+		LEFT JOIN cus_dictionary typedic ON typedic.id = news.type
+		LEFT JOIN sys_user createuser on createuser.user_id = news.create_by) view_news
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="title != null and title != ''"> and title = #{title} </if>
+			<if test="type != null and type != ''"> and typeId = #{type} </if>
+			<if test="createBy != null and createBy != ''"> and createby = #{createBy} </if>
+			<if test="createByName != null and createByName != ''"> and createbyname = #{createByName} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="int">
+		select count(1) from
+		(SELECT
+		news.id as id,
+		news.title as title,
+		news.type as typeId,
+		news.text as text,
+		news.create_by as createby,
+		news.create_time as createttime,
+		news.update_by as updateby,
+		news.update_time as updatetime,
+		news.del_flag as delflag,
+		typedic.name as typename,
+		typedic.value as typevalue,
+		createuser.name as createbyname
+		FROM
+		cus_news news
+		LEFT JOIN cus_dictionary typedic ON typedic.id = news.type
+		LEFT JOIN sys_user createuser on createuser.user_id = news.create_by) view_news
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="title != null and title != ''"> and title = #{title} </if>
+			<if test="type != null and type != ''"> and typeId = #{type} </if>
+			<if test="createBy != null and createBy != ''"> and createby = #{createBy} </if>
+			<if test="createByName != null and createByName != ''"> and createbyname = #{createByName} </if>
+		</where>
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="title != null and title != ''"> and title = #{title} </if>
+			<if test="type != null and type != ''"> and type = #{type} </if>
+			<if test="text != null and text != ''"> and text = #{text} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.NewsDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_news
+		(
+			`title`, 
+			`type`, 
+			`text`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{title}, 
+			#{type}, 
+			#{text}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.NewsDO">
+		update cus_news 
+		<set>
+			<if test="title != null">`title` = #{title}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="text != null">`text` = #{text}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_news where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_news where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<select id="listOfCanDelet" resultType="map">
+		select
+		`id`
+		from
+		cus_news
+		<where>
+
+			<if test="id!= null"> and id in
+				<foreach item="item" collection="id" open="(" separator="," close=")"  index="index">
+					#{item}
+				</foreach>
+			</if>
+			<if test="createBy!= null"> and create_by =#{createBy}</if>
+		</where>
+	</select>
+
+
+
+
+
+</mapper>

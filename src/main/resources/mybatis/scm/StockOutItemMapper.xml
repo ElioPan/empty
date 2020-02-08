@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.StockOutItemDao">
+
+	<select id="get" resultType="com.ev.scm.domain.StockOutItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_stock_out_item 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.StockOutItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_stock_out_item
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from scm_stock_out_item
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`out_id`,`stock_id`,`materiel_id`,`batch`,`count`,`unit_price`,`sell_unit_price`,`amount`,`sell_amount`,`charge_off_count`,`purpose`,`out_status`,`source_id`,`source_type`,`source_code`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> and id = #{id} </if>
+                            <if test="outId != null and outId != ''"> and out_id = #{outId} </if>
+                            <if test="stockId != null and stockId != ''"> and stock_id = #{stockId} </if>
+                            <if test="materielId != null and materielId != ''"> and materiel_id = #{materielId} </if>
+                            <if test="batch != null and batch != ''"> and batch = #{batch} </if>
+                            <if test="count != null and count != ''"> and count = #{count} </if>
+                            <if test="unitPrice != null and unitPrice != ''"> and unit_price = #{unitPrice} </if>
+                            <if test="sellUnitPrice != null and sellUnitPrice != ''"> and sell_unit_price = #{sellUnitPrice} </if>
+                            <if test="amount != null and amount != ''"> and amount = #{amount} </if>
+                            <if test="sellAmount != null and sellAmount != ''"> and sell_amount = #{sellAmount} </if>
+                            <if test="purpose != null and purpose != ''"> and purpose = #{purpose} </if>
+                            <if test="chargeOffCount != null and chargeOffCount != ''"> and charge_off_count = #{chargeOffCount} </if>
+                            <if test="outStatus != null and outStatus != ''"> and out_status = #{outStatus} </if>
+                            <if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
+                            <if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+                            <if test="sourceCode != null and sourceCode != ''"> and source_code = #{sourceCode} </if>
+                            <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.StockOutItemDO" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_stock_out_item
+		(
+			`out_id`, 
+			`stock_id`, 
+			`materiel_id`, 
+			`batch`, 
+			`count`, 
+			`unit_price`, 
+			`sell_unit_price`, 
+			`amount`, 
+			`sell_amount`,
+			`charge_off_count`,
+			`purpose`, 
+			`out_status`, 
+			`source_id`, 
+			`source_type`, 
+			`source_code`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{outId}, 
+			#{stockId}, 
+			#{materielId}, 
+			#{batch}, 
+			#{count}, 
+			#{unitPrice}, 
+			#{sellUnitPrice}, 
+			#{amount}, 
+			#{sellAmount},
+			#{chargeOffCount},
+			#{purpose}, 
+			#{outStatus}, 
+			#{sourceId}, 
+			#{sourceType}, 
+			#{sourceCode}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+
+    <update id="update" parameterType="com.ev.scm.domain.StockOutItemDO">
+		update scm_stock_out_item 
+		<set>
+			<if test="outId != null">`out_id` = #{outId}, </if>
+			<if test="stockId != null">`stock_id` = #{stockId}, </if>
+			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
+			<if test="batch != null">`batch` = #{batch}, </if>
+			<if test="count != null">`count` = #{count}, </if>
+			<if test="unitPrice != null">`unit_price` = #{unitPrice}, </if>
+			<if test="sellUnitPrice != null">`sell_unit_price` = #{sellUnitPrice}, </if>
+			<if test="amount != null">`amount` = #{amount}, </if>
+			<if test="sellAmount != null">`sell_amount` = #{sellAmount}, </if>
+            <if test="chargeOffCount != null">`charge_off_count` = #{chargeOffCount}, </if>
+			<if test="purpose != null">`purpose` = #{purpose}, </if>
+			<if test="outStatus != null">`out_status` = #{outStatus}, </if>
+			<if test="sourceId != null">`source_id` = #{sourceId}, </if>
+			<if test="sourceType != null">`source_type` = #{sourceType}, </if>
+			<if test="sourceCode != null">`source_code` = #{sourceCode}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+    <delete id="remove">
+		delete from scm_stock_out_item where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from scm_stock_out_item where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+    <!--自定义-->
+    <select id="listForMap" resultType="map">
+        SELECT
+        item.id AS id,
+        item.`stock_id` AS stockId,
+        item.`materiel_id` AS materielId,
+        materiel.serial_no AS materielSerialNo,
+        materiel.name AS materielName,
+        materiel.specification AS specification,
+        unitUom.name AS unitUomName,
+        item.`count` AS count,
+        item.`sell_unit_price` AS sellUnitPrice,
+        item.`sell_amount` AS sellAmount,
+        item.`unit_price` AS unitPrice,
+        item.`amount` AS amount,
+        stock.`batch` AS batch,
+        fac.`name` AS facName,
+        fac.`id` AS facId,
+        location.`name` AS locationName,
+        location.`id` AS locationId,
+        item.`unit_price` AS unitPrice,
+        item.`amount` AS amount,
+        item.`charge_off_count` AS chargeOffCount,
+        dics.`name` AS sourceTypeName,
+        item.`source_code` AS sourceCode,
+        item.`purpose` AS purposeName
+        FROM scm_stock_out_item item
+        LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
+        LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
+        LEFT JOIN scm_stock stock ON stock.`id` = item.`stock_id`
+        LEFT JOIN cus_facility_location location ON location.id=stock.`wareh_location`
+        LEFT JOIN cus_facility fac ON fac.id=location.`facility_id`
+        LEFT JOIN cus_dictionary dics ON dics.`id` = item.`source_type`
+        <where>
+            <if test="id != null and id != ''"> and item.out_id = #{id} </if>
+
+            <if test="createBy != null and createBy != ''"> and item.create_by = #{createBy} </if>
+            <if test="createTime != null and createTime != ''"> and item.create_time = #{createTime} </if>
+            <if test="updateBy != null and updateBy != ''"> and item.update_by = #{updateBy} </if>
+            <if test="updateTime != null and updateTime != ''"> and item.update_time = #{updateTime} </if>
+            <if test="delFlag != null and delFlag != ''"> and item.del_flag = #{delFlag} </if>
+        </where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by item.id desc
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+    <insert id="batchInsert" parameterType="List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO scm_stock_out_item(
+        `out_id`,
+        `stock_id`,
+        `materiel_id`,
+        `batch`,
+        `count`,
+        `unit_price`,
+        `sell_unit_price`,
+        `amount`,
+        `sell_amount`,
+        `charge_off_count`,
+        `purpose`,
+        `out_status`,
+        `source_id`,
+        `source_type`,
+        `source_code`,
+        `create_by`,
+        `create_time`,
+        `update_by`,
+        `update_time`,
+        `del_flag`) VALUES
+        <foreach collection="list" item="obj" separator=",">
+            (
+            #{obj.outId},
+            #{obj.stockId},
+            #{obj.materielId},
+            #{obj.batch},
+            #{obj.count},
+            #{obj.unitPrice},
+            #{obj.sellUnitPrice},
+            #{obj.amount},
+            #{obj.sellAmount},
+            #{obj.chargeOffCount},
+            #{obj.purpose},
+            #{obj.outStatus},
+            #{obj.sourceId},
+            #{obj.sourceType},
+            #{obj.sourceCode},
+            #{obj.createBy},
+            #{obj.createTime},
+            #{obj.updateBy},
+            #{obj.updateTime},
+            #{obj.delFlag}
+            )
+        </foreach>
+    </insert>
+    <!-- 批量修改子表数据 -->
+    <update id="batchUpdate" parameterType="List">
+        UPDATE scm_stock_out_item
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="out_id=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.outId!=null">
+                        when id=#{item.id} then #{item.outId}
+                    </if>
+                    <if test="item.outId==null">
+                        when id=#{item.id} then scm_stock_out_item.out_id
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="stock_id =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.stockId!=null">
+                        when id=#{item.id} then #{item.stockId}
+                    </if>
+                    <if test="item.stockId==null">
+                        when id=#{item.id} then scm_stock_out_item.stock_id
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="materiel_id =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.materielId!=null">
+                        when id=#{item.id} then #{item.materielId}
+                    </if>
+                    <if test="item.materielId==null">
+                        when id=#{item.id} then scm_stock_out_item.materiel_id
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="batch =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.batch!=null">
+                        when id=#{item.id} then #{item.batch}
+                    </if>
+                    <if test="item.batch==null">
+                        when id=#{item.id} then scm_stock_out_item.batch
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="count =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.count!=null">
+                        when id=#{item.id} then #{item.count}
+                    </if>
+                    <if test="item.count==null">
+                        when id=#{item.id} then scm_stock_out_item.count
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="unit_price =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.unitPrice!=null">
+                        when id=#{item.id} then #{item.unitPrice}
+                    </if>
+                    <if test="item.unitPrice==null">
+                        when id=#{item.id} then scm_stock_out_item.unit_price
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="sell_unit_price =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.sellUnitPrice!=null">
+                        when id=#{item.id} then #{item.sellUnitPrice}
+                    </if>
+                    <if test="item.sellUnitPrice==null">
+                        when id=#{item.id} then scm_stock_out_item.sell_unit_price
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="amount =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.amount!=null">
+                        when id=#{item.id} then #{item.amount}
+                    </if>
+                    <if test="item.amount==null">
+                        when id=#{item.id} then scm_stock_out_item.amount
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="sell_amount =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.sellAmount!=null">
+                        when id=#{item.id} then #{item.sellAmount}
+                    </if>
+                    <if test="item.sellAmount==null">
+                        when id=#{item.id} then scm_stock_out_item.sell_amount
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="purpose =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.purpose!=null">
+                        when id=#{item.id} then #{item.purpose}
+                    </if>
+                    <if test="item.purpose==null">
+                        when id=#{item.id} then scm_stock_out_item.purpose
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="charge_off_count =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.chargeOffCount!=null">
+                        when id=#{item.id} then #{item.chargeOffCount}
+                    </if>
+                    <if test="item.chargeOffCount==null">
+                        when id=#{item.id} then scm_stock_out_item.charge_off_count
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="out_status =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.outStatus!=null">
+                        when id=#{item.id} then #{item.outStatus}
+                    </if>
+                    <if test="item.outStatus==null">
+                        when id=#{item.id} then scm_stock_out_item.out_status
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="source_id =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.sourceId!=null">
+                        when id=#{item.id} then #{item.sourceId}
+                    </if>
+                    <if test="item.sourceId==null">
+                        when id=#{item.id} then scm_stock_out_item.source_id
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="source_type =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.sourceType!=null">
+                        when id=#{item.id} then #{item.sourceType}
+                    </if>
+                    <if test="item.sourceType==null">
+                        when id=#{item.id} then scm_stock_out_item.source_type
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="source_code =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.sourceCode!=null">
+                        when id=#{item.id} then #{item.sourceCode}
+                    </if>
+                    <if test="item.sourceCode==null">
+                        when id=#{item.id} then scm_stock_out_item.source_code
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="create_by =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.createBy!=null">
+                        when id=#{item.id} then #{item.createBy}
+                    </if>
+                    <if test="item.createBy==null">
+                        when id=#{item.id} then scm_stock_out_item.create_by
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="create_time =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.createTime!=null">
+                        when id=#{item.id} then #{item.createTime}
+                    </if>
+                    <if test="item.createTime==null">
+                        when id=#{item.id} then scm_stock_out_item.create_time
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_by =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateBy!=null">
+                        when id=#{item.id} then #{item.updateBy}
+                    </if>
+                    <if test="item.updateBy==null">
+                        when id=#{item.id} then scm_stock_out_item.update_by
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_time =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateTime!=null">
+                        when id=#{item.id} then #{item.updateTime}
+                    </if>
+                    <if test="item.updateTime==null">
+                        when id=#{item.id} then scm_stock_out_item.update_time
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="del_flag =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.delFlag!=null">
+                        when id=#{item.id} then #{item.delFlag}
+                    </if>
+                    <if test="item.delFlag==null">
+                        when id=#{item.id} then scm_stock_out_item.del_flag
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        WHERE id IN
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id}
+        </foreach>
+    </update>
+
+    <delete id="removeByStockOutId" >
+        delete from scm_stock_out_item where out_id = #{value}
+    </delete>
+
+    <delete id="batchRemoveByStockOutId">
+        delete from scm_stock_out_item where `out_id` in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="stockList" resultType="com.ev.scm.domain.StockItemDO">
+        SELECT
+        `id`,
+        `stock_id`,
+        `inhead_id`,
+        `inbody_id`,
+        `unit_price`,
+        `count`,
+        `in_out_type`,
+        `source_type`,
+        `handle_sign`,
+        `create_by`,
+        `create_time`,
+        `update_by`,
+        `update_time`,
+        `del_flag`
+        FROM
+        scm_stock_item
+        <where>
+            <if test="id != null and id != ''"> and id = #{id} </if>
+            <if test="itemId != null and itemId != ''">
+                <foreach item="item" collection="itemId" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+            <if test="outType != null and outType != ''"> and in_out_type = #{outType} </if>
+            <if test="handleSign != null and handleSign != ''"> and handle_sign = #{handleSign} </if>
+        </where>
+    </select>
+
+</mapper>

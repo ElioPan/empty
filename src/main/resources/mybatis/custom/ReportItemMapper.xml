@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.ReportItemDao">
+
+	<select id="get" resultType="com.ev.custom.domain.ReportItemDO">
+		select `id`,`week_report_id`,`report_date`,`week`,`must_content`,`wait_contet`,`need_source`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_report_item where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.ReportItemDO">
+		select `id`,`week_report_id`,`report_date`,`week`,`must_content`,`wait_contet`,`need_source`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_report_item
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="weekReportId != null and weekReportId != ''"> and week_report_id = #{weekReportId} </if>
+		  		  <if test="reportDate != null and reportDate != ''"> and report_date = #{reportDate} </if>
+		  		  <if test="week != null and week != ''"> and week = #{week} </if>
+		  		  <if test="mustContent != null and mustContent != ''"> and must_content = #{mustContent} </if>
+		  		  <if test="waitContet != null and waitContet != ''"> and wait_contet = #{waitContet} </if>
+		  		  <if test="needSource != null and needSource != ''"> and need_source = #{needSource} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id asc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_report_item
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="weekReportId != null and weekReportId != ''"> and week_report_id = #{weekReportId} </if>
+		  		  <if test="reportDate != null and reportDate != ''"> and report_date = #{reportDate} </if>
+		  		  <if test="week != null and week != ''"> and week = #{week} </if>
+		  		  <if test="mustContent != null and mustContent != ''"> and must_content = #{mustContent} </if>
+		  		  <if test="waitContet != null and waitContet != ''"> and wait_contet = #{waitContet} </if>
+		  		  <if test="needSource != null and needSource != ''"> and need_source = #{needSource} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.ReportItemDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_report_item
+		(
+			`week_report_id`, 
+			`report_date`, 
+			`week`, 
+			`must_content`, 
+			`wait_contet`, 
+			`need_source`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{weekReportId}, 
+			#{reportDate}, 
+			#{week}, 
+			#{mustContent}, 
+			#{waitContet}, 
+			#{needSource}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.ReportItemDO">
+		update cus_report_item 
+		<set>
+			<if test="weekReportId != null">`week_report_id` = #{weekReportId}, </if>
+			<if test="reportDate != null">`report_date` = #{reportDate}, </if>
+			<if test="week != null">`week` = #{week}, </if>
+			<if test="mustContent != null">`must_content` = #{mustContent}, </if>
+			<if test="waitContet != null">`wait_contet` = #{waitContet}, </if>
+			<if test="needSource != null">`need_source` = #{needSource}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_report_item where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_report_item where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<delete id="removeByWeekId">
+		delete from cus_report_item where week_report_id = #{value}
+	</delete>
+
+</mapper>

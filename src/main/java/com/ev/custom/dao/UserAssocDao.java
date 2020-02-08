@@ -1,0 +1,37 @@
+package com.ev.custom.dao;
+
+import com.ev.custom.domain.UserAssocDO;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 用户关联表
+ * @author ev-monitor
+ * @email 286600136@qq.com
+ * @date 2019-07-19 14:58:02
+ */
+@Mapper
+public interface UserAssocDao {
+
+	UserAssocDO get(Long id);
+	
+	List<Map<String, Object>> list(Map<String, Object> map);
+	
+	int count(Map<String, Object> map);
+	
+	int save(UserAssocDO userAssoc);
+	
+	int update(UserAssocDO userAssoc);
+	
+	int remove(Long id);
+	
+	int batchRemove(Long[] ids);
+
+	int removeByAssocIdAndUserId(Map<String, Object> map);
+
+	int updateOfSign(UserAssocDO userAssoc);
+
+	int batchRemoveByAssocIdAadType(Map<String, Object> map);
+}

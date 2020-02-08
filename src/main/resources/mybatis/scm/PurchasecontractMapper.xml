@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.PurchasecontractDao">
+
+	<select id="get" resultType="com.ev.scm.domain.PurchasecontractDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_purchasecontract 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.PurchasecontractDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_purchasecontract
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from scm_purchasecontract
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`supplier_id`,`dept_id`,`buyer`,`contract_code`,`contract_type`,`contract_date`,`contract_effective_date`,`discount_rate`,`discount_amount`,`pay_amount`,`close_status`,`audit_sign`,`auditor`,`Invoiced_amount`,`uninvoiced_amount`,`audit_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+							<if test="maxNo != null and maxNo != ''"> and LEFT(contract_code,12) = #{maxNo} </if>
+							<if test="id != null and id != ''"> and id = #{id} </if>
+                            <if test="supplierId != null and supplierId != ''"> and supplier_id = #{supplierId} </if>
+                            <if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
+                            <if test="buyer != null and buyer != ''"> and buyer = #{buyer} </if>
+                            <if test="contractCode != null and contractCode != ''"> and contract_code = #{contractCode} </if>
+                            <if test="contractType != null and contractType != ''"> and contract_type = #{contractType} </if>
+                            <if test="contractDate != null and contractDate != ''"> and contract_date = #{contractDate} </if>
+                            <if test="contractEffectiveDate != null and contractEffectiveDate != ''"> and contract_effective_date = #{contractEffectiveDate} </if>
+                            <if test="discountRate != null and discountRate != ''"> and discount_rate = #{discountRate} </if>
+                            <if test="discountAmount != null and discountAmount != ''"> and discount_amount = #{discountAmount} </if>
+                            <if test="payAmount != null and payAmount != ''"> and pay_amount = #{payAmount} </if>
+                            <if test="closeStatus != null and closeStatus != ''"> and close_status = #{closeStatus} </if>
+                            <if test="auditSign != null and auditSign != ''"> and audit_sign = #{auditSign} </if>
+                            <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+                            <if test="invoicedAmount != null and invoicedAmount != ''"> and Invoiced_amount = #{invoicedAmount} </if>
+                            <if test="uninvoicedAmount != null and uninvoicedAmount != ''"> and uninvoiced_amount = #{uninvoicedAmount} </if>
+                            <if test="auditTime != null and auditTime != ''"> and audit_time = #{auditTime} </if>
+                            <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.PurchasecontractDO" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_purchasecontract
+		(
+			`supplier_id`, 
+			`dept_id`, 
+			`buyer`, 
+			`contract_code`, 
+			`contract_type`, 
+			`contract_date`, 
+			`contract_effective_date`, 
+			`discount_rate`, 
+			`discount_amount`, 
+			`pay_amount`, 
+			`close_status`, 
+			`audit_sign`, 
+			`auditor`, 
+			`Invoiced_amount`, 
+			`uninvoiced_amount`, 
+			`audit_time`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{supplierId}, 
+			#{deptId}, 
+			#{buyer}, 
+			#{contractCode}, 
+			#{contractType}, 
+			#{contractDate}, 
+			#{contractEffectiveDate}, 
+			#{discountRate}, 
+			#{discountAmount}, 
+			#{payAmount}, 
+			#{closeStatus}, 
+			#{auditSign}, 
+			#{auditor}, 
+			#{invoicedAmount}, 
+			#{uninvoicedAmount}, 
+			#{auditTime}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.PurchasecontractDO">
+		update scm_purchasecontract 
+		<set>
+			<if test="supplierId != null">`supplier_id` = #{supplierId}, </if>
+			<if test="deptId != null">`dept_id` = #{deptId}, </if>
+			<if test="buyer != null">`buyer` = #{buyer}, </if>
+			<if test="contractCode != null">`contract_code` = #{contractCode}, </if>
+			<if test="contractType != null">`contract_type` = #{contractType}, </if>
+			<if test="contractDate != null">`contract_date` = #{contractDate}, </if>
+			<if test="contractEffectiveDate != null">`contract_effective_date` = #{contractEffectiveDate}, </if>
+			<if test="discountRate != null">`discount_rate` = #{discountRate}, </if>
+			<if test="discountAmount != null">`discount_amount` = #{discountAmount}, </if>
+			<if test="payAmount != null">`pay_amount` = #{payAmount}, </if>
+			<if test="closeStatus != null">`close_status` = #{closeStatus}, </if>
+			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="invoicedAmount != null">`Invoiced_amount` = #{invoicedAmount}, </if>
+			<if test="uninvoicedAmount != null">`uninvoiced_amount` = #{uninvoicedAmount}, </if>
+			<if test="auditTime != null">`audit_time` = #{auditTime}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from scm_purchasecontract where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from scm_purchasecontract where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<select id="canDeletOfCount" resultType="int">
+		select
+		count(id)
+		from
+		scm_purchasecontract
+		where
+		audit_sign =179
+		and  id in
+		<foreach item="item" collection="id" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+
+	<select id="detailOfContract" resultType="map">
+		SELECT
+			a.id,
+			a.supplier_id as  supplierId,
+			b.name as supplierIdName,
+			a.buyer,
+			c.name as buyerName,
+			a.dept_id as deptId,
+			d.`name` as deptName,
+			a.contract_type as contractType,
+			e.name as contractTypeName,
+			a.contract_date as contractDate,
+			a.contract_effective_date as contractEffectiveDate,
+			a.contract_code as contractCode,
+			a.Invoiced_amount as InvoicedAmount,
+			a.uninvoiced_amount as uninvoicedAmount,
+			a.create_by AS createby,
+			f.name as createByName,
+			a.create_time as createTime,
+			a.auditor,
+			g.name as auditorName,
+			a.audit_time as auditTime,
+			a.close_status as closeStatus,
+			case when a.close_status=0 then '未关闭'
+			when a.close_status=1 then '关闭'
+			end closeStatusName,
+			a.audit_sign as auditSign,
+			h.name as auditSignName
+		FROM
+		scm_purchasecontract  a
+		LEFT JOIN   cus_supplier  b on  a.supplier_id=b.id
+		LEFT JOIN   sys_user c on  a.buyer=c.user_id
+		LEFT JOIN   sys_dept d on  a.dept_id=d.dept_id
+		LEFT JOIN   cus_dictionary e on  a.contract_type=e.id
+		LEFT JOIN   sys_user f on  a.create_by=f.user_id
+		LEFT JOIN   sys_user g on  a.auditor=g.user_id
+		LEFT JOIN   cus_dictionary h on  a.audit_sign=h.id
+		WHERE
+		 a.id=#{id}
+	</select>
+
+	<select id="listForMap" resultType="map">
+		select
+			*
+		from
+		(
+			SELECT
+				a.id,
+				a.contract_date as contractDate,
+				a.contract_code as contractCode,
+				a.contract_type as contractType,
+				e.name as contractTypeName,
+				case when a.close_status=0 then '未关闭'
+				when a.close_status=1 then '关闭'
+				end closeStatusName,
+				a.close_status as closeStatus,
+				a.supplier_id as  supplierId,
+				b.name as supplierName,
+				i.materiel_id as materielId,
+				j.serial_no AS materielSerialNo,
+				j. NAME AS materielName,
+				j.specification AS specification,
+				j.unit_uom as  unitUom,
+				k.name AS unitUomName,
+				IF(i.is_check=0,'是','否') AS isCheck,
+				IF(i.is_overcharge=0,'是','否') AS isOvercharge,
+				i.proportion,
+				i.count AS count,
+				i.tax_amount AS taxAmount,
+				i.unit_price AS unitPrice,
+				i.tax_rate AS taxRate,
+				i.amount AS amount,
+				i.taxes,
+				i.tax_unit_price AS taxUnitPrice,
+				i.delivery_date AS deliveryDate,
+				a.audit_sign as auditSign,
+				h.name as auditSignName,
+				i.source_code as sourceCode,
+				i.source_type as sourceType,
+				m.name as sourceTypeName,
+				a.create_by as createBy,
+				n.name as createByName,
+				a.create_time as createTime
+			FROM
+			scm_purchasecontract  a
+			LEFT JOIN   cus_supplier  b on  a.supplier_id=b.id
+			LEFT JOIN   cus_dictionary e on  a.contract_type=e.id
+			LEFT JOIN   cus_dictionary h on  a.audit_sign=h.id
+			LEFT JOIN   scm_purchasecontract_item i on  i.purchase_contract_id=a.id
+			LEFT JOIN   cus_materiel j on  i.materiel_id=j.id
+			LEFT JOIN cus_dictionary k ON k.id = j.unit_uom
+			LEFT JOIN cus_dictionary m ON m.id = i.source_type
+			Left JOIN sys_user n on  a.create_by = n.user_id
+		) aa
+		<where>
+			<if test="maxNo != null and maxNo != ''"> and LEFT(contract_code,12) = #{maxNo} </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(contractDate,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(contractDate,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="contractCode != null and contractCode != ''"> and  contractCode= #{contractCode} </if>
+			<if test="fuzzyQuery != null and fuzzyQuery != ''"> and CONCAT(supplierName,materielName) LIKE #{fuzzyQuery} </if>
+			<if test="contractType != null and contractType != ''"> and  contractType= #{contractType} </if>
+			<if test="supplierName != null and supplierName != ''"> and  supplierName= #{supplierName} </if>
+			<if test="materielName != null and materielName != ''"> and  materielName= #{materielName} </if>
+			<if test="specification != null and specification != ''"> and  specification= #{specification} </if>
+			<if test="auditSign != null and auditSign != ''"> and  auditSign= #{auditSign} </if>
+			<if test="createBy != null and createBy != ''"> and  createBy= #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and  createTime= #{createTime} </if>
+			<if test="closeStatus != null and closeStatus != ''"> and  closeStatus= #{closeStatus} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="map">
+		select
+		count(*) as count,
+		IF(SUM(amount) IS NULL,0,SUM(amount))as totalAmount,
+		IF(SUM(taxAmount) IS NULL,0,SUM(taxAmount))as totalTaxAmount,
+		IF(SUM(taxes) IS NULL,0,SUM(taxes))as totalTaxex
+		from
+		(
+		SELECT
+		a.id,
+		a.contract_date as contractDate,
+		a.contract_code as contractCode,
+		a.contract_type as contractType,
+		e.name as contractTypeName,
+		case when a.close_status=0 then '未关闭'
+		when a.close_status=1 then '关闭'
+		end closeStatusName,
+		a.close_status as closeStatus,
+		a.supplier_id as  supplierId,
+		b.name as supplierIdName,
+		i.materiel_id as materielId,
+		j.serial_no AS materielSerialNo,
+		j. NAME AS materielName,
+		j.specification AS specification,
+		j.unit_uom as  unitUom,
+		k.name AS unitUomName,
+		IF(i.is_check=0,'是','否') AS isCheck,
+		IF(i.is_overcharge=0,'是','否') AS isOvercharge,
+		i.proportion,
+		i.count AS count,
+		i.tax_amount AS taxAmount,
+		i.unit_price AS unitPrice,
+		i.tax_rate AS taxRate,
+
+		i.amount AS amount,
+		i.taxes,
+		i.tax_unit_price AS taxUnitPrice,
+		i.delivery_date AS deliveryDate,
+		a.audit_sign as auditSign,
+		h.name as auditSignName,
+		i.source_code as sourceCode,
+		i.source_type as sourceType,
+		m.name as sourceTypeName,
+		a.create_by as createBy,
+		n.name as createByName,
+		a.create_time as createTime
+		FROM
+		scm_purchasecontract  a
+		LEFT JOIN   cus_supplier  b on  a.supplier_id=b.id
+		LEFT JOIN   cus_dictionary e on  a.contract_type=e.id
+		LEFT JOIN   cus_dictionary h on  a.audit_sign=h.id
+		LEFT JOIN   scm_purchasecontract_item i on  i.purchase_contract_id=a.id
+		LEFT JOIN   cus_materiel j on  i.materiel_id=j.id
+		LEFT JOIN cus_dictionary k ON k.id = j.unit_uom
+		LEFT JOIN cus_dictionary m ON m.id = i.source_type
+		Left JOIN sys_user n on  a.create_by = n.user_id
+		) aa
+		<where>
+			<if test="maxNo != null and maxNo != ''"> and LEFT(contract_code,12) = #{maxNo} </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(contractDate,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(contractDate,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="contractCode != null and contractCode != ''"> and  contractCode= #{contractCode} </if>
+			<if test="fuzzyQuery != null and fuzzyQuery != ''"> and CONCAT(supplierName,materielName) LIKE #{fuzzyQuery} </if>
+			<if test="contractType != null and contractType != ''"> and  contractType= #{contractType} </if>
+			<if test="supplierName != null and supplierName != ''"> and  supplierName= #{supplierName} </if>
+			<if test="materielName != null and materielName != ''"> and  materielName= #{materielName} </if>
+			<if test="specification != null and specification != ''"> and  specification= #{specification} </if>
+			<if test="auditSign != null and auditSign != ''"> and  auditSign= #{auditSign} </if>
+			<if test="createBy != null and createBy != ''"> and  createBy= #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and  createTime= #{createTime} </if>
+			<if test="closeStatus != null and closeStatus != ''"> and  closeStatus= #{closeStatus} </if>
+		</where>
+	</select>
+
+
+</mapper>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>IconFont</title>
+    <link rel="stylesheet" href="demo.css">
+    <link rel="stylesheet" href="iconfont.css">
+    <script src="/js/jquery.min.js"></script>
+    <style type="text/css">
+        .icon{
+            margin: 5px;
+            padding: 5px;
+            cursor:pointer;
+            font-size: 32px;
+            width: 21px;
+            border-radius: 3px;
+        }
+        .icon:hover {
+            background-color: #1d9d74;
+            color: #ffffff;}
+    </style>
+</head>
+<body>
+<div class="ico-list">
+                <i class="icon iconfont icon-bumenzhinenggongzuoshenhe" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-bumenrenyuanguanli" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-caigoujichushezhi" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-caiwujichushezhi" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-chunaguanli" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-chengpinrukuyuchukuguanli" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-chunashenhe" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-dingdanwuliaocaigouguanli" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-fapiaoguanli" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-fapiaoshenhe" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-dingdanwuliaocaigouruku" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-gendanguanlishenhe" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-gongyingshangbaojiaguanli" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-gongsiquanbushengchandingdanguanli" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-gongyingshangduizhang" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-gongyingshangjiandangyudanganguanli" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-huijiyingfuguanli" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-huijiyingshouguanli" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-kehuduizhang" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-renyuandanganguanli" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-qichukucunluru" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-shengchanbeiliaoyufaliao" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-kaifajichushezhi" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-shengchanlingliaoyutuiliao" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-lailiaopinzhijianyan" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-weiwaibeiliaoyufaliao" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-weiwaijiagongcaigou" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-xiaoshoubaojiaguanli" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-weiwaijiagongcaigouruku" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-xiaoshoudingdanshenhe" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-xiaoshoubaojiashenhe" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-xiaoshougendanguanli" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-xinzengyugengxingongxudangan" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-xinzengyugengxinhuopindangan" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-xinzengyugengxinkehudangan" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-xinzengyugengxinxiaoshoudingdan" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-hangzhenggonggao" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-yewujichushezhi" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-yingfushenhe" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-yingshoushenhe" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-Bomdanganguanli" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-Bomdanganshenheguanli" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-benbanzushengchandingdanguanli" aria-hidden="true"></i>
+
+                <i class="icon iconfont icon-chanchengpinrukuzhuancang" aria-hidden="true"></i>
+    </div>
+    <script type="text/javascript">
+        var index = parent.layer.getFrameIndex(window.name);
+        //给父页面传值
+        $('.ico-list i').on('click', function(){
+            parent.$('#icon').val($(this).attr('class'));
+            //parent.layer.tips('Look here', '#parentIframe', {time: 5000});
+            parent.layer.close(index);
+        });
+    </script>
+</body>
+</html>

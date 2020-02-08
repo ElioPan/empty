@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.ReimApplyItemDao">
+
+	<select id="get" resultType="com.ev.custom.domain.ReimApplyItemDO">
+		select `id`,`reim_apply_id`,`type`,`rei_date`,`rei_count`,`rei_item_description`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_reim_apply_item where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.ReimApplyItemDO">
+		select `id`,`reim_apply_id`,`type`,`rei_date`,`rei_count`,`rei_item_description`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_reim_apply_item
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="reimApplyId != null and reimApplyId != ''"> and reim_apply_id = #{reimApplyId} </if>
+		  		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  		  <if test="reiDate != null and reiDate != ''"> and rei_date = #{reiDate} </if>
+		  		  <if test="reiCount != null and reiCount != ''"> and rei_count = #{reiCount} </if>
+		  		  <if test="reiItemDescription != null and reiItemDescription != ''"> and rei_item_description = #{reiItemDescription} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id asc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_reim_apply_item
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="reimApplyId != null and reimApplyId != ''"> and reim_apply_id = #{reimApplyId} </if>
+		  		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  		  <if test="reiDate != null and reiDate != ''"> and rei_date = #{reiDate} </if>
+		  		  <if test="reiCount != null and reiCount != ''"> and rei_count = #{reiCount} </if>
+		  		  <if test="reiItemDescription != null and reiItemDescription != ''"> and rei_item_description = #{reiItemDescription} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.ReimApplyItemDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_reim_apply_item
+		(
+			`reim_apply_id`, 
+			`type`, 
+			`rei_date`, 
+			`rei_count`, 
+			`rei_item_description`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{reimApplyId}, 
+			#{type}, 
+			#{reiDate}, 
+			#{reiCount}, 
+			#{reiItemDescription}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.ReimApplyItemDO">
+		update cus_reim_apply_item 
+		<set>
+			<if test="reimApplyId != null">`reim_apply_id` = #{reimApplyId}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="reiDate != null">`rei_date` = #{reiDate}, </if>
+			<if test="reiCount != null">`rei_count` = #{reiCount}, </if>
+			<if test="reiItemDescription != null">`rei_item_description` = #{reiItemDescription}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_reim_apply_item where id = #{value}
+	</delete>
+
+
+	<delete id="removeByReimId">
+		delete from cus_reim_apply_item where reim_apply_id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from cus_reim_apply_item where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

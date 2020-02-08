@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.StockOutDao">
+
+	<select id="get" resultType="com.ev.scm.domain.StockOutDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_stock_out 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.StockOutDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_stock_out
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from scm_stock_out
+		<include refid="sql_condition"/>
+	</select>
+
+
+    <sql id="sql_column_list">
+		`id`,`out_code`,`outbound_type`,`client_id`,`sales_user`,`dept_id`,`sales_type`,`out_time`,`operator`,`auditor`,`audit_sign`,`audit_time`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`supplier_id`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> and id = #{id} </if>
+            <if test="maxNo != null and maxNo != ''"> and LEFT(out_code,CHAR_LENGTH(#{maxNo})) = #{maxNo} </if>
+                            <if test="outCode != null and outCode != ''"> and out_code = #{outCode} </if>
+                            <if test="outboundType != null and outboundType != ''"> and outbound_type = #{outboundType} </if>
+                            <if test="clientId != null and clientId != ''"> and client_id = #{clientId} </if>
+                            <if test="supplierId != null and supplierId != ''"> and supplier_id = #{supplierId} </if>
+                            <if test="salesUser != null and salesUser != ''"> and sales_user = #{salesUser} </if>
+                            <if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
+                            <if test="salesType != null and salesType != ''"> and sales_type = #{salesType} </if>
+                            <if test="outTime != null and outTime != ''"> and out_time = #{outTime} </if>
+                            <if test="operator != null and operator != ''"> and operator = #{operator} </if>
+                            <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+                            <if test="auditSign != null and auditSign != ''"> and audit_sign = #{auditSign} </if>
+                            <if test="auditTime != null and auditTime != ''"> and audit_time = #{auditTime} </if>
+                            <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+                            <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.StockOutDO" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_stock_out
+		(
+			`out_code`, 
+			`outbound_type`, 
+			`client_id`, 
+			`sales_user`, 
+			`dept_id`, 
+			`sales_type`, 
+			`out_time`, 
+			`operator`, 
+			`auditor`, 
+			`audit_sign`, 
+			`audit_time`, 
+			`remarks`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`,
+			`supplier_id`
+		)
+		values
+		(
+			#{outCode}, 
+			#{outboundType}, 
+			#{clientId}, 
+			#{salesUser}, 
+			#{deptId}, 
+			#{salesType}, 
+			#{outTime}, 
+			#{operator}, 
+			#{auditor}, 
+			#{auditSign}, 
+			#{auditTime}, 
+			#{remarks}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag},
+			#{supplierId}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.StockOutDO">
+		update scm_stock_out 
+		<set>
+			<if test="outCode != null">`out_code` = #{outCode}, </if>
+			<if test="outboundType != null">`outbound_type` = #{outboundType}, </if>
+			<if test="clientId != null">`client_id` = #{clientId}, </if>
+			<if test="salesUser != null">`sales_user` = #{salesUser}, </if>
+			<if test="deptId != null">`dept_id` = #{deptId}, </if>
+			<if test="salesType != null">`sales_type` = #{salesType}, </if>
+			<if test="outTime != null">`out_time` = #{outTime}, </if>
+			<if test="operator != null">`operator` = #{operator}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+			<if test="auditTime != null">`audit_time` = #{auditTime}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+            <if test="supplierId != null">`supplier_id` = #{supplierId}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+    <delete id="remove">
+		delete from scm_stock_out where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from scm_stock_out where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+    <!--自定义-->
+    <select id="listForMap" resultType="map">
+        select
+        stockOut.`id` AS id,
+        stockOut.`client_id` AS clientId,
+        client.`name` AS clientName,
+        stockOut.supplier_id AS supplierId,
+        supplier.name AS supplierName,
+        stockOut.sales_user AS salesUser,
+        salesUser.`name` AS salesUserName,
+        stockOut.dept_id AS deptId,
+        dept.`name` AS deptName,
+        stockOut.sales_type AS salesType,
+        stockOut.`out_time` AS outTime,
+        stockOut.operator AS operator,
+        operson.`name` AS operatorName,
+        stockOut.`out_code` AS outCode,
+        stockOut.`remarks` AS remarks,
+        createUser.`name` AS createUserName,
+        stockOut.`create_time` AS createTime,
+        auditor.`name` AS auditorName,
+        stockOut.`audit_time` AS auditTime
+        <include refid="sql_map_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by stockOut.id desc
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+    <select id="countForMap" resultType="int">
+        SELECT
+        COUNT(*)
+        <include refid="sql_map_condition"/>
+    </select>
+    <sql id="sql_map_condition">
+        FROM scm_stock_out stockOut
+        LEFT JOIN cus_client client ON client.`id`=stockOut.`client_id`
+        LEFT JOIN cus_supplier supplier ON supplier.`id`=stockOut.`supplier_id`
+        LEFT JOIN sys_user salesUser ON salesUser.`user_id` = stockOut.`sales_user`
+        LEFT JOIN sys_dept dept on dept.dept_id=stockOut.dept_id
+        LEFT JOIN sys_user operson ON operson.`user_id`=stockOut.`operator`
+        LEFT JOIN sys_user createUser ON createUser.`user_id` = stockOut.`create_by`
+        LEFT JOIN sys_user auditor ON auditor.`user_id` = stockOut.`auditor`
+        <where>
+            <if test="id != null and id != ''">and stockOut.id = #{id}</if>
+            <if test="operator != null and operator != ''">and stockOut.operator = #{operator}</if>
+            <if test="auditor != null and auditor != ''">and stockOut.auditor = #{auditor}</if>
+            <if test="auditSign != null and auditSign != ''">and stockOut.audit_sign = #{auditSign}</if>
+            <if test="delFlag != null and delFlag != ''">and stockOut.del_flag = #{delFlag}</if>
+            <if test="outboundType != null and outboundType != ''">and stockOut.`outbound_type` = #{outboundType}</if>
+        </where>
+    </sql>
+
+
+    <select id="listApi" resultType="map">
+        select
+        stockOut.`id` AS id,
+        stockOut.`out_time` AS outTime,
+        stockOut.`out_code` AS outCode,
+        dept.`name` AS deptName,
+        salesUser.`name` AS salesUserName,
+        client.`name` AS clientName,
+        supplier.name AS supplierName,
+        materiel.serial_no AS materielSerialNo,
+        materiel.name AS materielName,
+        materiel.specification AS specification,
+        unitUom.name AS unitUomName,
+        item.`count` AS count,
+        item.`sell_unit_price` AS sellUnitPrice,
+        item.`sell_amount` AS sellAmount,
+        item.`unit_price` AS unitPrice,
+        item.`amount` AS amount,
+        stock.`batch` AS batch,
+        fac.`name` AS facName,
+        fac.`id` AS facId,
+        location.`name` AS locationName,
+        location.`id` AS locationId,
+        operson.`name` AS operatorName,
+        item.`purpose` AS purposeName,
+        dica.`id` AS  auditSign,
+        dica.`name` AS  auditSignName,
+        dics.`id` AS sourceType,
+        dics.`name` AS sourceTypeName,
+        item.source_code AS sourceCode,
+        stockOut.`out_code` AS　code,
+        '销售出库' AS　thisSourceTypeName,
+        stockOut.`create_time` AS createTime
+        <include refid="sql_api_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by stockOut.id desc,item.id
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+    <select id="countApi" resultType="int">
+        SELECT
+        COUNT(*)
+        <include refid="sql_api_condition"></include>
+    </select>
+    <sql id="sql_api_condition">
+        FROM scm_stock_out_item item
+        LEFT JOIN scm_stock_out stockOut ON item.`out_id`=stockOut.`id`
+        LEFT JOIN cus_client client ON client.`id`=stockOut.`client_id`
+        LEFT JOIN cus_supplier supplier ON supplier.`id`=stockOut.`supplier_id`
+        LEFT JOIN sys_dept dept ON dept.`dept_id`=stockOut.`dept_id`
+        LEFT JOIN sys_user salesUser ON salesUser.`user_id` = stockOut.`sales_user`
+        LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
+        LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
+        LEFT JOIN scm_stock stock ON stock.`id` = item.`stock_id`
+        LEFT JOIN cus_facility_location location ON location.id=stock.`wareh_location`
+        LEFT JOIN cus_facility fac ON fac.id=location.`facility_id`
+        LEFT JOIN sys_user operson ON operson.`user_id`=stockOut.`operator`
+        LEFT JOIN sys_user creater ON creater.`user_id`=stockOut.`create_by`
+        LEFT JOIN cus_dictionary dica ON dica.`id` = stockOut.`audit_sign`
+        LEFT JOIN cus_dictionary dics ON dics.`id` = item.`source_type`
+        <where>
+            <if test="id != null and id != ''"> and item.out_id = #{id} </if>
+            <if test="outCode != null and outCode != ''"> and stockOut.out_code = #{outCode} </if>
+            <if test="clientName != null and clientName != ''"> and client.name LIKE #{clientName} </if>
+            <if test="supplierName != null and supplierName != ''"> and supplier.name LIKE #{supplierName} </if>
+            <if test="materielName != null and materielName != ''"> and materiel.`name` LIKE #{materielName} </if>
+            <if test="auditSign != null and auditSign != ''"> and stockOut.audit_sign = #{auditSign} </if>
+            <if test="deptId != null and deptId != ''"> and stockOut.dept_id = #{deptId} </if>
+            <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(stockOut.out_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(stockOut.out_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <!-- 销售出库高级类型 -->
+            <if test="salesType != null and salesType != ''"> and stockOut.sales_type = #{salesType} </if>
+            <if test="specification != null and specification != ''"> and materiel.`specification` LIKE #{specification} </if>
+            <if test="deptName != null and deptName != ''"> and dept.name LIKE #{deptName} </if>
+            <if test="salesUserName != null and salesUserName != ''"> and salesUser.name LIKE #{salesUserName} </if>
+            <if test="createByName != null and createByName != ''"> and creater.name LIKE #{createByName} </if>
+            <!-- 销售出库导入关联单据-->
+            <if test="createStartTime != null and createStartTime != ''">  and  DATE_FORMAT(stockOut.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
+            <if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(stockOut.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
+            <if test="fuzzyInquire != null and fuzzyInquire != ''"> and CONCAT(materiel.`name`,materiel.`serial_no`,stockOut.`out_code`,client.`name`) LIKE #{fuzzyInquire} </if>
+            <!-- 出库类型 -->
+            <if test="outboundType != null and outboundType != ''"> and stockOut.outbound_type = #{outboundType} </if>
+        </where>
+    </sql>
+
+    <!-- 调拨使用 -->
+    <select id="countOfStockId" resultType="int">
+        SELECT
+        count(*)
+        FROM
+        scm_stock_item
+        WHERE
+        stock_id IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 批量保存库存明细 -->
+    <insert id="batchInsertStockDetailDO" parameterType="List" useGeneratedKeys="true" keyProperty="id">
+        insert into scm_stock_item
+        (
+        `stock_id`,
+        `inhead_id`,
+        `inbody_id`,
+        `unit_price`,
+        `count`,
+        `in_out_type`,
+        `source_type`,
+        `handle_sign`,
+        `create_by`,
+        `create_time`,
+        `update_by`,
+        `update_time`,
+        `del_flag`
+        )
+        values
+        <foreach collection="list" item="obj" separator=",">
+            (
+            #{obj.stockId},
+            #{obj.inheadId},
+            #{obj.inbodyId},
+            #{obj.unitPrice},
+            #{obj.count},
+            #{obj.inOutType},
+            #{obj.sourceType},
+            #{obj.handleSign},
+            #{obj.createBy},
+            #{obj.createTime},
+            #{obj.updateBy},
+            #{obj.updateTime},
+            #{obj.delFlag}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 批量修改库存数据 -->
+    <update id="batchUpdateStockDO" parameterType="List">
+        UPDATE scm_stock
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="entering_time=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.enteringTime!=null">
+                        when id=#{item.id} then #{item.enteringTime}
+                    </if>
+                    <if test="item.enteringTime==null">
+                        when id=#{item.id} then scm_stock.entering_time
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="materiel_id =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.materielId!=null">
+                        when id=#{item.id} then #{item.materielId}
+                    </if>
+                    <if test="item.materielId==null">
+                        when id=#{item.id} then scm_stock.materiel_id
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="code =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.code!=null">
+                        when id=#{item.id} then #{item.code}
+                    </if>
+                    <if test="item.code==null">
+                        when id=#{item.id} then scm_stock.code
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="batch =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.batch!=null">
+                        when id=#{item.id} then #{item.batch}
+                    </if>
+                    <if test="item.batch==null">
+                        when id=#{item.id} then scm_stock.batch
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="available_count =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.availableCount!=null">
+                        when id=#{item.id} then #{item.availableCount}
+                    </if>
+                    <if test="item.availableCount==null">
+                        when id=#{item.id} then scm_stock.available_count
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="count =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.count!=null">
+                        when id=#{item.id} then #{item.count}
+                    </if>
+                    <if test="item.count==null">
+                        when id=#{item.id} then scm_stock.count
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="unit_price =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.unitPrice!=null">
+                        when id=#{item.id} then #{item.unitPrice}
+                    </if>
+                    <if test="item.unitPrice==null">
+                        when id=#{item.id} then scm_stock.unit_price
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="amount =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.amount!=null">
+                        when id=#{item.id} then #{item.amount}
+                    </if>
+                    <if test="item.amount==null">
+                        when id=#{item.id} then scm_stock.amount
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="source_company =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.sourceCompany!=null">
+                        when id=#{item.id} then #{item.sourceCompany}
+                    </if>
+                    <if test="item.sourceCompany==null">
+                        when id=#{item.id} then scm_stock.source_company
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="warehouse =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.warehouse!=null">
+                        when id=#{item.id} then #{item.warehouse}
+                    </if>
+                    <if test="item.warehouse==null">
+                        when id=#{item.id} then scm_stock.warehouse
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="wareh_location =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.warehLocation!=null">
+                        when id=#{item.id} then #{item.warehLocation}
+                    </if>
+                    <if test="item.warehLocation==null">
+                        when id=#{item.id} then scm_stock.wareh_location
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="create_by =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.createBy!=null">
+                        when id=#{item.id} then #{item.createBy}
+                    </if>
+                    <if test="item.createBy==null">
+                        when id=#{item.id} then scm_stock.create_by
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="create_time =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.createTime!=null">
+                        when id=#{item.id} then #{item.createTime}
+                    </if>
+                    <if test="item.createTime==null">
+                        when id=#{item.id} then scm_stock.create_time
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_by =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateBy!=null">
+                        when id=#{item.id} then #{item.updateBy}
+                    </if>
+                    <if test="item.updateBy==null">
+                        when id=#{item.id} then scm_stock.update_by
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_time =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateTime!=null">
+                        when id=#{item.id} then #{item.updateTime}
+                    </if>
+                    <if test="item.updateTime==null">
+                        when id=#{item.id} then scm_stock.update_time
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="del_flag =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.delFlag!=null">
+                        when id=#{item.id} then #{item.delFlag}
+                    </if>
+                    <if test="item.delFlag==null">
+                        when id=#{item.id} then scm_stock.del_flag
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        WHERE id IN
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id}
+        </foreach>
+    </update>
+
+    <!-- 修改库存明细生效状态 -->
+    <update id="updateStockDetail">
+        UPDATE
+            scm_stock_item
+		SET handle_sign = 1
+		WHERE inhead_id = #{inheadId} AND in_out_type = #{inOutType}
+    </update>
+	
+</mapper>

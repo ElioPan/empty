@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.CraftItemDao">
+
+	<select id="get" resultType="com.ev.mes.domain.CraftItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_craft_item 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.CraftItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_craft_item
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_craft_item
+		<include refid="sql_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.CraftItemDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_craft_item
+		(
+			`craft_id`, 
+			`process_id`, 
+			`whether_outsource`, 
+			`whether_collect`, 
+			`auto_dispatch`, 
+			`whether_examine`, 
+			`demand`, 
+			`total_hour`, 
+			`dept_id`, 
+			`standard`, 
+			`device_id`, 
+			`type`, 
+			`man_hour`, 
+			`labour_price`, 
+			`operator`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{craftId}, 
+			#{processId}, 
+			#{whetherOutsource}, 
+			#{whetherCollect}, 
+			#{autoDispatch}, 
+			#{whetherExamine}, 
+			#{demand}, 
+			#{totalHour}, 
+			#{deptId}, 
+			#{standard}, 
+			#{deviceId}, 
+			#{type}, 
+			#{manHour}, 
+			#{labourPrice}, 
+			#{operator}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.CraftItemDO">
+		update mes_craft_item 
+		<set>
+			<if test="craftId != null">`craft_id` = #{craftId}, </if>
+			<if test="processId != null">`process_id` = #{processId}, </if>
+			<if test="whetherOutsource != null">`whether_outsource` = #{whetherOutsource}, </if>
+			<if test="whetherCollect != null">`whether_collect` = #{whetherCollect}, </if>
+			<if test="autoDispatch != null">`auto_dispatch` = #{autoDispatch}, </if>
+			<if test="whetherExamine != null">`whether_examine` = #{whetherExamine}, </if>
+			<if test="demand != null">`demand` = #{demand}, </if>
+			<if test="totalHour != null">`total_hour` = #{totalHour}, </if>
+			<if test="deptId != null">`dept_id` = #{deptId}, </if>
+			<if test="standard != null">`standard` = #{standard}, </if>
+			<if test="deviceId != null">`device_id` = #{deviceId}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="manHour != null">`man_hour` = #{manHour}, </if>
+			<if test="labourPrice != null">`labour_price` = #{labourPrice}, </if>
+			<if test="operator != null">`operator` = #{operator}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_craft_item where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_craft_item where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<sql id="sql_column_list">
+		`id`,`craft_id`,`process_id`,`whether_outsource`,`whether_collect`,`auto_dispatch`,`whether_examine`,`demand`,`total_hour`,`dept_id`,`standard`,`device_id`,`type`,`man_hour`,`labour_price`,`operator`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="craftId != null and craftId != ''"> and craft_id = #{craftId} </if>
+		  		  <if test="processId != null and processId != ''"> and process_id = #{processId} </if>
+		  		  <if test="whetherOutsource != null and whetherOutsource != ''"> and whether_outsource = #{whetherOutsource} </if>
+		  		  <if test="whetherCollect != null and whetherCollect != ''"> and whether_collect = #{whetherCollect} </if>
+		  		  <if test="autoDispatch != null and autoDispatch != ''"> and auto_dispatch = #{autoDispatch} </if>
+		  		  <if test="whetherExamine != null and whetherExamine != ''"> and whether_examine = #{whetherExamine} </if>
+		  		  <if test="demand != null and demand != ''"> and demand = #{demand} </if>
+		  		  <if test="totalHour != null and totalHour != ''"> and total_hour = #{totalHour} </if>
+		  		  <if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
+		  		  <if test="standard != null and standard != ''"> and standard = #{standard} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and device_id = #{deviceId} </if>
+		  		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  		  <if test="manHour != null and manHour != ''"> and man_hour = #{manHour} </if>
+		  		  <if test="labourPrice != null and labourPrice != ''"> and labour_price = #{labourPrice} </if>
+		  		  <if test="operator != null and operator != ''"> and operator = #{operator} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</sql>
+
+
+	<select id="itemDetalByCraftId" resultType="map">
+	 	select
+	 	    a.id as itemId,
+			a.process_id  as processId,
+			b.code as processCode,
+			b.name as preocessName,
+			a.demand,
+			a.dept_id as deptId,
+			c.name as deptName,
+			a.operator,
+			d.name as operatorName,
+			a.auto_dispatch as autoDispatch,
+			a.standard,
+			a.type,
+			e.name as typeName,
+			a.whether_examine as whetherExamine,
+			a.whether_outsource as whetherOutsource,
+			a.whether_collect AS whetherCollect,
+			a.device_id as deviceId ,
+			f.name as deviceName,
+			a.total_hour as totalHour,
+			a.man_hour  as manHour,
+			a.labour_price as labourPrice
+			from  mes_craft_item a
+		LEFT JOIN mes_process  b on  a.process_id=b.id
+		LEFT JOIN sys_dept  c on  a.dept_id=c.dept_id
+		LEFT JOIN sys_user  d on  a.operator=d.user_id
+		LEFT JOIN cus_dictionary  e on  a.type=e.id
+		LEFT JOIN cus_device  f on  a.device_id=f.id
+		WHERE
+		  a.craft_id=#{craftId}
+	</select>
+
+	<delete id="removeByCraftIds">
+		delete
+		from
+		mes_craft_item
+		where
+		craft_id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<select id="canDeletaByProcessId" resultType="int">
+		select
+		count(1)
+		from
+		mes_craft_item
+		where
+        del_flag = 0
+		AND  process_id in
+		<foreach item="item" collection="id" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+
+
+	<select id="getItemIds" resultType="map">
+		SELECT
+		id
+		from
+		mes_craft_item
+		WHERE
+		craft_id in
+		<foreach item="item" collection="id" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+
+
+	<!--<delete id="removeProcessCheckByforeignId">-->
+		<!--delete-->
+		<!--from-->
+		<!--mes_process_check-->
+		<!--where-->
+		<!--type='GYLX'-->
+		<!--and-->
+		<!--foreign_id in-->
+		<!--(SELECT id from mes_craft_item WHERE craft_id=#{value})-->
+	<!--</delete>-->
+
+
+
+</mapper>

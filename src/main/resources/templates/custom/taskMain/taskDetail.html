@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head th:include="include :: header">
+</head>
+<link href="/css/plugins/imageUpload/common.css" type="text/css" rel="stylesheet"/>
+<link href="/css/plugins/imageUpload/index.css" type="text/css" rel="stylesheet"/>
+<link href="/css/plugins/blueimp/css/blueimp-gallery.min.css" rel="stylesheet">
+
+<body class="gray-bg">
+<div class="wrapper wrapper-content ">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <form class="form-horizontal m-t" id="signupForm">
+                        <input id="id" name="id" th:value="${taskMain.id}" type="hidden">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">主题：</label>
+                            <div class="col-sm-11">
+                                <input id="title" name="title" th:value="${taskMain.title}" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">任务类型：</label>
+                            <div class="col-sm-3">
+                                <select id="taskType" name="taskType" th:value="${taskMain.taskType}"  class="form-control m-b">
+                                    <option value="">--请选择--</option>
+                                    <option th:each="taskType,userStat:${taskTypeList}" th:value="${taskType.id}" th:text="${taskType.name}" th:selected="${taskType.id==taskMain.taskType}"></option>
+                                </select>
+                            </div>
+                            <label class="col-sm-1 control-label">任务等级：</label>
+                            <div class="col-sm-2">
+                                <select id="taskLevel" name="taskLevel" th:value="${taskMain.taskLevel}" class="form-control m-b">
+                                    <option value="">--请选择--</option>
+                                    <option th:each="taskLevel,userStat:${taskLevelList}" th:value="${taskLevel.id}" th:text="${taskLevel.name}" th:selected="${taskLevel.id==taskMain.taskLevel}"></option>
+                                </select>
+                            </div>
+                            <label class="col-sm-2 control-label">完成日期：</label>
+                            <div class="col-sm-3">
+                                <input id="expireDate" name="expireDate" th:value="${#dates.format(taskMain.expireDate, 'yyyy-MM-dd')}" class="form-control" type="date">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">详细描述：</label>
+                            <div class="col-sm-11">
+                                <input id="detail" name="detail" th:value="${taskMain.detail}" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">图片详情：</label>
+                            <div class="col-sm-11">
+                                <div class="img-box full">
+                                    <section class=" img-section">
+                                        <div class="z_photo upimg-div clear" >
+                                            <section  th:each="file,userStat:${initFileList}" class="up-section fl">
+                                                <span class="up-span"></span>
+                                                <a th:href="${file.filePath}" data-gallery="">
+                                                    <img class="up-img" th:src="${file.filePath}">
+                                                </a>
+                                            </section>
+                                        </div>
+                                    </section>
+                                </div>
+                                <aside class="mask works-mask">
+                                    <div class="mask-content">
+                                        <p class="del-p ">您确定要删除作品图片吗？</p>
+                                        <p class="check-p"><span class="del-com wsdel-ok">确定</span><span class="wsdel-no">取消</span></p>
+                                    </div>
+                                </aside>
+                            </div>
+                        </div>
+                        <div id="blueimp-gallery" class="blueimp-gallery">
+                            <div class="slides"></div>
+                            <h3 class="title"></h3>
+                            <a class="prev">‹</a>
+                            <a class="next">›</a>
+                            <a class="close">×</a>
+                            <a class="play-pause"></a>
+                            <ol class="indicator"></ol>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">责任人：</label>
+                            <div class="col-sm-3">
+                                <select id="heldPerson" name="heldPerson" class="form-control m-b">
+                                    <option value="">--请选择--</option>
+                                    <option th:each="userHeld,userStat:${userList}" th:value="${userHeld.userId}" th:text="${userHeld.name}" th:selected="${heldPerson.employeeId==userHeld.userId}"></option>
+                                </select>
+                            </div>
+                            <label class="col-sm-1 control-label">责任部门：</label>
+                            <div class="col-sm-3">
+                                <input id="heldDept" name="heldDept" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">抄送人：</label>
+                            <div class="col-sm-11">
+                                <select data-placeholder="选择抄送人（可以不选）" name="ccList"  class="chosen-select" style="width: 100%;" multiple="multiple" tabindex="4">
+                                    <option value="">--请选择--</option>
+                                    <option th:each="userCC,userStat:${userList}" th:value="${userCC.userId}" th:text="${userCC.name}" th:selected="${#lists.contains(ccIdList, userCC.userId.toString())}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <table id="replyTable" data-mobile-responsive="true">
+                        </table>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <button id="dealBtn" class="btn btn-primary" onclick="deal()">处理</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:include="include::footer"></div>
+    <script type="text/javascript" src="/js/appjs/custom/taskMain/taskDetail.js">
+    </script>
+    <script type="text/javascript" src="/js/plugins/imageUpload/imgUp.js"></script>
+    <script type="text/javascript" src="/js/plugins/blueimp/jquery.blueimp-gallery.min.js"></script>
+    <script>
+
+        var config = {
+
+            '.chosen-select': {},
+
+            '.chosen-select-deselect': {
+
+                allow_single_deselect: true
+
+            },
+
+            '.chosen-select-no-single': {
+
+                disable_search_threshold: 10
+
+            },
+
+            '.chosen-select-no-results': {
+
+                no_results_text: '无选择项'
+
+            },
+
+            '.chosen-select-width': {
+
+                width: "95%"
+
+            }
+
+        }
+
+        for (var selector in config) {
+
+            $(selector).chosen(config[selector]);
+
+        }
+
+    </script>
+</body>
+</html>

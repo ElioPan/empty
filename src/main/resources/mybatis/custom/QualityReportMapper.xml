@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.QualityReportDao">
+
+	<select id="get" resultType="com.ev.custom.domain.QualityReportDO">
+		select `id`,`report_name`,`user_id`,`ponderance`,`report_no`,`report_type`,`status`,`detail_content`,`analyze_reason`,`result_content`,`check_id`,`check_status`,create_time,`create_by`,`update_by`,`update_time`,`del_flag` from cus_quality_report where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.QualityReportDO">
+		select `id`,`report_name`,`user_id`,`ponderance`,`report_no`,`report_type`,`status`,`detail_content`,`analyze_reason`,`result_content`,`check_id`,`check_status`,`create_time`,`create_by`,`update_by`,`update_time`,`del_flag` from cus_quality_report
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="reportName != null and reportName != ''"> and report_name = #{reportName} </if>
+		  		  <if test="userId != null and userId != ''"> and user_id = #{userId} </if>
+		  		  <if test="ponderance != null and ponderance != ''"> and ponderance = #{ponderance} </if>
+		  		  <if test="reportNo != null and reportNo != ''"> and report_no = #{reportNo} </if>
+		  		  <if test="reportType != null and reportType != ''"> and report_type = #{reportType} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="detailContent != null and detailContent != ''"> and detail_content = #{detailContent} </if>
+		  		  <if test="analyzeReason != null and analyzeReason != ''"> and analyze_reason = #{analyzeReason} </if>
+		  		  <if test="resultContent != null and resultContent != ''"> and result_content = #{resultContent} </if>
+		  		  <if test="checkId != null and checkId != ''"> and check_id = #{checkId} </if>
+		  		  <if test="checkStatus != null and checkStatus != ''"> and check_status = #{checkStatus} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_quality_report
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="reportName != null and reportName != ''"> and report_name = #{reportName} </if>
+		  		  <if test="userId != null and userId != ''"> and user_id = #{userId} </if>
+		  		  <if test="ponderance != null and ponderance != ''"> and ponderance = #{ponderance} </if>
+		  		  <if test="reportNo != null and reportNo != ''"> and report_no = #{reportNo} </if>
+		  		  <if test="reportType != null and reportType != ''"> and report_type = #{reportType} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="detailContent != null and detailContent != ''"> and detail_content = #{detailContent} </if>
+		  		  <if test="analyzeReason != null and analyzeReason != ''"> and analyze_reason = #{analyzeReason} </if>
+		  		  <if test="resultContent != null and resultContent != ''"> and result_content = #{resultContent} </if>
+		  		  <if test="checkId != null and checkId != ''"> and check_id = #{checkId} </if>
+		  		  <if test="checkStatus != null and checkStatus != ''"> and check_status = #{checkStatus} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	
+	<select id="listForMap" resultType="map">
+		SELECT 
+		qualityreport.id as id,
+		qualityreport.report_no as reportNo,
+		qualityreport.report_name as reportName,
+		qualityreport.detail_content as detailContent,
+		qualityreport.analyze_reason as analyzeReason,
+		qualityreport.result_content as resultContent,
+		DATE_FORMAT(qualityreport.create_time,'%Y-%m-%d %H:%i') as createTime,
+		<!-- reporttask.task_id as taskId,
+		reporttask.link_stage_type as `linkStageType`, -->
+		dicc.id as checkStatusId,
+		dicc.`value` as `checkStatusValue`,
+		dicc.`name` as `checkStatusName`,
+		dics.`id` as statusId,
+		dics.`value` as `statusValue`,
+		dics.`name` as `statusName`,
+		dicp.`id` as poneranceId,
+		dicp.`value` as `poneranceValue`,
+		dicp.`name` as `poneranceName`,
+		dict.`id` as reportTypeId,
+		dict.`value` as `reportTypeValue`,
+		dict.`name` as `reportTypeName`,
+		person.`user_id` as personId,
+		person.`name` as personName,
+		dept.`dept_id` as deptId,
+		dept.`name` as deptName,
+		checkperson.`name` as checkPersonName,
+		checkperson.`user_id` as checkPersonId,
+		checkdept.`name` as checkDeptName,
+		checkdept.`dept_id` as checkDeptId
+		FROM
+		cus_quality_report qualityreport
+		LEFT JOIN cus_dictionary dicc ON dicc.id = qualityreport.`check_status`
+		LEFT JOIN cus_dictionary dics ON dics.id = qualityreport.`status`
+		LEFT JOIN cus_dictionary dicp ON dicp.id = qualityreport.`ponderance`
+		LEFT JOIN cus_dictionary dict ON dict.id = qualityreport.`report_type`
+		LEFT JOIN sys_user person ON person.user_id=qualityreport.`user_id`
+		LEFT JOIN sys_dept dept on dept.dept_id=person.dept_id
+		LEFT JOIN sys_user checkperson ON checkperson.user_id=qualityreport.`check_id`
+		LEFT JOIN sys_dept checkdept on checkdept.dept_id=checkperson.dept_id
+		LEFT JOIN cus_quality_group qualitygroup ON qualitygroup.`report_id`=qualityreport.`id`
+		<!-- LEFT JOIN (SELECT crt.* from cus_report_task crt LEFT JOIN cus_dictionary crtdic on crtdic.id = crt.`link_order_type` WHERE crtdic.`value`='BDBG') reporttask ON reporttask.link_order_no= qualityreport.report_no -->
+         <where>  
+		  		  <if test="id != null and id != ''"> and qualityreport.id = #{id} </if>
+		  		  <if test="reportName != null and reportName != ''"> and qualityreport.`report_name` LIKE CONCAT(CONCAT('%',#{reportName}),'%') </if>
+		  		  <if test="userName != null and userName != ''"> and person.`name` = #{userName} </if>
+		  		  <if test="ponderance != null and ponderance != ''"> and qualityreport.ponderance = #{ponderance} </if>
+		  		  <if test="reportNo != null and reportNo != ''"> and qualityreport.reportNo = #{reportNo} </if>
+		  		  <if test="reportType != null and reportType != ''"> and qualityreport.reportType = #{reportType} </if>
+		  		  <if test="status != null and status != ''"> and qualityreport.`status` = #{status} </if>
+		  		  <if test="detailContent != null and detailContent != ''"> and qualityreport.detailContent = #{detailContent} </if>
+		  		  <if test="analyzeReason != null and analyzeReason != ''"> and qualityreport.analyzeReason = #{analyzeReason} </if>
+		  		  <if test="resultContent != null and resultContent != ''"> and qualityreport.resultContent = #{resultContent} </if>
+		  		  <if test="checkId != null and checkId != ''"> and qualityreport.`check_id` = #{checkId} </if>
+		  		  <if test="checkStatus != null and checkStatus != ''"> and qualityreport.`check_status` = #{checkStatus} </if>
+		  		  <if test="createTime != null and createTime != ''"> and qualityreport.createTime = #{createTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and qualityreport.`create_by` = #{createBy} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and qualityreport.`update_by` = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and qualityreport.`update_time` = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and qualityreport.`del_flag` = #{delFlag} </if>
+		  		  <if test="person != null and person != ''"> and person.`name` = #{pesonName} </if>
+		  		  <!-- <if test="linkStageType != null and linkStageType != ''"> and reporttask.`link_stage_type` = #{linkStageType} </if> -->
+		  		  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(qualityreport.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(qualityreport.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+				  <if test="deptId != null and deptId != ''"> and dept.`id_path` LIKE CONCAT(#{deptId},'%')</if>		  		  
+		  		  <if test="userId != null and userId != ''"> and (qualityreport.`create_by`=#{userId} OR qualityreport.`user_id`=#{userId})</if>		  		  
+		  		  <if test="manage != null and manage != ''"> and qualityreport.`user_id`=#{manage}</if>
+		  		</where>
+		  		GROUP BY qualityreport.id
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by qualityreport.id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	 
+	<select id="countForMap" resultType="int">
+		SELECT count(*) FROM
+		(SELECT COUNT(1)
+		FROM
+		cus_quality_report qualityreport
+		LEFT JOIN cus_dictionary dicc ON dicc.id = qualityreport.`check_status`
+		LEFT JOIN cus_dictionary dics ON dics.id = qualityreport.`status`
+		LEFT JOIN cus_dictionary dicp ON dicp.id = qualityreport.`ponderance`
+		LEFT JOIN cus_dictionary dict ON dict.id = qualityreport.`report_type`
+		LEFT JOIN sys_user person ON person.user_id=qualityreport.`user_id`
+		LEFT JOIN sys_dept dept on dept.dept_id=person.dept_id
+		LEFT JOIN cus_quality_group qualitygroup ON qualitygroup.`report_id`=qualityreport.`id`
+        <where>  
+		  		  <if test="id != null and id != ''"> and qualityreport.id = #{id} </if>
+		  		  <if test="reportName != null and reportName != ''"> and qualityreport.`report_name` = #{reportName} </if>
+		  		  <if test="userName != null and userName != ''"> and person.`name` = #{userName} </if>
+		  		  <if test="ponderance != null and ponderance != ''"> and qualityreport.ponderance = #{ponderance} </if>
+		  		  <if test="reportNo != null and reportNo != ''"> and qualityreport.reportNo = #{reportNo} </if>
+		  		  <if test="reportType != null and reportType != ''"> and qualityreport.reportType = #{reportType} </if>
+		  		  <if test="status != null and status != ''"> and qualityreport.`status` = #{status} </if>
+		  		  <if test="detailContent != null and detailContent != ''"> and qualityreport.detailContent = #{detailContent} </if>
+		  		  <if test="analyzeReason != null and analyzeReason != ''"> and qualityreport.analyzeReason = #{analyzeReason} </if>
+		  		  <if test="resultContent != null and resultContent != ''"> and qualityreport.resultContent = #{resultContent} </if>
+		  		  <if test="checkId != null and checkId != ''"> and qualityreport.`check_id` = #{checkId} </if>
+		  		  <if test="checkStatus != null and checkStatus != ''"> and qualityreport.`check_status` = #{checkStatus} </if>
+		  		  <if test="createTime != null and createTime != ''"> and qualityreport.createTime = #{createTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and qualityreport.`create_by` = #{createBy} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and qualityreport.`update_by` = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and qualityreport.`update_time` = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and qualityreport.`del_flag` = #{delFlag} </if>
+		  		  <if test="person != null and person != ''"> and person.`name` = #{pesonName} </if>
+		  		  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(qualityreport.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(qualityreport.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		  		 <if test="deptId != null and deptId != ''"> and dept.`id_path` LIKE CONCAT(#{deptId},'%')</if>
+		  		  <if test="userId != null and userId != ''"> and (qualityreport.`create_by`=#{userId} OR qualityreport.`user_id`=#{userId})</if>		  		  
+		  		  <if test="manage != null and manage != ''"> and qualityreport.`user_id`=#{manage}</if>
+		  		</where>
+         GROUP BY qualityreport.id) qualityreportnumber
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.QualityReportDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_quality_report
+		(
+			`report_name`, 
+			`user_id`, 
+			`ponderance`, 
+			`report_no`, 
+			`report_type`, 
+			`status`, 
+			`detail_content`, 
+			`analyze_reason`, 
+			`result_content`, 
+			`check_id`, 
+			`check_status`, 
+			`create_time`, 
+			`create_by`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{reportName}, 
+			#{userId}, 
+			#{ponderance}, 
+			#{reportNo}, 
+			#{reportType}, 
+			#{status}, 
+			#{detailContent}, 
+			#{analyzeReason}, 
+			#{resultContent}, 
+			#{checkId}, 
+			#{checkStatus}, 
+			#{createTime}, 
+			#{createBy}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.QualityReportDO">
+		update cus_quality_report 
+		<set>
+			<if test="reportName != null">`report_name` = #{reportName}, </if>
+			<if test="userId != null">`user_id` = #{userId}, </if>
+			<if test="ponderance != null">`ponderance` = #{ponderance}, </if>
+			<if test="reportNo != null">`report_no` = #{reportNo}, </if>
+			<if test="reportType != null">`report_type` = #{reportType}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="detailContent != null">`detail_content` = #{detailContent}, </if>
+			<if test="analyzeReason != null">`analyze_reason` = #{analyzeReason}, </if>
+			<if test="resultContent != null">`result_content` = #{resultContent}, </if>
+			<if test="checkId != null">`check_id` = #{checkId}, </if>
+			<if test="checkStatus != null">`check_status` = #{checkStatus}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_quality_report where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_quality_report where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

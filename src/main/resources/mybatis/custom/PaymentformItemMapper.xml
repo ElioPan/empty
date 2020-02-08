@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.PaymentformItemDao">
+
+	<select id="get" resultType="Map">
+		select `pid`,`document_date` as documentDate,`due_date` as dueDate,`pay_money` as payMoney,`amount_paid` as amountPaid,`this_pay` as thisPay,`unpay_money` as unpayMoney,
+			   `pay_account` as payAccount,dictm.name as settlementMethod,`settlement_num` as settlementNum,`remarks`,`source_num` as sourceNum,
+			   dicts.name as `sourceType`,`paymentform_id` as paymentformId,payfitem.`del_flag` as delFlag 
+		from cus_paymentform_item payfitem left join cus_dictionary dicts on payfitem.source_type = dicts.id
+			left join cus_dictionary dictm on payfitem.settlement_method = dictm.id
+		where paymentform_id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.PaymentformItemDO">
+		select `pid`,`document_date`,`due_date`,`pay_money`,`amount_paid`,`this_pay`,`unpay_money`,`pay_account`,`settlement_method`,`settlement_num`,`remarks`,`source_num`,`source_type`,`paymentform_id`,`del_flag` from cus_paymentform_item
+        <where>  
+		  		  <if test="pid != null and pid != ''"> and pid = #{pid} </if>
+		  		  <if test="documentDate != null and documentDate != ''"> and document_date = #{documentDate} </if>
+		  		  <if test="dueDate != null and dueDate != ''"> and due_date = #{dueDate} </if>
+		  		  <if test="payMoney != null and payMoney != ''"> and pay_money = #{payMoney} </if>
+		  		  <if test="amountPaid != null and amountPaid != ''"> and amount_paid = #{amountPaid} </if>
+		  		  <if test="thisPay != null and thisPay != ''"> and this_pay = #{thisPay} </if>
+		  		  <if test="unpayMoney != null and unpayMoney != ''"> and unpay_money = #{unpayMoney} </if>
+		  		  <if test="payAccount != null and payAccount != ''"> and pay_account = #{payAccount} </if>
+		  		  <if test="settlementMethod != null and settlementMethod != ''"> and settlement_method = #{settlementMethod} </if>
+		  		  <if test="settlementNum != null and settlementNum != ''"> and settlement_num = #{settlementNum} </if>
+		  		  <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+		  		  <if test="sourceNum != null and sourceNum != ''"> and source_num = #{sourceNum} </if>
+		  		  <if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+		  		  <if test="paymentformId != null and paymentformId != ''"> and paymentform_id = #{paymentformId} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by pid desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_paymentform_item
+		 <where>  
+		  		  <if test="pid != null and pid != ''"> and pid = #{pid} </if>
+		  		  <if test="documentDate != null and documentDate != ''"> and document_date = #{documentDate} </if>
+		  		  <if test="dueDate != null and dueDate != ''"> and due_date = #{dueDate} </if>
+		  		  <if test="payMoney != null and payMoney != ''"> and pay_money = #{payMoney} </if>
+		  		  <if test="amountPaid != null and amountPaid != ''"> and amount_paid = #{amountPaid} </if>
+		  		  <if test="thisPay != null and thisPay != ''"> and this_pay = #{thisPay} </if>
+		  		  <if test="unpayMoney != null and unpayMoney != ''"> and unpay_money = #{unpayMoney} </if>
+		  		  <if test="payAccount != null and payAccount != ''"> and pay_account = #{payAccount} </if>
+		  		  <if test="settlementMethod != null and settlementMethod != ''"> and settlement_method = #{settlementMethod} </if>
+		  		  <if test="settlementNum != null and settlementNum != ''"> and settlement_num = #{settlementNum} </if>
+		  		  <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+		  		  <if test="sourceNum != null and sourceNum != ''"> and source_num = #{sourceNum} </if>
+		  		  <if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+		  		  <if test="paymentformId != null and paymentformId != ''"> and paymentform_id = #{paymentformId} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.PaymentformItemDO" useGeneratedKeys="true" keyProperty="pid">
+		insert into cus_paymentform_item
+		(
+			`document_date`, 
+			`due_date`, 
+			`pay_money`, 
+			`amount_paid`, 
+			`this_pay`, 
+			`unpay_money`, 
+			`pay_account`, 
+			`settlement_method`, 
+			`settlement_num`, 
+			`remarks`, 
+			`source_num`, 
+			`source_type`, 
+			`paymentform_id`, 
+			`del_flag`
+		)
+		values
+		(
+			#{documentDate}, 
+			#{dueDate}, 
+			#{payMoney}, 
+			#{amountPaid}, 
+			#{thisPay}, 
+			#{unpayMoney}, 
+			#{payAccount}, 
+			#{settlementMethod}, 
+			#{settlementNum}, 
+			#{remarks}, 
+			#{sourceNum}, 
+			#{sourceType}, 
+			#{paymentformId}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.PaymentformItemDO">
+		update cus_paymentform_item 
+		<set>
+			<if test="documentDate != null">`document_date` = #{documentDate}, </if>
+			<if test="dueDate != null">`due_date` = #{dueDate}, </if>
+			<if test="payMoney != null">`pay_money` = #{payMoney}, </if>
+			<if test="amountPaid != null">`amount_paid` = #{amountPaid}, </if>
+			<if test="thisPay != null">`this_pay` = #{thisPay}, </if>
+			<if test="unpayMoney != null">`unpay_money` = #{unpayMoney}, </if>
+			<if test="payAccount != null">`pay_account` = #{payAccount}, </if>
+			<if test="settlementMethod != null">`settlement_method` = #{settlementMethod}, </if>
+			<if test="settlementNum != null">`settlement_num` = #{settlementNum}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="sourceNum != null">`source_num` = #{sourceNum}, </if>
+			<if test="sourceType != null">`source_type` = #{sourceType}, </if>
+			<if test="paymentformId != null">`paymentform_id` = #{paymentformId}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where pid = #{pid}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_paymentform_item where paymentform_id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_paymentform_item where pid in 
+		<foreach item="pid" collection="array" open="(" separator="," close=")">
+			#{pid}
+		</foreach>
+	</delete>
+
+</mapper>

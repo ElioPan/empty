@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.MaterialInspectionDao">
+
+	<select id="get" resultType="com.ev.mes.domain.MaterialInspectionDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_material_inspection 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.MaterialInspectionDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_material_inspection
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="listForMap" resultType="map">
+		SELECT
+			inspection.`id` AS id,
+			inspection.`inspection_no` AS inspectionNo, 
+			inspection.`create_time` AS createTime, 
+			inspection.`materiel_id` AS materielId, 
+			material.serial_no AS materialSerialNo,
+			material.name AS materialName,
+			material.specification AS specification,
+			unituom.id AS unitUomId,
+			unituom.name AS unitUomName,
+			inspection.`dept_id` AS deptId,
+			dept.`name` AS deptName, 
+			inspection.`client_id` AS clientId,
+			client.`name` AS clientName, 
+			inspection.`supplier_id` AS supplierId, 
+			supplier.`name` AS supplierName,
+			inspection.`send_count` AS sendCount, 
+			inspection.`inspection_count` AS inspectionCount, 
+			inspection.`qualified_count` AS qualifiedCount, 
+			inspection.`unqualified_count` AS unqualifiedCount, 
+			inspection.`remarks` AS remarks,
+			inspection.`auditor` AS auditorId,
+			audituser.`name` AS auditorName,
+			inspection.`create_by` AS createrId,
+			createuser.`name` AS createrName, 
+			inspection.`status` AS statusId,
+			dictt.`name` AS statusName,
+			<!-- 上为列表字段下为查看详情显示字段 -->
+			inspection.source_id AS sourceId,
+            inspection.source_no AS sourceNo,
+			purchasecontract.`contract_code` AS contractCode,
+			inspection.`batch_no` AS batchNo, 
+			inspection.`inspection_scheme` AS inspectionScheme,
+			checkplan.`name` AS checkplanName,
+            inspectoruser.`name` AS inspectorName,
+            inspection.`inspector` AS inspector,
+			<!-- 产品检验字段 -->
+            proplan.`plan_count` AS planCount,
+			inspection.`industrial_waste_count` AS industrialWasteCount, 
+			inspection.`scrap_waste_count` AS scrapWasteCount
+		<include refid="sql_map_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order},inspection.`id` desc
+            </when>
+			<otherwise>
+                ORDER BY inspection.`id` desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="countForMap" resultType="map">
+		SELECT 
+		COUNT(*) AS total,
+		SUM(IFNULL(inspection.`send_count`,0)) AS sendCounts,
+		SUM(IFNULL(inspection.`inspection_count`,0)) AS inspectionCounts,
+		SUM(IFNULL(inspection.`qualified_count`,0)) AS qualifiedCounts,
+		SUM(IFNULL(inspection.`unqualified_count`,0)) AS unqualifiedCounts
+		<include refid="sql_map_condition"/>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_material_inspection
+		<include refid="sql_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.MaterialInspectionDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_material_inspection
+		(
+			`inspection_type`, 
+			`source_id`,
+			`source_no`,  
+			`source_type`, 
+			`supplier_id`, 
+			`client_id`, 
+			`dept_id`, 
+			`inspector`, 
+			`materiel_id`, 
+			`batch_no`, 
+			`inspection_scheme`, 
+			`send_count`, 
+			`inspection_count`, 
+			`qualified_count`, 
+			`unqualified_count`, 
+			`inspection_no`, 
+			`industrial_waste_count`, 
+			`scrap_waste_count`, 
+			`auditor`, 
+			`status`, 
+			`remarks`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{inspectionType}, 
+			#{sourceId}, 
+			#{sourceNo}, 
+			#{sourceType}, 
+			#{supplierId}, 
+			#{clientId}, 
+			#{deptId}, 
+			#{inspector}, 
+			#{materielId}, 
+			#{batchNo}, 
+			#{inspectionScheme}, 
+			#{sendCount}, 
+			#{inspectionCount}, 
+			#{qualifiedCount}, 
+			#{unqualifiedCount}, 
+			#{inspectionNo}, 
+			#{industrialWasteCount}, 
+			#{scrapWasteCount}, 
+			#{auditor}, 
+			#{status}, 
+			#{remarks}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.MaterialInspectionDO">
+		update mes_material_inspection 
+		<set>
+			<if test="inspectionType != null">`inspection_type` = #{inspectionType}, </if>
+			<if test="sourceNo != null">`source_no` = #{sourceNo}, </if>
+			<if test="sourceId != null">`source_id` = #{sourceId}, </if>
+			<if test="sourceType != null">`source_type` = #{sourceType}, </if>
+			<if test="supplierId != null">`supplier_id` = #{supplierId}, </if>
+			<if test="clientId != null">`client_id` = #{clientId}, </if>
+			<if test="deptId != null">`dept_id` = #{deptId}, </if>
+			<if test="inspector != null">`inspector` = #{inspector}, </if>
+			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
+			<if test="batchNo != null">`batch_no` = #{batchNo}, </if>
+			<if test="inspectionScheme != null">`inspection_scheme` = #{inspectionScheme}, </if>
+			<if test="sendCount != null">`send_count` = #{sendCount}, </if>
+			<if test="inspectionCount != null">`inspection_count` = #{inspectionCount}, </if>
+			<if test="qualifiedCount != null">`qualified_count` = #{qualifiedCount}, </if>
+			<if test="unqualifiedCount != null">`unqualified_count` = #{unqualifiedCount}, </if>
+			<if test="inspectionNo != null">`inspection_no` = #{inspectionNo}, </if>
+			<if test="industrialWasteCount != null">`industrial_waste_count` = #{industrialWasteCount}, </if>
+			<if test="scrapWasteCount != null">`scrap_waste_count` = #{scrapWasteCount}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_material_inspection where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_material_inspection where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<sql id="sql_column_list">
+		`id`,`inspection_type`,`source_id`,`source_no`,`source_type`,`supplier_id`,`client_id`,`dept_id`,`inspector`,`materiel_id`,`batch_no`,`inspection_scheme`,`send_count`,`inspection_count`,`qualified_count`,`unqualified_count`,`inspection_no`,`industrial_waste_count`,`scrap_waste_count`,`auditor`,`status`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="maxNo != null and maxNo != ''"> and LEFT(inspection_no,12) = #{maxNo} </if>
+		  		  <if test="inspectionType != null and inspectionType != ''"> and inspection_type = #{inspectionType} </if>
+		  		  <if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
+		  		  <if test="sourceNo != null and sourceNo != ''"> and source_no = #{sourceNo} </if>
+		  		  <if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+		  		  <if test="supplierId != null and supplierId != ''"> and supplier_id = #{supplierId} </if>
+		  		  <if test="clientId != null and clientId != ''"> and client_id = #{clientId} </if>
+		  		  <if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
+		  		  <if test="inspector != null and inspector != ''"> and inspector = #{inspector} </if>
+		  		  <if test="materielId != null and materielId != ''"> and materiel_id = #{materielId} </if>
+		  		  <if test="batchNo != null and batchNo != ''"> and batch_no = #{batchNo} </if>
+		  		  <if test="inspectionScheme != null and inspectionScheme != ''"> and inspection_scheme = #{inspectionScheme} </if>
+		  		  <if test="sendCount != null and sendCount != ''"> and send_count = #{sendCount} </if>
+		  		  <if test="inspectionCount != null and inspectionCount != ''"> and inspection_count = #{inspectionCount} </if>
+		  		  <if test="qualifiedCount != null and qualifiedCount != ''"> and qualified_count = #{qualifiedCount} </if>
+		  		  <if test="unqualifiedCount != null and unqualifiedCount != ''"> and unqualified_count = #{unqualifiedCount} </if>
+		  		  <if test="inspectionNo != null and inspectionNo != ''"> and inspection_no = #{inspectionNo} </if>
+		  		  <if test="industrialWasteCount != null and industrialWasteCount != ''"> and industrial_waste_count = #{industrialWasteCount} </if>
+		  		  <if test="scrapWasteCount != null and scrapWasteCount != ''"> and scrap_waste_count = #{scrapWasteCount} </if>
+		  		  <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</sql>
+	
+	<sql id="sql_map_condition">
+		FROM mes_material_inspection inspection
+        LEFT JOIN mes_production_plan proplan ON proplan.`id`=inspection.`source_id`
+		LEFT JOIN cus_materiel material ON material.`id`=inspection.`materiel_id`
+		LEFT JOIN cus_dictionary unituom ON unituom.id = material.`unit_uom`
+		LEFT JOIN cus_dictionary dictt ON dictt.id = inspection.`status`
+		LEFT JOIN sys_dept dept ON dept.`dept_id`=inspection.`dept_id`
+		LEFT JOIN cus_supplier supplier ON supplier.`id`=inspection.`supplier_id`
+		LEFT JOIN cus_client client ON client.`id`=inspection.`client_id`
+		LEFT JOIN sys_user createuser ON createuser.`user_id`=inspection.`create_by`
+		LEFT JOIN sys_user audituser ON audituser.`user_id`=inspection.`auditor`
+		<!-- 以上列表关联项 -->
+		LEFT JOIN scm_purchasecontract purchasecontract ON purchasecontract.id=inspection.source_id
+		LEFT JOIN sys_user inspectoruser ON inspectoruser.`user_id`=inspection.`inspector`
+		LEFT JOIN mes_check_plan checkplan ON checkplan.`id`=inspection.`inspection_scheme`
+		<where> 
+			 <if test="id != null and id != ''"> and inspection.id = #{id} </if>
+			 <!-- 列表查询字段 -->
+			 <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(inspection.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+		 	 <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(inspection.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		  	 <if test="serialNo != null and serialNo != ''"> and material.serial_no like CONCAT('%', #{serialNo},'%') </if>
+		  	 <if test="deptId != null and deptId != ''"> and inspection.dept_id = #{deptId} </if>
+			 <if test="supplierId != null and supplierId != ''"> and inspection.supplier_id = #{supplierId} </if>
+            <if test="supplierName != null and supplierName != ''"> and supplier.name like CONCAT('%', #{supplierName},'%') </if>
+		  	 <if test="clientId != null and clientId != ''"> and inspection.client_id = #{clientId} </if>
+            <if test="clientName != null and clientName != ''"> and client.name like CONCAT('%', #{clientName},'%') </if>
+		  	 <if test="status != null and status != ''"> and inspection.status = #{status} </if>
+		  	 <!-- 检验单类型 -->
+		  	 <if test="inspectionType != null and inspectionType != ''"> and inspection.inspection_type = #{inspectionType} </if>
+		</where>
+	</sql>
+	
+</mapper>

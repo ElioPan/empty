@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.UpkeepRecordPartDao">
+
+	<select id="get" resultType="com.ev.custom.domain.UpkeepRecordPartDO">
+		select `id`,`plan_id`,`record_id`,`part_id`,`spart_amount`,`spart_price`,`spart_unit`,`spart_sum`,`remark`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_upkeep_record_part where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.UpkeepRecordPartDO">
+		select `id`,`plan_id`,`record_id`,`part_id`,`spart_amount`,`spart_price`,`spart_unit`,`spart_sum`,`remark`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_upkeep_record_part
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="planId != null and planId != ''"> and plan_id = #{planId} </if>
+			<if test="recordId != null and recordId != ''"> and record_id = #{recordId} </if>
+			<if test="partId != null and partId != ''"> and part_id = #{partId} </if>
+			<if test="spartAmount != null and spartAmount != ''"> and spart_amount = #{spartAmount} </if>
+			<if test="spartPrice != null and spartPrice != ''"> and spart_price = #{spartPrice} </if>
+			<if test="spartUnit != null and spartUnit != ''"> and spart_unit = #{spartUnit} </if>
+			<if test="spartSum != null and spartSum != ''"> and spart_sum = #{spartSum} </if>
+			<if test="remark != null and remark != ''"> and remark = #{remark} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from cus_upkeep_record_part
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="planId != null and planId != ''"> and plan_id = #{planId} </if>
+			<if test="recordId != null and recordId != ''"> and record_id = #{recordId} </if>
+			<if test="partId != null and partId != ''"> and part_id = #{partId} </if>
+			<if test="spartAmount != null and spartAmount != ''"> and spart_amount = #{spartAmount} </if>
+			<if test="spartPrice != null and spartPrice != ''"> and spart_price = #{spartPrice} </if>
+			<if test="spartUnit != null and spartUnit != ''"> and spart_unit = #{spartUnit} </if>
+			<if test="spartSum != null and spartSum != ''"> and spart_sum = #{spartSum} </if>
+			<if test="remark != null and remark != ''"> and remark = #{remark} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+	</select>
+
+	<insert id="save" parameterType="com.ev.custom.domain.UpkeepRecordPartDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_upkeep_record_part
+		(
+		`plan_id`,
+		`record_id`,
+		`part_id`,
+		`spart_amount`,
+		`spart_price`,
+		`spart_unit`,
+		`spart_sum`,
+		`remark`,
+		`create_by`,
+		`create_time`,
+		`update_by`,
+		`update_time`,
+		`del_flag`
+		)
+		values
+		(
+		#{planId},
+		#{recordId},
+		#{partId},
+		#{spartAmount},
+		#{spartPrice},
+		#{spartUnit},
+		#{spartSum},
+		#{remark},
+		#{createBy},
+		#{createTime},
+		#{updateBy},
+		#{updateTime},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.custom.domain.UpkeepRecordPartDO">
+		update cus_upkeep_record_part
+		<set>
+			<if test="planId != null">`plan_id` = #{planId}, </if>
+			<if test="recordId != null">`record_id` = #{recordId}, </if>
+			<if test="partId != null">`part_id` = #{partId}, </if>
+			<if test="spartAmount != null">`spart_amount` = #{spartAmount}, </if>
+			<if test="spartPrice != null">`spart_price` = #{spartPrice}, </if>
+			<if test="spartUnit != null">`spart_unit` = #{spartUnit}, </if>
+			<if test="spartSum != null">`spart_sum` = #{spartSum}, </if>
+			<if test="remark != null">`remark` = #{remark}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from cus_upkeep_record_part where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from cus_upkeep_record_part where id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<delete id="removeByRecordId">
+		delete from cus_upkeep_record_part where record_id = #{value}
+	</delete>
+
+	<delete id="batchRemoveByRecordId">
+		delete from cus_upkeep_record_part where record_id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<select id="SpartByRecordId" resultType="map">
+		select
+		    curp.id,
+			curp.spart_amount ,
+			curp.part_id,
+			curp.spart_sum ,
+			csp.name as spartName,
+			csp.sale_price as price,
+			csp.serial_no as code,
+			csp.type,
+      		cmt.name as typeName,
+			csp.unit_uom as unit,
+			cd.name as unitName,
+			cdd.name as locationName
+		from cus_upkeep_record_part   curp
+		LEFT JOIN cus_materiel csp  ON curp.part_id=csp.id
+		LEFT JOIN cus_dictionary cd  ON csp.unit_uom=cd.id
+   		LEFT JOIN cus_facility_location cdd ON cdd.id = csp.default_location
+    	LEFT JOIN cus_materiel_type  cmt on csp.type=cmt.id
+		WHERE
+	        curp.record_id=#{id}
+	</select>
+
+	<select id="spartByRecordIdAgain" resultType="map">
+		select
+		curp.id,
+		curp.spart_amount,
+		csp.unit_uom as spart_unitid,
+		a.name as spart_unit,
+		curp.part_id,
+		curp.spart_sum,
+		csp.name as spartName,
+	<!-- csp.sale_price as price,-->
+		curp.spart_price as price,
+		csp.serial_no as code,
+		csp.specification as type,
+		cdd.name as locationName,
+		curp.remark
+		from cus_upkeep_record_part   curp
+		LEFT JOIN cus_materiel csp  ON curp.part_id=csp.id
+		LEFT JOIN cus_dictionary cd  ON csp.unit_uom=cd.id
+		LEFT JOIN cus_facility_location cdd  ON csp.default_location=cdd.id
+		LEFT JOIN cus_dictionary a  ON csp.unit_uom=a.id
+		WHERE
+		curp.record_id=#{id}
+	</select>
+
+
+
+</mapper>

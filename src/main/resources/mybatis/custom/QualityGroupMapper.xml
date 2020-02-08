@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.QualityGroupDao">
+
+	<select id="get" resultType="com.ev.custom.domain.QualityGroupDO">
+		select `id`,`report_id`,`dept_id`,`user_id`,`responsible_content`,`create_time`,`create_by`,`update_by`,`update_time`,`del_flag` from cus_quality_group where id = #{value}
+	</select>
+
+	<select id="listForMap" resultType="map">
+		SELECT 
+		qualityreport.id as id,
+		qualitygroup.id as gid,
+		qualitygroup.responsible_content as responsibleContent,
+		person.`name` as personName,
+		person.`user_id` as personId,
+		dept.`name` as deptName,
+		dept.`dept_id` as deptId 
+		FROM
+		cus_quality_report qualityreport
+		LEFT JOIN cus_quality_group qualitygroup ON qualitygroup.`report_id`=qualityreport.id
+		LEFT JOIN sys_user person ON person.user_id=qualitygroup.`user_id`
+		LEFT JOIN sys_dept dept on dept.dept_id=person.dept_id
+        <where>  
+		  		  <if test="id != null and id != ''"> and qualitygroup.id = #{id} </if>
+		  		  <if test="reportId != null and reportId != ''"> and qualitygroup.report_id = #{reportId} </if>
+		  		  <if test="deptId != null and deptId != ''"> and qualitygroup.dept_id = #{deptId} </if>
+		  		  <if test="userId != null and userId != ''"> and qualitygroup.user_id = #{userId} </if>
+		  		  <if test="responsibleContent != null and responsibleContent != ''"> and qualitygroup.responsible_content = #{responsibleContent} </if>
+		  		  <if test="createTime != null and createTime != ''"> and qualitygroup.create_time = #{createTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and qualitygroup.create_by = #{createBy} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and qualitygroup.update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and qualitygroup.update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and qualitygroup.del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="list" resultType="com.ev.custom.domain.QualityGroupDO">
+		select `id`,`report_id`,`dept_id`,`user_id`,`responsible_content`,`create_time`,`create_by`,`update_by`,`update_time`,`del_flag` from cus_quality_group
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="reportId != null and reportId != ''"> and report_id = #{reportId} </if>
+		  		  <if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
+		  		  <if test="userId != null and userId != ''"> and user_id = #{userId} </if>
+		  		  <if test="responsibleContent != null and responsibleContent != ''"> and responsible_content = #{responsibleContent} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_quality_group
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="reportId != null and reportId != ''"> and report_id = #{reportId} </if>
+		  		  <if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
+		  		  <if test="userId != null and userId != ''"> and user_id = #{userId} </if>
+		  		  <if test="responsibleContent != null and responsibleContent != ''"> and responsible_content = #{responsibleContent} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.QualityGroupDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_quality_group
+		(
+			`report_id`, 
+			`dept_id`, 
+			`user_id`, 
+			`responsible_content`, 
+			`create_time`, 
+			`create_by`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{reportId}, 
+			#{deptId}, 
+			#{userId}, 
+			#{responsibleContent}, 
+			#{createTime}, 
+			#{createBy}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.QualityGroupDO">
+		update cus_quality_group 
+		<set>
+			<if test="reportId != null">`report_id` = #{reportId}, </if>
+			<if test="deptId != null">`dept_id` = #{deptId}, </if>
+			<if test="userId != null">`user_id` = #{userId}, </if>
+			<if test="responsibleContent != null">`responsible_content` = #{responsibleContent}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_quality_group where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_quality_group where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

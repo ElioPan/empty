@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.AllotItemDao">
+
+	<select id="get" resultType="com.ev.scm.domain.AllotItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_allot_item 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.AllotItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_allot_item
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from scm_allot_item
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`allot_id`,`stock_id`,`in_facility`,`in_location`,`count`,`price`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> and id = #{id} </if>
+                            <if test="allotId != null and allotId != ''"> and allot_id = #{allotId} </if>
+                            <if test="stockId != null and stockId != ''"> and stock_id = #{stockId} </if>
+                            <if test="inFacility != null and inFacility != ''"> and in_facility = #{inFacility} </if>
+                            <if test="inLocation != null and inLocation != ''"> and in_location = #{inLocation} </if>
+                            <if test="count != null and count != ''"> and count = #{count} </if>
+                            <if test="price != null and price != ''"> and price = #{price} </if>
+                            <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.AllotItemDO" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_allot_item
+		(
+			`allot_id`, 
+			`stock_id`, 
+			`in_facility`, 
+			`in_location`, 
+			`count`, 
+			`price`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{allotId}, 
+			#{stockId}, 
+			#{inFacility}, 
+			#{inLocation}, 
+			#{count}, 
+			#{price}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.AllotItemDO">
+		update scm_allot_item 
+		<set>
+			<if test="allotId != null">`allot_id` = #{allotId}, </if>
+			<if test="stockId != null">`stock_id` = #{stockId}, </if>
+			<if test="inFacility != null">`in_facility` = #{inFacility}, </if>
+			<if test="inLocation != null">`in_location` = #{inLocation}, </if>
+			<if test="count != null">`count` = #{count}, </if>
+			<if test="price != null">`price` = #{price}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+    <delete id="remove">
+		delete from scm_allot_item where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from scm_allot_item where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+    <!--自定义-->
+    <select id="getDetail" resultType="map">
+        SELECT
+            item.`id` AS itemId,
+            materiel.`name` AS materielName,
+            materiel.`serial_no` AS materielSerialno,
+            materiel.`specification` AS specification,
+            outlo.`name` AS outLocationName,
+            outlo.`id` AS outLocation,
+            outfac.`name` AS outFacilityName,
+            outfac.`id` AS outFacility,
+            inlo.`name` AS inLocationName,
+            inlo.`id` AS inLocation,
+            infac.`name` AS inFacilityName,
+            infac.`id` AS inFacility,
+            item.`count` AS count,
+            item.`price` AS price
+        FROM
+            scm_allot_item item
+        LEFT JOIN scm_stock stock ON stock.`id` = item.`stock_id`
+        LEFT JOIN cus_materiel materiel ON materiel.`id` = stock.`materiel_id`
+        LEFT JOIN cus_dictionary dicu ON dicu.`id` = materiel.`unit_uom`
+        LEFT JOIN cus_facility_location outlo ON outlo.`id` = stock.`wareh_location`
+        LEFT JOIN cus_facility outfac ON outfac.`id` = outlo.`facility_id`
+        LEFT JOIN cus_facility_location inlo ON inlo.`id` = item.`in_location`
+        LEFT JOIN cus_facility infac ON infac.`id` = inlo.`facility_id`
+        WHERE
+            item.allot_id = #{value}
+    </select>
+    <delete id="removeByAllotId">
+        DELETE
+        FROM
+            scm_allot_item
+        WHERE
+            allot_id = #{value}
+    </delete>
+    <delete id="batchRemoveByAllotId">
+        DELETE
+        FROM
+        scm_allot_item
+        WHERE
+        allot_id IN
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <insert id="batchInsert" parameterType="List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO scm_allot_item
+        (
+        `allot_id`,
+        `stock_id`,
+        `in_facility`,
+        `in_location`,
+        `count`,
+        `price`,
+        `create_by`,
+        `create_time`,
+        `update_by`,
+        `update_time`,
+        `del_flag`
+        ) VALUES
+        <foreach collection="list" item="obj" separator=",">
+            (
+            #{obj.allotId},
+            #{obj.stockId},
+            #{obj.inFacility},
+            #{obj.inLocation},
+            #{obj.count},
+            #{obj.price},
+            #{obj.createBy},
+            #{obj.createTime},
+            #{obj.updateBy},
+            #{obj.updateTime},
+            #{obj.delFlag}
+            )
+        </foreach>
+    </insert>
+    <update id="batchUpdate" parameterType="List">
+        UPDATE scm_allot_item
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="allot_id=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.allotId!=null">
+                        when id=#{item.id} then #{item.allotId}
+                    </if>
+                    <if test="item.allotId==null">
+                        when id=#{item.id} then cus_allot_detail.allot_id
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="stock_id =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.stockId!=null">
+                        when id=#{item.id} then #{item.stockId}
+                    </if>
+                    <if test="item.stockId==null">
+                        when id=#{item.id} then cus_allot_detail.stock_id
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="in_facility =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.inFacility!=null">
+                        when id=#{item.id} then #{item.inFacility}
+                    </if>
+                    <if test="item.inFacility==null">
+                        when id=#{item.id} then cus_allot_detail.in_facility
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="in_location =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.inLocation!=null">
+                        when id=#{item.id} then #{item.inLocation}
+                    </if>
+                    <if test="item.inLocation==null">
+                        when id=#{item.id} then cus_allot_detail.in_location
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="count =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.count!=null">
+                        when id=#{item.id} then #{item.count}
+                    </if>
+                    <if test="item.count==null">
+                        when id=#{item.id} then cus_allot_detail.`count`
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="price =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.price!=null">
+                        when id=#{item.id} then #{item.price}
+                    </if>
+                    <if test="item.price==null">
+                        when id=#{item.id} then cus_allot_detail.price
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="create_by =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.createBy!=null">
+                        when id=#{item.id} then #{item.createBy}
+                    </if>
+                    <if test="item.createBy==null">
+                        when id=#{item.id} then cus_allot_detail.create_by
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="create_time =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.createTime!=null">
+                        when id=#{item.id} then #{item.createTime}
+                    </if>
+                    <if test="item.createTime==null">
+                        when id=#{item.id} then cus_allot_detail.create_time
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_by =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateBy!=null">
+                        when id=#{item.id} then #{item.updateBy}
+                    </if>
+                    <if test="item.updateBy==null">
+                        when id=#{item.id} then cus_allot_detail.update_by
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_time =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateTime!=null">
+                        when id=#{item.id} then #{item.updateTime}
+                    </if>
+                    <if test="item.updateTime==null">
+                        when id=#{item.id} then cus_allot_detail.update_time
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="del_flag =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.delFlag!=null">
+                        when id=#{item.id} then #{item.delFlag}
+                    </if>
+                    <if test="item.delFlag==null">
+                        when id=#{item.id} then cus_allot_detail.del_flag
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        WHERE id IN
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id}
+        </foreach>
+    </update>
+
+</mapper>

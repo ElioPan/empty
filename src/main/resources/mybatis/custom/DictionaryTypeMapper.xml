@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.DictionaryTypeDao">
+
+	<select id="get" resultType="com.ev.custom.domain.DictionaryTypeDO">
+		select `id`,`code`,`name`,`parent_id`,`is_update`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_dictionary_type where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.DictionaryTypeDO">
+		select `id`,`code`,`name`,`parent_id`,`is_update`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_dictionary_type
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="code != null and code != ''"> and code = #{code} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="parentId != null and parentId != ''"> and parent_id = #{parentId} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_dictionary_type
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="code != null and code != ''"> and code = #{code} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="parentId != null and parentId != ''"> and parent_id = #{parentId} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+
+	<select id="listForMap" resultType="map">
+		select id as id,code as code,name as name,parent_id as parentid,is_update AS isUpdate,create_by as createBy,create_time as createTime,update_by as updateBy,update_time as updateTime,del_flag as delFlag from cus_dictionary_type
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="code != null and code != ''"> and code = #{code} </if>
+			<if test="name != null and name != ''"> and name = #{name} </if>
+            <if test="fuzzySearch != null and fuzzySearch != ''"> and name LIKE #{fuzzySearch} </if>
+			<if test="isUpdate != null"> and is_update = #{isUpdate} </if>
+			<if test="parentId != null and parentId != ''"> and parent_id = #{parentId} </if>
+			<if test="isUpdate != null and isUpdate != ''"> and is_update = #{isUpdate} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="int">
+		select count(*) from cus_dictionary_type
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="code != null and code != ''"> and code = #{code} </if>
+			<if test="name != null and name != ''"> and name = #{name} </if>
+            <if test="fuzzySearch != null and fuzzySearch != ''"> and name LIKE #{fuzzySearch} </if>
+			<if test="isUpdate != null"> and is_update = #{isUpdate} </if>
+			<if test="parentId != null and parentId != ''"> and parent_id = #{parentId} </if>
+			<if test="isUpdate != null and isUpdate != ''"> and is_update = #{isUpdate} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.DictionaryTypeDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_dictionary_type
+		(
+			`code`, 
+			`name`, 
+			`parent_id`,
+			`is_update`,
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{code}, 
+			#{name}, 
+			#{parentId}, 
+			#{isUpdate}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.DictionaryTypeDO">
+		update cus_dictionary_type 
+		<set>
+			<if test="code != null">`code` = #{code}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="parentId != null">`parent_id` = #{parentId}, </if>
+			<if test="isUpdate != null">`is_update` = #{isUpdate}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_dictionary_type where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_dictionary_type where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

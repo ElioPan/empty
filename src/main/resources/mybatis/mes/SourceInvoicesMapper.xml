@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.SourceInvoicesDao">
+
+	<select id="get" resultType="com.ev.mes.domain.SourceInvoicesDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_source_invoices 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.SourceInvoicesDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_source_invoices
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_source_invoices
+		<include refid="sql_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.SourceInvoicesDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_source_invoices
+		(
+			`source_id`, 
+			`source_no`, 
+			`source_type`, 
+			`target_id`, 
+			`target_type`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{sourceId}, 
+			#{sourceNo}, 
+			#{sourceType}, 
+			#{targetId}, 
+			#{targetType}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.SourceInvoicesDO">
+		update mes_source_invoices 
+		<set>
+			<if test="sourceId != null">`source_id` = #{sourceId}, </if>
+			<if test="sourceNo != null">`source_no` = #{sourceNo}, </if>
+			<if test="sourceType != null">`source_type` = #{sourceType}, </if>
+			<if test="targetId != null">`target_id` = #{targetId}, </if>
+			<if test="targetType != null">`target_type` = #{targetType}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_source_invoices where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_source_invoices where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<sql id="sql_column_list">
+		`id`,`source_id`,`source_no`,`source_type`,`target_id`,`target_type`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
+		  		  <if test="sourceNo != null and sourceNo != ''"> and source_no = #{sourceNo} </if>
+		  		  <if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+		  		  <if test="targetId != null and targetId != ''"> and target_id = #{targetId} </if>
+		  		  <if test="targetType != null and targetType != ''"> and target_type = #{targetType} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</sql>
+	
+</mapper>

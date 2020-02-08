@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.BanktransferslipDao">
+
+	<select id="get" resultType="Map">
+		select banktranslip.`id`,`transfer_date` as `transferDate`,userh.username as `handlePeople`,`transfer_num` as `transferNum`,dict.name as `auditStatus`,
+			   usera.username as `auditor`,banktranslip.`auditor_time` as auditorTime,userc.username as `createBy`,banktranslip.`create_time` as createTime,
+			   useru.username as `updateBy`,banktranslip.`update_time` as updateTime,banktranslip.`del_flag` as delFlag
+			from cus_banktransferslip banktranslip left join cus_dictionary dict on banktranslip.audit_status = dict.id
+				 left join sys_user usera on banktranslip.auditor = usera.user_id left join sys_user userc on banktranslip.create_by = userc.user_id 
+				 left join sys_user useru on banktranslip.update_by = useru.user_id left join sys_user userh on banktranslip.handle_people = userh.user_id
+			where banktranslip.id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.BanktransferslipDO">
+		select `id`,`transfer_date`,`handle_people`,`transfer_num`,`audit_status`,`auditor`,`auditor_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_banktransferslip
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="transferDate != null and transferDate != ''"> and transfer_date = #{transferDate} </if>
+		  		  <if test="handlePeople != null and handlePeople != ''"> and handle_people = #{handlePeople} </if>
+		  		  <if test="transferNum != null and transferNum != ''"> and transfer_num = #{transferNum} </if>
+		  		  <if test="auditStatus != null and auditStatus != ''"> and audit_status = #{auditStatus} </if>
+		  		  <if test="maxNo != null and maxNo != ''"> and LEFT(inhead_code,12) = #{maxNo} </if>
+		  		  <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+		  		  <if test="auditorTime != null and auditorTime != ''"> and auditor_time = #{auditorTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_banktransferslip
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="transferDate != null and transferDate != ''"> and transfer_date = #{transferDate} </if>
+		  		  <if test="handlePeople != null and handlePeople != ''"> and handle_people = #{handlePeople} </if>
+		  		  <if test="transferNum != null and transferNum != ''"> and transfer_num = #{transferNum} </if>
+		  		  <if test="auditStatus != null and auditStatus != ''"> and audit_status = #{auditStatus} </if>
+		  		  <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+		  		  <if test="auditorTime != null and auditorTime != ''"> and auditor_time = #{auditorTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	
+	<select id="listApi" resultType="Map">
+		select banktranslip.`id`,`transfer_date` as `transferDate`,userh.username as `handlePeople`,`transfer_num` as `transferNum`,dict.name as `auditStatus`,
+			   usera.username as `auditor`,`auditor_time` as `auditorTime`,userc.username as `createBy`,banktranslip.`create_time` as `createTime`,useru.username as `updateBy`,
+			   banktranslip.`update_time` as `updateTime`,banktranslip.`del_flag` as `delFlag`,`tid`,`transferred_account` as `transferredAccount`,`transfer_account` as 
+			   `transferAccount`,`money`,dicts.name as `settlementMethod`,`settlement_number` as `settlementNumber`,`remarks`,`banktransferslip_id` as `banktransferslipId`,
+			   banktranslipitem.`del_flag` as `delFlag` 
+			from cus_banktransferslip banktranslip left join cus_banktransferslip_item banktranslipitem on banktranslip.id = banktranslipitem.`banktransferslip_id`
+				 left join cus_dictionary dict on banktranslip.audit_status = dict.id
+				 left join sys_user usera on banktranslip.auditor = usera.user_id left join sys_user userc on banktranslip.create_by = userc.user_id 
+				 left join sys_user useru on banktranslip.update_by = useru.user_id left join cus_dictionary dicts on banktranslipitem.settlement_method = dicts.id
+				 left join sys_user userh on banktranslip.handle_people = userh.user_id
+        <where>  
+		  		  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(transfer_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(transfer_date,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+				  <if test="transferNum != null and transferNum != ''"> and transfer_num = #{transferNum} </if>
+				  <if test="handlePeople != null and handlePeople != ''"> and handle_people = #{handlePeople} </if>
+				  <if test="auditStatus != null and auditStatus != ''"> and audit_status = #{auditStatus} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="countApi" resultType="int">
+		select count(*) from cus_banktransferslip banktranslip left join cus_banktransferslip_item banktranslipitem on banktranslip.id = banktranslipitem.`banktransferslip_id`
+				 left join cus_dictionary dict on banktranslip.audit_status = dict.id
+				 left join sys_user usera on banktranslip.auditor = usera.user_id left join sys_user userc on banktranslip.create_by = userc.user_id 
+				 left join sys_user useru on banktranslip.update_by = useru.user_id left join cus_dictionary dicts on banktranslipitem.settlement_method = dicts.id
+				 left join sys_user userh on banktranslip.handle_people = userh.user_id
+		<where>  
+		  		  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(transfer_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(transfer_date,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+				  <if test="transferNum != null and transferNum != ''"> and transfer_num = #{transferNum} </if>
+				  <if test="handlePeople != null and handlePeople != ''"> and handle_people = #{handlePeople} </if>
+				  <if test="auditStatus != null and auditStatus != ''"> and audit_status = #{auditStatus} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.BanktransferslipDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_banktransferslip
+		(
+			`transfer_date`, 
+			`handle_people`, 
+			`transfer_num`, 
+			`audit_status`, 
+			`auditor`, 
+			`auditor_time`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{transferDate}, 
+			#{handlePeople}, 
+			#{transferNum}, 
+			#{auditStatus}, 
+			#{auditor}, 
+			#{auditorTime}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.BanktransferslipDO">
+		update cus_banktransferslip 
+		<set>
+			<if test="transferDate != null">`transfer_date` = #{transferDate}, </if>
+			<if test="handlePeople != null">`handle_people` = #{handlePeople}, </if>
+			<if test="transferNum != null">`transfer_num` = #{transferNum}, </if>
+			<if test="auditStatus != null">`audit_status` = #{auditStatus}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="auditorTime != null">`auditor_time` = #{auditorTime}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<update id="reverseAudit" parameterType="Long">
+		update cus_banktransferslip set `audit_status` = 178 where id = #{id}
+	</update>
+	
+	<update id="audit" parameterType="Long">
+		update cus_banktransferslip set `audit_status` = 179 where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_banktransferslip where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_banktransferslip where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

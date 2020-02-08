@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.SalescontractAlterationDao">
+
+	<select id="get" resultType="com.ev.scm.domain.SalescontractAlterationDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_salescontract_alteration 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.SalescontractAlterationDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_salescontract_alteration
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from scm_salescontract_alteration
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`salescontract_id`,`salescontract_code`,`alteration_project`,`after_alteration`,`before_alteration`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> and id = #{id} </if>
+                            <if test="salescontractId != null and salescontractId != ''"> and salescontract_id = #{salescontractId} </if>
+                            <if test="salescontractCode != null and salescontractCode != ''"> and salescontract_code = #{salescontractCode} </if>
+                            <if test="alterationProject != null and alterationProject != ''"> and alteration_project = #{alterationProject} </if>
+                            <if test="afterAlteration != null and afterAlteration != ''"> and after_alteration = #{afterAlteration} </if>
+                            <if test="beforeAlteration != null and beforeAlteration != ''"> and before_alteration = #{beforeAlteration} </if>
+                            <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.SalescontractAlterationDO" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_salescontract_alteration
+		(
+			`salescontract_id`, 
+			`salescontract_code`, 
+			`alteration_project`, 
+			`after_alteration`, 
+			`before_alteration`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{salescontractId}, 
+			#{salescontractCode}, 
+			#{alterationProject}, 
+			#{afterAlteration}, 
+			#{beforeAlteration}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.SalescontractAlterationDO">
+		update scm_salescontract_alteration 
+		<set>
+			<if test="salescontractId != null">`salescontract_id` = #{salescontractId}, </if>
+			<if test="salescontractCode != null">`salescontract_code` = #{salescontractCode}, </if>
+			<if test="alterationProject != null">`alteration_project` = #{alterationProject}, </if>
+			<if test="afterAlteration != null">`after_alteration` = #{afterAlteration}, </if>
+			<if test="beforeAlteration != null">`before_alteration` = #{beforeAlteration}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from scm_salescontract_alteration where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from scm_salescontract_alteration where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+</mapper>

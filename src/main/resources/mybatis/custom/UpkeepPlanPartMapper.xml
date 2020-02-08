@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.UpkeepPlanPartDao">
+
+	<select id="get" resultType="com.ev.custom.domain.UpkeepPlanPartDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM cus_upkeep_plan_part
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.UpkeepPlanPartDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM cus_upkeep_plan_part
+		<include refid="sql_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from cus_upkeep_plan_part
+		<include refid="sql_condition"/>
+	</select>
+
+	<insert id="save" parameterType="com.ev.custom.domain.UpkeepPlanPartDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_upkeep_plan_part
+		(
+		`plan_id`,
+		`part_id`,
+		`amount`,
+		`spart_price`,
+		`spart_unit`,
+		`spart_sum`,
+		`remark`,
+		`create_by`,
+		`update_by`,
+		`create_time`,
+		`update_time`,
+		`del_flag`
+		)
+		values
+		(
+		#{planId},
+		#{partId},
+		#{amount},
+		#{spartPrice},
+		#{spartUnit},
+		#{spartSum},
+		#{remark},
+		#{createBy},
+		#{updateBy},
+		#{createTime},
+		#{updateTime},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.custom.domain.UpkeepPlanPartDO">
+		update cus_upkeep_plan_part
+		<set>
+			<if test="planId != null">`plan_id` = #{planId}, </if>
+			<if test="partId != null">`part_id` = #{partId}, </if>
+			<if test="amount != null">`amount` = #{amount}, </if>
+			<if test="spartPrice != null">`spart_price` = #{spartPrice}, </if>
+			<if test="spartUnit != null">`spart_unit` = #{spartUnit}, </if>
+			<if test="spartSum != null">`spart_sum` = #{spartSum}, </if>
+			<if test="remark != null">`remark` = #{remark}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from cus_upkeep_plan_part where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from cus_upkeep_plan_part where id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<sql id="sql_column_list">
+		`id`,`plan_id`,`part_id`,`amount`,`spart_price`,`spart_unit`,`spart_sum`,`remark`,`create_by`,`update_by`,`create_time`,`update_time`,`del_flag`
+	</sql>
+
+	<sql id="sql_condition">
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="planId != null and planId != ''"> and plan_id = #{planId} </if>
+			<if test="partId != null and partId != ''"> and part_id = #{partId} </if>
+			<if test="amount != null and amount != ''"> and amount = #{amount} </if>
+			<if test="spartPrice != null and spartPrice != ''"> and spart_price = #{spartPrice} </if>
+			<if test="spartUnit != null and spartUnit != ''"> and spart_unit = #{spartUnit} </if>
+			<if test="spartSum != null and spartSum != ''"> and spart_sum = #{spartSum} </if>
+			<if test="remark != null and remark != ''"> and remark = #{remark} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+	</sql>
+
+
+
+
+	<delete id="removePartByPlanId">
+		delete from cus_upkeep_plan_part where plan_id = #{value}
+	</delete>
+
+
+</mapper>

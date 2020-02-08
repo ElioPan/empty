@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.DeviceInsuranceDao">
+
+	<select id="get" resultType="com.ev.custom.domain.DeviceInsuranceDO">
+		select `id`,`insurancesort`,`sortid`,`amount`,`charge`,`starttime`,`endtime`,`insurcompany`,
+		`companyid`,`settlementdate`,`settleamount`,`insursalesman`,`agent`,`agentid`,`deviceid`,
+		`lossoccurred`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+		from cus_device_insurance where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.DeviceInsuranceDO">
+		select `id`,`insurancesort`,`sortid`,`amount`,`charge`,`starttime`,`endtime`,`insurcompany`,`companyid`,`settlementdate`,`settleamount`,`insursalesman`,`agent`,`agentid`,`deviceid`,`lossoccurred`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_device_insurance
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="insurancesort != null and insurancesort != ''"> and insurancesort = #{insurancesort} </if>
+		  		  <if test="sortid != null and sortid != ''"> and sortid = #{sortid} </if>
+		  		  <if test="amount != null and amount != ''"> and amount = #{amount} </if>
+		  		  <if test="charge != null and charge != ''"> and charge = #{charge} </if>
+		  		  <if test="starttime != null and starttime != ''"> and starttime = #{starttime} </if>
+		  		  <if test="endtime != null and endtime != ''"> and endtime = #{endtime} </if>
+		  		  <if test="insurcompany != null and insurcompany != ''"> and insurcompany = #{insurcompany} </if>
+		  		  <if test="companyid != null and companyid != ''"> and companyid = #{companyid} </if>
+		  		  <if test="settlementdate != null and settlementdate != ''"> and settlementdate = #{settlementdate} </if>
+		  		  <if test="settleamount != null and settleamount != ''"> and settleamount = #{settleamount} </if>
+		  		  <if test="insursalesman != null and insursalesman != ''"> and insursalesman = #{insursalesman} </if>
+		  		  <if test="agent != null and agent != ''"> and agent = #{agent} </if>
+		  		  <if test="agentid != null and agentid != ''"> and agentid = #{agentid} </if>
+		  		  <if test="deviceid != null and deviceid != ''"> and deviceid = #{deviceid} </if>
+			    <if test="lossoccurred != null and lossoccurred != ''"> and lossoccurred = #{lossoccurred} </if>
+				<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+				<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+				<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+				<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+				<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="listPageMap" resultType="map">
+		select
+		a.id,
+		a.insurancesort,
+		cd.name as insurancesort_name,
+		a.insurcompany,
+		a.agent as agentName,
+		a.settleamount,
+		a.amount,
+		a.charge,
+		a.starttime,
+		a.endtime,
+		a.settlementdate,
+		a.insursalesman,
+		a.settleamount,
+		b.name as agent_name,
+		c.name as  company_name
+		from cus_device_insurance a
+		LEFT JOIN cus_dictionary cd ON a.sortid=cd.id
+		LEFT JOIN cus_supplier c ON a.companyid=c.id
+		LEFT JOIN sys_user b ON a.agentid=b.user_id
+	<where>
+		<if test="id != null and id != ''"> and a.id = #{id} </if>
+		<if test="insurancesort != null and insurancesort != ''"> and a.insurancesort = #{insurancesort} </if>
+		<if test="sortid != null and sortid != ''"> and a.sortid = #{sortid} </if>
+		<if test="amount != null and amount != ''"> and a.amount = #{amount} </if>
+		<if test="charge != null and charge != ''"> and a.charge = #{charge} </if>
+		<if test="starttime != null and starttime != ''"> and a.starttime = #{starttime} </if>
+		<if test="endtime != null and endtime != ''"> and a.endtime = #{endtime} </if>
+		<if test="insurcompany != null and insurcompany != ''"> and a.insurcompany = #{insurcompany} </if>
+		<if test="companyid != null and companyid != ''"> and a.companyid = #{companyid} </if>
+		<if test="settlementdate != null and settlementdate != ''"> and a.settlementdate = #{settlementdate} </if>
+		<if test="settleamount != null and settleamount != ''"> and a.settleamount = #{settleamount} </if>
+		<if test="insursalesman != null and insursalesman != ''"> and a.insursalesman = #{insursalesman} </if>
+		<if test="agent != null and agent != ''"> and a.agent = #{agent} </if>
+		<if test="agentid != null and agentid != ''"> and a.agentid = #{agentid} </if>
+		<if test="deviceid != null and deviceid != ''"> and a.deviceid = #{deviceid} </if>
+		<if test="lossoccurred != null and lossoccurred != ''"> and a.lossoccurred = #{lossoccurred} </if>
+		<if test="createBy != null and createBy != ''"> and a.create_by = #{createBy} </if>
+		<if test="createTime != null and createTime != ''"> and a.create_time = #{createTime} </if>
+		<if test="updateBy != null and updateBy != ''"> and a.update_by = #{updateBy} </if>
+		<if test="updateTime != null and updateTime != ''"> and a.update_time = #{updateTime} </if>
+		<if test="delFlag != null and delFlag != ''"> and a.del_flag = #{delFlag} </if>
+	</where>
+	<choose>
+		<when test="sort != null and sort.trim() != ''">
+			order by ${sort} ${order}
+		</when>
+		<otherwise>
+			order by id desc
+		</otherwise>
+	</choose>
+	<if test="offset != null and limit != null">
+		limit #{offset}, #{limit}
+	</if>
+</select>
+
+
+ 	<select id="count" resultType="int">
+		select count(*)
+		from cus_device_insurance a
+		LEFT JOIN cus_dictionary cd ON a.sortid=cd.id
+		LEFT JOIN cus_supplier c ON a.companyid=c.id
+		LEFT JOIN sys_user b ON a.agentid=b.user_id
+		 <where>
+			 <if test="id != null and id != ''"> and a.id = #{id} </if>
+			 <if test="insurancesort != null and insurancesort != ''"> and a.insurancesort = #{insurancesort} </if>
+			 <if test="sortid != null and sortid != ''"> and a.sortid = #{sortid} </if>
+			 <if test="amount != null and amount != ''"> and a.amount = #{amount} </if>
+			 <if test="charge != null and charge != ''"> and a.charge = #{charge} </if>
+			 <if test="starttime != null and starttime != ''"> and a.starttime = #{starttime} </if>
+			 <if test="endtime != null and endtime != ''"> and a.endtime = #{endtime} </if>
+			 <if test="insurcompany != null and insurcompany != ''"> and a.insurcompany = #{insurcompany} </if>
+			 <if test="companyid != null and companyid != ''"> and a.companyid = #{companyid} </if>
+			 <if test="settlementdate != null and settlementdate != ''"> and a.settlementdate = #{settlementdate} </if>
+			 <if test="settleamount != null and settleamount != ''"> and a.settleamount = #{settleamount} </if>
+			 <if test="insursalesman != null and insursalesman != ''"> and a.insursalesman = #{insursalesman} </if>
+			 <if test="agent != null and agent != ''"> and a.agent = #{agent} </if>
+			 <if test="agentid != null and agentid != ''"> and a.agentid = #{agentid} </if>
+			 <if test="deviceid != null and deviceid != ''"> and a.deviceid = #{deviceid} </if>
+			 <if test="lossoccurred != null and lossoccurred != ''"> and a.lossoccurred = #{lossoccurred} </if>
+			 <if test="createBy != null and createBy != ''"> and a.create_by = #{createBy} </if>
+			 <if test="createTime != null and createTime != ''"> and a.create_time = #{createTime} </if>
+			 <if test="updateBy != null and updateBy != ''"> and a.update_by = #{updateBy} </if>
+			 <if test="updateTime != null and updateTime != ''"> and a.update_time = #{updateTime} </if>
+			 <if test="delFlag != null and delFlag != ''"> and a.del_flag = #{delFlag} </if>
+		 </where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.DeviceInsuranceDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_device_insurance
+		(
+			`insurancesort`, 
+			`sortid`, 
+			`amount`, 
+			`charge`, 
+			`starttime`, 
+			`endtime`, 
+			`insurcompany`, 
+			`companyid`, 
+			`settlementdate`, 
+			`settleamount`, 
+			`insursalesman`, 
+			`agent`, 
+			`agentid`, 
+			`deviceid`, 
+			`lossoccurred`,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
+			`del_flag`
+		)
+		values
+		(
+			#{insurancesort}, 
+			#{sortid}, 
+			#{amount}, 
+			#{charge}, 
+			#{starttime}, 
+			#{endtime}, 
+			#{insurcompany}, 
+			#{companyid}, 
+			#{settlementdate}, 
+			#{settleamount}, 
+			#{insursalesman}, 
+			#{agent}, 
+			#{agentid}, 
+			#{deviceid},
+			#{lossoccurred},
+			#{createBy},
+			#{createTime},
+			#{updateBy},
+			#{updateTime},
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.DeviceInsuranceDO">
+		update cus_device_insurance 
+		<set>
+			<if test="insurancesort != null">`insurancesort` = #{insurancesort}, </if>
+			<if test="sortid != null">`sortid` = #{sortid}, </if>
+			<if test="amount != null">`amount` = #{amount}, </if>
+			<if test="charge != null">`charge` = #{charge}, </if>
+			<if test="starttime != null">`starttime` = #{starttime}, </if>
+			<if test="endtime != null">`endtime` = #{endtime}, </if>
+			<if test="insurcompany != null">`insurcompany` = #{insurcompany}, </if>
+			<if test="companyid != null">`companyid` = #{companyid}, </if>
+			<if test="settlementdate != null">`settlementdate` = #{settlementdate}, </if>
+			<if test="settleamount != null">`settleamount` = #{settleamount}, </if>
+			<if test="insursalesman != null">`insursalesman` = #{insursalesman}, </if>
+			<if test="agent != null">`agent` = #{agent}, </if>
+			<if test="agentid != null">`agentid` = #{agentid}, </if>
+			<if test="deviceid != null">`deviceid` = #{deviceid}, </if>
+			<if test="lossoccurred != null">`lossoccurred` = #{lossoccurred}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_device_insurance where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_device_insurance where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

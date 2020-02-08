@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.AllotDao">
+
+	<select id="get" resultType="com.ev.scm.domain.AllotDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_allot 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.AllotDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_allot
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from scm_allot
+		<include refid="sql_condition"/>
+	</select>
+
+
+    <sql id="sql_column_list">
+		`id`,`allot_code`,`allot_time`,`allot_user`,`audit_sign`,`auditor`,`audit_time`,`remark`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> and id = #{id} </if>
+            <if test="maxNo != null and maxNo != ''"> and LEFT(allot_code,CHAR_LENGTH(#{maxNo})) = #{maxNo} </if>
+                            <if test="allotCode != null and allotCode != ''"> and allot_code = #{allotCode} </if>
+                            <if test="allotTime != null and allotTime != ''"> and allot_time = #{allotTime} </if>
+                            <if test="allotUser != null and allotUser != ''"> and allot_user = #{allotUser} </if>
+                            <if test="auditSign != null and auditSign != ''"> and audit_sign = #{auditSign} </if>
+                            <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+                            <if test="auditTime != null and auditTime != ''"> and audit_time = #{auditTime} </if>
+                            <if test="remark != null and remark != ''"> and remark = #{remark} </if>
+                            <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.AllotDO" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_allot
+		(
+			`allot_code`, 
+			`allot_time`, 
+			`allot_user`, 
+			`audit_sign`, 
+			`auditor`, 
+			`audit_time`, 
+			`remark`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{allotCode}, 
+			#{allotTime}, 
+			#{allotUser}, 
+			#{auditSign}, 
+			#{auditor}, 
+			#{auditTime}, 
+			#{remark}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.AllotDO">
+		update scm_allot 
+		<set>
+			<if test="allotCode != null">`allot_code` = #{allotCode}, </if>
+			<if test="allotTime != null">`allot_time` = #{allotTime}, </if>
+			<if test="allotUser != null">`allot_user` = #{allotUser}, </if>
+			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="auditTime != null">`audit_time` = #{auditTime}, </if>
+			<if test="remark != null">`remark` = #{remark}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+    <delete id="remove">
+		delete from scm_allot where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from scm_allot where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+    <!--自定义-->
+    <select id="getDetail" resultType="map" parameterType="long">
+        select
+		allot.`id` AS id,
+		allot.`allot_code` AS allotCode,
+		allotUser.`name` AS allotUserName,
+		allot.`allot_time` AS allotTime,
+		dica.id AS auditSign,
+		dica.name AS auditSignName,
+		auditUser.`name` AS auditorName,
+		allot.`audit_time` AS auditTime,
+		allot.`remark` AS remark,
+		createUser.`name` AS createUserName,
+		allot.`create_time` AS createTime
+		FROM scm_allot allot
+		LEFT JOIN sys_user allotUser ON allotUser.`user_id`=allot.`allot_user`
+		LEFT JOIN sys_user createUser ON createUser.`user_id`=allot.`auditor`
+		LEFT JOIN sys_user auditUser ON auditUser.`user_id`=allot.`create_by`
+		LEFT JOIN cus_dictionary dica ON dica.`id` = allot.`audit_sign`
+    </select>
+
+    <select id="listForMap" resultType="map">
+        SELECT
+        allot.`id` AS id,
+        allot.`allot_time` AS allotTime,
+        allot.`allot_code` AS allotCode,
+        materiel.`name` AS materielName,
+        materiel.`serial_no` AS materielSerialno,
+        materiel.`specification` AS specification,
+        dicu.`name` AS unitName,
+        dicu.`value` AS unitValue,
+        detail.`count` AS allotCount,
+        detail.`price` AS materielPrice,<!-- 单价 -->
+        outlo.`name` AS outLocationName,
+        outfac.`name` AS outFacilityName,
+        inlo.`name` AS inLocationName,
+        infac.`name` AS inFacilityName,
+        stock.`batch` AS batch,
+        person.`name` AS allotUserName,
+        dica.`name` AS auditSignName,
+        dica.`id` AS auditSign
+        <include refid="sql_map_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by allot.id desc
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+    <select id="countForMap" resultType="int">
+        SELECT
+        COUNT(*)
+        <include refid="sql_map_condition"/>
+    </select>
+    <sql id="sql_map_condition">
+        FROM scm_allot allot
+        LEFT JOIN scm_allot_item detail ON detail.`allot_id`=allot.`id`
+        LEFT JOIN scm_stock stock ON stock.`id`=detail.`stock_id`
+        LEFT JOIN cus_materiel materiel ON materiel.`id`=stock.`materiel_id`
+        LEFT JOIN cus_dictionary dicu ON dicu.`id` = materiel.`unit_uom`
+        LEFT JOIN cus_dictionary dica ON dica.`id` = allot.`audit_sign`
+        LEFT JOIN cus_facility_location outlo ON outlo.`id`=stock.`wareh_location`
+        LEFT JOIN cus_facility outfac ON outfac.`id`=outlo.`facility_id`
+        LEFT JOIN cus_facility_location inlo ON inlo.`id`=detail.`in_location`
+        LEFT JOIN cus_facility infac ON infac.`id`=inlo.`facility_id`
+        LEFT JOIN sys_user person ON person.`user_id`=allot.`allot_user`
+        <where>
+            <if test="fuzzySearch != null and fuzzySearch != ''"> AND CONCAT(CONCAT(materiel.`name`,materiel.`serial_no`),allot.`serialno`) LIKE CONCAT(CONCAT('%',#{fuzzySearch}),'%') </if>
+            <if test="outFacility != null and outFacility != ''"> AND outfac.`id` = #{outFacility} </if>
+            <if test="inFacility != null and inFacility != ''"> AND infac.`id` = #{inFacility} </if>
+            <if test="startTime != null and startTime != ''">  AND  DATE_FORMAT(allot.`create_time`,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''"> AND DATE_FORMAT(allot.`create_time`,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="userId != null and userId != ''">AND (allot.`allot_user` = #{userId} OR allot.`create_by` = #{userId}) </if>
+        </where>
+    </sql>
+
+    <insert id="batchInsert">
+        INSERT INTO scm_allot(allot_user,audit_sign) VALUES
+        <foreach collection="list" item="obj" separator=",">
+            (#{obj.allotUser},#{obj.auditSign})
+        </foreach>
+    </insert>
+
+
+</mapper>

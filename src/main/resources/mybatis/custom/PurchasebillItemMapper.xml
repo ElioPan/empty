@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.PurchasebillItemDao">
+
+	<select id="get" resultType="Map">
+		select `bid`,`product_name` as productName,`num`,`price`,`money`,`tax_rate` as taxRate,dicts.name as `purchaseType`,`source_num` as sourceNum,
+			   `purchasebill_id` as purchasebillId,item.`del_flag` as delFlag,item.`product_id` as productId
+			from cus_purchasebill_item item left join cus_dictionary dicts on item.purchase_type = dicts.id
+			where purchasebill_id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.PurchasebillItemDO">
+		select `bid`,`product_name`,`product_id`,`num`,`price`,`money`,`tax_rate`,`purchase_type`,`source_num`,`purchasebill_id`,`del_flag` from cus_purchasebill_item
+        <where>  
+		  		  <if test="bid != null and bid != ''"> and bid = #{bid} </if>
+		  		  <if test="productName != null and productName != ''"> and product_name = #{productName} </if>
+		  		  <if test="productId != null and productId != ''"> and product_id = #{productId} </if>
+		  		  <if test="num != null and num != ''"> and num = #{num} </if>
+		  		  <if test="price != null and price != ''"> and price = #{price} </if>
+		  		  <if test="money != null and money != ''"> and money = #{money} </if>
+		  		  <if test="taxRate != null and taxRate != ''"> and tax_rate = #{taxRate} </if>
+		  		  <if test="purchaseType != null and purchaseType != ''"> and purchase_type = #{purchaseType} </if>
+		  		  <if test="sourceNum != null and sourceNum != ''"> and source_num = #{sourceNum} </if>
+		  		  <if test="purchasebillId != null and purchasebillId != ''"> and purchasebill_id = #{purchasebillId} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by bid desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_purchasebill_item
+		 <where>  
+		  		  <if test="bid != null and bid != ''"> and bid = #{bid} </if>
+		  		  <if test="productName != null and productName != ''"> and product_name = #{productName} </if>
+		  		  <if test="productId != null and productId != ''"> and product_id = #{productId} </if>
+		  		  <if test="num != null and num != ''"> and num = #{num} </if>
+		  		  <if test="price != null and price != ''"> and price = #{price} </if>
+		  		  <if test="money != null and money != ''"> and money = #{money} </if>
+		  		  <if test="taxRate != null and taxRate != ''"> and tax_rate = #{taxRate} </if>
+		  		  <if test="purchaseType != null and purchaseType != ''"> and purchase_type = #{purchaseType} </if>
+		  		  <if test="sourceNum != null and sourceNum != ''"> and source_num = #{sourceNum} </if>
+		  		  <if test="purchasebillId != null and purchasebillId != ''"> and purchasebill_id = #{purchasebillId} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.PurchasebillItemDO" useGeneratedKeys="true" keyProperty="bid">
+		insert into cus_purchasebill_item
+		(
+			`product_name`,
+			`product_id`, 
+			`num`, 
+			`price`, 
+			`money`, 
+			`tax_rate`, 
+			`purchase_type`, 
+			`source_num`, 
+			`purchasebill_id`, 
+			`del_flag`
+		)
+		values
+		(
+			#{productName},
+			#{productId}, 
+			#{num}, 
+			#{price}, 
+			#{money}, 
+			#{taxRate}, 
+			#{purchaseType}, 
+			#{sourceNum}, 
+			#{purchasebillId}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.PurchasebillItemDO">
+		update cus_purchasebill_item 
+		<set>
+			<if test="productName != null">`product_name` = #{productName}, </if>
+			<if test="productId != null">`product_id` = #{productId}, </if>
+			<if test="num != null">`num` = #{num}, </if>
+			<if test="price != null">`price` = #{price}, </if>
+			<if test="money != null">`money` = #{money}, </if>
+			<if test="taxRate != null">`tax_rate` = #{taxRate}, </if>
+			<if test="purchaseType != null">`purchase_type` = #{purchaseType}, </if>
+			<if test="sourceNum != null">`source_num` = #{sourceNum}, </if>
+			<if test="purchasebillId != null">`purchasebill_id` = #{purchasebillId}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where bid = #{bid}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_purchasebill_item where purchasebill_id = #{value}
+	</delete>
+	
+	<delete id="removeByBid">
+		delete from cus_purchasebill_item where bid = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_purchasebill_item where bid in 
+		<foreach item="bid" collection="array" open="(" separator="," close=")">
+			#{bid}
+		</foreach>
+	</delete>
+
+</mapper>

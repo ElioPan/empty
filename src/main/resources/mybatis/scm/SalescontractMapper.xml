@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.SalescontractDao">
+
+	<select id="get" resultType="com.ev.scm.domain.SalescontractDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_salescontract 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.SalescontractDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_salescontract
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from scm_salescontract
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`client_id`,`sales_person`,`sales_person_dept`,`contract_code`,`contract_type`,`contract_date`,`contract_expire_date`,`discount_rate`,`discount_amount`,`pay_amount`,`audit_sign`,`invoiced_amount`,`uninvoiced_amount`,`auditor`,`audit_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`close_status`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> and id = #{id} </if>
+            <if test="maxNo != null and maxNo != ''"> and LEFT(contract_code,12) = #{maxNo} </if>
+                            <if test="clientId != null and clientId != ''"> and client_id = #{clientId} </if>
+                            <if test="salesPerson != null and salesPerson != ''"> and sales_person = #{salesPerson} </if>
+                            <if test="salesPersonDept != null and salesPersonDept != ''"> and sales_person_dept = #{salesPersonDept} </if>
+                            <if test="contractCode != null and contractCode != ''"> and contract_code = #{contractCode} </if>
+                            <if test="contractType != null and contractType != ''"> and contract_type = #{contractType} </if>
+                            <if test="contractDate != null and contractDate != ''"> and contract_date = #{contractDate} </if>
+                            <if test="contractExpireDate != null and contractExpireDate != ''"> and contract_expire_date = #{contractExpireDate} </if>
+                            <if test="discountRate != null and discountRate != ''"> and discount_rate = #{discountRate} </if>
+                            <if test="discountAmount != null and discountAmount != ''"> and discount_amount = #{discountAmount} </if>
+                            <if test="payAmount != null and payAmount != ''"> and pay_amount = #{payAmount} </if>
+                            <if test="auditSign != null and auditSign != ''"> and audit_sign = #{auditSign} </if>
+                            <if test="invoicedAmount != null and invoicedAmount != ''"> and invoiced_amount = #{invoicedAmount} </if>
+                            <if test="uninvoicedAmount != null and uninvoicedAmount != ''"> and uninvoiced_amount = #{uninvoicedAmount} </if>
+                            <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+                            <if test="auditTime != null and auditTime != ''"> and audit_time = #{auditTime} </if>
+                            <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+                            <if test="closeStatus != null and closeStatus != ''"> and close_status = #{closeStatus} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.SalescontractDO" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_salescontract
+		(
+			`client_id`, 
+			`sales_person`, 
+			`sales_person_dept`, 
+			`contract_code`, 
+			`contract_type`, 
+			`contract_date`, 
+			`contract_expire_date`, 
+			`discount_rate`, 
+			`discount_amount`, 
+			`pay_amount`, 
+			`audit_sign`, 
+			`invoiced_amount`,
+			`uninvoiced_amount`,
+			`auditor`, 
+			`audit_time`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`, 
+			`close_status`
+		)
+		values
+		(
+			#{clientId}, 
+			#{salesPerson}, 
+			#{salesPersonDept}, 
+			#{contractCode}, 
+			#{contractType}, 
+			#{contractDate}, 
+			#{contractExpireDate}, 
+			#{discountRate}, 
+			#{discountAmount}, 
+			#{payAmount}, 
+			#{auditSign}, 
+			#{invoicedAmount},
+			#{uninvoicedAmount},
+			#{auditor}, 
+			#{auditTime}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}, 
+			#{closeStatus}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.SalescontractDO">
+		update scm_salescontract 
+		<set>
+			<if test="clientId != null">`client_id` = #{clientId}, </if>
+			<if test="salesPerson != null">`sales_person` = #{salesPerson}, </if>
+			<if test="salesPersonDept != null">`sales_person_dept` = #{salesPersonDept}, </if>
+			<if test="contractCode != null">`contract_code` = #{contractCode}, </if>
+			<if test="contractType != null">`contract_type` = #{contractType}, </if>
+			<if test="contractDate != null">`contract_date` = #{contractDate}, </if>
+			<if test="contractExpireDate != null">`contract_expire_date` = #{contractExpireDate}, </if>
+			<if test="discountRate != null">`discount_rate` = #{discountRate}, </if>
+			<if test="discountAmount != null">`discount_amount` = #{discountAmount}, </if>
+			<if test="payAmount != null">`pay_amount` = #{payAmount}, </if>
+			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+			<if test="invoicedAmount != null">`invoiced_amount` = #{invoicedAmount}, </if>
+			<if test="uninvoicedAmount != null">`uninvoiced_amount` = #{uninvoicedAmount}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="auditTime != null">`audit_time` = #{auditTime}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}, </if>
+			<if test="closeStatus != null">`close_status` = #{closeStatus}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from scm_salescontract where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from scm_salescontract where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+    <!--自定义-->
+    <!--子项目列表-->
+    <select id="listForMap" resultType="map">
+        SELECT
+        item.`id`,
+        sales.`id` AS salesContractId,
+        sales.contract_date AS contractDate,
+        sales.`contract_code` AS `contractCode`,
+        dict.`name` AS contractTypeName,
+        IF(sales.close_status=0,'未关闭','关闭') AS closeStatusName,
+        client.`name` AS clientName,
+        salesUser.`name` AS salesPersonName,
+        salesUserDept.name AS salesPersonDeptName,
+        IF(item.is_check=0,'是','否') AS isCheck,
+        materiel.serial_no AS materielSerialNo,
+        materiel.name AS materielName,
+        materiel.specification AS specification,
+        unitUom.name AS unitUomName,
+        item.`count` AS count,
+        item.`unit_price` AS unitPrice,
+        item.`tax_unit_price` AS taxUnitPrice,
+        item.`amount` AS amount,
+        item.`tax_amount` AS taxAmount,
+        item.`delivery_date` AS deliveryDate,
+        dica.`name` AS auditSignName,
+        sales.`contract_code` AS code,
+        '销售合同' AS　thisSourceTypeName,
+        sales.`create_time` AS createTime
+        <include refid="sql_map_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by sales.`id` desc,item.`id`
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+    <select id="countForMap" resultType="map">
+        SELECT
+        COUNT(*) AS total,
+        SUM(item.`count`) AS totalCount,
+        SUM(item.`amount`) AS totalAmount,
+        SUM(item.`tax_amount`) AS totalTaxAmount
+        <include refid="sql_map_condition"/>
+    </select>
+
+    <sql id="sql_map_condition">
+        FROM
+        scm_salescontract_item item
+        LEFT JOIN scm_salescontract sales ON sales.id = item.salesContract_id
+        LEFT JOIN cus_dictionary dict ON  dict.id = sales.contract_type
+        LEFT JOIN cus_client client ON client.id = sales.client_id
+        LEFT JOIN sys_user salesUser ON salesUser.user_id = sales.sales_person
+        LEFT JOIN sys_dept salesUserDept ON salesUserDept.dept_id = sales.sales_person_dept
+        LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
+        LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
+        LEFT JOIN cus_dictionary dica ON dica.id = sales.audit_sign
+        <where>
+            <if test="id != null and id != ''"> and item.id = #{id} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(sales.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(sales.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="contractCode != null and contractCode != ''"> and sales.contract_code = #{contractCode} </if>
+            <if test="fuzzyQuery != null and fuzzyQuery != ''"> and CONCAT(materiel.`name`,client.`name`) LIKE #{fuzzyQuery} </if>
+            <!--高级查询-->
+            <if test="contractType != null and contractType != ''"> and contract_type = #{contractType} </if>
+            <if test="contractStartTime != null and contractStartTime != ''"> and  DATE_FORMAT(sales.contract_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{contractStartTime},'%Y-%m-%d')</if>
+            <if test="contractEndTime != null and contractEndTime != ''">  and  DATE_FORMAT(sales.contract_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{contractEndTime},'%Y-%m-%d')</if>
+            <if test="clientName != null and clientName != ''"> and client.`name` LIKE #{clientName} </if>
+            <if test="materielName != null and materielName != ''"> and materiel.`name` LIKE #{materielName} </if>
+            <if test="specification != null and specification != ''"> and materiel.`specification` LIKE #{specification} </if>
+            <if test="salesPerson != null and salesPerson != ''"> and sales.sales_person = #{salesPerson} </if>
+            <if test="salesPersonDept != null and salesPersonDept != ''"> and sales.sales_person_dept = #{salesPersonDept} </if>
+            <if test="auditSign != null and auditSign != ''"> and sales.audit_sign = #{auditSign} </if>
+            <if test="createBy != null and createBy != ''"> and sales.create_by = #{createBy} </if>
+            <if test="createTime != null and createTime != ''"> and DATE_FORMAT(sales.create_time,'%Y-%m-%d') = DATE_FORMAT(#{createTime},'%Y-%m-%d') </if>
+            <!--导入关联单据查询-->
+            <if test="createStartTime != null and createStartTime != ''"> and  DATE_FORMAT(sales.create_by,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
+            <if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(sales.create_by,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
+            <if test="fuzzyInquire != null and fuzzyInquire != ''"> and CONCAT(materiel.`name`,materiel.`serial_no`,sales.`contract_code`,client.`name`) LIKE #{fuzzyInquire} </if>
+
+            <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+            <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+            <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+            <if test="closeStatus != null"> and close_status = #{closeStatus} </if>
+        </where>
+    </sql>
+
+    <!--合同详情-->
+    <select id="getDetail" resultType="map">
+        SELECT
+        sales.`id` AS id,
+        sales.client_id AS clientId,
+        client.`name` AS clientName,
+        sales.sales_person AS salesPerson,
+        salesUser.`name` AS salesPersonName,
+        sales.`sales_person_dept` AS salesPersonDept,
+        salesUserDept.`name` AS salesPersonDeptName,
+        sales.`contract_code` AS `contractCode`,
+        sales.`contract_type` AS contractType,
+        dict.`name` AS contractTypeName,
+        sales.contract_date AS contractDate,
+        sales.contract_expire_date AS contractExpireDate,
+        sales.discount_rate AS discountRate,
+        sales.discount_amount AS discountAmount,
+        sales.pay_amount AS payAmount,
+        sales.invoiced_amount AS invoicedAmount,
+        sales.uninvoiced_amount AS uninvoicedAmount,
+        sales.create_by AS createBy,
+        createUser.name AS createByName,
+        sales.create_time AS createTime,
+        sales.auditor AS auditor,
+        auditUser.`name` AS auditorName,
+        sales.`audit_time` AS auditTime,
+        IF(sales.close_status=0,'未关闭','关闭') AS closeStatusName,
+        sales.audit_sign AS auditSign,
+        dica.`name` AS auditSignName
+        FROM
+        scm_salescontract sales
+        LEFT JOIN cus_dictionary dict ON dict.id = sales.contract_type
+        LEFT JOIN cus_client client ON client.id = sales.client_id
+        LEFT JOIN sys_user salesUser ON salesUser.user_id = sales.sales_person
+        LEFT JOIN sys_dept salesUserDept ON salesUserDept.dept_id = sales.sales_person_dept
+        LEFT JOIN sys_user createUser ON createUser.user_id = sales.create_by
+        LEFT JOIN sys_user auditUser ON auditUser.user_id = sales.auditor
+        LEFT JOIN cus_dictionary dica ON dica.id = sales.audit_sign
+        WHERE sales.id = #{value}
+    </select>
+
+	
+</mapper>

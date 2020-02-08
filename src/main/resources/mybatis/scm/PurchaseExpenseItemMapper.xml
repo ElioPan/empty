@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.PurchaseExpenseItemDao">
+
+	<select id="get" resultType="com.ev.scm.domain.PurchaseExpenseItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_purchase_expense_item 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.PurchaseExpenseItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_purchase_expense_item
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from scm_purchase_expense_item
+		<include refid="sql_condition"/>
+	</select>
+
+	<sql id="sql_column_list">
+		`id`,`item_code`,`purchase_expense_id`,`expense_id`,`name`,`item_type`,`unit`,`count`,`tax_unit_price`,`unit_price`,`tax_rate`,`tax_amount`,`amount`,`taxes`,`invoice_num`,`invoice_date`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+	<sql id="sql_condition">
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="itemCode != null and itemCode != ''"> and item_code = #{itemCode} </if>
+			<if test="purchaseExpenseId != null and purchaseExpenseId != ''"> and purchase_expense_id = #{purchaseExpenseId} </if>
+			<if test="expenseId != null and expenseId != ''"> and expense_id = #{expenseId} </if>
+			<if test="name != null and name != ''"> and name = #{name} </if>
+			<if test="itemType != null and itemType != ''"> and item_type = #{itemType} </if>
+			<if test="unit != null and unit != ''"> and unit = #{unit} </if>
+			<if test="count != null and count != ''"> and count = #{count} </if>
+			<if test="taxUnitPrice != null and taxUnitPrice != ''"> and tax_unit_price = #{taxUnitPrice} </if>
+			<if test="unitPrice != null and unitPrice != ''"> and unit_price = #{unitPrice} </if>
+			<if test="taxRate != null and taxRate != ''"> and tax_rate = #{taxRate} </if>
+			<if test="taxAmount != null and taxAmount != ''"> and tax_amount = #{taxAmount} </if>
+			<if test="amount != null and amount != ''"> and amount = #{amount} </if>
+			<if test="taxes != null and taxes != ''"> and taxes = #{taxes} </if>
+			<if test="invoiceNum != null and invoiceNum != ''"> and invoice_num = #{invoiceNum} </if>
+			<if test="invoiceDate != null and invoiceDate != ''"> and invoice_date = #{invoiceDate} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+	</sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.PurchaseExpenseItemDO" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_purchase_expense_item
+		(
+			`item_code`,
+			`purchase_expense_id`,
+			`expense_id`,
+			`name`,
+			`item_type`,
+			`unit`,
+			`count`,
+			`tax_unit_price`,
+			`unit_price`,
+			`tax_rate`,
+			`tax_amount`,
+			`amount`,
+			`taxes`,
+			`invoice_num`,
+			`invoice_date`,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
+			`del_flag`
+		)
+		values
+		(
+			#{itemCode},
+			#{purchaseExpenseId},
+			#{expenseId},
+			#{name},
+			#{itemType},
+			#{unit}, 
+			#{count}, 
+			#{taxUnitPrice}, 
+			#{unitPrice}, 
+			#{taxRate}, 
+			#{taxAmount}, 
+			#{amount}, 
+			#{taxes}, 
+			#{invoiceNum}, 
+			#{invoiceDate}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.scm.domain.PurchaseExpenseItemDO">
+		update scm_purchase_expense_item
+		<set>
+			<if test="itemCode != null">`item_code` = #{itemCode}, </if>
+			<if test="purchaseExpenseId != null">`purchase_expense_id` = #{purchaseExpenseId}, </if>
+			<if test="expenseId != null">`expense_id` = #{expenseId}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="itemType != null">`item_type` = #{itemType}, </if>
+			<if test="unit != null">`unit` = #{unit}, </if>
+			<if test="count != null">`count` = #{count}, </if>
+			<if test="taxUnitPrice != null">`tax_unit_price` = #{taxUnitPrice}, </if>
+			<if test="unitPrice != null">`unit_price` = #{unitPrice}, </if>
+			<if test="taxRate != null">`tax_rate` = #{taxRate}, </if>
+			<if test="taxAmount != null">`tax_amount` = #{taxAmount}, </if>
+			<if test="amount != null">`amount` = #{amount}, </if>
+			<if test="taxes != null">`taxes` = #{taxes}, </if>
+			<if test="invoiceNum != null">`invoice_num` = #{invoiceNum}, </if>
+			<if test="invoiceDate != null">`invoice_date` = #{invoiceDate}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from scm_purchase_expense_item where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from scm_purchase_expense_item where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<delete id="batchRemoveByPurcahseId">
+		delete
+		from
+		scm_purchase_expense_item
+		where
+		expense_id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+
+	<select id="getDetailOfBody" resultType="map">
+		SELECT
+			c.id,
+			c.expense_id as expenseId,
+			a.name,
+			a.code,
+			a.type,
+			d.name as typeName,
+
+			c.unit,
+			e.name as unitName,
+			c.count,
+			c.unit_price as unitPrice,
+			c.tax_unit_price as taxUnitPrice,
+			c.tax_rate as taxRate,
+			c.amount,
+			c.taxes,
+			c.tax_amount as taxAmount
+		from
+		scm_purchase_expense_item  c
+		LEFT JOIN  cus_expense a on  c.expense_id=a.id
+		LEFT JOIN  cus_dictionary  d on  a.type =d.id
+		LEFT JOIN  cus_dictionary  e on  c.unit =e.id
+	 	WHERE
+   		 c.expense_id=#{id}
+	</select>
+
+
+
+	
+</mapper>

@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.CheckProjectDao">
+
+	<select id="get" resultType="com.ev.mes.domain.CheckProjectDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_check_project 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.CheckProjectDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_check_project
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_check_project
+		<include refid="sql_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.CheckProjectDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_check_project
+		(
+			`code`, 
+			`name`, 
+			`norm`, 
+			`method`,
+			`instrument_name`,
+			`instrument`, 
+			`remark`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{code}, 
+			#{name}, 
+			#{norm}, 
+			#{method},
+			#{instrumentName},
+			#{instrument}, 
+			#{remark}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.CheckProjectDO">
+		update mes_check_project 
+		<set>
+			<if test="code != null">`code` = #{code}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="norm != null">`norm` = #{norm}, </if>
+			<if test="method != null">`method` = #{method}, </if>
+			<if test="instrumentName != null">`instrument_name` = #{instrumentName}, </if>
+			<if test="instrument != null">`instrument` = #{instrument}, </if>
+			<if test="remark != null">`remark` = #{remark}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_check_project where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_check_project where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<sql id="sql_column_list">
+		`id`,`code`,`name`,`norm`,`method`,`instrument_name`,`instrument`,`remark`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>
+			      <if test="maxNo != null and maxNo != ''"> and LEFT(code,12) = #{maxNo} </if>
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="code != null and code != ''"> and code = #{code} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="norm != null and norm != ''"> and norm = #{norm} </if>
+		  		  <if test="method != null and method != ''"> and method = #{method} </if>
+				  <if test="instrumentName != null and instrumentName != ''"> and instrument_name = #{instrumentName} </if>
+		  		  <if test="instrument != null and instrument != ''"> and instrument = #{instrument} </if>
+		  		  <if test="remark != null and remark != ''"> and remark = #{remark} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+					and  del_flag = 0
+		  		</where>
+	</sql>
+
+
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		a.id,
+		a.code,
+		a.name,
+		a.norm,
+		b.name as normName,
+		a.method,
+		a.instrument_name as instrumentName,
+		<!--a.instrument,-->
+		<!--c.name as instrumentName,-->
+		a.remark
+		FROM mes_check_project a
+		LEFT JOIN cus_dictionary b on a.norm=b.id
+		<!--LEFT JOIN cus_device c on a.instrument=c.id-->
+		<where>
+			<if test="id != null and id != ''"> and a.id = #{id} </if>
+			<if test="code != null and code != ''"> and a.code = #{code} </if>
+			<if test="name != null and name != ''"> and a.name like  CONCAT('%',#{name},'%') </if>
+			<if test="norm != null and norm != ''"> and a.norm = #{norm} </if>
+			<if test="method != null and method != ''"> and a.method = #{method} </if>
+			<if test="instrument != null and instrument != ''"> and a.instrument_name like  CONCAT('%',#{name},'%')</if>
+			<if test="remark != null and remark != ''"> and a.remark = #{remark} </if>
+			<if test="createBy != null and createBy != ''"> and a.create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and a.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and a.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and a.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and a.del_flag = #{delFlag} </if>
+			 and  a.del_flag = 0
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countListForMap" resultType="int">
+		select
+		count(*)
+		FROM mes_check_project a
+		LEFT JOIN cus_dictionary b on a.norm=b.id
+		<!--LEFT JOIN cus_device c on a.instrument=c.id-->
+		<where>
+			<if test="id != null and id != ''"> and a.id = #{id} </if>
+			<if test="code != null and code != ''"> and a.code = #{code} </if>
+			<if test="name != null and name != ''"> and a.name like  CONCAT('%',#{name},'%') </if>
+			<if test="norm != null and norm != ''"> and a.norm = #{norm} </if>
+			<if test="method != null and method != ''"> and a.method = #{method} </if>
+			<if test="instrument != null and instrument != ''"> and a.instrument_name like  CONCAT('%',#{name},'%')</if>
+			<if test="remark != null and remark != ''"> and a.remark = #{remark} </if>
+			<if test="createBy != null and createBy != ''"> and a.create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and a.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and a.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and a.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and a.del_flag = #{delFlag} </if>
+			and  a.del_flag = 0
+		</where>
+	</select>
+
+	<update id="deletOfPro" parameterType="map">
+		update
+		mes_check_project
+		set
+		`del_flag` = 1
+		where id in
+		<foreach item="id" collection="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</update>
+
+
+
+</mapper>

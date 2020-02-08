@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.FacilityLocationDao">
+
+	<select id="get" resultType="com.ev.custom.domain.FacilityLocationDO">
+		select `id`,`serial_no`,`name`,`description`,`facility_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,audit_sign,auditor from cus_facility_location where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.FacilityLocationDO">
+		select `id`,`serial_no`,`name`,`description`,`facility_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,audit_sign,auditor from cus_facility_location
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+            <if test="maxNo != null and maxNo != ''"> and LEFT(serial_no,CHAR_LENGTH(#{maxNo})) = #{maxNo} </if>
+		  		  <if test="serialNo != null and serialNo != ''"> and serial_no = #{serialNo} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="description != null and description != ''"> and description = #{description} </if>
+		  		  <if test="facilityId != null and facilityId != ''"> and facility_id = #{facilityId} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+            <if test="auditSign != null and auditSign != ''"> and audit_sign = #{auditSign} </if>
+            <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		facl.id as id,
+		facl.serial_no as serialNo,
+		facl.name as name,
+		facl.description as description,
+		fac.name as facilityName,
+		fac.serial_no AS facilitySerialNo,
+		facl.create_by as createBy,
+		facl.create_time as createTime,
+		facl.update_by as updateBy,
+		facl.update_time as updateTime,
+		facl.del_flag as delFlag,
+        facl.remarks AS remarks,
+        facl.facility_id as facilityId,
+        sys.`name` AS auditorName,
+        facl.audit_sign AS auditSign,
+        dica.`name` AS auditSignName
+		FROM
+		cus_facility_location facl
+		LEFT JOIN cus_facility fac ON fac.id = facl.facility_id
+        LEFT JOIN sys_user sys ON sys.user_id = facl.auditor
+        LEFT JOIN cus_dictionary dica on dica.id=facl.audit_sign
+		<where>
+			<if test="id != null and id != ''"> and facl.id = #{id} </if>
+			<if test="serialNo != null and serialNo != ''"> and facl.serial_no = #{serialNo} </if>
+			<if test="name != null and name != ''"> and  CONCAT(facl.name,facl.serial_no) LIKE CONCAT('%',#{name},'%') </if>
+			<if test="description != null and description != ''"> and facl.description = #{description} </if>
+			<if test="facilityId != null and facilityId != ''"> and facl.facility_id = #{facilityId} </if>
+			<if test="createBy != null and createBy != ''"> and facl.create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and facl.facl.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and facl.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and facl.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and facl.del_flag = #{delFlag} </if>
+            <if test="auditSign != null and auditSign != ''"> and facl.audit_sign = #{auditSign} </if>
+            <if test="auditor != null and auditor != ''"> and facl.auditor = #{auditor} </if>
+			AND facl.del_flag = 0
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by facl.id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_facility_location
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="serialNo != null and serialNo != ''"> and serial_no = #{serialNo} </if>
+		  		  <if test="name != null and name != ''"> and  CONCAT(name,serial_no) LIKE CONCAT('%',#{name},'%') </if>
+		  		  <if test="description != null and description != ''"> and description = #{description} </if>
+		  		  <if test="facilityId != null and facilityId != ''"> and facility_id = #{facilityId} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+             <if test="auditSign != null and auditSign != ''"> and audit_sign = #{auditSign} </if>
+             <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+		  		  AND del_flag = 0
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.FacilityLocationDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_facility_location
+		(
+			`serial_no`, 
+			`name`, 
+			`description`, 
+			`facility_id`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`,
+			auditor,
+			remarks,
+			audit_sign
+		)
+		values
+		(
+			#{serialNo}, 
+			#{name}, 
+			#{description}, 
+			#{facilityId}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag},
+			#{auditor},
+			#{remarks},
+			#{auditSign}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.FacilityLocationDO">
+		update cus_facility_location 
+		<set>
+			<if test="serialNo != null">`serial_no` = #{serialNo}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="description != null">`description` = #{description}, </if>
+			<if test="facilityId != null">`facility_id` = #{facilityId}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag},</if>
+            <if test="auditor != null">auditor = #{auditor}, </if>
+            <if test="auditSign != null">audit_sign = #{auditSign}, </if>
+            <if test="remarks != null">remarks = #{remarks} </if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_facility_location where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_facility_location where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

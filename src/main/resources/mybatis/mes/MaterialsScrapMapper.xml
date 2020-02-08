@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.MaterialsScrapDao">
+
+	<select id="get" resultType="com.ev.mes.domain.MaterialsScrapDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_materials_scrap 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.MaterialsScrapDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_materials_scrap
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_materials_scrap
+		<include refid="sql_condition"/>
+	</select>
+
+	<insert id="save" parameterType="com.ev.mes.domain.MaterialsScrapDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_materials_scrap
+		(
+			`code`,
+			`foreign_id`,
+			`dept_id`,
+			`audit_sign`,
+			`audit_id`,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
+			`del_flag`
+		)
+		values
+		(
+			#{code},
+			#{foreignId},
+			#{deptId}, 
+			#{auditSign}, 
+			#{auditId}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.MaterialsScrapDO">
+		update mes_materials_scrap
+		<set>
+			<if test="code != null">`code` = #{code}, </if>
+			<if test="foreignId != null">`foreign_id` = #{foreignId}, </if>
+			<if test="deptId != null">`dept_id` = #{deptId}, </if>
+			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+			<if test="auditId != null">`audit_id` = #{auditId}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_materials_scrap where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_materials_scrap where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<sql id="sql_column_list">
+		`id`,`code`,`foreign_id`,`dept_id`,`audit_sign`,`audit_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>
+			      <if test="maxNo != null and maxNo != ''"> and LEFT(code,12) = #{maxNo} </if>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="code != null and code != ''"> and code = #{code} </if>
+			<if test="foreignId != null and foreignId != ''"> and foreign_id = #{foreignId} </if>
+			<if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
+			<if test="auditSign != null and auditSign != ''"> and audit_sign = #{auditSign} </if>
+			<if test="auditId != null and auditId != ''"> and audit_id = #{auditId} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</sql>
+
+
+	<select id="canDelet" resultType="int">
+		select
+		COUNT(id)
+		from
+		mes_materials_scrap
+		where
+		audit_sign=178
+		AND id in
+		<foreach item="id" collection="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+
+
+	<select id="getOneDetail" resultType="map">
+		select
+			a.id as scrapId,
+			a.`code`,
+			a.foreign_id as foreignId,
+			f.feeding_no as feedingNo,
+			a.create_time as createTime,
+			a.dept_id as deptId,
+			b.name as deptName,
+			a.create_by as createBy,
+			c.name as createName,
+			a.audit_id as auditId,
+			d.name as auditName,
+			a.audit_sign AS auditSign,
+			e.name as auditSignName
+		from
+			mes_materials_scrap a
+		LEFT JOIN sys_dept  b on a.dept_id = b.dept_id
+		LEFT JOIN sys_user  c on a.create_by = c.user_id
+		LEFT JOIN sys_user  d on a.audit_id=d.user_id
+		LEFT JOIN cus_dictionary e on a.audit_sign=e.id
+		LEFT JOIN mes_production_feeding f on a.foreign_id=f.id
+		WHERE
+		a.id = #{scrapId}
+	</select>
+
+
+
+
+
+</mapper>

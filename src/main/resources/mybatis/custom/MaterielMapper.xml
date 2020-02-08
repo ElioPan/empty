@@ -1,0 +1,727 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.MaterielDao">
+
+	<select id="get" resultType="com.ev.custom.domain.MaterielDO">
+		select `id`,`serial_no`,`name`,`specification`,`image_no`,`type`,`unit_uom`,`default_facility`,`default_location`,`support_uom`,`supplier`,`tec_route`,`tec_version`,`expire_days`,`valuation_method`,`is_valid`,`is_serial`,`is_expire`,`is_lot`,`is_key_components`,`is_check`,`length_uom`,`length`,`width`,`height`,`weight_uom`,`gross_weight`,`net_weight`,`volume`,`sec_inven_count`,`max_inven_count`,`min_inven_count`,`tax_percent`,`purchase_cost`,`sale_price`,`quantity_accuracy`,`price_accuracy`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`audit_sign` from cus_materiel where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.MaterielDO">
+		select `id`,`serial_no`,`name`,`specification`,`image_no`,`type`,`unit_uom`,`default_facility`,`default_location`,`support_uom`,`supplier`,`tec_route`,`tec_version`,`expire_days`,`valuation_method`,`is_valid`,`is_serial`,`is_expire`,`is_lot`,`is_key_components`,`is_check`,`length_uom`,`length`,`width`,`height`,`weight_uom`,`gross_weight`,`net_weight`,`volume`,`sec_inven_count`,`max_inven_count`,`min_inven_count`,`tax_percent`,`purchase_cost`,`sale_price`,`quantity_accuracy`,`price_accuracy`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_materiel
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+            <if test="maxNo != null and maxNo != ''"> and LEFT(serial_no,CHAR_LENGTH(#{maxNo})) = #{maxNo} </if>
+		  		  <if test="serialNo != null and serialNo != ''"> and serial_no = #{serialNo} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="specification != null and specification != ''"> and specification = #{specification} </if>
+		  		  <if test="imageNo != null and imageNo != ''"> and image_no = #{imageNo} </if>
+		  		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  		  <if test="unitUom != null and unitUom != ''"> and unit_uom = #{unitUom} </if>
+		  		  <if test="defaultFacility != null and defaultFacility != ''"> and default_facility = #{defaultFacility} </if>
+		  		  <if test="defaultLocation != null and defaultLocation != ''"> and default_location = #{defaultLocation} </if>
+		  		  <if test="supportUom != null and supportUom != ''"> and support_uom = #{supportUom} </if>
+		  		  <if test="supplier != null and supplier != ''"> and supplier = #{supplier} </if>
+		  		  <if test="tecRoute != null and tecRoute != ''"> and tec_route = #{tecRoute} </if>
+		  		  <if test="tecVersion != null and tecVersion != ''"> and tec_version = #{tecVersion} </if>
+		  		  <if test="expireDays != null and expireDays != ''"> and expire_days = #{expireDays} </if>
+		  		  <if test="valuationMethod != null and valuationMethod != ''"> and valuation_method = #{valuationMethod} </if>
+		  		  <if test="isValid != null and isValid != ''"> and is_valid = #{isValid} </if>
+		  		  <if test="isSerial != null and isSerial != ''"> and is_serial = #{isSerial} </if>
+		  		  <if test="isExpire != null and isExpire != ''"> and is_expire = #{isExpire} </if>
+		  		  <if test="isLot != null and isLot != ''"> and is_lot = #{isLot} </if>
+		  		  <if test="isKeyComponents != null and isKeyComponents != ''"> and is_key_components = #{isKeyComponents} </if>
+		  		  <if test="isCheck != null and isCheck != ''"> and is_check = #{isCheck} </if>
+		  		  <if test="inspectionScheme != null and inspectionScheme != ''"> and inspection_scheme = #{inspectionScheme} </if>
+		  		  <if test="lengthUom != null and lengthUom != ''"> and length_uom = #{lengthUom} </if>
+		  		  <if test="length != null and length != ''"> and length = #{length} </if>
+		  		  <if test="width != null and width != ''"> and width = #{width} </if>
+		  		  <if test="height != null and height != ''"> and height = #{height} </if>
+		  		  <if test="weightUom != null and weightUom != ''"> and weight_uom = #{weightUom} </if>
+		  		  <if test="grossWeight != null and grossWeight != ''"> and gross_weight = #{grossWeight} </if>
+		  		  <if test="netWeight != null and netWeight != ''"> and net_weight = #{netWeight} </if>
+		  		  <if test="volume != null and volume != ''"> and volume = #{volume} </if>
+		  		  <if test="secInvenCount != null and secInvenCount != ''"> and sec_inven_count = #{secInvenCount} </if>
+		  		  <if test="maxInvenCount != null and maxInvenCount != ''"> and max_inven_count = #{maxInvenCount} </if>
+		  		  <if test="minInvenCount != null and minInvenCount != ''"> and min_inven_count = #{minInvenCount} </if>
+		  		  <if test="taxPercent != null and taxPercent != ''"> and tax_percent = #{taxPercent} </if>
+		  		  <if test="purchaseCost != null and purchaseCost != ''"> and purchase_cost = #{purchaseCost} </if>
+		  		  <if test="salePrice != null and salePrice != ''"> and sale_price = #{salePrice} </if>
+		  		  <if test="quantityAccuracy != null and quantityAccuracy != ''"> and quantity_accuracy = #{quantityAccuracy} </if>
+		  		  <if test="priceAccuracy != null and priceAccuracy != ''"> and price_accuracy = #{priceAccuracy} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		material.id as id,
+		material.serial_no as serialNo,
+		material.name as name,
+		materialtype.id as typeId,
+		materialtype.name AS typeName,
+		materialattribute.`id` AS attributeId,
+		materialattribute.`name` AS attributeName,
+		unituom.id AS unitUomId,
+		unituom.name as unitUomName,
+		materialmethod.id as valuationMethodId,
+		materialmethod.name as valuationMethodName,
+		facility.id AS  defaultFacilityId,
+		location.id AS 	defaultLocationId,
+		facility.name as defaultFacilityName,
+		location.name as defaultLocationName,
+		material.specification as specification,
+		supplier.`id` AS supplierId,
+		supplier.`name` AS supplierName,
+		tecroute.`id` AS tecRouteId,
+		tecroute.`name` AS tecRouteName,
+		material.tec_version as tecVersion,
+		material.image_no as imageNo,
+		material.inspection_scheme AS inspectionScheme,
+		<!--BOM 号暂无  -->
+		material.expire_days as expireDays,
+		material.sec_inven_count as secInvenCount,
+		material.max_inven_count as maxInvenCount,
+		material.min_inven_count as minInvenCount,
+		material.tax_percent as taxPercent,
+		material.is_valid as isValid,
+		material.is_serial as isSerial,
+		material.is_expire as isExpire,
+        material.is_stock_warning as isStockWarning,
+		IFNULL(material.purchase_cost,0) as purchaseCost,
+		IFNULL(material.sale_price,0) as salePrice,
+		material.is_check as isCheck,
+		material.inspection_scheme AS inspectionScheme,
+
+        material.barcode AS barcode,
+        material.use_status AS useStatus,
+        IF(material.use_status=1,'启用','禁用') AS useStatusName,
+        material.audit_sign AS auditSign,
+        dics.`name` AS auditSignName,
+        material.auditor AS auditor,
+        audituser.`name` AS auditorName,
+        material.`create_by` AS createBy,
+        createuser.`name` AS createrName,
+
+		material.is_lot as isLot
+<!-- 		supportuom.name as supportUom, -->
+<!-- 		material.tec_route as tecRoute,
+		material.is_key_components as isKeyComponents,
+		 -->
+		<!-- lengthuom.name as lengthUom,
+		material.length as length,
+		material.width as width,
+		material.height as height,
+		weightuom.name as weightUom, -->
+<!-- 		material.gross_weight as grossWeight,
+		material.net_weight as netWeight,
+		material.volume as volume,
+		material.quantity_accuracy as quantityAccuracy,
+		material.price_accuracy as priceAccuracy -->
+		FROM
+		cus_materiel material
+		LEFT JOIN cus_dictionary unituom ON unituom.id = material.unit_uom
+		LEFT JOIN cus_dictionary materialattribute ON materialattribute.id = material.`attribute`
+		LEFT JOIN cus_dictionary materialmethod ON materialmethod.id = material.`valuation_method`
+		LEFT JOIN cus_dictionary tecroute ON tecroute.id = material.`tec_route`
+<!-- 		LEFT JOIN cus_uom lengthuom ON lengthuom.id = material.length_uom
+		LEFT JOIN cus_uom supportuom ON supportuom.id = material.support_uom
+		LEFT JOIN cus_uom weightuom ON weightuom.id = material.weight_uom -->
+		LEFT JOIN cus_supplier supplier ON supplier.id = material.`supplier`
+        LEFT JOIN cus_dictionary dics ON dics.id = material.`audit_sign`
+        LEFT JOIN sys_user createuser ON createuser.`user_id`=material.`create_by`
+        LEFT JOIN sys_user audituser ON audituser.`user_id`=material.`auditor`
+		LEFT JOIN cus_materiel_type materialtype ON materialtype.id = material.type
+		LEFT JOIN cus_facility facility ON facility.id = material.default_facility
+		LEFT JOIN cus_facility_location location ON location.id = material.default_location
+		<where>
+			<if test="id != null and id != ''"> and material.id = #{id} </if>
+			<if test="type != null and type != ''"> and material.type = #{type} </if>
+			<if test="specification != null and specification != ''"> and material.specification  LIKE CONCAT('%',CONCAT(#{specification},'%')) </if>
+			<if test="serialNo != null and serialNo != ''"> and material.serial_no LIKE CONCAT('%',CONCAT(#{serialNo},'%'))</if>
+			<if test="name != null and name != ''"> and material.name  LIKE CONCAT('%',CONCAT(#{name},'%')) </if>
+			<if test="query != null and query != ''"> and CONCAT(material.serial_no,material.name)  LIKE CONCAT('%',CONCAT(#{query},'%')) </if>
+			<if test="unitUom != null and unitUom != ''"> and material.unit_uom = #{unitUom} </if>
+			<if test="inspectionScheme != null and inspectionScheme != ''"> and material.inspection_scheme = #{inspectionScheme} </if>
+			<if test="defaultFacility != null and defaultFacility != ''"> and material.default_facility = #{defaultFacility} </if>
+			<if test="defaultLocation != null and defaultLocation != ''"> and material.default_location = #{defaultLocation} </if>
+			<if test="defaultFacilityName != null and defaultFacilityName != ''"> and facility.`name` LIKE CONCAT(#{defaultFacilityName},'%')</if>
+			<if test="defaultLocationName != null and defaultLocationName != ''"> and location.`name` LIKE CONCAT(#{defaultLocationName},'%') </if>
+			<if test="createBy != null and createBy != ''"> and material.create_by = #{createBy} </if>
+			<if test="attribute != null and attribute != ''"> and material.`attribute` = #{attribute} </if>
+			<if test="createTime != null and createTime != ''"> and material.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and material.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and material.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and material.del_flag = #{delFlag} </if>
+            <if test="auditSign != null and auditSign != ''"> and material.audit_sign = #{auditSign} </if>
+            <if test="useStatus != null and useStatus != ''"> and material.use_status = #{useStatus} </if>
+            <if test="auditor != null and auditor != ''"> and material.auditor = #{auditor} </if>
+			AND material.del_flag = 0
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by material.id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="countForMap" resultType="int">
+		select count(*)
+		FROM
+		cus_materiel material
+		LEFT JOIN cus_dictionary unituom ON unituom.id = material.unit_uom
+		LEFT JOIN cus_dictionary materialattribute ON materialattribute.id = material.`attribute`
+		LEFT JOIN cus_dictionary materialmethod ON materialmethod.id = material.`valuation_method`
+		LEFT JOIN cus_dictionary tecroute ON tecroute.id = material.`tec_route`
+<!-- 		LEFT JOIN cus_uom lengthuom ON lengthuom.id = material.length_uom
+		LEFT JOIN cus_uom supportuom ON supportuom.id = material.support_uom
+		LEFT JOIN cus_uom weightuom ON weightuom.id = material.weight_uom -->
+		LEFT JOIN cus_supplier supplier ON supplier.id = material.`supplier`
+		LEFT JOIN cus_materiel_type materialtype ON materialtype.id = material.type
+		LEFT JOIN cus_facility facility ON facility.id = material.default_facility
+		LEFT JOIN cus_facility_location location ON location.id = material.default_location
+		<where>
+			<if test="id != null and id != ''"> and material.id = #{id} </if>
+			<if test="type != null and type != ''"> and material.type = #{type} </if>
+			<if test="specification != null and specification != ''"> and material.specification  LIKE CONCAT('%',CONCAT(#{specification},'%')) </if>
+			<if test="serialNo != null and serialNo != ''"> and material.serial_no LIKE CONCAT('%',CONCAT(#{serialNo},'%'))</if>
+			<if test="name != null and name != ''"> and material.name  LIKE CONCAT('%',CONCAT(#{name},'%')) </if>
+			<if test="query != null and query != ''"> and CONCAT(material.serial_no,material.name)  LIKE CONCAT('%',CONCAT(#{query},'%')) </if>
+			<if test="unitUom != null and unitUom != ''"> and material.unit_uom = #{unitUom} </if>
+			<if test="inspectionScheme != null and inspectionScheme != ''"> and material.inspection_scheme = #{inspectionScheme} </if>
+			<if test="defaultFacility != null and defaultFacility != ''"> and material.default_facility = #{defaultFacility} </if>
+			<if test="defaultLocation != null and defaultLocation != ''"> and material.default_location = #{defaultLocation} </if>
+			<if test="defaultFacilityName != null and defaultFacilityName != ''"> and facility.`name` LIKE CONCAT(#{defaultFacilityName},'%')</if>
+			<if test="defaultLocationName != null and defaultLocationName != ''"> and location.`name` LIKE CONCAT(#{defaultLocationName},'%') </if>
+			<if test="createBy != null and createBy != ''"> and material.create_by = #{createBy} </if>
+			<if test="attribute != null and attribute != ''"> and material.`attribute` = #{attribute} </if>
+			<if test="createTime != null and createTime != ''"> and material.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and material.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and material.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and material.del_flag = #{delFlag} </if>
+            <if test="auditSign != null and auditSign != ''"> and material.audit_sign = #{auditSign} </if>
+            <if test="useStatus != null and useStatus != ''"> and material.use_status = #{useStatus} </if>
+            <if test="auditor != null and auditor != ''"> and material.auditor = #{auditor} </if>
+			AND material.del_flag = 0
+		</where>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_materiel
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="serialNo != null and serialNo != ''"> and serial_no = #{serialNo} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="specification != null and specification != ''"> and specification = #{specification} </if>
+		  		  <if test="imageNo != null and imageNo != ''"> and image_no = #{imageNo} </if>
+		  		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  		  <if test="unitUom != null and unitUom != ''"> and unit_uom = #{unitUom} </if>
+		  		  <if test="defaultFacility != null and defaultFacility != ''"> and default_facility = #{defaultFacility} </if>
+		  		  <if test="defaultLocation != null and defaultLocation != ''"> and default_location = #{defaultLocation} </if>
+		  		  <if test="inspectionScheme != null and inspectionScheme != ''"> and inspection_scheme = #{inspectionScheme} </if>
+		  		  <if test="supportUom != null and supportUom != ''"> and support_uom = #{supportUom} </if>
+		  		  <if test="supplier != null and supplier != ''"> and supplier = #{supplier} </if>
+		  		  <if test="tecRoute != null and tecRoute != ''"> and tec_route = #{tecRoute} </if>
+		  		  <if test="tecVersion != null and tecVersion != ''"> and tec_version = #{tecVersion} </if>
+		  		  <if test="expireDays != null and expireDays != ''"> and expire_days = #{expireDays} </if>
+		  		  <if test="valuationMethod != null and valuationMethod != ''"> and valuation_method = #{valuationMethod} </if>
+		  		  <if test="isValid != null and isValid != ''"> and is_valid = #{isValid} </if>
+		  		  <if test="isSerial != null and isSerial != ''"> and is_serial = #{isSerial} </if>
+		  		  <if test="isExpire != null and isExpire != ''"> and is_expire = #{isExpire} </if>
+		  		  <if test="isLot != null and isLot != ''"> and is_lot = #{isLot} </if>
+		  		  <if test="isKeyComponents != null and isKeyComponents != ''"> and is_key_components = #{isKeyComponents} </if>
+		  		  <if test="isCheck != null and isCheck != ''"> and is_check = #{isCheck} </if>
+		  		  <if test="lengthUom != null and lengthUom != ''"> and length_uom = #{lengthUom} </if>
+		  		  <if test="length != null and length != ''"> and length = #{length} </if>
+		  		  <if test="width != null and width != ''"> and width = #{width} </if>
+		  		  <if test="height != null and height != ''"> and height = #{height} </if>
+		  		  <if test="weightUom != null and weightUom != ''"> and weight_uom = #{weightUom} </if>
+		  		  <if test="grossWeight != null and grossWeight != ''"> and gross_weight = #{grossWeight} </if>
+		  		  <if test="netWeight != null and netWeight != ''"> and net_weight = #{netWeight} </if>
+		  		  <if test="volume != null and volume != ''"> and volume = #{volume} </if>
+		  		  <if test="secInvenCount != null and secInvenCount != ''"> and sec_inven_count = #{secInvenCount} </if>
+		  		  <if test="maxInvenCount != null and maxInvenCount != ''"> and max_inven_count = #{maxInvenCount} </if>
+		  		  <if test="minInvenCount != null and minInvenCount != ''"> and min_inven_count = #{minInvenCount} </if>
+		  		  <if test="taxPercent != null and taxPercent != ''"> and tax_percent = #{taxPercent} </if>
+		  		  <if test="purchaseCost != null and purchaseCost != ''"> and purchase_cost = #{purchaseCost} </if>
+		  		  <if test="salePrice != null and salePrice != ''"> and sale_price = #{salePrice} </if>
+		  		  <if test="quantityAccuracy != null and quantityAccuracy != ''"> and quantity_accuracy = #{quantityAccuracy} </if>
+		  		  <if test="priceAccuracy != null and priceAccuracy != ''"> and price_accuracy = #{priceAccuracy} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.MaterielDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_materiel
+		(
+			`serial_no`, 
+			`name`, 
+			`specification`, 
+			`image_no`, 
+			`type`,
+			`attribute`, 
+			`unit_uom`, 
+			`default_facility`, 
+			`default_location`, 
+			`support_uom`, 
+			`supplier`, 
+			`tec_route`, 
+			`tec_version`, 
+			`expire_days`, 
+			`valuation_method`, 
+			`is_valid`, 
+			`is_serial`, 
+			`is_expire`, 
+			`is_lot`, 
+			`is_key_components`, 
+			`is_check`,
+			`is_stock_warning`,
+			`inspection_scheme`,
+			`length_uom`, 
+			`length`, 
+			`width`, 
+			`height`, 
+			`weight_uom`, 
+			`gross_weight`, 
+			`net_weight`, 
+			`volume`, 
+			`sec_inven_count`, 
+			`max_inven_count`, 
+			`min_inven_count`, 
+			`tax_percent`, 
+			`purchase_cost`, 
+			`sale_price`, 
+			`quantity_accuracy`, 
+			`price_accuracy`,
+			`barcode`,
+			`auditor`,
+			`audit_sign`,
+			`use_status`,
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{serialNo}, 
+			#{name}, 
+			#{specification}, 
+			#{imageNo}, 
+			#{type}, 
+			#{attribute},
+			#{unitUom}, 
+			#{defaultFacility}, 
+			#{defaultLocation}, 
+			#{supportUom}, 
+			#{supplier}, 
+			#{tecRoute}, 
+			#{tecVersion}, 
+			#{expireDays}, 
+			#{valuationMethod}, 
+			#{isValid}, 
+			#{isSerial}, 
+			#{isExpire}, 
+			#{isLot}, 
+			#{isKeyComponents}, 
+			#{isCheck},
+			#{isStockWarning},
+			#{inspectionScheme}, 
+			#{lengthUom}, 
+			#{length}, 
+			#{width}, 
+			#{height}, 
+			#{weightUom}, 
+			#{grossWeight}, 
+			#{netWeight}, 
+			#{volume}, 
+			#{secInvenCount}, 
+			#{maxInvenCount}, 
+			#{minInvenCount}, 
+			#{taxPercent}, 
+			#{purchaseCost}, 
+			#{salePrice}, 
+			#{quantityAccuracy}, 
+			#{priceAccuracy},
+			#{barcode},
+			#{auditor},
+			#{auditSign},
+			#{useStatus},
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.MaterielDO">
+		update cus_materiel 
+		<set>
+			<if test="serialNo != null">`serial_no` = #{serialNo}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="specification != null">`specification` = #{specification}, </if>
+			<if test="imageNo != null">`image_no` = #{imageNo}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="attribute != null">`attribute` = #{attribute}, </if>
+			<if test="unitUom != null">`unit_uom` = #{unitUom}, </if>
+			<if test="defaultFacility != null">`default_facility` = #{defaultFacility}, </if>
+			<if test="defaultLocation != null">`default_location` = #{defaultLocation}, </if>
+			<if test="supportUom != null">`support_uom` = #{supportUom}, </if>
+			<if test="supplier != null">`supplier` = #{supplier}, </if>
+			<if test="tecRoute != null">`tec_route` = #{tecRoute}, </if>
+			<if test="tecVersion != null">`tec_version` = #{tecVersion}, </if>
+			<if test="expireDays != null">`expire_days` = #{expireDays}, </if>
+			<if test="valuationMethod != null">`valuation_method` = #{valuationMethod}, </if>
+			<if test="isValid != null">`is_valid` = #{isValid}, </if>
+			<if test="isSerial != null">`is_serial` = #{isSerial}, </if>
+			<if test="isExpire != null">`is_expire` = #{isExpire}, </if>
+			<if test="isLot != null">`is_lot` = #{isLot}, </if>
+			<if test="isKeyComponents != null">`is_key_components` = #{isKeyComponents}, </if>
+			<if test="isCheck != null">`is_check` = #{isCheck}, </if>
+            <if test="isStockWarning != null">`is_stock_warning` = #{isStockWarning}, </if>
+			<if test="inspectionScheme != null">`inspection_scheme` = #{inspectionScheme}, </if>
+			<if test="lengthUom != null">`length_uom` = #{lengthUom}, </if>
+			<if test="length != null">`length` = #{length}, </if>
+			<if test="width != null">`width` = #{width}, </if>
+			<if test="height != null">`height` = #{height}, </if>
+			<if test="weightUom != null">`weight_uom` = #{weightUom}, </if>
+			<if test="grossWeight != null">`gross_weight` = #{grossWeight}, </if>
+			<if test="netWeight != null">`net_weight` = #{netWeight}, </if>
+			<if test="volume != null">`volume` = #{volume}, </if>
+			<if test="secInvenCount != null">`sec_inven_count` = #{secInvenCount}, </if>
+			<if test="maxInvenCount != null">`max_inven_count` = #{maxInvenCount}, </if>
+			<if test="minInvenCount != null">`min_inven_count` = #{minInvenCount}, </if>
+			<if test="taxPercent != null">`tax_percent` = #{taxPercent}, </if>
+			<if test="purchaseCost != null">`purchase_cost` = #{purchaseCost}, </if>
+			<if test="salePrice != null">`sale_price` = #{salePrice}, </if>
+			<if test="quantityAccuracy != null">`quantity_accuracy` = #{quantityAccuracy}, </if>
+			<if test="priceAccuracy != null">`price_accuracy` = #{priceAccuracy}, </if>
+            <if test="barcode != null">`barcode` = #{barcode}, </if>
+            <if test="auditor != null">`auditor` = #{auditor}, </if>
+            <if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+            <if test="useStatus != null">`use_status` = #{useStatus}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+
+    <delete id="remove">
+		delete from cus_materiel where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_materiel where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<select id="checkSave" resultType="int" parameterType="com.ev.custom.domain.MaterielDO">
+		select count(*)
+		FROM
+		cus_materiel
+		<where>  
+		  	<if test="serialNo != null and serialNo != ''"> and serial_no = #{serialNo} </if>
+		 </where>
+	</select>
+	
+	<select id="stockListForMap" resultType="map">
+			SELECT
+			GROUP_CONCAT(stock.`id`) AS id,
+			stock.`materiel_id` AS proId,
+			product.`name` AS productName,
+			product.`specification` AS model,
+			producttype.`id` AS productTypeId,
+			producttype.`name` AS productTypeName,
+			product.`serial_no` AS serialno,
+			dic.`id` AS unitId,
+			dic.`name` AS unitName,
+			stock.`batch` AS batch,
+			facility.`name` AS facilityName,
+			facility.`id` AS facilityId,
+			fl.name AS facilityLocationName,
+			fl.id AS facilityLocationId,
+            stock.`unit_price` AS unitPrice,
+            stock.`entering_time` AS enteringTime,
+            SUM(stock.`count`) AS totalCount,
+			SUM(stock.`available_count`) AS availableCount
+			FROM (
+				SELECT
+				`id`,
+				`materiel_id`,
+				`available_count`,
+				`batch`,
+				`count`,
+				`warehouse`,
+				`wareh_location`,
+				`unit_price`,
+				`del_flag`,
+				`entering_time`
+				FROM scm_stock
+				WHERE `available_count` &gt;0
+				)stock
+			LEFT JOIN cus_materiel product ON product.id=stock.`materiel_id`
+			LEFT JOIN cus_materiel_type producttype ON producttype.`id`=product.`type`
+			LEFT JOIN cus_dictionary dic ON dic.`id`=product.`unit_uom`
+			LEFT JOIN cus_facility_location fl ON fl.`id`=stock.`wareh_location`
+			LEFT JOIN cus_facility facility ON facility.`id`=fl.`facility_id`
+			LEFT JOIN cus_dictionary dicf ON dicf.`id`=facility.`facility_type`
+	        <where>  
+			  		  <if test="fuzzySearch != null and fuzzySearch != ''"> and CONCAT(CONCAT(product.`serial_no`,product.`name`),product.`specification`) LIKE CONCAT(CONCAT('%',#{fuzzySearch}),'%') </if>  
+			  		  <if test="productTypeId != null and productTypeId != ''"> and product.`type` = #{productTypeId} </if>
+			  		  <if test="facilityTypeId != null and facilityTypeId != ''"> and facility.`facility_type` = #{facilityTypeId} </if>
+			  		  <if test="delFlag != null and delFlag != ''"> and stock.`del_flag` = #{delFlag} </if>
+					  <if test="stockId != null and stockId.size()>0"> and stock.`id` IN  
+						<foreach item="item" collection="stockId" open="(" separator="," close=")" index="index">
+							<if test="item!=null">
+									#{item}
+							</if>
+						</foreach>
+					  </if>
+					  <!-- 生产投料单查询条件 -->
+					  <if test="materielId != null and materielId != ''"> and product.`id` = #{materielId} </if>
+					  <if test="batch != null and batch != ''"> and stock.`batch` = #{batch} </if>
+					  
+					  
+			 </where>
+		GROUP BY stock.`batch`,stock.`wareh_location`,stock.`materiel_id`
+		 <choose>
+	            <when test="sort != null and sort.trim() != ''">
+	                order by ${sort} ${order}
+	            </when>
+				<otherwise>
+	                order by stock.id desc
+				</otherwise>
+	        </choose>
+	        <if test="offset != null and limit != null">
+				limit #{offset}, #{limit}
+			</if>
+	</select>
+	
+	<select id="stockCountForMap" resultType="int">
+		SELECT 
+		COUNT(*)
+		FROM (
+			SELECT 
+			COUNT(*)
+			FROM (
+				SELECT
+				`id`,
+				`materiel_id`,
+				`available_count`,
+				`batch`,
+				`count`,
+				`warehouse`,
+				`wareh_location`
+				FROM scm_stock
+				WHERE `available_count` &gt;0
+				)stock
+				LEFT JOIN cus_materiel product ON product.id=stock.`materiel_id`
+				LEFT JOIN cus_materiel_type producttype ON producttype.`id`=product.`type`
+				LEFT JOIN cus_dictionary dic ON dic.`id`=product.`unit_uom`
+				LEFT JOIN cus_facility_location fl ON fl.`id`=stock.`wareh_location`
+				LEFT JOIN cus_facility facility ON facility.`id`=fl.`facility_id`
+				LEFT JOIN cus_dictionary dicf ON dicf.`id`=facility.`facility_type`
+		       <where>  
+			  		  <if test="fuzzySearch != null and fuzzySearch != ''"> and CONCAT(CONCAT(product.`serial_no`,product.`name`),product.`specification`) LIKE CONCAT(CONCAT('%',#{fuzzySearch}),'%') </if>  
+			  		  <if test="productTypeId != null and productTypeId != ''"> and product.`type` = #{productTypeId} </if>
+			  		  <if test="facilityTypeId != null and facilityTypeId != ''"> and facility.`facility_type` = #{facilityTypeId} </if>
+			  		  <if test="delFlag != null and delFlag != ''"> and stock.`del_flag` = #{delFlag} </if>
+					  <if test="stockId != null and stockId.size()>0"> and stock.`id` IN  
+						<foreach item="item" collection="stockId" open="(" separator="," close=")" index="index">
+							<if test="item!=null">
+									#{item}
+							</if>
+						</foreach>
+					  </if>
+					  
+					   <!-- 生产投料单查询条件 -->
+					  <if test="materielId != null and materielId != ''"> and product.`id` = #{materielId} </if>
+					  <if test="batch != null and batch != ''"> and stock.`batch` = #{batch} </if>
+			 </where>
+				GROUP BY stock.`batch`,stock.`wareh_location`,stock.`materiel_id`
+	      )t
+	</select>
+	
+	<select id="stockList" resultType="com.ev.scm.domain.StockDO">
+		SELECT `id`,`count`,`available_count`,`unit_price`
+		FROM scm_stock
+		WHERE `id` in
+		<foreach item="id" collection="list" open="(" separator="," close=")" index="index">
+			#{id}
+		</foreach>
+	</select>
+	
+	<!-- 验证是否能被删除 -->
+	<select id="checkDelete" resultType="int">
+		SELECT COUNT(*) 
+		FROM cus_materiel pro
+		INNER JOIN scm_stock_in_item inb ON inb.`materiel_id`=pro.`id`
+		WHERE pro.`id`=#{value} 
+	</select>	
+	
+    <insert id="batchSave" parameterType="List" useGeneratedKeys="true" keyProperty="id">
+        insert into cus_materiel
+        (
+        `serial_no`,
+        `name`,
+        `specification`,
+        `image_no`,
+        `type`,
+        `attribute`,
+        `unit_uom`,
+        `default_facility`,
+        `default_location`,
+        `support_uom`,
+        `supplier`,
+        `tec_route`,
+        `tec_version`,
+        `expire_days`,
+        `valuation_method`,
+        `is_valid`,
+        `is_serial`,
+        `is_expire`,
+        `is_lot`,
+        `is_key_components`,
+        `is_check`,
+        `is_stock_warning`,
+        `inspection_scheme`,
+        `length_uom`,
+        `length`,
+        `width`,
+        `height`,
+        `weight_uom`,
+        `gross_weight`,
+        `net_weight`,
+        `volume`,
+        `sec_inven_count`,
+        `max_inven_count`,
+        `min_inven_count`,
+        `tax_percent`,
+        `purchase_cost`,
+        `sale_price`,
+        `quantity_accuracy`,
+        `price_accuracy`,
+        `barcode`,
+        `auditor`,
+        `audit_sign`,
+        `use_status`,
+        `create_by`,
+        `create_time`,
+        `update_by`,
+        `update_time`,
+        `del_flag`
+        )
+        values
+        <foreach collection="list" item="obj" separator=",">(
+            #{obj.serialNo},
+            #{obj.name},
+            #{obj.specification},
+            #{obj.imageNo},
+            #{obj.type},
+            #{obj.attribute},
+            #{obj.unitUom},
+            #{obj.defaultFacility},
+            #{obj.defaultLocation},
+            #{obj.supportUom},
+            #{obj.supplier},
+            #{obj.tecRoute},
+            #{obj.tecVersion},
+            #{obj.expireDays},
+            #{obj.valuationMethod},
+            #{obj.isValid},
+            #{obj.isSerial},
+            #{obj.isExpire},
+            #{obj.isLot},
+            #{obj.isKeyComponents},
+            #{obj.isCheck},
+            #{obj.isStockWarning},
+            #{obj.inspectionScheme},
+            #{obj.lengthUom},
+            #{obj.length},
+            #{obj.width},
+            #{obj.height},
+            #{obj.weightUom},
+            #{obj.grossWeight},
+            #{obj.netWeight},
+            #{obj.volume},
+            #{obj.secInvenCount},
+            #{obj.maxInvenCount},
+            #{obj.minInvenCount},
+            #{obj.taxPercent},
+            #{obj.purchaseCost},
+            #{obj.salePrice},
+            #{obj.quantityAccuracy},
+            #{obj.priceAccuracy},
+            #{obj.barcode},
+            #{obj.auditor},
+            #{obj.auditSign},
+            #{obj.useStatus},
+            #{obj.createBy},
+            #{obj.createTime},
+            #{obj.updateBy},
+            #{obj.updateTime},
+            #{obj.delFlag}
+            )
+        </foreach>
+
+    </insert>
+
+	<select id="stockCount" resultType="map">
+			SELECT
+			GROUP_CONCAT(`id`) AS id,
+			SUM(`available_count`) AS availableCount
+			FROM scm_stock stock
+	        <where>
+					  <if test="stockId != null and stockId.size()>0"> and stock.`id` IN
+						<foreach item="item" collection="stockId" open="(" separator="," close=")" index="index">
+							<if test="item!=null">
+									#{item}
+							</if>
+						</foreach>
+					  </if>
+			 </where>
+		GROUP BY stock.`batch`,stock.`wareh_location`,stock.`materiel_id`
+	</select>
+
+    <select id="getAllCode" resultType="java.lang.String">
+        SELECT
+        `serial_no`
+        from
+        cus_materiel
+        WHERE
+        `del_flag`=0
+    </select>
+</mapper>

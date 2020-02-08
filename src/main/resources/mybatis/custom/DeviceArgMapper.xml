@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.DeviceArgDao">
+
+	<select id="get" resultType="com.ev.custom.domain.DeviceArgDO">
+		select `id`,`code`,`name`,`value`,`desc`,`device_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_device_arg where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.DeviceArgDO">
+		select `id`,`code`,`name`,`value`,`desc`,`device_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_device_arg
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="code != null and code != ''"> and code = #{code} </if>
+			<if test="name != null and name != ''"> and name = #{name} </if>
+			<if test="value != null and value != ''"> and value = #{value} </if>
+			<if test="desc != null and desc != ''"> and desc = #{desc} </if>
+			<if test="deviceId != null and deviceId != ''"> and device_id = #{deviceId} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from cus_device_arg
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="code != null and code != ''"> and code = #{code} </if>
+			<if test="name != null and name != ''"> and name = #{name} </if>
+			<if test="value != null and value != ''"> and value = #{value} </if>
+			<if test="desc != null and desc != ''"> and desc = #{desc} </if>
+			<if test="deviceId != null and deviceId != ''"> and device_id = #{deviceId} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+	</select>
+
+	<insert id="save" parameterType="com.ev.custom.domain.DeviceArgDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_device_arg
+		(
+		`code`,
+		`name`,
+		`value`,
+		`desc`,
+		`device_id`,
+		`create_by`,
+		`create_time`,
+		`update_by`,
+		`update_time`,
+		`del_flag`
+		)
+		values
+		(
+		#{code},
+		#{name},
+		#{value},
+		#{desc},
+		#{deviceId},
+		#{createBy},
+		#{createTime},
+		#{updateBy},
+		#{updateTime},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.custom.domain.DeviceArgDO">
+		update cus_device_arg
+		<set>
+			<if test="code != null">`code` = #{code}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="value != null">`value` = #{value}, </if>
+			<if test="desc != null">`desc` = #{desc}, </if>
+			<if test="deviceId != null">`device_id` = #{deviceId}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from cus_device_arg where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from cus_device_arg where id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<select id="lisForMap" resultType="map">
+		select
+		a.id,
+		a.code,
+		a.name,
+		a.value,
+		b.name as userName,
+		a.`desc` as `desc`,
+		a.create_time as createTime
+		from
+		cus_device_arg a
+		LEFT JOIN sys_user b on a.create_by=b.user_id
+		<where>
+			<if test="id != null and id != ''"> and a.id = #{id} </if>
+			<if test="code != null and code != ''"> and a.code = #{code} </if>
+			<if test="name != null and name != ''"> and a.name = #{name} </if>
+			<if test="value != null and value != ''"> and a.value = #{value} </if>
+			<if test="desc != null and desc != ''"> and a.desc = #{desc} </if>
+			<if test="deviceId != null and deviceId != ''"> and a.device_id = #{deviceId} </if>
+			<if test="createBy != null and createBy != ''"> and a.create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and a.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and a.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and a.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and a.del_flag = #{delFlag} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="int">
+		select count(*)
+		from
+		cus_device_arg a
+		LEFT JOIN sys_user b on a.create_by=b.user_id
+		<where>
+			<if test="id != null and id != ''"> and a.id = #{id} </if>
+			<if test="code != null and code != ''"> and a.code = #{code} </if>
+			<if test="name != null and name != ''"> and a.name = #{name} </if>
+			<if test="value != null and value != ''"> and a.value = #{value} </if>
+			<if test="desc != null and desc != ''"> and a.desc = #{desc} </if>
+			<if test="deviceId != null and deviceId != ''"> and a.device_id = #{deviceId} </if>
+			<if test="createBy != null and createBy != ''"> and a.create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and a.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and a.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and a.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and a.del_flag = #{delFlag} </if>
+		</where>
+	</select>
+
+</mapper>

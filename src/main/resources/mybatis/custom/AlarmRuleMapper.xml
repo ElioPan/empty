@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.AlarmRuleDao">
+
+	<select id="get" resultType="com.ev.custom.domain.AlarmRuleDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM cus_alarm_rule 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.AlarmRuleDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM cus_alarm_rule
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="listForMap" resultType="map">
+		SELECT 
+		rule.`id` AS id,
+		rule.`name` AS name,
+		dut.`id` AS alarmTypeId,
+		dut.`name` AS alarmTypeName,
+		dil.`id` AS alarmLevelId,
+		dil.`name` AS alarmLevelName,
+		point.`id` AS pointId,
+		point.`serial_no` AS pointSerialNo,
+		rule.`trigger_mode` AS triggerMode,
+		rule.`trigger_time` AS triggerTime, 
+		rule.`continue_time` AS continueTime,
+		rule.`alarm_way` AS alarmWay, 
+		rule.`sort_no` AS sortNo
+		<include refid="sql_condition_map"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by rule.sort_no desc,point.sort_no desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="countForMap" resultType="int">
+		SELECT 
+		COUNT(*)
+		<include refid="sql_condition_map"/>
+	</select>
+	
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_alarm_rule
+		<include refid="sql_condition"/>
+	</select>
+	
+	<!-- 批量保存规则明细 -->
+	<insert id="batchSave" parameterType="List" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_alarm_rule
+		(
+			`name`,
+			`group_id`, 
+			`alarm_type`, 
+			`alarm_level`, 
+			`trigger_mode`, 
+			`trigger_time`, 
+			`continue_time`, 
+			`alarm_way`, 
+			`sort_no`, 
+			`point_id`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		<foreach collection="list" item="obj" separator=",">
+		(
+			#{obj.name}, 
+			#{obj.groupId}, 
+			#{obj.alarmType}, 
+			#{obj.alarmLevel}, 
+			#{obj.triggerMode}, 
+			#{obj.triggerTime}, 
+			#{obj.continueTime}, 
+			#{obj.alarmWay}, 
+			#{obj.sortNo}, 
+			#{obj.pointId}, 
+			#{obj.createBy}, 
+			#{obj.createTime}, 
+			#{obj.updateBy}, 
+			#{obj.updateTime}, 
+			#{obj.delFlag}
+		)
+		</foreach>
+	</insert>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.AlarmRuleDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_alarm_rule
+		(
+			`name`, 
+			`group_id`,
+			`alarm_type`, 
+			`alarm_level`, 
+			`trigger_mode`, 
+			`trigger_time`, 
+			`continue_time`, 
+			`alarm_way`, 
+			`sort_no`, 
+			`point_id`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{name}, 
+			#{groupId}, 
+			#{alarmType}, 
+			#{alarmLevel}, 
+			#{triggerMode}, 
+			#{triggerTime}, 
+			#{continueTime}, 
+			#{alarmWay}, 
+			#{sortNo}, 
+			#{pointId}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.AlarmRuleDO">
+		update cus_alarm_rule 
+		<set>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="alarmType != null">`alarm_type` = #{alarmType}, </if>
+			<if test="alarmLevel != null">`alarm_level` = #{alarmLevel}, </if>
+			<if test="triggerMode != null">`trigger_mode` = #{triggerMode}, </if>
+			<if test="triggerTime != null">`trigger_time` = #{triggerTime}, </if>
+			<if test="continueTime != null">`continue_time` = #{continueTime}, </if>
+			<if test="alarmWay != null">`alarm_way` = #{alarmWay}, </if>
+			<if test="sortNo != null">`sort_no` = #{sortNo}, </if>
+			<if test="pointId != null">`point_id` = #{pointId}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_alarm_rule where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_alarm_rule where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<sql id="sql_column_list">
+		`id`,`name`,`group_id`,`alarm_type`,`alarm_level`,`trigger_mode`,`trigger_time`,`continue_time`,`alarm_way`,`sort_no`,`point_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="groupId != null and groupId != ''"> and group_id = #{groupId} </if>
+		  		  <if test="alarmType != null and alarmType != ''"> and alarm_type = #{alarmType} </if>
+		  		  <if test="alarmLevel != null and alarmLevel != ''"> and alarm_level = #{alarmLevel} </if>
+		  		  <if test="triggerMode != null and triggerMode != ''"> and trigger_mode = #{triggerMode} </if>
+		  		  <if test="triggerTime != null and triggerTime != ''"> and trigger_time = #{triggerTime} </if>
+		  		  <if test="continueTime != null and continueTime != ''"> and continue_time = #{continueTime} </if>
+		  		  <if test="alarmWay != null and alarmWay != ''"> and alarm_way = #{alarmWay} </if>
+		  		  <if test="sortNo != null and sortNo != ''"> and sort_no = #{sortNo} </if>
+		  		  <if test="pointId != null and pointId != ''"> and point_id = #{pointId} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</sql>
+	
+	<sql id="sql_condition_map">
+		FROM cus_alarm_rule rule
+		LEFT JOIN cus_measure_point point ON point.id=rule.`point_id` 
+		LEFT JOIN cus_dictionary dil ON dil.`id` = rule.`alarm_level`
+		LEFT JOIN cus_dictionary dut ON dut.id = rule.`alarm_type`
+		<where>  
+		  		  <if test="id != null and id != ''"> and rule.id = #{id} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and point.`device_id` = #{deviceId} </if>
+		  		  <if test="groupId != null and groupId != ''"> and rule.group_id = #{groupId} </if>
+		  		  <if test="name != null and name != ''"> and rule.name LIKE CONCAT('%',#{name},'%') </if>
+		  		  <if test="alarmType != null and alarmType != ''"> and rule.alarm_type = #{alarmType} </if>
+		  		  <if test="alarmLevel != null and alarmLevel != ''"> and rule.alarm_level = #{alarmLevel} </if>
+		  		  <if test="triggerMode != null and triggerMode != ''"> and rule.trigger_mode = #{triggerMode} </if>
+		  		  <if test="triggerTime != null and triggerTime != ''"> and rule.trigger_time = #{triggerTime} </if>
+		  		  <if test="continueTime != null and continueTime != ''"> and rule.continue_time = #{continueTime} </if>
+		  		  <if test="alarmWay != null and alarmWay != ''"> and rule.alarm_way = #{alarmWay} </if>
+		  		  <if test="sortNo != null and sortNo != ''"> and rule.sort_no = #{sortNo} </if>
+		  		  <if test="pointId != null and pointId != ''"> and rule.point_id = #{pointId} </if>
+		  		  <if test="createBy != null and createBy != ''"> and rule.create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and rule.create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and rule.update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and rule.update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and rule.del_flag = #{delFlag} </if>
+		  		  AND rule.del_flag = 0
+		  		</where>
+	</sql>
+	
+</mapper>

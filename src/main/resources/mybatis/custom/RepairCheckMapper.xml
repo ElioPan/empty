@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.RepairCheckDao">
+
+	<select id="get" resultType="com.ev.custom.domain.RepairCheckDO">
+		select `id`,`result`,`content`,`create_by`,`create_time`,`event_id`,`record_id`,`xl_grade`,`qa_grade`,`td_grade`,`update_by`,`update_time`,`del_flag` from cus_repair_check where id = #{value}
+	</select>
+
+	<select id="getByEventId" resultType="com.ev.custom.domain.RepairCheckDO">
+		select `id`,`result`,`content`,`create_by`,`create_time`,`event_id`,`record_id`,`xl_grade`,`qa_grade`,`td_grade`,`update_by`,`update_time`,`del_flag` from cus_repair_check where event_id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.RepairCheckDO">
+		select `id`,`result`,`content`,`create_by`,`create_time`,`event_id`,`record_id`,`xl_grade`,`qa_grade`,`td_grade`,`update_by`,`update_time`,`del_flag` from cus_repair_check
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="result != null and result != ''"> and result = #{result} </if>
+		  		  <if test="content != null and content != ''"> and content = #{content} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="eventId != null and eventId != ''"> and event_id = #{eventId} </if>
+		  		  <if test="recordId != null and recordId != ''"> and record_id = #{recordId} </if>
+		  		  <if test="xlGrade != null and xlGrade != ''"> and xl_grade = #{xlGrade} </if>
+		  		  <if test="qaGrade != null and qaGrade != ''"> and qa_grade = #{qaGrade} </if>
+		  		  <if test="tdGrade != null and tdGrade != ''"> and td_grade = #{tdGrade} </if>
+				  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+				  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+				  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>		  		  
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="listForMap" resultType="map">
+		select 
+		repaircheck.`id`,
+		repaircheck.`result`,
+		dics.`name` AS resultName,
+		createuser.`name` AS createName,
+		repaircheck.`content`,
+		repaircheck.`create_by`,
+		repaircheck.`create_time`,
+		repaircheck.`event_id`,
+		repaircheck.`record_id`,
+		repaircheck.`xl_grade`,
+		repaircheck.`qa_grade`,
+		repaircheck.`td_grade`,
+		repaircheck.`update_by`,
+		repaircheck.`update_time`,
+		repaircheck.`del_flag` 
+		from cus_repair_check repaircheck
+		LEFT JOIN sys_user createuser ON createuser.`user_id`=repaircheck.`create_by`
+		LEFT JOIN cus_dictionary dics ON dics.`id`=repaircheck.`result`
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="result != null and result != ''"> and result = #{result} </if>
+		  		  <if test="content != null and content != ''"> and content = #{content} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="eventId != null and eventId != ''"> and event_id = #{eventId} </if>
+		  		  <if test="recordId != null and recordId != ''"> and record_id = #{recordId} </if>
+		  		  <if test="xlGrade != null and xlGrade != ''"> and xl_grade = #{xlGrade} </if>
+		  		  <if test="qaGrade != null and qaGrade != ''"> and qa_grade = #{qaGrade} </if>
+		  		  <if test="tdGrade != null and tdGrade != ''"> and td_grade = #{tdGrade} </if>
+				  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+				  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+				  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>		  		  
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_repair_check
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="result != null and result != ''"> and result = #{result} </if>
+		  		  <if test="content != null and content != ''"> and content = #{content} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="eventId != null and eventId != ''"> and event_id = #{eventId} </if>
+		  		  <if test="recordId != null and recordId != ''"> and record_id = #{recordId} </if>
+		  		  <if test="xlGrade != null and xlGrade != ''"> and xl_grade = #{xlGrade} </if>
+		  		  <if test="qaGrade != null and qaGrade != ''"> and qa_grade = #{qaGrade} </if>
+		  		  <if test="tdGrade != null and tdGrade != ''"> and td_grade = #{tdGrade} </if>
+				  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+				  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+				  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.RepairCheckDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_repair_check
+		(
+			`result`, 
+			`content`, 
+			`create_by`, 
+			`create_time`, 
+			`event_id`, 
+			`record_id`,
+			`xl_grade`, 
+			`qa_grade`, 
+			`td_grade`, 
+			`update_by`, 
+
+			`update_time`, 
+
+			`del_flag`
+		)
+		values
+		(
+			#{result}, 
+			#{content}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{eventId}, 
+			#{recordId},
+			#{xlGrade}, 
+			#{qaGrade}, 
+			#{tdGrade}, 
+
+			#{updateBy}, 
+
+			#{updateTime}, 
+
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.RepairCheckDO">
+		update cus_repair_check 
+		<set>
+			<if test="result != null">`result` = #{result}, </if>
+			<if test="content != null">`content` = #{content}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="eventId != null">`event_id` = #{eventId}, </if>
+			<if test="recordId != null">`record_id` = #{recordId}, </if>
+			<if test="xlGrade != null">`xl_grade` = #{xlGrade}, </if>
+			<if test="qaGrade != null">`qa_grade` = #{qaGrade}, </if>
+			<if test="tdGrade != null">`td_grade` = #{tdGrade},</if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_repair_check where event_id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_repair_check where event_id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

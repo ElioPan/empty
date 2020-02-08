@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.DocumentDao">
+
+	<select id="get" resultType="com.ev.custom.domain.DocumentDO">
+		select `id`,`name`,`type`,`up_user`,`device_id`,`source`,`up_time`,`version`,`description`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_document where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.DocumentDO">
+		select `id`,`name`,`type`,`up_user`,`device_id`,`source`,`up_time`,`version`,`description`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_document
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  		  <if test="upUser != null and upUser != ''"> and up_user = #{upUser} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and device_id = #{deviceId} </if>
+		  		  <if test="source != null and source != ''"> and source = #{source} </if>
+		  		  <if test="upTime != null and upTime != ''"> and up_time = #{upTime} </if>
+		  		  <if test="version != null and version != ''"> and version = #{version} </if>
+		  		  <if test="description != null and description != ''"> and description = #{description} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_document
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  		  <if test="upUser != null and upUser != ''"> and up_user = #{upUser} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and device_id = #{deviceId} </if>
+		  		  <if test="source != null and source != ''"> and source = #{source} </if>
+		  		  <if test="upTime != null and upTime != ''"> and up_time = #{upTime} </if>
+		  		  <if test="version != null and version != ''"> and version = #{version} </if>
+		  		  <if test="description != null and description != ''"> and description = #{description} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		document.id,
+		document.name,
+		document.type,
+		document.up_user,
+		document.device_id,
+		document.source,
+		document.up_time,
+		document.version,
+		document.description,
+		document.create_by,
+		document.create_time,
+		document.update_by,
+		document.update_time,
+		document.del_flag,
+		typedic.name as typename,
+		sourcedic.name as sourcename,
+		upuser.name as upname
+		FROM
+		cus_document document
+		LEFT JOIN cus_dictionary typedic ON typedic.id = document.type
+		LEFT JOIN cus_dictionary sourcedic on sourcedic.id = document.source
+		LEFT JOIN sys_user upuser on upuser.user_id = document.up_user
+		<where>
+			<if test="id != null and id != ''"> and document.id = #{id} </if>
+			<if test="name != null and name != ''"> and document.name = #{name} </if>
+			<if test="type != null and type != ''"> and document.type = #{type} </if>
+			<if test="upUser != null and upUser != ''"> and document.up_user = #{upUser} </if>
+			<if test="deviceId != null and deviceId != ''"> and document.device_id = #{deviceId} </if>
+			<if test="source != null and source != ''"> and document.source = #{source} </if>
+			<if test="upTime != null and upTime != ''"> and document.up_time = #{upTime} </if>
+			<if test="version != null and version != ''"> and document.version = #{version} </if>
+			<if test="description != null and description != ''"> and document.description = #{description} </if>
+			<if test="createBy != null and createBy != ''"> and document.create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and document.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and document.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and document.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and document.del_flag = #{delFlag} </if>
+			<if test="upUserName != null and upUserName != ''"> and upuser.name = #{upUserName} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="int">
+		SELECT
+		count(1)
+		FROM
+		cus_document document
+		LEFT JOIN cus_dictionary typedic ON typedic.id = document.type
+		LEFT JOIN cus_dictionary sourcedic on sourcedic.id = document.source
+		LEFT JOIN sys_user upuser on upuser.user_id = document.up_user
+		<where>
+			<if test="id != null and id != ''"> and document.id = #{id} </if>
+			<if test="name != null and name != ''"> and document.name = #{name} </if>
+			<if test="type != null and type != ''"> and document.type = #{type} </if>
+			<if test="upUser != null and upUser != ''"> and document.up_user = #{upUser} </if>
+			<if test="deviceId != null and deviceId != ''"> and document.device_id = #{deviceId} </if>
+			<if test="source != null and source != ''"> and document.source = #{source} </if>
+			<if test="upTime != null and upTime != ''"> and document.up_time = #{upTime} </if>
+			<if test="version != null and version != ''"> and document.version = #{version} </if>
+			<if test="description != null and description != ''"> and document.description = #{description} </if>
+			<if test="createBy != null and createBy != ''"> and document.create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and document.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and document.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and document.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and document.del_flag = #{delFlag} </if>
+			<if test="upUserName != null and upUserName != ''"> and upuser.name = #{upUserName} </if>
+		</where>
+	</select>
+
+	<insert id="save" parameterType="com.ev.custom.domain.DocumentDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_document
+		(
+			`name`, 
+			`type`, 
+			`up_user`, 
+			`device_id`, 
+			`source`, 
+			`up_time`, 
+			`version`, 
+			`description`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{name}, 
+			#{type}, 
+			#{upUser}, 
+			#{deviceId}, 
+			#{source}, 
+			#{upTime}, 
+			#{version}, 
+			#{description}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.DocumentDO">
+		update cus_document 
+		<set>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="upUser != null">`up_user` = #{upUser}, </if>
+			<if test="deviceId != null">`device_id` = #{deviceId}, </if>
+			<if test="source != null">`source` = #{source}, </if>
+			<if test="upTime != null">`up_time` = #{upTime}, </if>
+			<if test="version != null">`version` = #{version}, </if>
+			<if test="description != null">`description` = #{description}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_document where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_document where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

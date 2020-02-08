@@ -1,0 +1,722 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.UpkeepRecordDao">
+
+
+	<select id="get" resultType="com.ev.custom.domain.UpkeepRecordDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM cus_upkeep_record
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.UpkeepRecordDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM cus_upkeep_record
+		<include refid="sql_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from cus_upkeep_record
+		<include refid="sql_condition"/>
+	</select>
+
+	<insert id="save" parameterType="com.ev.custom.domain.UpkeepRecordDO" useGeneratedKeys="true" keyProperty="id">
+
+		insert into cus_upkeep_record
+		(
+		`work_orderNo`,
+		`name`,
+		`start_time`,
+		`end_time`,
+		`actual_start_time`,
+		`actual_end_time`,
+		`upkeep_level`,
+		`man_hour`,
+		`engineer_id`,
+		`down_hour`,
+		`cost`,
+		`status`,
+		`result`,
+		`closure_reason`,
+		`content`,
+		`plan_id`,
+		`device_id`,
+		`create_by`,
+		`create_time`,
+		`type`,
+		`man_hour_cost`,
+		`message_id`,
+		`update_by`,
+		`update_time`,
+		`del_flag`
+		)
+		values
+		(
+		#{workOrderno},
+		#{name},
+		#{startTime},
+		#{endTime},
+		#{actualStartTime},
+		#{actualEndTime},
+		#{upkeepLevel},
+		#{manHour},
+		#{engineerId},
+		#{downHour},
+		#{cost},
+		#{status},
+		#{result},
+		#{closureReason},
+		#{content},
+		#{planId},
+		#{deviceId},
+		#{createBy},
+		#{createTime},
+		#{type},
+		#{manHourCost},
+		#{messageId},
+		#{updateBy},
+		#{updateTime},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.custom.domain.UpkeepRecordDO">
+		update cus_upkeep_record
+		<set>
+			<if test="workOrderno != null">`work_orderNo` = #{workOrderno}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="startTime != null">`start_time` = #{startTime}, </if>
+			<if test="endTime != null">`end_time` = #{endTime}, </if>
+			<if test="actualStartTime != null">`actual_start_time` = #{actualStartTime}, </if>
+			<if test="actualEndTime != null">`actual_end_time` = #{actualEndTime}, </if>
+			<if test="upkeepLevel != null">`upkeep_level` = #{upkeepLevel}, </if>
+			<if test="manHour != null">`man_hour` = #{manHour}, </if>
+			<if test="engineerId != null">`engineer_id` = #{engineerId}, </if>
+			<if test="downHour != null">`down_hour` = #{downHour}, </if>
+			<if test="cost != null">`cost` = #{cost}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="result != null">`result` = #{result}, </if>
+			<if test="closureReason != null">`closure_reason` = #{closureReason}, </if>
+			<if test="content != null">`content` = #{content}, </if>
+			<if test="planId != null">`plan_id` = #{planId}, </if>
+			<if test="deviceId != null">`device_id` = #{deviceId}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="manHourCost != null">  `man_hour_cost` = #{manHourCost}, </if>
+			<if test="messageId != null">`message_id` = #{messageId}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from cus_upkeep_record where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from cus_upkeep_record where id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<sql id="sql_column_list">
+		`id`,`man_hour_cost`,`work_orderNo`,`name`,`start_time`,`end_time`,`actual_start_time`,`actual_end_time`,`upkeep_level`,`man_hour`,`engineer_id`,`down_hour`,`cost`,`status`,`result`,`closure_reason`,`content`,`plan_id`,`device_id`,`create_by`,`create_time`,`type`,`message_id`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+	<sql id="sql_condition">
+		<where>
+			<if test="maxNo != null and maxNo != ''"> and LEFT(work_orderNo,12) = #{maxNo} </if>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="workOrderno != null and workOrderno != ''"> and work_orderNo = #{workOrderno} </if>
+			<if test="name != null and name != ''"> and name = #{name} </if>
+			<if test="startTime != null and startTime != ''"> and start_time = #{startTime} </if>
+			<if test="endTime != null and endTime != ''"> and end_time = #{endTime} </if>
+			<if test="actualStartTime != null and actualStartTime != ''"> and actual_start_time = #{actualStartTime} </if>
+			<if test="actualEndTime != null and actualEndTime != ''"> and actual_end_time = #{actualEndTime} </if>
+			<if test="upkeepLevel != null and upkeepLevel != ''"> and upkeep_level = #{upkeepLevel} </if>
+			<if test="manHour != null and manHour != ''"> and man_hour = #{manHour} </if>
+			<if test="engineerId != null and engineerId != ''"> and engineer_id = #{engineerId} </if>
+			<if test="downHour != null and downHour != ''"> and down_hour = #{downHour} </if>
+			<if test="cost != null and cost != ''"> and cost = #{cost} </if>
+			<if test="status != null and status != ''"> and status = #{status} </if>
+			<if test="result != null and result != ''"> and result = #{result} </if>
+			<if test="closureReason != null and closureReason != ''"> and closure_reason = #{closureReason} </if>
+			<if test="content != null and content != ''"> and content = #{content} </if>
+			<if test="planId != null and planId != ''"> and plan_id = #{planId} </if>
+			<if test="deviceId != null and deviceId != ''"> and device_id = #{deviceId} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="type != null and type != ''"> and type = #{type} </if>
+			<if test="manHourCost != null and manHourCost != ''"> and man_hour_cost = #{manHourCost} </if>
+			<if test="messageId != null and messageId != ''"> and message_id = #{messageId} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+	</sql>
+
+
+
+	<select id="getByPlanId" resultType="com.ev.custom.domain.UpkeepRecordDO">
+		select `id`,`work_orderNo`,`name`,`start_time`,`end_time`,`man_hour`,`engineer_id`,`down_hour`,`cost`,`status`,`result`,`content`,`plan_id`,`device_id`,`create_by`,`create_time`,`type`,`message_id` from cus_upkeep_record where plan_id = #{value}
+	</select>
+
+
+	<!--工单明细 头-->
+	<select id="oneRecordDetail" resultType="map">
+		select
+		cur.id,
+		cur.result,
+		aa.name as resultName,
+		cur.work_orderNo,
+		cur.plan_id,
+		cur.device_id as deviceId,
+		cd.name as deviceName,
+		cd.serialno,
+		cd.model,
+		cd.dept_id,
+		cd.site,
+		cd.dept_id as userDeptId,
+		sd.name as useDeptName,
+		cur.type as typeId,
+		cdir.name as typeName,
+		cur.engineer_id as userId,
+		cur.cost as cost,
+		cur.man_hour_cost AS manhourCost,
+		cur.content as content,
+		users.name as userName,
+		users.mobile,
+		cd.using_status as using_status_id,
+		cdirr.name as using_status_name,
+		cup.work_orderNo as planWorkOrderNo,
+		cup.type as planTypeId,
+		a.name as planTypeName,
+		cup.dept_id  as upkeepDeptId,
+		b.name as upkeepDeptName,
+		cup.engineer_id as engineerId,
+		c.name as engineerName,
+        cur.down_hour as downHour,
+		cur.start_time as planStarttime,
+		cur.end_time as planendtime,
+		cur.man_hour as plan_man_hour
+		from  cus_upkeep_record cur
+		LEFT JOIN cus_device      cd   ON  cur.device_id=cd.id
+		LEFT JOIN sys_dept        sd   ON  cd.dept_id=sd.dept_id
+		LEFT JOIN sys_dept       sdd   ON  sdd.dept_id=(select a.dept_id from cus_upkeep_plan a where a.id=cur.plan_id )
+		LEFT JOIN cus_dictionary cdir  ON  cur.type=cdir.id
+		LEFT JOIN cus_dictionary cdirr ON  cd.using_status=cdirr.id
+		LEFT JOIN sys_user  users      ON  cur.engineer_id=users.user_id
+		LEFT JOIN cus_upkeep_plan  cup ON  cur.plan_id=cup.id
+		LEFT JOIN cus_dictionary aa  ON  cur.result=aa.id
+			LEFT JOIN cus_dictionary a  ON  cur.type=a.id
+		LEFT JOIN sys_dept b  ON  cup.dept_id=b.dept_id
+		LEFT JOIN sys_user        c   ON  cup.engineer_id=c.user_id
+		WHERE cur.id=#{id}
+			  AND
+		      cur.del_flag = 0
+	</select>
+
+	<!--无计划工单明细 头-->
+	<select id="oneRecordDetaiOfNoPlan" resultType="map">
+		select
+		cur.id,
+		cur.result,
+		aa.name as resultName,
+		cur.work_orderNo,
+		cur.plan_id,
+		cur.device_id as deviceId,
+		cd.name as deviceName,
+		cd.serialno,
+		cd.model,
+		cd.dept_id,
+		cd.site,
+		cd.dept_id as userDeptId,
+		sd.name as useDeptName,
+		cur.type as typeId,
+		cdir.name as typeName,
+		cur.engineer_id as userId,
+		cur.cost as cost,
+		cur.man_hour_cost AS manhourCost,
+		cur.content as content,
+		users.name as userName,
+		users.mobile,
+		cd.using_status as using_status_id,
+		cdirr.name as using_status_name,
+		0 as planWorkOrderNo,           <!--计划单号-->
+		0 as planTypeId,  <!-- 计划类型-->
+		0  as planTypeName,  <!--计划类型-->
+		c.dept_id  as upkeepDeptId, <!--保养部门-->
+		b.name as upkeepDeptName,<!--保养部门名字-->
+		cur.engineer_id as engineerId, <!--保养负责人-->
+		c.name as engineerName,
+		IF(cur.down_hour IS NULL,0,cur.down_hour) downHour,
+		cur.start_time as planStarttime,
+		cur.end_time as planendtime,
+		cur.man_hour as plan_man_hour
+		from  cus_upkeep_record cur
+		LEFT JOIN cus_device      cd   ON  cur.device_id=cd.id
+		LEFT JOIN sys_dept        sd   ON  cd.dept_id=sd.dept_id
+		LEFT JOIN cus_dictionary cdir  ON  cur.type=cdir.id
+		LEFT JOIN cus_dictionary cdirr ON  cd.using_status=cdirr.id
+		LEFT JOIN sys_user  users      ON  cur.engineer_id=users.user_id
+		LEFT JOIN sys_user        c   ON  cur.engineer_id=c.user_id
+		LEFT JOIN sys_dept        b    ON  c.dept_id=b.dept_id
+		LEFT JOIN cus_dictionary aa  ON  cur.result=aa.id
+		WHERE
+		       cur.id=#{id}
+			AND
+			  cur.del_flag = 0
+</select>
+
+
+
+
+	<select id="getMsgByDeviceId" resultType="map">
+		select
+		cur.id,
+		cur.create_time,
+		cur.start_time as startTime,
+		cur.end_time as endTime,
+		cdic.name as resultName,
+		cur.cost,
+		cur.man_hour as manHour,
+		cur.man_hour_cost AS manhourCost,
+		cur.plan_id as planId,
+  		c.name as proName,
+  		c.function as upkeepFunction,
+		case when b.result=1 then '正常'
+				when b.result=0 then '异常'
+				when b.result is null then NULL
+				end result,
+		cur.work_orderNo as planCode
+		from   cus_upkeep_record   cur
+		LEFT   JOIN  cus_dictionary  cdic  ON cur.result=cdic.id
+		LEFT   JOIN  cus_upkeep_plan  a  ON cur.plan_id=a.id
+    	LEFT   JOIN  cus_upkeep_record_project  b  ON cur.id=b.record_id
+		LEFT   JOIN  cus_upkeep_project  c  ON b.project_id=c.id
+		<where>
+			<if test="deviceId != null and deviceId != ''"> and cur.device_id=#{deviceId} </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(cur.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(cur.create_time,'%Y-%m-%d') &lt;= DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			AND cur.result=58
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="countOfMsgByDeviceId" resultType="int">
+		select count(*)
+		from   cus_upkeep_record   cur
+		LEFT   JOIN  cus_dictionary  cdic  ON cur.result=cdic.id
+		LEFT   JOIN  cus_upkeep_plan  a  ON cur.plan_id=a.id
+    	LEFT   JOIN  cus_upkeep_record_project  b  ON cur.id=b.record_id
+		LEFT   JOIN  cus_upkeep_project  c  ON b.project_id=c.id
+		<where>
+			<if test="deviceId != null and deviceId != ''"> and cur.device_id=#{deviceId} </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(cur.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(cur.create_time,'%Y-%m-%d') &lt;= DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			AND cur.result=58
+		</where>
+	</select>
+
+
+
+
+
+
+	<!--工单列表-->
+	<select id="listRecords" resultType="map">
+		select
+		cur.message_id,
+		cur.id,
+		cur.plan_id,
+		cdevice.name  as deviceName,
+		cdevice.serialno as device_serialno,
+		cdevice.model as deviceModelas,
+		cup.work_orderNo as work_orderNo,
+		cud.name as dept_name,
+		su.username as username,
+		cur.man_hour_cost AS manhourCost,
+		cur.start_time as start_time,
+		cur.end_time   as end_time,
+		cur.man_hour   as man_hour,
+		cur.cost,
+		CASE  WHEN cuc.result=133 then '待评价'
+		WHEN cuc.result=115 then '通过'
+		WHEN cuc.result=116 then '不通过'
+		END 'record_result',   <!--评价结果-->
+		cur.result,             <!-- 工单结果id-->
+		cdd.name as result_name<!--工单结果名字-->
+
+		from cus_upkeep_record  cur
+		LEFT JOIN  cus_device   cdevice     ON  cur.device_id=cdevice.id
+		LEFT  JOIN cus_upkeep_plan cup ON  cur.plan_id=cup.id
+		LEFT  JOIN sys_user         su ON  cur.engineer_id=su.user_id
+		LEFT  JOIN cus_dictionary  cdd ON  cur.result=cdd.id
+		LEFT  JOIN cus_upkeep_check cuc ON cur.id=cuc.record_id
+		LEFT  JOIN sys_dept    cud      ON cup.dept_id=cud.dept_id
+		<where>
+
+			<if test="idPath != null and idPath != ''"> and  cud.id_path like  CONCAT('%',#{idPath},'%')</if>
+
+			<if test="deviceName != null and deviceName != ''"> and cdevice.name like  CONCAT('%',#{deviceName},'%') </if>
+
+			<if test="result != null and result != ''"> and cur.result = #{result} </if>
+			<if test="engineerId != null and engineerId != ''"> and cur.engineer_id = #{engineerId} </if>
+
+			<if test="status != null and status != ''"> and cur.status = #{status} </if>
+			<if test="id != null and id != ''"> and cur.id = #{id} </if>
+			<if test="workOrderno != null and workOrderno != ''"> and cur.work_orderNo = #{workOrderno} </if>
+			<if test="name != null and name != ''"> and cur.name = #{name} </if>
+
+			<if test="startTime != null and startTime != ''"> and cur.start_time <![CDATA[ >= ]]> #{startTime} </if>
+			<if test="endTime != null and endTime != ''"> and cur.end_time <![CDATA[ <= ]]> #{endTime} </if>
+
+			<if test="manHour != null and manHour != ''"> and cur.man_hour = #{manHour} </if>
+			<if test="engineerId != null and engineerId != ''"> and cur.engineer_id = #{engineerId} </if>
+			<if test="downHour != null and downHour != ''"> and cur.down_hour = #{downHour} </if>
+			<if test="cost != null and cost != ''"> and cur.cost = #{cost} </if>
+
+			<if test="result != null and result != ''"> and cur.result = #{result} </if>
+			<if test="content != null and content != ''"> and cur.content = #{content} </if>
+			<if test="planId != null and planId != ''"> and cur.plan_id = #{planId} </if>
+			<if test="deviceId != null and deviceId != ''"> and cur.device_id = #{deviceId} </if>
+			<if test="createBy != null and createBy != ''"> and cur.create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and cur.create_time = #{createTime} </if>
+			<if test="type != null and type != ''"> and cur.type = #{type} </if>
+			<if test="messageId != null and messageId != ''"> and cur.message_id = #{messageId} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by result desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="newOfListRecords" resultType="map">
+		SELECT
+		*
+		from
+		(
+		select
+		DISTINCT
+		cud.id_path as idPath,
+		cur.engineer_id AS engineer_id ,
+		cur.id AS id ,
+		cur.plan_id   AS plan_id,
+		cdevice.name  AS deviceName,
+		cdevice.serialno AS device_serialno,
+		cdevice.model AS deviceModelas,
+		cur.work_orderNo AS work_orderNo,
+		cup.create_by as createBy,
+		cur.create_by as createByOfRecord,
+		b.create_by  as createByofPlan,
+		cud.name AS dept_name,
+		cur.man_hour_cost AS manhourCost,
+		cur.content as content,
+		su.name AS username,
+		IFNULL(cur.start_time,'') as start_time,
+		IFNULL(cur.end_time,'') as end_time,
+		cur.man_hour   AS man_hour,
+		cur.cost AS cost,
+		CASE  WHEN cuc.result=133 then '待评价'
+		WHEN cuc.result=115 then '通过'
+		WHEN cuc.result=116 then '不通过'
+		END 'record_result',
+		cuc.result as recordResultId,
+  		<!--IF(cur.end_time &lt; NOW() and cur.result=56,-1,cur.result) AS `result`,
+ 		cur.result AS `result`,-->
+		IF(cur.end_time &lt; NOW() and cur.result=56,999,cur.result) AS `result`,
+		IF(cur.end_time &lt; NOW() and cur.result=56,'超期未处理',cdd.name) AS `result_name`
+		from cus_upkeep_record  cur
+		LEFT JOIN  cus_device   cdevice     ON  cur.device_id=cdevice.id
+		LEFT  JOIN cus_upkeep_plan cup ON  cur.plan_id=cup.id
+		LEFT  JOIN sys_user         su ON  cur.engineer_id=su.user_id
+		LEFT  JOIN cus_dictionary  cdd ON  cur.result=cdd.id
+		LEFT  JOIN cus_upkeep_check cuc ON cur.id=cuc.record_id
+		LEFT  JOIN sys_dept    cud      ON cup.dept_id=cud.dept_id
+		LEFT JOIN   cus_upkeep_plan  b on b.create_by=cur.create_by
+		) alldobule
+		<where>
+			<if test="idPath != null and idPath != ''"> and  idPath like  CONCAT('%',#{idPath},'%')</if>
+
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="planId != null and planId != ''"> and plan_id = #{planId} </if>
+			<if test="deviceName != null and deviceName != ''"> and  deviceName like  CONCAT('%',#{deviceName},'%') </if>
+
+			<if test="serialno != null and serialno != ''"> and  device_serialno like  CONCAT('%',#{serialno},'%') </if>
+
+			<if test="workOrderno != null and workOrderno != ''"> and work_orderNo = #{workOrderno} </if>
+
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(start_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(end_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+
+			<if test="manHour != null and manHour != ''"> and man_hour = #{manHour} </if>
+
+			<if test="cost != null and cost != ''"> and cost = #{cost} </if>
+
+			<if test="result != null and result != ''"> and result = #{result} </if>
+
+			<if test="createByofPlan != null and createByofPlan != ''"> and createByofPlan = #{createByofPlan} </if>
+
+			<if test="singleStatus != null and singleStatus != ''"> and result =#{singleStatus}  </if>
+
+			<if test="singleStatuss != null and singleStatuss != ''"> and ( result= #{singleStatuss} OR  result = #{overTimeResult} ) </if>
+
+			 <if test="manIdss != null and manIdss != ''"> and createByOfRecord=#{manIdss} </if>  <!--createBy   plan 的创建人-->
+
+			<if test="manId != null and manId != ''"> AND  (createByOfRecord=#{manId} OR (engineer_id = #{manId} and result<![CDATA[<>]]>146 )) </if>
+			<if test="engineerId != null and engineerId != ''"> and engineer_id = #{engineerId} </if>
+
+			 <if test="resultId != null and resultId != ''"> and result = #{resultId} </if>
+
+			<if test="manIds != null and manIds != ''"> AND  engineer_id = #{manIds}  </if>
+
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order},id DESC
+			</when>
+			<otherwise>
+				order by IF(result=146,0,result),result ASC, start_time DESC,id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+
+	</select>
+
+
+	<select id="countListRecords" resultType="map">
+		select
+		count(*) as count,
+		SUM(alldetail.man_hour) as totalManHour ,
+		SUM(alldetail.manhourCost) as totalManhourCost ,
+		SUM(alldetail.cost) as totalCost
+		from
+		(
+		select
+		DISTINCT
+		cud.id_path as idPath,
+		cur.engineer_id AS engineer_id ,
+		cur.id AS id ,
+		cur.plan_id   AS plan_id,
+		cdevice.name  AS deviceName,
+		cdevice.serialno AS device_serialno,
+		cdevice.model AS deviceModelas,
+		cur.work_orderNo AS work_orderNo,
+		cup.create_by as createBy,
+		cur.create_by as createByOfRecord,
+		b.create_by  as createByofPlan,
+		cud.name AS dept_name,
+		cur.man_hour_cost AS manhourCost,
+		su.username AS username,
+		cur.start_time AS start_time,
+		cur.end_time   AS end_time,
+		cur.man_hour   AS man_hour,
+		cur.cost AS cost,
+		CASE  WHEN cuc.result=133 then '待评价'
+		WHEN cuc.result=115 then '通过'
+		WHEN cuc.result=116 then '不通过'
+		END 'record_result',
+		cuc.result as recordResultId,
+		<!--IF(cur.end_time &lt; NOW() and cur.result=56,-1,cur.result) AS `result`,
+		cur.result AS `result`,-->
+		IF(cur.end_time &lt; NOW() and cur.result=56,999,cur.result) AS `result`,
+		IF(cur.end_time &lt; NOW() and cur.result=56,'超期未处理',cdd.name) AS `result_name`
+		from cus_upkeep_record  cur
+		LEFT JOIN  cus_device   cdevice     ON  cur.device_id=cdevice.id
+		LEFT  JOIN cus_upkeep_plan cup ON  cur.plan_id=cup.id
+		LEFT  JOIN sys_user         su ON  cur.engineer_id=su.user_id
+		LEFT  JOIN cus_dictionary  cdd ON  cur.result=cdd.id
+		LEFT  JOIN cus_upkeep_check cuc ON cur.id=cuc.record_id
+		LEFT  JOIN sys_dept    cud      ON cup.dept_id=cud.dept_id
+		LEFT JOIN   cus_upkeep_plan  b on b.create_by=cur.create_by
+		) alldetail
+		<where>
+			<if test="idPath != null and idPath != ''"> and  idPath like  CONCAT('%',#{idPath},'%')</if>
+
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="planId != null and planId != ''"> and plan_id = #{planId} </if>
+			<if test="deviceName != null and deviceName != ''"> and  deviceName like  CONCAT('%',#{deviceName},'%') </if>
+
+			<if test="serialno != null and serialno != ''"> and  device_serialno like  CONCAT('%',#{serialno},'%') </if>
+
+			<if test="workOrderno != null and workOrderno != ''"> and work_orderNo = #{workOrderno} </if>
+
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(start_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(end_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+
+			<if test="manHour != null and manHour != ''"> and man_hour = #{manHour} </if>
+
+			<if test="cost != null and cost != ''"> and cost = #{cost} </if>
+
+			<if test="result != null and result != ''"> and result = #{result} </if>
+
+			<if test="createByofPlan != null and createByofPlan != ''"> and createByofPlan = #{createByofPlan} </if>
+
+			<if test="singleStatus != null and singleStatus != ''"> and result =#{singleStatus}  </if>
+
+			<if test="singleStatuss != null and singleStatuss != ''"> and ( result= #{singleStatuss} OR  result = #{overTimeResult} ) </if>
+
+			<if test="manIdss != null and manIdss != ''"> and createByOfRecord=#{manIdss} </if>  <!--createBy   plan 的创建人-->
+
+			<if test="manId != null and manId != ''"> AND  (createByOfRecord=#{manId} OR (engineer_id = #{manId} and result<![CDATA[<>]]>146 )) </if>
+			<if test="engineerId != null and engineerId != ''"> and engineer_id = #{engineerId} </if>
+
+			<if test="resultId != null and resultId != ''"> and result = #{resultId} </if>
+
+			<if test="manIds != null and manIds != ''"> AND  engineer_id = #{manIds}  </if>
+		</where>
+	</select>
+
+	<select id="countOfWaitingDo" resultType="int">
+
+		select
+		COUNT(*)
+		from
+		(
+		select
+		a.engineer_id,
+		a.end_time,
+		IF(a.end_time &lt; NOW() and a.result=56,999,a.result) AS `result`
+		from cus_upkeep_record a
+		)aa
+		<where>
+			<if test="result != null"> and `result`= #{result} </if>
+			<if test="engineerId != null"> and engineer_id= #{engineerId} </if>
+			<if test="idPath != null"> and b.id_path like   CONCAT('%',#{idPath},'%')  </if>
+		</where>
+		<!--select-->
+		<!--count(*)-->
+		<!--from cus_upkeep_record a-->
+		<!--LEFT JOIN cus_upkeep_Plan c ON a.plan_id=c.id-->
+		<!--LEFT JOIN sys_dept b ON c.dept_id=b.dept_id-->
+		<!--<where>-->
+			<!--<if test="result != null"> and a.`result`= #{result} </if>-->
+			<!--<if test="engineerId != null"> and a.engineer_id= #{engineerId} </if>-->
+			<!--<if test="idPath != null"> and b.id_path like   CONCAT('%',#{idPath},'%')  </if>-->
+	<!--</where>-->
+	</select>
+
+
+
+	<select id="idsOfCanChange" resultType="map">
+		select
+		id
+		from
+		cus_upkeep_record
+		<where>
+			<if test="ids!= null"> and id in
+				<foreach item="item" collection="ids" open="(" separator="," close=")"  index="index">
+					#{item}
+				</foreach>
+			</if>
+			<if test="result!= null"> and result =#{result}</if>
+			and end_time  &lt; NOW()
+		</where>
+
+	</select>
+
+	<select id="idsOfCanDelet" resultType="map">
+		select
+		id
+		from
+		cus_upkeep_record
+		<where>
+			<if test="ids!= null"> and id in
+				<foreach item="item" collection="ids" open="(" separator="," close=")"  index="index">
+					#{item}
+				</foreach>
+			</if>
+			<if test="result!= null"> and result =#{result}</if>
+		</where>
+	</select>
+
+
+
+	<select id="upkeepDeatailOfBoard" resultType="map">
+		select
+			a.id,
+			c.name as deviceName,
+			d.name as pro_name,
+			e.name as engineerName,
+			a.result,
+			f.name as resultName
+		from
+			cus_upkeep_record a
+		LEFT JOIN cus_upkeep_record_project  b  on  a.id=b.record_id
+		LEFT JOIN  cus_device  c on   a.device_id=c.id
+		LEFT JOIN cus_upkeep_project  d  on  b.project_id=d.id
+		LEFT JOIN  sys_user  e on   a.engineer_id=e.user_id
+		LEFT JOIN  cus_dictionary  f on  a.result=f.id
+		<where>
+			a.result in (56,57)
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by a.id
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countOfupkeepOfBoard" resultType="int">
+		select
+		count(*)
+		from
+		cus_upkeep_record a
+		LEFT JOIN cus_upkeep_record_project  b  on  a.id=b.record_id
+		LEFT JOIN  cus_device  c on   a.device_id=c.id
+		LEFT JOIN cus_upkeep_project  d  on  b.project_id=d.id
+		LEFT JOIN  sys_user  e on   a.engineer_id=e.user_id
+		LEFT JOIN  cus_dictionary  f on  a.result=f.id
+		<where>
+			a.result in (56,57)
+		</where>
+	</select>
+
+
+</mapper>
+

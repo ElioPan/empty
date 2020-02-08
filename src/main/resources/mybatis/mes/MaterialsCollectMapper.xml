@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.MaterialsCollectDao">
+
+	<select id="get" resultType="com.ev.mes.domain.MaterialsCollectDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM mes_materials_collect
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.MaterialsCollectDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM mes_materials_collect
+		<include refid="sql_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from mes_materials_collect
+		<include refid="sql_condition"/>
+	</select>
+
+	<insert id="save" parameterType="com.ev.mes.domain.MaterialsCollectDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_materials_collect
+		(
+			`dispatch_item_id`, 
+			`materia_id`, 
+			`batch`,
+			`materia_count`,
+			`status`,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
+			`del_flag`
+		)
+		values
+		(
+			#{dispatchItemId},
+			#{materiaId},
+			#{batch},
+			#{materiaCount},
+			#{status},
+			#{createBy},
+			#{createTime},
+			#{updateBy},
+			#{updateTime},
+			#{delFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.mes.domain.MaterialsCollectDO">
+		update mes_materials_collect
+		<set>
+			<if test="dispatchItemId != null">`dispatch_item_id` = #{dispatchItemId}, </if>
+			<if test="materiaId != null">`materia_id` = #{materiaId}, </if>
+			<if test="batch != null">`batch` = #{batch}, </if>
+			<if test="materiaCount != null">`materia_count` = #{materiaCount}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from mes_materials_collect where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from mes_materials_collect where id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<sql id="sql_column_list">
+		`id`,`dispatch_item_id`,`materia_id`,`batch`,`materia_count`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+	<sql id="sql_condition">
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="dispatchItemId != null and dispatchItemId != ''"> and dispatch_item_id = #{dispatchItemId} </if>
+			<if test="materiaId != null and materiaId != ''"> and materia_id = #{materiaId} </if>
+			<if test="batch != null and batch != ''"> and batch = #{batch} </if>
+			<if test="materiaCount != null and materiaCount != ''"> and materia_count = #{materiaCount} </if>
+			<if test="status != null and status != ''"> and status = #{status} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+	</sql>
+
+
+	<select id="getListssDetail" resultType="map">
+		select
+		a.id,
+		a.dispatch_item_id as dispatchItemId,
+		a.materia_id as materiaId,
+		b.name as materiaName,
+		b.serial_no as serialNo,
+		b.unit_uom as unitUom,
+		c.name as unitName,
+		a.batch,
+		a.materia_count as   materiaCount,
+		b.supplier,
+		d.name as supplierName,
+		a.status ,
+		e.name as statusName,
+		a.create_time as createTime ,
+		a.create_by  as createBy
+		from
+		mes_materials_collect a
+
+		LEFT JOIN cus_materiel   b on   a.materia_id=b.id
+		LEFT JOIN cus_dictionary   c on   b.unit_uom =c.id
+		LEFT JOIN cus_supplier   d on  b.supplier =d.id
+		LEFT JOIN cus_dictionary   e on   a.status =e.id
+		WHERE
+		a.dispatch_item_id=#{dispatchItemId}
+	</select>
+
+
+
+	<select id="isQuote" resultType="int">
+		select
+		COUNT(1)
+		from
+		mes_materials_collect
+		where
+		status=146  <!--暂存-->
+		AND
+		id IN
+		<foreach item="item" collection="id" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		*
+		from
+		(
+		select
+		a.id,
+		a.dispatch_item_id as dispatchItemId,
+		a.materia_id as collectMateriaId,
+		b.name as collectMateriaName,
+		b.specification as collectSpecification,
+		b.serial_no as collectSerialNo,
+		b.unit_uom as collectUnitUom,
+		c.name as collectUnitName,
+		a.batch,
+		a.materia_count as   collectMaterialCount,
+		b.supplier,
+		d.name as supplierName,
+		a.status ,
+		IFNULL(a.create_time,'') as createTime,
+		a.create_by  as createBy,
+		e.operator,
+		f.name as operatorName,
+		g.name as deptName,
+		e.device_id as deviceId,
+		h.name as deviceName,
+		j.process_id as processId,
+		k.name as processName,
+		m.work_order_no as planCode,
+		n.serial_no as serialNo,
+		n.name as materielName,
+		n.specification,
+		n.unit_uom as unitUom,
+		x.name as unitName,
+		m.count as planCount
+		from
+		mes_materials_collect a
+		LEFT JOIN cus_materiel   b on   a.materia_id=b.id
+		LEFT JOIN cus_dictionary   c on   b.unit_uom =c.id
+		LEFT JOIN cus_supplier   d on  b.supplier =d.id
+		LEFT JOIN mes_dispatch_item e on a.dispatch_item_id=e.id
+		LEFT JOIN sys_user   f on  e.operator=f.user_id
+		LEFT JOIN sys_dept   g on  f.dept_id=g.dept_id
+		LEFT JOIN cus_device   h on  e.device_id=h.id
+		LEFT JOIN mes_working_procedure_detail j on e.foriegn_id=j.id
+		LEFT JOIN mes_process k  on j.process_id=k.id
+		LEFT JOIN mes_working_procedure_plan m  on j.plan_id=m.id
+		LEFT JOIN cus_materiel n  on m.materiel_id=n.id
+		LEFT JOIN cus_dictionary  x on  n.unit_uom =x.id
+		)aaa
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="operator != null and operator != ''"> and operator = #{operator} </if>
+			<if test="deviceId != null and deviceId != ''"> and deviceId = #{deviceId} </if>
+			<if test="processId != null and processId != ''"> and processId = #{processId} </if>
+			<if test="materielName != null and materielName != ''"> and materielName like CONCAT('%',#{materielName},'%')  </if>
+			<if test="collectMateriaId != null and collectMateriaId != ''"> and collectMateriaId = #{collectMateriaId} </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+
+			<if test="operatorName != null and operatorName != ''"> and operatorName like CONCAT('%',#{operatorName},'%')  </if>
+			<if test="processName != null and processName != ''"> and processName like CONCAT('%',#{processName},'%')  </if>
+			<if test="deviceName != null and deviceName != ''"> and deviceName like CONCAT('%',#{deviceName},'%')  </if>
+			<if test="materielName != null and materielName != ''"> and materielName like CONCAT('%',#{materielName},'%')  </if>
+			<if test="supplierName != null and supplierName != ''"> and supplierName like CONCAT('%',#{supplierName},'%')  </if>
+			<if test="collectMateriaName != null and collectMateriaName != ''"> and collectMateriaName like CONCAT('%',#{collectMateriaName},'%')  </if>
+		</where>
+
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order},id desc
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="countForMap" resultType="int">
+		select
+		count(*)
+		from
+		(
+		select
+		a.id,
+		a.dispatch_item_id as dispatchItemId,
+		a.materia_id as collectMateriaId,
+		b.name as collectMateriaName,
+		b.serial_no as serialNo,
+		b.unit_uom as collectUnitUom,
+		c.name as collectUnitName,
+		a.batch,
+		a.materia_count as   materiaCount,
+		b.supplier,
+		d.name as supplierName,
+		a.status ,
+		a.create_time as createTime ,
+		a.create_by  as createBy,
+		e.operator,
+		f.name as operatorName,
+		g.name as deptName,
+		e.device_id as deviceId,
+		h.name as deviceName,
+		j.process_id as processId,
+		k.name as processName,
+		m.work_order_no as planCode,
+		n.serial_no,
+		n.name as materielName,
+		n.specification,
+		n.unit_uom as unitUom,
+		x.name as unitName,
+		m.count
+		from
+		mes_materials_collect a
+		LEFT JOIN cus_materiel   b on   a.materia_id=b.id
+		LEFT JOIN cus_dictionary   c on   b.unit_uom =c.id
+		LEFT JOIN cus_supplier   d on  b.supplier =d.id
+		LEFT JOIN mes_dispatch_item e on a.dispatch_item_id=e.id
+		LEFT JOIN sys_user   f on  e.operator=f.user_id
+		LEFT JOIN sys_dept   g on  f.dept_id=g.dept_id
+		LEFT JOIN cus_device   h on  e.device_id=h.id
+		LEFT JOIN mes_working_procedure_detail j on e.foriegn_id=j.id
+		LEFT JOIN mes_process k  on j.process_id=k.id
+		LEFT JOIN mes_working_procedure_plan m  on j.plan_id=m.id
+		LEFT JOIN cus_materiel n  on m.materiel_id=n.id
+		LEFT JOIN cus_dictionary  x on  n.unit_uom =x.id
+		)aaa
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="operator != null and operator != ''"> and operator = #{operator} </if>
+			<if test="deviceId != null and deviceId != ''"> and deviceId = #{deviceId} </if>
+			<if test="processName != null and processName != ''"> and processName = #{processName} </if>
+			<if test="materielName != null and materielName != ''"> and materielName = #{materielName} </if>
+			<if test="collectMateriaName != null and collectMateriaName != ''"> and collectMateriaName = #{collectMateriaName} </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="operatorName != null and operatorName != ''"> and operatorName like CONCAT('%',#{operatorName},'%')  </if>
+			<if test="processName != null and processName != ''"> and processName like CONCAT('%',#{processName},'%')  </if>
+			<if test="deviceName != null and deviceName != ''"> and deviceName like CONCAT('%',#{deviceName},'%')  </if>
+			<if test="materielName != null and materielName != ''"> and materielName like CONCAT('%',#{materielName},'%')  </if>
+			<if test="supplierName != null and supplierName != ''"> and supplierName like CONCAT('%',#{supplierName},'%')  </if>
+			<if test="collectMateriaName != null and collectMateriaName != ''"> and collectMateriaName like CONCAT('%',#{collectMateriaName},'%')  </if>
+		</where>
+	</select>
+
+
+</mapper>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+	<div class="wrapper wrapper-content ">
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="ibox float-e-margins">
+					<div class="ibox-content">
+						<form class="form-horizontal m-t" id="signupForm">
+						<input id="id" name="id" th:value="${reportTask.id}"  type="hidden">
+							<div class="form-group">	
+								<label class="col-sm-3 control-label">任务ID：</label>
+								<div class="col-sm-8">
+									<input id="taskId" name="taskId" th:value="${reportTask.taskId}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">关联单据单号：</label>
+								<div class="col-sm-8">
+									<input id="linkOrderNo" name="linkOrderNo" th:value="${reportTask.linkOrderNo}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">关联单据类型：</label>
+								<div class="col-sm-8">
+									<input id="linkOrderType" name="linkOrderType" th:value="${reportTask.linkOrderType}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">关联单据阶段类型：</label>
+								<div class="col-sm-8">
+									<input id="linkStageType" name="linkStageType" th:value="${reportTask.linkStageType}" class="form-control" type="text">
+								</div>
+							</div>
+																					<div class="form-group">
+								<div class="col-sm-8 col-sm-offset-3">
+									<button type="submit" class="btn btn-primary">提交</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+	</div>
+	</div>
+	<div th:include="include::footer"></div>
+	<script type="text/javascript" src="/js/appjs/custom/reportTask/edit.js">
+	</script>
+</body>
+</html>

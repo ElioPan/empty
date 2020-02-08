@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.SupplierLinkmanDao">
+
+	<select id="get" resultType="com.ev.custom.domain.SupplierLinkmanDO">
+		select `id`,`name`,`supplier_id`,`phone`,`email`,`gender`,`post`,`desc`,`provider_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_supplier_linkman where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.SupplierLinkmanDO">
+		select `id`,`name`,`supplier_id`,`phone`,`email`,`gender`,`post`,`desc`,`provider_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_supplier_linkman
+        <where>  
+		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  <if test="supplierId != null and supplierId != ''"> and supplier_id = #{supplierId} </if>
+		  <if test="phone != null and phone != ''"> and phone = #{phone} </if>
+		  <if test="email != null and email != ''"> and email = #{email} </if>
+		  <if test="gender != null and gender != ''"> and gender = #{gender} </if>
+		  <if test="post != null and post != ''"> and post = #{post} </if>
+		  <if test="desc != null and desc != ''"> and desc = #{desc} </if>
+		  <if test="providerId != null and providerId != ''"> and provider_id = #{providerId} </if>
+		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_supplier_linkman
+		 <where>  
+		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  <if test="supplierId != null and supplierId != ''"> and supplier_id = #{supplierId} </if>
+		  <if test="phone != null and phone != ''"> and phone = #{phone} </if>
+		  <if test="email != null and email != ''"> and email = #{email} </if>
+		  <if test="gender != null and gender != ''"> and gender = #{gender} </if>
+		  <if test="post != null and post != ''"> and post = #{post} </if>
+		  <if test="desc != null and desc != ''"> and desc = #{desc} </if>
+		  <if test="providerId != null and providerId != ''"> and provider_id = #{providerId} </if>
+		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>		  
+		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.SupplierLinkmanDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_supplier_linkman
+		(
+			`name`, 
+
+			`supplier_id`, 
+
+			`phone`, 
+
+			`email`, 
+
+			`gender`, 
+
+			`post`, 
+
+			`desc`, 
+
+			`create_by`, 
+
+			`create_time`, 
+
+			`update_by`, 
+
+			`update_time`, 
+
+			`del_flag`
+
+
+		)
+		values
+		(
+			#{name}, 
+
+			#{supplierId}, 
+
+			#{phone}, 
+
+			#{email}, 
+
+			#{gender}, 
+
+			#{post}, 
+
+			#{desc}, 
+
+			#{createBy}, 
+
+			#{createTime}, 
+
+			#{updateBy}, 
+
+			#{updateTime}, 
+
+			#{delFlag}
+
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.SupplierLinkmanDO">
+		update cus_supplier_linkman 
+		<set>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="supplierId != null">`supplier_id` = #{supplierId}, </if>
+			<if test="phone != null">`phone` = #{phone}, </if>
+			<if test="email != null">`email` = #{email}, </if>
+			<if test="gender != null">`gender` = #{gender}, </if>
+			<if test="post != null">`post` = #{post}, </if>
+			<if test="desc != null">`desc` = #{desc}, </if>
+			<if test="providerId != null">`provider_id` = #{providerId}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_supplier_linkman where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_supplier_linkman where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<update id="updateDetail" parameterType="com.ev.custom.domain.SupplierLinkmanDO">
+		update cus_supplier_linkman
+		<set>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="supplierId != null">`supplier_id` = #{supplierId}, </if>
+			<if test="phone != null">`phone` = #{phone}, </if>
+			<if test="email != null">`email` = #{email}, </if>
+			<if test="gender != null">`gender` = #{gender}, </if>
+			<if test="post != null">`post` = #{post}, </if>
+			<if test="desc != null">`desc` = #{desc}, </if>
+			<if test="providerId != null">`provider_id` = #{providerId}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where supplier_id = #{supplierId}
+	</update>
+
+    <insert id="batchSave" parameterType="List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO cus_supplier_linkman(
+        `name`,
+
+        `supplier_id`,
+
+        `phone`,
+
+        `email`,
+
+        `gender`,
+
+        `post`,
+
+        `desc`,
+
+        `create_by`,
+
+        `create_time`,
+
+        `update_by`,
+
+        `update_time`,
+
+        `del_flag`) VALUES
+        <foreach collection="list" item="obj" separator=",">
+            (
+            #{obj.name},
+
+            #{obj.supplierId},
+
+            #{obj.phone},
+
+            #{obj.email},
+
+            #{obj.gender},
+
+            #{obj.post},
+
+            #{obj.desc},
+
+            #{obj.createBy},
+
+            #{obj.createTime},
+
+            #{obj.updateBy},
+
+            #{obj.updateTime},
+
+            #{obj.delFlag}
+
+            )
+        </foreach>
+    </insert>
+
+</mapper>

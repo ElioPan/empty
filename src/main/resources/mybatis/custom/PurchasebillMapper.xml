@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.PurchasebillDao">
+
+	<select id="get" resultType="Map">
+		select bill.`id`,company.name as `company`,`invoice_date` as invoiceDate,`ticket_collector` as ticketCollector,`bill_number` as `billNumber`,`invoice_number` as `invoiceNumber`,
+			   dictc.name as `billType`,dict.name as `auditStatus`,`remarks`,usera.username as `auditor`,`auditor_time` as auditorTime,
+			   userc.username as `createBy`,bill.`create_time` as createTime,useru.username as `updateBy`,bill.`update_time` as updateTime,bill.`del_flag` as delFlag 
+			from cus_purchasebill bill left join sys_company company on bill.company = company.id left join cus_dictionary dict on bill.audit_status = dict.id
+			   left join sys_user usera on bill.auditor = usera.user_id left join sys_user userc on bill.create_by = userc.user_id 
+			   left join sys_user useru on bill.update_by = useru.user_id left join cus_dictionary dictc on bill.bill_type = dictc.id
+			where bill.id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.PurchasebillDO">
+		select `id`,`company`,`invoice_date`,`ticket_collector`,`bill_number`,`invoice_number`,`bill_type`,`audit_status`,`remarks`,`auditor`,`auditor_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_purchasebill
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="company != null and company != ''"> and company = #{company} </if>
+		  		  <if test="invoiceDate != null and invoiceDate != ''"> and invoice_date = #{invoiceDate} </if>
+		  		  <if test="ticketCollector != null and ticketCollector != ''"> and ticket_collector = #{ticketCollector} </if>
+		  		  <if test="billNumber != null and billNumber != ''"> and bill_number = #{billNumber} </if>
+		  		  <if test="invoiceNumber != null and invoiceNumber != ''"> and invoice_number = #{invoiceNumber} </if>
+		  		  <if test="billType != null and billType != ''"> and bill_type = #{billType} </if>
+		  		  <if test="maxNo != null and maxNo != ''"> and LEFT(inhead_code,12) = #{maxNo} </if>
+		  		  <if test="auditStatus != null and auditStatus != ''"> and audit_status = #{auditStatus} </if>
+		  		  <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+		  		  <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+		  		  <if test="auditorTime != null and auditorTime != ''"> and auditor_time = #{auditorTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_purchasebill
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="company != null and company != ''"> and company = #{company} </if>
+		  		  <if test="invoiceDate != null and invoiceDate != ''"> and invoice_date = #{invoiceDate} </if>
+		  		  <if test="ticketCollector != null and ticketCollector != ''"> and ticket_collector = #{ticketCollector} </if>
+		  		  <if test="billNumber != null and billNumber != ''"> and bill_number = #{billNumber} </if>
+		  		  <if test="invoiceNumber != null and invoiceNumber != ''"> and invoice_number = #{invoiceNumber} </if>
+		  		  <if test="billType != null and billType != ''"> and bill_type = #{billType} </if>
+		  		  <if test="auditStatus != null and auditStatus != ''"> and audit_status = #{auditStatus} </if>
+		  		  <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+		  		  <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+		  		  <if test="auditorTime != null and auditorTime != ''"> and auditor_time = #{auditorTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	 
+	 <select id="listApi" resultType="Map">
+		select bill.id,`invoice_date` as `invoiceDate`,ticket_collector as ticketCollector,`bill_number` as `billNumber`,company.name as `company`,
+		dictc.name as `billType`,`invoice_number` as `invoiceNumber`,`invoice_money` as `invoiceMoney`,`product_name` as `productName`,num,price,money,tax_rate as taxRate,
+		`serialno`,`model`,remarks,usera.username as auditor,auditor_time as auditorTime,userc.username as createBy,bill.create_time as createTime,useru.username as updateBy,
+		bill.update_time as updateTime,bill.del_flag as delFlag,bid,`price`,`num`,`money`,dict.name as `auditStatus`,dicts.name as `purchaseType`,`source_num` as `sourceNum`,
+		purchasebill_id as purchasebillId,item.del_flag as delFlag,item.product_name as productName,item.product_id as productId
+		from cus_purchasebill bill left join cus_purchasebill_item item on bill.id = item.purchasebill_id left join cus_product product on 
+		item.product_name = product.`name` left join sys_company company on bill.company = company.id 
+		left join cus_dictionary dict on bill.audit_status = dict.id
+		left join sys_user usera on bill.auditor = usera.user_id left join sys_user userc on bill.create_by = userc.user_id 
+		left join sys_user useru on bill.update_by = useru.user_id left join cus_dictionary dicts on item.purchase_type = dicts.id
+		left join cus_dictionary dictc on bill.bill_type = dictc.id
+        <where>  
+		  		  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(invoice_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(invoice_date,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+				  <if test="billNumber != null and billNumber != ''"> and bill.bill_number = #{billNumber} </if>
+				  <if test="company != null and company != ''"> and company LIKE CONCAT(CONCAT('%',#{company}),'%') </if>
+		  		  <if test="productName != null and productName != ''"> and product_name = #{productName} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by bill.id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	 
+	 <select id="countApi" resultType="int">
+		select count(*) from cus_purchasebill bill left join cus_purchasebill_item item on bill.id = item.purchasebill_id left join cus_product product on 
+		item.product_name = product.`name` left join sys_company company on bill.company = company.id 
+		left join cus_dictionary dict on bill.audit_status = dict.id
+		left join sys_user usera on bill.auditor = usera.user_id left join sys_user userc on bill.create_by = userc.user_id 
+		left join sys_user useru on bill.update_by = useru.user_id left join cus_dictionary dicts on item.purchase_type = dicts.id
+		left join cus_dictionary dictc on bill.bill_type = dictc.id
+		<where>  
+		  		  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(invoice_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(invoice_date,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+				  <if test="billNumber != null and billNumber != ''"> and bill.bill_number = #{billNumber} </if>
+				  <if test="company != null and company != ''"> and company LIKE CONCAT(CONCAT('%',#{company}),'%') </if>
+		  		  <if test="productName != null and productName != ''"> and product_name = #{productName} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.PurchasebillDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_purchasebill
+		(
+			`company`, 
+			`invoice_date`, 
+			`ticket_collector`, 
+			`bill_number`, 
+			`invoice_number`,
+			`invoice_money`, 
+			`bill_type`, 
+			`audit_status`, 
+			`remarks`, 
+			`auditor`, 
+			`auditor_time`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{company}, 
+			#{invoiceDate}, 
+			#{ticketCollector}, 
+			#{billNumber}, 
+			#{invoiceNumber},
+			#{invoiceMoney},  
+			#{billType}, 
+			#{auditStatus}, 
+			#{remarks}, 
+			#{auditor}, 
+			#{auditorTime}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.PurchasebillDO">
+		update cus_purchasebill 
+		<set>
+			<if test="company != null">`company` = #{company}, </if>
+			<if test="invoiceDate != null">`invoice_date` = #{invoiceDate}, </if>
+			<if test="ticketCollector != null">`ticket_collector` = #{ticketCollector}, </if>
+			<if test="billNumber != null">`bill_number` = #{billNumber}, </if>
+			<if test="invoiceNumber != null">`invoice_number` = #{invoiceNumber}, </if>
+			<if test="billType != null">`bill_type` = #{billType}, </if>
+			<if test="auditStatus != null">`audit_status` = #{auditStatus}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="auditorTime != null">`auditor_time` = #{auditorTime}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<update id="reverseAudit" parameterType="Long">
+		update cus_purchasebill set `audit_status` = 178 where id = #{id}
+	</update>
+	
+	<update id="audit" parameterType="Long">
+		update cus_purchasebill set `audit_status` = 179 where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_purchasebill where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_purchasebill where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

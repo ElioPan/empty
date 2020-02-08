@@ -1,0 +1,78 @@
+server:
+  session-timeout: 28800
+#    tomcat:
+#        max-threads: 1000
+#        min-spare-threads: 30
+  port: ${sport:8888}
+#    uri-encoding: utf-8
+security:
+  basic:
+    enabled: false
+spring:
+  thymeleaf:
+    mode: LEGACYHTML5
+    cache: false
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+    default-property-inclusion: non_null
+  profiles:
+    active: ${profile:dev}
+  http:
+    multipart:
+      max-file-size: 100Mb
+      max-request-size: 100Mb
+  influx:
+    url: http://120.132.17.220:8086
+    user: xinsoft
+    password: xinsoft
+    database: sentinel_log
+  rabbitmq:
+    host: 120.132.17.220
+    port: 5672
+    username: admin
+    password: admin
+    listener:
+      simple:
+        #acknowledge-mode: auto
+        concurrency: 10
+        max-concurrency: 50
+        retry:
+          enabled: true
+        prefetch: 5
+  devtools:
+    restart:
+      enabled: true
+  cache:
+    type: redis
+    ehcache:
+      config: config/ehcache.xml
+  messages:
+    basename: il8n/messages
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: mybatis/**/*Mapper.xml
+  typeAliasesPackage: com.ev.**.domain
+
+mybatis-plus:
+  mapper-locations: mybatis/**/*Mapper.xml
+
+org:
+  ftp:
+    address: 120.132.17.220
+    port: 2121
+    userName: ftpuser
+    password: 1q2w3e4r!@
+    basePath: gyhl-file
+    localPath: D:\ftp
+data:
+  device:
+    queue:
+      name: gyhl.data.device.queue
+    exchange:
+      name: gyhl.data.device.exchange
+    routing:
+      key:
+        name: gyhl.data.device.routing.key

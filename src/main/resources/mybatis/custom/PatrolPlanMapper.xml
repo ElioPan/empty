@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.PatrolPlanDao">
+
+	<select id="get" resultType="com.ev.custom.domain.PatrolPlanDO">
+		select `id`,`work_orderNo`,`name`,`engineer_id`,`cellphone`,`content`,`status`,`frequency`,`expireDay`,`start_time`,`end_time`,`create_time`,`create_by`,`update_by`,`update_time`,`del_flag` from cus_patrol_plan where id = #{value}
+	</select>
+	
+	<select id="list" resultType="com.ev.custom.domain.PatrolPlanDO">
+		select `id`,`work_orderNo`,`name`,`engineer_id`,`cellphone`,`content`,`status`,`frequency`,`expireDay`,`start_time`,`end_time`,`create_time`,`create_by`,`update_by`,`update_time`,`del_flag` from cus_patrol_plan
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="workOrderno != null and workOrderno != ''"> and work_orderNo = #{workOrderno} </if>
+		  		  <if test="maxNo != null and maxNo != ''"> and LEFT(work_orderNo,12) = #{maxNo} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="engineerId != null and engineerId != ''"> and engineer_id = #{engineerId} </if>
+		  		  <if test="cellphone != null and cellphone != ''"> and cellphone = #{cellphone} </if>
+		  		  <if test="content != null and content != ''"> and content = #{content} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="frequency != null and frequency != ''"> and frequency = #{frequency} </if>
+		  		  <if test="expireday != null and expireday != ''"> and expireDay = #{expireday} </if>
+		  		  <if test="startTime != null and startTime != ''"> and start_time = #{startTime} </if>
+		  		  <if test="endTime != null and endTime != ''"> and end_time = #{endTime} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+		 <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>	
+	</select>
+	
+	<select id="getDetailInfo" resultType="map">
+		SELECT patrolplan.`id` as id,
+		patrolplan.work_orderNo as workOrderNo,
+		patrolplan.name as name,
+		patrolperson.name as patrolPersonName,
+		patrolperson.`user_id` as patrolPersonId,
+		patroldept.name as patroldeptName,
+		patroldept.`dept_id` as patroldeptId,
+		patrolplan.cellphone as cellphone,
+		patrolplan.start_time as startTime,
+		patrolplan.end_time as endTime,
+		patrolplan.frequency as frequency,
+		patrolplan.expireDay as expireDay,
+		patrolplan.content as content,
+		createperson.`user_id` as createPersonId,
+		createperson.name as createPersonName,
+		createdept.`dept_id` as createDeptId,
+		createdept.name as createDeptName
+		FROM cus_patrol_plan patrolplan
+		LEFT JOIN sys_user patrolperson on patrolperson.`user_id` = patrolplan.`engineer_id`
+		LEFT JOIN sys_dept patroldept on patroldept.dept_id = patrolperson.dept_id
+		LEFT JOIN sys_user createperson on createperson.`user_id` = patrolplan.`create_by`
+		LEFT JOIN sys_dept createdept on createdept.dept_id = createperson.dept_id
+		WHERE patrolplan.id = #{value}
+	</select>
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		patrolplan.`id` as id,
+		patrolplan.name as planName,
+		dict.`value` as `statusValue`,
+		dict.`id` AS statusId,
+		dict.`name` as `statusName`,
+		patrolperson.deptName, 
+		patrolperson.userName,
+		IFNULL(patrolplan.start_time,'') as startTime,
+        IFNULL(patrolplan.end_time,'') as endTime,
+		patrolplan.work_orderNo as workOrderNo
+		FROM cus_patrol_plan patrolplan
+		LEFT JOIN (SELECT sysuser.user_id as userId,sysuser.name as userName,dept.dept_id as deptId,dept.name as deptName FROM sys_user sysuser LEFT JOIN sys_dept dept ON dept.dept_id=sysuser.dept_id)as patrolperson ON patrolperson.userId=patrolplan.`engineer_id`
+        LEFT JOIN cus_dictionary dict ON dict.id=patrolplan.`status`
+        LEFT JOIN sys_user createperson ON createperson.`user_id`=patrolplan.`create_by`
+		LEFT JOIN sys_dept createdept on createdept.`dept_id`=createperson.`dept_id`
+        <where>  
+		  		  <if test="id != null and id != ''"> and patrolplan.id = #{id} </if>
+		  		  <if test="workOrderno != null and workOrderno != ''"> and patrolplan.work_orderNo = #{workOrderno} </if>
+		  		  <if test="planName != null and planName != ''"> and patrolplan.name LIKE CONCAT(#{planName},'%')</if>
+		  		  <if test="engineerId != null and engineerId != ''"> and patrolplan.engineer_id = #{engineerId} </if>
+		  		  <if test="cellphone != null and cellphone != ''"> and patrolplan.cellphone = #{cellphone} </if>
+		  		  <if test="content != null and content != ''"> and patrolplan.content = #{content} </if>
+		  		  <if test="status != null and status != ''"> and patrolplan.status = #{status} </if>
+		  		  <if test="frequency != null and frequency != ''"> and patrolplan.frequency = #{frequency} </if>
+		  		  <if test="expireday != null and expireday != ''"> and patrolplan.expireDay = #{expireday} </if>
+		  		  <if test="planEndTime != null and planEndTime != ''"> and DATE_FORMAT(patrolplan.end_time,'%Y-%m-%d %H:%i:%s') &lt;=  DATE_FORMAT(#{planEndTime},'%Y-%m-%d %H:%i:%s') </if>
+		  		  <if test="createTime != null and createTime != ''"> and patrolplan.create_time = #{createTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and patrolplan.create_by = #{createBy} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and patrolplan.update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and patrolplan.update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and patrolplan.del_flag = #{delFlag} </if>
+		  		  <!-- <if test="deptId != null and deptId != ''"> and patrolperson.deptId = #{deptId} </if> -->
+		  		  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(patrolplan.start_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(patrolplan.start_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		  		  <if test="deptId != null and deptId != ''">  and createdept.`id_path` LIKE CONCAT(#{deptId},'%')</if>		  	  		  
+		  		  <if test="userId != null and userId != ''"> and (patrolplan.`create_by`=#{userId} OR (patrolplan.`engineer_id`=#{userId} AND patrolplan.status <![CDATA[<>]]> 146))</if>		  		  
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order},patrolplan.id desc
+            </when>
+			<otherwise>
+                ORDER BY patrolplan.id desc
+			</otherwise>
+        </choose>
+
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="getNoticeList" resultType="map">
+		SELECT
+		patrolplan.`id` as patrolPlanId,
+		patrolplan.name as patrolPlanName,
+		notice.id as noticeId,
+		notice.`begin_time` AS sortTime,
+		patrolplan.`work_orderNo` as planWorkOrderNo,
+		patrolperson.deptName AS patroldeptName,
+		patrolperson.userName AS patrolPersonName
+		FROM cus_notice notice
+		LEFT JOIN cus_patrol_plan patrolplan ON patrolplan.`id`=notice.`plan_id`
+		LEFT JOIN (SELECT sysuser.user_id as userId,sysuser.name as userName,dept.dept_id as deptId,dept.name as deptName FROM sys_user sysuser LEFT JOIN sys_dept dept ON dept.dept_id=sysuser.dept_id)as patrolperson ON patrolperson.userId=patrolplan.`engineer_id`
+        LEFT JOIN cus_dictionary dict ON dict.id=patrolplan.`status`
+        LEFT JOIN sys_user createperson ON createperson.user_id=patrolplan.`create_by`
+		LEFT JOIN sys_dept createdept on createdept.dept_id=createperson.`dept_id`
+        LEFT JOIN cus_patrol_record patrolrecord ON patrolrecord.`inform_id`=notice.`id`
+        <where>  
+		  		  <if test="id != null and id != ''"> and patrolplan.id = #{id} </if>
+		  		  <if test="workOrderno != null and workOrderno != ''"> and patrolplan.work_orderNo = #{workOrderno} </if>
+		  		  <if test="planName != null and planName != ''"> and patrolplan.name LIKE CONCAT(#{planName},'%')</if>
+		  		  <if test="engineerId != null and engineerId != ''"> and patrolplan.engineer_id = #{engineerId} </if>
+		  		  <if test="status != null and status != ''"> and patrolplan.status = #{status} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and patrolplan.del_flag = #{delFlag} </if>
+		  		  <if test="nowTime != null and nowTime != ''">  and  DATE_FORMAT(notice.begin_time,'%Y-%m-%d %H:%i:%s') &lt;= DATE_FORMAT(#{nowTime},'%Y-%m-%d %H:%i:%s') AND DATE_FORMAT(notice.end_time,'%Y-%m-%d %H:%i:%s') &gt;= DATE_FORMAT(#{nowTime},'%Y-%m-%d %H:%i:%s') AND patrolrecord.`id` is NULL</if>
+		  		  <if test="planType != null and planType != ''">  and notice.plan_type = #{planType}</if>
+		  		 <if test="deptId != null and deptId != ''">  and createdept.`id_path` LIKE CONCAT(#{deptId},'%')</if>		  		  
+		  		  <if test="manage != null and manage != ''"> and patrolplan.`engineer_id`=#{manage}</if>
+		  		  <if test="createBy != null and createBy != ''"> and patrolplan.`create_by` = #{createBy} </if>
+		  		  <if test="userId != null and userId != ''"> and (patrolplan.`create_by`=#{userId} OR patrolplan.`engineer_id`=#{userId}) and patrolrecord.id is null</if>		  		  
+		  		</where>
+		 GROUP BY notice.id
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by notice.begin_time desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="getNoticeListCount" resultType="int">
+		SELECT
+		COUNT(*) FROM(
+		SELECT
+		COUNT(*)
+		FROM cus_notice notice
+		LEFT JOIN cus_patrol_plan patrolplan ON patrolplan.`id`=notice.`plan_id`
+		LEFT JOIN (SELECT sysuser.user_id as userId,sysuser.name as userName,dept.dept_id as deptId,dept.name as deptName FROM sys_user sysuser LEFT JOIN sys_dept dept ON dept.dept_id=sysuser.dept_id)as patrolperson ON patrolperson.userId=patrolplan.`engineer_id`
+        LEFT JOIN cus_dictionary dict ON dict.id=patrolplan.`status`
+        LEFT JOIN cus_patrol_record patrolrecord ON patrolrecord.`inform_id`=notice.`id`
+        LEFT JOIN sys_user createperson ON createperson.user_id=patrolplan.`create_by`
+		LEFT JOIN sys_dept createdept on createdept.dept_id=createperson.`dept_id`
+        <where>  
+		  		  <if test="id != null and id != ''"> and patrolplan.id = #{id} </if>
+		  		  <if test="workOrderno != null and workOrderno != ''"> and patrolplan.work_orderNo = #{workOrderno} </if>
+		  		  <if test="planName != null and planName != ''"> and patrolplan.name LIKE CONCAT(#{planName},'%')</if>
+		  		  <if test="engineerId != null and engineerId != ''"> and patrolplan.engineer_id = #{engineerId} </if>
+		  		  <if test="status != null and status != ''"> and patrolplan.status = #{status} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and patrolplan.del_flag = #{delFlag} </if>
+		  		  <if test="nowTime != null and nowTime != ''">  and  DATE_FORMAT(notice.begin_time,'%Y-%m-%d %H:%i:%s') &lt;= DATE_FORMAT(#{nowTime},'%Y-%m-%d %H:%i:%s') AND DATE_FORMAT(notice.end_time,'%Y-%m-%d %H:%i:%s') &gt;= DATE_FORMAT(#{nowTime},'%Y-%m-%d %H:%i:%s') AND patrolrecord.`id` is NULL</if>
+		  		  <if test="planType != null and planType != ''">  and notice.plan_type = #{planType}</if>
+		  		<if test="deptId != null and deptId != ''">  and createdept.`id_path` LIKE CONCAT(#{deptId},'%')</if>		  		  
+		  		  <if test="manage != null and manage != ''"> and patrolplan.`engineer_id`=#{manage}</if>
+		  		  <if test="createBy != null and createBy != ''"> and patrolplan.`create_by` = #{createBy} </if>
+		  		  <if test="userId != null and userId != ''"> and (patrolplan.`create_by`=#{userId} OR patrolplan.`engineer_id`=#{userId}) and patrolrecord.id is null</if>		  		  
+		  		</where>
+		 GROUP BY notice.id) t
+	</select>
+	
+	<select id="countForMap" resultType="int">
+		SELECT
+		count(*)
+		FROM cus_patrol_plan patrolplan
+		LEFT JOIN (SELECT sysuser.user_id as userId,sysuser.name as userName,dept.dept_id as deptId,dept.name as deptName FROM sys_user sysuser LEFT JOIN sys_dept dept ON dept.dept_id=sysuser.dept_id)as patrolperson ON patrolperson.userId=patrolplan.`engineer_id`
+        LEFT JOIN cus_dictionary dict ON dict.id=patrolplan.`status`
+        LEFT JOIN sys_user createperson ON createperson.`user_id`=patrolplan.`create_by`
+		LEFT JOIN sys_dept createdept on createdept.`dept_id`=createperson.`dept_id`
+        <where>  
+		  		  <if test="id != null and id != ''"> and patrolplan.id = #{id} </if>
+		  		  <if test="workOrderno != null and workOrderno != ''"> and patrolplan.work_orderNo = #{workOrderno} </if>
+		  		  <if test="planName != null and planName != ''"> and patrolplan.name LIKE CONCAT(#{planName},'%')</if>
+		  		  <if test="engineerId != null and engineerId != ''"> and patrolplan.engineer_id = #{engineerId} </if>
+		  		  <if test="cellphone != null and cellphone != ''"> and patrolplan.cellphone = #{cellphone} </if>
+		  		  <if test="content != null and content != ''"> and patrolplan.content = #{content} </if>
+		  		  <if test="status != null and status != ''"> and patrolplan.status = #{status} </if>
+		  		  <if test="frequency != null and frequency != ''"> and patrolplan.frequency = #{frequency} </if>
+		  		  <if test="expireday != null and expireday != ''"> and patrolplan.expireDay = #{expireday} </if>
+		  		  <if test="planEndTime != null and planEndTime != ''"> and DATE_FORMAT(patrolplan.end_time,'%Y-%m-%d %H:%i:%s') &lt;=  DATE_FORMAT(#{planEndTime},'%Y-%m-%d %H:%i:%s') </if>
+		  		  <if test="createTime != null and createTime != ''"> and patrolplan.create_time = #{createTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and patrolplan.create_by = #{createBy} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and patrolplan.update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and patrolplan.update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and patrolplan.del_flag = #{delFlag} </if>
+		  		  <!-- <if test="deptId != null and deptId != ''"> and patrolperson.deptId = #{deptId} </if> -->
+		  		  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(patrolplan.start_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(patrolplan.start_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		  		  <if test="deptId != null and deptId != ''">  and createdept.`id_path` LIKE CONCAT(#{deptId},'%')</if>		  	  		  
+		  		  <if test="userId != null and userId != ''"> and (patrolplan.`create_by`=#{userId} OR (patrolplan.`engineer_id`=#{userId} AND patrolplan.status <![CDATA[<>]]> 146))</if>		  		  
+		  		</where>
+	</select>
+ 	<select id="count" resultType="int">
+		select count(*) from cus_patrol_plan
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="workOrderno != null and workOrderno != ''"> and work_orderNo = #{workOrderno} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="engineerId != null and engineerId != ''"> and engineer_id = #{engineerId} </if>
+		  		  <if test="cellphone != null and cellphone != ''"> and cellphone = #{cellphone} </if>
+		  		  <if test="content != null and content != ''"> and content = #{content} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="frequency != null and frequency != ''"> and frequency = #{frequency} </if>
+		  		  <if test="expireday != null and expireday != ''"> and expireDay = #{expireday} </if>
+		  		  <if test="startTime != null and startTime != ''"> and start_time = #{startTime} </if>
+		  		  <if test="endTime != null and endTime != ''"> and end_time = #{endTime} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+
+
+	<select id="getPlanView" resultType="com.ev.common.vo.PlanVo">
+		select * from view_plan
+		<where>
+			<if test="beginTime != null and beginTime != ''"> and DATE_FORMAT(startTime,'%Y-%m-%d') &lt;= #{beginTime}</if>
+			<if test="endTime != null and endTime != ''"> and DATE_FORMAT(endTime,'%Y-%m-%d') &gt;= #{beginTime}</if>
+			<if test="status != null and status != ''"> and status = #{status}</if>
+		</where>
+	</select>
+
+	<insert id="save" parameterType="com.ev.custom.domain.PatrolPlanDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_patrol_plan
+		(
+			`work_orderNo`, 
+			`name`, 
+			`engineer_id`, 
+			`cellphone`, 
+			`content`, 
+			`status`, 
+			`frequency`, 
+			`expireDay`, 
+			`start_time`, 
+			`end_time`, 
+			`create_time`, 
+			`create_by`,
+			`update_by`,
+			`update_time`,
+			`del_flag`
+		)
+		values
+		(
+			#{workOrderno}, 
+			#{name}, 
+			#{engineerId}, 
+			#{cellphone}, 
+			#{content}, 
+			#{status}, 
+			#{frequency}, 
+			#{expireday}, 
+			#{startTime}, 
+			#{endTime}, 
+			#{createTime}, 
+			#{createBy},
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.PatrolPlanDO">
+		update cus_patrol_plan 
+		<set>
+			<if test="workOrderno != null">`work_orderNo` = #{workOrderno}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="engineerId != null">`engineer_id` = #{engineerId}, </if>
+			<if test="cellphone != null">`cellphone` = #{cellphone}, </if>
+			<if test="content != null">`content` = #{content}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="frequency != null">`frequency` = #{frequency}, </if>
+			<if test="expireday != null">`expireDay` = #{expireday}, </if>
+			<if test="startTime != null">`start_time` = #{startTime}, </if>
+			<if test="endTime != null">`end_time` = #{endTime}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="createBy != null">`create_by` = #{createBy},</if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+		  	<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+		  	<if test="delFlag != null">`del_flag` = #{delFlag} </if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_patrol_plan where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_patrol_plan where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	
+</mapper>

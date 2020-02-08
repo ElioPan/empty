@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.ProductionFeedingDetailDao">
+
+	<select id="get" resultType="com.ev.mes.domain.ProductionFeedingDetailDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_production_feeding_detail 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.ProductionFeedingDetailDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_production_feeding_detail
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="listForMap" resultType="map">
+		SELECT
+			detail.id AS id,
+			detail.`materiel_id` AS materielId,
+			material.serial_no AS materialSerialNo,
+			material.name AS materialName,
+			material.specification AS specification,
+			unituom.id AS unitUomId,
+			unituom.name AS unitUomName,
+			detail.`batch_no` AS batchNo,
+			detail.`plan_feeding` AS planFeedingCount,
+			<!-- 即时库存数据  java类里处理 -->
+			detail.`out_count` AS outCount, 
+			detail.`scrap_count` AS scrapCount,
+			facility.id AS  defaultFacilityId,
+			location.id AS 	defaultLocationId,
+			facility.name as defaultFacilityName,
+			location.name as defaultLocationName,
+
+        feeding.`id` AS feedingId,
+        headmaterial.`name` AS productName,
+        headmaterial.specification AS productSpecification,
+        feeding.`feeding_no` AS feedingNo,
+        feeding.`create_time` AS createTime
+
+		<include refid="sql_map_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by detail.id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_production_feeding_detail
+		<include refid="sql_condition"/>
+	</select>
+	
+	<select id="countForMap" resultType="int">
+		SELECT 
+		COUNT(*) 
+		<include refid="sql_map_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.ProductionFeedingDetailDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_production_feeding_detail
+		(
+			`head_id`,
+			`materiel_id`, 
+			`batch_no`, 
+			`plan_feeding`, 
+			`out_count`, 
+			`scrap_count`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{headId}, 
+			#{materielId}, 
+			#{batchNo}, 
+			#{planFeeding}, 
+			#{outCount}, 
+			#{scrapCount}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.ProductionFeedingDetailDO">
+		update mes_production_feeding_detail 
+		<set>
+			<if test="headId != null">`head_id` = #{headId}, </if>
+			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
+			<if test="batchNo != null">`batch_no` = #{batchNo}, </if>
+			<if test="planFeeding != null">`plan_feeding` = #{planFeeding}, </if>
+			<if test="outCount != null">`out_count` = #{outCount}, </if>
+			<if test="scrapCount != null">`scrap_count` = #{scrapCount}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_production_feeding_detail where id = #{value}
+	</delete>
+	
+	<delete id="removeByHeadId">
+		delete from mes_production_feeding_detail where head_id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_production_feeding_detail where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<sql id="sql_column_list">
+		`id`,`head_id`,`materiel_id`,`batch_no`,`plan_feeding`,`out_count`,`scrap_count`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="headId != null and headId != ''"> and head_id = #{headId} </if>
+		  		  <if test="materielId != null and materielId != ''"> and materiel_id = #{materielId} </if>
+		  		  <if test="batchNo != null and batchNo != ''"> and batch_no = #{batchNo} </if>
+		  		  <if test="planFeeding != null and planFeeding != ''"> and plan_feeding = #{planFeeding} </if>
+		  		  <if test="outCount != null and outCount != ''"> and out_count = #{outCount} </if>
+		  		  <if test="scrapCount != null and scrapCount != ''"> and scrap_count = #{scrapCount} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</sql>
+	
+	<sql id="sql_map_condition">
+		FROM mes_production_feeding_detail detail
+        LEFT JOIN mes_production_feeding feeding ON feeding.id= detail.`head_id`
+        LEFT JOIN cus_materiel headmaterial ON headmaterial.`id` = feeding.`materiel_id`
+		LEFT JOIN cus_materiel material ON material.`id` = detail.`materiel_id`
+		LEFT JOIN cus_dictionary unituom ON unituom.id = material.unit_uom
+		LEFT JOIN cus_facility facility ON facility.id = material.default_facility
+		LEFT JOIN cus_facility_location location ON location.id = material.default_location
+		<where>  
+            <if test="headId != null and headId != ''"> and detail.head_id = #{headId} </if>
+            <if test="planNo != null and planNo != ''"> and feeding.`feeding_no` LIKE CONCAT('%', #{planNo},'%' )</if>
+            <if test="materialsName != null and materialsName != ''"> and material.name LIKE CONCAT('%', #{materialsName},'%' )</if>
+            <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(feeding.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(feeding.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+        </where>
+	</sql>
+	
+</mapper>

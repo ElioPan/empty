@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.TaskReplyDao">
+
+	<select id="get" resultType="com.ev.custom.domain.TaskReplyDO">
+		select `id`,`taskId`,`reason`,`solution`,`status`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`deal_id`,`reply_type`,`complete_rate`,`complete_quality`,`work_state` from cus_task_reply where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.TaskReplyDO">
+		select `id`,`taskId`,`reason`,`solution`,`status`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`deal_id`,`reply_type`,`complete_rate`,`complete_quality`,`work_state` from cus_task_reply
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="taskid != null and taskid != ''"> and taskId = #{taskid} </if>
+		  		  <if test="reason != null and reason != ''"> and reason = #{reason} </if>
+		  		  <if test="solution != null and solution != ''"> and solution = #{solution} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		  <if test="dealId != null and dealId != ''"> and deal_id = #{dealId} </if>
+		  		  <if test="replyType != null and replyType != ''"> and reply_type = #{replyType} </if>
+		  		  <if test="completeRate != null and completeRate != ''"> and complete_rate = #{completeRate} </if>
+		  		  <if test="completeQuality != null and completeQuality != ''"> and complete_quality = #{completeQuality} </if>
+		  		  <if test="workState != null and workState != ''"> and work_state = #{workState} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="detail" resultType="map">
+		select 
+		dealreply.`id` AS dealReplyId,
+		dealreply.`taskId` AS taskId,
+		dealreplyer.`name` AS dealreplyerName,
+		dealreplyer.`user_id` AS dealreplyerId,
+		dealreply.`create_time` AS dealCreateTime,
+		dealreply.`reason` AS reason,
+		dealreply.`solution` AS solution,
+		checkreply.`complete_rate` AS completeRate,
+		checkreply.`complete_quality` AS completeQuality,
+		checkreply.`work_state` AS workState,
+		dic.`name` AS statusName,
+		dic.`id` AS statusId,
+		checkreply.`create_time` AS checkCreateTime,
+		checkreplyer.`user_id` AS checkreplyerId,
+		checkreplyer.`name` AS checkreplyerName,
+		checkreply.`solution` AS checkSolution
+		 FROM cus_task_reply dealreply
+		 LEFT JOIN cus_task_reply checkreply ON dealreply.`id`=checkreply.`deal_id`
+		 LEFT JOIN sys_user dealreplyer on dealreplyer.user_id = dealreply.create_by
+		 LEFT JOIN sys_user checkreplyer on checkreplyer.user_id = checkreply.create_by
+		 LEFT JOIN cus_dictionary dic on dic.id = checkreply.`status`
+		 where dealreply.`id` = #{value}
+	</select>
+	
+	<select id="listForMap" resultType="map">
+		SELECT
+		reply.`id` as id,
+		reply.`taskId` as taskId,
+		reply.`reason` as reason,
+		reply.`solution` as solution,
+		dics.`name` AS statusName,
+		dics.`id` AS statusId,
+		reply.`create_by` as replyuserid,
+		replyer.`name` as replyername,
+		reply.`complete_rate` AS completeRate,
+		reply.`complete_quality` AS completeQuality,
+		reply.`work_state` AS workState,
+		reply.`create_time` as replytime
+		FROM
+		cus_task_reply reply
+		LEFT JOIN cus_dictionary dic on dic.id = reply.reply_type
+		LEFT JOIN cus_dictionary dics on dics.id = reply.`status`
+		LEFT JOIN sys_user replyer on replyer.user_id = reply.create_by
+		<where>
+			<if test="replyType != null and replyType != ''"> and reply.reply_type = #{replyType} </if>
+			<if test="taskId != null and taskId != ''"> and reply.taskId = #{taskId} </if>
+			<if test="createBy != null and createBy != ''"> and reply.create_by = #{createBy} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="countForMap" resultType="int">
+		SELECT
+		count(1)
+		FROM
+		cus_task_reply reply
+		LEFT JOIN cus_dictionary dic on dic.id = reply.reply_type
+		LEFT JOIN sys_user replyer on replyer.user_id = reply.create_by
+		<where>
+			dic.`value` = 'deal_id'
+			<if test="taskid != null and taskid != ''"> and taskId = #{taskid} </if>
+		</where>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_task_reply
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="taskid != null and taskid != ''"> and taskId = #{taskid} </if>
+		  		  <if test="reason != null and reason != ''"> and reason = #{reason} </if>
+		  		  <if test="solution != null and solution != ''"> and solution = #{solution} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		  <if test="dealId != null and dealId != ''"> and deal_id = #{dealId} </if>
+		  		  <if test="replyType != null and replyType != ''"> and reply_type = #{replyType} </if>
+		  		  <if test="completeRate != null and completeRate != ''"> and complete_rate = #{completeRate} </if>
+		  		  <if test="completeQuality != null and completeQuality != ''"> and complete_quality = #{completeQuality} </if>
+		  		  <if test="workState != null and workState != ''"> and work_state = #{workState} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.TaskReplyDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_task_reply
+		(
+			`taskId`, 
+			`reason`, 
+			`solution`, 
+			`status`,
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`, 
+			`deal_id`, 
+			`reply_type`, 
+			`complete_rate`, 
+			`complete_quality`, 
+			`work_state`
+		)
+		values
+		(
+			#{taskid}, 
+			#{reason}, 
+			#{solution}, 
+			#{status},
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}, 
+			#{dealId}, 
+			#{replyType}, 
+			#{completeRate}, 
+			#{completeQuality}, 
+			#{workState}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.TaskReplyDO">
+		update cus_task_reply 
+		<set>
+			<if test="taskid != null">`taskId` = #{taskid}, </if>
+			<if test="reason != null">`reason` = #{reason}, </if>
+			<if test="solution != null">`solution` = #{solution}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}, </if>
+			<if test="dealId != null">`deal_id` = #{dealId}, </if>
+			<if test="replyType != null">`reply_type` = #{replyType}, </if>
+			<if test="completeRate != null">`complete_rate` = #{completeRate}, </if>
+			<if test="completeQuality != null">`complete_quality` = #{completeQuality}, </if>
+			<if test="workState != null">`work_state` = #{workState}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_task_reply where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_task_reply where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

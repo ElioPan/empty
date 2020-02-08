@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.PurchaseDao">
+
+	<select id="get" resultType="com.ev.scm.domain.PurchaseDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_purchase 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.PurchaseDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_purchase
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from scm_purchase
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`purchase_type`,`purchase_code`,`supplier_id`,`applicant`,`applicant_time`,`advance_date`,`discount_rate`,`preferential_amount`,`pay_amount`,`audit_sign`,`auditor`,`audit_time`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+							<if test="maxNo != null and maxNo != ''"> and LEFT(purchase_code,12) = #{maxNo} </if>
+                            <if test="id != null and id != ''"> and id = #{id} </if>
+                            <if test="purchaseType != null and purchaseType != ''"> and purchase_type = #{purchaseType} </if>
+                            <if test="purchaseCode != null and purchaseCode != ''"> and purchase_code = #{purchaseCode} </if>
+                            <if test="supplierId != null and supplierId != ''"> and supplier_id = #{supplierId} </if>
+                            <if test="applicant != null and applicant != ''"> and applicant = #{applicant} </if>
+                            <if test="applicantTime != null and applicantTime != ''"> and applicant_time = #{applicantTime} </if>
+                            <if test="advanceDate != null and advanceDate != ''"> and advance_date = #{advanceDate} </if>
+                            <if test="discountRate != null and discountRate != ''"> and discount_rate = #{discountRate} </if>
+                            <if test="preferentialAmount != null and preferentialAmount != ''"> and preferential_amount = #{preferentialAmount} </if>
+                            <if test="payAmount != null and payAmount != ''"> and pay_amount = #{payAmount} </if>
+                            <if test="auditSign != null and auditSign != ''"> and audit_sign = #{auditSign} </if>
+                            <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+                            <if test="auditTime != null and auditTime != ''"> and audit_time = #{auditTime} </if>
+                            <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+                            <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+							and del_flag=0
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.PurchaseDO" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_purchase
+		(
+			`purchase_type`, 
+			`purchase_code`, 
+			`supplier_id`, 
+			`applicant`, 
+			`applicant_time`, 
+			`advance_date`, 
+			`discount_rate`, 
+			`preferential_amount`, 
+			`pay_amount`, 
+			`audit_sign`, 
+			`auditor`, 
+			`audit_time`, 
+			`remarks`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{purchaseType}, 
+			#{purchaseCode}, 
+			#{supplierId}, 
+			#{applicant}, 
+			#{applicantTime}, 
+			#{advanceDate}, 
+			#{discountRate}, 
+			#{preferentialAmount}, 
+			#{payAmount}, 
+			#{auditSign}, 
+			#{auditor}, 
+			#{auditTime}, 
+			#{remarks}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.PurchaseDO">
+		update scm_purchase 
+		<set>
+			<if test="purchaseType != null">`purchase_type` = #{purchaseType}, </if>
+			<if test="purchaseCode != null">`purchase_code` = #{purchaseCode}, </if>
+			<if test="supplierId != null">`supplier_id` = #{supplierId}, </if>
+			<if test="applicant != null">`applicant` = #{applicant}, </if>
+			<if test="applicantTime != null">`applicant_time` = #{applicantTime}, </if>
+			<if test="advanceDate != null">`advance_date` = #{advanceDate}, </if>
+			<if test="discountRate != null">`discount_rate` = #{discountRate}, </if>
+			<if test="preferentialAmount != null">`preferential_amount` = #{preferentialAmount}, </if>
+			<if test="payAmount != null">`pay_amount` = #{payAmount}, </if>
+			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="auditTime != null">`audit_time` = #{auditTime}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from scm_purchase where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from scm_purchase where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<select id="canDeletOfCount" resultType="int">
+		select
+		count(id)
+		from
+		scm_purchase
+		where
+			  audit_sign =178
+		and  id in
+		<foreach item="item" collection="id" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+
+
+	<select id="listForMap" resultType="map">
+		SELECT
+			*
+		from
+		(
+		SELECT
+			a.id,
+			a.applicant_time as applicantTime,
+			a.purchase_code as purchaseCode,
+			a.applicant,
+			b.name as applicantName,
+			j.dept_id  as deptId,
+			j.name as deptName,
+			a.supplier_id as supplierId,
+			c.name as supplierName,
+			d.materiel_id as materielId,
+			e.name as materielName,
+			e.serial_no as serialNo,
+			e.specification,
+			e.unit_uom as unitUom,
+			f.name as unitUomName,
+			d.count,
+			d.unit_price as unitPrice,
+			d.amount,
+			a.advance_date as advanceDate,
+			a.audit_sign as  auditSign,
+			g.name as auditSignName,
+			d.source_type as sourceType,
+			h.name as sourceTypeName,
+			a.create_by as createBy,
+			a.create_time as createTime,
+			d.source_code as sourceCode
+		FROM
+		scm_purchase  a
+		LEFT JOIN  sys_user b on a.applicant=b.user_id
+		LEFT JOIN  cus_supplier c on a.supplier_id=c.id
+		LEFT JOIN  scm_purchase_item d on a.id=d.purchase_id
+		LEFT JOIN  cus_materiel e on d.materiel_id=e.id
+		LEFT JOIN  cus_dictionary f on e.unit_uom=f.id
+		LEFT JOIN  cus_dictionary g on a.audit_sign=g.id
+		LEFT JOIN  cus_dictionary h on d.source_type=h.id
+		LEFT JOIN  sys_dept j on b.dept_id=j.dept_id
+		) aa
+		<where>
+			<if test="general != null and general != ''"> and CONCAT(purchaseCode,materielName,specification) LIKE CONCAT('%',#{general},'%') </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(applicantTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(applicantTime,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="createTime != null and createTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') =  DATE_FORMAT(#{createTime},'%Y-%m-%d')</if>
+			<if test="createBy != null and createBy != ''"> and createBy = #{createBy} </if>
+
+			<if test="applicantName != null and applicantName != ''"> and applicantName = #{applicantName} </if>
+
+			<if test="supplierId != null and supplierId != ''"> and supplierId = #{supplierId} </if>
+			<if test="materiel != null and materiel != ''"> and materielId = #{materiel} </if>
+			<if test="specification != null and specification != ''"> and specification = #{specification} </if>
+			<if test="auditSign != null and auditSign != ''"> and auditSign = #{auditSign} </if>
+			<if test="deptId != null and deptId != ''"> and deptId = #{deptId} </if>
+			<if test="applicant != null and applicant != ''"> and applicant = #{applicant} </if>
+			<if test="createBy != null and createBy != ''"> and createBy = #{createBy} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="countForMap" resultType="int">
+		select
+		count(*)
+		from
+		(
+		SELECT
+			a.id,
+			a.applicant_time as applicantTime,
+			a.purchase_code as purchaseCode,
+			a.applicant,
+			b.name as applicantName,
+			j.dept_id  as deptId,
+			j.name as deptName,
+			a.supplier_id as supplierId,
+			c.name as supplierName,
+			d.materiel_id as materielId,
+			e.name as materielName,
+			e.serial_no as serialNo,
+			e.specification,
+			e.unit_uom as unitUom,
+			f.name as unitUomName,
+			d.count,
+			d.unit_price as unitPrice,
+			d.amount,
+			a.advance_date as advanceDate,
+			a.audit_sign as  auditSign,
+			g.name as auditSignName,
+			d.source_type as sourceType,
+			h.name as sourceTypeName,
+			a.create_by as createBy,
+			a.create_time as createTime,
+			d.source_code as sourceCode
+		FROM
+		scm_purchase  a
+		LEFT JOIN  sys_user b on a.applicant=b.user_id
+		LEFT JOIN  cus_supplier c on a.supplier_id=c.id
+		LEFT JOIN  scm_purchase_item d on a.id=d.purchase_id
+		LEFT JOIN  cus_materiel e on d.materiel_id=e.id
+		LEFT JOIN  cus_dictionary f on e.unit_uom=f.id
+		LEFT JOIN  cus_dictionary g on a.audit_sign=g.id
+		LEFT JOIN  cus_dictionary h on d.source_type=h.id
+		LEFT JOIN  sys_dept j on b.dept_id=j.dept_id
+		) aa
+		<where>
+			<if test="general != null and general != ''"> and CONCAT(purchaseCode,materielName,specification) LIKE CONCAT('%',#{general},'%') </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(applicantTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(applicantTime,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="createTime != null and createTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') =  DATE_FORMAT(#{createTime},'%Y-%m-%d')</if>
+			<if test="createBy != null and createBy != ''"> and createBy = #{createBy} </if>
+			<if test="applicantName != null and applicantName != ''"> and applicantName = #{applicantName} </if>
+			<if test="supplierId != null and supplierId != ''"> and supplierId = #{supplierId} </if>
+			<if test="materiel != null and materiel != ''"> and materielId = #{materiel} </if>
+			<if test="specification != null and specification != ''"> and specification = #{specification} </if>
+			<if test="auditSign != null and auditSign != ''"> and auditSign = #{auditSign} </if>
+			<if test="deptId != null and deptId != ''"> and deptId = #{deptId} </if>
+			<if test="applicant != null and applicant != ''"> and applicant = #{applicant} </if>
+			<if test="createBy != null and createBy != ''"> and createBy = #{createBy} </if>
+		</where>
+	</select>
+
+
+	<select id="detailOfPurchase" resultType="map">
+		SELECT
+			a.id,
+			a.applicant_time as applicantTime,
+			a.purchase_code as purchaseCode,
+			a.applicant,
+			b.name as applicantName,
+			j.dept_id  as deptId,
+			j.name as deptName,
+			a.advance_date as advanceDate,
+			a.supplier_id as supplierId,
+			c.name as supplierName,
+			a.remarks,
+			a.create_by as createBy,
+			k.name as createByName,
+			a.create_time as createTime,
+			a.auditor,
+			m.name as auditorName,
+			a.audit_time as auditTime,
+			a.audit_sign as  auditSign,
+			g.name as auditSignName
+		FROM
+		scm_purchase  a
+		LEFT JOIN  sys_user b on a.applicant=b.user_id
+		LEFT JOIN  cus_supplier c on a.supplier_id=c.id
+		LEFT JOIN  cus_dictionary g on a.audit_sign=g.id
+		LEFT JOIN  sys_dept j on b.dept_id=j.dept_id
+		LEFT JOIN  sys_user k on a.create_by=k.user_id
+		LEFT JOIN  sys_user m on a.auditor=m.user_id
+		WHERE
+		 a.id = #{purchaseId}
+	</select>
+
+
+
+
+
+
+</mapper>

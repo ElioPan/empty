@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.UserAssocDao">
+
+	<select id="get" resultType="com.ev.custom.domain.UserAssocDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM cus_user_assoc
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="map">
+		SELECT
+		assoc.id,
+		assoc.assoc_id,
+		assoc.assoc_type,
+		assoc.user_id,
+		sysuer.name
+		FROM
+		cus_user_assoc assoc
+		LEFT JOIN sys_user sysuer on sysuer.user_id = assoc.user_id
+        <where>  
+		  		  <if test="id != null and id != ''"> and assoc.id = #{id} </if>
+		  		  <if test="assocId != null and assocId != ''"> and assoc.assoc_id = #{assocId} </if>
+		  		  <if test="assocType != null and assocType != ''"> and assoc.assoc_type = #{assocType} </if>
+		  		  <if test="userId != null and userId != ''"> and assoc.user_id = #{userId} </if>
+ 		 </where>
+        <choose>
+            <when test="sort != null ">
+                order by  ${sort} ${order}                        <!--desc -->
+            </when>
+			<otherwise>
+                order by id   desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		SELECT
+		count(1)
+		FROM
+		cus_user_assoc assoc
+		LEFT JOIN sys_user sysuer on sysuer.user_id = assoc.user_id
+		<where>
+			<if test="id != null and id != ''"> and assoc.id = #{id} </if>
+			<if test="assocId != null and assocId != ''"> and assoc.assoc_id = #{assocId} </if>
+			<if test="assocType != null and assocType != ''"> and assoc.assoc_type = #{assocType} </if>
+			<if test="userId != null and userId != ''"> and assoc.user_id = #{userId} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+	</select>
+
+	<insert id="save" parameterType="com.ev.custom.domain.UserAssocDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_user_assoc
+		(
+			`assoc_id`,
+			`assoc_type`,
+			`user_id`,
+			`sign`,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
+			`del_flag`
+		)
+		values
+		(
+			#{assocId},
+			#{assocType},
+			#{userId},
+			#{sign},
+			#{createBy},
+			#{createTime},
+			#{updateBy},
+			#{updateTime},
+			#{delFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.custom.domain.UserAssocDO">
+		update cus_user_assoc
+		<set>
+			<if test="assocId != null">`assoc_id` = #{assocId}, </if>
+			<if test="assocType != null">`assoc_type` = #{assocType}, </if>
+			<if test="userId != null">`user_id` = #{userId}, </if>
+			<if test="sign != null">`sign` = #{sign}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<sql id="sql_column_list">
+		`id`,`assoc_id`,`assoc_type`,`user_id`,`sign`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+	<sql id="sql_condition">
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="assocId != null and assocId != ''"> and assoc_id = #{assocId} </if>
+			<if test="assocType != null and assocType != ''"> and assoc_type = #{assocType} </if>
+			<if test="userId != null and userId != ''"> and user_id = #{userId} </if>
+			<if test="sign != null and sign != ''"> and sign = #{sign} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+	</sql>
+	
+	<delete id="remove">
+		delete from cus_user_assoc where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_user_assoc where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<delete id="batchRemoveByAssocIdAadType">
+		delete
+		from cus_user_assoc
+		<where>
+			<if test="assocId!= null"> and `assoc_id` in
+				<foreach item="item" collection="assocId" open="(" separator="," close=")"  index="index">
+					<if test="item!=null">
+						#{item}
+					</if>
+				</foreach>
+			</if>
+
+			<if test="assocType != null or assocType!= '' "> and `assoc_type` = #{assocType}</if>
+		</where>
+	</delete>
+
+
+	<delete id="removeByAssocIdAndUserId">
+		delete from cus_user_assoc
+		<where>
+			<if test="userId!= null"> and `user_id` in
+				<foreach item="item" collection="userId" open="(" separator="," close=")"  index="index">
+					<if test="item!=null">
+						#{item}
+					</if>
+				</foreach>
+			</if>
+			<if test="assocId != null "> and `assoc_id` = #{assocId}</if>
+			<if test="assocType != null or assocType!= '' "> and `assoc_type` = #{assocType}</if>
+		</where>
+	</delete>
+
+
+	<update id="updateOfSign" parameterType="com.ev.custom.domain.UserAssocDO">
+		update cus_user_assoc
+		<set>
+			<if test="sign != null">`sign` = #{sign}</if>
+		</set>
+		where
+		assoc_id = #{assocId}
+		AND
+		user_id=#{userId}
+		and
+		assoc_type = #{assocType}
+	</update>
+
+
+</mapper>

@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.ProcessReportCheckDao">
+
+	<select id="get" resultType="com.ev.mes.domain.ProcessReportCheckDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_process_report_check 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.ProcessReportCheckDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_process_report_check
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_process_report_check
+		<include refid="sql_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.ProcessReportCheckDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_process_report_check
+		(
+			`code`, 
+			`process_report_id`, 
+			`materia_id`, 
+			`supplier_id`, 
+			`check_plan_id`, 
+			`conformity_count`, 
+			`rework_count`, 
+			`scrap_count`, 
+			`check_count`,
+			`status`,
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{code}, 
+			#{processReportId}, 
+			#{materiaId}, 
+			#{supplierId}, 
+			#{checkPlanId}, 
+			#{conformityCount}, 
+			#{reworkCount}, 
+			#{scrapCount}, 
+			#{checkCount},
+			#{status},
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.ProcessReportCheckDO">
+		update mes_process_report_check 
+		<set>
+			<if test="code != null">`code` = #{code}, </if>
+			<if test="processReportId != null">`process_report_id` = #{processReportId}, </if>
+			<if test="materiaId != null">`materia_id` = #{materiaId}, </if>
+			<if test="supplierId != null">`supplier_id` = #{supplierId}, </if>
+			<if test="checkPlanId != null">`check_plan_id` = #{checkPlanId}, </if>
+			<if test="conformityCount != null">`conformity_count` = #{conformityCount}, </if>
+			<if test="reworkCount != null">`rework_count` = #{reworkCount}, </if>
+			<if test="scrapCount != null">`scrap_count` = #{scrapCount}, </if>
+			<if test="checkCount != null">`check_count` = #{checkCount}, </if>
+
+			<if test="status != null">`status` = #{status}, </if>
+
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_process_report_check where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_process_report_check where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<sql id="sql_column_list">
+		`id`,`code`,`status`,`process_report_id`,`materia_id`,`supplier_id`,`check_plan_id`,`conformity_count`,`rework_count`,`scrap_count`,`check_count`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>
+
+			     <if test="maxNo != null and maxNo != ''"> and LEFT(code,12) = #{maxNo} </if>
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="code != null and code != ''"> and code = #{code} </if>
+		  		  <if test="processReportId != null and processReportId != ''"> and process_report_id = #{processReportId} </if>
+		  		  <if test="materiaId != null and materiaId != ''"> and materia_id = #{materiaId} </if>
+		  		  <if test="supplierId != null and supplierId != ''"> and supplier_id = #{supplierId} </if>
+		  		  <if test="checkPlanId != null and checkPlanId != ''"> and check_plan_id = #{checkPlanId} </if>
+		  		  <if test="conformityCount != null and conformityCount != ''"> and conformity_count = #{conformityCount} </if>
+		  		  <if test="reworkCount != null and reworkCount != ''"> and rework_count = #{reworkCount} </if>
+		  		  <if test="scrapCount != null and scrapCount != ''"> and scrap_count = #{scrapCount} </if>
+				<if test="checkCount != null and checkCount != ''"> and check_count = #{checkCount} </if>
+
+		  		    <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</sql>
+
+
+	<select id="checkHeadDetail" resultType="map">
+		SELECT
+			*
+		from
+		(
+			SELECT
+				a.id as processReportId,
+				a.code,
+				d.process_id as processId,
+				h.name as processName,
+				a.supplier_id  as supplierId,
+				j.name as supplierName,
+				e.inspection_scheme as checkPlanId,     <!-- 检验方案id-->
+				p.name as checkPlanName,       <!-- 检验方案名字-->
+				e.materiel_id as materielId,
+				f.name as materielName,
+				f.specification,
+				f.serial_no as serialNo,
+				a.completion_count as checkCount,   <!-- 报工数量默认为 报检数量-->
+				0.0 as conformityCount,    <!-- 合格数量-->
+				0.0 as  reworkCount,       <!--  返工数量-->
+				0.0 as scrapCount    		 <!-- 报废数量-->
+			from
+			mes_process_report  a
+			LEFT JOIN  mes_dispatch_item   b ON a.dispatch_item_id =b.id
+			LEFT JOIN  mes_working_procedure_detail  d  on  b.foriegn_id=d.id
+			LEFT JOIN  mes_working_procedure_plan    e  on  d.plan_id=e.id
+			LEFT JOIN  mes_check_plan    p  on  e.inspection_scheme=p.id
+			LEFT JOIN  cus_materiel    f  on  e.materiel_id=f.id
+			LEFT JOIN  cus_supplier   j  on  a.supplier_id =j.id
+			LEFT JOIN  mes_process    h  on  d.process_id=h.id
+		)  aaa
+		where
+			processReportId=#{reportId}
+	</select>
+
+	<select id="checkBadyDetail" resultType="map">
+		SELECT
+			b.code,
+			b.id as projectId,
+			b.name as project,
+			b.norm, <!-- 检验标准  VARCHAR-->
+			b.method ,<!-- 检验方法   varchar-->
+			a.whether_check as whetherCheck
+		from
+		mes_process_check a
+		LEFT JOIN  mes_check_project b  on a.pro_id =b.id
+		LEFT JOIN  mes_working_procedure_detail  c  on  a.foreign_id=c.id
+		LEFT JOIN  mes_dispatch_item  f  on  c.id=f.foriegn_id
+		LEFT JOIN  mes_process_report  g  on  f.id=g.dispatch_item_id
+		where
+			a.type=#{type}
+		and
+			g.id=#{reportId}
+	</select>
+
+
+
+	<select id="canOrNoDelet" resultType="int">
+		select
+		COUNT(1)
+		from
+		mes_process_report_check
+		where
+		status=146   <!-- 暂存-->
+		and
+		id =#{value}
+	</select>
+
+	<select id="getdetailOfCheck" resultType="map">
+		select
+			a.code as checkCode,
+			a.id as reportCheckId,
+			b.id as processReportId,
+			b.code as reportCode,
+			a.supplier_id  as supplierId,
+			j.name as supplierName,
+			a.check_plan_id as checkPlanId,
+			p.name as checkPlanName,
+			a.materia_id as materiaId,
+			f.name as materiaName,
+			a.check_count as checkCount,
+			a.conformity_count as conformityCount,
+			a.rework_count  as  reworkCount,
+			a.scrap_count	as scrapCount
+		from
+			mes_process_report_check a
+		LEFT JOIN  mes_process_report b on a.process_report_id=b.id
+		LEFT JOIN  cus_supplier   j     on  a.supplier_id =j.id
+		LEFT JOIN  mes_check_plan    p  on  a.check_plan_id=p.id
+		LEFT JOIN  cus_materiel    f    on  a.materia_id=f.id
+		WHERE
+			a.id=#{value}
+	</select>
+
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		*
+		from
+		(
+		select
+			a.id as  id,
+			a.code as checkCode,
+			IFNULL(a.create_time,'') as createTime,
+			c.operator,
+			d.name as operatorName,
+			m.name as deptName,
+			e.process_id as processId,
+			f.name as processName,
+			a.materia_id as materiaId,
+			g.name as materialName,
+			g.serial_no as serialNo,
+			g.specification,
+			a.check_count as checkCount,
+			a.conformity_count as conformityCount,
+			a.rework_count  as  reworkCount,
+			a.scrap_count	as scrapCount,
+			c.device_id as deviceId,
+			h.name as deviceName,
+			a.supplier_id as supplierId,
+		 	a.create_by as createBy,
+			pp.name as createName,
+			j.name as supplierName,
+			n.work_order_no as workingProcedurePlanCode,
+			o.plan_no as planNo
+			from
+			mes_process_report_check a
+			LEFT JOIN  mes_process_report b on a.process_report_id=b.id
+			LEFT JOIN  mes_dispatch_item c on b.dispatch_item_id=c.id
+			LEFT JOIN  sys_user d on c.operator=d.user_id
+			LEFT JOIN  sys_dept   m  on  d.dept_id=m.dept_id
+			LEFT JOIN  mes_working_procedure_detail  e  on  c.foriegn_id=e.id
+			LEFT JOIN  mes_process    f   on  e.process_id=f.id
+			LEFT JOIN  cus_materiel    g  on  a.materia_id=g.id
+			LEFT JOIN  cus_device    h    on  c.device_id =h.id
+			LEFT JOIN  cus_supplier   j  on  a.supplier_id =j.id
+			LEFT JOIN  mes_working_procedure_plan  n  on  e.plan_id=n.id
+			LEFT JOIN  mes_production_plan  o  on  n.production_plan_id=o.id
+			LEFT JOIN  sys_user pp on a.create_by=pp.user_id
+		)aaaa
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="operator != null and operator != ''"> and operator = #{operator} </if>
+			<if test="deviceId != null and deviceId != ''"> and deviceId = #{deviceId} </if>
+			<if test="processId != null and processId != ''"> and processId = #{processId} </if>
+			<if test="code != null and code != ''"> and checkCode like CONCAT('%',#{code},'%') </if>
+			<if test="materialId != null and materialId != ''"> and materialId = #{materialId} </if>
+			<if test="supplierId != null and supplierId != ''"> and supplierId = #{supplierId} </if>
+
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;= DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+
+			<if test="operatorName != null and operatorName != ''"> and operatorName like CONCAT('%', #{operatorName},'%') </if>
+			<if test="deviceName != null and deviceName != ''"> and deviceName like CONCAT('%', #{deviceName},'%') </if>
+			<if test="processName != null and processName != ''"> and processName like CONCAT('%', #{processName},'%') </if>
+			<if test="materialName != null and materialName != ''"> and materialName like CONCAT('%', #{materialName},'%') </if>
+			<if test="supplierName != null and supplierName != ''"> and supplierName like CONCAT('%', #{supplierName},'%') </if>
+			<if test="createName != null and createName != ''"> and createName like CONCAT('%', #{createName},'%') </if>
+
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order},id desc
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="int">
+		SELECT
+		count(*)
+		from
+		(
+		select
+		a.id,
+		a.code as checkCode,
+		a.create_time as createTime,
+		c.operator,
+		d.name as operatorName,
+		m.name as deptName,
+		e.process_id as processId,
+		f.name as processName,
+		a.materia_id as materiaId,
+		g.name as materialName,
+		g.serial_no as serialNo,
+		g.specification,
+		a.check_count as checkCount,
+		a.conformity_count as conformityCount,
+		a.rework_count  as  reworkCount,
+		a.scrap_count	as scrapCount,
+		c.device_id as deviceId,
+		h.name as deviceName,
+		a.supplier_id as supplierId,
+		a.create_by as createBy,
+		pp.name as createName,
+		j.name as supplierName,
+		n.work_order_no as workingProcedurePlanCode,
+		o.plan_no as planNo
+		from
+		mes_process_report_check a
+		LEFT JOIN  mes_process_report b on a.process_report_id=b.id
+		LEFT JOIN  mes_dispatch_item c on b.dispatch_item_id=c.id
+		LEFT JOIN  sys_user d on c.operator=d.user_id
+		LEFT JOIN  sys_dept   m  on  d.dept_id=m.dept_id
+		LEFT JOIN  mes_working_procedure_detail  e  on  c.foriegn_id=e.id
+		LEFT JOIN  mes_process    f   on  e.process_id=f.id
+		LEFT JOIN  cus_materiel    g  on  a.materia_id=g.id
+		LEFT JOIN  cus_device    h    on  c.device_id =h.id
+		LEFT JOIN  cus_supplier   j  on  a.supplier_id =j.id
+		LEFT JOIN  mes_working_procedure_plan  n  on  e.plan_id=n.id
+		LEFT JOIN  mes_production_plan  o  on  n.production_plan_id=o.id
+		LEFT JOIN  sys_user pp on a.create_by=pp.user_id
+		)aaaa
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="operator != null and operator != ''"> and operator = #{operator} </if>
+			<if test="deviceId != null and deviceId != ''"> and deviceId = #{deviceId} </if>
+			<if test="processId != null and processId != ''"> and processId = #{processId} </if>
+			<if test="code != null and code != ''"> and checkCode like CONCAT('%',#{code},'%') </if>
+			<if test="materialId != null and materialId != ''"> and materialId = #{materialId} </if>
+			<if test="supplierId != null and supplierId != ''"> and supplierId = #{supplierId} </if>
+
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;= DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+
+			<if test="operatorName != null and operatorName != ''"> and operatorName like CONCAT('%', #{operatorName},'%') </if>
+			<if test="deviceName != null and deviceName != ''"> and deviceName like CONCAT('%', #{deviceName},'%') </if>
+			<if test="processName != null and processName != ''"> and processName like CONCAT('%', #{processName},'%') </if>
+			<if test="materialName != null and materialName != ''"> and materialName like CONCAT('%', #{materialName},'%') </if>
+			<if test="supplierName != null and supplierName != ''"> and supplierName like CONCAT('%', #{supplierName},'%') </if>
+			<if test="createName != null and createName != ''"> and createName like CONCAT('%', #{createName},'%') </if>
+
+		</where>
+	</select>
+
+
+
+	<select id="countDeleAboutCheck" resultType="int">
+		select
+		count(*)
+		from
+		mes_process_report_check
+		WHERE
+		process_report_id in
+		<foreach item="item" collection="processReportId" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+
+
+
+
+</mapper>

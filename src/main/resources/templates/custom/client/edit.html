@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content ">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <form class="form-horizontal m-t" id="signupForm">
+                        <input id="id" name="id" th:value="${client.id}" type="hidden">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">客户编号：</label>
+                            <div class="col-sm-8">
+                                <input id="code" name="code" th:value="${client.code}" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">客户名称：</label>
+                            <div class="col-sm-8">
+                                <input id="name" name="name" th:value="${client.name}" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">客户类型：</label>
+                            <div class="col-sm-8">
+                                <select id="type" name="type" th:value="${client.type}"  class="form-control m-b">
+                                    <option th:each="type,typeStat:${typeList}" th:value="${type.id}" th:text="${type.name}" th:selected="${client.type == type.id}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">电话：</label>
+                            <div class="col-sm-8">
+                                <input id="phone" name="phone" th:value="${client.phone}" class="form-control"
+                                       type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">传真：</label>
+                            <div class="col-sm-8">
+                                <input id="fax" name="fax" th:value="${client.fax}" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">地址：</label>
+                            <div class="col-sm-8">
+                                <input id="address" name="address" th:value="${client.address}" class="form-control"
+                                       type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">法人代表：</label>
+                            <div class="col-sm-8">
+                                <input id="legalperson" name="legalperson" th:value="${client.legalperson}"
+                                       class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">公司介绍：</label>
+                            <div class="col-sm-8">
+                                <input id="desc" name="desc" th:value="${client.desc}" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-8 col-sm-offset-3">
+                                <button type="submit" class="btn btn-primary">提交</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:include="include::footer"></div>
+<script type="text/javascript" src="/js/appjs/custom/client/edit.js">
+</script>
+</body>
+</html>

@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.WorkingProcedurePlanDao">
+
+	<select id="get" resultType="com.ev.mes.domain.WorkingProcedurePlanDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_working_procedure_plan 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.WorkingProcedurePlanDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_working_procedure_plan
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="listForMap" resultType="map">
+		SELECT 
+		    workingplan.`id`,
+			workingplan.`work_order_no` AS planNo, 
+			workingplan.`status` AS planStatusId,
+			dicts.`name` AS planStatusName,
+			workingplan.`client_id` AS clientId,
+            workingplan.`client_name` AS clientName,
+			IFNULL(workingplan.`delivery_date`,'') AS deliveryDate,
+			workingplan.`materiel_id`, 
+			material.serial_no AS materialSerialNo,
+			material.name AS materialName,
+			material.specification AS specification,
+			unituom.id AS unitUomId,
+			unituom.name AS unitUomName, 
+			workingplan.`count` AS planCount,
+            IFNULL(workingplan.`plan_start_time`,'') AS planStartTime,
+            IFNULL(workingplan.`plan_end_time`,'') AS planEndTime,
+			proplan.`plan_no` AS productionPlanNo
+		<include refid="sql_map_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order},workingplan.id desc
+            </when>
+			<otherwise>
+                order by workingplan.id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<sql id="sql_map_condition">
+		FROM mes_working_procedure_plan workingplan
+		LEFT JOIN cus_dictionary dicts ON dicts.id = workingplan.`status` 
+		LEFT JOIN cus_client client ON client.`id`=workingplan.`client_id` 
+		LEFT JOIN cus_materiel material ON material.`id`= workingplan.`materiel_id`
+		LEFT JOIN cus_dictionary unituom ON unituom.id = material.`unit_uom` 
+		LEFT JOIN mes_production_plan proplan ON proplan.`id` = workingplan.production_plan_id
+		<where>  
+		  		 	<if test="id != null and id != ''"> and workingplan.id = #{id} </if>
+		  		 	<if test="proName != null and proName != ''"> and material.`name` LIKE CONCAT('%',#{proName},'%') </if>
+		  		 	<if test="startTime != null and startTime != ''">  and  DATE_FORMAT(workingplan.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+		 	 		<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(workingplan.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		  			<if test="deptId != null and deptId != ''"> and workingplan.`pro_dept` = #{deptId} </if>
+		  			<if test="status != null and status != ''"> and workingplan.`status` = #{status} </if>
+		  		
+		  			<if test="productionPlanId != null and productionPlanId != ''"> and workingplan.`production_plan_id` = #{productionPlanId} </if>
+		  			<if test="originalPlanNo != null and originalPlanNo != ''"> and workingplan.original_plan_no = #{originalPlanNo} </if>
+		  			<if test="workOrderNo != null and workOrderNo != ''"> and workingplan.work_order_no = #{workOrderNo} </if>
+		  		</where>
+	</sql>
+	
+	<select id="countForMap" resultType="int">
+		SELECT 
+		COUNT(*)
+		<include refid="sql_map_condition"/>
+	</select>
+	
+	<select id="getDetail" resultType="map">
+		SELECT 
+		    workingplan.`id`,
+		    workingplan.`create_time` AS createTime,
+			workingplan.`work_order_no` AS planNo, 
+			workingplan.`materiel_id`, 
+			material.serial_no AS materialSerialNo,
+			material.name AS materialName,
+			material.specification AS specification,
+			unituom.id AS unitUomId,
+			unituom.name AS unitUomName,
+			workingplan.`count` AS planCount,
+			workingplan.`batch_no` AS batchNo, 
+			workingplan.`plan_start_time` AS planStartTime, 
+			workingplan.`plan_end_time` AS planEndTime, 
+			workingplan.`client_id` AS clientId,  
+			workingplan.`client_name` AS clientName,
+			workingplan.`delivery_date` AS deliveryDate, 
+			workingplan.`client_product_name` AS clientProductName,
+			workingplan.`client_product_no` AS clientProductNo,
+			workingplan.`bom_id` AS bomId, 
+			bom.`serialno` AS bomSerialno,
+			bom.`version` AS bomVersion,
+			workingplan.`tec_route_id` AS tecRouteId, 
+			craft.`name` AS tecRouteName,
+			craft.`version` AS tecRouteVersion,
+			workingplan.`pro_dept` AS proDeptId, 
+			dept.`name` AS proDeptName, 
+			workingplan.`create_by` AS createrId, 
+			createuser.`name` AS  createrName,
+			workingplan.`auditor` AS audituserId, 
+			audituser.`name` AS audituserName,
+			workingplan.original_plan_no AS originalPlanNo,
+			workingplan.give_time AS giveTime,
+			workingplan.actual_finish_time AS actualFinishTime,
+			workingplan.`status` AS planStatusId,
+			dicts.`name` AS planStatusName,
+			workingplan.`source_id` AS sourceId, 
+			workingplan.`source_no` AS sourceNo,
+			workingplan.`source_type` AS sourceType,
+			dictst.`name` AS sourceTypeName
+			FROM mes_working_procedure_plan  workingplan
+		LEFT JOIN cus_dictionary  dicts ON dicts.`id` = workingplan.`status`
+		LEFT JOIN cus_client client ON client.`id`=workingplan.`client_id`
+		LEFT JOIN cus_materiel material ON material.`id`= workingplan.`materiel_id`
+		LEFT JOIN cus_dictionary unituom ON unituom.id = material.`unit_uom`
+		LEFT JOIN mes_bom bom ON bom.`id` = workingplan.`bom_id`
+		LEFT JOIN mes_craft craft ON craft.`id` = workingplan.`tec_route_id`
+		LEFT JOIN cus_dictionary  dictst ON dictst.`id` = workingplan.`source_type`
+		LEFT JOIN sys_dept dept ON dept.`dept_id`=workingplan.`pro_dept`
+		LEFT JOIN sys_user createuser ON createuser.`user_id`=workingplan.`create_by`
+		LEFT JOIN sys_user audituser ON audituser.`user_id`=workingplan.`auditor`
+        WHERE workingplan.id = #{value}
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_working_procedure_plan
+		<include refid="sql_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.WorkingProcedurePlanDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_working_procedure_plan
+		(
+			`production_plan_id`, 
+			`source_type`, 
+			`source_id`, 
+			`source_no`, 
+			`work_order_no`, 
+			`materiel_id`, 
+			`pro_dept`, 
+			`type`, 
+			`is_quota`, 
+			`count`, 
+			`batch_no`, 
+			`plan_start_time`, 
+			`plan_end_time`, 
+			`bom_id`, 
+			`tec_route_id`, 
+			`completion_max`, 
+			`completion_min`, 
+			`is_check`, 
+			`inspection_scheme`, 
+			`client_id`,
+			`client_name`,
+			`delivery_date`, 
+			`client_product_name`, 
+			`client_product_no`, 
+			`give_time`, 
+			`actual_finish_time`, 
+			`status`, 
+			`auditor`, 
+			`original_plan_no`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+			
+		)
+		values
+		(
+			#{productionPlanId}, 
+			#{sourceType}, 
+			#{sourceId}, 
+			#{sourceNo}, 
+			#{workOrderNo}, 
+			#{materielId}, 
+			#{proDept}, 
+			#{type}, 
+			#{isQuota}, 
+			#{count}, 
+			#{batchNo}, 
+			#{planStartTime}, 
+			#{planEndTime}, 
+			#{bomId}, 
+			#{tecRouteId}, 
+			#{completionMax}, 
+			#{completionMin}, 
+			#{isCheck}, 
+			#{inspectionScheme}, 
+			#{clientId},
+			#{clientName},
+			#{deliveryDate}, 
+			#{clientProductName}, 
+			#{clientProductNo}, 
+			#{giveTime}, 
+			#{actualFinishTime}, 
+			#{status}, 
+			#{auditor}, 
+			#{originalPlanNo}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+			
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.WorkingProcedurePlanDO">
+		update mes_working_procedure_plan 
+		<set>
+			<if test="productionPlanId != null">`production_plan_id` = #{productionPlanId}, </if>
+			<if test="sourceType != null">`source_type` = #{sourceType}, </if>
+			<if test="sourceId != null">`source_id` = #{sourceId}, </if>
+			<if test="workOrderNo != null">`work_order_no` = #{workOrderNo}, </if>
+			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
+			<if test="proDept != null">`pro_dept` = #{proDept}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="isQuota != null">`is_quota` = #{isQuota}, </if>
+			<if test="count != null">`count` = #{count}, </if>
+			<if test="batchNo != null">`batch_no` = #{batchNo}, </if>
+			<if test="planStartTime != null">`plan_start_time` = #{planStartTime}, </if>
+			<if test="planEndTime != null">`plan_end_time` = #{planEndTime}, </if>
+			<if test="bomId != null">`bom_id` = #{bomId}, </if>
+			<if test="tecRouteId != null">`tec_route_id` = #{tecRouteId}, </if>
+			<if test="completionMax != null">`completion_max` = #{completionMax}, </if>
+			<if test="completionMin != null">`completion_min` = #{completionMin}, </if>
+			<if test="isCheck != null">`is_check` = #{isCheck}, </if>
+			<if test="inspectionScheme != null">`inspection_scheme` = #{inspectionScheme}, </if>
+			<if test="clientId != null">`client_id` = #{clientId}, </if>
+            <if test="clientName != null">`client_name` = #{clientName}, </if>
+			<if test="deliveryDate != null">`delivery_date` = #{deliveryDate}, </if>
+			<if test="clientProductName != null">`client_product_name` = #{clientProductName}, </if>
+			<if test="clientProductNo != null">`client_product_no` = #{clientProductNo}, </if>
+			<if test="giveTime != null">`give_time` = #{giveTime}, </if>
+			<if test="actualFinishTime != null">`actual_finish_time` = #{actualFinishTime}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="originalPlanNo != null">`original_plan_no` = #{originalPlanNo}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_working_procedure_plan where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_working_procedure_plan where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<sql id="sql_column_list">
+		`id`,`production_plan_id`,`source_no`,`source_type`,`source_id`,`work_order_no`,`materiel_id`,`pro_dept`,`type`,`is_quota`,`count`,`batch_no`,`plan_start_time`,`plan_end_time`,`bom_id`,`tec_route_id`,`completion_max`,`completion_min`,`is_check`,`inspection_scheme`,`client_id`,`client_name`,`delivery_date`,`client_product_name`,`client_product_no`,`give_time`,`actual_finish_time`,`status`,`auditor`,`original_plan_no`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="maxNo != null and maxNo != ''"> and LEFT(work_order_no,12) = #{maxNo} </if>
+		  		  <if test="productionPlanId != null and productionPlanId != ''"> and production_plan_id = #{productionPlanId} </if>
+		  		  <if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+		  		  <if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
+		  		  <if test="workOrderNo != null and workOrderNo != ''"> and work_order_no = #{workOrderNo} </if>
+		  		  <if test="materielId != null and materielId != ''"> and materiel_id = #{materielId} </if>
+		  		  <if test="proDept != null and proDept != ''"> and pro_dept = #{proDept} </if>
+		  		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  		  <if test="isQuota != null and isQuota != ''"> and is_quota = #{isQuota} </if>
+		  		  <if test="count != null and count != ''"> and count = #{count} </if>
+		  		  <if test="batchNo != null and batchNo != ''"> and batch_no = #{batchNo} </if>
+		  		  <if test="planStartTime != null and planStartTime != ''"> and plan_start_time = #{planStartTime} </if>
+		  		  <if test="planEndTime != null and planEndTime != ''"> and plan_end_time = #{planEndTime} </if>
+		  		  <if test="bomId != null and bomId != ''"> and bom_id = #{bomId} </if>
+		  		  <if test="tecRouteId != null and tecRouteId != ''"> and tec_route_id = #{tecRouteId} </if>
+		  		  <if test="completionMax != null and completionMax != ''"> and completion_max = #{completionMax} </if>
+		  		  <if test="completionMin != null and completionMin != ''"> and completion_min = #{completionMin} </if>
+		  		  <if test="isCheck != null and isCheck != ''"> and is_check = #{isCheck} </if>
+		  		  <if test="inspectionScheme != null and inspectionScheme != ''"> and inspection_scheme = #{inspectionScheme} </if>
+		  		  <if test="clientId != null and clientId != ''"> and client_id = #{clientId} </if>
+		  		  <if test="deliveryDate != null and deliveryDate != ''"> and delivery_date = #{deliveryDate} </if>
+		  		  <if test="clientProductName != null and clientProductName != ''"> and client_product_name = #{clientProductName} </if>
+		  		  <if test="clientProductNo != null and clientProductNo != ''"> and client_product_no = #{clientProductNo} </if>
+		  		  <if test="giveTime != null and giveTime != ''"> and give_time = #{giveTime} </if>
+		  		  <if test="actualFinishTime != null and actualFinishTime != ''"> and actual_finish_time = #{actualFinishTime} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+		  		  <if test="originalPlanNo != null and originalPlanNo != ''"> and original_plan_no = #{originalPlanNo} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</sql>
+	
+	<select id="dispatchItemList" resultType="map">
+		SELECT
+			*
+		from
+		(
+			SELECT
+			a.id as dispatchId,
+			a.`code`,
+			b.process_id as processId,
+			c.name as processName,
+			b.`dept_id`,
+			dept.`name` AS deptName,
+			a.operator,
+			e.name as operatorName,
+			a.device_id as deviceId,
+			f.name as deviceName,
+			a.start_time as startTime,
+			a.end_time as endTime,
+			a.actual_end_time AS actualEndTime,
+			a.actual_start_time AS actualStartTime,
+			a.plan_count as planCount,
+			reportcount.completion_count_total AS completionCount,
+			IFNULL(reportcount.`scrap_count_total`,0)+IFNULL(reportcount.`rework_count_total`,0) AS unConformityCount,
+			reportcount.`conformity_count_total` AS conformityCount,
+			reportcount.`scrap_count_total` AS scrapCount,
+			reportcount.`rework_count_total` AS reworkCount,
+			b.`plan_id` AS planId
+			FROM
+			mes_dispatch_item   a
+			LEFT JOIN mes_working_procedure_detail b  on a.foriegn_id=b.id
+			LEFT JOIN mes_process c  on b.process_id=c.id
+			LEFT JOIN sys_user  e  on a.operator=e.user_id
+			LEFT JOIN sys_dept dept  on dept.`dept_id`=b.`dept_id`
+			LEFT JOIN cus_device  f  on a.device_id=f.id
+			LEFT JOIN view_mes_dispatch_count reportcount ON reportcount.`id`=a.`id` 
+		)  aaa
+		<where>
+				<if test="planId != null and planId != ''"> and planId = #{planId} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				ORDER BY dispatchId 
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="dispatchItemCount" resultType="int">
+			SELECT
+			COUNT(*)
+			FROM
+			mes_dispatch_item   a
+			LEFT JOIN mes_working_procedure_detail b  on a.foriegn_id=b.id
+			LEFT JOIN mes_process c  on b.process_id=c.id
+			LEFT JOIN sys_user  e  on a.operator=e.user_id
+			LEFT JOIN sys_dept dept  on dept.`dept_id`=b.`dept_id`
+			LEFT JOIN cus_device  f  on a.device_id=f.id
+			LEFT JOIN view_mes_dispatch_count reportcount ON reportcount.`id`=a.`id` 
+		<where>
+				<if test="planId != null and planId != ''"> and b.`plan_id` = #{planId} </if>
+		</where>
+	
+	</select>
+	
+	
+</mapper>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.ReportTaskDao">
+
+	<select id="get" resultType="com.ev.custom.domain.ReportTaskDO">
+		select `id`,`task_id`,`link_order_no`,`link_order_type`,`link_stage_type`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_report_task where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.ReportTaskDO">
+		select `id`,`task_id`,`link_order_no`,`link_order_type`,`link_stage_type`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_report_task
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="taskId != null and taskId != ''"> and task_id = #{taskId} </if>
+		  		  <if test="linkOrderNo != null and linkOrderNo != ''"> and link_order_no = #{linkOrderNo} </if>
+		  		  <if test="linkOrderType != null and linkOrderType != ''"> and link_order_type = #{linkOrderType} </if>
+		  		  <if test="linkStageType != null and linkStageType != ''"> and link_stage_type = #{linkStageType} </if>
+				  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+				  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+				  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+				  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+				  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>		  		  
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="listForMap" resultType="map">
+		SELECT
+		taskmain.id as taskId,
+		taskmain.`task_no` as taskNo,
+		taskmain.title as taskTitle,
+		heldperson.`user_id` AS heldPersonId,
+		heldperson.`name` as heldPersonName,
+		DATE_FORMAT(taskmain.expire_date,'%Y-%m-%d %H:%i') as  expireDate,
+		DATE_FORMAT(reply.create_time,'%Y-%m-%d %H:%i') as checkTime,
+		dic.`value` as `statusValue`,
+		dic.`id` as statusId,
+		dic.`name` as `statusName`,
+		diclst.`value` as `linkStageValue`,
+		diclst.`id` as linkStageValueId,
+		diclst.`name` as `linkStageName`
+		FROM
+		(SELECT crt.* from cus_report_task crt LEFT JOIN cus_dictionary crtdic on crtdic.id = crt.`link_order_type` WHERE crtdic.`value`='BDBG') reporttask
+		LEFT JOIN cus_quality_report qualityreport ON reporttask.`link_order_no`= qualityreport.report_no
+        INNER JOIN cus_task_main taskmain on taskmain.id=reporttask.`task_id`
+        LEFT JOIN cus_task_employee heldemployee on heldemployee.task_id = taskmain.id
+		LEFT JOIN cus_dictionary dicrole on dicrole.id = heldemployee.assoc_type
+		LEFT JOIN sys_user heldperson on heldperson.user_id = heldemployee.employee_id
+		LEFT JOIN cus_dictionary dic ON dic.id = taskmain.`status`
+		LEFT JOIN cus_dictionary diclst ON diclst.id = reporttask.`link_stage_type`
+		LEFT JOIN (select rep.* from cus_task_reply rep LEFT JOIN cus_dictionary replydic on replydic.id = rep.reply_type where replydic.`value`='reply_check') reply ON reply.taskId= taskmain.id
+        <where>  
+		  		  <if test="id != null and id != ''"> and reporttask.id = #{id} </if>
+		  		  <if test="taskId != null and taskId != ''"> and reporttask.task_id = #{taskId} </if>
+		  		  <if test="linkOrderNo != null and linkOrderNo != ''"> and reporttask.`link_order_no` = #{linkOrderNo} </if>
+		  		  <if test="linkOrderType != null and linkOrderType != ''"> and reporttask.link_order_type = #{linkOrderType} </if>
+		  		  <if test="linkStageType != null and linkStageType != ''"> and reporttask.link_stage_type = #{linkStageType} </if>
+		  		  <if test="linkStageValue != null and linkStageValue != ''"> and diclst.value = #{linkStageValue} </if>
+		  		</where>
+		  GROUP BY reporttask.`task_id`
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by reporttask.id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_report_task
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="taskId != null and taskId != ''"> and task_id = #{taskId} </if>
+		  		  <if test="linkOrderNo != null and linkOrderNo != ''"> and link_order_no = #{linkOrderNo} </if>
+		  		  <if test="linkOrderType != null and linkOrderType != ''"> and link_order_type = #{linkOrderType} </if>
+		  		  <if test="linkStageType != null and linkStageType != ''"> and link_stage_type = #{linkStageType} </if>
+				  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+				  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+				  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+				  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+				  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>		  		  
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.ReportTaskDO">
+		insert into cus_report_task
+		(
+			`id`, 
+			`task_id`, 
+			`link_order_no`, 
+			`link_order_type`, 
+			`link_stage_type`, 
+
+			`create_by`, 
+
+			`create_time`, 
+
+			`update_by`, 
+
+			`update_time`, 
+
+			`del_flag`
+		)
+		values
+		(
+			#{id}, 
+			#{taskId}, 
+			#{linkOrderNo}, 
+			#{linkOrderType}, 
+			#{linkStageType}, 
+
+			#{createBy}, 
+
+			#{createTime}, 
+
+			#{updateBy}, 
+
+			#{updateTime}, 
+
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.ReportTaskDO">
+		update cus_report_task 
+		<set>
+			<if test="taskId != null">`task_id` = #{taskId}, </if>
+			<if test="linkOrderNo != null">`link_order_no` = #{linkOrderNo}, </if>
+			<if test="linkOrderType != null">`link_order_type` = #{linkOrderType}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}, </if>
+			<if test="linkStageType != null">`link_stage_type` = #{linkStageType}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_report_task where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_report_task where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

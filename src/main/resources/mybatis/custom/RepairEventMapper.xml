@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.RepairEventDao">
+
+	<select id="get" resultType="com.ev.custom.domain.RepairEventDO">
+		select `id`,`work_orderNo`,`type`,`level`,`usage`,`engineer_id`,`plan_time`,`man_hour`,`cost`,`status`,`content`,`device_id`,`create_by`,`create_time`,`parent_id`,`parent_type`,`update_by`,`update_time`,`del_flag` from cus_repair_event where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.RepairEventDO">
+		select `id`,`work_orderNo`,`type`,`level`,`usage`,`engineer_id`,`plan_time`,`man_hour`,`cost`,`status`,`content`,`device_id`,`create_by`,`create_time`,`parent_id`,`parent_type`,`update_by`,`update_time`,`del_flag` from cus_repair_event
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="workOrderno != null and workOrderno != ''"> and work_orderNo = #{workOrderno} </if>
+		  		  <if test="maxNo != null and maxNo != ''"> and LEFT(work_orderNo,12) = #{maxNo} </if>
+		  		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  		  <if test="level != null and level != ''"> and level = #{level} </if>
+		  		  <if test="usage != null and usage != ''"> and usage = #{usage} </if>
+		  		  <if test="engineerId != null and engineerId != ''"> and engineer_id = #{engineerId} </if>
+		  		  <if test="planTime != null and planTime != ''"> and plan_time = #{planTime} </if>
+		  		  <if test="manHour != null and manHour != ''"> and man_hour = #{manHour} </if>
+		  		  <if test="cost != null and cost != ''"> and cost = #{cost} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="content != null and content != ''"> and content = #{content} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and device_id = #{deviceId} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="parentId != null and parentId != ''"> and parent_id = #{parentId} </if>
+		  		  <if test="parentType != null and parentType != ''"> and parent_type = #{parentType} </if>
+				  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+				  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+				  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>		  		  
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="getDetail" resultType="map">
+		SELECT 
+		device.`id` AS deviceId,
+		device.serialno AS deviceSerialno,
+		device.`name` AS deviceName,
+		device.`model` AS deviceModel,
+		device.`site` AS deciceSite,
+		repairevent.`id` AS reventId,
+		repairevent.`work_orderNo` AS workOrderNo,
+		repairevent.`plan_time` AS planTime,
+		repairevent.`content` AS reventConent,
+		dics.`value` AS reventStatusValue,
+		dics.`id` AS reventStatusId,
+		dics.`name` AS reventStatusName,
+		dicl.`value` AS reventLevelValue,
+		dicl.`id` AS reventLevelId,
+		dicl.`name` AS reventLevelName,
+		dict.`value` AS reventTypeValue,
+		dict.`id` AS reventTypeId,
+		dict.`name` AS reventTypeName,
+		dicdt.`value` AS deviceTypeValue,
+		dicdt.`id` AS deviceTypeId,
+		dicdt.`name` AS deviceTypeName,
+		createuser.`name` AS createUserName,
+		createuser.`user_id` AS createUserId,
+		IFNULL(helddept.`name`,dept.`name`) AS engineerDeptName,
+		IFNULL(helddept.`dept_id`,dept.`dept_id`) AS engineerDeptId,
+		IFNULL(helduser.`name`,engineeruser.`name`) AS engineerUserName,
+		IFNULL(helduser.`user_id`,engineeruser.`user_id`) AS engineerUserId,
+		repairevent.`create_time` AS createTime
+		FROM  cus_repair_event repairevent
+		LEFT JOIN view_repair_held_person heldemployee ON heldemployee.task_id=repairevent.id
+		LEFT JOIN sys_user helduser ON helduser.`user_id`=heldemployee.`held_person`
+		LEFT JOIN sys_dept helddept ON helddept.dept_id=helduser.dept_id
+		LEFT JOIN cus_dictionary dics ON dics.`id`=repairevent.`status` 
+		LEFT JOIN cus_dictionary dict ON dict.`id`=repairevent.`type`
+		LEFT JOIN cus_dictionary dicl ON dicl.`id`=repairevent.`level`
+		LEFT JOIN cus_device device ON device.`id`=repairevent.`device_id`
+		LEFT JOIN cus_dictionary dicdt ON dicdt.`id`=device.`type`
+		LEFT JOIN sys_user createuser ON createuser.`user_id`=repairevent.`create_by`
+		LEFT JOIN sys_user engineeruser ON engineeruser.`user_id`=repairevent.`engineer_id`
+		LEFT JOIN sys_dept dept ON dept.dept_id=engineeruser.dept_id
+		 where repairevent.id = #{value}
+	</select>
+	
+	<select id="listForMap" resultType="map">
+		SELECT 
+		device.`id` AS deviceId,
+		device.serialno AS deviceSerialno,
+		device.`name` AS deviceName,
+		device.`model` AS deviceModel,
+		repairevent.`id` AS reventId,
+		repairevent.`work_orderNo` AS workOrderNo,
+		dics.`id` AS reventStatusId, 
+		dics.`name` AS reventStatusName,
+		dicl.`id` AS reventLevelId,
+		dicl.`name` AS reventLevelName,
+		dict.`id` AS reventTypeId,
+		dict.`name` AS reventTypeName,
+		createuser.`name` AS createUserName,
+		createuser.`user_id` AS createUserId,
+		IFNULL(helddept.`name`,dept.`name`) AS engineerDeptName,
+		IFNULL(helddept.`dept_id`,dept.`dept_id`) AS engineerDeptId,
+		IFNULL(helduser.`name`,engineeruser.`name`) AS engineerUserName,
+		IFNULL(helduser.`user_id`,engineeruser.`user_id`) AS engineerUserId,
+		repairevent.`plan_time` AS planTime,
+		repairevent.`create_time` AS createTime
+		FROM  cus_repair_event repairevent
+		LEFT JOIN view_repair_held_person heldemployee ON heldemployee.task_id=repairevent.id
+		LEFT JOIN sys_user helduser ON helduser.`user_id`=heldemployee.`held_person`
+		LEFT JOIN sys_dept helddept ON helddept.dept_id=helduser.dept_id
+		LEFT JOIN cus_dictionary dics ON dics.`id`=repairevent.`status` 
+		LEFT JOIN cus_dictionary dict ON dict.`id`=repairevent.`type`
+		LEFT JOIN cus_dictionary dicl ON dicl.`id`=repairevent.`level`
+		LEFT JOIN cus_device device ON device.`id`=repairevent.`device_id`
+		LEFT JOIN sys_user engineeruser ON engineeruser.`user_id`=repairevent.`engineer_id`
+		LEFT JOIN sys_dept dept ON dept.dept_id=engineeruser.dept_id
+		LEFT JOIN sys_user createuser ON createuser.`user_id`=repairevent.`create_by`
+		LEFT JOIN sys_dept createdept ON createdept.`dept_id`=createuser.`dept_id`
+		LEFT JOIN view_repair_cc_person ccperson ON ccperson.task_id = repairevent.id
+		LEFT JOIN view_repair_held_persons heldemployees ON heldemployees.task_id=repairevent.id
+        <where>  
+		  		  <if test="id != null and id != ''"> and repairevent.id = #{id} </if>
+		  		  <if test="workOrderno != null and workOrderno != ''"> and repairevent.work_orderNo = #{workOrderno} </if>
+		  		  <if test="type != null and type != ''"> and repairevent.type = #{type} </if>
+		  		  <if test="level != null and level != ''"> and repairevent.level = #{level} </if>
+		  		  <if test="usage != null and usage != ''"> and repairevent.usage = #{usage} </if>
+		  		  <if test="engineerId != null and engineerId != ''"> and IFNULL(helduser.`user_id`,engineeruser.`user_id`) = #{engineerId} </if>
+		  		  <if test="status != null and status != ''"> and repairevent.status = #{status} </if>
+		  		  <if test="singleStatus != null and singleStatus != ''"> and repairevent.status = #{singleStatus} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and repairevent.device_id = #{deviceId} </if>
+		  		  <if test="createBy != null and createBy != ''"> and repairevent.create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and repairevent.create_time = #{createTime} </if>
+		  		  <if test="parentId != null and parentId != ''"> and repairevent.parent_id = #{parentId} </if>
+		  		  <if test="parentType != null and parentType != ''"> and repairevent.parent_type = #{parentType} </if>
+				  <if test="delFlag != null and delFlag != ''"> and repairevent.del_flag = #{delFlag} </if>
+				  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(repairevent.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(repairevent.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+				  <if test="deptId != null and deptId != ''"> and  createdept.`id_path` LIKE CONCAT(#{deptId},'%')</if>		
+				  <if test="deptIdQuery != null and deptIdQuery != ''"> and IFNULL(helddept.`dept_id`,dept.`dept_id`) = #{deptIdQuery}</if>	  
+		  			<if test="userId != null and userId != ''"> and (repairevent.`create_by`=#{userId} OR (repairevent.`engineer_id`=#{userId} OR ccperson.`cc_person` LIKE CONCAT(#{ccperson},'%') OR heldemployees.`held_persons` LIKE CONCAT(CONCAT(',',#{userId}),',%')  AND repairevent.status <![CDATA[<>]]> 146))</if>			  		  
+		  		  <if test="divceName != null and divceName != ''"> and CONCAT(device.name,device.serialno) LIKE CONCAT('%',CONCAT(#{divceName},'%'))</if>
+		  		  
+		  		   <if test="boardStatus != null and boardStatus != ''"> and (repairevent.status=56 OR repairevent.status=57) </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY  IF(repairevent.status=146,0,1),${sort} ${order},repairevent.status ASC,repairevent.`plan_time` ASC,repairevent.`level` ASC,repairevent.id DESC
+            </when>
+			<otherwise>
+                ORDER BY IF(repairevent.status=146,0,1),repairevent.status ASC,repairevent.`plan_time` ASC,repairevent.`level` ASC,repairevent.id DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_repair_event
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="workOrderno != null and workOrderno != ''"> and work_orderNo = #{workOrderno} </if>
+		  		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  		  <if test="level != null and level != ''"> and level = #{level} </if>
+		  		  <if test="usage != null and usage != ''"> and usage = #{usage} </if>
+		  		  <if test="engineerId != null and engineerId != ''"> and engineer_id = #{engineerId} </if>
+		  		  <if test="planTime != null and planTime != ''"> and plan_time = #{planTime} </if>
+		  		  <if test="manHour != null and manHour != ''"> and man_hour = #{manHour} </if>
+		  		  <if test="cost != null and cost != ''"> and cost = #{cost} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="content != null and content != ''"> and content = #{content} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and device_id = #{deviceId} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="parentId != null and parentId != ''"> and parent_id = #{parentId} </if>
+		  		  <if test="parentType != null and parentType != ''"> and parent_type = #{parentType} </if>
+				  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+				  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+				  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>		  		  
+		  		</where>
+	</select>
+	
+	<select id="countForMap" resultType="int">
+		SELECT 
+		COUNT(*)
+		FROM  cus_repair_event repairevent
+		LEFT JOIN view_repair_held_person heldemployee ON heldemployee.task_id=repairevent.id
+		LEFT JOIN sys_user helduser ON helduser.`user_id`=heldemployee.`held_person`
+		LEFT JOIN sys_dept helddept ON helddept.dept_id=helduser.dept_id
+		LEFT JOIN cus_dictionary dics ON dics.`id`=repairevent.`status` 
+		LEFT JOIN cus_dictionary dict ON dict.`id`=repairevent.`type`
+		LEFT JOIN cus_dictionary dicl ON dicl.`id`=repairevent.`level`
+		LEFT JOIN cus_device device ON device.`id`=repairevent.`device_id`
+		LEFT JOIN sys_user engineeruser ON engineeruser.`user_id`=repairevent.`engineer_id`
+		LEFT JOIN sys_dept dept ON dept.dept_id=engineeruser.dept_id
+		LEFT JOIN sys_user createuser ON createuser.`user_id`=repairevent.`create_by`
+		LEFT JOIN sys_dept createdept ON createdept.`dept_id`=createuser.`dept_id`
+		LEFT JOIN view_repair_cc_person ccperson ON ccperson.task_id = repairevent.id
+		LEFT JOIN view_repair_held_persons heldemployees ON heldemployees.task_id=repairevent.id
+        <where>  
+		  		  <if test="id != null and id != ''"> and repairevent.id = #{id} </if>
+		  		  <if test="workOrderno != null and workOrderno != ''"> and repairevent.work_orderNo = #{workOrderno} </if>
+		  		  <if test="type != null and type != ''"> and repairevent.type = #{type} </if>
+		  		  <if test="level != null and level != ''"> and repairevent.level = #{level} </if>
+		  		  <if test="usage != null and usage != ''"> and repairevent.usage = #{usage} </if>
+		  		  <if test="engineerId != null and engineerId != ''"> and IFNULL(helduser.`user_id`,engineeruser.`user_id`) = #{engineerId} </if>
+		  		  <if test="status != null and status != ''"> and repairevent.status = #{status} </if>
+		  		  <if test="singleStatus != null and singleStatus != ''"> and repairevent.status = #{singleStatus} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and repairevent.device_id = #{deviceId} </if>
+		  		  <if test="createBy != null and createBy != ''"> and repairevent.create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and repairevent.create_time = #{createTime} </if>
+		  		  <if test="parentId != null and parentId != ''"> and repairevent.parent_id = #{parentId} </if>
+		  		  <if test="parentType != null and parentType != ''"> and repairevent.parent_type = #{parentType} </if>
+				  <if test="delFlag != null and delFlag != ''"> and repairevent.del_flag = #{delFlag} </if>
+				  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(repairevent.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(repairevent.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+				  <if test="deptId != null and deptId != ''"> and  createdept.`id_path` LIKE CONCAT(#{deptId},'%')</if>		
+				  <if test="deptIdQuery != null and deptIdQuery != ''"> and IFNULL(helddept.`dept_id`,dept.`dept_id`) = #{deptIdQuery}</if>	  
+		  		  <if test="userId != null and userId != ''"> and (repairevent.`create_by`=#{userId} OR ((repairevent.`engineer_id`=#{userId} OR ccperson.`cc_person` LIKE CONCAT(CONCAT(',',#{userId}),',%') OR heldemployees.`held_persons` LIKE CONCAT(CONCAT(',',#{userId}),',%') ) AND repairevent.status <![CDATA[<>]]> 146))</if>
+		  		  <if test="divceName != null and divceName != ''"> and CONCAT(device.name,device.serialno) LIKE CONCAT('%',CONCAT(#{divceName},'%'))</if>
+		  		  
+		  		  <if test="boardStatus != null and boardStatus != ''"> and (repairevent.status=56 OR repairevent.status=57) </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.RepairEventDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_repair_event
+		(
+			`work_orderNo`, 
+			`type`, 
+			`level`, 
+			`usage`, 
+			`engineer_id`, 
+			`plan_time`, 
+			`man_hour`, 
+			`cost`, 
+			`status`, 
+			`content`, 
+			`device_id`, 
+			`create_by`,
+			`create_time`,
+			`parent_id`, 
+			`parent_type`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{workOrderno}, 
+			#{type}, 
+			#{level}, 
+			#{usage}, 
+			#{engineerId}, 
+			#{planTime}, 
+			#{manHour}, 
+			#{cost}, 
+			#{status}, 
+			#{content}, 
+			#{deviceId}, 
+			#{createBy},
+			#{createTime},
+			#{parentId}, 
+			#{parentType}, 
+
+			#{updateBy}, 
+
+			#{updateTime}, 
+
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.RepairEventDO">
+		update cus_repair_event 
+		<set>
+			<if test="workOrderno != null">`work_orderNo` = #{workOrderno}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="level != null">`level` = #{level}, </if>
+			<if test="usage != null">`usage` = #{usage}, </if>
+			<if test="engineerId != null">`engineer_id` = #{engineerId}, </if>
+			<if test="planTime != null">`plan_time` = #{planTime}, </if>
+			<if test="manHour != null">`man_hour` = #{manHour}, </if>
+			<if test="cost != null">`cost` = #{cost}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="content != null">`content` = #{content}, </if>
+			<if test="deviceId != null">`device_id` = #{deviceId}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="parentId != null">`parent_id` = #{parentId}, </if>
+			<if test="parentType != null">`parent_type` = #{parentType},</if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag} </if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_repair_event where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_repair_event where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

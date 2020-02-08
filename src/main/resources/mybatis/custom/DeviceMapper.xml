@@ -1,0 +1,761 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.DeviceDao">
+
+
+	<select id="get" resultType="com.ev.custom.domain.DeviceDO">
+		select `id`,`serialno`,`name`,`type`,`factory`,`model`,`buy_time`,`using_time`,`service_year`,`dept_id`,`user_id`,`using_status`,`device_use`,`repair_end`,`site`,`desc`,`factory_id`,`supplier_id`,`service_id`,`parent_id`,`souce_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_device where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.DeviceDO">
+		select `id`,`serialno`,`name`,`type`,`factory`,`model`,`buy_time`,`using_time`,`service_year`,`dept_id`,`user_id`,`using_status`,`device_use`,`repair_end`,`site`,`desc`,`factory_id`,`supplier_id`,`service_id`,`parent_id`,`souce_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_device
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+            <if test="maxNo != null and maxNo != ''"> and LEFT(serialno,CHAR_LENGTH(#{maxNo})) = #{maxNo} </if>
+			<if test="serialno != null and serialno != ''"> and serialno = #{serialno} </if>
+			<if test="name != null and name != ''"> and name = #{name} </if>
+			<if test="type != null and type != ''"> and type = #{type} </if>
+			<if test="factory != null and factory != ''"> and factory = #{factory} </if>
+			<if test="model != null and model != ''"> and model = #{model} </if>
+			<if test="buyTime != null and buyTime != ''"> and buy_time = #{buyTime} </if>
+			<if test="usingTime != null and usingTime != ''"> and using_time = #{usingTime} </if>
+			<if test="serviceYear != null and serviceYear != ''"> and service_year = #{serviceYear} </if>
+			<if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
+			<if test="userId != null and userId != ''"> and user_id = #{userId} </if>
+			<if test="usingStatus != null and usingStatus != ''"> and using_status = #{usingStatus} </if>
+			<if test="deviceUse != null and deviceUse != ''"> and device_use = #{deviceUse} </if>
+			<if test="repairEnd != null and repairEnd != ''"> and repair_end = #{repairEnd} </if>
+			<if test="site != null and site != ''"> and site = #{site} </if>
+			<if test="desc != null and desc != ''"> and desc = #{desc} </if>
+			<if test="factoryId != null and factoryId != ''"> and factory_id = #{factoryId} </if>
+			<if test="supplierId != null and supplierId != ''"> and supplier_id = #{supplierId} </if>
+			<if test="serviceId != null and serviceId != ''"> and service_id = #{serviceId} </if>
+			<if test="parentId != null and parentId != ''"> and parent_id = #{parentId} </if>
+			<if test="souceId != null and souceId != ''"> and souce_id = #{souceId} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+			 AND del_flag=0
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from cus_device
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="serialno != null and serialno != ''"> and serialno = #{serialno} </if>
+			<if test="name != null and name != ''"> and name = #{name} </if>
+			<if test="type != null and type != ''"> and type = #{type} </if>
+			<if test="factory != null and factory != ''"> and factory = #{factory} </if>
+			<if test="model != null and model != ''"> and model = #{model} </if>
+			<if test="buyTime != null and buyTime != ''"> and buy_time = #{buyTime} </if>
+			<if test="usingTime != null and usingTime != ''"> and using_time = #{usingTime} </if>
+			<if test="serviceYear != null and serviceYear != ''"> and service_year = #{serviceYear} </if>
+			<if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
+			<if test="userId != null and userId != ''"> and user_id = #{userId} </if>
+			<if test="usingStatus != null and usingStatus != ''"> and using_status = #{usingStatus} </if>
+			<if test="deviceUse != null and deviceUse != ''"> and device_use = #{deviceUse} </if>
+			<if test="repairEnd != null and repairEnd != ''"> and repair_end = #{repairEnd} </if>
+			<if test="site != null and site != ''"> and site = #{site} </if>
+			<if test="desc != null and desc != ''"> and desc = #{desc} </if>
+			<if test="factoryId != null and factoryId != ''"> and factory_id = #{factoryId} </if>
+			<if test="supplierId != null and supplierId != ''"> and supplier_id = #{supplierId} </if>
+			<if test="serviceId != null and serviceId != ''"> and service_id = #{serviceId} </if>
+			<if test="parentId != null and parentId != ''"> and parent_id = #{parentId} </if>
+			<if test="souceId != null and souceId != ''"> and souce_id = #{souceId} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+			and del_flag = 0
+		</where>
+	</select>
+
+	<insert id="save" parameterType="com.ev.custom.domain.DeviceDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_device
+		(
+		`serialno`,
+		`name`,
+		`type`,
+		`factory`,
+		`model`,
+		`buy_time`,
+		`using_time`,
+		`service_year`,
+		`dept_id`,
+		`user_id`,
+		`using_status`,
+		`device_use`,
+		`repair_end`,
+		`site`,
+		`desc`,
+		`factory_id`,
+		`supplier_id`,
+		`service_id`,
+		`parent_id`,
+		`souce_id`,
+		`create_by`,
+		`create_time`,
+		`update_by`,
+		`update_time`,
+		`del_flag`
+		)
+		values
+		(
+		#{serialno},
+		#{name},
+		#{type},
+		#{factory},
+		#{model},
+		#{buyTime},
+		#{usingTime},
+		#{serviceYear},
+		#{deptId},
+		#{userId},
+		#{usingStatus},
+		#{deviceUse},
+		#{repairEnd},
+		#{site},
+		#{desc},
+		#{factoryId},
+		#{supplierId},
+		#{serviceId},
+		#{parentId},
+		#{souceId},
+		#{createBy},
+		#{createTime},
+		#{updateBy},
+		#{updateTime},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.custom.domain.DeviceDO">
+		update cus_device
+		<set>
+			<if test="serialno != null">`serialno` = #{serialno}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="factory != null">`factory` = #{factory}, </if>
+			<if test="model != null">`model` = #{model}, </if>
+			<if test="buyTime != null">`buy_time` = #{buyTime}, </if>
+			<if test="usingTime != null">`using_time` = #{usingTime}, </if>
+			<if test="serviceYear != null">`service_year` = #{serviceYear}, </if>
+			<if test="deptId != null">`dept_id` = #{deptId}, </if>
+			<if test="userId != null">`user_id` = #{userId}, </if>
+			<if test="usingStatus != null">`using_status` = #{usingStatus}, </if>
+			<if test="deviceUse != null">`device_use` = #{deviceUse}, </if>
+			<if test="repairEnd != null">`repair_end` = #{repairEnd}, </if>
+			<if test="site != null">`site` = #{site}, </if>
+			<if test="desc != null">`desc` = #{desc}, </if>
+			<if test="factoryId != null">`factory_id` = #{factoryId}, </if>
+			<if test="supplierId != null">`supplier_id` = #{supplierId}, </if>
+			<if test="serviceId != null">`service_id` = #{serviceId}, </if>
+			<if test="parentId != null">`parent_id` = #{parentId}, </if>
+			<if test="souceId != null">`souce_id` = #{souceId}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from cus_device where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from cus_device where id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+    <!--子设备模糊查询-->
+	<select id="childList" resultType="map">
+		select
+		cusd.*,
+		cusdaa.name   as typen_dicames,
+		cusdab.name   as status_dicname,
+		cusdac.name   as dept_name,
+		user.username as user_dicname
+		from cus_device cusd
+		LEFT JOIN cus_dictionary cusdaa ON cusd.type=cusdaa.id
+		LEFT JOIN cus_dictionary cusdab ON cusd.using_status=cusdab.id
+		LEFT JOIN sys_dept cusdac ON cusd.dept_id=cusdac.dept_id
+		LEFT JOIN sys_user         user ON cusd.user_id=user.user_id
+		<where>
+			<if test="name != null and name != ''"> AND ( (cusd.name like  CONCAT('%',#{name},'%')) OR (usd.serialno like  CONCAT('%',#{name},'%'))   )</if>
+			<if test="type != null and type != ''"> and cusd.type = #{type} </if>
+			<if test="deptId != null and deptId != ''"> and cusd.dept_id = #{deptId} </if>
+			<if test="parentId!=100000000"> AND (cusd.parent_id IS null OR cusd.parent_id='')</if>
+			<if test="deviceId != null and deviceId != ''"> and cusd.id <![CDATA[<>]]> #{deviceId} </if>
+			and cusd.del_flag = 0
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="countOfChildList" resultType="int">
+		select
+		count(*)
+		from cus_device cusd
+		LEFT JOIN cus_dictionary cusdaa ON cusd.type=cusdaa.id
+		LEFT JOIN cus_dictionary cusdab ON cusd.using_status=cusdab.id
+		LEFT JOIN sys_dept cusdac ON cusd.dept_id=cusdac.dept_id
+		LEFT JOIN sys_user         user ON cusd.user_id=user.user_id
+		<where>
+			<if test="name != null and name != ''"> AND ( (cusd.name like  CONCAT('%',#{name},'%')) OR (usd.serialno like  CONCAT('%',#{name},'%'))   )</if>
+			<if test="type != null and type != ''"> and cusd.type = #{type} </if>
+			<if test="deptId != null and deptId != ''"> and cusd.dept_id = #{deptId} </if>
+			<if test="parentId!=100000000"> AND (cusd.parent_id IS null OR cusd.parent_id='')</if>
+			<if test="deviceId != null and deviceId != ''"> and cusd.id <![CDATA[<>]]> #{deviceId} </if>
+			and cusd.del_flag = 0
+		</where>
+	</select>
+
+
+
+	<!--提供设备类型的id&name-->
+	<select id="deviceType" resultType="map">
+		select
+		`id`,
+		`name`
+		from cus_dictionary
+		where type_id =12
+	</select>
+
+	<!--将子设备与主设备绑定/解绑-->
+	<update id="updateParentId" parameterType="com.ev.custom.domain.DeviceDO">
+	   update cus_device set parent_id = #{parentId}
+	   where id = #{id}
+    </update>
+
+	<!--主设备-->
+	<select id="haveNoChildDevice" resultType="map">
+		select
+		`id`,`serialno`,`name`,
+		`type`,`factory`,`model`,
+		`buy_time`,`using_time`,
+		`service_year`,`dept_id`,
+		`user_id`,`using_status`,`device_use`,
+		`site`,`desc`,`factory_id`,`supplier_id`,
+		`service_id`,`create_by`,
+		`update_time`,`parent_id`,`souce_id`
+		from cus_device
+		where
+		 `parent_id` is null
+		 or
+		 `parent_id`=''
+		 and del_flag = 0
+	</select>
+
+
+	<!--获取该人员权限的设备列表信息-->
+	<select id="listByDeptId" resultType="map">
+		select
+		cusd.*,
+		cusdaa.name   as typen_dicames,
+		cusdab.name   as status_dicname,
+		cusdac.name   as dept_dicname,
+		user.username as user_dicname
+		from  cus_device cusd
+		LEFT JOIN sys_dept cusdac ON cusd.dept_id=cusdac.dept_id
+		LEFT JOIN cus_dictionary cusdaa ON cusd.type=cusdaa.id
+		LEFT JOIN cus_dictionary cusdab ON cusd.using_status=cusdab.id
+
+		LEFT JOIN sys_user         user ON cusd.user_id=user.user_id
+		<where>
+			<if test="deptId != null and deptId != ''">cusd.dept_id = #{deptId}</if>
+			and cusd.del_flag = 0
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by cusd.id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="countParent" resultType="int">
+		select count(*) from cus_device
+		WHERE parent_id is null or  parent_id=""
+	</select>
+
+
+	<!--获取主设备下子设备列表-->
+	<select id="deviceChildren" resultType="map">
+		select
+		cusd.*,
+		cusdaa.name   as typen_dicames,
+		cusdab.name   as status_dicname,
+		cusdac.name   as dept_name,
+		users.name as user_dicname
+		from cus_device cusd
+		LEFT JOIN cus_dictionary cusdaa ON cusd.type=cusdaa.id
+		LEFT JOIN cus_dictionary cusdab ON cusd.using_status=cusdab.id
+		LEFT JOIN sys_dept cusdac ON cusd.dept_id=cusdac.dept_id
+		LEFT JOIN sys_user  users ON cusd.user_id=users.user_id
+		<where>
+			<if test="parentId != null and parentId != ''"> and cusd.parent_id = #{parentId}</if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by cusd.id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<!--设备详情-->
+	<select id="oneDeviceDetail" resultType="map">
+		select
+		    cu.serialno as parent_serialno,
+			cu.name as  parent_name,
+			cusd.*,
+			cusdaa.name   as type_mes,
+			cusdab.name   as status_name,
+			user.username as user_name,
+			sdept.name as dept_name,
+			cusdad.name as souce_name,
+			cusdae.name as use_name,
+			cussu.name as factory_name,
+			cussu.legalperson as factory_legalperson_name,
+			cussu.phone       as factory_phone,
+			cussu.address     as factory_address,
+			cussx.name as supplier_name,
+			cussx.legalperson as supplier_legalperson_name,
+			cussx.phone       as supplier_phone,
+			cussx.address       as supplieraddress,
+			cussy.name as service_name,
+			cussy.legalperson as service_legalperson_name,
+			cussy.phone       as service_phone,
+			cussy.address       as service_address
+		from cus_device cusd
+		LEFT JOIN cus_device cu ON cu.id= cusd.parent_id
+		LEFT JOIN cus_dictionary cusdaa ON cusd.type=cusdaa.id
+		LEFT JOIN cus_dictionary cusdab ON cusd.using_status=cusdab.id
+		LEFT JOIN cus_dictionary cusdac ON cusd.dept_id=cusdac.id
+		LEFT JOIN cus_dictionary cusdad ON cusd.souce_id=cusdad.id
+		LEFT JOIN cus_dictionary cusdae ON cusd.device_use=cusdae.id
+		LEFT JOIN  cus_supplier  cussu  ON cusd.factory_id=cussu.id
+		LEFT JOIN  cus_supplier  cussx  ON cusd.supplier_id=cussx.id
+		LEFT JOIN  cus_supplier  cussy  ON cusd.service_id=cussy.id
+		LEFT JOIN sys_user         user ON cusd.user_id=user.user_id
+		LEFT JOIN sys_dept        sdept ON cusd.dept_id=sdept.dept_id
+		<where>
+			<if test="id != null and id != ''"> and cusd.id = #{id} </if>
+			<if test="serialno != null and serialno != ''"> and cusd.serialno = #{serialno} </if>
+			<if test="name != null and name != ''"> and cusd.name = #{name} </if>
+			<if test="type != null and type != ''"> and cusd.type = #{type} </if>
+			<if test="factory != null and factory != ''"> and cusd.factory = #{factory} </if>
+			<if test="model != null and model != ''"> and cusd.model = #{model} </if>
+			<if test="buyTime != null and buyTime != ''"> and cusd.buy_time = #{buyTime} </if>
+			<if test="usingTime != null and usingTime != ''"> and cusd.using_time = #{usingTime} </if>
+			<if test="serviceYear != null and serviceYear != ''"> and cusd.service_year = #{serviceYear} </if>
+			<if test="deptId != null and deptId != ''"> and cusd.dept_id = #{deptId} </if>
+			<if test="userId != null and userId != ''"> and cusd.user_id = #{userId} </if>
+			<if test="usingStatus != null and usingStatus != ''"> and cusd.using_status = #{usingStatus} </if>
+			<if test="deviceUse != null and deviceUse != ''"> and cusd.device_use = #{deviceUse} </if>
+			<if test="site != null and site != ''"> and cusd.site = #{site} </if>
+			<if test="desc != null and desc != ''"> and cusd.desc = #{desc} </if>
+			<if test="factoryId != null and factoryId != ''"> and cusd.factory_id = #{factoryId} </if>
+			<if test="supplierId != null and supplierId != ''"> and cusd.supplier_id = #{supplierId} </if>
+			<if test="serviceId != null and serviceId != ''"> and cusd.service_id = #{serviceId} </if>
+			<if test="parentId != null and parentId != ''"> and cusd.parent_id = #{parentId} </if>
+			<if test="souceId != null and souceId != ''"> and cusd.souce_id = #{souceId} </if>
+			<if test="createBy != null and createBy != ''"> and cusd.create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and cusd.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and cusd.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and cusd.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and cusd.del_flag = #{delFlag} </if>
+			and cusd.del_flag = 0
+		</where>
+	</select>
+
+	<!--设备台账高级查询-->
+	<select id="advancedQueryLists" resultType="map">
+		select
+		cusd.*,
+		cusdaa.name   as type_mes,
+		cusdab.name   as status_name,
+		user.username as user_name,
+		sdept.name as dept_name,
+		cusdad.name as souce_name,
+		cusdae.name as use_name,
+		cussu.name as factory_name,
+		cussu.legalperson as factory_legalperson_name,
+		cussu.phone       as factory_phone,
+		cussu.address       as factory_address,
+		cussx.name as supplier_name,
+		cussx.legalperson as supplier_legalperson_name,
+		cussx.phone       as supplier_phone,
+		cussx.address       as supplieraddress,
+		cussy.name as service_name,
+		cussy.legalperson as service_legalperson_name,
+		cussy.phone       as service_phone,
+		cussy.address       as service_address
+		from cus_device cusd
+		LEFT JOIN cus_dictionary cusdaa ON cusd.type=cusdaa.id
+		LEFT JOIN cus_dictionary cusdab ON cusd.using_status=cusdab.id
+		LEFT JOIN cus_dictionary cusdad ON cusd.souce_id=cusdad.id
+		LEFT JOIN cus_dictionary cusdae ON cusd.device_use=cusdae.id
+		LEFT JOIN  cus_supplier  cussu  ON cusd.factory_id=cussu.id
+		LEFT JOIN  cus_supplier  cussx  ON cusd.supplier_id=cussx.id
+		LEFT JOIN  cus_supplier  cussy  ON cusd.service_id=cussy.id
+		LEFT JOIN sys_user         user ON cusd.user_id=user.user_id
+		LEFT JOIN sys_dept        sdept ON cusd.dept_id=sdept.dept_id
+		<where>
+
+			<if test="name != null and name != ''"> AND ( (cusd.name like  CONCAT('%',#{name},'%')) OR (cusd.serialno like  CONCAT('%',#{name},'%'))   )</if>
+
+			<if test="type != null and type != ''"> AND cusd.type =#{type} </if>
+			<if test="factory != null and factory != ''"> AND cusd.factory like  CONCAT('%',#{factory},'%') </if>
+			<if test="model != null and model != ''"> AND cusd.model like  CONCAT('%',#{model},'%') </if>
+
+			<if test="buyTimeStart != null and buyTimeStart != ''"> AND cusd.buy_time <![CDATA[ >= ]]> #{buyTimeStart}</if>
+
+			<if test="buyTimeEnd != null and buyTimeEnd != ''"> and cusd.buy_time <![CDATA[ <= ]]> #{buyTimeEnd}</if>
+
+			<if test="usingTime != null and usingTime != ''"> AND cusd.using_time like  CONCAT('%',#{usingTime},'%') </if>
+
+			<if test="serviceYear != null and serviceYear != ''"> AND cusd.service_year like  CONCAT('%',#{serviceYear},'%') </if>
+
+			 <if test="idPath != null and idPath != ''"> AND sdept.id_path like  CONCAT('%',#{idPath},'%')</if>
+
+			<if test="deptId != null and deptId != ''"> AND cusd.dept_id = #{deptId}=</if>
+
+			<if test="userId != null and userId != ''"> AND cusd.user_id =#{userId}</if>
+
+			<if test="usingStatus != null and usingStatus != ''"> and cusd.using_status like  CONCAT('%',#{usingStatus},'%') </if>
+
+			<if test="deviceUse != null and deviceUse != ''"> and cusd.device_use like  CONCAT('%',#{deviceUse},'%') </if>
+
+			<if test="site != null and site != ''"> and cusd.site like  CONCAT('%', #{site},'%') </if>
+
+			<if test="factoryId != null and factoryId != ''"> and cusd.factory_id = #{factoryId} </if>
+
+			<if test="supplierId != null and supplierId != ''"> and cusd.supplier_id = #{supplierId} </if>
+
+			<if test="serviceId != null and serviceId != ''"> and cusd.service_id =#{serviceId} </if>
+
+			<if test="souceId != null and souceId != ''"> and cusd.souce_id=#{souceId}</if>
+			and cusd.del_flag = 0
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by cusd.id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+
+	</select>
+
+
+	<select id="advancedCounts" resultType="int">
+		select count(*)
+		from cus_device cusd
+		LEFT JOIN cus_dictionary cusdaa ON cusd.type=cusdaa.id
+		LEFT JOIN cus_dictionary cusdab ON cusd.using_status=cusdab.id
+		LEFT JOIN cus_dictionary cusdad ON cusd.souce_id=cusdad.id
+		LEFT JOIN cus_dictionary cusdae ON cusd.device_use=cusdae.id
+		LEFT JOIN  cus_supplier  cussu  ON cusd.factory_id=cussu.id
+		LEFT JOIN  cus_supplier  cussx  ON cusd.supplier_id=cussx.id
+		LEFT JOIN  cus_supplier  cussy  ON cusd.service_id=cussy.id
+		LEFT JOIN sys_user         user ON cusd.user_id=user.user_id
+		LEFT JOIN sys_dept        sdept ON cusd.dept_id=sdept.dept_id
+		<where>
+			<if test="name != null and name != ''"> AND ( (cusd.name like  CONCAT('%',#{name},'%')) OR (cusd.serialno like  CONCAT('%',#{name},'%')) )</if>
+
+			<if test="type != null and type != ''"> AND cusd.type =#{type} </if>
+			<if test="factory != null and factory != ''"> AND cusd.factory like  CONCAT('%',#{factory},'%') </if>
+			<if test="model != null and model != ''"> AND cusd.model like  CONCAT('%',#{model},'%') </if>
+
+			<if test="buyTimeStart != null and buyTimeStart != ''"> AND cusd.buy_time <![CDATA[ >= ]]> #{buyTimeStart}</if>
+
+			<if test="buyTimeEnd != null and buyTimeEnd != ''"> and cusd.buy_time <![CDATA[ <= ]]> #{buyTimeEnd}</if>
+
+			<if test="usingTime != null and usingTime != ''"> AND cusd.using_time like  CONCAT('%',#{usingTime},'%') </if>
+
+			<if test="serviceYear != null and serviceYear != ''"> AND cusd.service_year like  CONCAT('%',#{serviceYear},'%') </if>
+
+			<if test="idPath != null and idPath != ''"> AND sdept.id_path like  CONCAT('%',#{idPath},'%')</if>
+
+			<if test="deptId != null and deptId != ''"> AND cusd.dept_id = #{deptId}=</if>
+
+			<if test="userId != null and userId != ''"> AND cusd.user_id =#{userId}</if>
+
+			<if test="usingStatus != null and usingStatus != ''"> and cusd.using_status like  CONCAT('%',#{usingStatus},'%') </if>
+
+			<if test="deviceUse != null and deviceUse != ''"> and cusd.device_use like  CONCAT('%',#{deviceUse},'%') </if>
+
+			<if test="site != null and site != ''"> and cusd.site like  CONCAT('%', #{site},'%') </if>
+
+			<if test="factoryId != null and factoryId != ''"> and cusd.factory_id = #{factoryId} </if>
+
+			<if test="supplierId != null and supplierId != ''"> and cusd.supplier_id = #{supplierId} </if>
+
+			<if test="serviceId != null and serviceId != ''"> and cusd.service_id =#{serviceId} </if>
+
+			<if test="souceId != null and souceId != ''"> and cusd.souce_id=#{souceId}</if>
+			and cusd.del_flag = 0
+		</where>
+	</select>
+
+
+
+	<select id="getAllDevices" resultType="map">
+		select
+		 id,
+		name
+		from cus_device
+		WHERE
+		del_flag = 0
+	</select>
+
+
+
+
+	<select id="listOfDeviceDetail" resultType="com.ev.custom.domain.DeviceDO">
+		select `id`,`serialno`,`name`,`type`,`factory`,`model`,`buy_time`,`using_time`,`service_year`,`dept_id`,`user_id`,`using_status`,`device_use`,`repair_end`,`site`,`desc`,`factory_id`,`supplier_id`,`service_id`,`parent_id`,`souce_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_device
+		<where>
+
+			<if test="name != null and name != ''"> and  name like  CONCAT('%',#{name},'%') </if>
+			and del_flag = 0
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="coumtOflistOfDevice" resultType="int">
+		select count(*) from cus_device cusd
+			<where>
+				<if test="name != null and name != ''"> and  name like  CONCAT('%',#{name},'%') </if>
+			</where>
+	</select>
+
+
+	<update id="deletOfDevices" parameterType="map">
+		update cus_device
+		set
+			`del_flag` = 1
+		where id in
+		<foreach item="id" collection="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</update>
+
+     <!--运行数量-->
+	<select id="countOfoperation" resultType="int">
+		SELECT
+		count(1) as  countOfoperation
+		from
+		cus_device
+		WHERE
+		using_status in (106,107)
+	</select>
+
+	<!--总数量-->
+	<select id="countOfDevice" resultType="int">
+		SELECT
+		count(1) as  countOfDevice
+		from
+		cus_device
+	</select>
+
+	<!--总数量-->
+	<select id="countOfClosingDown" resultType="int">
+		SELECT
+		count(1) as  countOfClosingDown
+		from
+		cus_device
+		WHERE
+		using_status in (108)
+	</select>
+
+    <select id="listForMap" resultType="map">
+        SELECT
+        device.id AS id,
+        device.serialno AS serialno,
+        device.`name` AS name,
+        dict.`name` AS typeName,
+        device.factory AS factory,
+        device.model AS model,
+        pdevice.`name` AS parentDeviceName,
+        device.buy_time AS buyTime,
+        device.service_year AS serviceYear,
+        dics.`name` AS sourceName,
+        device.using_time AS usingTime,
+        dept.`name` AS deptName,
+        users.`name` AS userName,
+        dicu.`name` AS usingStatusName,
+        dicdu.`name` AS deviceUseName,
+        device.site AS site,
+        factory.`name` AS factoryName,
+        supplier.`name` AS supplierName,
+        service.`name` AS serviceName
+        FROM
+        cus_device device
+        LEFT JOIN cus_device pdevice ON device.parent_id = pdevice.id
+        LEFT JOIN cus_dictionary dict ON device.type = dict.id
+        LEFT JOIN cus_dictionary dicu ON device.using_status = dicu.id
+        LEFT JOIN cus_dictionary dics ON device.souce_id = dics.id
+        LEFT JOIN cus_dictionary dicdu ON device.device_use = dicdu.id
+        LEFT JOIN cus_supplier factory ON device.factory_id = factory.id
+        LEFT JOIN cus_supplier supplier ON device.supplier_id = supplier.id
+        LEFT JOIN cus_supplier service ON device.service_id = service.id
+        LEFT JOIN sys_user users ON device.user_id = users.user_id
+        LEFT JOIN sys_dept dept ON device.dept_id = dept.dept_id
+        <where>
+            <if test="name != null and name != ''"> AND CONCAT(device.name,device.serialno) LIKE #{name}</if>
+            <if test="idPath != null and idPath != ''"> AND dept.id_path like  CONCAT('%',#{idPath},'%')</if>
+            <if test="type != null and type != ''"> AND device.type =#{type} </if>
+            <if test="usingStatus != null and usingStatus != ''"> and device.using_status like  CONCAT('%',#{usingStatus},'%') </if>
+            <if test="site != null and site != ''"> and device.site like #{site} </if>
+            <if test="model != null and model != ''"> AND device.model like  #{model} </if>
+            <if test="factoryId != null and factoryId != ''"> and device.factory_id = #{factoryId} </if>
+            <if test="userId != null and userId != ''"> AND device.user_id =#{userId}</if>
+            <if test="supplierId != null and supplierId != ''"> and device.supplier_id = #{supplierId} </if>
+            <if test="buyTimeStart != null and buyTimeStart != ''"> AND device.buy_time <![CDATA[ >= ]]> #{buyTimeStart}</if>
+            <if test="buyTimeEnd != null and buyTimeEnd != ''"> and device.buy_time <![CDATA[ <= ]]> #{buyTimeEnd}</if>
+            and device.del_flag = 0
+        </where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by device.id desc
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+    <insert id="batchSave" parameterType="List" useGeneratedKeys="true" keyProperty="id">
+        insert into cus_device
+        (
+        `serialno`,
+        `name`,
+        `type`,
+        `factory`,
+        `model`,
+        `buy_time`,
+        `using_time`,
+        `service_year`,
+        `dept_id`,
+        `user_id`,
+        `using_status`,
+        `device_use`,
+        `repair_end`,
+        `site`,
+        `desc`,
+        `factory_id`,
+        `supplier_id`,
+        `service_id`,
+        `parent_id`,
+        `souce_id`,
+        `create_by`,
+        `create_time`,
+        `update_by`,
+        `update_time`,
+        `del_flag`
+        )
+        values
+        <foreach collection="list" item="obj" separator=",">(
+            #{obj.serialno},
+            #{obj.name},
+            #{obj.type},
+            #{obj.factory},
+            #{obj.model},
+            #{obj.buyTime},
+            #{obj.usingTime},
+            #{obj.serviceYear},
+            #{obj.deptId},
+            #{obj.userId},
+            #{obj.usingStatus},
+            #{obj.deviceUse},
+            #{obj.repairEnd},
+            #{obj.site},
+            #{obj.desc},
+            #{obj.factoryId},
+            #{obj.supplierId},
+            #{obj.serviceId},
+            #{obj.parentId},
+            #{obj.souceId},
+            #{obj.createBy},
+            #{obj.createTime},
+            #{obj.updateBy},
+            #{obj.updateTime},
+            #{obj.delFlag}
+            )
+        </foreach>
+
+    </insert>
+
+    <select id="getAllCode" resultType="java.lang.String">
+        SELECT
+        `serialno`
+        from
+        cus_device
+        WHERE
+        `del_flag`=0
+    </select>
+
+</mapper>

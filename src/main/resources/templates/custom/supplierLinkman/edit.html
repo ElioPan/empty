@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content ">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <form class="form-horizontal m-t" id="signupForm">
+                        <input id="id" name="id" th:value="${supplierLinkman.id}" type="hidden">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">姓名：</label>
+                            <div class="col-sm-8">
+                                <input id="name" name="name" th:value="${supplierLinkman.name}" class="form-control"
+                                       type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">供应商名称：</label>
+                            <div class="col-sm-8">
+                                <select id="supplierId" name="supplierId" class="form-control">
+                                    <option th:each="supplier:${suppliers}"  th:atrr="supplierId=${supplier.id}" th:value="${supplier.id}" th:text="${supplier.name}" th:if="${supplier.id}==${supplierLinkman.supplierId}" th:selected="selected"></option>
+                                    <option th:each="supplier:${suppliers}"  th:atrr="supplierId=${supplier.id}" th:value="${supplier.id}" th:text="${supplier.name}" th:if="${supplier.id}!=${supplierLinkman.supplierId}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">电话：</label>
+                            <div class="col-sm-8">
+                                <input id="phone" name="phone" th:value="${supplierLinkman.phone}" class="form-control"
+                                       type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">邮箱：</label>
+                            <div class="col-sm-8">
+                                <input id="email" name="email" th:value="${supplierLinkman.email}" class="form-control"
+                                       type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">性别：</label>
+                            <div class="col-sm-8">
+                                <label class="radio-inline"> <input
+                                        th:field="*{supplierLinkman.gender}" type="radio" name="gender" value="0" />
+                                    男
+                                </label> <label class="radio-inline"> <input
+                                    th:field="*{supplierLinkman.gender}" type="radio" name="gender" value="1" />
+                                女
+                            </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">职位：</label>
+                            <div class="col-sm-8">
+                                <input id="post" name="post" th:value="${supplierLinkman.post}" class="form-control"
+                                       type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">备注：</label>
+                            <div class="col-sm-8">
+                                <input id="desc" name="desc" th:value="${supplierLinkman.desc}" class="form-control"
+                                       type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-8 col-sm-offset-3">
+                                <button type="submit" class="btn btn-primary">提交</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:include="include::footer"></div>
+<script type="text/javascript" src="/js/appjs/custom/supplierLinkman/edit.js">
+</script>
+</body>
+</html>

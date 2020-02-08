@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.InventoryPlanDao">
+
+	<select id="get" resultType="com.ev.scm.domain.InventoryPlanDO">
+		select `id`,`plan_time`,`acture_time`,`code`,`warehouse`,`check_status`,`checkers`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from scm_inventory_plan where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.InventoryPlanDO">
+		select `id`,`plan_time`,`acture_time`,`code`,`warehouse`,`check_status`,`checkers`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from scm_inventory_plan
+        <where>
+			      <if test="maxNo != null and maxNo != ''"> and LEFT(code,CHAR_LENGTH(#{maxNo})) = #{maxNo} </if>
+				  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="planTime != null and planTime != ''"> and plan_time = #{planTime} </if>
+		  		  <if test="actureTime != null and actureTime != ''"> and acture_time = #{actureTime} </if>
+		  		  <if test="code != null and code != ''"> and code = #{code} </if>
+		  		  <if test="warehouse != null and warehouse != ''"> and warehouse = #{warehouse} </if>
+		  		  <if test="checkStatus != null and checkStatus != ''"> and check_status = #{checkStatus} </if>
+		  		  <if test="checkers != null and checkers != ''"> and checkers = #{checkers} </if>
+		  		  <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from scm_inventory_plan
+		 <where>
+			 <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="planTime != null and planTime != ''"> and plan_time = #{planTime} </if>
+		  		  <if test="actureTime != null and actureTime != ''"> and acture_time = #{actureTime} </if>
+		  		  <if test="code != null and code != ''"> and code = #{code} </if>
+		  		  <if test="warehouse != null and warehouse != ''"> and warehouse = #{warehouse} </if>
+		  		  <if test="checkStatus != null and checkStatus != ''"> and check_status = #{checkStatus} </if>
+		  		  <if test="checkers != null and checkers != ''"> and checkers = #{checkers} </if>
+		  		  <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.InventoryPlanDO" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_inventory_plan
+		(
+			`plan_time`, 
+			`acture_time`, 
+			`code`, 
+			`warehouse`, 
+			`check_status`, 
+			`checkers`, 
+			`remarks`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{planTime}, 
+			#{actureTime}, 
+			#{code}, 
+			#{warehouse}, 
+			#{checkStatus}, 
+			#{checkers}, 
+			#{remarks}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.InventoryPlanDO">
+		update scm_inventory_plan
+		<set>
+			<if test="planTime != null">`plan_time` = #{planTime}, </if>
+			<if test="actureTime != null">`acture_time` = #{actureTime}, </if>
+			<if test="code != null">`code` = #{code}, </if>
+			<if test="warehouse != null">`warehouse` = #{warehouse}, </if>
+			<if test="checkStatus != null">`check_status` = #{checkStatus}, </if>
+			<if test="checkers != null">`checkers` = #{checkers}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from scm_inventory_plan where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from scm_inventory_plan where id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<!--计划列表-->
+	<select id="listByDates" resultType="map">
+		select
+		a.id,
+		a.plan_time as planTime,
+		a.code,
+		case when   b.name is null  then '所有仓库'
+		when   b.name is not  null  then b.name end warehouseName,
+		c.name  AS statusName,
+		d.name  AS checkerName,
+		dd.name AS createName,
+		a.create_time AS createTime
+		from scm_inventory_plan a
+		LEFT JOIN cus_facility b ON a.warehouse=b.id
+		LEFT JOIN cus_dictionary c ON a.check_status=c.id
+		LEFT JOIN sys_user d ON a.checkers=d.user_id
+		LEFT JOIN sys_user dd ON a.create_by=dd.user_id
+		<where>
+			<if test="id != null and id != ''">and a.id = #{id}</if>
+			<if test="checkers != null and checkers != ''">and d.name like  CONCAT('%',#{checkers},'%')</if>
+
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(a.plan_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(a.plan_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+
+			<if test="code != null and code != ''">and a.code like  CONCAT('%',#{code},'%') </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countOfListByDates" resultType="int">
+		select
+		COUNT(*)
+		from scm_inventory_plan a
+		LEFT JOIN cus_facility b ON a.warehouse=b.id
+		LEFT JOIN cus_dictionary c ON a.check_status=c.id
+		LEFT JOIN sys_user d ON a.checkers=d.user_id
+		LEFT JOIN sys_user dd ON a.create_by=dd.user_id
+		<where>
+			<if test="id != null and id != ''">and a.id = #{id}</if>
+			<if test="checkers != null and checkers != ''">and d.name like  CONCAT('%',#{checkers},'%')</if>
+
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(a.plan_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(a.plan_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+
+			<if test="code != null and code != ''">and a.code like  CONCAT('%',#{code},'%') </if>
+		</where>
+
+	</select>
+
+
+
+	<!--根据盘点主表主键获取库存商品信息-->
+	<select id="getProMsgByHeadId" resultType="map">
+		select
+			a.materiel_id AS materielId,
+
+			b.name as materielName,
+			b.serial_no as serialno,
+			b.specification ,
+			b.unit_uom as unit,
+			e.name as unitName,
+
+			a.batch,
+			a.warehouse as warehouseId,
+			c.name  as  warehouseName,
+			a.wareh_location as locationId,
+			d.name   as locationName,
+			a.system_count  as  systemCount,
+			a.check_count  as  checkCount,
+			a.profit_loss  as  profitLos
+		from scm_inventory_plan_item  a
+		LEFT JOIN cus_materiel  b ON a.materiel_id=b.id
+		LEFT JOIN cus_facility c ON a.warehouse=c.id
+		LEFT JOIN cus_facility_location  d ON a.wareh_location=d.id
+		LEFT JOIN cus_dictionary e ON b.unit_uom=e.id
+		WHERE a.pro_id in (select pro_id  from scm_inventory_plan_item  where head_id=#{id})
+	</select>
+
+	<select id="countOfStatus" resultType="int">
+	  select count(*) from scm_inventory_plan where id = #{id} and check_status=#{checkStatus}
+	</select>
+
+</mapper>

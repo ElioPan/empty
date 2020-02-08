@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.ProductionPlanDao">
+
+	<select id="get" resultType="com.ev.mes.domain.ProductionPlanDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_production_plan 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.ProductionPlanDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_production_plan
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="listForMap" resultType="map">
+		SELECT
+		    plan.`id` AS id,
+			plan.`plan_no` AS planNo, 
+			plan.`status` AS planStatus, 
+			dicts.`name` AS  planStatusName,
+            IFNULL(plan.`delivery_date`,'') AS deliveryDate,
+			plan.`materiel_id` AS materielId, 
+			material.serial_no AS materialSerialNo,
+			material.name AS materialName,
+			material.specification AS specification,
+			unituom.id AS unitUomId,
+			unituom.name AS unitUomName,
+			plan.`plan_count` AS planCount, 
+			plan.`batch_no` AS batchNo, 
+			IFNULL(plan.`plan_start_time`,'') AS planStartTime,
+            IFNULL(plan.`plan_end_time`,'') AS planEndTime,
+			plan.`bom_id` AS bomId, 
+			bom.`serialno` AS bomSerialno,
+			bom.`version` AS bomVersion,
+			plan.`tec_route_id` AS tecRouteId,
+		    craft.`code` AS tecRouteCode,
+			craft.`name` AS tecRouteName,
+			craft.`version` AS tecRouteVersion,
+			plan.`give_time` AS giveTime, 
+			plan.`actual_finish_time` AS actualFinishTime, 
+			plan.`source_id` AS sourceId,
+			plan.`source_type` AS sourceType, 
+			dicst.`name` AS sourceTypeName,
+			plan.`source_no` AS sourceNo,
+			plan.`client_id` AS clientId,
+            plan.`client_name` AS clientName,
+		    <!-- 上为列表显示字段下为详情显示字段 -->
+			plan.`pro_dept` AS proDeptId, 
+			dept.`name` AS proDeptName, 
+			plan.`type` AS typeId,
+			dictt.`name` AS typeName,
+			plan.`is_quota` AS isQuota, 
+			plan.`completion_max` AS completionMax, 
+			plan.`completion_min` AS completionMin, 
+			plan.`is_check` AS isCheck, 
+			plan.`inspection_scheme` AS checkPlanId,
+			checkplan.`name` AS checkPlanName,
+			plan.`client_product_name` AS clientProductName, 
+			plan.`client_product_no` AS clientProductNo,
+            createuser.`name` AS createUserName,
+            plan.`create_by` AS createUserId,
+            plan.`create_time` AS createTime
+
+        <include refid="sql_map_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+               ORDER BY ${sort} ${order},plan.`id` DESC
+            </when>
+			<otherwise>
+                ORDER BY plan.`id` desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="countForMap" resultType="map">
+		SELECT 
+		COUNT(*) AS total,
+		SUM(IFNULL(plan.`plan_count`,0)) AS planCounts
+		<include refid="sql_map_condition"/>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_production_plan
+		<include refid="sql_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.ProductionPlanDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_production_plan
+		(
+			`source_type`, 
+			`source_id`, 
+			`source_no`, 
+			`plan_no`, 
+			`materiel_id`, 
+			`pro_dept`, 
+			`type`, 
+			`is_quota`, 
+			`plan_count`, 
+			`batch_no`, 
+			`plan_start_time`, 
+			`plan_end_time`, 
+			`bom_id`, 
+			`tec_route_id`, 
+			`completion_max`, 
+			`completion_min`, 
+			`is_check`, 
+			`inspection_scheme`, 
+			`client_id`,
+			`client_name`,
+			`delivery_date`, 
+			`client_product_name`, 
+			`client_product_no`, 
+			`give_time`, 
+			`actual_finish_time`, 
+			`status`, 
+			`auditor`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{sourceType}, 
+			#{sourceId}, 
+			#{sourceNo}, 
+			#{planNo}, 
+			#{materielId}, 
+			#{proDept}, 
+			#{type}, 
+			#{isQuota}, 
+			#{planCount}, 
+			#{batchNo}, 
+			#{planStartTime}, 
+			#{planEndTime}, 
+			#{bomId}, 
+			#{tecRouteId}, 
+			#{completionMax}, 
+			#{completionMin}, 
+			#{isCheck}, 
+			#{inspectionScheme}, 
+			#{clientId},
+			#{clientName},
+			#{deliveryDate}, 
+			#{clientProductName}, 
+			#{clientProductNo}, 
+			#{giveTime}, 
+			#{actualFinishTime}, 
+			#{status}, 
+			#{auditor}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.ProductionPlanDO">
+		update mes_production_plan 
+		<set>
+			<if test="sourceType != null">`source_type` = #{sourceType}, </if>
+			<if test="sourceId != null">`source_id` = #{sourceId}, </if>
+			<if test="planNo != null">`plan_no` = #{planNo}, </if>
+			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
+			<if test="proDept != null">`pro_dept` = #{proDept}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="isQuota != null">`is_quota` = #{isQuota}, </if>
+			<if test="planCount != null">`plan_count` = #{planCount}, </if>
+			<if test="batchNo != null">`batch_no` = #{batchNo}, </if>
+			<if test="planStartTime != null">`plan_start_time` = #{planStartTime}, </if>
+			<if test="planEndTime != null">`plan_end_time` = #{planEndTime}, </if>
+			<if test="bomId != null">`bom_id` = #{bomId}, </if>
+			<if test="tecRouteId != null">`tec_route_id` = #{tecRouteId}, </if>
+			<if test="completionMax != null">`completion_max` = #{completionMax}, </if>
+			<if test="completionMin != null">`completion_min` = #{completionMin}, </if>
+			<if test="isCheck != null">`is_check` = #{isCheck}, </if>
+			<if test="inspectionScheme != null">`inspection_scheme` = #{inspectionScheme}, </if>
+			<if test="clientId != null">`client_id` = #{clientId}, </if>
+            <if test="clientName != null">`client_name` = #{clientName}, </if>
+			<if test="deliveryDate != null">`delivery_date` = #{deliveryDate}, </if>
+			<if test="clientProductName != null">`client_product_name` = #{clientProductName}, </if>
+			<if test="clientProductNo != null">`client_product_no` = #{clientProductNo}, </if>
+			<if test="giveTime != null">`give_time` = #{giveTime}, </if>
+			<if test="actualFinishTime != null">`actual_finish_time` = #{actualFinishTime}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_production_plan where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_production_plan where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<sql id="sql_column_list">
+		`id`,`source_type`,`source_id`,`source_no`,`plan_no`,`materiel_id`,`pro_dept`,`type`,`is_quota`,`plan_count`,`batch_no`,`plan_start_time`,`plan_end_time`,`bom_id`,`tec_route_id`,`completion_max`,`completion_min`,`is_check`,`inspection_scheme`,`client_id`,`client_name`,`delivery_date`,`client_product_name`,`client_product_no`,`give_time`,`actual_finish_time`,`status`,`auditor`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="maxNo != null and maxNo != ''"> and LEFT(plan_no,12) = #{maxNo} </if>
+		  		  <if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+		  		  <if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
+		  		  <if test="planNo != null and planNo != ''"> and plan_no = #{planNo} </if>
+		  		  <if test="materielId != null and materielId != ''"> and materiel_id = #{materielId} </if>
+		  		  <if test="proDept != null and proDept != ''"> and pro_dept = #{proDept} </if>
+		  		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  		  <if test="isQuota != null and isQuota != ''"> and is_quota = #{isQuota} </if>
+		  		  <if test="planCount != null and planCount != ''"> and plan_count = #{planCount} </if>
+		  		  <if test="batchNo != null and batchNo != ''"> and batch_no = #{batchNo} </if>
+		  		  <if test="planStartTime != null and planStartTime != ''"> and plan_start_time = #{planStartTime} </if>
+		  		  <if test="planEndTime != null and planEndTime != ''"> and plan_end_time = #{planEndTime} </if>
+		  		  <if test="bomId != null and bomId != ''"> and bom_id = #{bomId} </if>
+		  		  <if test="tecRouteId != null and tecRouteId != ''"> and tec_route_id = #{tecRouteId} </if>
+		  		  <if test="completionMax != null and completionMax != ''"> and completion_max = #{completionMax} </if>
+		  		  <if test="completionMin != null and completionMin != ''"> and completion_min = #{completionMin} </if>
+		  		  <if test="isCheck != null and isCheck != ''"> and is_check = #{isCheck} </if>
+		  		  <if test="inspectionScheme != null and inspectionScheme != ''"> and inspection_scheme = #{inspectionScheme} </if>
+		  		  <if test="clientId != null and clientId != ''"> and client_id = #{clientId} </if>
+		  		  <if test="deliveryDate != null and deliveryDate != ''"> and delivery_date = #{deliveryDate} </if>
+		  		  <if test="clientProductName != null and clientProductName != ''"> and client_product_name = #{clientProductName} </if>
+		  		  <if test="clientProductNo != null and clientProductNo != ''"> and client_product_no = #{clientProductNo} </if>
+		  		  <if test="giveTime != null and giveTime != ''"> and give_time = #{giveTime} </if>
+		  		  <if test="actualFinishTime != null and actualFinishTime != ''"> and actual_finish_time = #{actualFinishTime} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</sql>
+	
+	<sql id="sql_map_condition">
+		FROM mes_production_plan plan
+		LEFT JOIN cus_materiel material ON material.`id`= plan.`materiel_id`
+		LEFT JOIN cus_dictionary unituom ON unituom.id = material.`unit_uom`
+		LEFT JOIN mes_bom bom ON bom.`id` = plan.`bom_id`
+		LEFT JOIN mes_craft craft ON craft.`id` = plan.`tec_route_id`
+		LEFT JOIN cus_dictionary dicst ON dicst.id = plan.`source_type`
+		LEFT JOIN cus_client client ON client.`id`=plan.`client_id`
+		LEFT JOIN sys_dept dept ON dept.`dept_id`=plan.`pro_dept`
+        LEFT JOIN sys_user createuser ON createuser.`user_id`=plan.`create_by`
+		LEFT JOIN cus_dictionary dictt ON dictt.id = plan.`type`
+		LEFT JOIN cus_dictionary dicts ON dicts.id = plan.`status`
+		<!-- 上为列表关联表 下为详情关联表-->
+		LEFT JOIN mes_check_plan checkplan ON checkplan.`id` = plan.`inspection_scheme`
+		<where>  
+		  		 	<if test="id != null and id != ''"> and plan.id = #{id} </if>
+		  		 	<if test="startTime != null and startTime != ''">  and  DATE_FORMAT(plan.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+		 	 		<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(plan.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		  			<if test="deptId != null and deptId != ''"> and plan.`pro_dept` = #{deptId} </if>
+		  			<if test="status != null and status != ''"> and plan.status = #{status} </if>
+                    <if test="isCheck != null and isCheck != ''"> and plan.is_check = #{isCheck} </if>
+		  			<if test="proName != null and proName != ''"> and material.name LIKE CONCAT('%',#{proName},'%')  </if>
+		  			<if test="clientId != null and clientId != ''"> and plan.client_id = #{clientId} </if>
+                    <if test="clientName != null and clientName != ''"> and plan.client_name LIKE CONCAT('%',#{clientName},'%') </if>
+		  			<!-- 上为列表查询字段 -->
+		  		</where>
+	</sql>
+
+
+    <select id="listDialogMap" resultType="map">
+        SELECT
+        plan.`id` AS id,
+        plan.`plan_no` AS planNo,
+        plan.`materiel_id` AS materielId,
+        material.serial_no AS materialSerialNo,
+        material.name AS materialName,
+        material.specification AS specification,
+        unituom.id AS unitUomId,
+        unituom.name AS unitUomName,
+        plan.`plan_count` AS planCount,
+        plan.`batch_no` AS batchNo,
+        plan.`pro_dept` AS proDeptId,
+        dept.`name` AS proDeptName,
+        plan.`inspection_scheme` AS checkPlanId,
+        checkplan.`name` AS checkPlanName,
+        plan.`create_time` AS createTime,
+        IFNULL(SUM(inspection.`inspection_count`),0) AS  checkedCount,
+        <!-- TODO　已入库数量 -->
+        '0' AS putInCount
+        FROM mes_production_plan plan
+        LEFT JOIN mes_material_inspection inspection ON inspection.`source_id`= plan.`id`
+        <!-- TODO　已入库数量关联表 -->
+        LEFT JOIN cus_materiel material ON material.`id`= plan.`materiel_id`
+        LEFT JOIN cus_dictionary unituom ON unituom.id = material.`unit_uom`
+        LEFT JOIN sys_dept dept ON dept.`dept_id`=plan.`pro_dept`
+        LEFT JOIN mes_check_plan checkplan ON checkplan.`id` = plan.`inspection_scheme`
+        <where>
+            <if test="id != null and id != ''"> and plan.id = #{id} </if>
+            <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(plan.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(plan.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="deptId != null and deptId != ''"> and plan.`pro_dept` = #{deptId} </if>
+            <if test="status != null and status != ''"> and plan.status = #{status} </if>
+            <if test="isCheck != null and isCheck != ''"> and plan.is_check = #{isCheck} </if>
+            <if test="proName != null and proName != ''"> and material.name LIKE CONCAT('%',#{proName},'%')  </if>
+        </where>
+        GROUP BY plan.`id`
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by plan.`id` desc
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+
+</mapper>

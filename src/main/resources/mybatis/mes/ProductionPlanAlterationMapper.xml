@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.ProductionPlanAlterationDao">
+
+	<select id="get" resultType="com.ev.mes.domain.ProductionPlanAlterationDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_production_plan_alteration 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.ProductionPlanAlterationDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_production_plan_alteration
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="listForMap" resultType="map">
+		SELECT 
+    		<!-- CASE alteration.`alteration_project`
+			WHEN 1 THEN
+			    '计划生产数量'
+			WHEN 2 THEN
+			    '计划开工时间'
+			WHEN 3 THEN    
+			    '计划完工时间'
+			WHEN 4 THEN    
+			    '生产部门'    
+			ELSE
+			    'OTHERS'
+			END  -->
+			alteration.`id` AS id,
+			plan.`plan_no` AS planNo,
+			alteration.`alteration_project` AS alterationProject,
+			alteration.`after_alteration` AS afterAlteration, 
+			alteration.`before_alteration` AS beforeAlteration,
+			updateuser.`name` AS  updateUserName,
+			alteration.`create_time` AS createTime
+		<include refid="sql_map_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by alteration.id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="countForMap" resultType="int">
+		SELECT 
+		COUNT(*) 
+		<include refid="sql_map_condition"/>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_production_plan_alteration
+		<include refid="sql_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.ProductionPlanAlterationDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_production_plan_alteration
+		(
+			`production_plan_id`,
+			`alteration_project`, 
+			`after_alteration`, 
+			`before_alteration`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{productionPlanId},
+			#{alterationProject}, 
+			#{afterAlteration}, 
+			#{beforeAlteration}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.ProductionPlanAlterationDO">
+		update mes_production_plan_alteration 
+		<set>
+			<if test="productionPlanId != null">`production_plan_id` = #{productionPlanId}, </if>
+			<if test="alterationProject != null">`alteration_project` = #{alterationProject}, </if>
+			<if test="afterAlteration != null">`after_alteration` = #{afterAlteration}, </if>
+			<if test="beforeAlteration != null">`before_alteration` = #{beforeAlteration}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_production_plan_alteration where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_production_plan_alteration where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<delete id="removeByPlanId">
+		delete from mes_production_plan_alteration where production_plan_id = #{value}
+	</delete>
+	
+	<delete id="batchRemoveByPlanId">
+		delete from mes_production_plan_alteration where production_plan_id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<sql id="sql_column_list">
+		`id`,`production_plan_id`,`alteration_project`,`after_alteration`,`before_alteration`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="productionPlanId != null and productionPlanId != ''"> and `production_plan_id` = #{productionPlanId} </if>
+		  		  <if test="alterationProject != null and alterationProject != ''"> and alteration_project = #{alterationProject} </if>
+		  		  <if test="afterAlteration != null and afterAlteration != ''"> and after_alteration = #{afterAlteration} </if>
+		  		  <if test="beforeAlteration != null and beforeAlteration != ''"> and before_alteration = #{beforeAlteration} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</sql>
+	
+	<sql id="sql_map_condition">
+		FROM mes_production_plan_alteration alteration
+		LEFT JOIN sys_user updateuser ON updateuser.`user_id`=alteration.`create_by`
+		LEFT JOIN mes_production_plan plan ON plan.`id` = alteration.`production_plan_id`
+		<where>  
+		  		  <if test="id != null and id != ''"> and alteration.id = #{id} </if>
+		  		  <if test="productionPlanId != null and productionPlanId != ''"> and alteration.`production_plan_id` = #{productionPlanId} </if>
+		  		  <if test="planNo != null and planNo != ''"> and plan.`plan_no` = #{planNo} </if>
+		  		  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(alteration.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+		 	 	  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(alteration.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		  		  <if test="alterationProject != null and alterationProject != ''"> and alteration.alteration_project = #{alterationProject} </if>
+		  		  <if test="createBy != null and createBy != ''"> and alteration.create_by = #{createBy} </if>
+		  		 <if test="updateUserName != null and updateUserName != ''"> and updateuser.`name` = #{updateUserName} </if>
+		  		</where>
+	</sql>
+	
+</mapper>

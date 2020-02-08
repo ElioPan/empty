@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.TaskMainDao">
+
+	<select id="get" resultType="com.ev.custom.domain.TaskMainDO">
+		select `id`,`title`,`task_type`,`task_level`,`expire_date`,`detail`,`task_no`,`status`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`provider_id` from cus_task_main where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.TaskMainDO">
+		select `id`,`title`,`task_type`,`task_level`,`expire_date`,`detail`,`task_no`,`status`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`provider_id` from cus_task_main
+        <where>  
+		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  <if test="title != null and title != ''"> and title = #{title} </if>
+		  <if test="taskType != null and taskType != ''"> and task_type = #{taskType} </if>
+		  <if test="taskLevel != null and taskLevel != ''"> and task_level = #{taskLevel} </if>
+		  <if test="expireDate != null and expireDate != ''"> and expire_date = #{expireDate} </if>
+		  <if test="detail != null and detail != ''"> and detail = #{detail} </if>
+		  <if test="taskNo != null and taskNo != ''"> and task_no = #{taskNo} </if>
+		  <if test="maxNo != null and maxNo != ''"> and LEFT(task_no,12) = #{maxNo} </if>
+		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  <if test="providerId != null and providerId != ''"> and provider_id = #{providerId} </if>
+		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+ 	<select id="count" resultType="int">
+		select count(*) from cus_task_main
+		 <where>  
+		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  <if test="title != null and title != ''"> and title = #{title} </if>
+		  <if test="taskType != null and taskType != ''"> and task_type = #{taskType} </if>
+		  <if test="taskLevel != null and taskLevel != ''"> and task_level = #{taskLevel} </if>
+		  <if test="expireDate != null and expireDate != ''"> and expire_date = #{expireDate} </if>
+		  <if test="detail != null and detail != ''"> and detail = #{detail} </if>
+		  <if test="taskNo != null and taskNo != ''"> and task_no = #{taskNo} </if>
+		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  <if test="providerId != null and providerId != ''"> and provider_id = #{providerId} </if>
+		</where>
+	</select>
+
+	<select id="listForMap" resultType="map">
+		SELECT
+				taskmain.id AS id,
+				taskmain.title AS title,
+				taskmain.task_type AS taskType,
+				dict.`name` AS taskTypeName,
+				taskmain.task_level AS taskLevel,
+				dicl.`name` AS taskLevelName,
+				taskmain.detail AS detail,
+				taskmain.task_no AS taskNo,
+				reporttask.`link_order_no` AS linkOrderNo,
+				dic.id AS statusId,
+				dic.`value` AS `statusValue`,
+				dic.`name` AS `statusName`,
+				diclot.`value` AS linkOrderTypeValue,
+				diclot.`name` AS linkOrderTypeName,
+				diclst.`value` AS linkStageTypeValue,
+				diclst.`name` AS linkStageTypeName,
+				heldperson.user_id AS heldPersonId,
+				heldperson.`name` AS heldPersonName,
+				checkperson.user_id AS checkPersonId,
+				checkperson.`name` AS checkPersonName,
+				ccemployee.cc_person AS ccPersonIds,
+				dept.`name` AS deptName,
+				DATE_FORMAT(
+					taskmain.expire_date,
+					'%Y-%m-%d %H:%i'
+				) AS expireDate,
+				DATE_FORMAT(
+					reply.create_time,
+					'%Y-%m-%d %H:%i'
+				) AS checkTime,
+				CASE
+			WHEN TIMESTAMPDIFF(
+				HOUR,
+				DATE_FORMAT(
+					taskmain.expire_date,
+					'%Y-%m-%d %H'
+				),
+				DATE_FORMAT(
+					IFNULL(reply.create_time, NOW()),
+					'%Y-%m-%d %H'
+				)
+			) > 0 THEN
+				TIMESTAMPDIFF(
+					HOUR,
+					DATE_FORMAT(
+						taskmain.expire_date,
+						'%Y-%m-%d %H'
+					),
+					DATE_FORMAT(
+						IFNULL(reply.create_time, NOW()),
+						'%Y-%m-%d %H'
+					)
+				)
+			ELSE
+				'未超时'
+			END AS overTime,
+			 applyperson.`name` AS applyPersonName,
+			 DATE_FORMAT(
+				taskmain.create_time,
+				'%Y-%m-%d %H:%i'
+			) AS createTime
+			FROM
+				cus_task_main taskmain
+			LEFT JOIN cus_report_task reporttask ON reporttask.task_id = taskmain.id
+			LEFT JOIN cus_dictionary diclot ON diclot.id = reporttask.`link_order_type`
+			LEFT JOIN cus_dictionary diclst ON diclst.id = reporttask.`link_stage_type`
+			LEFT JOIN cus_dictionary dic ON dic.id = taskmain.`status`
+			LEFT JOIN cus_dictionary dict ON dict.id = taskmain.`task_type`
+			LEFT JOIN cus_dictionary dicl ON dicl.id = taskmain.`task_level`
+			LEFT JOIN sys_user applyperson ON applyperson.user_id = taskmain.create_by
+			LEFT JOIN sys_dept createDept ON createDept.dept_id = applyperson.dept_id
+			LEFT JOIN view_task_held_person heldemployee ON heldemployee.task_id = taskmain.id
+			LEFT JOIN sys_user heldperson ON heldperson.user_id = heldemployee.held_person
+			LEFT JOIN view_task_cc_person ccemployee ON ccemployee.task_id = taskmain.id
+			LEFT JOIN view_task_check_person checkemployee ON checkemployee.task_id = taskmain.id
+			LEFT JOIN sys_user checkperson ON checkperson.user_id = checkemployee.check_person
+			LEFT JOIN sys_dept dept ON dept.dept_id = heldperson.dept_id
+			LEFT JOIN view_task_reply_check reply ON reply.taskId = taskmain.id
+		<where>
+			<if test="id != null and id != ''"> and taskmain.id = #{id} </if>
+			<if test="title != null and title != ''"> and taskmain.title LIKE CONCAT('%',CONCAT(#{title},'%')) </if>
+			<if test="taskType != null and taskType != ''"> and taskmain.task_type = #{taskType} </if>
+			<if test="taskLevel != null and taskLevel != ''"> and taskmain.task_level = #{taskLevel} </if>
+			<if test="expireDate != null and expireDate != ''"> and taskmain.expire_date = #{expireDate} </if>
+			<if test="detail != null and detail != ''"> and taskmain.detail = #{detail} </if>
+			<if test="taskNo != null and taskNo != ''"> and taskmain.task_no = #{taskNo} </if>
+			<if test="status != null and status != ''"> and taskmain.status = #{status} </if>
+			<if test="singleStatus != null and singleStatus != ''"> and taskmain.status = #{singleStatus} </if>
+			<if test="singleStatusAready != null and singleStatusAready != ''"> and taskmain.status = #{singleStatusAready} 
+				<if test="userId != null and userId != ''">and (taskmain.`create_by` = #{userId} OR heldperson.`user_id` = #{userId})</if>
+			</if>
+			<if test="userId != null and userId != ''">and (taskmain.`create_by` = #{userId} OR ((heldperson.`user_id` = #{userId}  OR ccemployee.cc_person LIKE CONCAT (#{ccperson},'%')) and taskmain.status <![CDATA[<>]]> 146)) </if>
+			<if test="createId != null and createId != ''"> and taskmain.`create_by` = #{createId} </if>
+			<if test="createBy != null and createBy != ''"> and applyperson.`name` LIKE CONCAT('%',CONCAT(#{createBy},'%')) </if>
+			<if test="createTime != null and createTime != ''"> and taskmain.create_time = #{createTime} </if>
+			<if test="heldPersonId != null and heldPersonId != ''"> and heldperson.`user_id` = #{heldPersonId} </if>
+			<if test="heldPerson != null and heldPerson != ''"> and heldperson.`name` LIKE CONCAT('%',CONCAT(#{heldPerson},'%')) </if>
+			<if test="checkPersonId != null and checkPersonId != ''"> and checkperson.`user_id` = #{checkPersonId} </if>
+			<if test="checkPerson != null and checkPerson != ''"> and checkperson.`name` = #{checkPerson} </if>
+			<if test="idPath != null and idPath != ''"> and createDept.id_path like CONCAT (#{idPath},'%') </if>
+			<if test="startTime != null and startTime != ''">  and  DATE_FORMAT(taskmain.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(taskmain.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY IF(taskmain.status=146,0,1),${sort} ${order},IF(overTime='未超时',1,0),CAST(IF(overTime='未超时','0',overTime) as SIGNED) desc,taskmain.expire_date ASC,taskmain.task_level ASC,id DESC
+			</when>
+			<otherwise>
+                ORDER BY IF(taskmain.status=146,0,1),taskmain.status ASC,IF(overTime='未超时',1,0),CAST(IF(overTime='未超时','0',overTime) as SIGNED) desc,taskmain.expire_date ASC,taskmain.task_level ASC,id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="int">
+		select count(*)
+		FROM
+		cus_task_main taskmain
+		LEFT JOIN cus_report_task reporttask ON reporttask.task_id = taskmain.id
+		LEFT JOIN cus_dictionary diclot ON diclot.id = reporttask.`link_order_type`
+		LEFT JOIN cus_dictionary diclst ON diclst.id = reporttask.`link_stage_type`
+		LEFT JOIN cus_dictionary dic ON dic.id = taskmain.`status`
+		LEFT JOIN sys_user applyperson on applyperson.user_id = taskmain.create_by
+		LEFT JOIN sys_dept createDept on createDept.dept_id = applyperson.dept_id
+		LEFT JOIN view_task_held_person heldemployee on heldemployee.task_id = taskmain.id
+		LEFT JOIN sys_user heldperson on heldperson.user_id = heldemployee.held_person
+		LEFT JOIN view_task_cc_person ccemployee on ccemployee.task_id = taskmain.id
+		LEFT JOIN view_task_check_person checkemployee on checkemployee.task_id = taskmain.id
+		LEFT JOIN sys_user checkperson on checkperson.user_id = checkemployee.check_person
+		LEFT JOIN sys_dept dept on dept.dept_id = heldperson.dept_id
+		left join view_task_reply_check reply ON reply.taskId= taskmain.id
+		<where>
+			<if test="id != null and id != ''"> and taskmain.id = #{id} </if>
+			<if test="title != null and title != ''"> and taskmain.title LIKE CONCAT('%',CONCAT(#{title},'%')) </if>
+			<if test="taskType != null and taskType != ''"> and taskmain.task_type = #{taskType} </if>
+			<if test="taskLevel != null and taskLevel != ''"> and taskmain.task_level = #{taskLevel} </if>
+			<if test="expireDate != null and expireDate != ''"> and taskmain.expire_date = #{expireDate} </if>
+			<if test="detail != null and detail != ''"> and taskmain.detail = #{detail} </if>
+			<if test="taskNo != null and taskNo != ''"> and taskmain.task_no = #{taskNo} </if>
+			<if test="status != null and status != ''"> and taskmain.status = #{status} </if>
+			<if test="singleStatus != null and singleStatus != ''"> and taskmain.status = #{singleStatus} </if>
+			<if test="singleStatusAready != null and singleStatusAready != ''"> and taskmain.status = #{singleStatusAready} 
+				<if test="userId != null and userId != ''">and (taskmain.`create_by` = #{userId} OR heldperson.`user_id` = #{userId})</if>
+			</if>
+			<if test="userId != null and userId != ''">and (taskmain.`create_by` = #{userId} OR ((heldperson.`user_id` = #{userId}  OR ccemployee.cc_person LIKE CONCAT (#{ccperson},'%')) and taskmain.status <![CDATA[<>]]> 146)) </if>
+			<if test="createId != null and createId != ''"> and taskmain.`create_by` = #{createId} </if>
+			<if test="createBy != null and createBy != ''"> and applyperson.`name` LIKE CONCAT('%',CONCAT(#{createBy},'%')) </if>
+			<if test="createTime != null and createTime != ''"> and taskmain.create_time = #{createTime} </if>
+			<if test="heldPersonId != null and heldPersonId != ''"> and heldperson.`user_id` = #{heldPersonId} </if>
+			<if test="heldPerson != null and heldPerson != ''"> and heldperson.`name` LIKE CONCAT('%',CONCAT(#{heldPerson},'%')) </if>
+			<if test="checkPersonId != null and checkPersonId != ''"> and checkperson.`user_id` = #{checkPersonId} </if>
+			<if test="checkPerson != null and checkPerson != ''"> and checkperson.`name` = #{checkPerson} </if>
+			<if test="idPath != null and idPath != ''"> and createDept.id_path like CONCAT (#{idPath},'%') </if>
+			<if test="startTime != null and startTime != ''">  and  DATE_FORMAT(taskmain.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(taskmain.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		</where>
+	</select>
+	
+	<select id="countBackLog" resultType="int">
+		SELECT COUNT(*)
+		FROM
+		cus_task_main taskmain
+		LEFT JOIN sys_user applyperson on applyperson.user_id = taskmain.create_by
+		LEFT JOIN sys_dept createDept on createDept.dept_id = applyperson.dept_id
+		LEFT JOIN view_task_held_person heldemployee on heldemployee.task_id = taskmain.id
+		LEFT JOIN sys_user heldperson on heldperson.user_id = heldemployee.held_person
+		LEFT JOIN view_task_cc_person ccemployee on ccemployee.task_id = taskmain.id
+		LEFT JOIN view_task_check_person checkemployee on checkemployee.task_id = taskmain.id
+		LEFT JOIN sys_user checkperson on checkperson.user_id = checkemployee.check_person
+		LEFT JOIN sys_dept dept on dept.dept_id = heldperson.dept_id
+		<where>
+			<if test="status != null and status != ''"> and taskmain.`status` = #{status} </if>
+			
+			<if test="heldPerson != null and heldPerson != ''"> and heldemployee.`held_person` = #{heldPerson} </if>
+			<if test="checkPerson != null and checkPerson != ''"> and checkemployee.`check_person` = #{checkPerson} </if>
+			<if test="createBy != null and createBy != ''"> and taskmain.`create_by` = #{createBy} </if>
+			
+			<if test="idPath != null and idPath != ''"> and createDept.id_path like CONCAT (#{idPath},'%') </if>
+		</where>
+	</select>
+	
+	<select id="countWeekBackLog" resultType="map">
+		SELECT
+		(SELECT('monday')) AS week,
+		COUNT(*) AS total
+		FROM
+		cus_task_main taskmain
+		LEFT JOIN sys_user applyperson on applyperson.user_id = taskmain.create_by
+		LEFT JOIN sys_dept createDept on createDept.dept_id = applyperson.dept_id
+		LEFT JOIN view_task_held_person heldemployee on heldemployee.task_id = taskmain.id
+		LEFT JOIN view_task_check_person checkemployee on checkemployee.task_id = taskmain.id
+		<where>
+			<if test="status != null and status != ''"> and taskmain.`status` = #{status} </if>
+			<if test="monday != null and monday != ''">  and  DATE_FORMAT(taskmain.expire_date,'%Y-%m-%d %H:%i') &gt;=  DATE_FORMAT(#{monday},'%Y-%m-%d %H:%i')</if>
+			<if test="mondayend != null and mondayend != ''">  and  DATE_FORMAT(taskmain.expire_date,'%Y-%m-%d %H:%i') &lt;=  DATE_FORMAT(#{mondayend},'%Y-%m-%d %H:%i')</if>
+			<if test="heldPerson != null and heldPerson != ''"> and heldemployee.`held_person` = #{heldPerson} </if>
+			<if test="checkPerson != null and checkPerson != ''"> and checkemployee.`check_person` = #{checkPerson} </if>
+			<if test="createBy != null and createBy != ''"> and taskmain.`create_by` = #{createBy} </if>
+			<if test="idPath != null and idPath != ''"> and createDept.id_path like CONCAT (#{idPath},'%') </if>
+		</where>
+		UNION ALL
+		SELECT
+		(SELECT('tuesday')) AS week,
+		COUNT(*) AS total
+		FROM
+		cus_task_main taskmain
+		LEFT JOIN sys_user applyperson on applyperson.user_id = taskmain.create_by
+		LEFT JOIN sys_dept createDept on createDept.dept_id = applyperson.dept_id
+		LEFT JOIN view_task_held_person heldemployee on heldemployee.task_id = taskmain.id
+		LEFT JOIN view_task_check_person checkemployee on checkemployee.task_id = taskmain.id
+		<where>
+			<if test="status != null and status != ''"> and taskmain.`status` = #{status} </if>
+			<if test="tuesday != null and tuesday != ''">  and  DATE_FORMAT(taskmain.expire_date,'%Y-%m-%d %H:%i') &gt;=  DATE_FORMAT(#{tuesday},'%Y-%m-%d %H:%i')</if>
+			<if test="tuesdayend != null and tuesdayend != ''">  and  DATE_FORMAT(taskmain.expire_date,'%Y-%m-%d %H:%i') &lt;=  DATE_FORMAT(#{tuesdayend},'%Y-%m-%d %H:%i')</if>
+			<if test="heldPerson != null and heldPerson != ''"> and heldemployee.`held_person` = #{heldPerson} </if>
+			<if test="checkPerson != null and checkPerson != ''"> and checkemployee.`check_person` = #{checkPerson} </if>
+			<if test="createBy != null and createBy != ''"> and taskmain.`create_by` = #{createBy} </if>
+			<if test="idPath != null and idPath != ''"> and createDept.id_path like CONCAT (#{idPath},'%') </if>
+		</where>
+		UNION ALL
+		SELECT
+		(SELECT('wednesday')) AS week,
+		COUNT(*) AS total
+		FROM
+		cus_task_main taskmain
+		LEFT JOIN sys_user applyperson on applyperson.user_id = taskmain.create_by
+		LEFT JOIN sys_dept createDept on createDept.dept_id = applyperson.dept_id
+		LEFT JOIN view_task_held_person heldemployee on heldemployee.task_id = taskmain.id
+		LEFT JOIN view_task_check_person checkemployee on checkemployee.task_id = taskmain.id
+		<where>
+			<if test="status != null and status != ''"> and taskmain.`status` = #{status} </if>
+			<if test="wednesday != null and wednesday != ''">  and  DATE_FORMAT(taskmain.expire_date,'%Y-%m-%d %H:%i') &gt;=  DATE_FORMAT(#{wednesday},'%Y-%m-%d %H:%i')</if>
+			<if test="wednesdayend != null and wednesdayend != ''">  and  DATE_FORMAT(taskmain.expire_date,'%Y-%m-%d %H:%i') &lt;=  DATE_FORMAT(#{wednesdayend},'%Y-%m-%d %H:%i')</if>
+			<if test="heldPerson != null and heldPerson != ''"> and heldemployee.`held_person` = #{heldPerson} </if>
+			<if test="checkPerson != null and checkPerson != ''"> and checkemployee.`check_person` = #{checkPerson} </if>
+			<if test="createBy != null and createBy != ''"> and taskmain.`create_by` = #{createBy} </if>
+			<if test="idPath != null and idPath != ''"> and createDept.id_path like CONCAT (#{idPath},'%') </if>
+		</where>
+		UNION ALL
+		SELECT
+		(SELECT('thursday')) AS week,
+		COUNT(*) AS total
+		FROM
+		cus_task_main taskmain
+		LEFT JOIN sys_user applyperson on applyperson.user_id = taskmain.create_by
+		LEFT JOIN sys_dept createDept on createDept.dept_id = applyperson.dept_id
+		LEFT JOIN view_task_held_person heldemployee on heldemployee.task_id = taskmain.id
+		LEFT JOIN view_task_check_person checkemployee on checkemployee.task_id = taskmain.id
+		<where>
+			<if test="status != null and status != ''"> and taskmain.`status` = #{status} </if>
+			<if test="thursday != null and thursday != ''">  and  DATE_FORMAT(taskmain.expire_date,'%Y-%m-%d %H:%i') &gt;=  DATE_FORMAT(#{thursday},'%Y-%m-%d %H:%i')</if>
+			<if test="thursdayend != null and thursdayend != ''">  and  DATE_FORMAT(taskmain.expire_date,'%Y-%m-%d %H:%i') &lt;=  DATE_FORMAT(#{thursdayend},'%Y-%m-%d %H:%i')</if>
+			<if test="heldPerson != null and heldPerson != ''"> and heldemployee.`held_person` = #{heldPerson} </if>
+			<if test="checkPerson != null and checkPerson != ''"> and checkemployee.`check_person` = #{checkPerson} </if>
+			<if test="createBy != null and createBy != ''"> and taskmain.`create_by` = #{createBy} </if>
+			<if test="idPath != null and idPath != ''"> and createDept.id_path like CONCAT (#{idPath},'%') </if>
+		</where>
+		UNION ALL
+		SELECT
+		(SELECT('friday')) AS week,
+		COUNT(*) AS total
+		FROM
+		cus_task_main taskmain
+		LEFT JOIN sys_user applyperson on applyperson.user_id = taskmain.create_by
+		LEFT JOIN sys_dept createDept on createDept.dept_id = applyperson.dept_id
+		LEFT JOIN view_task_held_person heldemployee on heldemployee.task_id = taskmain.id
+		LEFT JOIN view_task_check_person checkemployee on checkemployee.task_id = taskmain.id
+		<where>
+			<if test="status != null and status != ''"> and taskmain.`status` = #{status} </if>
+			<if test="friday != null and friday != ''">  and  DATE_FORMAT(taskmain.expire_date,'%Y-%m-%d %H:%i') &gt;=  DATE_FORMAT(#{friday},'%Y-%m-%d %H:%i')</if>
+			<if test="fridayend != null and fridayend != ''">  and  DATE_FORMAT(taskmain.expire_date,'%Y-%m-%d %H:%i') &lt;=  DATE_FORMAT(#{fridayend},'%Y-%m-%d %H:%i')</if>
+			<if test="heldPerson != null and heldPerson != ''"> and heldemployee.`held_person` = #{heldPerson} </if>
+			<if test="checkPerson != null and checkPerson != ''"> and checkemployee.`check_person` = #{checkPerson} </if>
+			<if test="createBy != null and createBy != ''"> and taskmain.`create_by` = #{createBy} </if>
+			<if test="idPath != null and idPath != ''"> and createDept.id_path like CONCAT (#{idPath},'%') </if>
+		</where>
+		UNION ALL
+		SELECT
+		(SELECT('saturday')) AS week,
+		COUNT(*) AS total
+		FROM
+		cus_task_main taskmain
+		LEFT JOIN sys_user applyperson on applyperson.user_id = taskmain.create_by
+		LEFT JOIN sys_dept createDept on createDept.dept_id = applyperson.dept_id
+		LEFT JOIN view_task_held_person heldemployee on heldemployee.task_id = taskmain.id
+		LEFT JOIN view_task_check_person checkemployee on checkemployee.task_id = taskmain.id
+		<where>
+			<if test="status != null and status != ''"> and taskmain.`status` = #{status} </if>
+			<if test="saturday != null and saturday != ''">  and  DATE_FORMAT(taskmain.expire_date,'%Y-%m-%d %H:%i') &gt;=  DATE_FORMAT(#{saturday},'%Y-%m-%d %H:%i')</if>
+			<if test="saturday != null and saturdayend != ''">  and  DATE_FORMAT(taskmain.expire_date,'%Y-%m-%d %H:%i') &lt;=  DATE_FORMAT(#{saturdayend},'%Y-%m-%d %H:%i')</if>
+			<if test="heldPerson != null and heldPerson != ''"> and heldemployee.`held_person` = #{heldPerson} </if>
+			<if test="checkPerson != null and checkPerson != ''"> and checkemployee.`check_person` = #{checkPerson} </if>
+			<if test="createBy != null and createBy != ''"> and taskmain.`create_by` = #{createBy} </if>
+			<if test="idPath != null and idPath != ''"> and createDept.id_path like CONCAT (#{idPath},'%') </if>
+		</where>
+		UNION ALL
+		SELECT
+		(SELECT('sunday')) AS week,
+		COUNT(*) AS total
+		FROM
+		cus_task_main taskmain
+		LEFT JOIN sys_user applyperson on applyperson.user_id = taskmain.create_by
+		LEFT JOIN sys_dept createDept on createDept.dept_id = applyperson.dept_id
+		LEFT JOIN view_task_held_person heldemployee on heldemployee.task_id = taskmain.id
+		LEFT JOIN view_task_check_person checkemployee on checkemployee.task_id = taskmain.id
+		<where>
+			<if test="status != null and status != ''"> and taskmain.`status` = #{status} </if>
+			<if test="sunday != null and sunday != ''">  and  DATE_FORMAT(taskmain.expire_date,'%Y-%m-%d %H:%i') &gt;=  DATE_FORMAT(#{sunday},'%Y-%m-%d %H:%i')</if>
+			<if test="sundayend != null and sundayend != ''">  and  DATE_FORMAT(taskmain.expire_date,'%Y-%m-%d %H:%i') &lt;=  DATE_FORMAT(#{sundayend},'%Y-%m-%d %H:%i')</if>
+			<if test="heldPerson != null and heldPerson != ''"> and heldemployee.`held_person` = #{heldPerson} </if>
+			<if test="checkPerson != null and checkPerson != ''"> and checkemployee.`check_person` = #{checkPerson} </if>
+			<if test="createBy != null and createBy != ''"> and taskmain.`create_by` = #{createBy} </if>
+			<if test="idPath != null and idPath != ''"> and createDept.id_path like CONCAT (#{idPath},'%') </if>
+		</where>
+		
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.TaskMainDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_task_main
+		(
+			`title`, 
+
+			`task_type`, 
+
+			`task_level`, 
+
+			`expire_date`, 
+
+			`detail`, 
+
+			`task_no`, 
+
+			`status`, 
+
+			`create_by`, 
+
+			`create_time`, 
+
+			`update_by`, 
+
+			`update_time`, 
+
+			`del_flag`, 
+
+			`provider_id`
+
+		)
+		values
+		(
+			#{title}, 
+
+			#{taskType}, 
+
+			#{taskLevel}, 
+
+			#{expireDate}, 
+
+			#{detail}, 
+
+			#{taskNo}, 
+
+			#{status}, 
+
+			#{createBy}, 
+
+			#{createTime}, 
+
+			#{updateBy}, 
+
+			#{updateTime}, 
+
+			#{delFlag}, 
+
+			#{providerId}
+
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.TaskMainDO">
+		update cus_task_main 
+		<set>
+			<if test="title != null">`title` = #{title}, </if>
+			<if test="taskType != null">`task_type` = #{taskType}, </if>
+			<if test="taskLevel != null">`task_level` = #{taskLevel}, </if>
+			<if test="expireDate != null">`expire_date` = #{expireDate}, </if>
+			<if test="detail != null">`detail` = #{detail}, </if>
+			<if test="taskNo != null">`task_no` = #{taskNo}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="linkOrderId != null">`link_order_id` = #{linkOrderId}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}, </if>
+			<if test="providerId != null">`provider_id` = #{providerId}, </if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_task_main where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_task_main where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

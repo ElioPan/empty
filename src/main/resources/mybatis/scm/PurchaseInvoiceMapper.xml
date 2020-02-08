@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.PurchaseInvoiceDao">
+
+	<select id="get" resultType="com.ev.scm.domain.PurchaseInvoiceDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_purchase_invoice 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.PurchaseInvoiceDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_purchase_invoice
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from scm_purchase_invoice
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`supplier_id`,`invoice_date`,`drawer`,`bill_code`,`invoice_num`,`invoice_amount`,`bill_type`,`audit_sign`,`remarks`,`auditor`,`audit_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+							<if test="maxNo != null and maxNo != ''"> and LEFT(bill_code,12) = #{maxNo} </if>
+                            <if test="id != null and id != ''"> and id = #{id} </if>
+                            <if test="supplierId != null and supplierId != ''"> and supplier_id = #{supplierId} </if>
+                            <if test="invoiceDate != null and invoiceDate != ''"> and invoice_date = #{invoiceDate} </if>
+                            <if test="drawer != null and drawer != ''"> and drawer = #{drawer} </if>
+                            <if test="billCode != null and billCode != ''"> and bill_code = #{billCode} </if>
+                            <if test="invoiceNum != null and invoiceNum != ''"> and invoice_num = #{invoiceNum} </if>
+                            <if test="invoiceAmount != null and invoiceAmount != ''"> and invoice_amount = #{invoiceAmount} </if>
+                            <if test="billType != null and billType != ''"> and bill_type = #{billType} </if>
+                            <if test="auditSign != null and auditSign != ''"> and audit_sign = #{auditSign} </if>
+                            <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+                            <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+                            <if test="auditTime != null and auditTime != ''"> and audit_time = #{auditTime} </if>
+                            <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.PurchaseInvoiceDO" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_purchase_invoice
+		(
+			`supplier_id`, 
+			`invoice_date`, 
+			`drawer`, 
+			`bill_code`, 
+			`invoice_num`, 
+			`invoice_amount`, 
+			`bill_type`, 
+			`audit_sign`, 
+			`remarks`, 
+			`auditor`, 
+			`audit_time`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{supplierId}, 
+			#{invoiceDate}, 
+			#{drawer}, 
+			#{billCode}, 
+			#{invoiceNum}, 
+			#{invoiceAmount}, 
+			#{billType}, 
+			#{auditSign}, 
+			#{remarks}, 
+			#{auditor}, 
+			#{auditTime}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.PurchaseInvoiceDO">
+		update scm_purchase_invoice 
+		<set>
+			<if test="supplierId != null">`supplier_id` = #{supplierId}, </if>
+			<if test="invoiceDate != null">`invoice_date` = #{invoiceDate}, </if>
+			<if test="drawer != null">`drawer` = #{drawer}, </if>
+			<if test="billCode != null">`bill_code` = #{billCode}, </if>
+			<if test="invoiceNum != null">`invoice_num` = #{invoiceNum}, </if>
+			<if test="invoiceAmount != null">`invoice_amount` = #{invoiceAmount}, </if>
+			<if test="billType != null">`bill_type` = #{billType}, </if>
+			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="auditTime != null">`audit_time` = #{auditTime}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from scm_purchase_invoice where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from scm_purchase_invoice where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<select id="canDeletOfCount" resultType="int">
+		select
+		count(id)
+		from
+		scm_purchase_invoice
+		where
+		audit_sign =178
+		and  id in
+		<foreach item="item" collection="id" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		*
+		from
+		(
+			SELECT
+				a.id,
+				a.invoice_date as invoiceDate,
+				a.supplier_id as supplierId,
+				f.name as supplierName,
+				a.bill_type as billType,
+				g.name as billTypeName,
+				a.invoice_num as invoiceNum,
+				h.materiel_id as materielId,
+				i.name as materielName,
+				i.serial_no as serialNo,
+				i.specification,
+				i.unit_uom as unitUom,
+				k.name as unitUomName,
+				h.count,
+				h.unit_price as unitPrice,
+				h.tax_rate as taxRate,
+				h.amount,
+				h.taxes,
+				h.tax_amount as taxAmount,
+				a.audit_sign as auditSign,
+				b.name as auditSignName,
+				h.source_code as sourceCode,
+				h.source_type as sourceType,
+				m.name as sourceTypeName
+			from
+			scm_purchase_invoice a
+			LEFT JOIN  cus_supplier  f on  a.supplier_id =f.id
+			LEFT JOIN  cus_dictionary  b on  a.audit_sign =b.id
+			LEFT JOIN  cus_dictionary  g on  a.bill_type =g.id
+			LEFT JOIN  scm_purchase_invoice_item  h on  a.id =h.purchasebill_id
+			LEFT JOIN  cus_materiel i on h.materiel_id=i.id
+			LEFT JOIN  cus_dictionary  k on  i.unit_uom =k.id
+			LEFT JOIN  cus_dictionary  m on  h.source_type=m.id
+		) aa
+		<where>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(invoiceDate,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(invoiceDate,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="supplierName != null and supplierName != ''"> and supplierName LIKE CONCAT('%',#{supplierName},'%') </if>
+			<if test="materielName != null and materielName != ''"> and materielName LIKE CONCAT('%',#{materielName},'%') </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="countForMap" resultType="map">
+		select
+		count(*) as `count`,
+		case when  SUM(count) is null then 0
+			  when  SUM(count) is not null then SUM(count)
+			  end totalCount,
+		case when  SUM(taxes) is null then 0
+			  when  SUM(taxes) is not null then SUM(taxes)
+			  end totalTaxes,
+		case when  SUM(taxAmount) is null then 0
+			  when SUM(taxAmount) is not null then SUM(taxAmount)
+			  end totalTaxAmount
+		from
+		(
+		SELECT
+			a.id,
+			a.invoice_date as invoiceDate,
+			a.supplier_id as supplierId,
+			f.name as supplierName,
+			a.bill_type as billType,
+			g.name as billTypeName,
+			a.invoice_num as invoiceNum,
+			h.materiel_id as materielId,
+			i.name as materielName,
+			i.serial_no as serialNo,
+			i.specification,
+			i.unit_uom as unitUom,
+			k.name as unitUomName,
+			h.count,
+			h.unit_price as unitPrice,
+			h.tax_rate as taxRate,
+			h.amount,
+			h.taxes,
+			h.tax_amount as taxAmount,
+			a.audit_sign as auditSign,
+			b.name as auditSignName,
+			h.source_code as sourceCode,
+			h.source_type as sourceType,
+			m.name as sourceTypeName
+		from
+		scm_purchase_invoice a
+		LEFT JOIN  cus_supplier  f on  a.supplier_id =f.id
+		LEFT JOIN  cus_dictionary  b on  a.audit_sign =b.id
+		LEFT JOIN  cus_dictionary  g on  a.bill_type =g.id
+		LEFT JOIN  scm_purchase_invoice_item  h on  a.id =h.purchasebill_id
+		LEFT JOIN  cus_materiel i on h.materiel_id=i.id
+		LEFT JOIN  cus_dictionary  k on  i.unit_uom =k.id
+		LEFT JOIN  cus_dictionary  m on  h.source_type=m.id
+		) aa
+		<where>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(invoiceDate,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(invoiceDate,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="supplierName != null and supplierName != ''"> and supplierName LIKE CONCAT('%',#{supplierName},'%') </if>
+			<if test="materielName != null and materielName != ''"> and materielName LIKE CONCAT('%',#{materielName},'%') </if>
+		</where>
+	</select>
+
+
+	<select id="getDetailOfHead" resultType="map">
+		SELECT
+			a.id,
+			a.invoice_date as invoiceDate,
+			a.supplier_id as supplierId,
+			f.name as supplierName,
+			a.bill_type as billType,
+			g.name as billTypeName,
+			a.invoice_num as invoiceNum,
+			a.remarks,
+			a.create_by as createBy,
+			n.name as createByName,
+			a.create_time as createTime,
+			a.auditor,
+			o.name as auditorName,
+			a.audit_time as auditTime
+		from
+		scm_purchase_invoice a
+		LEFT JOIN  cus_supplier  f on  a.supplier_id =f.id
+		LEFT JOIN  cus_dictionary  g on  a.bill_type =g.id
+		LEFT JOIN  sys_user   n on  a.create_by=n.user_id
+		LEFT JOIN  sys_user   o on  a.auditor=o.user_id
+		where
+		 a.id=#{id}
+	</select>
+
+
+</mapper>

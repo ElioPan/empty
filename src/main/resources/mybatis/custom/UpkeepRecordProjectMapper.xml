@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.UpkeepRecordProjectDao">
+
+	<select id="get" resultType="com.ev.custom.domain.UpkeepRecordProjectDO">
+		select `id`,`man_hour_cost`,`plan_id`,`record_id`,`project_id`,`manhour`,`result`,`remark`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_upkeep_record_project where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.UpkeepRecordProjectDO">
+		select `id`,`man_hour_cost`,`plan_id`,`record_id`,`project_id`,`manhour`,`result`,`remark`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_upkeep_record_project
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="planId != null and planId != ''"> and plan_id = #{planId} </if>
+			<if test="recordId != null and recordId != ''"> and record_id = #{recordId} </if>
+			<if test="projectId != null and projectId != ''"> and project_id = #{projectId} </if>
+			<if test="manhour != null and manhour != ''"> and manhour = #{manhour} </if>
+			<if test="result != null and result != ''"> and result = #{result} </if>
+			<if test="remark != null and remark != ''"> and remark = #{remark} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="manHourCost != null and manHourCost != ''"> and man_hour_cost = #{manHourCost} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from cus_upkeep_record_project
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="planId != null and planId != ''"> and plan_id = #{planId} </if>
+			<if test="recordId != null and recordId != ''"> and record_id = #{recordId} </if>
+			<if test="projectId != null and projectId != ''"> and project_id = #{projectId} </if>
+			<if test="manhour != null and manhour != ''"> and manhour = #{manhour} </if>
+			<if test="result != null and result != ''"> and result = #{result} </if>
+			<if test="remark != null and remark != ''"> and remark = #{remark} </if>
+			<if test="manHourCost != null and manHourCost != ''"> and man_hour_cost = #{manHourCost} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+	</select>
+
+	<insert id="save" parameterType="com.ev.custom.domain.UpkeepRecordProjectDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_upkeep_record_project
+		(
+			`plan_id`,
+			`record_id`,
+			`project_id`,
+			`manhour`,
+			`result`,
+			`remark`,
+			`man_hour_cost`,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
+			`del_flag`
+		)
+		values
+		(
+			#{planId},
+			#{recordId},
+			#{projectId},
+			#{manhour},
+			#{result},
+			#{remark},
+			#{manHourCost},
+			#{createBy},
+			#{createTime},
+			#{updateBy},
+			#{updateTime},
+			#{delFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.custom.domain.UpkeepRecordProjectDO">
+		update cus_upkeep_record_project
+		<set>
+			<if test="planId != null">`plan_id` = #{planId}, </if>
+			<if test="recordId != null">`record_id` = #{recordId}, </if>
+			<if test="projectId != null">`project_id` = #{projectId}, </if>
+			<if test="manhour != null">`manhour` = #{manhour}, </if>
+			<if test="result != null">`result` = #{result}, </if>
+			<if test="remark != null">`remark` = #{remark}, </if>
+			<if test="manHourCost != null"> man_hour_cost = #{manHourCost}, </if>
+
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from cus_upkeep_record_project where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from cus_upkeep_record_project where id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="projectDetailByRecordID" resultType="map">
+		select
+		  curp.id,
+			curp.project_id as proId,
+			cup.code,
+			cup.name,
+			cup.function,
+			curp.result,
+			curp.manhour,
+			curp.man_hour_cost as manHourCost,
+			curp.remark
+		from cus_upkeep_record_project   curp
+		LEFT JOIN cus_upkeep_project  cup  ON curp.project_id=cup.id
+		WHERE
+			curp.record_id=#{id}
+	</select>
+
+
+	<select id="getMsgforDevice" resultType="map">
+		select
+		curp.id,
+		cup.code,
+		curp.man_hour_cost as manHourCost,
+		cup.name,
+		cup.function,
+		CASE  WHEN curp.result=115 then '通过'
+		      WHEN  curp.result=116 then '不通过'
+		      WHEN  curp.result=133 then '待评价'
+		END 'result',
+		curp.manhour,
+		curp.remark
+		from cus_upkeep_record_project   curp
+		LEFT JOIN cus_upkeep_project  cup  ON curp.project_id=cup.id
+		WHERE
+		curp.record_id=#{id}
+	</select>
+
+
+
+	<delete id="removeByRecordId">
+		delete from cus_upkeep_record_project where record_id = #{value}
+	</delete>
+
+
+	<delete id="batchRemoveByRecordId">
+		delete from cus_upkeep_record_project where record_id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+
+</mapper>

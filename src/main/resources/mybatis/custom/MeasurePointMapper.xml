@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.MeasurePointDao">
+
+	<select id="get" resultType="com.ev.custom.domain.MeasurePointDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM cus_measure_point 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.MeasurePointDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM cus_measure_point
+		<include refid="sql_condition"/>
+		<include refid="sql_order"/>
+	</select>
+	
+	<select id="listGroupByDevice" resultType="com.ev.custom.domain.MeasurePointDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM cus_measure_point
+		<include refid="sql_condition"/>
+		GROUP BY `device_id`
+		<include refid="sql_order"/>
+	</select>
+	
+	<select id="listForMap" resultType="map">
+		SELECT
+		point.`id` AS id,
+		point.`serial_no` AS serialNo,
+		point.`name` AS pointName,
+		drw.`id` AS rwTypeId,
+		drw.`name` AS rwTypeName,
+		mpt.`id` AS childTypeId,
+		mpt.`name` AS childTypeName,
+		uom.`id` AS uomId,
+		uom.`name` AS uomName,
+		dus.`id` AS useTypeId,
+		dus.`name` AS useTypeName,
+		point.`is_manual_input` AS isManualInput,
+		dim.`id` AS impowerTypeId,
+		dim.`name` AS impowerTypeName,
+		dfo.`id` AS formatTypeId,
+		point.`sort_no` AS sortNo,
+		dfo.`name` AS formatTypeName
+		<include refid="sql_condition_formap"/>
+		<choose>
+	            <when test="sort != null and sort.trim() != ''">
+	                order by ${sort} ${order}
+	            </when>
+				<otherwise>
+	                order by point.`sort_no` desc,point.id desc
+				</otherwise>
+	        </choose>
+			<if test="offset != null and limit != null">
+				limit #{offset}, #{limit}
+			</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_measure_point
+		<include refid="sql_condition"/>
+	</select>
+	
+	<select id="countForMap" resultType="int">
+		SELECT 
+		COUNT(*)
+		<include refid="sql_condition_formap"/>
+	</select>
+	
+	<insert id="save" parameterType="com.ev.custom.domain.MeasurePointDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_measure_point
+		(
+			`serial_no`, 
+			`name`, 
+			`rw_type`, 
+			`child_type`, 
+			`uom`, 
+			`use_type`, 
+			`is_manual_input`, 
+			`is_virtual_point`, 
+			`expression`, 
+			`impower`, 
+			`format`, 
+			`sort_no`, 
+			`device_id`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{serialNo}, 
+			#{name}, 
+			#{rwType}, 
+			#{childType}, 
+			#{uom}, 
+			#{useType}, 
+			#{isManualInput}, 
+			#{isVirtualPoint}, 
+			#{expression}, 
+			#{impower}, 
+			#{format}, 
+			#{sortNo}, 
+			#{deviceId}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.MeasurePointDO">
+		update cus_measure_point 
+		<set>
+			<if test="serialNo != null">`serial_no` = #{serialNo}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="rwType != null">`rw_type` = #{rwType}, </if>
+			<if test="childType != null">`child_type` = #{childType}, </if>
+			<if test="uom != null">`uom` = #{uom}, </if>
+			<if test="useType != null">`use_type` = #{useType}, </if>
+			<if test="isManualInput != null">`is_manual_input` = #{isManualInput}, </if>
+			<if test="isVirtualPoint != null">`is_virtual_point` = #{isVirtualPoint}, </if>
+			<if test="expression != null">`expression` = #{expression}, </if>
+			<if test="impower != null">`impower` = #{impower}, </if>
+			<if test="format != null">`format` = #{format}, </if>
+			<if test="sortNo != null">`sort_no` = #{sortNo}, </if>
+			<if test="deviceId != null">`device_id` = #{deviceId}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_measure_point where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_measure_point where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!-- 批量修改测点数据-->
+	<update id="batchEdit" parameterType="List">
+		   UPDATE cus_measure_point
+            <trim prefix="set" suffixOverrides=",">
+            
+             <trim prefix="serial_no=case" suffix="end,">
+                 <foreach collection="list" item="item" index="index">
+                         <if test="item.serialNo!=null">
+                          when id=#{item.id} then #{item.serialNo}
+                         </if>
+                         <if test="item.serialNo==null">
+                          when id=#{item.id} then cus_measure_point.serial_no
+                         </if>
+                 </foreach>
+              </trim>
+              <trim prefix="name =case" suffix="end,">
+                 <foreach collection="list" item="item" index="index">
+                         <if test="item.name!=null">
+                          when id=#{item.id} then #{item.name}
+                         </if>
+                         <if test="item.name==null">
+                          when id=#{item.id} then cus_measure_point.name
+                         </if>
+                 </foreach>
+              </trim>
+              <trim prefix="rw_type =case" suffix="end,">
+                 <foreach collection="list" item="item" index="index">
+                         <if test="item.rwType!=null">
+                          when id=#{item.id} then #{item.rwType}
+                         </if>
+                         <if test="item.rwType==null">
+                          when id=#{item.id} then cus_measure_point.rw_type
+                         </if>
+                 </foreach>
+              </trim>
+              <trim prefix="child_type =case" suffix="end,">
+                 <foreach collection="list" item="item" index="index">
+                         <if test="item.childType!=null">
+                          when id=#{item.id} then #{item.childType}
+                         </if>
+                         <if test="item.childType==null">
+                          when id=#{item.id} then cus_measure_point.child_type
+                         </if>
+                 </foreach>
+              </trim>
+              <trim prefix="uom =case" suffix="end,">
+                 <foreach collection="list" item="item" index="index">
+                         <if test="item.uom!=null">
+                          when id=#{item.id} then #{item.uom}
+                         </if>
+                         <if test="item.uom==null">
+                          when id=#{item.id} then cus_measure_point.uom
+                         </if>
+                 </foreach>
+              </trim>
+              <trim prefix="use_type =case" suffix="end,">
+                 <foreach collection="list" item="item" index="index">
+                         <if test="item.useType!=null">
+                          when id=#{item.id} then #{item.useType}
+                         </if>
+                         <if test="item.useType==null">
+                          when id=#{item.id} then cus_measure_point.use_type
+                         </if>
+                 </foreach>
+              </trim>
+              <trim prefix="is_manual_input =case" suffix="end,">
+                 <foreach collection="list" item="item" index="index">
+                         <if test="item.isManualInput!=null">
+                          when id=#{item.id} then #{item.isManualInput}
+                         </if>
+                         <if test="item.isManualInput==null">
+                          when id=#{item.id} then cus_measure_point.is_manual_input
+                         </if>
+                 </foreach>
+              </trim>
+              <trim prefix="impower =case" suffix="end,">
+                 <foreach collection="list" item="item" index="index">
+                         <if test="item.impower!=null">
+                          when id=#{item.id} then #{item.impower}
+                         </if>
+                         <if test="item.impower==null">
+                          when id=#{item.id} then cus_measure_point.impower
+                         </if>
+                 </foreach>
+              </trim>
+              <trim prefix="format =case" suffix="end,">
+                 <foreach collection="list" item="item" index="index">
+                         <if test="item.format!=null">
+                          when id=#{item.id} then #{item.format}
+                         </if>
+                         <if test="item.format==null">
+                          when id=#{item.id} then cus_measure_point.format
+                         </if>
+                 </foreach>
+              </trim>
+              <trim prefix="sort_no =case" suffix="end,">
+                 <foreach collection="list" item="item" index="index">
+                         <if test="item.sortNo!=null">
+                          when id=#{item.id} then #{item.sortNo}
+                         </if>
+                         <if test="item.sortNo==null">
+                          when id=#{item.id} then cus_measure_point.sort_no
+                         </if>
+                 </foreach>
+              </trim>
+               <trim prefix="update_by =case" suffix="end,">
+                 <foreach collection="list" item="item" index="index">
+                         <if test="item.updateBy!=null">
+                          when id=#{item.id} then #{item.updateBy}
+                         </if>
+                         <if test="item.updateBy==null">
+                          when id=#{item.id} then cus_measure_point.update_by
+                         </if>
+                 </foreach>
+              </trim>
+               <trim prefix="update_time =case" suffix="end,">
+                 <foreach collection="list" item="item" index="index">
+                         <if test="item.updateTime!=null">
+                          when id=#{item.id} then #{item.updateTime}
+                         </if>
+                         <if test="item.updateTime==null">
+                          when id=#{item.id} then cus_measure_point.update_time
+                         </if>
+                 </foreach>
+              </trim>
+             </trim>
+         WHERE id IN
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id}
+        </foreach>
+	</update>	
+	
+	<sql id="sql_column_list">
+		`id`,`serial_no`,`name`,`rw_type`,`child_type`,`uom`,`use_type`,`is_manual_input`,`is_virtual_point`,`expression`,`impower`,`format`,`sort_no`,`device_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="serialNo != null and serialNo != ''"> and serial_no = #{serialNo}</if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="rwType != null and rwType != ''"> and rw_type = #{rwType} </if>
+		  		  <if test="childType != null and childType != ''"> and child_type = #{childType} </if>
+		  		  <if test="uom != null and uom != ''"> and uom = #{uom} </if>
+		  		  <if test="useType != null and useType != ''"> and use_type = #{useType} </if>
+		  		  <if test="isManualInput != null and isManualInput != ''"> and is_manual_input = #{isManualInput} </if>
+		  		  <if test="isVirtualPoint != null and isVirtualPoint != ''"> and is_virtual_point = #{isVirtualPoint} </if>
+		  		  <if test="expression != null and expression != ''"> and expression = #{expression} </if>
+		  		  <if test="impower != null and impower != ''"> and impower = #{impower} </if>
+		  		  <if test="format != null and format != ''"> and format = #{format} </if>
+		  		  <if test="sortNo != null and sortNo != ''"> and sort_no = #{sortNo} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and device_id = #{deviceId} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(update_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(update_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</sql>
+	
+	
+	
+	<sql id="sql_condition_formap">
+		FROM cus_measure_point point 
+		LEFT JOIN cus_dictionary drw ON drw.`id` = point.`rw_type`
+		LEFT JOIN cus_dictionary dus ON dus.id = point.`use_type`
+		LEFT JOIN cus_dictionary dim ON dim.id = point.`impower`
+		LEFT JOIN cus_dictionary dfo ON dfo.id = point.`format`
+		LEFT JOIN cus_uom uom ON uom.id = point.`uom`
+		LEFT JOIN cus_measure_point_type mpt ON mpt.id = point.`child_type`
+		<where>  
+		  		  <if test="id != null and id != ''"> and point.id = #{id} </if>
+		  		  <if test="serialNo != null and serialNo != ''"> and point.serial_no LIKE CONCAT(#{serialNo},'%')</if>
+		  		  <if test="name != null and name != ''"> and point.name LIKE CONCAT(#{name},'%') </if>
+		  		  <if test="rwType != null and rwType != ''"> and point.rw_type = #{rwType} </if>
+		  		  <if test="childType != null and childType != ''"> and point.child_type = #{childType} </if>
+		  		  <if test="uom != null and uom != ''"> and point.uom = #{uom} </if>
+		  		  <if test="useType != null and useType != ''"> and point.use_type = #{useType} </if>
+		  		  <if test="isManualInput != null and isManualInput != ''"> and point.is_manual_input = #{isManualInput} </if>
+		  		  <if test="isVirtualPoint != null and isVirtualPoint != ''"> and point.is_virtual_point = #{isVirtualPoint} </if>
+		  		  <if test="expression != null and expression != ''"> and point.expression = #{expression} </if>
+		  		  <if test="impower != null and impower != ''"> and point.impower = #{impower} </if>
+		  		  <if test="format != null and format != ''"> and point.format = #{format} </if>
+		  		  <if test="sortNo != null and sortNo != ''"> and point.sort_no = #{sortNo} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and point.device_id = #{deviceId} </if>
+		  		  <if test="createBy != null and createBy != ''"> and point.create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and point.create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and point.update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and point.update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and point.del_flag = #{delFlag} </if>
+		  		  AND point.del_flag = 0
+		  		</where>
+	</sql>
+	
+	<sql id="sql_order">
+		<choose>
+	            <when test="sort != null and sort.trim() != ''">
+	                order by ${sort} ${order}
+	            </when>
+				<otherwise>
+	                order by `sort_no` desc,id desc
+				</otherwise>
+	        </choose>
+			<if test="offset != null and limit != null">
+				limit #{offset}, #{limit}
+			</if>
+	</sql>
+	
+</mapper>

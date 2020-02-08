@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.DictionaryDao">
+
+	<select id="get" resultType="com.ev.custom.domain.DictionaryDO">
+		select `id`,`name`,`value`,`parent_id`,`type_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_dictionary where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.DictionaryDO">
+		select `id`,`name`,`value`,`parent_id`,`type_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_dictionary
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="name != null and name != ''"> and name = #{name} </if>
+			<if test="value != null and value != ''"> and value = #{value} </if>
+			<if test="parentId != null and parentId != ''"> and parent_id = #{parentId} </if>
+			<if test="typeId != null and typeId != ''"> and type_id = #{typeId} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(1) from cus_dictionary
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="name != null and name != ''"> and name = #{name} </if>
+			<if test="value != null and value != ''"> and value = #{value} </if>
+			<if test="parentId != null and parentId != ''"> and parent_id = #{parentId} </if>
+			<if test="typeId != null and typeId != ''"> and type_id = #{typeId} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+	</select>
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		dic.id,
+		dic.name,
+		dic.value,
+		dic.parent_id,
+		dic.type_id,
+		dic.create_by,
+		dic.create_time,
+		dic.update_by,
+		dic.update_time,
+		dic.del_flag,
+		dictype.code as typecode,
+		dictype.name as typename
+		FROM
+		cus_dictionary dic
+		LEFT JOIN cus_dictionary_type dictype ON dic.type_id = dictype.id
+		<where>
+			<if test="id != null and id != ''"> and dic.id = #{id} </if>
+			<if test="name != null and name != ''"> and dic.name = #{name} </if>
+			<if test="value != null and value != ''"> and dic.value = #{value} </if>
+			<if test="parentId != null and parentId != ''"> and dic.parent_id = #{parentId} </if>
+			<if test="typeId != null and typeId != ''"> and dic.type_id = #{typeId} </if>
+			<if test="createBy != null and createBy != ''"> and dic.create_by = #{createBy} </if>
+			<if test="content != null and content != ''"> and dic.name LIKE CONCAT('%',CONCAT(#{content},'%')) </if>
+			<if test="createTime != null and createTime != ''"> and dic.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and dic.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and dic.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and dic.del_flag = #{delFlag} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="int">
+		SELECT
+		count(1)
+		FROM
+		cus_dictionary dic
+		LEFT JOIN cus_dictionary_type dictype ON dic.type_id = dictype.id
+		<where>
+			<if test="id != null and id != ''"> and dic.id = #{id} </if>
+			<if test="name != null and name != ''"> and dic.name = #{name} </if>
+			<if test="value != null and value != ''"> and dic.value = #{value} </if>
+			<if test="parentId != null and parentId != ''"> and dic.parent_id = #{parentId} </if>
+			<if test="typeId != null and typeId != ''"> and dic.type_id = #{typeId} </if>
+			<if test="createBy != null and createBy != ''"> and dic.create_by = #{createBy} </if>
+			<if test="content != null and content != ''"> and dic.name LIKE CONCAT('%',CONCAT(#{content},'%')) </if>
+			<if test="createTime != null and createTime != ''"> and dic.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and dic.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and dic.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and dic.del_flag = #{delFlag} </if>
+		</where>
+	</select>
+
+	<insert id="save" parameterType="com.ev.custom.domain.DictionaryDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_dictionary
+		(
+			`name`,
+			`value`,
+			`parent_id`,
+			`type_id`,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
+			`del_flag`
+		)
+		values
+		(
+			#{name},
+			#{value},
+			#{parentId},
+			#{typeId},
+			#{createBy},
+			#{createTime},
+			#{updateBy},
+			#{updateTime},
+			#{delFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.custom.domain.DictionaryDO">
+		update cus_dictionary
+		<set>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="value != null">`value` = #{value}, </if>
+			<if test="parentId != null">`parent_id` = #{parentId}, </if>
+			<if test="typeId != null">`type_id` = #{typeId}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from cus_dictionary where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from cus_dictionary where id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="listByType" resultType="com.ev.custom.domain.DictionaryDO">
+		SELECT
+		dic.id,
+		dic.name,
+		dic.value,
+		dic.parent_id,
+		dic.type_id,
+		dic.create_by,
+		dic.create_time,
+		dic.update_by,
+		dic.update_time,
+		dic.del_flag
+		FROM
+		cus_dictionary dic
+		LEFT JOIN cus_dictionary_type dictype ON dic.type_id = dictype.id
+		<where>
+			<if test="_parameter != null and _parameter != ''"> and dictype.code = #{type} </if>
+		</where>
+		order by id asc
+	</select>
+
+</mapper>

@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.DispatchItemDao">
+
+	<select id="get" resultType="com.ev.mes.domain.DispatchItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_dispatch_item 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.DispatchItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_dispatch_item
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_dispatch_item
+		<include refid="sql_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.DispatchItemDO" useGeneratedKeys="true" keyProperty="id">
+				insert into mes_dispatch_item
+		(
+			`code`,
+			`foriegn_id`,
+			`operator`,
+			`device_id`,
+			`supplier_id`,
+			`start_time`,
+			`end_time`,
+			`actual_end_time`,
+			`actual_start_time`,
+			`plan_count`,
+			`status`,
+			`completion_count`,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
+			`del_flag`
+		)
+		values
+		(
+			#{code},
+			#{foriegnId},
+			#{operator},
+			#{deviceId},
+			#{supplierId},
+			#{startTime},
+			#{endTime},
+			#{actualEndTime},
+			#{actualStartTime},
+			#{planCount},
+			#{status},
+			#{completionCount},
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.DispatchItemDO">
+		update mes_dispatch_item
+		<set>
+			<if test="code != null">`code` = #{code}, </if>
+			<if test="foriegnId != null">`foriegn_id` = #{foriegnId}, </if>
+			<if test="operator != null">`operator` = #{operator}, </if>
+			<if test="deviceId != null">`device_id` = #{deviceId}, </if>
+			<if test="supplierId != null">`supplier_id` = #{supplierId}, </if>
+			<if test="startTime != null">`start_time` = #{startTime}, </if>
+			<if test="endTime != null">`end_time` = #{endTime}, </if>
+			<if test="actualEndTime != null">`actual_end_time` = #{actualEndTime}, </if>
+			<if test="actualStartTime != null">`actual_start_time` = #{actualStartTime}, </if>
+			<if test="planCount != null">`plan_count` = #{planCount}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="completionCount != null">`completion_count` = #{completionCount}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+
+	
+	<delete id="remove">
+		delete from mes_dispatch_item where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_dispatch_item where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<sql id="sql_column_list">
+		`id`,`code`,`foriegn_id`,`operator`,`device_id`,`supplier_id`,`start_time`,`end_time`,`actual_end_time`,`actual_start_time`,`plan_count`,`status`,`completion_count`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+	<sql id="sql_condition">
+		<where>
+			<if test="maxNo != null and maxNo != ''"> and LEFT(code,12) = #{maxNo} </if>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="code != null and code != ''"> and code = #{code} </if>
+			<if test="foriegnId != null and foriegnId != ''"> and foriegn_id = #{foriegnId} </if>
+			<if test="operator != null and operator != ''"> and operator = #{operator} </if>
+			<if test="deviceId != null and deviceId != ''"> and device_id = #{deviceId} </if>
+			<if test="supplierId != null and supplierId != ''"> and supplier_id = #{supplierId} </if>
+			<if test="startTime != null and startTime != ''"> and start_time = #{startTime} </if>
+			<if test="endTime != null and endTime != ''"> and end_time = #{endTime} </if>
+			<if test="actualEndTime != null and actualEndTime != ''"> and actual_end_time = #{actualEndTime} </if>
+			<if test="actualStartTime != null and actualStartTime != ''"> and actual_start_time = #{actualStartTime} </if>
+			<if test="planCount != null and planCount != ''"> and plan_count = #{planCount} </if>
+			<if test="status != null and status != ''"> and status = #{status} </if>
+			<if test="completionCount != null and completionCount != ''"> and completion_count = #{completionCount} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+	</sql>
+
+
+	<select id="listForMapOfPlan" resultType="map">
+		select
+		a.id as planId,
+		a.work_order_no as workOrderNo,
+		b.process_id as processId,
+		c.name as processName,
+		a.materiel_id as materielId,
+		d.name as  materielName,
+		d.serial_no as serialNo,<!--物料编号-->
+		d.specification,<!--物料的规格型号-->
+		a.batch_no as batchNo,
+		b.id as planItemId,
+		b.plan_start_time as planStartTime,
+		b.plan_end_time as planEndTime,
+		b.already_count as alreadyCount,
+		b.plan_count  as planCount,
+		b.is_dispatching as  isDispatching,
+		case  when b.already_count=b.plan_count  then '派工完毕'
+		      when  b.already_count &lt;b.plan_count then '待派工'
+			  end  isDispatchingName,
+		b.is_outsource as isOutsource,
+		case  when b.already_count=b.plan_count  then '派工完毕'
+		      when  b.already_count &lt; b.plan_count then '待派工'
+		      end  isDispatchin,
+		b.dept_id as  deptId,
+		f.id_path as idPath
+		from
+		mes_working_procedure_plan  a
+		LEFT JOIN mes_working_procedure_detail  b  on  a.id=b.plan_id
+		LEFT JOIN mes_process  c    on  b.process_id=c.id
+		LEFT JOIN cus_materiel d    on  a.materiel_id=d.id
+		LEFT JOIN cus_dictionary e  on  b.is_dispatching=e.id
+		LEFT JOIN sys_dept f  on  b.dept_id=f.dept_id
+		<where>
+			<if test="idPath != null and idPath != ''"> and f.id_path Like CONCAT(#{idPath},'%') </if>
+			 and a.status not in (231,234,233) <!--231/234/233计划/结案/挂起-->
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by a.id DESC, b.is_dispatching  DESC,b.plan_start_time DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="countForListMapOfPlan" resultType="int">
+		select
+			count(*)
+		from
+		mes_working_procedure_plan  a
+		LEFT JOIN mes_working_procedure_detail  b  on  a.id=b.plan_id
+		LEFT JOIN mes_process    c    on  b.process_id=c.id
+		LEFT JOIN cus_materiel   d    on  a.materiel_id=d.id
+		LEFT JOIN cus_dictionary e  on  b.is_dispatching=e.id
+		LEFT JOIN sys_dept f  on  b.dept_id=f.dept_id
+		<where>
+			<if test="idPath != null and idPath != ''"> and f.id_path Like CONCAT(#{idPath},'%') </if>
+			and a.status not in (231,234,233) <!--231/234/233计划/结案/挂起-->
+		</where>
+	</select>
+
+	<select id="sendOfButton" resultType="map">
+		SELECT
+			a.id as planItemId,
+			a.is_outsource as isOutsource,
+			b.work_order_no as workOrderNo,
+			b.materiel_id as materielId,
+			d.name as  materielName,
+			d.specification,
+			c.name as processName,
+			a.already_count as alreadyCount,
+			a.plan_count  as planCount
+		from
+		mes_working_procedure_detail a
+		LEFT JOIN mes_working_procedure_plan  b  on  a.plan_id=b.id
+		LEFT JOIN cus_materiel d  on  b.materiel_id=d.id
+		LEFT JOIN mes_process  c  on  a.process_id=c.id
+		where
+		 a.id=#{value}
+	</select>
+
+	<select id="canDeletOfDispatch" resultType="int">
+		SELECT
+		count(*)
+		FROM mes_dispatch_working_hung
+		WHERE sign = 1
+		and
+		dispatch_item_id in
+		<foreach item="item" collection="id" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+
+	</select>
+
+
+	<select id="listForMapOfDispatch" resultType="map">
+		SELECT
+		*
+		from
+		(
+		SELECT
+		a.id as dispatchId,
+		a.`code`,
+		a.status,
+		p.name as statusName,
+		b.process_id as processId,
+		c.name as processName,
+		c.type,
+		d.name as typeName,
+		a.create_by as createBy,
+		j.name as createName,
+		IFNULL(a.create_time,'') as createTime,
+		a.operator,
+		e.name as operatorName,
+		a.device_id as deviceId,
+		f.name as deviceName,
+		a.supplier_id as supplierId,
+		t.name as supplierName,
+		g.materiel_id as materielId,
+		h.serial_no as serialNo,
+		h.name as materielName,
+		h.specification,
+		g.batch_no as batchNo,
+		IFNULL(a.start_time,'') as startTime,
+		IFNULL(a.end_time,'') as endTime,
+		a.plan_count as planCount,
+		a.completion_count as completionCount
+		FROM
+		mes_dispatch_item   a
+		LEFT JOIN mes_working_procedure_detail b  on a.foriegn_id=b.id
+		LEFT JOIN mes_process c  on b.process_id=c.id
+		LEFT JOIN cus_dictionary d  on c.type=d.id
+		LEFT JOIN sys_user  e  on a.operator=e.user_id
+		LEFT JOIN sys_user  j  on a.create_by=j.user_id
+		LEFT JOIN cus_device  f  on a.device_id=f.id
+		LEFT JOIN mes_working_procedure_plan  g  on b.plan_id=g.id
+		LEFT JOIN cus_materiel  h  on g.materiel_id=h.id
+		LEFT JOIN cus_supplier  t  on a.supplier_id=t.id
+		LEFT JOIN cus_dictionary p  on a.status=p.id
+		)  aaa
+		<where>
+				<if test="createBy != null and createBy != ''"> and createBy = #{createBy} </if>
+				<if test="operator != null and operator != ''"> and operator = #{operator} </if>
+				<if test="deviceId != null and deviceId != ''"> and deviceId = #{deviceId} </if>
+				<if test="processId != null and processId != ''"> and processId = #{processId}</if>
+				<if test="materielId != null and materielId != ''"> and materielId = #{materielId} </if>
+				<if test="code != null and code != ''"> and code like CONCAT('%',#{code},'%')</if>
+				<if test="batchNo != null and batchNo != ''"> and batchNo like CONCAT('%', #{batchNo},'%')</if>
+				<if test="startTimes != null and startTimes != ''"> and  DATE_FORMAT(startTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTimes},'%Y-%m-%d')</if>
+				<if test="endTimes != null and endTimes != ''">  and  DATE_FORMAT(endTime,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTimes},'%Y-%m-%d')</if>
+				<if test="supplier != null and supplier != ''"> and supplierId = #{supplier} </if>
+				<if test="createByName != null and createByName != ''"> and createName   like CONCAT('%',#{createByName},'%')  </if>
+				<if test="operatorName != null and operatorName != ''"> and operatorName like CONCAT('%',#{operatorName},'%')  </if>
+				<if test="processName != null and processName != ''">   and processName  like CONCAT('%',#{processName},'%')  </if>
+				<if test="materielName != null and materielName != ''"> and materielName like CONCAT('%',#{materielName},'%')  </if>
+				<if test="supplierName != null and supplierName != ''">   and supplierName  like CONCAT('%',#{supplierName},'%')  </if>
+				<if test="deviceName != null and deviceName != ''">   and deviceName  like CONCAT('%',#{deviceName},'%')  </if>
+			<if test="createTime != null and createTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') = DATE_FORMAT(#{createTime},'%Y-%m-%d')</if>
+			    <if test="status != null and status.length>0">and status in <foreach item="item" collection="status" open="(" separator="," close=")">#{item}</foreach> </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order},dispatchId DESC
+			</when>
+			<otherwise>
+				order by dispatchId DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMapOfDispatch" resultType="int">
+		select
+		count(*)
+		from
+		(
+		SELECT
+		a.id as dispatchId,
+		a.`code`,
+		a.status,
+		p.name as statusName,
+		b.process_id as processId,
+		c.name as processName,
+		c.type,
+		d.name as typeName,
+		a.create_by as createBy,
+		j.name as createName,
+		a.create_time as createTime,
+		a.operator,
+		e.name as operatorName,
+		a.device_id as deviceId,
+		f.name as deviceName,
+		a.supplier_id as supplierId,
+		t.name as supplierName,
+		g.materiel_id as materielId,
+		h.serial_no as serialNo,
+		h.name as materielName,
+		h.specification,
+		g.batch_no as batchNo,
+		a.start_time as startTime,
+		a.end_time as endTime,
+		a.plan_count as planCount,
+		a.completion_count as completionCount
+		FROM
+		mes_dispatch_item   a
+		LEFT JOIN mes_working_procedure_detail b  on a.foriegn_id=b.id
+		LEFT JOIN mes_process c  on b.process_id=c.id
+		LEFT JOIN cus_dictionary d  on c.type=d.id
+		LEFT JOIN sys_user  e  on a.operator=e.user_id
+		LEFT JOIN sys_user  j  on a.create_by=j.user_id
+		LEFT JOIN cus_device  f  on a.device_id=f.id
+		LEFT JOIN mes_working_procedure_plan  g  on b.plan_id=g.id
+		LEFT JOIN cus_materiel  h  on g.materiel_id=h.id
+		LEFT JOIN cus_supplier  t  on a.supplier_id=t.id
+		LEFT JOIN cus_dictionary p  on a.status=p.id
+		)aaa
+		<where>
+			<if test="createBy != null and createBy != ''"> and createBy = #{createBy} </if>
+			<if test="operator != null and operator != ''"> and operator = #{operator} </if>
+			<if test="deviceId != null and deviceId != ''"> and deviceId = #{deviceId} </if>
+			<if test="processId != null and processId != ''"> and processId = #{processId}</if>
+			<if test="materielId != null and materielId != ''"> and materielId = #{materielId} </if>
+			<if test="code != null and code != ''"> and code like CONCAT('%',#{code},'%')</if>
+			<if test="batchNo != null and batchNo != ''"> and batchNo like CONCAT('%', #{batchNo},'%')</if>
+			<if test="startTimes != null and startTimes != ''"> and  DATE_FORMAT(startTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTimes},'%Y-%m-%d')</if>
+			<if test="endTimes != null and endTimes != ''">  and  DATE_FORMAT(endTime,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTimes},'%Y-%m-%d')</if>
+			<if test="supplier != null and supplier != ''"> and supplierId = #{supplier} </if>
+			<if test="createByName != null and createByName != ''"> and createName   like CONCAT('%',#{createByName},'%')  </if>
+			<if test="operatorName != null and operatorName != ''"> and operatorName like CONCAT('%',#{operatorName},'%')  </if>
+			<if test="processName != null and processName != ''">   and processName  like CONCAT('%',#{processName},'%')  </if>
+			<if test="materielName != null and materielName != ''"> and materielName like CONCAT('%',#{materielName},'%')  </if>
+			<if test="supplierName != null and supplierName != ''">   and supplierName  like CONCAT('%',#{supplierName},'%')  </if>
+			<if test="createTime != null and createTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') = DATE_FORMAT(#{createTime},'%Y-%m-%d')</if>
+			<if test="status !=null and status.length>0">and status in <foreach item="item" collection="status" open="(" separator="," close=")">#{item}</foreach> </if>
+
+		</where>
+	</select>
+
+
+	<select id="rollBackOfDetail" resultType="map">
+		SELECT
+			a.id as dispatchId,
+			a.`code`,
+			c.work_order_no as planCode,
+			a.create_time as createTime,
+			d.name as deviceName,
+			e.name as deptName,
+			f.name as operatorName,
+			g.name as  processName,
+			h.name as createName,
+			a.plan_count as planCount,
+			a.completion_count as completionCount
+		FROM
+		mes_dispatch_item   a
+		LEFT JOIN mes_working_procedure_detail b  on a.foriegn_id=b.id
+		LEFT JOIN mes_working_procedure_plan c  on b.plan_id=c.id
+		LEFT JOIN cus_device d  on a.device_id=d.id
+		LEFT JOIN sys_dept e  on   b.dept_id=e.dept_id
+		LEFT JOIN sys_user  f on a.operator=f.user_id
+		LEFT JOIN mes_process g  on b.process_id=g.id
+		LEFT JOIN sys_user  h on a.create_by =h.user_id
+		WHERE
+			a.id=#{dispatchId}
+	</select>
+
+
+
+	<update id="changeOfDiapatchStatus" parameterType="int">
+		update
+		mes_dispatch_item
+		set
+		`status` = #{status}
+		where
+		  foriegn_id in
+		<foreach item="item" collection="id" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		AND status <![CDATA[<>]]> 234
+	</update>
+
+
+
+	<select id="getStatusOfPlanAndDisp" resultType="map">
+		SELECT
+		a.status as dispatchStatus,
+		c.status as planStatus
+		FROM
+		mes_dispatch_item   a
+		LEFT JOIN mes_working_procedure_detail b  on a.foriegn_id=b.id
+		LEFT JOIN mes_working_procedure_plan c  on b.plan_id=c.id
+		where
+		a.id=#{value}
+	</select>
+
+
+
+	<select id="canDelet" resultType="int">
+		select
+		COUNT(id)
+		from
+		mes_dispatch_item
+		where
+		status != 234
+		AND id in
+		<foreach item="item" collection="id" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+
+
+	<select id="getPDStartEndTime" resultType="map">
+		select
+			DISTINCT
+			a.id as planItemid,
+			a.reality_start_time as realityStartTime,
+			b.actual_start_time AS actualStartTime,
+			a.reality_end_time as realityEndTime,
+			b.actual_end_time AS actualEndTime
+		from
+			mes_working_procedure_detail  a
+		LEFT JOIN mes_dispatch_item b on  a.id=b.foriegn_id
+		WHERE
+			b.id =#{value}
+	</select>
+
+
+	<select id="getWHungTime" resultType="map">
+		select
+		id,
+		start_time as startTime,
+		hang_time as hangTime
+		from
+		mes_dispatch_working_hung
+		WHERE
+		sign=#{sign}
+		and
+		hang_time is NULL
+		and
+		dispatch_item_id=#{dispatchItemId}
+	</select>
+
+
+	<select id="countOfStartWorking" resultType="int">
+		SELECT
+		count(*)
+		from
+		mes_dispatch_item a
+		WHERE
+		a.`status`=237
+		and
+		a.operator=(SELECT b.operator from mes_dispatch_item b WHERE b.id=#{dispatchId})
+	</select>
+
+
+	<select id="getStartWorkByOperator" resultType="map">
+		SELECT
+		a.id as dispatchItemId,
+		a.operator,
+		n.name as operatorName,
+		a.`status`,
+		g.name as statusName,
+		a.code,
+		a.plan_count as planCount,
+		a.completion_count as completionCount,
+		c.materiel_id as materielId,
+		d.name as materielName,
+		d.serial_no as serialNo,
+		d.specification,
+		c.tec_route_id as tecRouteId,
+		b.is_examine as isExamine,
+		a.supplier_id as supplierId,
+		f.name as supplierName,
+		b.is_outsource as isOutsource,
+		b.`process_id` as processId,
+		m.name as processName,
+		a.device_id as deviceId,
+		p.name as deviceName,
+		a.start_time as startTime,
+		a.end_time as endTime,
+		a.actual_start_time as actualStartTime,
+		b.demand
+		from
+		mes_dispatch_item a
+		LEFT JOIN mes_working_procedure_detail  b  on  a.foriegn_id=b.id
+		LEFT JOIN mes_working_procedure_plan  c on  c.id=b.plan_id
+		LEFT JOIN cus_materiel d    on  c.materiel_id=d.id
+		LEFT JOIN cus_supplier   f on a.supplier_id=f.id
+		LEFT JOIN cus_dictionary   g on a.`status`=g.id
+		LEFT JOIN   mes_process    m on b.`process_id`=m.id
+		LEFT JOIN   sys_user    n on 		a.operator=user_id
+		LEFT JOIN   cus_device    p on 		a.device_id=p.id
+		WHERE
+		a.operator=#{operator}
+		and
+		a.`status`=237
+	</select>
+
+
+
+</mapper>

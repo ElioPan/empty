@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.PatrolDetailDao">
+
+	<select id="get" resultType="com.ev.custom.domain.PatrolDetailDO">
+		select `id`,`device_id`,`project_id`,`result`,`status`,`off_time`,`content`,`record_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_patrol_detail where id = #{value}
+	</select>
+	<select id="getRecordByDevice" resultType="map">
+		SELECT  
+		patrolrecord.id as recordId,
+		patrolrecord.`work_orderNo` as workOrderNo,
+		patrolrecord.`name` AS recordName,
+		dict.`value` as `statusValue`,
+		dict.`name` as `statusName`,
+		patrolrecord.`complete_time`
+		FROM cus_patrol_detail patroldetail
+		LEFT JOIN  cus_patrol_record patrolrecord ON patrolrecord.`id`=patroldetail.`record_id`
+		LEFT JOIN  cus_device device ON device.`id`=patroldetail.`device_id`
+		LEFT JOIN cus_dictionary dict ON dict.id=patrolrecord.`status`
+		 <where>  
+		  		  <if test="id != null and id != ''"> and patroldetail.id = #{id} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and patroldetail.`device_id` = #{deviceId} </if>
+		  		  <if test="recordId != null and recordId != ''"> and patroldetail.record_id = #{recordId} </if>
+				  <if test="createBy != null and createBy != ''"> and patroldetail.create_by = #{createBy} </if>
+				  <if test="createTime != null and createTime != ''"> and patroldetail.create_time = #{createTime} </if>
+				  <if test="updateBy != null and updateBy != ''"> and patroldetail.update_by = #{updateBy} </if>
+				  <if test="updateTime != null and updateTime != ''"> and patroldetail.update_time = #{updateTime} </if>
+				  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(patrolrecord.`complete_time`,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(patrolrecord.`complete_time`,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+				  <if test="delFlag != null and delFlag != ''"> and patroldetail.del_flag = #{delFlag} </if>						  		   
+		  		</where>
+		GROUP BY patrolrecord.id
+		<choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by patrolrecord.id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+		
+	</select>
+	<select id="list" resultType="com.ev.custom.domain.PatrolDetailDO">
+		select `id`,`device_id`,`project_id`,`result`,`status`,`off_time`,`content`,`record_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_patrol_detail
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and device_id = #{deviceId} </if>
+		  		  <if test="projectId != null and projectId != ''"> and project_id = #{projectId} </if>
+		  		  <if test="result != null and result != ''"> and result = #{result} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="content != null and content != ''"> and content = #{content} </if>
+		  		  <if test="recordId != null and recordId != ''"> and record_id = #{recordId} </if>
+				  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+				  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+				  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+				  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+				  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>						  		   
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	<select id="listForMap" resultType="map">
+		SELECT
+		device.id as deviceId,
+		patrolrecord.`id` as recordId,
+		patrolproject.`name` as projectName,
+		patrolproject.`function` as projectFunction,
+		patroldetail.`result` as projectResult,
+		patroldetail.`record_id` as recordId
+		FROM cus_patrol_detail patroldetail
+		LEFT JOIN  cus_patrol_project patrolproject ON patrolproject.`id`=patroldetail.`project_id`
+		LEFT JOIN  cus_patrol_record patrolrecord ON patrolrecord.`id`=patroldetail.`record_id`
+		LEFT JOIN  cus_device device ON device.`id`=patroldetail.`device_id`
+        <where>  
+		  		  <if test="id != null and id != ''"> and patroldetail.id = #{id} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and patroldetail.device_id = #{deviceId} </if>
+		  		  <if test="projectId != null and projectId != ''"> and patroldetail.project_id = #{projectId} </if>
+		  		  <if test="result != null and result != ''"> and patroldetail.result = #{result} </if>
+		  		  <if test="status != null and status != ''"> and patroldetail.status = #{status} </if>
+		  		  <if test="content != null and content != ''"> and patroldetail.content = #{content} </if>
+		  		  <if test="recordId != null and recordId != ''"> and patroldetail.record_id = #{recordId} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+			<otherwise>
+                ORDER BY patroldetail.id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="devicePatrolListForMap" resultType="map">
+		SELECT
+		device.id as deviceId,
+		device.`name` AS deviceName,
+		patrolrecord.`id` as recordId,
+		patrolrecord.`work_orderNo` AS workOrderNo,
+		patrolperson.`name` AS patrolpersonName,
+		patrolperson.`user_id` AS patrolpersonId,
+		patrolrecord.`name` AS recordName,
+		patrolproject.`name` as projectName,
+		patrolproject.`function` as projectFunction,
+		patroldetail.`result` as projectResult,
+		dict.`name` AS recordStatusName,
+		dict.`id` AS recordStatusId,
+		patrolrecord.`complete_time` as completeTime
+		FROM cus_patrol_detail patroldetail
+		LEFT JOIN  cus_patrol_project patrolproject ON patrolproject.`id`=patroldetail.`project_id`
+		LEFT JOIN  cus_patrol_record patrolrecord ON patrolrecord.`id`=patroldetail.`record_id`
+		LEFT JOIN  sys_user patrolperson ON patrolperson.`user_id`=patrolrecord.`engineer_id`
+		LEFT JOIN  cus_dictionary dict ON dict.id=patrolrecord.`status`
+		LEFT JOIN  cus_device device ON device.`id`=patroldetail.`device_id`
+        <where>  
+		  		  <if test="id != null and id != ''"> and patroldetail.id = #{id} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and patroldetail.device_id = #{deviceId} </if>
+		  		  <if test="projectId != null and projectId != ''"> and patroldetail.project_id = #{projectId} </if>
+		  		  <if test="recordStatus != null and recordStatus != ''"> and patrolrecord.status = #{recordStatus} </if>
+		  		  <if test="result != null and result != ''"> and patroldetail.result = #{result} </if>
+		  		  <if test="statusForBoard != null and statusForBoard != ''"> and IF(patrolrecord.end_time &lt; NOW() and dict.`id`=56,999,dict.`id`) = #{statusForBoard} </if>
+		  		  <if test="status != null and status != ''"> and patroldetail.status = #{status} </if>
+		  		  <if test="content != null and content != ''"> and patroldetail.content = #{content} </if>
+		  		  <if test="recordId != null and recordId != ''"> and patroldetail.record_id = #{recordId} </if>
+		  		  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(patrolrecord.`complete_time`,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(patrolrecord.`complete_time`,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+			<otherwise>
+                ORDER BY patroldetail.id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="devicePatrolCountForMap" resultType="int">
+		SELECT
+		COUNT(*)
+		FROM cus_patrol_detail patroldetail
+		LEFT JOIN  cus_patrol_project patrolproject ON patrolproject.`id`=patroldetail.`project_id`
+		LEFT JOIN  cus_patrol_record patrolrecord ON patrolrecord.`id`=patroldetail.`record_id`
+		LEFT JOIN  sys_user patrolperson ON patrolperson.`user_id`=patrolrecord.`engineer_id`
+		LEFT JOIN  cus_dictionary dict ON dict.id=patrolrecord.`status`
+		LEFT JOIN  cus_device device ON device.`id`=patroldetail.`device_id`
+        <where>  
+		  		  <if test="id != null and id != ''"> and patroldetail.id = #{id} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and patroldetail.device_id = #{deviceId} </if>
+		  		  <if test="projectId != null and projectId != ''"> and patroldetail.project_id = #{projectId} </if>
+		  		  <if test="recordStatus != null and recordStatus != ''"> and patrolrecord.status = #{recordStatus} </if>
+		  		  <if test="result != null and result != ''"> and patroldetail.result = #{result} </if>
+		  		  <if test="statusForBoard != null and statusForBoard != ''"> and IF(patrolrecord.end_time &lt; NOW() and dict.`id`=56,999,dict.`id`) = #{statusForBoard} </if>
+		  		  <if test="status != null and status != ''"> and patroldetail.status = #{status} </if>
+		  		  <if test="content != null and content != ''"> and patroldetail.content = #{content} </if>
+		  		  <if test="recordId != null and recordId != ''"> and patroldetail.record_id = #{recordId} </if>
+		  		  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(patrolrecord.`complete_time`,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(patrolrecord.`complete_time`,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		  		</where>
+	</select>
+	
+	<select id="countForMap" resultType="int">
+		SELECT COUNT(*)
+		FROM(SELECT COUNT(1)
+		FROM cus_patrol_detail patroldetail
+		LEFT JOIN  cus_patrol_record patrolrecord ON patrolrecord.`id`=patroldetail.`record_id`
+		LEFT JOIN  cus_device device ON device.`id`=patroldetail.`device_id`
+		LEFT JOIN cus_dictionary dict ON dict.id=patrolrecord.`status`
+		 <where>  
+		  		  <if test="id != null and id != ''"> and patroldetail.id = #{id} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and patroldetail.`device_id` = #{deviceId} </if>
+		  		  <if test="result != null and result != ''"> and patroldetail.result = #{result} </if>
+		  		  <if test="recordId != null and recordId != ''"> and patroldetail.record_id = #{recordId} </if>
+				  <if test="createBy != null and createBy != ''"> and patroldetail.create_by = #{createBy} </if>
+				  <if test="createTime != null and createTime != ''"> and patroldetail.create_time = #{createTime} </if>
+				  <if test="updateBy != null and updateBy != ''"> and patroldetail.update_by = #{updateBy} </if>
+				  <if test="updateTime != null and updateTime != ''"> and patroldetail.update_time = #{updateTime} </if>
+				  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(patrolrecord.`complete_time`,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(patrolrecord.`complete_time`,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+				  <if test="delFlag != null and delFlag != ''"> and patroldetail.del_flag = #{delFlag} </if>						  		   
+		  		</where>
+		GROUP BY patrolrecord.id) T
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_patrol_detail
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="deviceId != null and deviceId != ''"> and device_id = #{deviceId} </if>
+		  		  <if test="projectId != null and projectId != ''"> and project_id = #{projectId} </if>
+		  		  <if test="result != null and result != ''"> and result = #{result} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="content != null and content != ''"> and content = #{content} </if>
+		  		  <if test="recordId != null and recordId != ''"> and record_id = #{recordId} </if>
+				  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+				  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+				  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+				  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+				  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>		  		  
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.PatrolDetailDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_patrol_detail
+		(
+			`device_id`, 
+			`project_id`, 
+			`result`, 
+			`status`, 
+			`off_time`,
+			`content`, 
+			`record_id`, 
+
+			`create_by`, 
+
+			`create_time`, 
+
+			`update_by`, 
+
+			`update_time`, 
+
+			`del_flag`
+			
+		)
+		values
+		(
+			#{deviceId}, 
+			#{projectId}, 
+			#{result}, 
+			#{status}, 
+			#{offTime},
+			#{content}, 
+			#{recordId}, 
+
+			#{createBy}, 
+
+			#{createTime}, 
+
+			#{updateBy}, 
+
+			#{updateTime}, 
+
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.PatrolDetailDO">
+		update cus_patrol_detail 
+		<set>
+			<if test="deviceId != null">`device_id` = #{deviceId}, </if>
+			<if test="projectId != null">`project_id` = #{projectId}, </if>
+			<if test="result != null">`result` = #{result}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="offTime != null">`off_time` = #{offTime}, </if>
+			<if test="content != null">`content` = #{content}, </if>
+			<if test="recordId != null">`record_id` = #{recordId},</if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_patrol_detail where record_id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_patrol_detail where record_id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

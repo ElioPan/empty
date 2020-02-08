@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.StockInDao">
+
+	<select id="get" resultType="com.ev.scm.domain.StockInDO">
+		select `id`,`inhead_code`,`storage_type`,`source_company`,`operator`,`auditor`,`audit_sign`,`audit_time`,`in_time`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from scm_stock_in where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.StockInDO">
+		select `id`,`inhead_code`,`storage_type`,`source_company`,
+		client_id,
+		dept_id,
+		in_out_time,
+		`operator`,`auditor`,`audit_sign`,`audit_time`,
+		`in_time`,`remarks`,`create_by`,`create_time`,`update_by`,
+		`update_time`,`del_flag` from scm_stock_in
+		<where>
+			<if test="maxNo != null and maxNo != ''"> and LEFT(inhead_code,12) = #{maxNo} </if>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="inheadCode != null and inheadCode != ''"> and inhead_code = #{inheadCode} </if>
+			<if test="storageType != null and storageType != ''"> and storage_type = #{storageType} </if>
+			<if test="sourceCompany != null and sourceCompany != ''"> and source_company = #{sourceCompany} </if>
+			<if test="maxNo != null and maxNo != ''"> and LEFT(inhead_code,12) = #{maxNo} </if>
+			<if test="operator != null and operator != ''"> and operator = #{operator} </if>
+			<if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+			<if test="auditSign != null and auditSign != ''"> and audit_sign = #{auditSign} </if>
+			<if test="auditTime != null and auditTime != ''"> and audit_time = #{auditTime} </if>
+			<if test="inTime != null and inTime != ''"> and in_time = #{inTime} </if>
+			<if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from scm_stock_in
+		<where>
+
+			<if test="clientId != null and clientId != ''"> and client_id = #{clientId} </if>
+			<if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
+			<if test="inOutTime != null and inOutTime != ''"> and in_out_time = #{inOutTime} </if>
+
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="inheadCode != null and inheadCode != ''"> and inhead_code = #{inheadCode} </if>
+			<if test="storageType != null and storageType != ''"> and Storage_type = #{storageType} </if>
+			<if test="sourceCompany != null and sourceCompany != ''"> and source_company = #{sourceCompany} </if>
+			<if test="operator != null and operator != ''"> and operator = #{operator} </if>
+			<if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+			<if test="auditSign != null and auditSign != ''"> and audit_sign = #{auditSign} </if>
+			<if test="auditTime != null and auditTime != ''"> and audit_time = #{auditTime} </if>
+			<if test="inTime != null and inTime != ''"> and in_time = #{inTime} </if>
+			<if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+	</select>
+
+	<insert id="save" parameterType="com.ev.scm.domain.StockInDO" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_stock_in
+		(
+		`inhead_code`,
+		`Storage_type`,
+		`source_company`,
+		`client_id`,
+		`dept_id`,
+		`in_out_time`,
+		`operator`,
+		`purchase_type`,
+		`pay_account`,
+		`auditor`,
+		`audit_sign`,
+		`audit_time`,
+		`in_time`,
+		`remarks`,
+		`create_by`,
+		`create_time`,
+		`update_by`,
+		`update_time`,
+		`del_flag`
+		)
+		values
+		(
+		#{inheadCode},
+		#{storageType},
+		#{sourceCompany},
+		#{clientId},
+		#{deptId},
+		#{inOutTime},
+		#{operator},
+		#{purchaseType},
+		#{payAccount},
+		#{auditor},
+		#{auditSign},
+		#{auditTime},
+		#{inTime},
+		#{remarks},
+		#{createBy},
+		#{createTime},
+		#{updateBy},
+		#{updateTime},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.scm.domain.StockInDO">
+		update scm_stock_in
+		<set>
+			<if test="inheadCode != null">`inhead_code` = #{inheadCode}, </if>
+			<if test="storageType != null">`Storage_type` = #{storageType}, </if>
+			<if test="sourceCompany != null">`source_company` = #{sourceCompany}, </if>
+
+			<if test="clientId != null"> and client_id = #{clientId}, </if>
+			<if test="deptId != null"> and dept_id = #{deptId}, </if>
+			<if test="inOutTime != null"> and in_out_time = #{inOutTime}, </if>
+
+			<if test="operator != null">`operator` = #{operator}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+			<if test="auditTime != null">`audit_time` = #{auditTime}, </if>
+			<if test="inTime != null">`in_time` = #{inTime}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from scm_stock_in where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from scm_stock_in where id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="getlistByIndata" resultType="map">
+		select
+		cpihead.id,
+		cpihead.audit_time,
+		cpihead.remarks,
+		cpihead.source_company,
+		cpihead.inhead_code,
+		cpihead.Storage_type,
+		cpihead.create_time,
+		dept.name AS  company_name,
+		cdtion.name  AS  auditSing_name,
+		usera.name AS   auditor_name,
+		userb.name AS   create_name,
+		userc.name AS operator_name,
+		cpihead.purchase_type,cpihead.pay_account
+		from scm_stock_in cpihead
+		LEFT JOIN  cus_dictionary  cdtion  ON cpihead.audit_sign=cdtion.id
+		LEFT JOIN  cus_supplier  dept  ON cpihead.source_company=dept.id
+		LEFT JOIN  sys_user  usera  ON cpihead.auditor=usera.user_id
+		LEFT JOIN  sys_user  userb  ON cpihead.create_by=userb.user_id
+		LEFT JOIN  sys_user  userc  ON cpihead.operator=userc.user_id
+		<where>
+			<if test="id != null and id != ''"> and cpihead.id = #{id} </if>
+			<if test="storageType != null and storageType != ''"> and cpihead.Storage_type = #{storageType} </if>
+
+			<if test="inheadCode != null and inheadCode != ''"> AND cpihead.inhead_code like  CONCAT('%',#{inheadCode},'%')  </if>
+
+			<if test="startTime != null and startTime!= ''"> and  DATE_FORMAT(cpihead.in_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(cpihead.in_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+
+			<if test="auditSign != null and auditSign != ''"> and cpihead.audit_sign =#{auditSign} </if>
+			<if test="operator != null and operator != ''"> AND cpihead.operator LIKE CONCAT('%',#{operator},'%') </if>
+			<if test="createBy != null and createBy != ''"> AND cpihead.create_by =#{createBy} </if>
+			<if test="createTime != null and createTime != ''"> AND cpihead.create_time #{createTime} </if>
+			<if test="sourceCompany != null and sourceCompany != ''"> AND dept.name LIKE  CONCAT('%',#{sourceCompany},'%') </if>
+
+			<if test="sourceCompanyId != null and sourceCompanyId != ''">  cpihead.source_company=#{sourceCompany} </if>
+
+			<if test="auditor != null and auditor != ''"> and cpihead.auditor = #{auditor} </if>
+
+			<if test="auditTime != null and auditTime != ''"> and cpihead.audit_time = #{auditTime} </if>
+			<if test="remarks != null and remarks != ''"> and cpihead.remarks = #{remarks} </if>
+
+			<if test="updateBy != null and updateBy != ''"> and cpihead.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and cpihead.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and cpihead.del_flag = #{delFlag} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countOfList" resultType="int">
+		select count(*)
+		from scm_stock_in cpihead
+		LEFT JOIN  cus_dictionary  cdtion  ON cpihead.audit_sign=cdtion.id
+		LEFT JOIN  cus_supplier  dept  ON cpihead.source_company=dept.id
+		LEFT JOIN  sys_user  usera  ON cpihead.auditor=usera.user_id
+		LEFT JOIN  sys_user  userb  ON cpihead.create_by=userb.user_id
+		LEFT JOIN  sys_user  userc  ON cpihead.operator=userc.user_id
+		<where>
+			<if test="id != null and id != ''"> and cpihead.id = #{id} </if>
+			<if test="storageType != null and storageType != ''"> and cpihead.Storage_type = #{storageType} </if>
+
+			<if test="inheadCode != null and inheadCode != ''"> AND cpihead.inhead_code like  CONCAT('%',#{inheadCode},'%')  </if>
+			<if test="startTime != null and startTime!= ''"> and  DATE_FORMAT(cpihead.in_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(cpihead.in_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+
+			<if test="auditSign != null and auditSign != ''"> and cpihead.audit_sign =#{auditSign} </if>
+			<if test="operator != null and operator != ''"> AND cpihead.operator LIKE CONCAT('%',#{operator},'%') </if>
+			<if test="createBy != null and createBy != ''"> AND cpihead.create_by =#{createBy} </if>
+			<if test="createTime != null and createTime != ''"> AND cpihead.create_time #{createTime} </if>
+			<if test="sourceCompany != null and sourceCompany != ''"> AND dept.name LIKE  CONCAT('%',#{sourceCompany},'%') </if>
+
+			<if test="sourceCompanyId != null and sourceCompanyId != ''">  cpihead.source_company=#{sourceCompany} </if>
+
+			<if test="auditor != null and auditor != ''"> and cpihead.auditor = #{auditor} </if>
+
+			<if test="auditTime != null and auditTime != ''"> and cpihead.audit_time = #{auditTime} </if>
+			<if test="remarks != null and remarks != ''"> and cpihead.remarks = #{remarks} </if>
+
+			<if test="updateBy != null and updateBy != ''"> and cpihead.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and cpihead.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and cpihead.del_flag = #{delFlag} </if>
+		</where>
+	</select>
+
+	<!--查看明细 ：头数据-->
+	<select id="getHeadDetailById" resultType="map">
+		select
+		    a.id  as headId,
+		    a.client_id as clientId,
+			e.name as clientName,
+			a.dept_id as deptId,
+			f.name as deptName,
+			a.in_out_time as inOutTime,
+			a.source_company as sourceCompany,
+			a.in_time as inTime,
+			a.inhead_code as inheadCode,
+			a.remarks,
+			a.create_by as createById,
+			b.name as  createName,
+			a.create_time as createTime,
+			a.auditor as auditor,
+			c.name  as auditorName,
+			a.audit_sign as auditSign,
+			d.name as  auditSingName
+		from scm_stock_in  a
+		LEFT JOIN sys_user  b ON  a.create_by=b.user_id
+		LEFT JOIN sys_user  c ON  a.auditor=c.user_id
+		LEFT JOIN cus_dictionary d ON  a.audit_sign=d.id
+		LEFT JOIN cus_client e ON  a.client_id=e.id
+		LEFT JOIN sys_dept f ON  a.dept_id=f.dept_id
+		WHERE   a.id=#{id}
+	</select>
+
+	<select id="canDeletOfCount" resultType="int">
+		select
+		count(id)
+		from
+		scm_stock_in
+		where
+		audit_sign =178
+		and  id in
+		<foreach item="item" collection="id" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+
+
+	<select id="listForMap" resultType="map">
+		select
+		*
+		from
+		(
+			select
+			a.id,
+			a.inhead_code   as inheadCode,
+			a.storage_type  as  storageType,
+			b.name as storageTypeName,
+			a.source_company as sourceCompany,
+			c.name as sourceCompanyName,
+			a.client_id	   as clientId,
+			d.name as clientName,
+			a.dept_id	as deptId,
+			e.name as deptName,
+			a.in_out_time  as inOutTime,
+			a.operator  as operator,
+			f.name as operatorName,
+			a.purchase_type  as purchaseType,
+			g.name as purchaseTypeName,
+			a.pay_account	 as payAccount,
+			a.auditor ,
+			h.name as auditorName,
+			a.audit_sign as  auditSign,
+			i.name as auditSignName,
+			a.audit_time as  auditTime,
+			a.in_time	as   inTime,
+			a.remarks   as   remarks,
+			a.create_by	 as   createBy,
+			j.name as crateByName,
+			a.create_time  as createTime,
+			aa.materiel_id	as materielId,
+			m.serial_no as serialno,
+			m.name as materielName,
+			m.specification ,
+			m.unit_uom as unitNom,
+			n.name as unitName,
+			aa.batch ,
+			aa.count ,
+			aa.unit_price	as unitPrice,
+			aa.amount,
+			aa.warehouse,
+			o.name as warehouseName,
+			aa.wareh_location	as warehLocation,
+			p.name as  warehLocationName,
+			aa.return_reason as returnReason,
+			aa.source_type	 as sourceType,
+			q.name as sourceTypeName,
+			aa.source_code	 as  sourceCode,
+			aa.source_id     as  sourceId,
+			aa.expense
+			from
+				scm_stock_in  a
+			LEFT JOIN  cus_dictionary b  ON a.storage_type=b.id
+			LEFT JOIN  cus_supplier c    ON a.source_company=c.id
+			LEFT JOIN  cus_client d  ON a.client_id=d.id
+			LEFT JOIN  sys_dept e    ON a.dept_id=e.dept_id
+			LEFT JOIN  sys_user f    ON a.operator=f.user_id
+			LEFT JOIN  cus_dictionary g  ON a.purchase_type=g.id
+			LEFT JOIN  sys_user  h  ON a.auditor=h.user_id
+			LEFT JOIN  cus_dictionary i  ON a.audit_sign=i.id
+			LEFT JOIN  sys_user j    ON a.create_by=j.user_id
+			LEFT JOIN  scm_stock_in_item  aa ON a.id=aa.inhead_id
+			LEFT JOIN  cus_materiel m  ON aa.materiel_id=m.id
+			LEFT JOIN  cus_dictionary n  ON m.unit_uom=n.id
+			LEFT JOIN  cus_facility o  ON aa.warehouse=o.id
+			LEFT JOIN  cus_facility_location p  ON aa.wareh_location=p.id
+			LEFT JOIN  cus_dictionary q ON aa.source_type=q.id
+		)aa
+		<where>
+			<if test="storageType != null and storageType != ''"> and storageType = #{storageType} </if>
+			<if test="inheadCode != null and inheadCode != ''"> and inheadCode = #{inheadCode} </if>
+			<if test="storageTypeName != null and storageTypeName != ''"> AND storageTypeName like  CONCAT('%',#{storageTypeName},'%')  </if>
+			<if test="sourceCompany != null and sourceCompany != ''"> and sourceCompany = #{sourceCompany} </if>
+			<if test="sourceCompanyName != null and sourceCompanyName != ''"> AND sourceCompanyName like  CONCAT('%',#{sourceCompanyName},'%')  </if>
+			<if test="clientId != null and clientId != ''"> and clientId = #{clientId} </if>
+			<if test="clientName != null and clientName != ''"> AND clientName like  CONCAT('%',#{clientName},'%')  </if>
+			<if test="inOutTime != null and inOutTime!= ''"> and  DATE_FORMAT(inOutTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{inOutTime},'%Y-%m-%d')</if>
+			<if test="inOutTime != null and inOutTime != ''">  and  DATE_FORMAT(inOutTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{inOutTime},'%Y-%m-%d')</if>
+			<if test="startTime != null and startTime!= ''"> and  DATE_FORMAT(inOutTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(inOutTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="operator != null and operator != ''"> and operator = #{operator} </if>
+			<if test="operatorName != null and operatorName != ''"> AND operatorName like  CONCAT('%',#{operatorName},'%')  </if>
+			<if test="purchaseType != null and purchaseType != ''"> and purchaseType = #{purchaseType} </if>
+			<if test="materielName != null and materielName != ''"> and materielName ike  CONCAT('%',#{materielName},'%') </if>
+			<if test="materielSpecification != null and materielSpecification != ''"> and specification ike  CONCAT('%',#{materielSpecification},'%') </if>
+			<if test="auditSign != null and auditSign != ''"> and auditSign = #{auditSign} </if>
+			<if test="createBy != null and createBy != ''"> and createBy = #{createBy} </if>
+			<if test="createByName != null and createByName != ''"> AND createByName like  CONCAT('%',#{createByName},'%')  </if>
+			<if test="supplierName != null and supplierName != ''"> AND sourceCompanyName like  CONCAT('%',#{supplierName},'%')  </if>
+			<if test="deptName != null and deptName != ''"> AND deptName like  CONCAT('%',#{deptName},'%')  </if>
+			<if test="batch != null and batch != ''"> and batch = #{batch} </if>
+			<if test="createTime != null and createTime != ''"> and createTime = #{createTime} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="countForMap" resultType="map">
+		select
+		count(id) as `count`,
+		IF(SUM(`count`) IS null,0,SUM(`count`)) as toatalCount,
+		IF(SUM(amount) IS null,0,SUM(count)) as toatalAmount
+		from
+		(
+		select
+		a.id,
+		a.inhead_code   as inheadCode,
+		a.storage_type  as  storageType,
+		b.name as storageTypeName,
+		a.source_company as sourceCompany,
+		c.name as sourceCompanyName,
+		a.client_id	   as clientId,
+		d.name as clientName,
+		a.dept_id	as deptId,
+		e.name as deptName,
+		a.in_out_time  as inOutTime,
+		a.operator  as operator,
+		f.name as operatorName,
+		a.purchase_type  as purchaseType,
+		g.name as purchaseTypeName,
+		a.pay_account	 as payAccount,
+		a.auditor ,
+		h.name as auditorName,
+		a.audit_sign as  auditSign,
+		i.name as auditSignName,
+		a.audit_time as  auditTime,
+		a.in_time	as   inTime,
+		a.remarks   as   remarks,
+		a.create_by	 as   createBy,
+		j.name as crateByName,
+		a.create_time  as createTime,
+		aa.materiel_id	as materielId,
+		m.serial_no as serialno,
+		m.name as materielName,
+		m.specification ,
+		m.unit_uom as unitNom,
+		n.name as unitName,
+		aa.batch ,
+		aa.count ,
+		aa.unit_price	as unitPrice,
+		aa.amount,
+		aa.warehouse,
+		o.name as warehouseName,
+		aa.wareh_location	as warehLocation,
+		p.name as  warehLocationName,
+		aa.return_reason as returnReason,
+		aa.source_type	 as sourceType,
+		q.name as sourceTypeName,
+		aa.source_code	 as  sourceCode,
+		aa.source_id     as  sourceId,
+		aa.expense
+		from
+		scm_stock_in  a
+		LEFT JOIN  cus_dictionary b  ON a.storage_type=b.id
+		LEFT JOIN  cus_supplier c    ON a.source_company=c.id
+		LEFT JOIN  cus_client d  ON a.client_id=d.id
+		LEFT JOIN  sys_dept e    ON a.dept_id=e.dept_id
+		LEFT JOIN  sys_user f    ON a.operator=f.user_id
+		LEFT JOIN  cus_dictionary g  ON a.purchase_type=g.id
+		LEFT JOIN  sys_user  h  ON a.auditor=h.user_id
+		LEFT JOIN  cus_dictionary i  ON a.audit_sign=i.id
+		LEFT JOIN  sys_user j    ON a.create_by=j.user_id
+		LEFT JOIN  scm_stock_in_item  aa ON a.id=aa.inhead_id
+		LEFT JOIN  cus_materiel m  ON aa.materiel_id=m.id
+		LEFT JOIN  cus_dictionary n  ON m.unit_uom=n.id
+		LEFT JOIN  cus_facility o  ON aa.warehouse=o.id
+		LEFT JOIN  cus_facility_location p  ON aa.wareh_location=p.id
+		LEFT JOIN  cus_dictionary q ON aa.source_type=q.id
+		)aa
+		<where>
+			<if test="storageType != null and storageType != ''"> and storageType = #{storageType} </if>
+			<if test="inheadCode != null and inheadCode != ''"> and inheadCode = #{inheadCode} </if>
+			<if test="storageTypeName != null and storageTypeName != ''"> AND storageTypeName like  CONCAT('%',#{storageTypeName},'%')  </if>
+			<if test="sourceCompany != null and sourceCompany != ''"> and sourceCompany = #{sourceCompany} </if>
+			<if test="sourceCompanyName != null and sourceCompanyName != ''"> AND sourceCompanyName like  CONCAT('%',#{sourceCompanyName},'%')  </if>
+			<if test="clientId != null and clientId != ''"> and clientId = #{clientId} </if>
+			<if test="clientName != null and clientName != ''"> AND clientName like  CONCAT('%',#{clientName},'%')  </if>
+			<if test="inOutTime != null and inOutTime!= ''"> and  DATE_FORMAT(inOutTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{inOutTime},'%Y-%m-%d')</if>
+			<if test="inOutTime != null and inOutTime != ''">  and  DATE_FORMAT(inOutTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{inOutTime},'%Y-%m-%d')</if>
+			<if test="startTime != null and startTime!= ''"> and  DATE_FORMAT(inOutTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(inOutTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="operator != null and operator != ''"> and operator = #{operator} </if>
+			<if test="operatorName != null and operatorName != ''"> AND operatorName like  CONCAT('%',#{operatorName},'%')  </if>
+			<if test="purchaseType != null and purchaseType != ''"> and purchaseType = #{purchaseType} </if>
+			<if test="materielName != null and materielName != ''"> and materielName ike  CONCAT('%',#{materielName},'%') </if>
+			<if test="materielSpecification != null and materielSpecification != ''"> and specification ike  CONCAT('%',#{materielSpecification},'%') </if>
+			<if test="auditSign != null and auditSign != ''"> and auditSign = #{auditSign} </if>
+			<if test="createBy != null and createBy != ''"> and createBy = #{createBy} </if>
+			<if test="createByName != null and createByName != ''"> AND createByName like  CONCAT('%',#{createByName},'%')  </if>
+			<if test="supplierName != null and supplierName != ''"> AND sourceCompanyName like  CONCAT('%',#{supplierName},'%')  </if>
+			<if test="deptName != null and deptName != ''"> AND deptName like  CONCAT('%',#{deptName},'%')  </if>
+			<if test="batch != null and batch != ''"> and batch = #{batch} </if>
+			<if test="createTime != null and createTime != ''"> and createTime = #{createTime} </if>
+		</where>
+	</select>
+
+	<select id="deatilOfhead" resultType="map">
+		select
+		a.id,
+		a.inhead_code   as inheadCode,
+		a.storage_type  as  storageType,
+		b.name as storageTypeName,
+		a.source_company as sourceCompany,
+		c.name as sourceCompanyName,
+		a.client_id	   as clientId,
+		d.name as clientName,
+		a.dept_id	as deptId,
+		e.name as deptName,
+		a.in_out_time  as inOutTime,
+		a.operator  as operator,
+		f.name as operatorName,
+		a.purchase_type  as purchaseType,
+		g.name as purchaseTypeName,
+		a.pay_account	 as payAccount,
+		a.auditor ,
+		h.name as auditorName,
+		a.audit_sign as  auditSign,
+		i.name as auditSignName,
+		a.audit_time as  auditTime,
+		a.in_time	as   inTime,
+		a.remarks   as   remarks,
+		a.create_by	 as   createBy,
+		j.name as crateByName,
+		a.create_time  as createTime
+		from
+		scm_stock_in  a
+		LEFT JOIN  cus_dictionary b  ON a.storage_type=b.id
+		LEFT JOIN  cus_supplier c    ON a.source_company=c.id
+		LEFT JOIN  cus_client d  ON a.client_id=d.id
+		LEFT JOIN  sys_dept e    ON a.dept_id=e.dept_id
+		LEFT JOIN  sys_user f    ON a.operator=f.user_id
+		LEFT JOIN  cus_dictionary g  ON a.purchase_type=g.id
+		LEFT JOIN  sys_user  h  ON a.auditor=h.user_id
+		LEFT JOIN  cus_dictionary i  ON a.audit_sign=i.id
+		LEFT JOIN  sys_user j    ON a.create_by=j.user_id
+		where a.id=#{id}
+	</select>
+
+
+
+
+</mapper>

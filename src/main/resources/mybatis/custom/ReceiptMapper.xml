@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.ReceiptDao">
+
+	<select id="get" resultType="Map">
+		select recp.`id`,recp.`username`,`total_receivables` as `totalReceivables`,`receivables_date` as `receivablesDate`,`payee`,dictc.name as `collectionType`,
+			   `receipt_num` as `receiptNum`,dict.name as `auditStatus`,usera.username as `auditor`,recp.`auditor_time` as auditorTime,
+			   userc.username as `createBy`,recp.`create_time` as createTime,useru.username as `updateBy`,recp.`update_time` as updateTime,recp.`del_flag` as delFlag 
+			from cus_receipt recp left join cus_dictionary dict on recp.audit_status = dict.id left join sys_user usera on recp.auditor = usera.user_id left join sys_user userc on recp.create_by = userc.user_id 
+				 left join sys_user useru on recp.update_by = useru.user_id left join cus_dictionary dictc on recp.collection_type = dictc.id
+			where recp.id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.ReceiptDO">
+		select `id`,`username`,`total_receivables`,`receivables_date`,`payee`,`collection_type`,`receipt_num`,`audit_status`,`auditor`,`auditor_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_receipt
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="username != null and username != ''"> and username = #{username} </if>
+		  		  <if test="totalReceivables != null and totalReceivables != ''"> and total_receivables = #{totalReceivables} </if>
+		  		  <if test="receivablesDate != null and receivablesDate != ''"> and receivables_date = #{receivablesDate} </if>
+		  		  <if test="payee != null and payee != ''"> and payee = #{payee} </if>
+		  		  <if test="collectionType != null and collectionType != ''"> and collection_type = #{collectionType} </if>
+		  		  <if test="receiptNum != null and receiptNum != ''"> and receipt_num = #{receiptNum} </if>
+		  		  <if test="maxNo != null and maxNo != ''"> and LEFT(inhead_code,12) = #{maxNo} </if>
+		  		  <if test="auditStatus != null and auditStatus != ''"> and audit_status = #{auditStatus} </if>
+		  		  <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+		  		  <if test="auditorTime != null and auditorTime != ''"> and auditor_time = #{auditorTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_receipt
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="username != null and username != ''"> and username = #{username} </if>
+		  		  <if test="totalReceivables != null and totalReceivables != ''"> and total_receivables = #{totalReceivables} </if>
+		  		  <if test="receivablesDate != null and receivablesDate != ''"> and receivables_date = #{receivablesDate} </if>
+		  		  <if test="payee != null and payee != ''"> and payee = #{payee} </if>
+		  		  <if test="collectionType != null and collectionType != ''"> and collection_type = #{collectionType} </if>
+		  		  <if test="receiptNum != null and receiptNum != ''"> and receipt_num = #{receiptNum} </if>
+		  		  <if test="auditStatus != null and auditStatus != ''"> and audit_status = #{auditStatus} </if>
+		  		  <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+		  		  <if test="auditorTime != null and auditorTime != ''"> and auditor_time = #{auditorTime} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	
+	<select id="listApi" resultType="Map">
+		select recp.`id`,recp.`username`,`total_receivables` as `totalReceivables`,`receivables_date` as `receivablesDate`,`payee`,dictc.name as `collectionType`,
+			   `receipt_num` as `receiptNum`,dict.name as `auditStatus`,usera.username as `auditor`,recp.`auditor_time` as `auditorTime`,userc.username as `createBy`,
+			   recp.`create_time` as `createTime`,useru.username as `updateBy`,recp.`update_time` as `updateTime`,recp.`del_flag` as `delFlag`,`rid`,`document_date` as 
+			   `documentDate`,`receivable_date` as `receivableDate`,`receivable_money` as `receivableMoney`,`received_money` as `receivedMoney`,`this_receivable` as 
+			   `thisReceivable`,`unpay_money` as `unpayMoney`,`pay_account` as `payAccount`,dictm.name as `settlementMethod`,`settlement_num` as `settlementNum`,
+				`remarks`,dicts.name as `sourceType`,`source_num` as `sourceNum`,`receipt_id` as `receiptId`,`rdel_flag` as `rdelFlag`
+				from cus_receipt recp left join cus_receipt_item recpitem on recp.id = recpitem.`receipt_id` 
+				left join cus_dictionary dict on recp.audit_status = dict.id
+				left join sys_user usera on recp.auditor = usera.user_id left join sys_user userc on recp.create_by = userc.user_id 
+				left join sys_user useru on recp.update_by = useru.user_id left join cus_dictionary dicts on recpitem.source_type = dicts.id
+				left join cus_dictionary dictc on recp.collection_type = dictc.id left join cus_dictionary dictm on recpitem.settlement_method = dictm.id
+        <where>  
+		  		  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(invoice_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(invoice_date,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+				  <if test="receiptNum != null and receiptNum != ''"> and receipt_num = #{receiptNum} </if>
+				  <if test="username != null and username != ''"> and recp.username = #{username} </if>
+				  <if test="sourceNum != null and sourceNum != ''"> and source_num = #{sourceNum} </if>
+				  <if test="payee != null and payee != ''"> and payee = #{payee} </if>
+				  <if test="payAccount != null and payAccount != ''"> and pay_account = #{payAccount} </if>
+				  <if test="settlementMethod != null and settlementMethod != ''"> and settlement_method = #{settlementMethod} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="countApi" resultType="int">
+		select count(*) from cus_receipt recp left join cus_receipt_item recpitem on recp.id = recpitem.`receipt_id` 
+				left join cus_dictionary dict on recp.audit_status = dict.id
+				left join sys_user usera on recp.auditor = usera.user_id left join sys_user userc on recp.create_by = userc.user_id 
+				left join sys_user useru on recp.update_by = useru.user_id left join cus_dictionary dicts on recpitem.source_type = dicts.id
+				left join cus_dictionary dictc on recp.collection_type = dictc.id left join cus_dictionary dictm on recpitem.settlement_method = dictm.id
+		 <where>  
+		  		  <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(invoice_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				  <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(invoice_date,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+				  <if test="receiptNum != null and receiptNum != ''"> and receipt_num = #{receiptNum} </if>
+				  <if test="username != null and username != ''"> and recp.username = #{username} </if>
+				  <if test="sourceNum != null and sourceNum != ''"> and source_num = #{sourceNum} </if>
+				  <if test="payee != null and payee != ''"> and payee = #{payee} </if>
+				  <if test="payAccount != null and payAccount != ''"> and pay_account = #{payAccount} </if>
+				  <if test="settlementMethod != null and settlementMethod != ''"> and settlement_method = #{settlementMethod} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.ReceiptDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_receipt
+		(
+			`username`, 
+			`total_receivables`, 
+			`receivables_date`, 
+			`payee`, 
+			`collection_type`, 
+			`receipt_num`, 
+			`audit_status`, 
+			`auditor`, 
+			`auditor_time`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{username}, 
+			#{totalReceivables}, 
+			#{receivablesDate}, 
+			#{payee}, 
+			#{collectionType}, 
+			#{receiptNum}, 
+			#{auditStatus}, 
+			#{auditor}, 
+			#{auditorTime}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.ReceiptDO">
+		update cus_receipt 
+		<set>
+			<if test="username != null">`username` = #{username}, </if>
+			<if test="totalReceivables != null">`total_receivables` = #{totalReceivables}, </if>
+			<if test="receivablesDate != null">`receivables_date` = #{receivablesDate}, </if>
+			<if test="payee != null">`payee` = #{payee}, </if>
+			<if test="collectionType != null">`collection_type` = #{collectionType}, </if>
+			<if test="receiptNum != null">`receipt_num` = #{receiptNum}, </if>
+			<if test="auditStatus != null">`audit_status` = #{auditStatus}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="auditorTime != null">`auditor_time` = #{auditorTime}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<update id="reverseAudit" parameterType="Long">
+		update cus_receipt set `audit_status` = 178 where id = #{id}
+	</update>
+	
+	<update id="audit" parameterType="Long">
+		update cus_receipt set `audit_status` = 179 where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_receipt where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_receipt where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

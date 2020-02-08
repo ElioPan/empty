@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head th:include="include :: header">
+</head>
+<link href="/css/plugins/imageUpload/common.css" type="text/css" rel="stylesheet"/>
+<link href="/css/plugins/imageUpload/index.css" type="text/css" rel="stylesheet"/>
+<link href="/css/plugins/blueimp/css/blueimp-gallery.min.css" rel="stylesheet">
+
+<body class="gray-bg">
+<div class="wrapper wrapper-content ">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <form class="form-horizontal m-t" id="signupForm">
+                        <input id="taskid" name="taskid" th:value="${taskMain.id}" type="hidden">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">原因分析：</label>
+                            <div class="col-sm-11">
+                                <input id="reason" name="reason" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">解决方案：</label>
+                            <div class="col-sm-11">
+                                <input id="solution" name="solution" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">验收人：</label>
+                            <div class="col-sm-3">
+                                <select id="checkPerson" name="checkPerson" th:value="${taskMain.createBy}" class="form-control m-b">
+                                    <option value="">--请选择--</option>
+                                    <option th:each="userHeld,userStat:${userList}" th:value="${userHeld.userId}" th:text="${userHeld.name}" th:selected="${taskMain.createBy==userHeld.userId}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">抄送人：</label>
+                            <div class="col-sm-11">
+                                <select data-placeholder="选择抄送人（可以不选）" name="ccList"  class="chosen-select" style="width: 100%;" multiple="multiple" tabindex="4">
+                                    <option value="">--请选择--</option>
+                                    <option th:each="userCC,userStat:${userList}" th:value="${userCC.userId}" th:text="${userCC.name}" th:selected="${#lists.contains(ccIdList, userCC.userId.toString())}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <button type="submit" class="btn btn-primary">提交</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:include="include::footer"></div>
+    <script type="text/javascript" src="/js/appjs/custom/taskMain/deal.js">
+    </script>
+    <script type="text/javascript" src="/js/plugins/blueimp/jquery.blueimp-gallery.min.js"></script>
+    <script type="text/javascript" src="/js/plugins/chosen/chosen.jquery.js"></script>
+    <script>
+
+        var config = {
+
+            '.chosen-select': {},
+
+            '.chosen-select-deselect': {
+
+                allow_single_deselect: true
+
+            },
+
+            '.chosen-select-no-single': {
+
+                disable_search_threshold: 10
+
+            },
+
+            '.chosen-select-no-results': {
+
+                no_results_text: '无选择项'
+
+            },
+
+            '.chosen-select-width': {
+
+                width: "95%"
+
+            }
+
+        }
+
+        for (var selector in config) {
+
+            $(selector).chosen(config[selector]);
+
+        }
+
+    </script>
+</body>
+</html>

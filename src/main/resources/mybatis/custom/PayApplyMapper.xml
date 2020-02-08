@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.PayApplyDao">
+
+	<select id="get" resultType="com.ev.custom.domain.PayApplyDO">
+		select `id`,`total_number`,`pay_method`,`pay_date`,`pay_user`,`opening_blank`,`blank_account`,`pay_reason`,`create_by`,`create_time`,`update_by`,`update_time`,`status`,`process_instance_id`,`del_flag` from cus_pay_apply where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.PayApplyDO">
+		select `id`,`total_number`,`pay_method`,`pay_date`,`pay_user`,`opening_blank`,`blank_account`,`pay_reason`,`create_by`,`create_time`,`update_by`,`update_time`,`status`,`process_instance_id`,`del_flag` from cus_pay_apply
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="totalNumber != null and totalNumber != ''"> and total_number = #{totalNumber} </if>
+		  		  <if test="payMethod != null and payMethod != ''"> and pay_method = #{payMethod} </if>
+		  		  <if test="payDate != null and payDate != ''"> and pay_date = #{payDate} </if>
+		  		  <if test="payUser != null and payUser != ''"> and pay_user = #{payUser} </if>
+		  		  <if test="openingBlank != null and openingBlank != ''"> and opening_blank = #{openingBlank} </if>
+		  		  <if test="blankAccount != null and blankAccount != ''"> and blank_account = #{blankAccount} </if>
+		  		  <if test="payReason != null and payReason != ''"> and pay_reason = #{payReason} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="processInstanceId != null and processInstanceId != ''"> and process_instance_id = #{processInstanceId} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_pay_apply
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="totalNumber != null and totalNumber != ''"> and total_number = #{totalNumber} </if>
+		  		  <if test="payMethod != null and payMethod != ''"> and pay_method = #{payMethod} </if>
+		  		  <if test="payDate != null and payDate != ''"> and pay_date = #{payDate} </if>
+		  		  <if test="payUser != null and payUser != ''"> and pay_user = #{payUser} </if>
+		  		  <if test="openingBlank != null and openingBlank != ''"> and opening_blank = #{openingBlank} </if>
+		  		  <if test="blankAccount != null and blankAccount != ''"> and blank_account = #{blankAccount} </if>
+		  		  <if test="payReason != null and payReason != ''"> and pay_reason = #{payReason} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="processInstanceId != null and processInstanceId != ''"> and process_instance_id = #{processInstanceId} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+
+	<select id="listForMap" resultType="map">
+		select * from
+		(SELECT
+		apply.id as id,
+		apply.total_number as totalnumber,
+		apply.pay_method as paymethod,
+		apply.pay_date as paydate,
+		apply.pay_user as payuser,
+		apply.opening_blank as openingblank,
+		apply.blank_account as blankaccount,
+		apply.pay_reason as payreason,
+		apply.create_time as createtime,
+		apply.create_by as createby,
+		createuser.user_id as createuserid,
+		createuser.name as createusername,
+		apply.update_by as updateby,
+		apply.update_time as updatetime,
+		apply.del_flag as delflag,
+		apply.status as statusid,
+		statusdic.value as statusvalue,
+		statusdic.name as statusname,
+		assignuser.user_id as assignid,
+		createdept.dept_id as createdeptid,
+		createdept.id_path as createIdPath,
+		createdept.name as createdeptname,
+		payuser.user_id as payuserid,
+		payuser.name as payusername,
+		paydept.dept_id as paydeptid,
+		paydept.name as paydeptname,
+		apply.process_instance_id as processinstanceid
+		FROM
+		cus_pay_apply apply
+		LEFT JOIN act_ru_task task on task.PROC_INST_ID_ = apply.process_instance_id
+		LEFT JOIN sys_user createuser on createuser.user_id = apply.create_by
+		LEFT JOIN sys_dept createdept on createdept.dept_id = createuser.dept_id
+		LEFT JOIN sys_user payuser on payuser.user_id = apply.pay_user
+		LEFT JOIN sys_dept paydept on paydept.dept_id = payuser.dept_id
+		LEFT JOIN sys_user assignuser on assignuser.user_id = task.ASSIGNEE_
+		LEFT JOIN cus_dictionary statusdic on statusdic.id = apply.status) view_pay_apply
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="totalNumber != null and totalNumber != ''"> and totalnumber = #{totalNumber} </if>
+			<if test="payMethod != null and payMethod != ''"> and paymethod = #{payMethod} </if>
+			<if test="payDate != null and payDate != ''"> and paydate = #{payDate} </if>
+			<if test="payUser != null and payUser != ''"> and payuser = #{payUser} </if>
+			<if test="openingBlank != null and openingBlank != ''"> and openingblank = #{openingBlank} </if>
+			<if test="blankAccount != null and blankAccount != ''"> and blankaccount = #{blankAccount} </if>
+			<if test="payReason != null and payReason != ''"> and payreason = #{payReason} </if>
+			<if test="createTime != null and createTime != ''"> and createtime = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and updateby = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and updatetime = #{updateTime} </if>
+			<if test="processInstanceId != null and processInstanceId != ''"> and processinstanceid = #{processInstanceId} </if>
+			<if test="delFlag != null and delFlag != ''"> and delflag = #{delFlag} </if>
+			<if test="deptId != null and deptId != ''"> and createdeptid = #{deptId} </if>
+			<if test="beginTime != null and beginTime != ''"> and date_format(createtime,'%Y-%m-%d') &gt;= #{beginTime} </if>
+			<if test="endTime != null and endTime != ''"> and date_format(createtime,'%Y-%m-%d') &lt;= #{endTime} </if>
+
+			<if test="beginTimes != null and beginTimes != ''"> and  DATE_FORMAT(createtime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{beginTimes},'%Y-%m-%d')</if>
+			<if test="endTimes != null and endTimes != ''">  and  DATE_FORMAT(createtime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTimes},'%Y-%m-%d')</if>
+
+			<if test="status != null and status != ''"> and statusid != #{status} </if>
+			<if test="statusOther != null and statusOther != ''"> and statusid != #{statusOther} </if>
+
+
+			<if test="idPath != null and idPath != ''"> and createIdPath like CONCAT (#{idPath},'%') </if>
+			<if test="assignId != null and assignId != ''"> and assignid = #{assignId} </if>
+			<if test="createBy != null and createBy != ''"> and createby = #{createBy} </if>
+			<if test="createByName != null and createByName != ''"> and createusername like CONCAT (#{createByName},'%') </if>
+
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by  id desc , createtime DESC ,statusid desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="map">
+		select
+		count(1) as counts ,
+		sum(totalnumber) as allTotalNumber
+		from
+		(SELECT
+		apply.id as id,
+		apply.total_number as totalnumber,
+		apply.pay_method as paymethod,
+		apply.pay_date as paydate,
+		apply.pay_user as payuser,
+		apply.opening_blank as openingblank,
+		apply.blank_account as blankaccount,
+		apply.pay_reason as payreason,
+		apply.create_time as createtime,
+		apply.create_by as createby,
+		createuser.user_id as createuserid,
+		createuser.name as createusername,
+		apply.update_by as updateby,
+		apply.update_time as updatetime,
+		apply.del_flag as delflag,
+		apply.status as statusid,
+		statusdic.value as statusvalue,
+		statusdic.name as statusname,
+		assignuser.user_id as assignid,
+		createdept.dept_id as createdeptid,
+		createdept.id_path as createIdPath,
+		createdept.name as createdeptname,
+		payuser.user_id as payuserid,
+		payuser.name as payusername,
+		paydept.dept_id as paydeptid,
+		paydept.name as paydeptname,
+		apply.process_instance_id as processinstanceid
+		FROM
+		cus_pay_apply apply
+		LEFT JOIN act_ru_task task on task.PROC_INST_ID_ = apply.process_instance_id
+		LEFT JOIN sys_user createuser on createuser.user_id = apply.create_by
+		LEFT JOIN sys_dept createdept on createdept.dept_id = createuser.dept_id
+		LEFT JOIN sys_user payuser on payuser.user_id = apply.pay_user
+		LEFT JOIN sys_dept paydept on paydept.dept_id = payuser.dept_id
+		LEFT JOIN sys_user assignuser on assignuser.user_id = task.ASSIGNEE_
+		LEFT JOIN cus_dictionary statusdic on statusdic.id = apply.status) view_pay_apply
+		<where>
+
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="totalNumber != null and totalNumber != ''"> and totalnumber = #{totalNumber} </if>
+			<if test="payMethod != null and payMethod != ''"> and paymethod = #{payMethod} </if>
+			<if test="payDate != null and payDate != ''"> and paydate = #{payDate} </if>
+			<if test="payUser != null and payUser != ''"> and payuser = #{payUser} </if>
+			<if test="openingBlank != null and openingBlank != ''"> and openingblank = #{openingBlank} </if>
+			<if test="blankAccount != null and blankAccount != ''"> and blankaccount = #{blankAccount} </if>
+			<if test="payReason != null and payReason != ''"> and payreason = #{payReason} </if>
+			<if test="createTime != null and createTime != ''"> and createtime = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and updateby = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and updatetime = #{updateTime} </if>
+			<if test="processInstanceId != null and processInstanceId != ''"> and processinstanceid = #{processInstanceId} </if>
+			<if test="delFlag != null and delFlag != ''"> and delflag = #{delFlag} </if>
+			<if test="deptId != null and deptId != ''"> and createdeptid = #{deptId} </if>
+			<if test="beginTime != null and beginTime != ''"> and date_format(createtime,'%Y-%m-%d') &gt;= #{beginTime} </if>
+			<if test="endTime != null and endTime != ''"> and date_format(createtime,'%Y-%m-%d') &lt;= #{endTime} </if>
+
+			<if test="beginTimes != null and beginTimes != ''"> and  DATE_FORMAT(createtime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{beginTimes},'%Y-%m-%d')</if>
+			<if test="endTimes != null and endTimes != ''">  and  DATE_FORMAT(createtime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTimes},'%Y-%m-%d')</if>
+
+			<if test="status != null and status != ''"> and statusid != #{status} </if>
+			<if test="statusOther != null and statusOther != ''"> and statusid != #{statusOther} </if>
+			<if test="statusOfCount != null and statusOfCount != ''"> and statusid = #{statusOfCount} </if>
+
+			<if test="idPath != null and idPath != ''"> and createIdPath like CONCAT (#{idPath},'%') </if>
+			<if test="assignId != null and assignId != ''"> and assignid = #{assignId} </if>
+			<if test="createBy != null and createBy != ''"> and createby = #{createBy} </if>
+			<if test="createByName != null and createByName != ''"> and createusername like CONCAT (#{createByName},'%') </if>
+		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.PayApplyDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_pay_apply
+		(
+			`total_number`, 
+			`pay_method`, 
+			`pay_date`, 
+			`pay_user`, 
+			`opening_blank`, 
+			`blank_account`, 
+			`pay_reason`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`status`, 
+			`process_instance_id`, 
+			`del_flag`
+		)
+		values
+		(
+			#{totalNumber}, 
+			#{payMethod}, 
+			#{payDate}, 
+			#{payUser}, 
+			#{openingBlank}, 
+			#{blankAccount}, 
+			#{payReason}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{status}, 
+			#{processInstanceId}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.PayApplyDO">
+		update cus_pay_apply 
+		<set>
+			<if test="totalNumber != null">`total_number` = #{totalNumber}, </if>
+			<if test="payMethod != null">`pay_method` = #{payMethod}, </if>
+			<if test="payDate != null">`pay_date` = #{payDate}, </if>
+			<if test="payUser != null">`pay_user` = #{payUser}, </if>
+			<if test="openingBlank != null">`opening_blank` = #{openingBlank}, </if>
+			<if test="blankAccount != null">`blank_account` = #{blankAccount}, </if>
+			<if test="payReason != null">`pay_reason` = #{payReason}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="processInstanceId != null">`process_instance_id` = #{processInstanceId}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_pay_apply where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_pay_apply where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="getPayDetail" resultType="map">
+		select
+		a.*,
+		b.name as createByName,
+		a.status,
+		c.name as statusName,
+		b.dept_id as deptId,
+		d.name as deptName
+		from
+		cus_pay_apply  a
+		LEFT JOIN sys_user  b on  a.create_by=b.user_id
+		LEFT JOIN cus_dictionary  c on  a.status=c.id
+		LEFT JOIN sys_dept  d on  b.dept_id=d.dept_id
+		WHERE
+		a.id=#{id}
+	</select>
+</mapper>

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.ExpenseDao">
+
+	<select id="get" resultType="com.ev.custom.domain.ExpenseDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM cus_expense 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.ExpenseDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM cus_expense
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_expense
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`code`,`type`,`name`,`auditor`,`audit_sign`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+							<if test="maxNo != null and maxNo != ''"> and LEFT(code,10) = #{maxNo} </if>
+							<if test="id != null and id != ''"> and id = #{id} </if>
+                            <if test="code != null and code != ''"> and code = #{code} </if>
+                            <if test="type != null and type != ''"> and type = #{type} </if>
+                            <if test="name != null and name != ''"> and name = #{name} </if>
+                            <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+                            <if test="auditSign != null and auditSign != ''"> and audit_sign = #{auditSign} </if>
+                            <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+                            <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+							and del_flag=0
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.ExpenseDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_expense
+		(
+			`code`, 
+			`type`, 
+			`name`, 
+			`auditor`, 
+			`audit_sign`, 
+			`remarks`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{code}, 
+			#{type}, 
+			#{name}, 
+			#{auditor}, 
+			#{auditSign}, 
+			#{remarks}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.ExpenseDO">
+		update cus_expense 
+		<set>
+			<if test="code != null">`code` = #{code}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_expense where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_expense where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<select id="canDeletOfCount" resultType="int">
+		select
+		count(id)
+		from
+		cus_expense
+		where
+		audit_sign =178
+		and  id in
+		<foreach item="item" collection="id" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+
+
+
+	<update id="deletOfExpense" parameterType="map">
+		update
+		cus_expense
+		set
+		del_flag = 1
+		where id in
+		<foreach item="id" collection="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</update>
+
+
+	<select id="listForMap" resultType="map">
+		select
+		a.id,
+		a.code,
+		a.type,
+		a.name,
+		b.name as typeName,
+		a.remarks,
+		a.audit_sign as auditSign,
+		c.name as auditSignName,
+		a.auditor,
+		d.name as auditorName,
+		a.create_by as createBy,
+		e.name as createByName,
+		a.create_time as createTime
+		from
+		cus_expense a
+		LEFT JOIN  cus_dictionary b on  a.type=b.id
+		LEFT JOIN  cus_dictionary c on a.audit_sign=c.id
+		LEFT JOIN  sys_user d on a.auditor=d.user_id
+		LEFT JOIN  sys_user e on a.create_by=e.user_id
+		<where>
+			<if test="name != null and name != ''"> and a.name like CONCAT('%',#{name},'%') </if>
+
+			<if test="auditSign != null and auditSign != ''"> and a.audit_sign =#{auditSign}</if>
+
+			<if test="id != null and id != ''"> and a.id = #{id} </if>
+			and a.del_flag=0
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="countForMap" resultType="int">
+		select
+		count(*)
+		FROM
+		cus_expense a
+		LEFT JOIN  cus_dictionary b on  a.type=b.id
+		LEFT JOIN  cus_dictionary c on a.audit_sign=c.id
+		LEFT JOIN  sys_user d on a.auditor=d.user_id
+		LEFT JOIN  sys_user e on a.create_by=e.user_id
+		<where>
+			<if test="name != null and name != ''"> and a.name like CONCAT('%',#{name},'%') </if>
+			<if test="auditSign != null and auditSign != ''"> and a.audit_sign =#{auditSign}</if>
+			<if test="id != null and id != ''"> and a.id = #{id} </if>
+			and a.del_flag=0
+		</where>
+	</select>
+	
+</mapper>

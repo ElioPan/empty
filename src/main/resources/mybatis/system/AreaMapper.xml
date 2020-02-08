@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.system.dao.AreaDao">
+
+	<select id="get" resultType="com.ev.system.domain.AreaDO">
+		select `city_id`,`parent_id`,`level_type`,`city_name`,`short_name`,`parent_path`,`province`,`city`,`district`,`province_short_name`,`city_short_name`,`district_short_name`,`province_pinyin`,`city_pinyin`,`district_pinyin`,`pinyin`,`jianpin`,`first_char`,`city_code`,`zip_code`,`lng`,`lat`,`remark1`,`remark2` from sys_area where city_id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.system.domain.AreaDO">
+		select `city_id`,`parent_id`,`level_type`,`city_name`,`short_name`,`parent_path`,`province`,`city`,`district`,`province_short_name`,`city_short_name`,`district_short_name`,`province_pinyin`,`city_pinyin`,`district_pinyin`,`pinyin`,`jianpin`,`first_char`,`city_code`,`zip_code`,`lng`,`lat`,`remark1`,`remark2` from sys_area
+        <where>  
+		  		  <if test="cityId != null and cityId != ''"> and city_id = #{cityId} </if>
+		  		  <if test="parentId != null and parentId != ''"> and parent_id = #{parentId} </if>
+		  		  <if test="levelType != null and levelType != ''"> and level_type = #{levelType} </if>
+		  		  <if test="cityName != null and cityName != ''"> and city_name = #{cityName} </if>
+		  		  <if test="shortName != null and shortName != ''"> and short_name = #{shortName} </if>
+		  		  <if test="parentPath != null and parentPath != ''"> and parent_path = #{parentPath} </if>
+		  		  <if test="province != null and province != ''"> and province = #{province} </if>
+		  		  <if test="city != null and city != ''"> and city = #{city} </if>
+		  		  <if test="district != null and district != ''"> and district = #{district} </if>
+		  		  <if test="provinceShortName != null and provinceShortName != ''"> and province_short_name = #{provinceShortName} </if>
+		  		  <if test="cityShortName != null and cityShortName != ''"> and city_short_name = #{cityShortName} </if>
+		  		  <if test="districtShortName != null and districtShortName != ''"> and district_short_name = #{districtShortName} </if>
+		  		  <if test="provincePinyin != null and provincePinyin != ''"> and province_pinyin = #{provincePinyin} </if>
+		  		  <if test="cityPinyin != null and cityPinyin != ''"> and city_pinyin = #{cityPinyin} </if>
+		  		  <if test="districtPinyin != null and districtPinyin != ''"> and district_pinyin = #{districtPinyin} </if>
+		  		  <if test="pinyin != null and pinyin != ''"> and pinyin = #{pinyin} </if>
+		  		  <if test="jianpin != null and jianpin != ''"> and jianpin = #{jianpin} </if>
+		  		  <if test="firstChar != null and firstChar != ''"> and first_char = #{firstChar} </if>
+		  		  <if test="cityCode != null and cityCode != ''"> and city_code = #{cityCode} </if>
+		  		  <if test="zipCode != null and zipCode != ''"> and zip_code = #{zipCode} </if>
+		  		  <if test="lng != null and lng != ''"> and lng = #{lng} </if>
+		  		  <if test="lat != null and lat != ''"> and lat = #{lat} </if>
+		  		  <if test="remark1 != null and remark1 != ''"> and remark1 = #{remark1} </if>
+		  		  <if test="remark2 != null and remark2 != ''"> and remark2 = #{remark2} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by city_id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="listByParentId" resultType="com.ev.system.domain.AreaDO">
+		select 
+		`city_id`,
+		`level_type`,
+		`short_name`,
+		`zip_code`
+		FROM sys_area
+		WHERE
+		parent_id = #{value}
+		ORDER BY city_id 
+
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from sys_area
+		 <where>  
+		  		  <if test="cityId != null and cityId != ''"> and city_id = #{cityId} </if>
+		  		  <if test="parentId != null and parentId != ''"> and parent_id = #{parentId} </if>
+		  		  <if test="levelType != null and levelType != ''"> and level_type = #{levelType} </if>
+		  		  <if test="cityName != null and cityName != ''"> and city_name = #{cityName} </if>
+		  		  <if test="shortName != null and shortName != ''"> and short_name = #{shortName} </if>
+		  		  <if test="parentPath != null and parentPath != ''"> and parent_path = #{parentPath} </if>
+		  		  <if test="province != null and province != ''"> and province = #{province} </if>
+		  		  <if test="city != null and city != ''"> and city = #{city} </if>
+		  		  <if test="district != null and district != ''"> and district = #{district} </if>
+		  		  <if test="provinceShortName != null and provinceShortName != ''"> and province_short_name = #{provinceShortName} </if>
+		  		  <if test="cityShortName != null and cityShortName != ''"> and city_short_name = #{cityShortName} </if>
+		  		  <if test="districtShortName != null and districtShortName != ''"> and district_short_name = #{districtShortName} </if>
+		  		  <if test="provincePinyin != null and provincePinyin != ''"> and province_pinyin = #{provincePinyin} </if>
+		  		  <if test="cityPinyin != null and cityPinyin != ''"> and city_pinyin = #{cityPinyin} </if>
+		  		  <if test="districtPinyin != null and districtPinyin != ''"> and district_pinyin = #{districtPinyin} </if>
+		  		  <if test="pinyin != null and pinyin != ''"> and pinyin = #{pinyin} </if>
+		  		  <if test="jianpin != null and jianpin != ''"> and jianpin = #{jianpin} </if>
+		  		  <if test="firstChar != null and firstChar != ''"> and first_char = #{firstChar} </if>
+		  		  <if test="cityCode != null and cityCode != ''"> and city_code = #{cityCode} </if>
+		  		  <if test="zipCode != null and zipCode != ''"> and zip_code = #{zipCode} </if>
+		  		  <if test="lng != null and lng != ''"> and lng = #{lng} </if>
+		  		  <if test="lat != null and lat != ''"> and lat = #{lat} </if>
+		  		  <if test="remark1 != null and remark1 != ''"> and remark1 = #{remark1} </if>
+		  		  <if test="remark2 != null and remark2 != ''"> and remark2 = #{remark2} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.system.domain.AreaDO">
+		insert into sys_area
+		(
+			`city_id`, 
+			`parent_id`, 
+			`level_type`, 
+			`city_name`, 
+			`short_name`, 
+			`parent_path`, 
+			`province`, 
+			`city`, 
+			`district`, 
+			`province_short_name`, 
+			`city_short_name`, 
+			`district_short_name`, 
+			`province_pinyin`, 
+			`city_pinyin`, 
+			`district_pinyin`, 
+			`pinyin`, 
+			`jianpin`, 
+			`first_char`, 
+			`city_code`, 
+			`zip_code`, 
+			`lng`, 
+			`lat`, 
+			`remark1`, 
+			`remark2`
+		)
+		values
+		(
+			#{cityId}, 
+			#{parentId}, 
+			#{levelType}, 
+			#{cityName}, 
+			#{shortName}, 
+			#{parentPath}, 
+			#{province}, 
+			#{city}, 
+			#{district}, 
+			#{provinceShortName}, 
+			#{cityShortName}, 
+			#{districtShortName}, 
+			#{provincePinyin}, 
+			#{cityPinyin}, 
+			#{districtPinyin}, 
+			#{pinyin}, 
+			#{jianpin}, 
+			#{firstChar}, 
+			#{cityCode}, 
+			#{zipCode}, 
+			#{lng}, 
+			#{lat}, 
+			#{remark1}, 
+			#{remark2}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.system.domain.AreaDO">
+		update sys_area 
+		<set>
+			<if test="parentId != null">`parent_id` = #{parentId}, </if>
+			<if test="levelType != null">`level_type` = #{levelType}, </if>
+			<if test="cityName != null">`city_name` = #{cityName}, </if>
+			<if test="shortName != null">`short_name` = #{shortName}, </if>
+			<if test="parentPath != null">`parent_path` = #{parentPath}, </if>
+			<if test="province != null">`province` = #{province}, </if>
+			<if test="city != null">`city` = #{city}, </if>
+			<if test="district != null">`district` = #{district}, </if>
+			<if test="provinceShortName != null">`province_short_name` = #{provinceShortName}, </if>
+			<if test="cityShortName != null">`city_short_name` = #{cityShortName}, </if>
+			<if test="districtShortName != null">`district_short_name` = #{districtShortName}, </if>
+			<if test="provincePinyin != null">`province_pinyin` = #{provincePinyin}, </if>
+			<if test="cityPinyin != null">`city_pinyin` = #{cityPinyin}, </if>
+			<if test="districtPinyin != null">`district_pinyin` = #{districtPinyin}, </if>
+			<if test="pinyin != null">`pinyin` = #{pinyin}, </if>
+			<if test="jianpin != null">`jianpin` = #{jianpin}, </if>
+			<if test="firstChar != null">`first_char` = #{firstChar}, </if>
+			<if test="cityCode != null">`city_code` = #{cityCode}, </if>
+			<if test="zipCode != null">`zip_code` = #{zipCode}, </if>
+			<if test="lng != null">`lng` = #{lng}, </if>
+			<if test="lat != null">`lat` = #{lat}, </if>
+			<if test="remark1 != null">`remark1` = #{remark1}, </if>
+			<if test="remark2 != null">`remark2` = #{remark2}</if>
+		</set>
+		where city_id = #{cityId}
+	</update>
+	
+	<delete id="remove">
+		delete from sys_area where city_id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from sys_area where city_id in 
+		<foreach item="cityId" collection="array" open="(" separator="," close=")">
+			#{cityId}
+		</foreach>
+	</delete>
+
+</mapper>

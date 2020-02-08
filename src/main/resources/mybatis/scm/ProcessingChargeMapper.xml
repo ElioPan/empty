@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.ProcessingChargeDao">
+
+	<select id="get" resultType="com.ev.scm.domain.ProcessingChargeDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_processing_charge 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.ProcessingChargeDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_processing_charge
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+			<otherwise>
+                ORDER BY id DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+        SELECT COUNT(*) FROM scm_processing_charge
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`supplier_id`,`invoice_date`,`invoice_user`,`bill_code`,`invoice_type`,`stock_in_id`,`audit_sign`,`remarks`,`auditor`,`audit_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> AND id = #{id} </if>
+                            <if test="supplierId != null and supplierId != ''"> AND supplier_id = #{supplierId} </if>
+                            <if test="invoiceDate != null and invoiceDate != ''"> AND invoice_date = #{invoiceDate} </if>
+                            <if test="invoiceUser != null and invoiceUser != ''"> AND invoice_user = #{invoiceUser} </if>
+                            <if test="billCode != null and billCode != ''"> AND bill_code = #{billCode} </if>
+                            <if test="invoiceType != null and invoiceType != ''"> AND invoice_type = #{invoiceType} </if>
+                            <if test="stockInId != null and stockInId != ''"> AND stock_in_id = #{stockInId} </if>
+                            <if test="auditSign != null and auditSign != ''"> AND audit_sign = #{auditSign} </if>
+                            <if test="remarks != null and remarks != ''"> AND remarks = #{remarks} </if>
+                            <if test="auditor != null and auditor != ''"> AND auditor = #{auditor} </if>
+                            <if test="auditTime != null and auditTime != ''"> AND audit_time = #{auditTime} </if>
+                            <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.ProcessingChargeDO" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO scm_processing_charge
+		(
+			`supplier_id`, 
+			`invoice_date`, 
+			`invoice_user`, 
+			`bill_code`, 
+			`invoice_type`, 
+			`stock_in_id`, 
+			`audit_sign`, 
+			`remarks`, 
+			`auditor`, 
+			`audit_time`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		VALUES
+		(
+			#{supplierId}, 
+			#{invoiceDate}, 
+			#{invoiceUser}, 
+			#{billCode}, 
+			#{invoiceType}, 
+			#{stockInId}, 
+			#{auditSign}, 
+			#{remarks}, 
+			#{auditor}, 
+			#{auditTime}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.ProcessingChargeDO">
+		UPDATE scm_processing_charge
+		<set>
+			<if test="supplierId != null">`supplier_id` = #{supplierId}, </if>
+			<if test="invoiceDate != null">`invoice_date` = #{invoiceDate}, </if>
+			<if test="invoiceUser != null">`invoice_user` = #{invoiceUser}, </if>
+			<if test="billCode != null">`bill_code` = #{billCode}, </if>
+			<if test="invoiceType != null">`invoice_type` = #{invoiceType}, </if>
+			<if test="stockInId != null">`stock_in_id` = #{stockInId}, </if>
+			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="auditTime != null">`audit_time` = #{auditTime}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="remove">
+		DELETE FROM scm_processing_charge WHERE id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+        DELETE FROM scm_processing_charge WHERE id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+</mapper>

@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.DispatchWorkingHungDao">
+
+	<select id="get" resultType="com.ev.mes.domain.DispatchWorkingHungDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_dispatch_working_hung 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.DispatchWorkingHungDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_dispatch_working_hung
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_dispatch_working_hung
+		<include refid="sql_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.DispatchWorkingHungDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_dispatch_working_hung
+		(
+			`dispatch_item_id`, 
+			`start_time`, 
+			`hang_time`, 
+			`man_hour`, 
+			`start_hang_id`, 
+			`sign`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{dispatchItemId}, 
+			#{startTime}, 
+			#{hangTime}, 
+			#{manHour}, 
+			#{startHangId}, 
+			#{sign}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.DispatchWorkingHungDO">
+		update mes_dispatch_working_hung 
+		<set>
+			<if test="dispatchItemId != null">`dispatch_item_id` = #{dispatchItemId}, </if>
+			<if test="startTime != null">`start_time` = #{startTime}, </if>
+			<if test="hangTime != null">`hang_time` = #{hangTime}, </if>
+			<if test="manHour != null">`man_hour` = #{manHour}, </if>
+			<if test="startHangId != null">`start_hang_id` = #{startHangId}, </if>
+			<if test="sign != null">`sign` = #{sign}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_dispatch_working_hung where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_dispatch_working_hung where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<sql id="sql_column_list">
+		`id`,`dispatch_item_id`,`start_time`,`hang_time`,`man_hour`,`start_hang_id`,`sign`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="dispatchItemId != null and dispatchItemId != ''"> and dispatch_item_id = #{dispatchItemId} </if>
+		  		  <if test="startTime != null and startTime != ''"> and start_time = #{startTime} </if>
+		  		  <if test="hangTime != null and hangTime != ''"> and hang_time = #{hangTime} </if>
+		  		  <if test="manHour != null and manHour != ''"> and man_hour = #{manHour} </if>
+		  		  <if test="startHangId != null and startHangId != ''"> and start_hang_id = #{startHangId} </if>
+		  		  <if test="sign != null and sign != ''"> and sign = #{sign} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</sql>
+
+
+	<!--<update id="updateByDisItemId" parameterType="com.ev.mes.domain.DispatchWorkingHungDO">-->
+		<!--update mes_dispatch_working_hung-->
+		<!--<set>-->
+			<!--<if test="dispatchItemId != null">`dispatch_item_id` = #{dispatchItemId}, </if>-->
+			<!--<if test="startTime != null">`start_time` = #{startTime}, </if>-->
+			<!--<if test="hangTime != null">`hang_time` = #{hangTime}, </if>-->
+			<!--<if test="manHour != null">`man_hour` = #{manHour}, </if>-->
+			<!--<if test="startHangId != null">`start_hang_id` = #{startHangId}, </if>-->
+			<!--<if test="sign != null">`sign` = #{sign}, </if>-->
+			<!--<if test="createBy != null">`create_by` = #{createBy}, </if>-->
+			<!--<if test="createTime != null">`create_time` = #{createTime}, </if>-->
+			<!--<if test="updateBy != null">`update_by` = #{updateBy}, </if>-->
+			<!--<if test="updateTime != null">`update_time` = #{updateTime}, </if>-->
+			<!--<if test="delFlag != null">`del_flag` = #{delFlag}</if>-->
+		<!--</set>-->
+		<!--where dispatch_item_id = #{id}-->
+	<!--</update>-->
+
+
+
+	<select id="getWHungTime" resultType="map">
+		select
+		id,
+		start_time as startTime,
+		hang_time as hangTime
+		from
+		mes_dispatch_working_hung
+		WHERE
+		sign=#{sign}
+		and
+		hang_time is NULL
+		and
+		dispatch_item_id=#{dispatchItemId}
+	</select>
+
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		*
+		from
+		(
+		SELECT
+		a.id  as id,
+		b.code,
+		d.work_order_no as workOrderNo,
+		c.process_id as processId,
+		e.name as processName,
+		e.type,
+		f.name as typeName,
+		a.start_hang_id as startHangId,
+		g.name  as startHangName,
+		IFNULL(a.start_time,'') as startTime,
+		a.hang_time as hungTime,
+		IFNULL(a.hang_time,'') as endTime,
+		a.man_hour as manHour,
+		b.operator ,
+		h.name as operatorName,
+		b.device_id as deviceId,
+		j.name as deviceName,
+		a.sign
+		FROM mes_dispatch_working_hung a
+		LEFT JOIN mes_dispatch_item b on a.dispatch_item_id=b.id
+		LEFT JOIN mes_working_procedure_detail   c on b.foriegn_id=c.id
+		LEFT JOIN mes_working_procedure_plan   d on c.plan_id=d.id
+		LEFT JOIN mes_process   e on c.process_id=e.id
+		LEFT JOIN cus_dictionary   f on e.type=f.id
+		LEFT JOIN sys_user   g on a.start_hang_id =g.user_id
+		LEFT JOIN sys_user   h on b.operator = h.user_id
+		LEFT JOIN cus_device   j on b.device_id = j.id
+		) aaa
+		<where>
+			<if test="code != null and code!= ''"> and code LIKE CONCAT('%',#{code},'%')</if>
+			<if test="operator != null and operator != ''"> and operator = #{operator} </if>
+			<if test="deviceId != null and deviceId != ''"> and deviceId = #{deviceId} </if>
+			<if test="processName != null and processName != ''"> and processName LIKE CONCAT('%',#{processName},'%')  </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(startTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(hungTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="sign ==1 or sign ==0"> and sign = #{sign} </if>
+			<if test="operatorName != null and operatorName != ''"> and operatorName LIKE CONCAT('%',#{operatorName},'%')  </if>
+			<if test="deviceName != null and deviceName != ''"> and deviceName LIKE CONCAT('%',#{deviceName},'%')  </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order},id desc
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="countForMap" resultType="int">
+		select
+		count(*)
+		from
+		(
+		SELECT
+		a.id ,
+		b.code,
+		d.source_no as sourceNo,
+		c.process_id as processId,
+		e.name as processName,
+		e.type,
+		f.name as typeName,
+		a.start_hang_id as startHangId,
+		g.name  as startHangName,
+		a.start_time as startTime,
+		a.hang_time as hungTime,
+		a.man_hour as manHour,
+		b.operator ,
+		h.name as operatorName,
+		b.device_id as deviceId,
+		j.name as deviceName,
+	<!--	b.start_time as dispatchStartTime,
+		b.end_time AS dispatchEndTime,-->
+		a.sign
+		FROM mes_dispatch_working_hung a
+		LEFT JOIN mes_dispatch_item b on a.dispatch_item_id=b.id
+		LEFT JOIN mes_working_procedure_detail   c on b.foriegn_id=c.id
+		LEFT JOIN mes_working_procedure_plan   d on c.plan_id=d.id
+		LEFT JOIN mes_process   e on c.process_id=e.id
+		LEFT JOIN cus_dictionary   f on e.type=f.id
+		LEFT JOIN sys_user   g on a.start_hang_id =g.user_id
+		LEFT JOIN sys_user   h on b.operator = h.user_id
+		LEFT JOIN cus_device   j on b.device_id = j.id
+		) aaa
+		<where>
+			<if test="code != null and code!= ''"> and code LIKE CONCAT('%',#{code},'%')</if>
+			<if test="operator != null and operator != ''"> and operator = #{operator} </if>
+			<if test="deviceId != null and deviceId != ''"> and deviceId = #{deviceId} </if>
+			<if test="processName != null and processName != ''"> and processName LIKE CONCAT('%',#{processName},'%')  </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(startTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(hungTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="sign ==1 or sign ==0"> and sign = #{sign} </if>
+			<if test="operatorName != null and operatorName != ''"> and operatorName LIKE CONCAT('%',#{operatorName},'%')  </if>
+			<if test="deviceName != null and deviceName != ''"> and deviceName LIKE CONCAT('%',#{deviceName},'%')  </if>
+		</where>
+	</select>
+
+
+	<select id="canDelet" resultType="int">
+		select
+			COUNT(*)
+		from
+		(
+			SELECT
+				DISTINCT
+				a.id
+			from
+				mes_dispatch_item a
+				LEFT JOIN mes_dispatch_working_hung  b  on  b.dispatch_item_id=a.id
+			where
+				a.status = 234  <!--234结案-->
+			and
+				b.id in
+			<foreach item="item" collection="id" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		)aa
+	</select>
+
+
+</mapper>

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.MaterialInspectionDetailDao">
+
+	<select id="get" resultType="com.ev.mes.domain.MaterialInspectionDetailDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_material_inspection_detail 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.MaterialInspectionDetailDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_material_inspection_detail
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="listForMap" resultType="map">
+		SELECT 
+		    detail.`id` AS id, 
+			detail.`project_id` AS projectId, 
+			project.`code` AS projectCode, 
+			project.`name` AS projectName,
+			detail.`check_result` AS checkResult, 
+			project.`method` AS checkMethod,
+			detail.`unit` AS unitId,
+			unituom.`name` AS unitName,
+			detail.`target_value` AS targetValue, 
+			detail.`check_value` AS checkValue, 
+			detail.`is_must_check` AS isMustCheck, 
+			detail.`unqualified_count` AS unqualifiedCount, 
+			detail.`reason_id` AS poorId, 
+			poor.`name` AS poorName,
+			detail.`remarks` AS remarks
+		FROM mes_material_inspection_detail detail
+		LEFT JOIN mes_check_project project ON project.id=detail.project_id
+		LEFT JOIN cus_dictionary unituom ON unituom.id = detail.`unit`
+		LEFT JOIN mes_poor poor ON poor.id = detail.reason_id
+		<where>  
+		  		  <if test="id != null and id != ''"> and detail.id = #{id} </if>
+		  		  <if test="headId != null and headId != ''"> and detail.head_id = #{headId} </if>
+		  		  <if test="projectId != null and projectId != ''"> and detail.project_id = #{projectId} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by detail.id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_material_inspection_detail
+		<include refid="sql_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.MaterialInspectionDetailDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_material_inspection_detail
+		(
+			`head_id`, 
+			`project_id`, 
+			`project_code`, 
+			`project_name`, 
+			`check_result`, 
+			`project_method`, 
+			`unit`, 
+			`target_value`, 
+			`check_value`, 
+			`is_must_check`, 
+			`unqualified_count`, 
+			`reason_id`, 
+			`remarks`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{headId}, 
+			#{projectId}, 
+			#{projectCode}, 
+			#{projectName}, 
+			#{checkResult}, 
+			#{projectMethod}, 
+			#{unit}, 
+			#{targetValue}, 
+			#{checkValue}, 
+			#{isMustCheck}, 
+			#{unqualifiedCount}, 
+			#{reasonId}, 
+			#{remarks}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.MaterialInspectionDetailDO">
+		update mes_material_inspection_detail 
+		<set>
+			<if test="headId != null">`head_id` = #{headId}, </if>
+			<if test="projectId != null">`project_id` = #{projectId}, </if>
+			<if test="projectCode != null">`project_code` = #{projectCode}, </if>
+			<if test="projectName != null">`project_name` = #{projectName}, </if>
+			<if test="checkResult != null">`check_result` = #{checkResult}, </if>
+			<if test="projectMethod != null">`project_method` = #{projectMethod}, </if>
+			<if test="unit != null">`unit` = #{unit}, </if>
+			<if test="targetValue != null">`target_value` = #{targetValue}, </if>
+			<if test="checkValue != null">`check_value` = #{checkValue}, </if>
+			<if test="isMustCheck != null">`is_must_check` = #{isMustCheck}, </if>
+			<if test="unqualifiedCount != null">`unqualified_count` = #{unqualifiedCount}, </if>
+			<if test="reasonId != null">`reason_id` = #{reasonId}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_material_inspection_detail where id = #{value}
+	</delete>
+	
+	<delete id="removeByHeadId">
+		delete from mes_material_inspection_detail where `head_id` = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_material_inspection_detail where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<sql id="sql_column_list">
+		`id`,`head_id`,`project_id`,`project_code`,`project_name`,`check_result`,`project_method`,`unit`,`target_value`,`check_value`,`is_must_check`,`unqualified_count`,`reason_id`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="headId != null and headId != ''"> and head_id = #{headId} </if>
+		  		  <if test="projectId != null and projectId != ''"> and project_id = #{projectId} </if>
+		  		  <if test="projectCode != null and projectCode != ''"> and project_code = #{projectCode} </if>
+		  		  <if test="projectName != null and projectName != ''"> and project_name = #{projectName} </if>
+		  		  <if test="checkResult != null and checkResult != ''"> and check_result = #{checkResult} </if>
+		  		  <if test="projectMethod != null and projectMethod != ''"> and project_method = #{projectMethod} </if>
+		  		  <if test="unit != null and unit != ''"> and unit = #{unit} </if>
+		  		  <if test="targetValue != null and targetValue != ''"> and target_value = #{targetValue} </if>
+		  		  <if test="checkValue != null and checkValue != ''"> and check_value = #{checkValue} </if>
+		  		  <if test="isMustCheck != null and isMustCheck != ''"> and is_must_check = #{isMustCheck} </if>
+		  		  <if test="unqualifiedCount != null and unqualifiedCount != ''"> and unqualified_count = #{unqualifiedCount} </if>
+		  		  <if test="reasonId != null and reasonId != ''"> and reason_id = #{reasonId} </if>
+		  		  <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</sql>
+	
+</mapper>

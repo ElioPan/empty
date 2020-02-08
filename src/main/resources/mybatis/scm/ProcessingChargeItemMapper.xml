@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.ProcessingChargeItemDao">
+
+	<select id="get" resultType="com.ev.scm.domain.ProcessingChargeItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_processing_charge_item 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.ProcessingChargeItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_processing_charge_item
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+			<otherwise>
+                ORDER BY id DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+        SELECT COUNT(*) FROM scm_processing_charge_item
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`source_type`,`source_code`,`source_id`,`charge_id`,`materiel_id`,`count`,`unit_price`,`tax_unit_price`,`tax_rate`,`amount`,`taxes`,`tax_amount`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> AND id = #{id} </if>
+                            <if test="sourceType != null and sourceType != ''"> AND source_type = #{sourceType} </if>
+                            <if test="sourceCode != null and sourceCode != ''"> AND source_code = #{sourceCode} </if>
+                            <if test="sourceId != null and sourceId != ''"> AND source_id = #{sourceId} </if>
+                            <if test="chargeId != null and chargeId != ''"> AND charge_id = #{chargeId} </if>
+                            <if test="materielId != null and materielId != ''"> AND materiel_id = #{materielId} </if>
+                            <if test="count != null and count != ''"> AND count = #{count} </if>
+                            <if test="unitPrice != null and unitPrice != ''"> AND unit_price = #{unitPrice} </if>
+                            <if test="taxUnitPrice != null and taxUnitPrice != ''"> AND tax_unit_price = #{taxUnitPrice} </if>
+                            <if test="taxRate != null and taxRate != ''"> AND tax_rate = #{taxRate} </if>
+                            <if test="amount != null and amount != ''"> AND amount = #{amount} </if>
+                            <if test="taxes != null and taxes != ''"> AND taxes = #{taxes} </if>
+                            <if test="taxAmount != null and taxAmount != ''"> AND tax_amount = #{taxAmount} </if>
+                            <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.ProcessingChargeItemDO" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO scm_processing_charge_item
+		(
+			`source_type`, 
+			`source_code`, 
+			`source_id`, 
+			`charge_id`, 
+			`materiel_id`, 
+			`count`, 
+			`unit_price`, 
+			`tax_unit_price`, 
+			`tax_rate`, 
+			`amount`, 
+			`taxes`, 
+			`tax_amount`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		VALUES
+		(
+			#{sourceType}, 
+			#{sourceCode}, 
+			#{sourceId}, 
+			#{chargeId}, 
+			#{materielId}, 
+			#{count}, 
+			#{unitPrice}, 
+			#{taxUnitPrice}, 
+			#{taxRate}, 
+			#{amount}, 
+			#{taxes}, 
+			#{taxAmount}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.ProcessingChargeItemDO">
+		UPDATE scm_processing_charge_item
+		<set>
+			<if test="sourceType != null">`source_type` = #{sourceType}, </if>
+			<if test="sourceCode != null">`source_code` = #{sourceCode}, </if>
+			<if test="sourceId != null">`source_id` = #{sourceId}, </if>
+			<if test="chargeId != null">`charge_id` = #{chargeId}, </if>
+			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
+			<if test="count != null">`count` = #{count}, </if>
+			<if test="unitPrice != null">`unit_price` = #{unitPrice}, </if>
+			<if test="taxUnitPrice != null">`tax_unit_price` = #{taxUnitPrice}, </if>
+			<if test="taxRate != null">`tax_rate` = #{taxRate}, </if>
+			<if test="amount != null">`amount` = #{amount}, </if>
+			<if test="taxes != null">`taxes` = #{taxes}, </if>
+			<if test="taxAmount != null">`tax_amount` = #{taxAmount}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="remove">
+		DELETE FROM scm_processing_charge_item WHERE id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+        DELETE FROM scm_processing_charge_item WHERE id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+</mapper>

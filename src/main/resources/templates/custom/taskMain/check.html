@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head th:include="include :: header">
+</head>
+<link href="/css/plugins/imageUpload/common.css" type="text/css" rel="stylesheet"/>
+<link href="/css/plugins/imageUpload/index.css" type="text/css" rel="stylesheet"/>
+<link href="/css/plugins/blueimp/css/blueimp-gallery.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/css/layui.css"  media="all">
+
+<body class="gray-bg">
+<div class="wrapper wrapper-content ">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <form class="form-horizontal m-t" id="signupForm">
+                        <input id="taskid" name="taskid" th:value="${taskMain.id}" type="hidden">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">完成效率：</label>
+                            <div class="col-sm-11">
+                                <input id="completeRate" name="completeRate" class="form-control" type="number">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">完成质量：</label>
+                            <div  class="col-sm-11">
+                                <input id="completeQuality" name="completeQuality" class="form-control" type="number">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">工作态度：</label>
+                            <div class="col-sm-11">
+                                <input id="workState" name="workState" class="form-control" type="number">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">验收说明：</label>
+                            <div class="col-sm-11">
+                                <textarea id="solution" name="solution" class="form-control"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">抄送人：</label>
+                            <div class="col-sm-11">
+                                <select data-placeholder="选择抄送人（可以不选）" name="ccList"  class="chosen-select" style="width: 100%;" multiple="multiple" tabindex="4">
+                                    <option value="">--请选择--</option>
+                                    <option th:each="userCC,userStat:${userList}" th:value="${userCC.userId}" th:text="${userCC.name}" th:selected="${#lists.contains(ccIdList, userCC.userId.toString())}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <button type="submit" class="btn btn-primary">提交</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:include="include::footer"></div>
+    <script type="text/javascript" src="/js/appjs/custom/taskMain/check.js">
+    </script>
+    <script type="text/javascript" src="/js/plugins/blueimp/jquery.blueimp-gallery.min.js"></script>
+    <script type="text/javascript" src="/js/plugins/chosen/chosen.jquery.js"></script>
+    <script type="text/javascript" src="/js/plugins/rate.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/layui.js" charset="utf-8"></script>
+    <script>
+        var config = {
+
+            '.chosen-select': {},
+
+            '.chosen-select-deselect': {
+
+                allow_single_deselect: true
+
+            },
+
+            '.chosen-select-no-single': {
+
+                disable_search_threshold: 10
+
+            },
+
+            '.chosen-select-no-results': {
+
+                no_results_text: '无选择项'
+
+            },
+
+            '.chosen-select-width': {
+
+                width: "95%"
+
+            }
+
+        }
+
+        for (var selector in config) {
+
+            $(selector).chosen(config[selector]);
+
+        }
+
+
+/*       layui.use(['rate'], function(){
+            var rate = layui.rate;
+            //基础效果
+            rate.render({
+                elem: '#completeRate'
+            })
+            rate.render({
+                elem: '#completeQuality'
+            })
+            rate.render({
+                elem: '#jobState'
+            })
+        });*/
+
+    </script>
+</body>
+</html>

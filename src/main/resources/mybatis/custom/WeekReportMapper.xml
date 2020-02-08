@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.WeekReportDao">
+
+	<select id="get" resultType="com.ev.custom.domain.WeekReportDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM cus_week_report
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.WeekReportDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM cus_week_report
+		<include refid="sql_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from cus_week_report
+		<include refid="sql_condition"/>
+	</select>
+
+	<insert id="save" parameterType="com.ev.custom.domain.WeekReportDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_week_report
+		(
+		`com_content`,
+		`content_sum`,
+		`content_plan`,
+		`description`,
+		`start_time`,
+		`end_time`,
+		`create_by`,
+		`create_time`,
+		`update_by`,
+		`update_time`,
+		`del_flag`,
+		`status`
+		)
+		values
+		(
+		#{comContent},
+		#{contentSum},
+		#{contentPlan},
+		#{description},
+		#{startTime},
+		#{endTime},
+		#{createBy},
+		#{createTime},
+		#{updateBy},
+		#{updateTime},
+		#{delFlag},
+		#{status}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.custom.domain.WeekReportDO">
+		update cus_week_report
+		<set>
+			<if test="comContent != null">`com_content` = #{comContent}, </if>
+			<if test="contentSum != null">`content_sum` = #{contentSum}, </if>
+			<if test="contentPlan != null">`content_plan` = #{contentPlan}, </if>
+			<if test="description != null">`description` = #{description}, </if>
+			<if test="startTime != null">`start_time` = #{startTime}, </if>
+			<if test="endTime != null">`end_time` = #{endTime}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}, </if>
+			<if test="status != null">`status` = #{status}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+
+	<sql id="sql_column_list">
+		`id`,`com_content`,`content_sum`,`content_plan`,`description`,`start_time`,`end_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`status`
+	</sql>
+
+	<sql id="sql_condition">
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="comContent != null and comContent != ''"> and com_content = #{comContent} </if>
+			<if test="contentSum != null and contentSum != ''"> and content_sum = #{contentSum} </if>
+			<if test="contentPlan != null and contentPlan != ''"> and content_plan = #{contentPlan} </if>
+			<if test="description != null and description != ''"> and description = #{description} </if>
+			<if test="startTime != null and startTime != ''"> and start_time = #{startTime} </if>
+			<if test="endTime != null and endTime != ''"> and end_time = #{endTime} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+			<if test="status != null and status != ''"> and status = #{status} </if>
+		</where>
+	</sql>
+
+
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		<if test="beSentPeopleId != null and beSentPeopleId!= ''">
+			case when uassoc.sign=1 then 3
+			when uassoc.sign is null then 1
+			end sign,
+			case when uassoc.sign=1 then '已读'
+			when uassoc.sign is null then '未读'
+			end readStatus,
+			uassoc.user_id as userId,
+		</if>
+		week.id as id,
+		week.com_content as comContent,
+		week.content_sum as contentSum,
+		week.content_plan as contentPlan,
+		week.description as description,
+		week.create_by as createBy,
+		week.create_time as createTime,
+		week.update_by as updateBy,
+		week.update_time as updateTime,
+		week.del_flag as delFlag,
+		week.status as status,
+		week.start_time as startTime,
+		week.end_time as endTime,
+		b.name as `statusName`,
+		dept.dept_id as deptId,
+		dept.id_path as idPath,
+		dept.name as deptName,
+		employee.name as userName
+		FROM
+		cus_week_report week
+		LEFT JOIN sys_user employee ON employee.user_id = week.create_by
+		LEFT JOIN cus_dictionary b ON b.id = week.status
+		LEFT JOIN sys_dept dept ON dept.dept_id = employee.dept_id
+		<if test="beSentPeopleId != null and beSentPeopleId!= ''">LEFT JOIN cus_user_assoc uassoc on uassoc.assoc_id = week.id and uassoc.assoc_type = 'WEEK_REPORT_TARGET'</if>
+		LEFT JOIN view_weekReport_Sender a ON week.id = a.assoc_id
+		<where>
+			<if test="sign ==1"> and a.sign is null </if>
+			<if test="beSentPeopleId != null and beSentPeopleId!= ''"> and uassoc.user_id  =#{beSentPeopleId} </if>
+
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="comContent != null and comContent != ''"> and week.com_content = #{comContent} </if>
+			<if test="contentSum != null and contentSum != ''"> and week.content_sum = #{contentSum} </if>
+			<if test="contentPlan != null and contentPlan != ''"> and week.content_plan = #{contentPlan} </if>
+			<if test="description != null and description != ''"> and week.description = #{description} </if>
+			<if test="userName != null and userName != ''"> and employee.name like CONCAT ('%',#{userName},'%') </if>
+			<if test="createTime != null and createTime != ''"> and week.create_time = #{createTime} </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(week.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(week.create_time,'%Y-%m-%d') &lt;= DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="updateBy != null and updateBy != ''"> and week.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and week.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and week.del_flag = #{delFlag} </if>
+			<if test="deptName != null and deptName != ''"> and dept.name = #{deptName} </if>
+			<if test="deptId != null and deptId != ''"> and dept.dept_id = #{deptId} </if>
+			<if test="idPath != null and idPath != ''"> and dept.id_path like CONCAT (#{idPath},'%') </if>
+			<if test="status != null and status != ''"> and week.status = #{status} </if>
+			<if test="createBy != null and createBy != ''"> and week.create_by = #{createBy} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by week.id desc , week.create_time DESC ,week.status desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="int">
+		SELECT
+		count(1)
+		FROM
+		cus_week_report week
+		LEFT JOIN sys_user employee ON employee.user_id = week.create_by
+		LEFT JOIN cus_dictionary b ON b.id = week.status
+		LEFT JOIN sys_dept dept ON dept.dept_id = employee.dept_id
+		<if test="beSentPeopleId != null and beSentPeopleId!= ''">LEFT JOIN cus_user_assoc uassoc on uassoc.assoc_id = week.id and uassoc.assoc_type = 'WEEK_REPORT_TARGET'</if>
+		LEFT JOIN view_weekReport_Sender a ON week.id = a.assoc_id
+		<where>
+			<if test="sign ==1"> and a.sign is null </if>
+			<if test="beSentPeopleId != null and beSentPeopleId!= ''"> and uassoc.user_id  =#{beSentPeopleId} </if>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="comContent != null and comContent != ''"> and week.com_content = #{comContent} </if>
+			<if test="contentSum != null and contentSum != ''"> and week.content_sum = #{contentSum} </if>
+			<if test="contentPlan != null and contentPlan != ''"> and week.content_plan = #{contentPlan} </if>
+			<if test="description != null and description != ''"> and week.description = #{description} </if>
+			<if test="userName != null and userName != ''"> and employee.name like CONCAT ('%',#{userName},'%') </if>
+			<if test="createTime != null and createTime != ''"> and week.create_time = #{createTime} </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(week.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(week.create_time,'%Y-%m-%d') &lt;= DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="updateBy != null and updateBy != ''"> and week.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and week.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and week.del_flag = #{delFlag} </if>
+			<if test="deptName != null and deptName != ''"> and dept.name = #{deptName} </if>
+			<if test="deptId != null and deptId != ''"> and dept.dept_id = #{deptId} </if>
+			<if test="idPath != null and idPath != ''"> and dept.id_path like CONCAT (#{idPath},'%') </if>
+			<if test="status != null and status != ''"> and week.status = #{status} </if>
+			<if test="createBy != null and createBy != ''"> and week.create_by = #{createBy} </if>
+		</where>
+	</select>
+
+
+	
+	<delete id="remove">
+		delete from cus_week_report where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_week_report where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<!-- 发给我的 未读取的数量-->
+	<select id="countOfQuantyForward" resultType="int">
+		select
+		COUNT(aa.assoc_id)
+		from
+		(select concat(',',group_concat(`a`.`user_id` separator ','),',') AS user_id ,  a.`assoc_id`, a.sign from  cus_user_assoc a
+		where  assoc_type='WEEK_REPORT_TARGET'  GROUP BY  a.`assoc_id`,sign
+		)  aa
+		where
+		aa.user_id like CONCAT('%',CONCAT(',',#{beSentPeopleId},','),'%')  <!-- CONCAT(CONCAT(',',#{beSentPeopleId}),',%')  -->
+		and
+		aa.assoc_id in (select id from cus_week_report where status!=146)
+		and
+		aa.sign is null
+	</select>
+
+
+
+	<select id="listOfCanDelet" resultType="map">
+		select
+		`id`,
+		`status`
+		from
+		cus_week_report
+		<where>
+
+			<if test="id!= null"> and id in
+				<foreach item="item" collection="id" open="(" separator="," close=")"  index="index">
+					#{item}
+				</foreach>
+			</if>
+			<if test="status!= null"> and status =#{status}</if>
+		</where>
+	</select>
+
+
+	<select id="weekOfDetail" resultType="map">
+		select
+		a.`id` as id,
+		a.`com_content`  as   comContent  ,
+		a.`content_sum`as   contentSum ,
+		a.`content_plan`as contentPlan   ,
+		a.`description`as description   ,
+		a.`start_time`as   startTime ,
+		a.`end_time`as  endTime  ,
+		a.`create_by`as  createBy  ,
+		a.`create_time`as  createTime  ,
+		a.`update_by`as   updateBy ,
+		a.`update_time`as   updateTime ,
+		a.`del_flag`as  delFlag  ,
+		a.`status`as  status  ,
+		b.name as createByName,
+		b.dept_id as deptId,
+		c.name as deptName
+		from
+		cus_week_report a
+		LEFT JOIN sys_user b on  a.create_by =b.user_id
+		LEFT JOIN sys_dept c on  b.dept_id =c.dept_id
+		WHERE
+		a.id=#{id}
+	</select>
+
+
+
+	<select id="weekHaveOrNot" resultType="int">
+		select
+			count(a.id)
+		from
+		(
+		select
+			id,
+			create_by as createBy,
+			date_format(start_time,'%Y-%m-%d') as startTime,
+			date_format(end_time,'%Y-%m-%d') as endTime
+			from
+			cus_week_report
+		)a
+		<where>
+			<if test="startTimeOfMonday != null and startTimeOfMonday != ''"> and a.startTime = #{startTimeOfMonday}</if> <!-- 周一的时间-->
+			<if test="endTimeOfSunday != null and endTimeOfSunday != ''">  and a.endTime = #{endTimeOfSunday} </if> <!-- 周日的时间-->
+			<if test="createBy != null and createBy != ''"> and a.createBy = #{createBy} </if>
+		</where>
+
+	</select>
+
+</mapper>

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.DeviceSuperviseDao">
+
+	<select id="get" resultType="com.ev.custom.domain.DeviceSuperviseDO">
+		select `id`,`deviceid`,`checkitem`,`checkitemid`,`regulatorname`,`regulatorid`,`checktime`,`period`,`rummager`,`rummagerid`,`nextchecktime`,`Warningdays`,`remark`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_device_supervise where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.DeviceSuperviseDO">
+		select `id`,`deviceid`,`checkitem`,`checkitemid`,`regulatorname`,`regulatorid`,`checktime`,`period`,`rummager`,`rummagerid`,`nextchecktime`,`Warningdays`,`remark`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_device_supervise
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="deviceid != null and deviceid != ''"> and deviceid = #{deviceid} </if>
+		  		  <if test="checkitem != null and checkitem != ''"> and checkitem = #{checkitem} </if>
+		  		  <if test="checkitemid != null and checkitemid != ''"> and checkitemid = #{checkitemid} </if>
+		  		  <if test="regulatorname != null and regulatorname != ''"> and regulatorname = #{regulatorname} </if>
+		  		  <if test="regulatorid != null and regulatorid != ''"> and regulatorid = #{regulatorid} </if>
+		  		  <if test="checktime != null and checktime != ''"> and checktime = #{checktime} </if>
+		  		  <if test="period != null and period != ''"> and period = #{period} </if>
+		  		  <if test="rummager != null and rummager != ''"> and rummager = #{rummager} </if>
+		  		  <if test="rummagerid != null and rummagerid != ''"> and rummagerid = #{rummagerid} </if>
+		  		  <if test="nextchecktime != null and nextchecktime != ''"> and nextchecktime = #{nextchecktime} </if>
+		  		  <if test="warningdays != null and warningdays != ''"> and Warningdays = #{warningdays} </if>
+		  		  <if test="remark != null and remark != ''"> and remark = #{remark} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="listPageMap" resultType="map">
+		select `id`,`deviceid`,`checkitem`,`checkitemid`,`regulatorname`,`regulatorid`,`checktime`,`period`,`rummager`,`rummagerid`,`nextchecktime`,`Warningdays`,`remark`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_device_supervise
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="deviceid != null and deviceid != ''"> and deviceid = #{deviceid} </if>
+			<if test="checkitem != null and checkitem != ''"> and checkitem = #{checkitem} </if>
+			<if test="checkitemid != null and checkitemid != ''"> and checkitemid = #{checkitemid} </if>
+			<if test="regulatorname != null and regulatorname != ''"> and regulatorname = #{regulatorname} </if>
+			<if test="regulatorid != null and regulatorid != ''"> and regulatorid = #{regulatorid} </if>
+			<if test="checktime != null and checktime != ''"> and checktime = #{checktime} </if>
+			<if test="period != null and period != ''"> and period = #{period} </if>
+			<if test="rummager != null and rummager != ''"> and rummager = #{rummager} </if>
+			<if test="rummagerid != null and rummagerid != ''"> and rummagerid = #{rummagerid} </if>
+			<if test="nextchecktime != null and nextchecktime != ''"> and nextchecktime = #{nextchecktime} </if>
+			<if test="warningdays != null and warningdays != ''"> and Warningdays = #{warningdays} </if>
+			<if test="remark != null and remark != ''"> and remark = #{remark} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+ 	<select id="count" resultType="int">
+		select count(*) from cus_device_supervise
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="deviceid != null and deviceid != ''"> and deviceid = #{deviceid} </if>
+		  		  <if test="checkitem != null and checkitem != ''"> and checkitem = #{checkitem} </if>
+		  		  <if test="checkitemid != null and checkitemid != ''"> and checkitemid = #{checkitemid} </if>
+		  		  <if test="regulatorname != null and regulatorname != ''"> and regulatorname = #{regulatorname} </if>
+		  		  <if test="regulatorid != null and regulatorid != ''"> and regulatorid = #{regulatorid} </if>
+		  		  <if test="checktime != null and checktime != ''"> and checktime = #{checktime} </if>
+		  		  <if test="period != null and period != ''"> and period = #{period} </if>
+		  		  <if test="rummager != null and rummager != ''"> and rummager = #{rummager} </if>
+		  		  <if test="rummagerid != null and rummagerid != ''"> and rummagerid = #{rummagerid} </if>
+		  		  <if test="nextchecktime != null and nextchecktime != ''"> and nextchecktime = #{nextchecktime} </if>
+		  		  <if test="warningdays != null and warningdays != ''"> and Warningdays = #{warningdays} </if>
+		  		  <if test="remark != null and remark != ''"> and remark = #{remark} </if>
+			 <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			 <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			 <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			 <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			 <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+
+	<insert id="save" parameterType="com.ev.custom.domain.DeviceSuperviseDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_device_supervise
+		(
+			`deviceid`, 
+			`checkitem`, 
+			`checkitemid`, 
+			`regulatorname`, 
+			`regulatorid`, 
+			`checktime`, 
+			`period`, 
+			`rummager`, 
+			`rummagerid`, 
+			`nextchecktime`, 
+			`Warningdays`,
+
+			`remark`,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
+			`del_flag`
+		)
+		values
+		(
+			#{deviceid}, 
+			#{checkitem}, 
+			#{checkitemid}, 
+			#{regulatorname}, 
+			#{regulatorid}, 
+			#{checktime}, 
+			#{period}, 
+			#{rummager}, 
+			#{rummagerid}, 
+			#{nextchecktime}, 
+			#{warningdays}, 
+			#{remark},
+			#{createBy},
+			#{createTime},
+			#{updateBy},
+			#{updateTime},
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.DeviceSuperviseDO">
+		update cus_device_supervise 
+		<set>
+			<if test="deviceid != null">`deviceid` = #{deviceid}, </if>
+			<if test="checkitem != null">`checkitem` = #{checkitem}, </if>
+			<if test="checkitemid != null">`checkitemid` = #{checkitemid}, </if>
+			<if test="regulatorname != null">`regulatorname` = #{regulatorname}, </if>
+			<if test="regulatorid != null">`regulatorid` = #{regulatorid}, </if>
+			<if test="checktime != null">`checktime` = #{checktime}, </if>
+			<if test="period != null">`period` = #{period}, </if>
+			<if test="rummager != null">`rummager` = #{rummager}, </if>
+			<if test="rummagerid != null">`rummagerid` = #{rummagerid}, </if>
+			<if test="nextchecktime != null">`nextchecktime` = #{nextchecktime}, </if>
+			<if test="warningdays != null">`Warningdays` = #{warningdays}, </if>
+			<if test="remark != null">`remark` = #{remark}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_device_supervise where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_device_supervise where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

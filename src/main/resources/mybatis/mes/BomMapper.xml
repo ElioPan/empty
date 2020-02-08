@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.BomDao">
+
+	<select id="get" resultType="com.ev.mes.domain.BomDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_bom 
+		WHERE id = #{value}
+	</select>
+	
+	<select id="getDetail" resultType="map">
+		SELECT 
+		 bom.`id` AS id,
+		 bom.`serialno` AS bomSerialno,
+		 bom.`name` AS bomName,
+	     dict.`name` AS typeName,
+	     dict.`id` AS typeId,
+		 bom.`version` AS version,
+		 bom.`materiel_id` AS materielId,
+		 material.serial_no AS materialSerialNo,
+		 material.name AS materialName,
+		 material.specification AS specification,
+		 unituom.id AS unitUomId,
+		 unituom.name AS unitUomName,
+		 bom.`count` AS bomCount,
+		 bom.`image_no` AS imageNo,
+		 bom.`create_by` AS createrId,
+		 createuser.`name` AS createrName,
+		 bom.`auditor` AS auditorId,
+		 audituser.`name` AS auditorName,
+		 bom.`use_status` AS status,
+		 bom.`remarks` AS remarks,
+		 bom.`audit_sign` AS auditSignId,
+         dics.`name` AS auditSignName
+		FROM mes_bom bom
+		LEFT JOIN cus_materiel material ON material.`id`=bom.`materiel_id`
+		LEFT JOIN cus_dictionary unituom ON unituom.id = material.`unit_uom`
+		LEFT JOIN cus_dictionary dics ON dics.id = bom.`audit_sign`
+		LEFT JOIN sys_user createuser ON createuser.`user_id`=bom.`create_by`
+		LEFT JOIN sys_user audituser ON audituser.`user_id`=bom.`auditor`
+		LEFT JOIN cus_dictionary dict ON dict.`id` = bom.`type`
+		WHERE bom.id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.BomDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_bom
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="listForMap" resultType="map">
+		SELECT
+		 bom.`id` AS bomId,
+		 bom.`serialno` AS bomSerialno,
+		 bom.`name` AS bomName,
+	     dict.`name` AS typeName,
+	     dict.`id` AS typeId,
+		 bom.`version` AS version,
+		 bommaterial.serial_no AS bomMaterialserialNo,
+		bommaterial.name AS bomMaterialname,
+		bommaterial.specification AS bomMaterialSpecification, 
+		bom.`count` AS bomCount,
+		bom.`image_no` AS imageNo,
+        bom.`audit_sign` AS statusId,
+        dica.`name` AS status
+		FROM mes_bom bom
+		LEFT JOIN cus_materiel bommaterial ON bommaterial.`id`=bom.`materiel_id`
+		LEFT JOIN cus_dictionary dict ON dict.`id` = bom.`type`
+        LEFT JOIN cus_dictionary dica ON dica.`id` = bom.`audit_sign`
+		<where>
+				<if test="id != null and id != ''"> and bom.id = #{id} </if>
+			    <if test="bomName != null and bomName != ''"> and bom.`name` LIKE CONCAT ('%',#{bomName},'%')  </if>
+		  		<if test="proName != null and proName != ''"> and bommaterial.`name` LIKE CONCAT ('%',#{proName},'%') </if>
+		  		<if test="proId != null and proId != ''"> and bom.`materiel_id` = #{proId} </if>
+		  		<if test="imageNo != null and imageNo != ''"> and bom.`image_no` LIKE CONCAT ('%',#{imageNo},'%') </if>
+		  		<if test="auditSign != null and auditSign != ''"> and bom.`audit_sign` = #{auditSign} </if>
+		  		<if test="useStatus != null"> and bom.use_status = #{useStatus} </if>
+		  		<if test="delFlag != null"> and  bom.del_flag = #{delFlag} </if>
+		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by bom.`id` desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="countForMap" resultType="int">
+		SELECT 
+		COUNT(*)
+		FROM mes_bom bom
+		LEFT JOIN cus_materiel bommaterial ON bommaterial.`id`=bom.`materiel_id`
+		LEFT JOIN cus_dictionary dict ON dict.`id` = bom.`type`
+		<where>
+				<if test="id != null and id != ''"> and bom.id = #{id} </if>
+			    <if test="bomName != null and bomName != ''"> and bom.`name` LIKE CONCAT ('%',#{bomName},'%')  </if>
+		  		<if test="proName != null and proName != ''"> and bommaterial.`name` LIKE CONCAT ('%',#{proName},'%') </if>
+		  		<if test="proId != null and proId != ''"> and bom.`materiel_id` = #{proId} </if>
+		  		<if test="imageNo != null and imageNo != ''"> and bom.`image_no` LIKE CONCAT ('%',#{imageNo},'%') </if>
+		  		<if test="auditSign != null and auditSign != ''"> and bom.`audit_sign` = #{auditSign} </if>
+		  		<if test="useStatus != null "> and bom.use_status = #{useStatus} </if>
+                <if test="delFlag != null"> and  bom.del_flag = #{delFlag} </if>
+		</where>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from mes_bom
+		<include refid="sql_condition"/>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.BomDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_bom
+		(
+			`serialno`, 
+			`name`, 
+			`type`, 
+			`version`, 
+			`materiel_id`, 
+			`count`, 
+			`auditor`, 
+			`image_no`, 
+			`remarks`, 
+			`audit_sign`, 
+			`use_status`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{serialno}, 
+			#{name}, 
+			#{type}, 
+			#{version}, 
+			#{materielId}, 
+			#{count}, 
+			#{auditor}, 
+			#{imageNo}, 
+			#{remarks}, 
+			#{auditSign}, 
+			#{useStatus}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.BomDO">
+		update mes_bom 
+		<set>
+			<if test="serialno != null">`serialno` = #{serialno}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="version != null">`version` = #{version}, </if>
+			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
+			<if test="count != null">`count` = #{count}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="imageNo != null">`image_no` = #{imageNo}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+			<if test="useStatus != null">`use_status` = #{useStatus}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from mes_bom where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from mes_bom where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<sql id="sql_column_list">
+		`id`,`serialno`,`name`,`type`,`version`,`materiel_id`,`count`,`auditor`,`image_no`,`remarks`,`audit_sign`,`use_status`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+	</sql>
+	
+	<sql id="sql_condition">
+		<where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+            <if test="maxNo != null and maxNo != ''"> and LEFT(serialno,CHAR_LENGTH(#{maxNo})) = #{maxNo} </if>
+		  		  <if test="serialno != null and serialno != ''"> and serialno = #{serialno} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  		  <if test="version != null and version != ''"> and version = #{version} </if>
+		  		  <if test="materielId != null and materielId != ''"> and materiel_id = #{materielId} </if>
+		  		  <if test="count != null and count != ''"> and count = #{count} </if>
+		  		  <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+		  		  <if test="imageNo != null and imageNo != ''"> and image_no = #{imageNo} </if>
+		  		  <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+		  		  <if test="auditSign != null and auditSign != ''"> and audit_sign = #{auditSign} </if>
+		  		  <if test="useStatus != null and useStatus != ''"> and use_status = #{useStatus} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</sql>
+	
+</mapper>

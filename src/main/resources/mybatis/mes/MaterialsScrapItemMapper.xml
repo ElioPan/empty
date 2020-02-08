@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.MaterialsScrapItemDao">
+
+	<select id="get" resultType="com.ev.mes.domain.MaterialsScrapItemDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM mes_materials_scrap_item
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.MaterialsScrapItemDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM mes_materials_scrap_item
+		<include refid="sql_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from mes_materials_scrap_item
+		<include refid="sql_condition"/>
+	</select>
+
+	<insert id="save" parameterType="com.ev.mes.domain.MaterialsScrapItemDO" useGeneratedKeys="true" keyProperty="id">
+		insert into mes_materials_scrap_item
+		(
+			`scrap_id`, 
+			`material_id`,
+			`batch`,
+			`scrap_reason`,
+			`scrap_count`,
+			`remark`,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
+			`del_flag`
+		)
+		values
+		(
+			#{scrapId},
+			#{materialId},
+			#{batch},
+			#{scrapReason},
+			#{scrapCount},
+			#{remark},
+			#{createBy},
+			#{createTime},
+			#{updateBy},
+			#{updateTime},
+			#{delFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.mes.domain.MaterialsScrapItemDO">
+		update mes_materials_scrap_item
+		<set>
+			<if test="scrapId != null">`scrap_id` = #{scrapId}, </if>
+			<if test="materialId != null">`material_id` = #{materialId}, </if>
+			<if test="batch != null">`batch` = #{batch}, </if>
+			<if test="scrapReason != null">`scrap_reason` = #{scrapReason}, </if>
+			<if test="scrapCount != null">`scrap_count` = #{scrapCount}, </if>
+			<if test="remark != null">`remark` = #{remark}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from mes_materials_scrap_item where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from mes_materials_scrap_item where id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<sql id="sql_column_list">
+		`id`,`scrap_id`,`material_id`,`batch`,`scrap_reason`,`scrap_count`,`remark`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+	<sql id="sql_condition">
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="scrapId != null and scrapId != ''"> and scrap_id = #{scrapId} </if>
+			<if test="materialId != null and materialId != ''"> and material_id = #{materialId} </if>
+			<if test="batch != null and batch != ''"> and batch = #{batch} </if>
+			<if test="scrapReason != null and scrapReason != ''"> and scrap_reason = #{scrapReason} </if>
+			<if test="scrapCount != null and scrapCount != ''"> and scrap_count = #{scrapCount} </if>
+			<if test="remark != null and remark != ''"> and remark = #{remark} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+	</sql>
+
+	<select id="getItemDetails" resultType="map">
+		SELECT
+		a.id as itemId,
+		a.material_id as materialId,
+		b.name as  materielName,
+		b.specification AS specification,
+		b.serial_no as serialNo,
+		b.unit_uom as unitUom,
+		c.name as unitName,
+		a.batch ,
+		a.scrap_reason as scrapReason,
+		a.scrap_count as scrapCount,
+		a.remark
+		from
+		mes_materials_scrap_item a
+		LEFT JOIN cus_materiel  b on  a.material_id =b.id
+		LEFT JOIN cus_dictionary  c on  b.unit_uom =c.id
+		where
+		a.scrap_id = #{scrapId}
+	</select>
+
+
+	<delete id="batchRemoveByScrapId">
+		delete
+		from
+		mes_materials_scrap_item
+		where
+		scrap_id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		*
+		from
+		(
+		SELECT
+		a.id as itemId,
+		a.material_id as materialId,
+		b.name as  materialName,
+		b.serial_no as serialNo,
+		b.specification,
+		b.unit_uom as unitUom,
+		c.name as unitName,
+		a.batch,
+		a.scrap_reason as scrapReason,
+		a.scrap_count as scrapCount,
+		a.remark,
+		d.id as scrapId,
+		d.`code`,
+		d.foreign_id as foreignId,
+		f.feeding_no as feedingNo,
+		IFNULL(d.create_time,'') as createTime,
+		d.audit_sign as auditSign,
+		g.name as auditSignName
+		from
+		mes_materials_scrap_item a
+		LEFT JOIN cus_materiel  b on  a.material_id =b.id
+		LEFT JOIN cus_dictionary  c on  b.unit_uom =c.id
+		LEFT JOIN mes_materials_scrap  d on  a.scrap_id =d.id
+		LEFT JOIN mes_production_feeding f on d.foreign_id=f.id
+		LEFT JOIN cus_dictionary  g on  d.audit_sign=g.id
+		)aaa
+		<where>
+			<if test="materialId != null and materialId != ''"> and materialId = #{materialId} </if>
+			<if test="code != null and code != ''"> and code like CONCAT('%',#{code},'%') </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="materialName != null and materialName != ''"> and materialName like CONCAT('%',#{materialName},'%') </if>
+			<if test="serialNo != null and serialNo != ''"> and serialNo like CONCAT('%',#{serialNo},'%') </if>
+
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order},itemId desc
+			</when>
+			<otherwise>
+				order by itemId desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="int">
+		select
+		count(*)
+		from
+		(
+		SELECT
+		a.id as itemId,
+		a.material_id as materialId,
+		b.name as  materialName,
+		b.serial_no as serialNo,
+		b.specification,
+		b.unit_uom as unitUom,
+		c.name as unitName,
+		a.batch,
+		a.scrap_reason as scrapReason,
+		a.scrap_count as scrapCount,
+		a.remark,
+		d.id as scrapId,
+		d.`code`,
+		d.foreign_id as foreignId,
+		f.feeding_no as feedingNo,
+		d.create_time as createTime,
+		d.audit_sign as auditSign,
+		g.name as auditSignName
+		from
+		mes_materials_scrap_item a
+		LEFT JOIN cus_materiel  b on  a.material_id =b.id
+		LEFT JOIN cus_dictionary  c on  b.unit_uom =c.id
+		LEFT JOIN mes_materials_scrap  d on  a.scrap_id =d.id
+		LEFT JOIN mes_production_feeding f on d.foreign_id=f.id
+		LEFT JOIN cus_dictionary  g on  d.audit_sign=g.id
+		)aaa
+		<where>
+			<if test="materialId != null and materialId != ''"> and materialId = #{materialId} </if>
+			<if test="code != null and code != ''"> and code like CONCAT('%',#{code},'%') </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="materialName != null and materialName != ''"> and materialName like CONCAT('%',#{materialName},'%') </if>
+			<if test="serialNo != null and serialNo != ''"> and serialNo like CONCAT('%',#{serialNo},'%') </if>
+
+		</where>
+	</select>
+
+
+
+
+</mapper>

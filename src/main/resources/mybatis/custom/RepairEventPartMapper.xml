@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.RepairEventPartDao">
+
+	<select id="get" resultType="com.ev.custom.domain.RepairEventPartDO">
+		select `id`,`part_id`,`price`,`amount`,`total`,`remark`,`event_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_repair_event_part where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.RepairEventPartDO">
+		select `id`,`part_id`,`price`,`amount`,`total`,`remark`,`event_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_repair_event_part
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="partId != null and partId != ''"> and part_id = #{partId} </if>
+		  		  <if test="amount != null and amount != ''"> and amount = #{amount} </if>
+		  		  <if test="total != null and total != ''"> and total = #{total} </if>
+		  		  <if test="remark != null and remark != ''"> and remark = #{remark} </if>
+		  		  <if test="recordId != null and recordId != ''"> and event_id = #{recordId} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="listForMap" resultType="map">
+		SELECT
+		part.`id` AS id,
+		materiel.`id` AS partId,
+		materiel.`serial_no` AS code,
+		materiel.`name` AS name,
+		materiel.`specification` AS type,
+		part.`amount` AS amount,
+		dicu.`id` AS unitId,
+		dicu.`name` AS unitName,
+		part.`price` AS price,
+		part.`total` AS total,
+		materieltype.id as typeId,
+		materieltype.name AS typeName,
+		facility.`name` AS facilityName,
+		location.`name` AS facilityLocation,
+		part.`remark` AS content
+		FROM cus_repair_event_part part
+		LEFT JOIN  cus_materiel materiel ON materiel.`id` = part.`part_id`
+		LEFT JOIN cus_materiel_type materieltype ON materieltype.id = materiel.type
+		LEFT JOIN  cus_dictionary dicu ON dicu.`id`=materiel.`unit_uom` 
+		LEFT JOIN cus_facility facility ON facility.`id` = materiel.`default_facility`
+		LEFT JOIN cus_facility_location location ON location.`id` = materiel.`default_location`
+        <where>  
+		  		  <if test="id != null and id != ''"> and part.id = #{id} </if>
+		  		  <if test="partId != null and partId != ''"> and part.part_id = #{partId} </if>
+		  		  <if test="amount != null and amount != ''"> and part.amount = #{amount} </if>
+		  		  <if test="total != null and total != ''"> and part.total = #{total} </if>
+		  		  <if test="remark != null and remark != ''"> and part.remark = #{remark} </if>
+		  		  <if test="recordId != null and recordId != ''"> and part.event_id = #{recordId} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="countForMap" resultType="map">
+		SELECT
+		SUM(IFNULL(part.amount,0)) AS amountTotal,
+		SUM(IFNULL(part.`price`,0)) AS unitPriceTotal,
+		SUM(IFNULL(part.`total`,0)) AS priceTotal
+		FROM cus_repair_event_part part
+		LEFT JOIN  cus_materiel materiel ON materiel.`id` = part.`part_id`
+		LEFT JOIN  cus_dictionary dicu ON dicu.`id`=materiel.`unit_uom` 
+		LEFT JOIN cus_facility facility ON facility.`id` = materiel.`default_facility`
+		LEFT JOIN cus_facility_location location ON location.`id` = materiel.`default_location`
+        <where>  
+		  		  <if test="id != null and id != ''"> and part.id = #{id} </if>
+		  		  <if test="partId != null and partId != ''"> and part.part_id = #{partId} </if>
+		  		  <if test="amount != null and amount != ''"> and part.amount = #{amount} </if>
+		  		  <if test="total != null and total != ''"> and part.total = #{total} </if>
+		  		  <if test="remark != null and remark != ''"> and part.remark = #{remark} </if>
+		  		  <if test="recordId != null and recordId != ''"> and part.event_id = #{recordId} </if>
+		  		</where>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_repair_event_part
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="partId != null and partId != ''"> and part_id = #{partId} </if>
+		  		  <if test="amount != null and amount != ''"> and amount = #{amount} </if>
+		  		  <if test="total != null and total != ''"> and total = #{total} </if>
+		  		  <if test="remark != null and remark != ''"> and remark = #{remark} </if>
+		  		  <if test="eventId != null and eventId != ''"> and event_id = #{eventId} </if>
+			 <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			 <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			 <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			 <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			 <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.RepairEventPartDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_repair_event_part
+		(
+			`part_id`, 
+			`amount`,
+			`price`, 
+			`total`, 
+			`remark`, 
+			`event_id`,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
+			`del_flag`
+		)
+		values
+		(
+			#{partId},
+			#{amount},
+			#{price},
+			#{total},
+			#{remark},
+			#{eventId},
+			#{createBy},
+			#{createTime},
+			#{updateBy},
+			#{updateTime},
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.RepairEventPartDO">
+		update cus_repair_event_part
+		<set>
+			<if test="partId != null">`part_id` = #{partId}, </if>
+			<if test="amount != null">`amount` = #{amount}, </if>
+			<if test="price != null">`price` = #{price}, </if>
+			<if test="total != null">`total` = #{total}, </if>
+			<if test="remark != null">`remark` = #{remark}, </if>
+			<if test="eventId != null">`event_id` = #{eventId}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_repair_event_part where event_id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_repair_event_part where event_id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+</mapper>

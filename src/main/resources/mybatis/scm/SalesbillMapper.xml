@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.SalesbillDao">
+
+	<select id="get" resultType="com.ev.scm.domain.SalesbillDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_salesbill 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.SalesbillDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_salesbill
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from scm_salesbill
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`client_id`,`invoice_date`,`drawer`,`bill_code`,`invoice_type`,`invoice_num`,`audit_sign`,`remarks`,`auditor`,`audit_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> and id = #{id} </if>
+            <if test="maxNo != null and maxNo != ''"> and LEFT(bill_code,12) = #{maxNo} </if>
+                            <if test="clientId != null and clientId != ''"> and client_id = #{clientId} </if>
+                            <if test="invoiceDate != null and invoiceDate != ''"> and invoice_date = #{invoiceDate} </if>
+                            <if test="drawer != null and drawer != ''"> and drawer = #{drawer} </if>
+                            <if test="billCode != null and billCode != ''"> and bill_code = #{billCode} </if>
+                            <if test="invoiceType != null and invoiceType != ''"> and invoice_type = #{invoiceType} </if>
+                            <if test="invoiceNum != null and invoiceNum != ''"> and invoice_num = #{invoiceNum} </if>
+                            <if test="auditSign != null and auditSign != ''"> and audit_sign = #{auditSign} </if>
+                            <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+                            <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+                            <if test="auditTime != null and auditTime != ''"> and audit_time = #{auditTime} </if>
+                            <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.SalesbillDO" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_salesbill
+		(
+			`client_id`, 
+			`invoice_date`, 
+			`drawer`, 
+			`bill_code`, 
+			`invoice_type`, 
+			`invoice_num`, 
+			`audit_sign`, 
+			`remarks`, 
+			`auditor`, 
+			`audit_time`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{clientId}, 
+			#{invoiceDate}, 
+			#{drawer}, 
+			#{billCode}, 
+			#{invoiceType}, 
+			#{invoiceNum}, 
+			#{auditSign}, 
+			#{remarks}, 
+			#{auditor}, 
+			#{auditTime}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.SalesbillDO">
+		update scm_salesbill 
+		<set>
+			<if test="clientId != null">`client_id` = #{clientId}, </if>
+			<if test="invoiceDate != null">`invoice_date` = #{invoiceDate}, </if>
+			<if test="drawer != null">`drawer` = #{drawer}, </if>
+			<if test="billCode != null">`bill_code` = #{billCode}, </if>
+			<if test="invoiceType != null">`invoice_type` = #{invoiceType}, </if>
+			<if test="invoiceNum != null">`invoice_num` = #{invoiceNum}, </if>
+			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="auditTime != null">`audit_time` = #{auditTime}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from scm_salesbill where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from scm_salesbill where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!--自定义-->
+    <select id="listForMap" resultType="map">
+        SELECT
+        item.id AS itemId,
+        item.salesbill_id AS id,
+        bill.invoice_date AS invoiceDate,
+        client.name AS clientName,
+        bill.invoice_type AS invoiceType,
+        dici.`name` AS invoiceyTypeName,
+        bill.invoice_num AS invoiceNum,
+        materiel.serial_no AS materielSerialNo,
+        materiel.name AS materielName,
+        materiel.specification AS specification,
+        item.count AS count,
+        item.unit_price AS unitPrice,
+        item.tax_unit_price AS taxUnitPrice,
+        item.tax_rate AS taxRate,
+        item.amount AS amount,
+        item.taxes AS taxes,
+        item.tax_amount AS taxAmount,
+        bill.audit_sign AS auditSign,
+        dica.`name` AS auditSignName,
+        item.source_type AS sourceType,
+        dict.`name` AS sourceTypeName,
+        item.source_code AS sourceCode
+        <include refid="sql_map_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by item.salesbill_id desc,item.id
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+    <select id="countForMap" resultType="int">
+        SELECT
+        COUNT(*)
+        <include refid="sql_map_condition"/>
+    </select>
+
+    <sql id="sql_map_condition">
+        FROM scm_salesbill_item item
+        LEFT JOIN scm_salesbill bill ON bill.id = item.salesbill_id
+        LEFT JOIN cus_client client ON client.id = bill.client_id
+        LEFT JOIN cus_dictionary dici ON  dici.id = bill.invoice_type
+        LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
+        LEFT JOIN cus_dictionary dica ON  dica.id = bill.audit_sign
+        LEFT JOIN cus_dictionary dict ON  dict.id = item.source_type
+        <where>
+            <if test="billCode != null and billCode != ''"> and bill.bill_code = #{billCode} </if>
+            <if test="clientName != null and clientName != ''"> and client.name LIKE #{clientName} </if>
+            <if test="materielName != null and materielName != ''"> and materiel.name LIKE #{materielName} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(item.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(item.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+
+            <if test="id != null and id != ''"> and item.salesbill_id = #{id} </if>
+            <if test="itemId != null and itemId != ''"> and item.id = #{itemId} </if>
+            <if test="auditSign != null and auditSign != ''"> and bill.audit_sign = #{auditSign} </if>
+            <if test="auditor != null and auditor != ''"> and bill.auditor = #{auditor} </if>
+            <if test="auditTime != null and auditTime != ''"> and bill.audit_time = #{auditTime} </if>
+            <if test="createBy != null and createBy != ''"> and bill.create_by = #{createBy} </if>
+            <if test="createTime != null and createTime != ''"> and bill.create_time = #{createTime} </if>
+            <if test="updateBy != null and updateBy != ''"> and bill.update_by = #{updateBy} </if>
+            <if test="updateTime != null and updateTime != ''"> and bill.update_time = #{updateTime} </if>
+            <if test="delFlag != null and delFlag != ''"> and bill.del_flag = #{delFlag} </if>
+        </where>
+    </sql>
+
+    <select id="getDetail" resultType="map">
+        SELECT
+        bill.`id` AS id,
+        bill.`client_id` AS clientId,
+        client.name AS clientName,
+        bill.invoice_date AS invoiceDate,
+        bill.drawer AS drawer,
+        users.`name` AS drawerName,
+        bill.invoice_num AS invoiceNum,
+        bill.invoice_type AS invoiceType,
+        dici.`name` AS invoiceTypeName,
+        bill.`remarks` AS remarks,
+        bill.create_by AS createBy,
+        creater.`name` AS createByName,
+        bill.`create_time` AS createTime,
+        bill.auditor AS auditor,
+        auditor.`name` AS auditorName,
+        bill.`audit_time` AS auditTime,
+        bill.audit_sign AS auditSign,
+        dica.`name` AS auditSignName
+        FROM scm_salesbill bill
+        LEFT JOIN cus_client client ON client.id = bill.client_id
+        LEFT JOIN cus_dictionary dici ON  dici.id = bill.invoice_type
+        LEFT JOIN sys_user users ON  users.user_id = bill.drawer
+        LEFT JOIN sys_user creater ON  creater.user_id = bill.create_by
+        LEFT JOIN sys_user auditor ON  auditor.user_id = bill.auditor
+        LEFT JOIN cus_dictionary dica ON  dica.id = bill.audit_sign
+        WHERE bill.`id` = #{value}
+    </select>
+
+
+</mapper>

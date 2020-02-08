@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.LeaveApplyDao">
+
+	<select id="get" resultType="com.ev.custom.domain.LeaveApplyDO">
+		select `id`,`type`,`begin_time`,`end_time`,`time_area`,`reason`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`status`,`process_instance_id` from cus_leave_apply where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.LeaveApplyDO">
+		select `id`,`type`,`begin_time`,`end_time`,`time_area`,`reason`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`status`,`process_instance_id` from cus_leave_apply
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="type != null and type != ''"> and type = #{type} </if>
+			<if test="beginTime != null and beginTime != ''"> and begin_time = #{beginTime} </if>
+			<if test="endTime != null and endTime != ''"> and end_time = #{endTime} </if>
+			<if test="timeArea != null and timeArea != ''"> and time_area = #{timeArea} </if>
+			<if test="reason != null and reason != ''"> and reason = #{reason} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+			<if test="status != null and status != ''"> and status = #{status} </if>
+			<if test="processInstanceId != null and processInstanceId != ''"> and process_instance_id = #{processInstanceId} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from cus_leave_apply
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="type != null and type != ''"> and type = #{type} </if>
+			<if test="beginTime != null and beginTime != ''"> and begin_time = #{beginTime} </if>
+			<if test="endTime != null and endTime != ''"> and end_time = #{endTime} </if>
+			<if test="timeArea != null and timeArea != ''"> and time_area = #{timeArea} </if>
+			<if test="reason != null and reason != ''"> and reason = #{reason} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+			<if test="status != null and status != ''"> and status = #{status} </if>
+			<if test="processInstanceId != null and processInstanceId != ''"> and process_instance_id = #{processInstanceId} </if>
+		</where>
+	</select>
+
+	<select id="listForMap" resultType="map">
+		select
+		*
+		from
+		(
+			SELECT
+			apply.id as id,
+			apply.type as typeid,
+			typedic.value as typevalue,
+			typedic.name as typename,
+			apply.begin_time as begintime,
+			apply.end_time as endtime,
+			apply.time_area as timearea,
+			apply.reason as reason,
+			apply.create_by as createby,
+			createuser.name as createuser,
+			apply.create_time as createtime,
+			apply.update_by as updateby,
+			apply.update_time as updatetime,
+			apply.del_flag as delflag,
+			apply.status as statusId,
+			statusdic.value as statusvalue,
+			statusdic.name as statusname,
+			assignuser.user_id as assignid,
+			dept.dept_id as deptid,
+			dept.id_path as idPath,
+			dept.name as deptname,
+			apply.process_instance_id as processinstanceid
+			FROM
+			cus_leave_apply apply
+			LEFT JOIN act_ru_task task on task.PROC_INST_ID_ = apply.process_instance_id
+			LEFT JOIN sys_user createuser on createuser.user_id = apply.create_by
+			LEFT JOIN sys_dept dept on dept.dept_id = createuser.dept_id
+			LEFT JOIN sys_user assignuser on assignuser.user_id = task.ASSIGNEE_
+			LEFT JOIN cus_dictionary statusdic on statusdic.id = apply.status
+			LEFT JOIN cus_dictionary typedic on typedic.id = apply.type
+		)
+		view_leave_apply
+		<where>
+
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="type != null and type != ''"> and typeid = #{type} </if>
+			<if test="timeArea != null and timeArea != ''"> and timearea = #{timeArea} </if>
+			<if test="reason != null and reason != ''"> and reason = #{reason} </if>
+
+			<if test="createBy != null and createBy != ''"> and createby = #{createBy} </if>
+
+			<if test="createByName != null and createByName != ''"> and createuser like CONCAT('%',#{createByName},'%')</if>
+
+			<if test="status != null and status != ''"> and statusId != #{status} </if>
+			<if test="statusOther != null and statusOther != ''"> and statusId != #{statusOther} </if>
+			<if test="assignId != null and assignId != ''"> and assignid = #{assignId} </if>
+			<if test="idPath != null and idPath != ''"> and idPath like CONCAT(#{idPath},'%') </if>
+
+			<if test="createTime != null and createTime != ''"> and createtime = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and updateby = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and updatetime = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and delflag = #{delFlag} </if>
+			<if test="processInstanceId != null and processInstanceId != ''"> and processinstanceid = #{processInstanceId} </if>
+			<if test="deptId != null and deptId != ''"> and deptid = #{deptId} </if>
+
+			<if test="beginTime != null and beginTime != ''"> and  DATE_FORMAT(createtime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{beginTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(createtime,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc , createtime DESC ,statusId desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="map">
+		select
+		count(1) as counts ,
+		sum(timearea) as allTimearea
+		from (
+		SELECT
+		apply.id as id,
+		apply.type as typeid,
+		typedic.value as typevalue,
+		typedic.name as typename,
+		apply.begin_time as begintime,
+		apply.end_time as endtime,
+		apply.time_area as timearea,
+		apply.reason as reason,
+		apply.create_by as createby,
+		createuser.name as createuser,
+		apply.create_time as createtime,
+		apply.update_by as updateby,
+		apply.update_time as updatetime,
+		apply.del_flag as delflag,
+		apply.status as statusId,
+		statusdic.value as statusvalue,
+		statusdic.name as statusname,
+		assignuser.user_id as assignid,
+		dept.dept_id as deptid,
+        dept.id_path as idPath,
+		dept.name as deptname,
+		apply.process_instance_id
+		FROM
+		cus_leave_apply apply
+		LEFT JOIN act_ru_task task on task.PROC_INST_ID_ = apply.process_instance_id
+		LEFT JOIN sys_user createuser on createuser.user_id = apply.create_by
+		LEFT JOIN sys_dept dept on dept.dept_id = createuser.dept_id
+		LEFT JOIN sys_user assignuser on assignuser.user_id = task.ASSIGNEE_
+		LEFT JOIN cus_dictionary statusdic on statusdic.id = apply.status
+		LEFT JOIN cus_dictionary typedic on typedic.id = apply.type
+		)
+		view_leave_apply
+		<where>
+
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="type != null and type != ''"> and typeid = #{type} </if>
+			<if test="timeArea != null and timeArea != ''"> and timearea = #{timeArea} </if>
+			<if test="reason != null and reason != ''"> and reason = #{reason} </if>
+
+			<if test="createBy != null and createBy != ''"> and createby = #{createBy} </if>
+			<if test="createByName != null and createUser != ''"> and createuser like CONCAT('%',#{createByName},'%')</if>
+			<if test="status != null and status != ''"> and statusId != #{status} </if>
+			<if test="statusOther != null and statusOther != ''"> and statusId != #{statusOther} </if>
+			<if test="statusOfCount != null and statusOfCount != ''"> and statusId = #{statusOfCount} </if>
+
+			<if test="assignId != null and assignId != ''"> and assignid = #{assignId} </if>
+			<if test="idPath != null and idPath != ''"> and idPath like CONCAT (#{idPath},'%') </if>
+
+			<if test="createTime != null and createTime != ''"> and createtime = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and updateby = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and updatetime = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and delflag = #{delFlag} </if>
+			<if test="processInstanceId != null and processInstanceId != ''"> and processinstanceid = #{processInstanceId} </if>
+			<if test="deptId != null and deptId != ''"> and deptid = #{deptId} </if>
+
+			<if test="beginTime != null and beginTime != ''"> and  DATE_FORMAT(createtime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{beginTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(createtime,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+
+		</where>
+	</select>
+
+	<insert id="save" parameterType="com.ev.custom.domain.LeaveApplyDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_leave_apply
+		(
+			`type`,
+			`begin_time`,
+			`end_time`,
+			`time_area`,
+			`reason`,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
+			`del_flag`,
+			`status`,
+			`process_instance_id`
+		)
+		values
+		(
+			#{type},
+			#{beginTime},
+			#{endTime},
+			#{timeArea},
+			#{reason},
+			#{createBy},
+			#{createTime},
+			#{updateBy},
+			#{updateTime},
+			#{delFlag},
+			#{status},
+			#{processInstanceId}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.custom.domain.LeaveApplyDO">
+		update cus_leave_apply
+		<set>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="beginTime != null">`begin_time` = #{beginTime}, </if>
+			<if test="endTime != null">`end_time` = #{endTime}, </if>
+			<if test="timeArea != null">`time_area` = #{timeArea}, </if>
+			<if test="reason != null">`reason` = #{reason}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="processInstanceId != null">`process_instance_id` = #{processInstanceId}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from cus_leave_apply where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from cus_leave_apply where id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<select id="getOfDetail" resultType="map">
+		select
+		a.* ,
+		a.type,
+		b.name as typeName,
+		c.name as statusName,
+		a.create_by as createBy,
+		d.name as createByName,
+		d.dept_id as deptId,
+		e.name as deptName
+		from
+		cus_leave_apply  a
+		LEFT JOIN cus_dictionary  b on a.type=b.id
+		LEFT JOIN cus_dictionary  c on a.status=c.id
+		LEFT JOIN sys_user  d on a.create_by=d.user_id
+		LEFT JOIN sys_dept  e on d.dept_id = e.dept_id
+		WHERE a.id = #{value}
+	</select>
+</mapper>

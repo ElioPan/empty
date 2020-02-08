@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.StockItemDao">
+
+	<select id="get" resultType="com.ev.scm.domain.StockItemDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM scm_stock_item
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.StockItemDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM scm_stock_item
+		<include refid="sql_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY ${sort} ${order}
+			</when>
+			<otherwise>
+				ORDER BY id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		SELECT COUNT(*) FROM scm_stock_item
+		<include refid="sql_condition"/>
+	</select>
+
+	<sql id="sql_column_list">
+		`id`,`stock_id`,`inhead_id`,`inbody_id`,`unit_price`,`count`,`in_out_type`,`source_type`,`handle_sign`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+	<sql id="sql_condition">
+		<where>
+			<if test="id != null and id != ''"> AND id = #{id} </if>
+			<if test="stockId != null and stockId != ''"> AND stock_id = #{stockId} </if>
+			<if test="inheadId != null and inheadId != ''"> AND inhead_id = #{inheadId} </if>
+			<if test="inbodyId != null and inbodyId != ''"> AND inbody_id = #{inbodyId} </if>
+			<if test="unitPrice != null and unitPrice != ''"> AND unit_price = #{unitPrice} </if>
+			<if test="count != null and count != ''"> AND count = #{count} </if>
+			<if test="inOutType != null and inOutType != ''"> AND in_out_type = #{inOutType} </if>
+			<if test="sourceType != null and sourceType != ''"> AND source_type = #{sourceType} </if>
+			<if test="handleSign != null and handleSign != ''"> AND handle_sign = #{handleSign} </if>
+			<if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+		</where>
+	</sql>
+
+	<insert id="save" parameterType="com.ev.scm.domain.StockItemDO" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO scm_stock_item
+		(
+		`stock_id`,
+		`inhead_id`,
+		`inbody_id`,
+		`unit_price`,
+		`count`,
+		`in_out_type`,
+		`source_type`,
+		`handle_sign`,
+		`create_by`,
+		`create_time`,
+		`update_by`,
+		`update_time`,
+		`del_flag`
+		)
+		VALUES
+		(
+		#{stockId},
+		#{inheadId},
+		#{inbodyId},
+		#{unitPrice},
+		#{count},
+		#{inOutType},
+		#{sourceType},
+		#{handleSign},
+		#{createBy},
+		#{createTime},
+		#{updateBy},
+		#{updateTime},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.scm.domain.StockItemDO">
+		UPDATE scm_stock_item
+		<set>
+			<if test="stockId != null">`stock_id` = #{stockId}, </if>
+			<if test="inheadId != null">`inhead_id` = #{inheadId}, </if>
+			<if test="inbodyId != null">`inbody_id` = #{inbodyId}, </if>
+			<if test="unitPrice != null">`unit_price` = #{unitPrice}, </if>
+			<if test="count != null">`count` = #{count}, </if>
+			<if test="inOutType != null">`in_out_type` = #{inOutType}, </if>
+			<if test="sourceType != null">`source_type` = #{sourceType}, </if>
+			<if test="handleSign != null">`handle_sign` = #{handleSign}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<delete id="remove">
+		DELETE FROM scm_stock_item WHERE id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		DELETE FROM scm_stock_item WHERE id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+
+
+	<delete id="removeByInheadId">
+		delete
+		from scm_stock_item
+		<where>
+			<if test="inheadId != null and inheadId != ''"> and inhead_id = #{inheadId} </if>
+			<if test="exitentryType != null and exitentryType != ''"> and in_out_type = #{exitentryType} </if>
+		</where>
+
+	</delete>
+
+	<!--以下两个sql判断能否进行反审核-->
+
+	<select id="getStockIdByHeadId" resultType="Long">
+		select stock_id  from scm_stock_item
+		<where>
+			<if test="inheadId != null and inheadId != ''"> and inhead_id = #{inheadId} </if>
+			<if test="exitentryType != null and exitentryType != ''"> and in_out_type = #{exitentryType} </if>
+		</where>
+	</select>
+
+	<select id="countOfStockId" resultType="int">
+		select count(*) from scm_stock_item  WHERE  stock_id=#{value}
+	</select>
+
+	<select id="countOfStockIds" resultType="int">
+		select
+		count(*)
+		from scm_stock_item
+		WHERE  stock_id in
+		<foreach item="item" collection="id" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+
+
+
+</mapper>

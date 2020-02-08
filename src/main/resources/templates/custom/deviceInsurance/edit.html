@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+	<div class="wrapper wrapper-content ">
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="ibox float-e-margins">
+					<div class="ibox-content">
+						<form class="form-horizontal m-t" id="signupForm">
+						<input id="id" name="id" th:value="${deviceInsurance.id}"  type="hidden">
+							<div class="form-group">	
+								<label class="col-sm-3 control-label">承保险别：</label>
+								<div class="col-sm-8">
+									<input id="insurancesort" name="insurancesort" th:value="${deviceInsurance.insurancesort}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">险别id：</label>
+								<div class="col-sm-8">
+									<input id="sortid" name="sortid" th:value="${deviceInsurance.sortid}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">保险总额：</label>
+								<div class="col-sm-8">
+									<input id="amount" name="amount" th:value="${deviceInsurance.amount}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">保险费用：</label>
+								<div class="col-sm-8">
+									<input id="charge" name="charge" th:value="${deviceInsurance.charge}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">投保开始时间：</label>
+								<div class="col-sm-8">
+									<input id="starttime" name="starttime" th:value="${deviceInsurance.starttime}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">投保到期时间：</label>
+								<div class="col-sm-8">
+									<input id="endtime" name="endtime" th:value="${deviceInsurance.endtime}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">保险公司名字：</label>
+								<div class="col-sm-8">
+									<input id="insurcompany" name="insurcompany" th:value="${deviceInsurance.insurcompany}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">保险公司主键：</label>
+								<div class="col-sm-8">
+									<input id="companyid" name="companyid" th:value="${deviceInsurance.companyid}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">理赔日期：</label>
+								<div class="col-sm-8">
+									<input id="settlementdate" name="settlementdate" th:value="${deviceInsurance.settlementdate}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">理赔金额：</label>
+								<div class="col-sm-8">
+									<input id="settleamount" name="settleamount" th:value="${deviceInsurance.settleamount}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">保险业务员：</label>
+								<div class="col-sm-8">
+									<input id="insursalesman" name="insursalesman" th:value="${deviceInsurance.insursalesman}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">经办人：</label>
+								<div class="col-sm-8">
+									<input id="agent" name="agent" th:value="${deviceInsurance.agent}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">经办人id：</label>
+								<div class="col-sm-8">
+									<input id="agentid" name="agentid" th:value="${deviceInsurance.agentid}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">设备id：</label>
+								<div class="col-sm-8">
+									<input id="deviceid" name="deviceid" th:value="${deviceInsurance.deviceid}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">是否已出险  1是  0否：</label>
+								<div class="col-sm-8">
+									<input id="lossoccurred" name="lossoccurred" th:value="${deviceInsurance.lossoccurred}" class="form-control" type="text">
+								</div>
+							</div>
+																					<div class="form-group">
+								<div class="col-sm-8 col-sm-offset-3">
+									<button type="submit" class="btn btn-primary">提交</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+	</div>
+	</div>
+	<div th:include="include::footer"></div>
+	<script type="text/javascript" src="/js/appjs/custom/deviceInsurance/edit.js">
+	</script>
+</body>
+</html>

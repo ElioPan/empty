@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.PatrolPlanDetailDao">
+
+	<select id="get" resultType="com.ev.custom.domain.PatrolPlanDetailDO">
+		select `id`,`link_patrol_plan_id`,`link_device_id`,`link_project_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_patrol_plan_detail where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.PatrolPlanDetailDO">
+		select `id`,`link_patrol_plan_id`,`link_device_id`,`link_project_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_patrol_plan_detail
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="linkPatrolPlanId != null and linkPatrolPlanId != ''"> and link_patrol_plan_id = #{linkPatrolPlanId} </if>
+		  		  <if test="linkDeviceId != null and linkDeviceId != ''"> and link_device_id = #{linkDeviceId} </if>
+            <if test="linkProjectId != null and linkProjectId != ''"> and link_project_id = #{linkProjectId} </if>
+				  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+				  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+				  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+				  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+				  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>		  		  
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	<select id="listForMap" resultType="map">
+		SELECT cppd.`id` as id,
+		cppd.`link_project_id` as linkProjectId,
+		cpp.`work_orderNo` as workOrderNo,
+		cde.`id` as deviceId,
+		cde.`serialno` as serialno,
+		cde.`name` as cdName 
+		FROM cus_patrol_plan_detail cppd 
+		LEFT JOIN cus_patrol_plan cpp ON cpp.id=cppd.link_patrol_plan_id 
+		LEFT JOIN cus_device cde ON cde.id=cppd.link_device_id
+       <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="linkPatrolPlanId != null and linkPatrolPlanId != ''"> and cppd.link_patrol_plan_id = #{linkPatrolPlanId} </if>
+		  		  <if test="linkDeviceId != null and linkDeviceId != ''"> and cppd.link_device_id = #{linkDeviceId} </if>
+		  		  <if test="linkProjectId != null and linkProjectId != ''"> and cppd.link_project_id = #{linkProjectId} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by cppd.id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_patrol_plan_detail
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="linkPatrolPlanId != null and linkPatrolPlanId != ''"> and link_patrol_plan_id = #{linkPatrolPlanId} </if>
+		  		  <if test="linkDeviceId != null and linkDeviceId != ''"> and link_device_id = #{linkDeviceId} </if>
+             <if test="linkProjectId != null and linkProjectId != ''"> and REPLACE(REPLACE(link_project_id,'[',','),']',',') LIKE #{linkProjectId} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+				  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+				  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+				  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+				  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>	
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.PatrolPlanDetailDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_patrol_plan_detail
+		(
+			`link_patrol_plan_id`, 
+			`link_device_id`, 
+			`link_project_id`, 
+
+			`create_by`, 
+
+			`create_time`, 
+
+			`update_by`, 
+
+			`update_time`, 
+
+			`del_flag`
+		)
+		values
+		(
+			#{linkPatrolPlanId}, 
+			#{linkDeviceId}, 
+			#{linkProjectId}, 
+
+			#{createBy}, 
+
+			#{createTime}, 
+
+			#{updateBy}, 
+
+			#{updateTime}, 
+
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.PatrolPlanDetailDO">
+		update cus_patrol_plan_detail 
+		<set>
+			<if test="linkPatrolPlanId != null">`link_patrol_plan_id` = #{linkPatrolPlanId}, </if>
+			<if test="linkDeviceId != null">`link_device_id` = #{linkDeviceId}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}, </if>
+			<if test="linkProjectId != null">`link_project_id` = #{linkProjectId}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_patrol_plan_detail where link_patrol_plan_id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_patrol_plan_detail where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

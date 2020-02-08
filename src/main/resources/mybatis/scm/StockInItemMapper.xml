@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.StockInItemDao">
+
+	<select id="get" resultType="com.ev.scm.domain.StockInItemDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM scm_stock_in_item
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.StockInItemDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM scm_stock_in_item
+		<include refid="sql_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from scm_stock_in_item
+		<include refid="sql_condition"/>
+	</select>
+
+	<sql id="sql_column_list">
+		`id`,
+		`inhead_id`,
+		`materiel_id`,
+		`batch`,
+		`count`,
+		`unit_price`,
+		`amount`,
+		`warehouse`,
+		`wareh_location`,
+		`return_reason`,
+		`source_type`,
+		`source_code`,
+		`source_id`,
+		`expense`,
+		`create_by`,
+		`create_time`,
+		`update_by`,
+		`update_time`,
+		`del_flag`
+	</sql>
+
+	<sql id="sql_condition">
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="inheadId != null and inheadId != ''"> and inhead_id = #{inheadId} </if>
+			<if test="materielId != null and materielId != ''"> and materiel_id = #{materielId} </if>
+			<if test="batch != null and batch != ''"> and batch = #{batch} </if>
+			<if test="count != null and count != ''"> and count = #{count} </if>
+			<if test="unitPrice != null and unitPrice != ''"> and unit_price = #{unitPrice} </if>
+			<if test="amount != null and amount != ''"> and amount = #{amount} </if>
+			<if test="warehouse != null and warehouse != ''"> and warehouse = #{warehouse} </if>
+			<if test="warehLocation != null and warehLocation != ''"> and wareh_location = #{warehLocation} </if>
+			<if test="returnReason != null and returnReason != ''"> and return_reason = #{returnReason} </if>
+			<if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+			<if test="sourceCode != null and sourceCode != ''"> and source_code = #{sourceCode} </if>
+			<if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
+			<if test="expense != null and expense != ''"> and expense = #{expense} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+	</sql>
+
+	<insert id="save" parameterType="com.ev.scm.domain.StockInItemDO" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_stock_in_item
+		(
+		`inhead_id`,
+		`materiel_id`,
+		`batch`,
+		`count`,
+		`unit_price`,
+		`amount`,
+		`warehouse`,
+		`wareh_location`,
+		`return_reason`,
+		`source_type`,
+		`source_code`,
+		`source_id`,
+		`expense`,
+		`create_by`,
+		`create_time`,
+		`update_by`,
+		`update_time`,
+		`del_flag`
+		)
+		values
+		(
+		#{inheadId},
+		#{materielId},
+		#{batch},
+		#{count},
+		#{unitPrice},
+		#{amount},
+		#{warehouse},
+		#{warehLocation},
+		#{returnReason},
+		#{sourceType},
+		#{sourceCode},
+		#{sourceId},
+		#{expense},
+		#{createBy},
+		#{createTime},
+		#{updateBy},
+		#{updateTime},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.scm.domain.StockInItemDO">
+		update scm_stock_in_item
+		<set>
+			<if test="inheadId != null">`inhead_id` = #{inheadId}, </if>
+			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
+			<if test="batch != null">`batch` = #{batch}, </if>
+			<if test="count != null">`count` = #{count}, </if>
+			<if test="unitPrice != null">`unit_price` = #{unitPrice}, </if>
+			<if test="amount != null">`amount` = #{amount}, </if>
+			<if test="warehouse != null">`warehouse` = #{warehouse}, </if>
+			<if test="warehLocation != null">`wareh_location` = #{warehLocation}, </if>
+			<if test="returnReason != null">`return_reason` = #{returnReason}, </if>
+			<if test="sourceType != null">`source_type` = #{sourceType}, </if>
+			<if test="sourceCode != null">`source_code` = #{sourceCode}, </if>
+			<if test="sourceId != null">`source_id` = #{sourceId}, </if>
+			<if test="expense != null">`expense` = #{expense}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from scm_stock_in_item where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from scm_stock_in_item where id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+
+	<delete id="removeByInHeadId">
+		delete
+		from
+		scm_stock_in_item
+		where
+		inhead_id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="deatilOfBody" resultType="map">
+		select
+		aa.id,
+		aa.materiel_id	as materielId,
+		m.serial_no as serialno,
+		m.name as proName,
+		m.specification ,
+		m.unit_uom as unit,
+		n.name as unitName,
+		aa.batch ,
+		aa.count ,
+		aa.unit_price	as unitPrice,
+		aa.amount,
+		aa.warehouse,
+		o.name as warehouseName,
+		aa.wareh_location	as warehLocation,
+		p.name as  warehLocationName,
+		aa.return_reason as returnReason,
+		aa.source_type	 as sourceType,
+		q.name as sourceTypeName,
+		aa.source_code	 as  sourceCode,
+		aa.source_id     as  sourceId,
+		aa.expense
+		from
+		scm_stock_in_item  aa
+		LEFT JOIN  cus_materiel m  ON aa.materiel_id=m.id
+		LEFT JOIN  cus_dictionary n  ON m.unit_uom=n.id
+		LEFT JOIN  cus_facility o  ON aa.warehouse=o.id
+		LEFT JOIN  cus_facility_location p  ON aa.wareh_location=p.id
+		LEFT JOIN  cus_dictionary q ON aa.source_type=q.id
+		where aa.inhead_id=#{id}
+	</select>
+
+
+	<select id="getProByHeadId" resultType="map">
+			select
+			cph.id as headId,
+		cph.in_time     AS  enteringTime,
+		cpb.materiel_id      AS materielId,
+		cpb.batch,
+		cpb.count   AS count,
+		cpb.unit_price	AS unitPrice,
+		cpb.amount  AS amount,
+		cph.source_company AS sourceCompany,
+		cpb.warehouse      AS warehouse,
+		cpb.wareh_location AS warehLocation,
+		cpb.inhead_id  AS inheadId,
+
+		cpb.source_type AS sourceType,
+		cph.storage_type AS storageType,
+		cpb.expense,
+		cpb.id AS inbodyId
+		from  scm_stock_in_item  cpb
+		LEFT JOIN scm_stock_in  cph ON cpb.inhead_id=cph.id
+		where   cpb.inhead_id=#{value}
+	</select>
+
+
+
+	<!--=======================================================================================================-->
+
+	<!--<select id="getProByHeadId" resultType="map">-->
+	<!--select-->
+	<!--cph.in_time     AS  enteringTime,-->
+	<!--cpb.pro_id      AS proId,-->
+	<!--cpb.pro_batch   AS batch,-->
+	<!--cpb.pro_count   AS count,-->
+	<!--cpb.pro_price	AS price,-->
+	<!--cpb.pro_amount  AS amount,-->
+	<!--cph.source_company AS sourceCompany,-->
+	<!--cpb.warehouse      AS warehouse,-->
+	<!--cpb.wareh_location AS warehLocation,-->
+	<!--cpb.inhead_id  AS inheadId,-->
+	<!--cpb.source_singletype AS sourceSingletype,-->
+	<!--cph.storage_type AS storageType,-->
+	<!--cpb.expense,-->
+	<!--cpb.id AS inbodyId-->
+	<!--from  scm_stock_in_item  cpb-->
+	<!--LEFT JOIN scm_stock_in  cph ON cpb.inhead_id=cph.id-->
+	<!--where   cpb.inhead_id=#{value}-->
+	<!--</select>-->
+
+
+	<select id="getBodyDetalByHeadId" resultType="map">
+	select
+			a.pro_id AS  proId,
+			b.name   AS proName,
+			b.specification  AS proModel,
+			b.unit_uom as unit,
+			c.name   AS unitName,
+			a.pro_count  AS count,
+			a.pro_price	 AS price,
+			a.pro_amount  AS amount,
+			a.pro_batch   AS batch,
+			a.warehouse   AS warehouse,
+			d.name        AS warehouseName,
+			a.wareh_location AS warehLocation,
+			e.name        AS  warehLocationName,
+			a.source_singletype as sourceSingletype,
+			f.name        AS   sourceSingletypeName,
+			a.expense,
+			a.source_singlecode AS sourceSinglecode
+		from  scm_stock_in_item  a
+		LEFT JOIN cus_materiel    b ON a.pro_id=b.id
+		LEFT JOIN cus_dictionary c ON b.unit_uom=c.id
+		LEFT JOIN cus_facility   d ON a.warehouse =d.id
+		LEFT JOIN cus_facility_location   e ON a.wareh_location =e.id
+		LEFT JOIN cus_dictionary f ON a.source_singletype=f.id
+		WHERE  a.inhead_id = #{id}
+
+	</select>
+
+
+	<select id="getlistForMap" resultType="map">
+		select
+		b.id as headId,
+		a.id as bodyId,
+		b.in_time as inTime,
+		b.inhead_code as inheadCode,
+		b.source_company as sourceCompanyId,
+		c.name as  sourceCompanyName,
+		d.serial_no as serialno,
+		d.name as proName,
+		d.specification as model,
+		d.unit_uom as unit,
+		e.name as unitName,
+		a.pro_count as proCount,
+		a.pro_price as proPrice,
+		a.pro_amount as proAmount,
+		a.warehouse,
+		f.name as warehouseName,
+		a.expense,
+		a.wareh_location as warehLocation,
+		g.name as  warehLocationName,
+		a.source_singletype as sourceSingletype,
+		h.name as sourceSingletypeName,
+		a.source_singlecode as sourceSinglecode,
+		b.audit_sign as auditSign,
+		i.name as auditSignName
+		from scm_stock_in_item  a
+		LEFT JOIN  scm_stock_in  b  ON a.inhead_id=b.id
+		LEFT JOIN  cus_supplier  c  ON b.source_company=c.id
+		LEFT JOIN  cus_materiel d  ON a.pro_id=d.id
+		LEFT JOIN  cus_dictionary e  ON d.unit_uom=e.id
+		LEFT JOIN  cus_facility f  ON a.warehouse=f.id
+		LEFT JOIN  cus_facility_location g  ON a.wareh_location=g.id
+		LEFT JOIN  cus_dictionary h  ON a.source_singletype=h.id
+		LEFT JOIN  cus_dictionary i  ON b.audit_sign=i.id
+		<where>
+
+			<if test="inDatas != null and inDatas != ''"> and ((c.name like  CONCAT('%',#{inDatas},'%'))or(d.name like CONCAT('%',#{inDatas},'%'))or(d.serialno like CONCAT('%',#{inDatas},'%'))or(b.inhead_code like CONCAT('%',#{inDatas},'%')))</if>
+
+			<if test="productName != null and productName != ''"> and  d.name like CONCAT('%',#{productName},'%')</if>
+
+			<if test="startTime != null and startTime != ''"> and b.in_time &gt;= #{startTime}</if>
+			<if test="endTime != null and endTime != ''"> and b.in_time &lt;= #{endTime}</if>
+
+			<if test="sourceCompanyId != null and sourceCompanyId != ''"> and b.source_company = #{sourceCompanyId}</if>
+
+			<if test="proType != null and proType != ''"> and d.type = #{proType}</if>
+			<if test="proBatch != null and  proBatch != '' "> and a.pro_batch = #{proBatch}</if>
+
+			<if test="auditSign != null and  auditSign != ''"> and b.audit_sign = #{auditSign}</if>
+
+			<if test="operator != null and operator != ''"> and b.operator = #{operator}</if>
+
+			<if test="createBy != null and  createBy != ''"> and b.create_by = #{createBy}</if>
+			<if test="createTime != null and  createTime != ''"> and b.create_time = #{createTime}</if>
+			<if test="storageType != null and storageType != ''"> and b.storage_type = #{storageType}</if>
+
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by a.id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="countOfList" resultType="int">
+		select count(*)
+		from scm_stock_in_item  a
+		LEFT JOIN  scm_stock_in  b  ON a.inhead_id=b.id
+		LEFT JOIN  cus_supplier  c  ON b.source_company=c.id
+		LEFT JOIN  cus_materiel d  ON a.pro_id=d.id
+		LEFT JOIN  cus_dictionary e  ON d.unit_uom=e.id
+		LEFT JOIN  cus_facility f  ON a.warehouse=f.id
+		LEFT JOIN  cus_facility_location g  ON a.wareh_location=g.id
+		LEFT JOIN  cus_dictionary h  ON a.source_singletype=h.id
+		LEFT JOIN  cus_dictionary i  ON b.audit_sign=i.id
+		<where>
+			<if test="inDatas != null and inDatas != ''"> and ((c.name like  CONCAT('%',#{inDatas},'%'))or(d.name like CONCAT('%',#{inDatas},'%'))or(d.serialno like CONCAT('%',#{inDatas},'%'))or(b.inhead_code like CONCAT('%',#{inDatas},'%')))</if>
+
+			<if test="productName != null and productName != ''"> and  d.name like CONCAT('%',#{productName},'%')</if>
+
+			<if test="startTime != null and startTime != ''"> and b.in_time &gt;= #{inTime}</if>
+			<if test="endTime != null and endTime != ''"> and b.in_time &lt;= #{inTime}</if>
+
+			<if test="sourceCompanyId != null and sourceCompanyId != ''"> and b.source_company = #{sourceCompanyId}</if>
+
+			<if test="proType != null and proType != ''"> and d.type = #{proType}</if>
+			<if test="proBatch != null and  proBatch != '' "> and a.pro_batch = #{proBatch}</if>
+
+			<if test="auditSign != null and  auditSign != ''"> and b.audit_sign = #{auditSign}</if>
+
+			<if test="operator != null and operator != ''"> and b.operator = #{operator}</if>
+
+			<if test="createBy != null and  createBy != ''"> and b.create_by = #{createBy}</if>
+			<if test="createTime != null and  createTime != ''"> and b.create_time = #{createTime}</if>
+			<if test="storageType != null and storageType != ''"> and b.storage_type = #{storageType}</if>
+		</where>
+	</select>
+
+
+
+
+
+
+</mapper>

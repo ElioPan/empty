@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.system.dao.CompanyDao">
+
+	<select id="get" resultType="map">
+		select 
+		company.`id`,
+		company.`name`,
+		company.`province` AS provinceId,
+		pa.`short_name` AS provinceName,
+		company.`city` AS cityId,
+		ca.`short_name` AS cityName,
+		company.`district` AS districtId ,
+		da.`short_name` AS districtName,
+		company.`address`,
+		company.`telephone`,
+		company.`linkman`,
+		company.`mobile`,
+		company.`email`,
+		company.`zip_code`,
+		company.`fax`,
+		company.`job`,
+		company.`qq`,
+		company.`url`,
+		company.`service_start_time`,
+		company.`service_code`,
+		company.`service_end_time`,
+		company.`company_introduction`
+		FROM sys_company company 
+		LEFT JOIN sys_area pa ON pa.`city_id` = company.`province`
+		LEFT JOIN sys_area ca ON ca.`city_id` = company.`city`
+		LEFT JOIN sys_area da ON da.`city_id` = company.`district`
+		where company.`id` = #{value}
+	</select>
+	
+	<select id="getServiceCode" resultType="com.ev.system.domain.CompanyDO">
+		SELECT 
+		`service_code` AS serviceCode
+		FROM sys_company
+		where `id` = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.system.domain.CompanyDO">
+		select `id`,`name`,`province`,`city`,`district`,`address`,`telephone`,`linkman`,`mobile`,`email`,`zip_code`,`fax`,`job`,`qq`,`url`,`company_introduction`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from sys_company
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="address != null and address != ''"> and address = #{address} </if>
+		  		  <if test="telephone != null and telephone != ''"> and telephone = #{telephone} </if>
+		  		  <if test="linkman != null and linkman != ''"> and linkman = #{linkman} </if>
+		  		  <if test="mobile != null and mobile != ''"> and mobile = #{mobile} </if>
+		  		  <if test="email != null and email != ''"> and email = #{email} </if>
+		  		  <if test="zipCode != null and zipCode != ''"> and zip_code = #{zipCode} </if>
+		  		  <if test="fax != null and fax != ''"> and fax = #{fax} </if>
+		  		  <if test="job != null and job != ''"> and job = #{job} </if>
+		  		  <if test="qq != null and qq != ''"> and qq = #{qq} </if>
+		  		  <if test="url != null and url != ''"> and url = #{url} </if>
+		  		  <if test="companyIntroduction != null and companyIntroduction != ''"> and company_introduction = #{companyIntroduction} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from sys_company
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="address != null and address != ''"> and address = #{address} </if>
+		  		  <if test="telephone != null and telephone != ''"> and telephone = #{telephone} </if>
+		  		  <if test="linkman != null and linkman != ''"> and linkman = #{linkman} </if>
+		  		  <if test="mobile != null and mobile != ''"> and mobile = #{mobile} </if>
+		  		  <if test="email != null and email != ''"> and email = #{email} </if>
+		  		  <if test="zipCode != null and zipCode != ''"> and zip_code = #{zipCode} </if>
+		  		  <if test="fax != null and fax != ''"> and fax = #{fax} </if>
+		  		  <if test="job != null and job != ''"> and job = #{job} </if>
+		  		  <if test="qq != null and qq != ''"> and qq = #{qq} </if>
+		  		  <if test="url != null and url != ''"> and url = #{url} </if>
+		  		  <if test="companyIntroduction != null and companyIntroduction != ''"> and company_introduction = #{companyIntroduction} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.system.domain.CompanyDO">
+		insert into sys_company
+		(
+			`id`, 
+			`name`, 
+			`address`, 
+			`telephone`, 
+			`linkman`, 
+			`mobile`, 
+			`email`, 
+			`zip_code`, 
+			`fax`, 
+			`job`, 
+			`qq`, 
+			`url`, 
+			`company_introduction`, 
+			`service_code`,
+			`service_start_time`,
+			`service_end_time`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{id}, 
+			#{name}, 
+			#{address}, 
+			#{telephone}, 
+			#{linkman}, 
+			#{mobile}, 
+			#{email}, 
+			#{zipCode}, 
+			#{fax}, 
+			#{job}, 
+			#{qq}, 
+			#{url}, 
+			#{companyIntroduction}, 
+			#{serviceCode},
+			#{serviceStartTime},
+			#{serviceEndTime},
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.system.domain.CompanyDO">
+		update sys_company 
+		<set>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="address != null">`address` = #{address}, </if>
+			<if test="telephone != null">`telephone` = #{telephone}, </if>
+			<if test="linkman != null">`linkman` = #{linkman}, </if>
+			<if test="mobile != null">`mobile` = #{mobile}, </if>
+			<if test="email != null">`email` = #{email}, </if>
+			<if test="zipCode != null">`zip_code` = #{zipCode}, </if>
+			<if test="fax != null">`fax` = #{fax}, </if>
+			<if test="job != null">`job` = #{job}, </if>
+			<if test="qq != null">`qq` = #{qq}, </if>
+			<if test="url != null">`url` = #{url}, </if>
+			<if test="serviceCode != null">`service_code` = #{serviceCode}, </if>
+			<if test="serviceStartTime != null">`service_start_time` = #{serviceStartTime}, </if>
+			<if test="serviceEndTime != null">`service_end_time` = #{serviceEndTime}, </if>
+			<if test="companyIntroduction != null">`company_introduction` = #{companyIntroduction}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from sys_company where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from sys_company where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

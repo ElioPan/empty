@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.ev.custom.dao.SparePartDao">
+
+	<select id="get" resultType="com.ev.custom.domain.SparePartDO">
+		select `id`,`code`,`name`,`type`,`spart_type`,`unit`,`price`,`warehouse`,`location_id`,`dept_id`,`desc`,`amount`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_spare_part where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.SparePartDO">
+		select `id`,`code`,`name`,`type`,`spart_type`,`unit`,`price`,`warehouse`,`location_id`,`dept_id`,`desc`,`amount`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_spare_part
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="code != null and code != ''"> and code = #{code} </if>
+			<if test="name != null and name != ''"> and name = #{name} </if>
+			<if test="type != null and type != ''"> and type = #{type} </if>
+			<if test="spartType != null and spartType != ''"> and spart_type = #{spartType} </if>
+			<if test="unit != null and unit != ''"> and unit = #{unit} </if>
+			<if test="price != null and price != ''"> and price = #{price} </if>
+			<if test="warehouse != null and warehouse != ''"> and warehouse = #{warehouse} </if>
+			<if test="locationId != null and locationId != ''"> and location_id = #{locationId} </if>
+			<if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
+			<if test="desc != null and desc != ''"> and desc = #{desc} </if>
+			<if test="amount != null and amount != ''"> and amount = #{amount} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from cus_spare_part
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="code != null and code != ''"> and code = #{code} </if>
+			<if test="name != null and name != ''"> and name = #{name} </if>
+			<if test="type != null and type != ''"> and type = #{type} </if>
+			<if test="spartType != null and spartType != ''"> and spart_type = #{spartType} </if>
+			<if test="unit != null and unit != ''"> and unit = #{unit} </if>
+			<if test="price != null and price != ''"> and price = #{price} </if>
+			<if test="warehouse != null and warehouse != ''"> and warehouse = #{warehouse} </if>
+			<if test="locationId != null and locationId != ''"> and location_id = #{locationId} </if>
+			<if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
+			<if test="desc != null and desc != ''"> and desc = #{desc} </if>
+			<if test="amount != null and amount != ''"> and amount = #{amount} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		</where>
+	</select>
+
+	<insert id="save" parameterType="com.ev.custom.domain.SparePartDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_spare_part
+		(
+		`code`,
+		`name`,
+		`type`,
+		`spart_type`,
+		`unit`,
+		`price`,
+		`warehouse`,
+		`location_id`,
+		`dept_id`,
+		`desc`,
+		`amount`,
+		`create_by`,
+		`create_time`,
+		`update_by`,
+		`update_time`,
+		`del_flag`
+		)
+		values
+		(
+		#{code},
+		#{name},
+		#{type},
+		#{spartType},
+		#{unit},
+		#{price},
+		#{warehouse},
+		#{locationId},
+		#{deptId},
+		#{desc},
+		#{amount},
+		#{createBy},
+		#{createTime},
+		#{updateBy},
+		#{updateTime},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.custom.domain.SparePartDO">
+		update cus_spare_part
+		<set>
+			<if test="code != null">`code` = #{code}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="spartType != null">`spart_type` = #{spartType}, </if>
+			<if test="unit != null">`unit` = #{unit}, </if>
+			<if test="price != null">`price` = #{price}, </if>
+			<if test="warehouse != null">`warehouse` = #{warehouse}, </if>
+			<if test="locationId != null">`location_id` = #{locationId}, </if>
+			<if test="deptId != null">`dept_id` = #{deptId}, </if>
+			<if test="desc != null">`desc` = #{desc}, </if>
+			<if test="amount != null">`amount` = #{amount}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from cus_spare_part where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from cus_spare_part where id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<select id="getSpareIdName" resultType="map">
+		select `id`,`name`,`type`from cus_spare_part
+	</select>
+
+
+	<select id="spareWarehouseNameId" resultType="map">
+
+		select `id`,`name` from cus_dictionary where  type_id=2
+
+	</select>
+
+
+	<!--子备件模糊查询，未关联主设备的所有备件-->
+	<!-- <if test="device_id != null and device_id != ''"> and csp.id  not in (select cds.spare_id  from cus_device_spare cds ) </if>  -->
+	<select id="spareNotAssociated" resultType="map">
+		select
+		    csp.id,
+			csp.code,
+		    csp.name,
+			csp.type,
+			cd.name as spart_typeName,
+			sd.name as use_deptName
+		FROM cus_spare_part  csp
+		LEFT JOIN  cus_dictionary cd on csp.spart_type=cd.id
+		LEFT JOIN  sys_dept sd on csp.dept_id=sd.dept_id
+		<where>
+			<if test="name != null and name != ''"> OR csp.name like  CONCAT('%',#{name},'%') </if>
+
+			<if test="code != null and code != ''"> OR csp.code like  CONCAT('%',#{name},'%') </if>
+
+			<if test="spartType != null and spartType != ''"> AND csp.spart_type = #{spartType} </if>
+
+			<if test="location_id != null and location_id != ''"> AND csp.location_id = #{location_id} </if>
+
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by csp.id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+
+</mapper>

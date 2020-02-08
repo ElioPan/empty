@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.InventoryPlanItemDao">
+
+	<select id="get" resultType="com.ev.scm.domain.InventoryPlanItemDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM scm_inventory_plan_item
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.InventoryPlanItemDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM scm_inventory_plan_item
+		<include refid="sql_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY ${sort} ${order}
+			</when>
+			<otherwise>
+				ORDER BY id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		SELECT COUNT(*) FROM scm_inventory_plan_item
+		<include refid="sql_condition"/>
+	</select>
+
+	<sql id="sql_column_list">
+		`id`,`head_id`,`materiel_id`,`stock_id`,`warehouse`,`wareh_location`,`batch`,`system_count`,`check_count`,`profit_loss`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+	<sql id="sql_condition">
+		<where>
+			<if test="id != null and id != ''"> AND id = #{id} </if>
+			<if test="headId != null and headId != ''"> AND head_id = #{headId} </if>
+			<if test="materielId != null and materielId != ''"> AND materiel_id = #{materielId} </if>
+			<if test="stockId != null and stockId != ''"> AND stock_id = #{stockId} </if>
+			<if test="warehouse != null and warehouse != ''"> AND warehouse = #{warehouse} </if>
+			<if test="warehLocation != null and warehLocation != ''"> AND wareh_location = #{warehLocation} </if>
+			<if test="batch != null and batch != ''"> AND batch = #{batch} </if>
+			<if test="systemCount != null and systemCount != ''"> AND system_count = #{systemCount} </if>
+			<if test="checkCount != null and checkCount != ''"> AND check_count = #{checkCount} </if>
+			<if test="profitLoss != null and profitLoss != ''"> AND profit_loss = #{profitLoss} </if>
+			<if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+		</where>
+	</sql>
+
+	<insert id="save" parameterType="com.ev.scm.domain.InventoryPlanItemDO" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO scm_inventory_plan_item
+		(
+		`head_id`,
+		`materiel_id`,
+		`stock_id`,
+		`warehouse`,
+		`wareh_location`,
+		`batch`,
+		`system_count`,
+		`check_count`,
+		`profit_loss`,
+		`create_by`,
+		`create_time`,
+		`update_by`,
+		`update_time`,
+		`del_flag`
+		)
+		VALUES
+		(
+		#{headId},
+		#{materielId},
+		#{stockId},
+		#{warehouse},
+		#{warehLocation},
+		#{batch},
+		#{systemCount},
+		#{checkCount},
+		#{profitLoss},
+		#{createBy},
+		#{createTime},
+		#{updateBy},
+		#{updateTime},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.scm.domain.InventoryPlanItemDO">
+		UPDATE scm_inventory_plan_item
+		<set>
+			<if test="headId != null">`head_id` = #{headId}, </if>
+			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
+			<if test="stockId != null">`stock_id` = #{stockId}, </if>
+			<if test="warehouse != null">`warehouse` = #{warehouse}, </if>
+			<if test="warehLocation != null">`wareh_location` = #{warehLocation}, </if>
+			<if test="batch != null">`batch` = #{batch}, </if>
+			<if test="systemCount != null">`system_count` = #{systemCount}, </if>
+			<if test="checkCount != null">`check_count` = #{checkCount}, </if>
+			<if test="profitLoss != null">`profit_loss` = #{profitLoss}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<delete id="remove">
+		DELETE FROM scm_inventory_plan_item WHERE id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		DELETE FROM scm_inventory_plan_item WHERE id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+
+	<delete id="removeByPlanId">
+		delete from scm_inventory_plan_item where head_id = #{value}
+	</delete>
+
+		<!-- 生成盘盈盘亏单-->
+	<select id="getProfitLossMsg" resultType="map">
+		SELECT
+		DISTINCT
+		a.head_id as headId,
+		a.id as itemId,
+		a.materiel_id,
+		b.name   as materielName,
+		b.specification ,
+		b.unit_uom   as unitId,
+		d.name   as unitName,
+		c.sale_price as materielPrice,
+		case when a.profit_loss &lt;0 then -(a.profit_loss*c.sale_price)
+		when a.profit_loss &gt; 0 then (a.profit_loss*c.sale_price) end  pro_amount,
+		a.batch  as pro_batch,
+		case when a.profit_loss &lt; 0 then -(a.profit_loss)
+		when  a.profit_loss &gt; 0 then a.profit_loss end pro_countl,
+		f.code,
+		f.document_type as documentType_id,
+		g.name as documentType_name
+		FROM scm_inventory_plan_item   a
+		LEFT JOIN cus_materiel  b   ON  a.materiel_id=b.id
+		LEFT JOIN cus_materiel     c   ON a.pro_id=c.id
+		LEFT JOIN cus_dictionary  d  ON b.unit_uom=d.id
+		LEFT JOIN scm_inventory_plan  e  ON a.head_id=e.id
+		LEFT JOIN scm_inventory_plan_fitloss  f  ON a.head_id=f.head_id
+		LEFT JOIN cus_dictionary  g  ON f.document_type=g.id
+		<where>
+			<if test="profitLoss != null and profitLoss != ''and profitLoss == -1"> and a.profit_loss &lt; 0 </if>
+
+			<if test="profitLoss != null and profitLoss != ''and profitLoss ==1"> and a.profit_loss > 0 </if>
+
+			<if test="checkStatus != null and checkStatus != ''"> and e.check_status = #{checkStatus} </if>
+
+			<if test="headId != null and headId != ''"> and e.id = #{headId} </if>
+
+			<if test="documentType != null and documentType != ''"> and  f.document_type = #{documentType} </if>
+		</where>
+		<!--&#45;&#45; 			c.price  as pro_price,-->
+		<!--&#45;&#45;  			case when a.profit_loss < 0 then -(a.profit_loss*c.price)-->
+		<!--&#45;&#45;  				 when a.profit_loss > 0 then (a.profit_loss*c.price) end  pro_amount,-->
+		<!--&#45;&#45; 		 LEFT JOIN     c   ON a.batch=c.batch-->
+	<!--同一批次存在两个单价取值会有误，所以在业务未确认前先去产品表的retail_price单价-->
+   </select>
+
+
+
+ <!--  根据条件查询要盘点商品信息，数量-->
+	<select id="getProMsgCount" resultType="map">
+		SELECT
+		a.materiel_id,
+		b.name as materielName,
+		b.serial_no as serialno,
+		b.specification as materielModel,
+		e.name as unitName,
+		a.batch,
+		a.warehouse as warehouseId,
+		c.name  as  warehouseName,
+		a.wareh_location as swarehLocation,
+		d.name   as  wareh_locationName,
+		sum(a.count) as system_count
+		FROM      scm_stock     a
+		LEFT JOIN cus_materiel   b  ON  a.materiel_id = b.id
+		LEFT JOIN cus_facility  c  ON  a.warehouse = c.id
+		LEFT JOIN cus_facility_location  d  ON  a.wareh_location = d.id
+		LEFT JOIN cus_dictionary  e  ON  b.unit_uom = e.id
+		<where>
+			<if test="name != null and name != ''"> and  ( ( b.name like  CONCAT('%',#{name},'%')) OR(b.serialno like CONCAT('%',#{name},'%'))  ) </if>
+
+			<if test="warehouse != null and warehouse != ''"> and a.warehouse = #{warehouse} </if>
+		</where>
+		GROUP BY
+			a.warehouse,
+			a.wareh_location,
+			a.batch
+	</select>
+
+
+	<select id="countOfWinLoss" resultType="int">
+		select
+		  count(*)
+		from scm_inventory_plan_item a
+		<where>
+			<if test="profitLoss != null and profitLoss != ''and profitLoss == -1"> and a.profit_loss &lt; 0 </if>
+
+			<if test="profitLoss != null and profitLoss != ''and profitLoss ==1"> and a.profit_loss > 0 </if>
+
+			<if test="headId != null and headId != ''"> and a.head_id = #{headId} </if>
+		</where>
+	</select>
+
+
+
+
+</mapper>

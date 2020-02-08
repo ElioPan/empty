@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content ">
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="ibox float-e-margins">
+				<div class="ibox-content">
+					<form class="form-horizontal m-t" id="signupForm">
+						<input id="id" name="id" th:value="${materiel.id}"  type="hidden">
+						<fieldset>
+							<legend>基础信息</legend>
+							<div class="layui-field-box">
+								<div class="form-group">
+									<label class="col-sm-1 control-label">编号：</label>
+									<div class="col-sm-2">
+										<input id="serialNo" name="serialNo" th:value="${materiel.serialNo}" class="form-control" type="text">
+									</div>
+									<label class="col-sm-1 control-label">名称：</label>
+									<div class="col-sm-2">
+										<input id="name" name="name" th:value="${materiel.name}" class="form-control" type="text">
+									</div>
+									<label class="col-sm-1 control-label">规格型号：</label>
+									<div class="col-sm-2">
+										<input id="specification" name="specification" th:value="${materiel.specification}" class="form-control" type="text">
+									</div>
+									<label class="col-sm-1 control-label">图号：</label>
+									<div class="col-sm-2">
+										<input id="imageNo" name="imageNo" th:value="${materiel.imageNo}" class="form-control" type="text">
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-1 control-label">物料类别：</label>
+									<div class="col-sm-2">
+										<select id="type" name="type" th:value="${materiel.type}" class="form-control m-b">
+											<option th:each="materialType,userStat:${materialTypeList}" th:value="${materialType.id}" th:text="${materialType.name}" th:selected="${materialType.id==materiel.type}"></option>
+										</select>
+									</div>
+									<label class="col-sm-1 control-label">计量单位：</label>
+									<div class="col-sm-2">
+										<select id="unitUom" name="unitUom" th:value="${materiel.unitUom}"  class="form-control m-b">
+											<option th:each="unitUom,userStat:${unitUomList}" th:value="${unitUom.id}" th:text="${unitUom.name}"  th:selected="${unitUom.id==materiel.unitUom}"></option>
+										</select>
+									</div>
+									<label class="col-sm-1 control-label">默认仓库：</label>
+									<div class="col-sm-2">
+										<select id="defaultFacility" name="defaultFacility" th:value="${materiel.defaultFacility}"  class="form-control m-b">
+											<option th:each="defaultFacility,userStat:${defaultFacilityList}" th:value="${defaultFacility.id}" th:text="${defaultFacility.name}" th:selected="${defaultFacility.id==materiel.defaultFacility}"></option>
+										</select>
+									</div>
+									<label class="col-sm-1 control-label">默认库位：</label>
+									<div class="col-sm-2">
+										<select id="defaultLocation" name="defaultLocation" th:value="${materiel.defaultLocation}" class="form-control m-b">
+											<option th:each="defaultLocation,userStat:${defaultLocationList}" th:value="${defaultLocation.id}" th:text="${defaultLocation.name}" th:selected="${defaultLocation.id==materiel.defaultLocation}"></option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-1 control-label">辅助单位：</label>
+									<div class="col-sm-2">
+										<select id="supportUom" name="supportUom" th:value="${materiel.supportUom}" class="form-control m-b">
+											<option th:each="supportUom,userStat:${unitUomList}" th:value="${supportUom.id}" th:text="${supportUom.name}" th:selected="${supportUom.id==materiel.supportUom}"></option>
+										</select>
+									</div>
+									<label class="col-sm-1 control-label">供应商：</label>
+									<div class="col-sm-2">
+										<input id="supplier" name="supplier" th:value="${materiel.supplier}"  class="form-control" type="text">
+									</div>
+									<label class="col-sm-1 control-label">工艺路线：</label>
+									<div class="col-sm-2">
+										<input id="tecRoute" name="tecRoute" th:value="${materiel.tecRoute}" class="form-control" type="text">
+									</div>
+									<label class="col-sm-1 control-label">工艺版本：</label>
+									<div class="col-sm-2">
+										<input id="tecVersion" name="tecVersion" th:value="${materiel.tecVersion}" class="form-control" type="text">
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-1 control-label">保质期（天）：</label>
+									<div class="col-sm-2">
+										<input id="expireDays" name="expireDays" th:value="${materiel.expireDays}" class="form-control" type="text">
+									</div>
+									<label class="col-sm-1 control-label">计价方法：</label>
+									<div class="col-sm-2">
+										<input id="valuationMethod" name="valuationMethod" th:value="${materiel.valuationMethod}" class="form-control" type="text">
+									</div>
+									<label class="col-sm-3 control-label" style="text-align: left;"><input  id="isValid" name="isValid" type="checkbox" th:value="${materiel.isValid}" checked=""> <i></i> 是否生效</label>
+									<label class="col-sm-3 control-label" style="text-align: left;"><input  id="isSerial" name="isSerial" type="checkbox"  th:value="${materiel.isSerial}" checked=""> <i></i> 是否进行序列号管理</label>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-3 control-label" style="text-align: left;"><input  id="isExpire" name="isExpire" type="checkbox" th:value="${materiel.isExpire}" checked=""> <i></i> 是否进行保质期管理</label>
+									<label class="col-sm-3 control-label" style="text-align: left;"><input  id="isLot" name="isLot" type="checkbox" th:value="${materiel.isLot}" checked=""> <i></i> 是否进行批次管理</label>
+									<label class="col-sm-3 control-label" style="text-align: left;"><input  id="isKeyComponents" name="isKeyComponents" type="checkbox" th:value="${materiel.isKeyComponents}" checked=""> <i></i> 是否关键件</label>
+									<label class="col-sm-3 control-label" style="text-align: left;"><input  id="isCheck" name="isCheck" type="checkbox" th:value="${materiel.isCheck}" checked=""> <i></i> 是否检验</label>
+								</div>
+							</div>
+						</fieldset>
+						<fieldset>
+							<legend>其他信息</legend>
+							<div class="layui-field-box">
+								<div class="form-group">
+									<label class="col-sm-1 control-label">长度单位：</label>
+									<div class="col-sm-2">
+										<select id="lengthUom" name="lengthUom" th:value="${materiel.lengthUom}" class="form-control m-b">
+											<option th:each="lengthUom,userStat:${unitUomList}" th:value="${lengthUom.id}" th:text="${lengthUom.name}" th:selected="${lengthUom.id==materiel.lengthUom}"></option>
+										</select>
+									</div>
+									<label class="col-sm-1 control-label">长度：</label>
+									<div class="col-sm-2">
+										<input id="length" name="length" th:value="${materiel.length}" class="form-control" type="number">
+									</div>
+									<label class="col-sm-1 control-label">宽度：</label>
+									<div class="col-sm-2">
+										<input id="width" name="width" th:value="${materiel.width}" class="form-control" type="number">
+									</div>
+									<label class="col-sm-1 control-label">高度：</label>
+									<div class="col-sm-2">
+										<input id="height" name="height"  th:value="${materiel.height}" class="form-control" type="number">
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-1 control-label">重量单位：</label>
+									<div class="col-sm-2">
+										<select id="weightUom" name="weightUom"  th:value="${materiel.weightUom}" class="form-control m-b">
+											<option th:each="weightUom,userStat:${unitUomList}" th:value="${weightUom.id}" th:text="${weightUom.name}" th:selected="${weightUom.id==materiel.weightUom}"></option>
+										</select>
+									</div>
+									<label class="col-sm-1 control-label">毛重：</label>
+									<div class="col-sm-2">
+										<input id="grossWeight" name="grossWeight" th:value="${materiel.grossWeight}" class="form-control" type="number">
+									</div>
+									<label class="col-sm-1 control-label">净重：</label>
+									<div class="col-sm-2">
+										<input id="netWeight" name="netWeight" th:value="${materiel.netWeight}" class="form-control" type="number">
+									</div>
+									<label class="col-sm-1 control-label">体积：</label>
+									<div class="col-sm-2">
+										<input id="volume" name="volume" th:value="${materiel.volume}" class="form-control" type="number">
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-1 control-label">安全库存：</label>
+									<div class="col-sm-2">
+										<input id="secInvenCount" name="secInvenCount" th:value="${materiel.secInvenCount}" class="form-control" type="number">
+									</div>
+									<label class="col-sm-1 control-label">最高库存：</label>
+									<div class="col-sm-2">
+										<input id="maxInvenCount" name="maxInvenCount" th:value="${materiel.maxInvenCount}" class="form-control" type="number">
+									</div>
+									<label class="col-sm-1 control-label">最低库存：</label>
+									<div class="col-sm-2">
+										<input id="minInvenCount" name="minInvenCount" th:value="${materiel.minInvenCount}" class="form-control" type="number">
+									</div>
+									<label class="col-sm-1 control-label">税率：</label>
+									<div class="col-sm-2">
+										<input id="taxPercent" name="taxPercent" th:value="${materiel.taxPercent}" class="form-control" type="number">
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-1 control-label">采购成本：</label>
+									<div class="col-sm-2">
+										<input id="purchaseCost" name="purchaseCost" th:value="${materiel.purchaseCost}" class="form-control" type="text">
+									</div>
+									<label class="col-sm-1 control-label">销售价格：</label>
+									<div class="col-sm-2">
+										<input id="salePrice" name="salePrice" th:value="${materiel.salePrice}" class="form-control" type="text">
+									</div>
+									<label class="col-sm-1 control-label">数量精度：</label>
+									<div class="col-sm-2">
+										<input id="quantityAccuracy" name="quantityAccuracy" th:value="${materiel.quantityAccuracy}" class="form-control" type="text">
+									</div>
+									<label class="col-sm-1 control-label">单价精度：</label>
+									<div class="col-sm-2">
+										<input id="priceAccuracy" name="priceAccuracy" th:value="${materiel.priceAccuracy}" class="form-control" type="text">
+									</div>
+								</div>
+							</div>
+						</fieldset>
+
+						<div class="form-group">
+							<div class="col-sm-8">
+								<button type="submit" class="btn btn-primary">提交</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div th:include="include::footer"></div>
+<script type="text/javascript" src="/js/appjs/custom/materiel/edit.js">
+</script>
+</body>
+</html>

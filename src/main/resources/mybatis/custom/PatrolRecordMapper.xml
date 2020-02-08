@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.PatrolRecordDao">
+
+	<select id="get" resultType="com.ev.custom.domain.PatrolRecordDO">
+		select `id`,`work_orderNo`,`name`,`engineer_id`,`cellphone`,`start_time`,`end_time`,`status`,`content`,`result`,`plan_id`,`inform_id`,`complete_time`,`close_reason`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_patrol_record where id = #{value}
+	</select>
+
+	<select id="getByPlanId" resultType="com.ev.custom.domain.PatrolRecordDO">
+		select `id`,`work_orderNo`,`name`,`engineer_id`,`cellphone`,`start_time`,`end_time`,`status`,`content`,`result`,`plan_id`,`inform_id`,`complete_time`,`close_reason`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_patrol_record where plan_id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.PatrolRecordDO">
+		select `id`,`work_orderNo`,`name`,`engineer_id`,`cellphone`,`start_time`,`end_time`,`status`,`content`,`result`,`plan_id`,`inform_id`,`complete_time`,`close_reason`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_patrol_record
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="workOrderno != null and workOrderno != ''"> and work_orderNo = #{workOrderno} </if>
+		  		  <if test="maxNo != null and maxNo != ''"> and LEFT(work_orderNo,12) = #{maxNo} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="engineerId != null and engineerId != ''"> and engineer_id = #{engineerId} </if>
+		  		  <if test="cellphone != null and cellphone != ''"> and cellphone = #{cellphone} </if>
+		  		  <if test="startTime != null and startTime != ''"> and start_time = #{startTime} </if>
+		  		  <if test="endTime != null and endTime != ''"> and end_time = #{endTime} </if>
+		  		  <if test="status != null and status != ''"> and status != #{status} </if>
+		  		  <if test="content != null and content != ''"> and content = #{content} </if>
+		  		  <if test="result != null and result != ''"> and result = #{result} </if>
+		  		  <if test="planId != null and planId != ''"> and plan_id = #{planId} </if>
+		  		  <if test="informId != null and informId != ''"> and inform_id = #{informId} </if>
+		  		  <if test="completeTime != null and completeTime != ''"> and complete_time = #{completeTime} </if>
+				  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+				  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+				  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+				  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+				  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>		  		  
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="listForMap" resultType="map">
+			SELECT
+				patrolrecord.`id` AS id,
+				IFNULL(patrolrecord.`end_time`,'') AS endTime,
+				patrolrecord.`work_orderNo` AS recordWorkOrderNo,
+				patrolrecord.`name` AS patrolRecordName,
+				patrolrecord.`cellphone` AS cellphone,
+				patroldept.`dept_id` AS patroldeptId,
+				patrolperson.`user_id` AS patrolPersonId,
+				patrolperson. NAME AS patrolPersonName,
+				patroldept.`name` AS patroldeptName,
+				IF(patrolrecord.end_time &lt; NOW() and dict.`id`=56,999,dict.`id`) AS reportStatusId,
+				IF(patrolrecord.end_time &lt; NOW() and dict.`id`=56,'超期未处理',dict.`name`) AS `reportStatusName`,
+				patrolrecord.`complete_time` AS completeTime,
+				patrolplan.`id` AS patrolPlanId,
+				patrolplan.`name` AS patrolPlanName,
+                IFNULL(patrolrecord.`start_time`,'') AS sortTime,
+				patrolrecord.`content` AS resultContent,
+				patrolplan.`work_orderNo` AS planWorkOrderNo,
+				patrolplan.`create_by` AS createBy,
+				createdept.`id_path` AS idPath
+			FROM
+				cus_patrol_record patrolrecord
+			LEFT JOIN cus_patrol_plan patrolplan ON patrolplan.`id` = patrolrecord.`plan_id`
+			LEFT JOIN sys_user patrolperson ON patrolperson.`user_id` = patrolrecord.`engineer_id`
+			LEFT JOIN sys_dept patroldept ON patroldept.dept_id = patrolperson.dept_id
+			LEFT JOIN sys_user createperson ON createperson.user_id = patrolrecord.`create_by`
+			LEFT JOIN sys_dept createdept ON createdept.dept_id = createperson.`dept_id`
+			LEFT JOIN cus_dictionary dict ON dict.id = patrolrecord.`status`
+		  <where>  
+		  		<if test="id != null and id != ''"> and patrolrecord.id = #{id} </if>
+		  		 <if test="engineerId != null and engineerId != ''"> and patrolperson.`user_id` = #{engineerId} </if>
+		  		  <if test="status != null and status != ''"> and IF(patrolrecord.end_time &lt; NOW() and dict.`id`=56,999,dict.`id`) = #{status} </if>
+		  		  <if test="singleStatus != null and singleStatus != ''"> and dict.`id` = #{singleStatus} 
+		  		  	<if test="user != null and user != ''"> and patrolperson.`user_id` =#{user} and patrolrecord.`start_time` &lt; now()</if>
+		  		  </if>
+		  		  <if test="workOrderno != null and workOrderno != ''"> and patrolrecord.`work_orderNo` = #{workOrderno} </if>
+		  		  <if test="createBy != null and createBy != ''"> and patrolplan.`create_by` = #{createBy} </if>
+		  		  <if test="userId != null and userId != ''"> and (patrolrecord.`create_by` = #{userId} OR (patrolrecord.`engineer_id`=#{userId} OR patrolplan.`create_by`=#{userId} and patrolrecord.status <![CDATA[<>]]> 146)) 
+		  		  	<if test="isShowTs != null and isShowTs != ''"> and patrolrecord.status <![CDATA[<>]]> 146</if>
+		  		  </if>
+		  		  <if test="deptId != null and deptId != ''">  and t.`idPath` LIKE CONCAT(#{deptId},'%')</if>		  		  
+		  	</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY IF(dict.id=146,0,1),${sort} ${order},IF (NOW() > patrolrecord.`end_time`, 0, patrolrecord.end_time) ASC,patrolrecord.`id` DESC
+            </when>
+			<otherwise>
+               ORDER BY IF(dict.id=146,0,1),reportStatusId ASC,IF (NOW() > patrolrecord.`end_time`, 0, patrolrecord.end_time) ASC,patrolrecord.`id` DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="detail" resultType="map">
+		SELECT
+		patrolrecord.`id` as id,
+		patrolrecord.`work_orderNo` as recordWorkOrderNo,
+		patrolrecord.`name` as patrolRecordName,
+		patrolrecord.`cellphone` as cellphone,
+		patrolperson.`user_id` as patrolPersonId,
+		patrolperson.name as patrolPersonName,
+		patroldept.`dept_id` AS patroldeptId,
+		patroldept.name as patroldeptName,
+		dict.`id` AS reportStatusId,
+		dict.`value` as `reportStatusValue`,
+		dict.`name` as `reportStatusName`,
+		patrolrecord.`complete_time` as completeTime,
+		patrolplan.`id` as patrolPlanId,
+		patrolplan.`name` as patrolPlanName,
+		patrolrecord.`start_time` AS sortTime,
+		patrolrecord.`content` AS resultContent,
+		patrolrecord.`close_reason` AS closeReason,
+		patrolplan.`work_orderNo` as planWorkOrderNo
+		FROM cus_patrol_record patrolrecord
+		LEFT JOIN cus_patrol_plan patrolplan ON patrolplan.`id`=patrolrecord.`plan_id`
+		LEFT JOIN sys_user patrolperson ON patrolperson.`user_id`=patrolrecord.`engineer_id`
+		LEFT JOIN sys_dept patroldept ON patroldept.dept_id=patrolperson.dept_id 
+		LEFT JOIN sys_user createperson ON createperson.user_id=patrolrecord.`create_by`
+		LEFT JOIN sys_dept createdept on createdept.dept_id=createperson.`dept_id`
+		LEFT JOIN cus_dictionary dict ON dict.id=patrolrecord.`status`
+		where patrolrecord.`id` = #{value}
+	</select>
+	
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_patrol_record
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="workOrderno != null and workOrderno != ''"> and work_orderNo = #{workOrderno} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="engineerId != null and engineerId != ''"> and engineer_id = #{engineerId} </if>
+		  		  <if test="cellphone != null and cellphone != ''"> and cellphone = #{cellphone} </if>
+		  		  <if test="startTime != null and startTime != ''"> and start_time = #{startTime} </if>
+		  		  <if test="endTime != null and endTime != ''"> and end_time = #{endTime} </if>
+		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="content != null and content != ''"> and content = #{content} </if>
+		  		  <if test="result != null and result != ''"> and result = #{result} </if>
+		  		  <if test="planId != null and planId != ''"> and plan_id = #{planId} </if>
+		  		  <if test="informId != null and informId != ''"> and inform_id = #{informId} </if>
+		  		  <if test="completeTime != null and completeTime != ''"> and complete_time = #{completeTime} </if>
+				  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+				  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+				  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+				  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+				  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>		  		  
+		  		</where>
+	</select>
+	<select id="countForMap" resultType="int">
+		SELECT 
+			COUNT(*) 
+		FROM
+				cus_patrol_record patrolrecord
+			LEFT JOIN cus_patrol_plan patrolplan ON patrolplan.`id` = patrolrecord.`plan_id`
+			LEFT JOIN sys_user patrolperson ON patrolperson.`user_id` = patrolrecord.`engineer_id`
+			LEFT JOIN sys_dept patroldept ON patroldept.dept_id = patrolperson.dept_id
+			LEFT JOIN sys_user createperson ON createperson.user_id = patrolrecord.`create_by`
+			LEFT JOIN sys_dept createdept ON createdept.dept_id = createperson.`dept_id`
+			LEFT JOIN cus_dictionary dict ON dict.id = patrolrecord.`status`
+		 <where>  
+		  		<if test="id != null and id != ''"> and patrolrecord.id = #{id} </if>
+		  		 <if test="engineerId != null and engineerId != ''"> and patrolperson.`user_id` = #{engineerId} </if>
+		  		  <if test="status != null and status != ''"> and IF(patrolrecord.end_time &lt; NOW() and dict.`id`=56,999,dict.`id`) = #{status} </if>
+		  		  <if test="singleStatus != null and singleStatus != ''"> and dict.`id` = #{singleStatus} 
+		  		  	<if test="user != null and user != ''"> and patrolperson.`user_id` =#{user} and patrolrecord.`start_time` &lt; now()</if>
+		  		  </if>
+		  		  <if test="workOrderno != null and workOrderno != ''"> and patrolrecord.`work_orderNo` = #{workOrderno} </if>
+		  		  <if test="createBy != null and createBy != ''"> and patrolplan.`create_by` = #{createBy} </if>
+		  		  <if test="userId != null and userId != ''"> and (patrolrecord.`engineer_id`=#{userId} OR ( patrolplan.`create_by`=#{userId} and patrolrecord.status <![CDATA[<>]]> 146)) </if>
+		  		  <if test="deptId != null and deptId != ''">  and t.`idPath` LIKE CONCAT(#{deptId},'%')</if>		  		  
+		  	</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.PatrolRecordDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_patrol_record
+		(
+			`work_orderNo`, 
+			`name`, 
+			`engineer_id`, 
+			`cellphone`, 
+			`start_time`, 
+			`end_time`, 
+			`status`, 
+			`content`, 
+			`result`, 
+			`plan_id`, 
+			`inform_id`,
+			`complete_time`, 
+			`close_reason`,
+			`create_by`, 
+
+			`create_time`, 
+
+			`update_by`, 
+
+			`update_time`, 
+
+			`del_flag`
+		)
+		values
+		(
+			#{workOrderno}, 
+			#{name}, 
+			#{engineerId}, 
+			#{cellphone}, 
+			#{startTime}, 
+			#{endTime}, 
+			#{status}, 
+			#{content}, 
+			#{result}, 
+			#{planId}, 
+			#{informId}, 
+			#{completeTime}, 
+			#{closeReason}, 
+			#{createBy}, 
+
+			#{createTime}, 
+
+			#{updateBy}, 
+
+			#{updateTime}, 
+
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.PatrolRecordDO">
+		update cus_patrol_record 
+		<set>
+			<if test="workOrderno != null">`work_orderNo` = #{workOrderno}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="engineerId != null">`engineer_id` = #{engineerId}, </if>
+			<if test="cellphone != null">`cellphone` = #{cellphone}, </if>
+			<if test="startTime != null">`start_time` = #{startTime}, </if>
+			<if test="endTime != null">`end_time` = #{endTime}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="content != null">`content` = #{content}, </if>
+			<if test="result != null">`result` = #{result}, </if>
+			<if test="planId != null">`plan_id` = #{planId}, </if>
+			<if test="completeTime != null">`complete_time` = #{completeTime},</if>
+			<if test="closeReason != null">`close_reason` = #{closeReason},</if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag} </if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<update id="batchUpdate">
+		update cus_patrol_record 
+		<set>
+			<if test="workOrderno != null">`work_orderNo` = #{workOrderno}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="engineerId != null">`engineer_id` = #{engineerId}, </if>
+			<if test="cellphone != null">`cellphone` = #{cellphone}, </if>
+			<if test="startTime != null">`start_time` = #{startTime}, </if>
+			<if test="endTime != null">`end_time` = #{endTime}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="content != null">`content` = #{content}, </if>
+			<if test="result != null">`result` = #{result}, </if>
+			<if test="planId != null">`plan_id` = #{planId}, </if>
+			<if test="completeTime != null">`complete_time` = #{completeTime},</if>
+			<if test="closeReason != null">`close_reason` = #{closeReason},</if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag} </if>
+		</set>
+		where id in 
+		<foreach item="id" collection="ids" open="(" separator="," close=")" index="index">
+			#{id}
+		</foreach>		
+	</update>
+	
+	<delete id="remove">
+		delete from cus_patrol_record where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_patrol_record where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

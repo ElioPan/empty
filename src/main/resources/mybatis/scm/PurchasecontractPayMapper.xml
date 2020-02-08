@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.PurchasecontractPayDao">
+
+	<select id="get" resultType="com.ev.scm.domain.PurchasecontractPayDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_purchasecontract_pay 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.PurchasecontractPayDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_purchasecontract_pay
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from scm_purchasecontract_pay
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`purchase_contract_id`,`due_date`,`pay_amount`,`amount_paid`,`unpay_amount`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> and id = #{id} </if>
+                            <if test="purchaseContractId != null and purchaseContractId != ''"> and purchase_contract_id = #{purchaseContractId} </if>
+                            <if test="dueDate != null and dueDate != ''"> and due_date = #{dueDate} </if>
+                            <if test="payAmount != null and payAmount != ''"> and pay_amount = #{payAmount} </if>
+                            <if test="amountPaid != null and amountPaid != ''"> and amount_paid = #{amountPaid} </if>
+                            <if test="unpayAmount != null and unpayAmount != ''"> and unpay_amount = #{unpayAmount} </if>
+                            <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+                            <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.PurchasecontractPayDO" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_purchasecontract_pay
+		(
+			`purchase_contract_id`, 
+			`due_date`, 
+			`pay_amount`, 
+			`amount_paid`, 
+			`unpay_amount`, 
+			`remarks`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{purchaseContractId}, 
+			#{dueDate}, 
+			#{payAmount}, 
+			#{amountPaid}, 
+			#{unpayAmount}, 
+			#{remarks}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.PurchasecontractPayDO">
+		update scm_purchasecontract_pay 
+		<set>
+			<if test="purchaseContractId != null">`purchase_contract_id` = #{purchaseContractId}, </if>
+			<if test="dueDate != null">`due_date` = #{dueDate}, </if>
+			<if test="payAmount != null">`pay_amount` = #{payAmount}, </if>
+			<if test="amountPaid != null">`amount_paid` = #{amountPaid}, </if>
+			<if test="unpayAmount != null">`unpay_amount` = #{unpayAmount}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from scm_purchasecontract_pay where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from scm_purchasecontract_pay where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<delete id="batchRemoveByContractId">
+		delete from scm_purchasecontract_pay where purchase_contract_id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<select id="detailOfPay" resultType="com.ev.scm.domain.PurchasecontractPayDO">
+		SELECT
+			*
+		FROM
+		scm_purchasecontract_pay
+		where purchase_contract_id=#{id}
+	</select>
+
+	<select id="totalOfPay" resultType="map">
+		select
+		SUM(pay_amount) AS totalPayAmount,
+		SUM(amount_paid) AS totalAmountPaid,
+		SUM(unpay_amount)  AS totalUnpayAmount
+		from scm_purchasecontract_pay
+		where purchase_contract_id=#{id}
+	</select>
+	
+</mapper>

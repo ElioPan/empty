@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.UpkeepCheckDao">
+
+	<select id="get" resultType="com.ev.custom.domain.UpkeepCheckDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM cus_upkeep_check
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.UpkeepCheckDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM cus_upkeep_check
+		<include refid="sql_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from cus_upkeep_check
+		<include refid="sql_condition"/>
+	</select>
+
+	<insert id="save" parameterType="com.ev.custom.domain.UpkeepCheckDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_upkeep_check
+		(
+		`user_id`,
+		`result`,
+		`content`,
+		`check_time`,
+		`record_id`,
+		`xl_grade`,
+		`qa_grade`,
+		`td_grade`,
+		`create_by`,
+		`create_time`,
+		`update_by`,
+		`update_time`,
+		`del_flag`,
+		`result_remark`
+		)
+		values
+		(
+		#{userId},
+		#{result},
+		#{content},
+		#{checkTime},
+		#{recordId},
+		#{xlGrade},
+		#{qaGrade},
+		#{tdGrade},
+		#{createBy},
+		#{createTime},
+		#{updateBy},
+		#{updateTime},
+		#{delFlag},
+		#{resultRemark}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.ev.custom.domain.UpkeepCheckDO">
+		update cus_upkeep_check
+		<set>
+			<if test="userId != null">`user_id` = #{userId}, </if>
+			<if test="result != null">`result` = #{result}, </if>
+			<if test="content != null">`content` = #{content}, </if>
+			<if test="checkTime != null">`check_time` = #{checkTime}, </if>
+			<if test="recordId != null">`record_id` = #{recordId}, </if>
+			<if test="xlGrade != null">`xl_grade` = #{xlGrade}, </if>
+			<if test="qaGrade != null">`qa_grade` = #{qaGrade}, </if>
+			<if test="tdGrade != null">`td_grade` = #{tdGrade}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}, </if>
+			<if test="resultRemark != null">`result_remark` = #{resultRemark}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from cus_upkeep_check where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from cus_upkeep_check where id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<sql id="sql_column_list">
+		`id`,`user_id`,`result`,`content`,`check_time`,`record_id`,`xl_grade`,`qa_grade`,`td_grade`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`result_remark`
+	</sql>
+
+	<sql id="sql_condition">
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="userId != null and userId != ''"> and user_id = #{userId} </if>
+			<if test="result != null and result != ''"> and result = #{result} </if>
+			<if test="content != null and content != ''"> and content = #{content} </if>
+			<if test="checkTime != null and checkTime != ''"> and check_time = #{checkTime} </if>
+			<if test="recordId != null and recordId != ''"> and record_id = #{recordId} </if>
+			<if test="xlGrade != null and xlGrade != ''"> and xl_grade = #{xlGrade} </if>
+			<if test="qaGrade != null and qaGrade != ''"> and qa_grade = #{qaGrade} </if>
+			<if test="tdGrade != null and tdGrade != ''"> and td_grade = #{tdGrade} </if>
+			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+			<if test="resultRemark != null and resultRemark != ''"> and result_remark = #{resultRemark} </if>
+		</where>
+	</sql>
+
+
+
+	<select id="getDetailByRecordId" resultType="map">
+		select
+			cuk.*,
+			users.name as user_name,
+			cd.name as result_name
+		from cus_upkeep_check  cuk
+        LEFT JOIN  sys_user users ON   cuk.user_id=users.user_id
+        LEFT JOIN  cus_dictionary  cd ON cuk.result=cd.id
+		WHERE cuk.record_id = #{id}
+	</select>
+
+
+	<update id="updateByRecordId" parameterType="com.ev.custom.domain.UpkeepCheckDO">
+		update cus_upkeep_check
+		<set>
+			<if test="userId != null">`user_id` = #{userId}, </if>
+			<if test="result != null">`result` = #{result}, </if>
+			<if test="content != null">`content` = #{content}, </if>
+			<if test="checkTime != null">`check_time` = #{checkTime}, </if>
+			<if test="recordId != null">`record_id` = #{recordId}, </if>
+			<if test="xlGrade != null">`xl_grade` = #{xlGrade}, </if>
+			<if test="qaGrade != null">`qa_grade` = #{qaGrade}, </if>
+			<if test="tdGrade != null">`td_grade` = #{tdGrade}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+			<if test="resultRemark != null "> result_remark = #{resultRemark} </if>
+		</set>
+		where record_id = #{recordId}
+	</update>
+
+</mapper>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+	<div class="wrapper wrapper-content ">
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="ibox float-e-margins">
+					<div class="ibox-content">
+						<form class="form-horizontal m-t" id="signupForm">
+						<input id="id" name="id" th:value="${deviceSupervise.id}"  type="hidden">
+							<div class="form-group">	
+								<label class="col-sm-3 control-label">：</label>
+								<div class="col-sm-8">
+									<input id="deviceid" name="deviceid" th:value="${deviceSupervise.deviceid}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">检查项目：</label>
+								<div class="col-sm-8">
+									<input id="checkitem" name="checkitem" th:value="${deviceSupervise.checkitem}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">检查项目id：</label>
+								<div class="col-sm-8">
+									<input id="checkitemid" name="checkitemid" th:value="${deviceSupervise.checkitemid}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">监管机构（部门）：</label>
+								<div class="col-sm-8">
+									<input id="regulatorname" name="regulatorname" th:value="${deviceSupervise.regulatorname}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">监管机构(部门)id：</label>
+								<div class="col-sm-8">
+									<input id="regulatorid" name="regulatorid" th:value="${deviceSupervise.regulatorid}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">检查时间：</label>
+								<div class="col-sm-8">
+									<input id="checktime" name="checktime" th:value="${deviceSupervise.checktime}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">检查周期（天）：</label>
+								<div class="col-sm-8">
+									<input id="period" name="period" th:value="${deviceSupervise.period}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">检查人：</label>
+								<div class="col-sm-8">
+									<input id="rummager" name="rummager" th:value="${deviceSupervise.rummager}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">检查人id：</label>
+								<div class="col-sm-8">
+									<input id="rummagerid" name="rummagerid" th:value="${deviceSupervise.rummagerid}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">下次检查时间：</label>
+								<div class="col-sm-8">
+									<input id="nextchecktime" name="nextchecktime" th:value="${deviceSupervise.nextchecktime}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">预警天数（天）：</label>
+								<div class="col-sm-8">
+									<input id="warningdays" name="warningdays" th:value="${deviceSupervise.warningdays}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">备注：</label>
+								<div class="col-sm-8">
+									<input id="remark" name="remark" th:value="${deviceSupervise.remark}" class="form-control" type="text">
+								</div>
+							</div>
+																					<div class="form-group">
+								<div class="col-sm-8 col-sm-offset-3">
+									<button type="submit" class="btn btn-primary">提交</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+	</div>
+	</div>
+	<div th:include="include::footer"></div>
+	<script type="text/javascript" src="/js/appjs/custom/deviceSupervise/edit.js">
+	</script>
+</body>
+</html>

@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.ProductDao">
+
+	<select id="get" resultType="com.ev.custom.domain.ProductDO">
+		select `id`,`serialno`,`name`,`model`,`bar_code`,`type`,`facility_location_id`,`facility_id`,`unit`,`purchase_price`,`retail_price`,`trade_price`,`member_price`,`discount_one`,`discount_two`,`min_stock`,`max_stock`,`usage`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_product where id = #{value}
+	</select>
+	
+	<select id="getBySerialno" resultType="com.ev.custom.domain.ProductDO">
+		select `id`,`serialno` from cus_product where serialno = #{value}
+	</select>
+	
+	<select id="list" resultType="com.ev.custom.domain.ProductDO">
+		select `id`,`serialno`,`name`,`model`,`bar_code`,`type`,`facility_location_id`,`facility_id`,`unit`,`purchase_price`,`retail_price`,`trade_price`,`member_price`,`discount_one`,`discount_two`,`min_stock`,`max_stock`,`usage`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_product
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="serialno != null and serialno != ''"> and serialno = #{serialno} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="model != null and model != ''"> and model = #{model} </if>
+		  		  <if test="barCode != null and barCode != ''"> and bar_code = #{barCode} </if>
+		  		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  		  <if test="facilityLocationId != null and facilityLocationId != ''"> and facility_location_id = #{facilityLocationId} </if>
+		  		  <if test="unit != null and unit != ''"> and unit = #{unit} </if>
+		  		  <if test="purchasePrice != null and purchasePrice != ''"> and purchase_price = #{purchasePrice} </if>
+		  		  <if test="retailPrice != null and retailPrice != ''"> and retail_price = #{retailPrice} </if>
+		  		  <if test="tradePrice != null and tradePrice != ''"> and trade_price = #{tradePrice} </if>
+		  		  <if test="memberPrice != null and memberPrice != ''"> and member_price = #{memberPrice} </if>
+		  		  <if test="discountOne != null and discountOne != ''"> and discount_one = #{discountOne} </if>
+		  		  <if test="discountTwo != null and discountTwo != ''"> and discount_two = #{discountTwo} </if>
+		  		  <if test="minStock != null and minStock != ''"> and min_stock = #{minStock} </if>
+		  		  <if test="maxStock != null and maxStock != ''"> and max_stock = #{maxStock} </if>
+		  		  <if test="usage != null and usage != ''"> and usage = #{usage} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="listForMap" resultType="map">
+		SELECT
+		product.`id` AS id,
+		product.`name` AS productName,
+		product.`model` AS model,
+		producttype.`id` AS  productTypeId,
+		producttype.`name` AS productTypeName,
+		product.`serialno` AS serialno,
+		dic.`name` AS unitName,
+		product.`usage` AS productUsage
+		FROM cus_product product
+		LEFT JOIN cus_product_type producttype ON producttype.`id`=product.`type`
+		LEFT JOIN cus_dictionary dic ON dic.`id`=product.`unit`
+		LEFT JOIN cus_facility facility ON facility.`id`=product.`facility_id`
+		LEFT JOIN cus_dictionary dicf ON dicf.`id`=facility.`facility_type`
+        <where>  
+		  		  <if test="id != null and id != ''"> and product.id = #{id} </if>
+		  		  <if test="fuzzySearch != null and fuzzySearch != ''"> and CONCAT(CONCAT(product.`serialno`,product.`name`),product.`model`) LIKE CONCAT(CONCAT('%',#{fuzzySearch}),'%') </if> 
+		  		  <if test="productTypeId != null and productTypeId != ''"> and product.type = #{productTypeId} </if>
+		  		  <if test="facilityTypeId != null and facilityTypeId != ''"> and facility.`facility_type` = #{facilityTypeId} </if>
+		  		  <if test="usage != null and usage != ''"> and product.usage = #{usage} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and product.del_flag = #{delFlag} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by product.id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="stockListForMap" resultType="map">
+			SELECT
+			GROUP_CONCAT(stock.`id`) AS id,
+			product.`id` AS proId,
+			product.`name` AS productName,
+			product.`model` AS model,
+			producttype.`id` AS productTypeId,
+			producttype.`name` AS productTypeName,
+			product.`serialno` AS serialno,
+			dic.`id` AS unitId,
+			dic.`name` AS unitName,
+			stock.`batch` AS batch,
+			facility.`name` AS facilityName,
+			facility.`id` AS facilityId,
+			fl.name AS facilityLocationName,
+			fl.id AS facilityLocationId,
+			SUM(stock.`available_count`) AS availableCount
+			FROM (
+				SELECT
+				`id`,
+				`materiel_id`,
+				`available_count`,
+				`batch`,
+				`count`,
+				`warehouse`,
+				`wareh_location`
+				FROM scm_stock
+				WHERE `available_count` &gt;0
+				)stock
+			LEFT JOIN cus_product product ON product.id=stock.`pro_id`		 
+			LEFT JOIN cus_product_type producttype ON producttype.`id`=product.`type`
+			LEFT JOIN cus_dictionary dic ON dic.`id`=product.`unit`
+			LEFT JOIN cus_facility_location fl ON fl.`id`=stock.`wareh_location`
+			LEFT JOIN cus_facility facility ON facility.`id`=fl.`facility_id`
+			LEFT JOIN cus_dictionary dicf ON dicf.`id`=facility.`facility_type`
+	        <where>  
+			  		  <if test="fuzzySearch != null and fuzzySearch != ''"> and CONCAT(CONCAT(product.`serialno`,product.`name`),product.`model`) LIKE CONCAT(CONCAT('%',#{fuzzySearch}),'%') </if>  
+			  		  <if test="productTypeId != null and productTypeId != ''"> and product.`type` = #{productTypeId} </if>
+			  		  <if test="facilityTypeId != null and facilityTypeId != ''"> and facility.`facility_type` = #{facilityTypeId} </if>
+			  		  <if test="delFlag != null and delFlag != ''"> and stock.`del_flag` = #{delFlag} </if>
+					  <if test="stockId != null and stockId.size()>0"> and stock.`id` IN  
+						<foreach item="item" collection="stockId" open="(" separator="," close=")" index="index">
+							<if test="item!=null">
+									#{item}
+							</if>
+						</foreach>
+					  </if>
+			 </where>
+		GROUP BY stock.`batch`,stock.`wareh_location`,stock.`pro_id`
+		 <choose>
+	            <when test="sort != null and sort.trim() != ''">
+	                order by ${sort} ${order}
+	            </when>
+				<otherwise>
+	                order by stock.id desc
+				</otherwise>
+	        </choose>
+	        <if test="offset != null and limit != null">
+				limit #{offset}, #{limit}
+			</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from cus_product
+		 <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="serialno != null and serialno != ''"> and serialno = #{serialno} </if>
+		  		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  		  <if test="model != null and model != ''"> and model = #{model} </if>
+		  		  <if test="barCode != null and barCode != ''"> and bar_code = #{barCode} </if>
+		  		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  		  <if test="facilityLocationId != null and facilityLocationId != ''"> and facility_location_id = #{facilityLocationId} </if>
+		  		  <if test="unit != null and unit != ''"> and unit = #{unit} </if>
+		  		  <if test="purchasePrice != null and purchasePrice != ''"> and purchase_price = #{purchasePrice} </if>
+		  		  <if test="retailPrice != null and retailPrice != ''"> and retail_price = #{retailPrice} </if>
+		  		  <if test="tradePrice != null and tradePrice != ''"> and trade_price = #{tradePrice} </if>
+		  		  <if test="memberPrice != null and memberPrice != ''"> and member_price = #{memberPrice} </if>
+		  		  <if test="discountOne != null and discountOne != ''"> and discount_one = #{discountOne} </if>
+		  		  <if test="discountTwo != null and discountTwo != ''"> and discount_two = #{discountTwo} </if>
+		  		  <if test="minStock != null and minStock != ''"> and min_stock = #{minStock} </if>
+		  		  <if test="maxStock != null and maxStock != ''"> and max_stock = #{maxStock} </if>
+		  		  <if test="usage != null and usage != ''"> and usage = #{usage} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+		  		</where>
+	</select>
+	
+	<select id="countForMap" resultType="int">
+		SELECT count(*) 
+		FROM cus_product product
+		LEFT JOIN cus_product_type producttype ON producttype.`id`=product.`type`
+		LEFT JOIN cus_dictionary dic ON dic.`id`=product.`unit`
+		LEFT JOIN cus_facility_location location ON location.`id`=product.`facility_location_id`
+		LEFT JOIN cus_facility facility ON facility.`id`=location.`facility_id`
+		LEFT JOIN cus_dictionary dicf ON dicf.`id`=facility.`facility_type`
+        <where>  
+		  		  <if test="id != null and id != ''"> and product.id = #{id} </if>
+		  		  <if test="fuzzySearch != null and fuzzySearch != ''"> and CONCAT(CONCAT(product.`serialno`,product.`name`),product.`model`) LIKE CONCAT(CONCAT('%',#{fuzzySearch}),'%') </if> 
+		  		  <if test="productTypeId != null and productTypeId != ''"> and product.type = #{productTypeId} </if>
+		  		  <if test="facilityTypeId != null and facilityTypeId != ''"> and facility.`facility_type` = #{facilityTypeId} </if>
+		  		  <if test="usage != null and usage != ''"> and product.`usage` = #{usage} </if>
+		  		  <if test="delFlag != null and delFlag != ''"> and product.`del_flag` = #{delFlag} </if>
+		  		</where>
+	</select>
+	
+	<select id="stockList" resultType="com.ev.scm.domain.StockDO">
+		SELECT `id`,`count`,`available_count`,`unit_price`
+		FROM scm_stock
+		WHERE `id` in
+		<foreach item="id" collection="list" open="(" separator="," close=")" index="index">
+			#{id}
+		</foreach>
+	</select>
+	
+	<select id="stockCountForMap" resultType="int">
+		SELECT 
+		COUNT(*)
+		FROM (
+			SELECT 
+			COUNT(*)
+			FROM (
+				SELECT
+				`id`,
+				`materiel_id`,
+				`available_count`,
+				`batch`,
+				`count`,
+				`warehouse`,
+				`wareh_location`
+				FROM scm_stock
+				WHERE `available_count` &gt;0
+				)stock
+				LEFT JOIN cus_product product ON product.id=stock.`pro_id`		 
+				LEFT JOIN cus_product_type producttype ON producttype.`id`=product.`type`
+				LEFT JOIN cus_dictionary dic ON dic.`id`=product.`unit`
+				LEFT JOIN cus_facility_location fl ON fl.`id`=stock.`wareh_location`
+				LEFT JOIN cus_facility facility ON facility.`id`=fl.`facility_id`
+				LEFT JOIN cus_dictionary dicf ON dicf.`id`=facility.`facility_type`
+		        <where>  
+				  		  <if test="fuzzySearch != null and fuzzySearch != ''"> and CONCAT(CONCAT(product.`serialno`,product.`name`),product.`model`) LIKE CONCAT(CONCAT('%',#{fuzzySearch}),'%') </if>  
+				  		  <if test="productTypeId != null and productTypeId != ''"> and product.`type` = #{productTypeId} </if>
+				  		  <if test="facilityTypeId != null and facilityTypeId != ''"> and facility.`facility_type` = #{facilityTypeId} </if>
+				  		  <if test="delFlag != null and delFlag != ''"> and stock.`del_flag` = #{delFlag} </if>
+				  		</where>
+				GROUP BY stock.`batch`,stock.`wareh_location`,stock.`pro_id`
+	      )t
+	</select>
+	
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.ProductDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_product
+		(
+			`serialno`, 
+			`name`, 
+			`model`, 
+			`bar_code`, 
+			`type`,
+			`facility_id`,
+			`facility_location_id`, 
+			`unit`, 
+			`purchase_price`, 
+			`retail_price`, 
+			`trade_price`, 
+			`member_price`, 
+			`discount_one`, 
+			`discount_two`, 
+			`min_stock`, 
+			`max_stock`, 
+			`usage`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		values
+		(
+			#{serialno}, 
+			#{name}, 
+			#{model}, 
+			#{barCode}, 
+			#{type}, 
+			#{facilityLocationId}, 
+			#{facilityId},
+			#{unit}, 
+			#{purchasePrice}, 
+			#{retailPrice}, 
+			#{tradePrice}, 
+			#{memberPrice}, 
+			#{discountOne}, 
+			#{discountTwo}, 
+			#{minStock}, 
+			#{maxStock}, 
+			#{usage}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.ProductDO">
+		update cus_product 
+		<set>
+			<if test="serialno != null">`serialno` = #{serialno}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="model != null">`model` = #{model}, </if>
+			<if test="barCode != null">`bar_code` = #{barCode}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="facilityId != null">`facility_id` = #{facilityId}, </if>
+			<if test="facilityLocationId != null">`facility_location_id` = #{facilityLocationId}, </if>
+			<if test="unit != null">`unit` = #{unit}, </if>
+			<if test="purchasePrice != null">`purchase_price` = #{purchasePrice}, </if>
+			<if test="retailPrice != null">`retail_price` = #{retailPrice}, </if>
+			<if test="tradePrice != null">`trade_price` = #{tradePrice}, </if>
+			<if test="memberPrice != null">`member_price` = #{memberPrice}, </if>
+			<if test="discountOne != null">`discount_one` = #{discountOne}, </if>
+			<if test="discountTwo != null">`discount_two` = #{discountTwo}, </if>
+			<if test="minStock != null">`min_stock` = #{minStock}, </if>
+			<if test="maxStock != null">`max_stock` = #{maxStock}, </if>
+			<if test="usage != null">`usage` = #{usage}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_product where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_product where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!-- 验证是否能被删除 -->
+	<select id="checkDelete" resultType="int">
+		SELECT COUNT(*) 
+		FROM cus_product pro
+		INNER JOIN scm_stock_in_item inb ON inb.`materiel_id`=pro.`id`
+		WHERE pro.`id`=#{value} 
+	</select>	
+	
+	<!-- 验证库存数量是否足够 -->
+	<select id="stockCount" resultType="map">
+			SELECT
+			GROUP_CONCAT(`id`) AS id,
+			SUM(`available_count`) AS availableCount
+			FROM scm_stock stock
+	        <where>  
+					  <if test="stockId != null and stockId.size()>0"> and `id` IN  
+						<foreach item="item" collection="stockId" open="(" separator="," close=")" index="index">
+							<if test="item!=null">
+									#{item}
+							</if>
+						</foreach>
+					  </if>
+			 </where>
+		GROUP BY `batch`,`wareh_location`,`pro_id`
+	</select>
+	
+
+</mapper>

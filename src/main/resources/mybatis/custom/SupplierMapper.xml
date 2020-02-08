@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.SupplierDao">
+
+	<select id="get" resultType="com.ev.custom.domain.SupplierDO">
+
+		select
+		`sper_type`,`id`,`code`,`name`,`type`,`phone`,`fax`,`address`,
+		`legalperson`,`desc`,`provider_id`,`create_by`,`create_time`,`update_by`,`update_time`,
+		`del_flag`,`bank`,`account`,`mark`,`status`,`audit_id`,`use_status`,`tax_number`
+		from
+		cus_supplier
+		where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.SupplierDO">
+		select `sper_type`,`id`,`code`,`name`,
+		`type`,`phone`,`fax`,`address`,
+		`legalperson`,`desc`,`provider_id`,`create_by`,
+		`create_time`,`update_by`,`update_time`,`del_flag`,
+		`bank`,`account`,`mark`,`status`,`audit_id`,`use_status`,`tax_number`
+		from cus_supplier
+        <where>
+            <if test="maxNo != null and maxNo != ''"> and LEFT(code,CHAR_LENGTH(#{maxNo})) = #{maxNo} </if>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+		  <if test="code != null and code != ''"> and code = #{code} </if>
+		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  <if test="phone != null and phone != ''"> and phone = #{phone} </if>
+		  <if test="fax != null and fax != ''"> and fax = #{fax} </if>
+		  <if test="address != null and address != ''"> and address = #{address} </if>
+		  <if test="legalperson != null and legalperson != ''"> and legalperson = #{legalperson} </if>
+		  <if test="desc != null and desc != ''"> and desc = #{desc} </if>
+		  <if test="providerId != null and providerId != ''"> and provider_id = #{providerId} </if>
+		  <if test="sperType != null and sperType != ''"> and sper_type = #{sperType} </if>
+		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+			<if test="bank != null and bank != ''"> and bank = #{bank} </if>
+			<if test="account != null and account != ''"> and account = #{account} </if>
+			<if test="mark != null and mark != ''"> and mark = #{mark} </if>
+			<if test="status != null and status != ''"> and status = #{status} </if>
+			<if test="auditId != null and auditId != ''"> and audit_id = #{auditId} </if>
+			<if test="useStatus != null and useStatus != ''"> and use_status = #{useStatus} </if>
+			<if test="taxNumber != null and taxNumber != ''"> and tax_number = #{taxNumber} </if>
+			AND del_flag = 0
+		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="listForMap" resultType="map">
+		select
+		supplier.`sper_type` as sperType,
+		supplier.id as id,
+		supplier.code as code,
+		supplier.name as name,
+		supplier.phone as phone,
+        supplier.fax as fax,
+        supplier.address as address,
+        supplier.legalperson as legalperson,
+        supplier.`create_time` as createTime,
+        supplier.provider_id as providerId,
+        supplier.`tax_number` AS taxNumber,
+        dic.name as bank,
+        supplier.`account` AS account,
+        csl.`phone` AS linkPhone,
+        csl.`name` AS linkName
+		from cus_supplier supplier
+		left join cus_dictionary dic on dic.id = supplier.bank
+        LEFT JOIN cus_supplier_linkman csl ON supplier.id=csl.supplier_id
+		<where>
+			<if test="id != null and id != ''"> and supplier.id = #{id} </if>
+            <if test="name != null and name != ''"> and ((supplier.name LIKE  CONCAT ('%',#{name},'%'))or(csl.name LIKE  CONCAT ('%',#{linkname},'%'))) </if>
+			<if test="code != null and code != ''"> and supplier.code = #{code} </if>
+			<if test="type != null and type != ''"> and supplier.type = #{type} </if>
+			<if test="phone != null and phone != ''"> and supplier.phone = #{phone} </if>
+			<if test="fax != null and fax != ''"> and supplier.fax = #{fax} </if>
+			<if test="address != null and address != ''"> and supplier.address = #{address} </if>
+			<if test="legalperson != null and legalperson != ''"> and supplier.legalperson = #{legalperson} </if>
+			<if test="desc != null and desc != ''"> and supplier.desc = #{desc} </if>
+			<if test="createTime != null and createTime != ''"> and supplier.create_time = #{createTime} </if>
+			<if test="providerId != null and providerId != ''"> and supplier.provider_id = #{providerId} </if>
+			<if test="sperType != null and sperType != ''"> and supplier.sper_type = #{sperType} </if>
+
+			<if test="bank != null and bank != ''"> and bank = #{bank} </if>
+			<if test="account != null and account != ''"> and account = #{account} </if>
+			<if test="mark != null and mark != ''"> and mark = #{mark} </if>
+			<if test="status != null and status != ''"> and status = #{status} </if>
+			<if test="auditId != null and auditId != ''"> and auditId = #{auditId} </if>
+			<if test="useStatus != null and useStatus != ''"> and useStatus = #{useStatus} </if>
+			<if test="taxNumber != null and taxNumber != ''"> and taxNumber = #{taxNumber} </if>
+			AND supplier.del_flag = 0
+
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by supplier.id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+ 	<select id="count" resultType="int">
+		select count(*) from cus_supplier
+		 <where>  
+		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  <if test="code != null and code != ''"> and code = #{code} </if>
+		  <if test="name != null and name != ''"> and name = #{name} </if>
+		  <if test="type != null and type != ''"> and type = #{type} </if>
+		  <if test="phone != null and phone != ''"> and phone = #{phone} </if>
+		  <if test="fax != null and fax != ''"> and fax = #{fax} </if>
+		  <if test="address != null and address != ''"> and address = #{address} </if>
+		  <if test="legalperson != null and legalperson != ''"> and legalperson = #{legalperson} </if>
+		  <if test="desc != null and desc != ''"> and desc = #{desc} </if>
+		  <if test="providerId != null and providerId != ''"> and provider_id = #{providerId} </if>
+		  <if test="sperType != null and sperType != ''"> and sperType = #{sperType} </if>
+		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+			 <if test="bank != null and bank != ''"> and bank = #{bank} </if>
+			 <if test="account != null and account != ''"> and account = #{account} </if>
+			 <if test="mark != null and mark != ''"> and mark = #{mark} </if>
+			 <if test="status != null and status != ''"> and status = #{status} </if>
+			 <if test="auditId != null and auditId != ''"> and auditId = #{auditId} </if>
+			 <if test="useStatus != null and useStatus != ''"> and useStatus = #{useStatus} </if>
+			 <if test="taxNumber != null and taxNumber != ''"> and taxNumber = #{taxNumber} </if>
+			 AND del_flag = 0
+		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.SupplierDO" useGeneratedKeys="true" keyProperty="id">
+		insert into cus_supplier
+		(
+			`code`, 
+
+			`name`, 
+
+			`type`, 
+
+			`phone`, 
+
+			`fax`, 
+
+			`address`, 
+
+			`legalperson`, 
+
+			`desc`, 
+
+			`create_by`, 
+
+			`create_time`, 
+
+			`update_by`, 
+
+			`update_time`, 
+
+			`del_flag`,
+			`sper_type`,
+			`bank`,
+			`account`,
+			`mark`,
+			`status`,
+			`audit_id`,
+			`use_status`,
+			`tax_number`
+		)
+		values
+		(
+			#{code}, 
+
+			#{name}, 
+
+			#{type}, 
+
+			#{phone}, 
+
+			#{fax}, 
+
+			#{address}, 
+
+			#{legalperson}, 
+
+			#{desc}, 
+
+			#{createBy}, 
+
+			#{createTime}, 
+
+			#{updateBy}, 
+
+			#{updateTime}, 
+
+			#{delFlag},
+
+			#{sperType},
+			#{bank},
+			#{account},
+			#{mark},
+			#{status},
+			#{auditId},
+			#{useStatus},
+			#{taxNumber}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.SupplierDO">
+		update cus_supplier 
+		<set>
+
+			<if test="code != null">`code` = #{code}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="phone != null">`phone` = #{phone}, </if>
+			<if test="fax != null">`fax` = #{fax}, </if>
+			<if test="address != null">`address` = #{address}, </if>
+			<if test="legalperson != null">`legalperson` = #{legalperson}, </if>
+			<if test="desc != null">`desc` = #{desc}, </if>
+			<if test="providerId != null">`provider_id` = #{providerId}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}, </if>
+			<if test="sperType != null">  sperType = #{sperType}, </if>
+
+			<if test="bank != null">  bank = #{bank}, </if>
+			<if test="account != null ">  account = #{account}, </if>
+			<if test="mark != null ">  mark = #{mark}, </if>
+			<if test="status != null">  status = #{status}, </if>
+			<if test="auditId != null ">  audit_id = #{auditId}, </if>
+			<if test="useStatus != null">  use_status = #{useStatus}, </if>
+			<if test="taxNumber != null ">  tax_number = #{taxNumber} </if>
+
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from cus_supplier where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from cus_supplier where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="objectList" resultType="com.ev.custom.domain.SupplierDO">
+		select distinct `id`,`name` from cus_supplier
+	</select>
+
+
+	 <!--供应商、服务商、生产商-->
+	<select id="allTypeSupplier" resultType="map">
+		select cs.*
+		from cus_supplier cs
+		WHERE
+		sper_Type=#{sperType}
+	</select>
+
+
+
+
+	<select id="checkListByparamete" resultType="map">
+		select
+		client.id as id,
+		client.code as code,
+		client.name as unit_name,
+		client.type as type_id,
+		dic.name as type_name,
+		client.phone as company_phone,
+		client.fax as fax,
+		client.address as address,
+		client.legalperson as legalperson_name,
+		client.desc as 'desc',
+		client.create_time as createTime,
+		csl.name as linkman_name,
+		client.bank	,
+		a.name as bankName,
+		client.account,
+		client.status,
+		b.name as statusName,
+		client.audit_id	 as auditId,
+		c.name as auditName,
+		client.use_status	as useStatus,
+		client.tax_number as taxNumber,
+		client.create_by as createBy,
+		users.name as createByName,
+		csl.phone as linkman_phone
+		FROM cus_supplier client
+		LEFT JOIN cus_dictionary dic ON  client.type=dic.id
+		LEFT JOIN cus_supplier_linkman csl ON client.id=csl.supplier_id
+		LEFT JOIN sys_user  users  ON client.create_by=users.user_id
+		LEFT JOIN sys_dept  dept   ON users.dept_id=dept.dept_id
+		LEFT JOIN cus_dictionary a ON  client.bank=a.id
+		LEFT JOIN cus_dictionary b ON  client.status=b.id
+		LEFT JOIN sys_user  c      ON client.audit_id=c.user_id
+
+		<where>
+
+			<if test="idPath != null and idPath != ''"> and dept.id_path like  CONCAT('%',#{idPath},'%')</if>
+
+			<if test="id != null and id != ''"> and client.id = #{id} </if>
+			<if test="code != null and code != ''"> and client.code = #{code}</if>
+			<!--<if test="name != null and name != ''"> and client.name LIKE  CONCAT ('%',#{name},'%') </if>-->
+			<!--<if test="linkname != null and linkname != ''"> and csl.name LIKE  CONCAT ('%',#{linkname},'%') </if>-->
+			<if test="name != null and name != ''"> and ((client.name LIKE  CONCAT ('%',#{name},'%'))or(csl.name LIKE  CONCAT ('%',#{linkname},'%'))) </if>
+			<if test="type != null and type != ''"> and client.type = #{type} </if>
+			<if test="phone != null and phone != ''"> and client.phone = #{phone} </if>
+			<if test="fax != null and fax != ''"> and client.fax = #{fax} </if>
+			<if test="address != null and address != ''"> and client.address = #{address} </if>
+			<if test="legalperson != null and legalperson != ''"> and client.legalperson = #{legalperson} </if>
+			<if test="desc != null and desc != ''"> and client.desc = #{desc} </if>
+			<if test="createTime != null and createTime != ''"> and client.create_time = #{createTime} </if>
+			<if test="providerId != null and providerId != ''"> and client.provider_id = #{providerId} </if>
+			<if test="sperType != null and sperType != ''"> and client.sper_type = #{sperType} </if>
+			<if test="taxNumber != null and taxNumber != ''"> and client.tax_number =#{taxNumber}</if>
+
+			<if test="status != null and status != ''"> and client.status = #{status} </if>
+			<if test="useStatus != null "> and client.use_status = #{useStatus} </if>
+			AND client.del_flag = 0
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by client.id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="countCheckListByparam" resultType="int">
+		select count(*)
+		FROM cus_supplier client
+		LEFT JOIN cus_dictionary dic ON  client.type=dic.id
+		LEFT JOIN cus_supplier_linkman csl ON client.id=csl.supplier_id
+		LEFT JOIN sys_user  users  ON client.create_by=users.user_id
+		LEFT JOIN sys_dept  dept   ON users.dept_id=dept.dept_id
+		LEFT JOIN cus_dictionary a ON  client.bank=a.id
+		LEFT JOIN cus_dictionary b ON  client.status=b.id
+		LEFT JOIN sys_user  c      ON client.audit_id=c.user_id
+		<where>
+			<if test="idPath != null and idPath != ''"> and dept.id_path like  CONCAT('%',#{idPath},'%')</if>
+			<if test="id != null and id != ''"> and client.id = #{id} </if>
+			<if test="code != null and code != ''"> and client.code = #{code}</if>
+			<!--<if test="name != null and name != ''"> and client.name LIKE  CONCAT ('%',#{name},'%') </if>-->
+			<!--<if test="linkname != null and linkname != ''"> and csl.name LIKE  CONCAT ('%',#{linkname},'%') </if>-->
+			<if test="name != null and name != ''"> and ((client.name LIKE  CONCAT ('%',#{name},'%'))or(csl.name LIKE  CONCAT ('%',#{linkname},'%'))) </if>
+			<if test="type != null and type != ''"> and client.type = #{type} </if>
+			<if test="phone != null and phone != ''"> and client.phone = #{phone} </if>
+			<if test="fax != null and fax != ''"> and client.fax = #{fax} </if>
+			<if test="address != null and address != ''"> and client.address = #{address} </if>
+			<if test="legalperson != null and legalperson != ''"> and client.legalperson = #{legalperson} </if>
+			<if test="desc != null and desc != ''"> and client.desc = #{desc} </if>
+			<if test="createTime != null and createTime != ''"> and client.create_time = #{createTime} </if>
+			<if test="providerId != null and providerId != ''"> and client.provider_id = #{providerId} </if>
+			<if test="sperType != null and sperType != ''"> and client.sper_type = #{sperType} </if>
+			<if test="taxNumber != null and taxNumber != ''"> and client.tax_number =#{taxNumber}</if>
+
+			<if test="status != null and status != ''"> and client.status = #{status} </if>
+			<if test="useStatus != null "> and client.use_status = #{useStatus} </if>
+			AND client.del_flag = 0
+		</where>
+	</select>
+
+	<select id="oneTypeGroupList" resultType="map">
+		select
+		client.id as id,
+		client.name as name,
+		dic.name as type_name,
+		csl.name as linkman_name,
+		csl.phone as linkman_phone,
+		client.address as address
+		FROM cus_supplier client
+		LEFT JOIN cus_dictionary dic ON dic.id = client.type
+		LEFT JOIN cus_supplier_linkman csl ON client.id=csl.supplier_id
+		<where>
+			<if test="name != null and name != ''">and client.name LIKE  CONCAT('%',#{name},'%')</if>
+			<if test="id != null and id != ''">and client.id = #{id}</if>
+			<if test="type != null and type != ''">and client.type = #{type}</if>
+			AND client.del_flag = 0
+		</where>
+	</select>
+
+
+	<update id="deletOfDevices" parameterType="map">
+		update
+		cus_supplier
+		set
+		`del_flag` = 1
+		where id in
+		<foreach item="id" collection="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</update>
+
+	<select id="countOfClientStatus" resultType="int">
+
+		SELECT
+		count(*)
+		from
+		cus_supplier
+		WHERE
+		`del_flag`=0
+		and
+		status=178    <!--待审核-->
+		and  id in
+		<foreach item="item" collection="id" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+
+    <select id="getAllCode" resultType="string">
+        SELECT
+        `code`
+        from
+        cus_supplier
+        WHERE
+        `del_flag`=0
+    </select>
+
+    <insert id="batchSave" parameterType="List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO cus_supplier(
+        `code`,
+
+        `name`,
+
+        `type`,
+
+        `phone`,
+
+        `fax`,
+
+        `address`,
+
+        `legalperson`,
+
+        `desc`,
+
+        `create_by`,
+
+        `create_time`,
+
+        `update_by`,
+
+        `update_time`,
+
+        `del_flag`,
+        `sper_type`,
+        `bank`,
+        `account`,
+        `mark`,
+        `status`,
+        `audit_id`,
+        `use_status`,
+        `tax_number`) VALUES
+        <foreach collection="list" item="obj" separator=",">
+            (
+            #{obj.code},
+
+            #{obj.name},
+
+            #{obj.type},
+
+            #{obj.phone},
+
+            #{obj.fax},
+
+            #{obj.address},
+
+            #{obj.legalperson},
+
+            #{obj.desc},
+
+            #{obj.createBy},
+
+            #{obj.createTime},
+
+            #{obj.updateBy},
+
+            #{obj.updateTime},
+
+            #{obj.delFlag},
+
+            #{obj.sperType},
+            #{obj.bank},
+            #{obj.account},
+            #{obj.mark},
+            #{obj.status},
+            #{obj.auditId},
+            #{obj.useStatus},
+            #{obj.taxNumber}
+            )
+        </foreach>
+    </insert>
+
+
+	<select id="checkSave" resultType="int">
+		select
+		count(*)
+		FROM
+		cus_supplier
+		<where>
+			<if test="name != null and name != ''"> and name = #{name} </if>
+			<if test="code != null and code != ''"> and code = #{code}</if>
+		</where>
+	</select>
+
+
+</mapper>
