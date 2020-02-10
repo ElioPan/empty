@@ -1,17 +1,25 @@
 package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.ev.custom.service.MaterielService;
 import com.ev.framework.config.ConstantForGYL;
+import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
+import com.ev.framework.utils.ShiroUtils;
+import com.ev.framework.utils.StringUtils;
+import com.ev.mes.domain.BomDetailDO;
+import com.ev.mes.domain.ProductionFeedingDO;
+import com.ev.mes.service.BomDetailService;
+import com.ev.mes.service.ProductionFeedingService;
 import com.ev.scm.dao.ContractAlterationDao;
 import com.ev.scm.dao.OutsourcingContractDao;
 import com.ev.scm.dao.OutsourcingContractItemDao;
 import com.ev.scm.dao.OutsourcingContractPayDao;
 import com.ev.scm.domain.*;
-import com.ev.scm.domain.OutsourcingContractDO;
 import com.ev.scm.service.OutsourcingContractService;
 import com.ev.scm.vo.ContractItemVO;
 import com.ev.scm.vo.ContractPayVO;
@@ -21,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,6 +46,12 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
     private OutsourcingContractPayDao outsourcingContractPayDao;
     @Autowired
     private ContractAlterationDao contractAlterationDao;
+    @Autowired
+    private ProductionFeedingService feedingService;
+    @Autowired
+    private BomDetailService bomDetailService;
+    @Autowired
+    private MaterielService materielService;
     @Autowired
     private MessageSourceHandler messageSourceHandler;
 
@@ -173,9 +188,9 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
 
         Map<String, Object> params = Maps.newHashMap();
         params.put("contractId", outsourcingContractId);
-        // 销售合同物料列表详情
+        // 委外合同物料列表详情
         List<OutsourcingContractItemDO> outsourcingContractItemList = outsourcingContractItemDao.list(params);
-        // 销售合同收款条件
+        // 委外合同收款条件
         List<OutsourcingContractPayDO> outsourcingContractPayList = outsourcingContractPayDao.list(params);
         JSONObject alterationContent = new JSONObject();
 
@@ -287,7 +302,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         List<ContractItemVO> itemList = Lists.newArrayList();
         if (outsourcingContractItemList.size() > 0) {
             ContractItemVO contractItemVO;
-            // 销售合同子项目表
+            // 委外合同子项目表
             List<OutsourcingContractItemDO> newOutsourcingContractItemList = JSON.parseArray(bodyItem, OutsourcingContractItemDO.class);
             // 找出变更的项目
             for (OutsourcingContractItemDO newOutsourcingContractItemDO : newOutsourcingContractItemList) {
@@ -344,32 +359,187 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
     @Override
     public R audit(Long id) {
         OutsourcingContractDO outsourcingContractDO = this.get(id);
-        return R.ok();
+        if (outsourcingContractDO.getCloseStatus() == 1) {
+            return R.error(messageSourceHandler.getMessage("common.contract.isCloseStatus", null));
+        }
+        if (Objects.equals(outsourcingContractDO.getAuditSign(), ConstantForGYL.OK_AUDITED)) {
+            return R.error(messageSourceHandler.getMessage("common.duplicate.approved", null));
+        }
+        // 表体中物料有BOM编号审核时调用BOM数据同步生成委外投料单，具体算法同生产投料单。
+        Map<String,Object> param = Maps.newHashMap();
+        param.put("contractId",id);
+        List<OutsourcingContractItemDO> itemDOList = outsourcingContractItemDao.list(param)
+                .stream()
+                .filter(outsourcingContractItemDO -> outsourcingContractItemDO.getBomId() != null)
+                .collect(Collectors.toList());
+        if (itemDOList.size() > 0) {
+            for (OutsourcingContractItemDO outsourcingContractItemDO : itemDOList) {
+                feedingService.add(this.getFeedingDO(outsourcingContractItemDO), this.getFeedingChildArray(outsourcingContractItemDO));
+            }
+        }
+        // 修改单据状态
+        outsourcingContractDO.setAuditSign(ConstantForGYL.OK_AUDITED);
+        outsourcingContractDO.setAuditor(ShiroUtils.getUserId());
+        return this.update(outsourcingContractDO) > 0 ? R.ok() : R.error();
+    }
+
+
+    /**
+     * 通过委外合同子表信息创建一个生产投料单头部信息
+     */
+    private ProductionFeedingDO getFeedingDO(OutsourcingContractItemDO outsourcingContractItemDO) {
+        ProductionFeedingDO feedingDO = new ProductionFeedingDO();
+        feedingDO.setOutsourceContractItemId(outsourcingContractItemDO.getId());
+        feedingDO.setMaterielId(outsourcingContractItemDO.getMaterielId());
+        feedingDO.setPlanCount(outsourcingContractItemDO.getCount());
+        feedingDO.setIsQuota(outsourcingContractItemDO.getIsQuota());
+        return feedingDO;
+    }
+
+    /**
+     * 通过委外合同子表信息创建一个生产投料单子物料信息
+     */
+    private String getFeedingChildArray(OutsourcingContractItemDO itemDO) {
+        Map<String, Object> param = Maps.newHashMapWithExpectedSize(1);
+        param.put("bomId", itemDO.getBomId());
+        List<BomDetailDO> list = bomDetailService.list(param);
+        List<Map<String, Object>> feedingDetailList = new ArrayList<>();
+        Map<String, Object> feedingDetail;
+        for (BomDetailDO bomDetailDO : list) {
+            feedingDetail = Maps.newHashMapWithExpectedSize(2);
+            feedingDetail.put("materielId", bomDetailDO.getMaterielId());
+            // 计划投料数量公式 (标准用量 /(1-损耗率/100))*计划生产数量
+            BigDecimal wasteRate = bomDetailDO.getWasteRate();
+            BigDecimal standardCount = bomDetailDO.getStandardCount();
+            BigDecimal planCount = itemDO.getCount();
+            BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100), 2)
+                    .multiply(planCount);
+            feedingDetail.put("planFeeding", planFeeding);
+            feedingDetailList.add(feedingDetail);
+        }
+        return JSON.toJSONString(feedingDetailList);
     }
 
     @Override
     public R reverseAudit(Long id) {
-        return null;
+        OutsourcingContractDO outsourcingContractDO = this.get(id);
+        if (outsourcingContractDO.getCloseStatus() == 1) {
+            return R.error(messageSourceHandler.getMessage("common.contract.isCloseStatus", null));
+        }
+        if (!Objects.equals(outsourcingContractDO.getAuditSign(), ConstantForGYL.OK_AUDITED)) {
+            return R.error(messageSourceHandler.getMessage("common.massge.faildRollBackAudit", null));
+        }
+
+        Map<String,Object> param = Maps.newHashMap();
+        param.put("contractId",id);
+        List<Long> itemIdList = outsourcingContractItemDao.list(param)
+                .stream()
+                .filter(outsourcingContractItemDO -> outsourcingContractItemDO.getBomId() != null)
+                .map(OutsourcingContractItemDO::getId)
+                .collect(Collectors.toList());
+
+        // 删除对应委外投料单，如果委外投料单已审核则不能反审核。
+        if (itemIdList.size() > 0) {
+            for (Long itemId : itemIdList) {
+                ProductionFeedingDO feedingDO = feedingService.getByOutsourcingContractItemId(itemId);
+                if (Objects.equals(feedingDO.getStatus(), ConstantForMES.OK_AUDITED)) {
+                    return R.error(messageSourceHandler.getMessage("plan.feedingPlan.isAudit", null));
+                }
+            }
+            feedingService.batchRemoveHeadAndBody(itemIdList.toArray(new Long[0]));
+        }
+
+        // 修改单据状态
+        outsourcingContractDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+        outsourcingContractDO.setAuditor(0L);
+        return this.update(outsourcingContractDO) > 0 ? R.ok() : R.error();
     }
 
     @Override
     public R close(Long id) {
-        return null;
+        OutsourcingContractDO outsourcingContractDO = this.get(id);
+        if (Objects.equals(outsourcingContractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+            return R.error(messageSourceHandler.getMessage("scm.close.isWaitAudit", null));
+        }
+        if (outsourcingContractDO.getCloseStatus() == 1) {
+            return R.error(messageSourceHandler.getMessage("common.contract.isCloseStatus", null));
+        }
+
+        outsourcingContractDO.setCloseStatus(1);
+        return this.update(outsourcingContractDO) > 0 ? R.ok() : R.error();
     }
 
     @Override
     public R reverseClose(Long id) {
-        return null;
+        OutsourcingContractDO outsourcingContractDO = this.get(id);
+        if (Objects.equals(outsourcingContractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+            return R.error(messageSourceHandler.getMessage("scm.close.isWaitAudit", null));
+        }
+        if (outsourcingContractDO.getCloseStatus() == 0) {
+            return R.error(messageSourceHandler.getMessage("scm.contract.isClose", null));
+        }
+
+        outsourcingContractDO.setCloseStatus(0);
+        return this.update(outsourcingContractDO) > 0 ? R.ok() : R.error();
     }
 
     @Override
     public R getDetail(Long outsourcingContractId) {
-        return null;
+        Map<String, Object> result = Maps.newHashMap();
+        Map<String, Object> outsourcingContract = outsourcingContractDao.getDetail(outsourcingContractId);
+        if (outsourcingContract.isEmpty()){
+            return R.error(messageSourceHandler.getMessage("apis.check.buildWinStockD", null));
+        }
+        result.put("outsourcingContract", outsourcingContract);
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("contractId",outsourcingContractId);
+        // 委外合同物料列表详情
+        List<Map<String, Object>> outsourcingContractItemList = outsourcingContractItemDao.listByContract(params);
+        Map<String, Object> outsourcingContractItemCount = outsourcingContractItemDao.countByContract(params);
+        result.put("outsourcingContractItemList", outsourcingContractItemList);
+        result.put("outsourcingContractItemCount", outsourcingContractItemCount);
+
+        // 委外合同收款条件
+        List<OutsourcingContractPayDO> outsourcingContractPayList = outsourcingContractPayDao.list(params);
+        Map<String, Object> outsourcingContractPayCount = outsourcingContractPayDao.countByContract(params);
+        result.put("outsourcingContractPayList", outsourcingContractPayList);
+        result.put("outsourcingContractPayCount", outsourcingContractPayCount);
+
+        return R.ok(result);
     }
 
     @Override
     public R getAlterationDetail(Long id) {
-        return null;
+        Map<String, Object> result = Maps.newHashMap();
+        ContractAlterationDO contractAlterationDO = contractAlterationDao.get(id);
+        Map<String, Object> outsourcingContract = outsourcingContractDao.getDetail(id);
+        result.put("contract", outsourcingContract);
+        String alterationContent = contractAlterationDO.getAlterationContent();
+        if (StringUtils.isNoneEmpty(alterationContent)) {
+            JSONObject alterationContentJSON = JSON.parseObject(alterationContent);
+            JSONArray itemArray = alterationContentJSON.getJSONArray("itemArray");
+            JSONArray payArray = alterationContentJSON.getJSONArray("payArray");
+            if (itemArray.size() > 0) {
+                Map<String, Object> param;
+                Map<String, Object> materiel;
+                for (int i = 0; i < itemArray.size(); i++) {
+                    JSONObject itemJSONObject = itemArray.getJSONObject(i);
+                    param = Maps.newHashMap();
+                    param.put("id", itemJSONObject.get("materielId"));
+                    param.put("offset", 0);
+                    param.put("limit", 1);
+                    materiel = materielService.listForMap(param).get(0);
+                    itemJSONObject.put("unitUomName", materiel.getOrDefault("unitUomName", ""));
+                    itemJSONObject.put("name", materiel.getOrDefault("name", ""));
+                    itemJSONObject.put("serialNo", materiel.getOrDefault("serialNo", ""));
+                    itemJSONObject.put("specification", materiel.getOrDefault("specification", ""));
+                }
+                result.put("itemArray", itemArray);
+                result.put("payArray", payArray);
+                return R.ok(result);
+            }
+        }
+        return R.ok(result);
     }
 
 

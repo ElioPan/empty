@@ -166,4 +166,64 @@
         </foreach>
     </delete>
 
+	<select id="listByContract" resultType="map">
+		SELECT
+		item.`id` AS id,
+		item.`materiel_id` AS materielId,
+		materiel.serial_no AS materielSerialNo,
+		materiel.name AS materielName,
+		materiel.specification AS specification,
+		unitUom.name AS unitUomName,
+		item.is_check AS isCheck,
+		IF(item.is_check=0,'是','否') AS isCheckName,
+		bom.id AS bomId,
+		bom.serialno AS bomSerialNo,
+		item.is_quota AS isQuota,
+		IF(item.is_quota=0,'是','否') AS isQuotaName,
+		item.`count` AS count,
+		item.`tax_unit_price` AS taxUnitPrice,
+		item.tax_rate AS taxRate,
+		item.tax_amount AS taxAmount,
+		item.unit_price AS unitPrice,
+		item.amount AS amount,
+		item.`taxes` AS taxes,
+		item.delivery_date AS deliveryDate,
+		dics.`id` AS sourceType,
+		dics.`name` AS sourceTypeName,
+		item.source_code AS sourceCode,
+		item.remarks AS remarks
+		<include refid="sql_contract_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countByContract" resultType="map">
+		SELECT
+		count(*) AS totalCount,
+		SUM(item.count) AS totalachiningCount,
+		SUM(item.tax_amount) AS totalTaxAmount
+		<include refid="sql_contract_condition"/>
+	</select>
+
+	<sql id="sql_contract_condition">
+		FROM scm_outsourcing_contract_item item
+		LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
+		LEFT JOIN mes_bom bom ON bom.`id`=item.`bom_id`
+		LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
+		LEFT JOIN cus_dictionary dics ON dics.`id` = item.`source_type`
+		<where>
+			<if test="id != null and id != ''"> and item.id = #{id} </if>
+			<if test="contractId != null and contractId != ''"> and item.contract_id = #{contractId} </if>
+		</where>
+	</sql>
+
 </mapper>

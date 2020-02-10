@@ -31,4 +31,8 @@ public interface OutsourcingContractItemDao {
 	int batchRemove(Long[] ids);
 
     void batchRemoveByOutsourcingContractIds(Long[] outsourcingContractIds);
+
+    List<Map<String, Object>> listByContract(Map<String, Object> params);
+
+	Map<String, Object> countByContract(Map<String, Object> params);
 }

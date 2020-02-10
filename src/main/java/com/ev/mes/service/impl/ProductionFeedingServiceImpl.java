@@ -131,6 +131,11 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 		return false;
 	}
 
+	@Override
+	public ProductionFeedingDO getByOutsourcingContractItemId(Long id) {
+		return productionFeedingDao.getByOutsourcingContractItemId(id);
+	}
+
 	private List<ProductionFeedingDetailDO> getFeedingDetailList(Long id) {
 		Map<String, Object> param = Maps.newHashMapWithExpectedSize(1);
 		param.put("headId", id);
@@ -162,12 +167,12 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 		return remove;
 	}
 
-//	@Override
-//	public void batchRemoveHeadAndBody(Long[] ids) {
-//		for (Long id : ids) {
-//			this.removeHeadAndBody(id);
-//		}
-//	}
+	@Override
+	public void batchRemoveHeadAndBody(Long[] ids) {
+		for (Long id : ids) {
+			this.removeHeadAndBody(id);
+		}
+	}
 
 	@Override
 	public R add(ProductionFeedingDO feedingDO, String childArray) {

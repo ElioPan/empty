@@ -56,7 +56,7 @@
                             <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
                             <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
                             <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
-                            <if test="closeStatus != null and closeStatus != ''"> AND close_status = #{closeStatus} </if>
+                            <if test="closeStatus != null"> AND close_status = #{closeStatus} </if>
                     </where>
     </sql>
 	 
@@ -168,7 +168,7 @@
         dics.`name` AS sourceTypeName,
         item.source_code AS sourceCode,
         outsourcing.`contract_code` AS code,
-        '委外合同' AS　thisSourceTypeName,
+        '委外合同' AS thisSourceTypeName,
         outsourcing.`create_time` AS createTime
         <include refid="sql_map_condition"/>
         <choose>
@@ -229,5 +229,41 @@
         </where>
     </sql>
 
+    <!--合同详情-->
+    <select id="getDetail" resultType="map">
+        SELECT
+        contract.`id` AS id,
+        contract.suppier_id AS suppierId,
+        suppier.`name` AS suppierName,
+        contract.purchase_person AS purchasePerson,
+        purchaseUser.`name` AS purchasePersonName,
+        dept.`name` AS deptName,
+        contract.`contract_type` AS contractType,
+        dict.`name` AS contractTypeName,
+        contract.contract_date AS contractDate,
+        contract.`contract_code` AS `contractCode`,
+        contract.contract_expire_date AS contractExpireDate,
+        contract.invoiced_amount AS invoicedAmount,
+        contract.uninvoiced_amount AS uninvoicedAmount,
+        contract.create_by AS createBy,
+        createUser.name AS createByName,
+        contract.create_time AS createTime,
+        contract.auditor AS auditor,
+        auditUser.`name` AS auditorName,
+        contract.`audit_time` AS auditTime,
+        IF(contract.close_status=0,'未关闭','关闭') AS closeStatusName,
+        contract.audit_sign AS auditSign,
+        dica.`name` AS auditSignName
+        FROM
+        scm_outsourcing_contract contract
+        LEFT JOIN cus_suppier suppier ON suppier.id = contract.suppier_id
+        LEFT JOIN sys_user purchaseUser ON purchaseUser.user_id = contract.purchase_person
+        LEFT JOIN sys_dept dept ON dept.dept_id = purchaseUser.dept_id
+        LEFT JOIN cus_dictionary dict ON dict.id = contract.contract_type
+        LEFT JOIN sys_user createUser ON createUser.user_id = contract.create_by
+        LEFT JOIN sys_user auditUser ON auditUser.user_id = contract.auditor
+        LEFT JOIN cus_dictionary dica ON dica.id = contract.audit_sign
+        WHERE contract.id = #{value}
+    </select>
 	
 </mapper>

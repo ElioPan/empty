@@ -34,4 +34,6 @@ public interface OutsourcingContractDao {
     List<Map<String, Object>> listForMap(Map<String, Object> map);
 
     Map<String, BigDecimal> countForMap(Map<String, Object> map);
+
+	Map<String, Object> getDetail(Long outsourcingContractId);
 }

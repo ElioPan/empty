@@ -74,10 +74,10 @@ public interface ProductionFeedingService {
 	 */
 	int removeHeadAndBody(Long id);
 
-//	/**
-//	 * 批量删除生产投料单以及关联的子表数据
-//	 */
-//	void batchRemoveHeadAndBody(Long[] ids);
+	/**
+	 * 批量删除生产投料单以及关联的子表数据
+	 */
+	void batchRemoveHeadAndBody(Long[] ids);
 
 	/**
 	 * 设置投料单号
@@ -89,4 +89,5 @@ public interface ProductionFeedingService {
 	 */
 	boolean isCited(Long id);
 
+	ProductionFeedingDO getByOutsourcingContractItemId(Long id);
 }

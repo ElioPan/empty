@@ -121,4 +121,14 @@
         </foreach>
     </delete>
 
+	<select id="countByContract" resultType="map">
+		SELECT
+		COUNT(*) AS totalCount,
+		SUM(payable_amount) AS totalPayableAmount,
+		SUM(paid_amount) AS totalPaidAmount,
+		SUM(unpaid_amount)  AS totalUnpaidAmount
+		FROM scm_outsourcing_contract_pay
+		<include refid="sql_condition"/>
+	</select>
+
 </mapper>

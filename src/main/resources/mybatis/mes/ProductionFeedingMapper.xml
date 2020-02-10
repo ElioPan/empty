@@ -10,6 +10,13 @@
 		WHERE id = #{value}
 	</select>
 
+	<select id="getByOutsourcingContractItemId" resultType="com.ev.mes.domain.ProductionFeedingDO">
+		SELECT
+		<include refid="sql_column_list"/>
+		FROM mes_production_feeding
+		WHERE outsource_contract_item_id = #{value}
+	</select>
+
 	<select id="list" resultType="com.ev.mes.domain.ProductionFeedingDO">
 		SELECT 
 		<include refid="sql_column_list"/>
@@ -82,11 +89,14 @@
 		select count(*) from mes_production_feeding
 		<include refid="sql_condition"/>
 	</select>
-	 
+
+
+
 	<insert id="save" parameterType="com.ev.mes.domain.ProductionFeedingDO" useGeneratedKeys="true" keyProperty="id">
 		insert into mes_production_feeding
 		(
-			`production_plan_id`, 
+			`production_plan_id`,
+			`outsource_contract_item_id`,
 			`type`, 
 			`feeding_no`, 
 			`status`, 
@@ -103,7 +113,8 @@
 		)
 		values
 		(
-			#{productionPlanId}, 
+			#{productionPlanId},
+			#{outsourceContractItemId},
 			#{type}, 
 			#{feedingNo}, 
 			#{status}, 
@@ -124,6 +135,7 @@
 		update mes_production_feeding 
 		<set>
 			<if test="productionPlanId != null">`production_plan_id` = #{productionPlanId}, </if>
+			<if test="outsourceContractItemId != null">`outsource_contract_item_id` = #{outsourceContractItemId}, </if>
 			<if test="type != null">`type` = #{type}, </if>
 			<if test="feedingNo != null">`feeding_no` = #{feedingNo}, </if>
 			<if test="status != null">`status` = #{status}, </if>
