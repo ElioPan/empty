@@ -195,8 +195,8 @@ public class SalesContractApiController {
         map.put("offset",(pageno-1)*pagesize);
         map.put("limit",pagesize);
         List<Map<String, Object>> data = salescontractService.listForMap(map);
-        Map<String, BigDecimal> stringBigDecimalMap = salescontractService.countForMap(map);
-        int total = stringBigDecimalMap.getOrDefault("total",BigDecimal.ZERO).intValue();
+        Map<String, Object> stringBigDecimalMap = salescontractService.countForMap(map);
+        int total = Integer.parseInt(stringBigDecimalMap.getOrDefault("total",0).toString());
         Map<String, Object> result = Maps.newHashMap();
         if (data.size() > 0) {
             result.put("data", new DsResultResponse(pageno,pagesize,total,data));

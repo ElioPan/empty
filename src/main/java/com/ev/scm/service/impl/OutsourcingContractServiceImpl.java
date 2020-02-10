@@ -352,7 +352,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
     }
 
     @Override
-    public Map<String, BigDecimal> countForMap(Map<String, Object> map) {
+    public Map<String, Object> countForMap(Map<String, Object> map) {
         return outsourcingContractDao.countForMap(map);
     }
 

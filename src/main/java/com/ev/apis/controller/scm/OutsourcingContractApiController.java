@@ -10,7 +10,7 @@ import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.domain.OutsourcingContractDO;
 import com.ev.scm.service.ContractAlterationService;
-import com.ev.scm.service. OutsourcingContractService;
+import com.ev.scm.service.OutsourcingContractService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -197,8 +196,8 @@ public class OutsourcingContractApiController {
         map.put("offset",(pageno-1)*pagesize);
         map.put("limit",pagesize);
         List<Map<String, Object>> data =  outsourcingContractService.listForMap(map);
-        Map<String, BigDecimal> stringBigDecimalMap = outsourcingContractService.countForMap(map);
-        int total = stringBigDecimalMap.getOrDefault("total", BigDecimal.ZERO).intValue();
+        Map<String, Object> stringBigDecimalMap = outsourcingContractService.countForMap(map);
+        int total = Integer.parseInt(stringBigDecimalMap.getOrDefault("total",0).toString());
         Map<String, Object> result = Maps.newHashMap();
         if (data.size() > 0) {
             result.put("data", new DsResultResponse(pageno,pagesize,total,data));

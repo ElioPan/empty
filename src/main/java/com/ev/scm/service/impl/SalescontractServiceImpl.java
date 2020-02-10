@@ -431,7 +431,7 @@ public class SalescontractServiceImpl implements SalescontractService {
     }
 
     @Override
-    public Map<String, BigDecimal> countForMap(Map<String, Object> map) {
+    public Map<String, Object> countForMap(Map<String, Object> map) {
         return salesContractDao.countForMap(map);
     }
 

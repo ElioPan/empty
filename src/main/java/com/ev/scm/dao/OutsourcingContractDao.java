@@ -1,12 +1,10 @@
 package com.ev.scm.dao;
 
 import com.ev.scm.domain.OutsourcingContractDO;
+import org.apache.ibatis.annotations.Mapper;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.ibatis.annotations.Mapper;
 
 /**
  * 委外合同
@@ -33,7 +31,7 @@ public interface OutsourcingContractDao {
 
     List<Map<String, Object>> listForMap(Map<String, Object> map);
 
-    Map<String, BigDecimal> countForMap(Map<String, Object> map);
+    Map<String, Object> countForMap(Map<String, Object> map);
 
 	Map<String, Object> getDetail(Long outsourcingContractId);
 }

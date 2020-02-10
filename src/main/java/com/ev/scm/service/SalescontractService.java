@@ -54,7 +54,7 @@ public interface SalescontractService {
 
     List<Map<String, Object>> listForMap(Map<String, Object> map);
 
-    Map<String, BigDecimal> countForMap(Map<String, Object> map);
+    Map<String, Object> countForMap(Map<String, Object> map);
 
     List<ContractPayVO> getContractPayVOS(String bodyPay, Long[] payIds, List<SalescontractPayDO> salesContractPayList);
 

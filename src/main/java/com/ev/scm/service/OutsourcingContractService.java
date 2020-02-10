@@ -7,7 +7,6 @@ import com.ev.scm.domain.OutsourcingContractPayDO;
 import com.ev.scm.vo.ContractItemVO;
 import com.ev.scm.vo.ContractPayVO;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +45,7 @@ public interface OutsourcingContractService {
 
     List<Map<String, Object>> listForMap(Map<String, Object> map);
 
-    Map<String, BigDecimal> countForMap(Map<String, Object> map);
+    Map<String, Object> countForMap(Map<String, Object> map);
 
     R audit(Long id);
 
