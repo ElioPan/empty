@@ -77,7 +77,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             if (list.size() > 0) {
                 suffix = list.get(0).getPurchaseCode();
             }
-            purchaseDO.setPurchaseCode(DateFormatUtil.getWorkOrderno(prefix, suffix,0));
+            purchaseDO.setPurchaseCode(DateFormatUtil.getWorkOrderno(prefix, suffix,4));
             purchaseDO.setPurchaseType(ConstantForGYL.PURCHASE);
             purchaseDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
             int row = purchaseDao.save(purchaseDO);
