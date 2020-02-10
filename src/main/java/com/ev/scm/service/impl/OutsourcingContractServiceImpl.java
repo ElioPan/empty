@@ -19,7 +19,10 @@ import com.ev.scm.dao.ContractAlterationDao;
 import com.ev.scm.dao.OutsourcingContractDao;
 import com.ev.scm.dao.OutsourcingContractItemDao;
 import com.ev.scm.dao.OutsourcingContractPayDao;
-import com.ev.scm.domain.*;
+import com.ev.scm.domain.ContractAlterationDO;
+import com.ev.scm.domain.OutsourcingContractDO;
+import com.ev.scm.domain.OutsourcingContractItemDO;
+import com.ev.scm.domain.OutsourcingContractPayDO;
 import com.ev.scm.service.OutsourcingContractService;
 import com.ev.scm.vo.ContractItemVO;
 import com.ev.scm.vo.ContractPayVO;
@@ -541,6 +544,5 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         }
         return R.ok(result);
     }
-
 
 }

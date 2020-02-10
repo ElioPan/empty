@@ -38,7 +38,7 @@ public class ProductionFeedingApiController {
 	@Autowired
 	private ProductionFeedingService productionFeedingService;
 	@Autowired
-	private ProductionFeedingDetailService productionFeedingDeatilService;
+	private ProductionFeedingDetailService productionFeedingDetailService;
 	@Autowired
 	private MaterielService materielService;
 
@@ -134,7 +134,7 @@ public class ProductionFeedingApiController {
 		params.put("offset", (pageno - 1) * pagesize);
 		params.put("limit", pagesize);
 		Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
-		List<Map<String, Object>> data = productionFeedingDeatilService.listForMap(params);
+		List<Map<String, Object>> data = productionFeedingDetailService.listForMap(params);
 		// 获取实时库存
 		List<Map<String, Object>> stockListForMap = materielService.stockListForMap(Maps.newHashMap());
 		if (data.size() > 0 && stockListForMap.size() > 0) {
@@ -158,7 +158,7 @@ public class ProductionFeedingApiController {
 			}
 
 		}
-		int total = productionFeedingDeatilService.countForMap(params);
+		int total = productionFeedingDetailService.countForMap(params);
 		if (data.size() > 0) {
 			DsResultResponse dsRet = new DsResultResponse();
 			dsRet.setDatas(data);

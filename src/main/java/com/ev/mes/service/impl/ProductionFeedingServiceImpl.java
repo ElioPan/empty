@@ -3,10 +3,15 @@ package com.ev.mes.service.impl;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
+import com.ev.custom.domain.DictionaryDO;
+import com.ev.custom.service.DictionaryService;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
+import com.ev.scm.domain.StockOutItemDO;
+import com.ev.scm.service.StockOutItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +32,10 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 	private ProductionFeedingDao productionFeedingDao;
 	@Autowired
 	private ProductionFeedingDetailService feedingDetailService;
+	@Autowired
+	private DictionaryService dictionaryService;
+	@Autowired
+	private StockOutItemService stockOutItemService;
     @Autowired
     private MessageSourceHandler messageSourceHandler;
 
@@ -92,7 +101,7 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 //        }
         List<ProductionFeedingDetailDO> list = this.getFeedingDetailList(id);
         if (list.size() == 0) {
-            return R.error();
+            return R.error(messageSourceHandler.getMessage("scm.child.isEmpty", null));
         }
         ProductionFeedingDO productionFeedingDO = new ProductionFeedingDO();
         productionFeedingDO.setId(id);
@@ -107,12 +116,20 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
         if (!Objects.equals(ConstantForMES.OK_AUDITED, feedingDO.getStatus())) {
             return R.error(messageSourceHandler.getMessage("receipt.reverseAudit.nonWaitingAudit", null));
         }
-//        if (!Objects.equals(ShiroUtils.getUserId(), feedingDO.getAuditor())) {
-//            return R.error(messageSourceHandler.getMessage("common.approved.user", null));
-//        }
-        if (this.isCited(id)) {
-            return R.error(messageSourceHandler.getMessage("common.approvedOrChild.delete.disabled", null));
+        // 检查投料单下是否有出库单
+		List<Integer> outStockIds = dictionaryService.listByType(ConstantForMES.FEEDING)
+				.stream()
+				.map(DictionaryDO::getId)
+				.collect(Collectors.toList());
+        Map<String,Object> map = Maps.newHashMap();
+        map.put("sourceTypes",outStockIds);
+        map.put("sourceId",id);
+		List<StockOutItemDO> outStockList = stockOutItemService.list(map);
+
+        if (this.isCited(id) || outStockList.size()>0) {
+			return R.error(messageSourceHandler.getMessage("common.approvedOrChild.delete.disabled", null));
         }
+
         ProductionFeedingDO productionFeedingDO = new ProductionFeedingDO();
         productionFeedingDO.setId(id);
         productionFeedingDO.setStatus(ConstantForMES.WAIT_AUDIT);
@@ -134,6 +151,16 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 	@Override
 	public ProductionFeedingDO getByOutsourcingContractItemId(Long id) {
 		return productionFeedingDao.getByOutsourcingContractItemId(id);
+	}
+
+	@Override
+	public List<Map<String, Object>> listForMapToOutsourcingContract(Map<String, Object> map) {
+		return productionFeedingDao.listForMapToOutsourcingContract(map);
+	}
+
+	@Override
+	public int countForMapToOutsourcingContract(Map<String, Object> map) {
+		return productionFeedingDao.countForMapToOutsourcingContract(map);
 	}
 
 	private List<ProductionFeedingDetailDO> getFeedingDetailList(Long id) {

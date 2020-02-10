@@ -233,8 +233,8 @@
     <select id="getDetail" resultType="map">
         SELECT
         contract.`id` AS id,
-        contract.suppier_id AS suppierId,
-        suppier.`name` AS suppierName,
+        contract.supplier_id AS supplierId,
+        supplier.`name` AS supplierName,
         contract.purchase_person AS purchasePerson,
         purchaseUser.`name` AS purchasePersonName,
         dept.`name` AS deptName,
@@ -256,7 +256,7 @@
         dica.`name` AS auditSignName
         FROM
         scm_outsourcing_contract contract
-        LEFT JOIN cus_suppier suppier ON suppier.id = contract.suppier_id
+        LEFT JOIN cus_supplier supplier ON supplier.id = contract.supplier_id
         LEFT JOIN sys_user purchaseUser ON purchaseUser.user_id = contract.purchase_person
         LEFT JOIN sys_dept dept ON dept.dept_id = purchaseUser.dept_id
         LEFT JOIN cus_dictionary dict ON dict.id = contract.contract_type

@@ -5,7 +5,8 @@ package com.ev.framework.config;
  *
  */
 public final class ConstantForMES{
-	private ConstantForMES() {
+
+    private ConstantForMES() {
 	}
 	/**
 	 * 待审核
@@ -142,7 +143,10 @@ public final class ConstantForMES{
 	 */
 	public static final Integer AWAITING_DELIVERY = 249;
 
-
+	/**
+	 * 投料单Type
+	 */
+	public static final String FEEDING = "feeding";
 
 
 }

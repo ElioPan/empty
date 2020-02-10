@@ -4,10 +4,13 @@ import cn.afterturn.easypoi.entity.vo.TemplateExcelConstants;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.apis.model.DsResultResponse;
+import com.ev.custom.service.MaterielService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
+import com.ev.mes.service.ProductionFeedingDetailService;
+import com.ev.mes.service.ProductionFeedingService;
 import com.ev.scm.domain.OutsourcingContractDO;
 import com.ev.scm.service.ContractAlterationService;
 import com.ev.scm.service.OutsourcingContractService;
@@ -28,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 委外合同控制器层
@@ -42,6 +46,12 @@ public class OutsourcingContractApiController {
 	private  OutsourcingContractService  outsourcingContractService;
     @Autowired
     private ContractAlterationService contractAlterationService;
+    @Autowired
+    private ProductionFeedingDetailService productionFeedingDetailService;
+    @Autowired
+    private ProductionFeedingService productionFeedingService;
+    @Autowired
+    private MaterielService materielService;
 	
 	@EvApiByToken(value = "/apis/outsourcingContract/addOrUpdate",method = RequestMethod.POST,apiTitle = "添加委外合同")
     @ApiOperation("添加/修改委外合同（修改传入id）")
@@ -237,7 +247,94 @@ public class OutsourcingContractApiController {
         }
         return R.ok(result);
     }
-	
+
+    @EvApiByToken(value = "/apis/outsourcingContract/feedingList",method = RequestMethod.GET,apiTitle = "获取委外投料单列表（主）")
+    @ApiOperation("获取委外投料单列表（主）")
+    public R feedingList(
+            @ApiParam(value = "开始时间") @RequestParam(value = "startTime",defaultValue = "",required = false)  String startTime,
+            @ApiParam(value = "结束时间") @RequestParam(value = "endTime",defaultValue = "",required = false)  String endTime,
+            @ApiParam(value = "委外合同号") @RequestParam(value = "contractCode",required = false) String contractCode,
+            @ApiParam(value = "采购员") @RequestParam(value = "purchasePersonName",defaultValue = "",required = false)  String purchasePersonName,
+            @ApiParam(value = "采购员ID") @RequestParam(value = "purchasePerson",defaultValue = "",required = false)  Long purchasePerson,
+
+            @ApiParam(value = "合同Id") @RequestParam(value = "contractId",required = false) Long contractId,
+            @ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
+            @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize){
+        Map<String, Object> map = Maps.newHashMap();
+        // 列表查询
+        map.put("startTime", startTime);
+        map.put("endTime", endTime);
+        map.put("contractCode", contractCode);
+        map.put("purchasePersonName", StringUtils.sqlLike(purchasePersonName));
+        map.put("purchasePerson", purchasePerson);
+
+        map.put("offset",(pageno-1)*pagesize);
+        map.put("limit",pagesize);
+
+        map.put("contractId", contractId);
+        List<Map<String, Object>> data = productionFeedingService.listForMapToOutsourcingContract(map);
+        Map<String, Object> result = Maps.newHashMap();
+        int total = productionFeedingService.countForMapToOutsourcingContract(map);
+        if (data.size() > 0) {
+            result.put("data", new DsResultResponse(pageno,pagesize,total,data));
+        }
+        return R.ok(result);
+    }
+
+    @EvApiByToken(value = "/apis/outsourcingContract/childList", method = RequestMethod.POST, apiTitle = "生产投料列表")
+    @ApiOperation("生产投料子项目列表")
+    public R childList(
+            @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+            @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+            @ApiParam(value = "投料单号") @RequestParam(value = "planNo", defaultValue = "", required = false) String planNo,
+            @ApiParam(value = "物料名称") @RequestParam(value = "materialsName", defaultValue = "", required = false) String materialsName,
+            @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
+            @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
+
+            @ApiParam(value = "父项产品ID") @RequestParam(value = "headId", defaultValue = "", required = false) Long headId) {
+        // 查询列表数据
+        Map<String, Object> params = Maps.newHashMap();
+
+        params.put("planNo", planNo);
+        params.put("materialsName", materialsName);
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+        params.put("headId", headId);
+
+        params.put("offset", (pageno - 1) * pagesize);
+        params.put("limit", pagesize);
+        Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
+        List<Map<String, Object>> data = productionFeedingDetailService.listForMap(params);
+        // 获取实时库存
+        List<Map<String, Object>> stockListForMap = materielService.stockListForMap(Maps.newHashMap());
+        if (data.size() > 0 && stockListForMap.size() > 0) {
+            for (Map<String, Object> map : data) {
+                double availableCount = 0.0d;
+                for (Map<String, Object> stockList : stockListForMap) {
+                    if (Objects.equals(stockList.get("proId").toString(), map.get("materielId").toString())) {
+                        // 如果没有批次要求则查出所有该商品的可用数量累计
+                        if (!map.containsKey("batch")) {
+                            availableCount += Double.parseDouble(stockList.get("availableCount").toString());
+                            continue;
+                        }
+                        // 若制定了批次则将这一批次的可用数量查出记为实时数量
+                        if (Objects.equals(stockList.get("batch").toString(), map.get("batchNo").toString())) {
+                            availableCount += Double.parseDouble(stockList.get("availableCount").toString());
+                        }
+
+                    }
+                }
+                map.put("availableCount", availableCount);
+            }
+
+        }
+        int total = productionFeedingDetailService.countForMap(params);
+        if (data.size() > 0) {
+            results.put("data", new DsResultResponse(pageno,pagesize,total,data));
+        }
+        return R.ok(results);
+    }
+
 	@EvApiByToken(value = "/apis/outsourcingContract/audit",method = RequestMethod.POST,apiTitle = "审核接口")
     @ApiOperation("审核接口")
 	@Transactional(rollbackFor = Exception.class)

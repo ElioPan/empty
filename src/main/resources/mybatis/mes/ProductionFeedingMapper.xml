@@ -35,56 +35,6 @@
 		</if>
 	</select>
 	
-	<select id="listForMap" resultType="map">
-		SELECT 
-			feeding.`id` AS id,
-			feeding.`production_plan_id` AS productionPlanId,
-            contract.`contract_code` AS contractCode,
-            contract.`delivery_date` AS contractDeliveryDate,
-			plan.`plan_no` AS planNo,
-			feeding.`materiel_id` AS materielId, 
-			material.serial_no AS materialSerialNo,
-			material.name AS materialName,
-			material.specification AS specification,
-			unituom.id AS unitUomId,
-			unituom.name AS unitUomName,
-			feeding.`pro_dept` AS proDept, 
-			dept.`name` AS proDeptName,
-			feeding.`plan_count` AS planCount,
-            IFNULL(plan.`plan_start_time`,'') AS planStartTime,
-            IFNULL(plan.`plan_end_time`,'') AS planEndTime,
-			IFNULL(plan.`delivery_date`,'') AS deliveryDate,
-			<!-- 上为列表字段 下为详情字段-->
-			feeding.`type` AS typeId, 
-			dictt.`name` AS typeName,
-			feeding.`feeding_no` AS feedingNo,
-			feeding.`create_time` AS createTime, 
-			feeding.`is_quota` AS isQuota,
-			feeding.`create_by` AS createrId, 
-			createuser.`name` AS  createrName,
-			feeding.`auditor` AS audituserId,
-			audituser.`name` AS audituserName,
-            feeding.`status` AS  statusId,
-            dicts.`name` AS status
-		<include refid="sql_map_condition"/>
-        <choose>
-            <when test="sort != null and sort.trim() != ''">
-                ORDER BY ${sort} ${order},feeding.id DESC
-            </when>
-			<otherwise>
-                ORDER BY feeding.id DESC
-			</otherwise>
-        </choose>
-		<if test="offset != null and limit != null">
-			limit #{offset}, #{limit}
-		</if>
-	</select>
-	
-	<select id="countForMap" resultType="int">
-		SELECT COUNT(*) 
-		<include refid="sql_map_condition"/>
-	</select>
-	
  	<select id="count" resultType="int">
 		select count(*) from mes_production_feeding
 		<include refid="sql_condition"/>
@@ -188,12 +138,60 @@
 		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
 		  		</where>
 	</sql>
+
+	<!--自定义-->
+	<!--生产计划下的投料单-->
+	<select id="listForMap" resultType="map">
+		SELECT
+		feeding.`id` AS id,
+		feeding.`production_plan_id` AS productionPlanId,
+		plan.`plan_no` AS planNo,
+		feeding.`materiel_id` AS materielId,
+		material.serial_no AS materialSerialNo,
+		material.name AS materialName,
+		material.specification AS specification,
+		unituom.id AS unitUomId,
+		unituom.name AS unitUomName,
+		feeding.`pro_dept` AS proDept,
+		dept.`name` AS proDeptName,
+		feeding.`plan_count` AS planCount,
+		IFNULL(plan.`plan_start_time`,'') AS planStartTime,
+		IFNULL(plan.`plan_end_time`,'') AS planEndTime,
+		IFNULL(plan.`delivery_date`,'') AS deliveryDate,
+		<!-- 上为列表字段 下为详情字段-->
+		feeding.`type` AS typeId,
+		dictt.`name` AS typeName,
+		feeding.`feeding_no` AS feedingNo,
+		feeding.`create_time` AS createTime,
+		feeding.`is_quota` AS isQuota,
+		feeding.`create_by` AS createrId,
+		createuser.`name` AS  createrName,
+		feeding.`auditor` AS audituserId,
+		audituser.`name` AS audituserName,
+		feeding.`status` AS  statusId,
+		dicts.`name` AS status
+		<include refid="sql_map_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY ${sort} ${order},feeding.id DESC
+			</when>
+			<otherwise>
+				ORDER BY feeding.id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="int">
+		SELECT COUNT(*)
+		<include refid="sql_map_condition"/>
+	</select>
 	
 	<sql id="sql_map_condition">
 		FROM mes_production_feeding feeding
 		LEFT JOIN mes_production_plan plan ON plan.`id` = feeding.`production_plan_id`
-        LEFT JOIN scm_outsourcing_contract_item contractItem ON contractItem.`id` = feeding.`outsource_contract_item_id`
-        LEFT JOIN scm_outsourcing_contract contract ON contract.`id` = contractItem.`contract_id`
         LEFT JOIN cus_materiel material ON material.`id` = feeding.`materiel_id`
 		LEFT JOIN cus_dictionary unituom ON unituom.id = material.`unit_uom`
 		LEFT JOIN sys_dept dept ON dept.`dept_id`=feeding.`pro_dept`
@@ -209,11 +207,69 @@
 		 	 		<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(feeding.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
 		  			<if test="serialNo != null and serialNo != ''"> and material.serial_no = #{serialNo} </if>
 		  		 	<if test="productionPlanNo != null and productionPlanNo != ''"> and plan.`plan_no` = #{productionPlanNo} </if>
-                    <if test="contractCode != null and contractCode != ''"> and contract.`contract_code` = #{contractCode} </if>
                     <if test="deptId != null and deptId != ''"> and feeding.`pro_dept` = #{deptId} </if>
 		  			<if test="status != null and status != ''"> and feeding.status = #{status} </if>
-		  			<!-- 上为列表查询字段 -->
+					AND feeding.`production_plan_id` IS NOT NULL
+					<!-- 上为列表查询字段 -->
 		  		</where>
+	</sql>
+
+	<!-- 委外合同 -->
+	<select id="listForMapToOutsourcingContract" resultType="map">
+		SELECT
+		feeding.`id` AS id,
+		contract.`contract_code` AS contractCode,
+		feeding.`feeding_no` AS feedingNo,
+		feeding.`materiel_id` AS materielId,
+		materiel.serial_no AS materielSerialNo,
+		materiel.name AS materielName,
+		materiel.specification AS specification,
+		unituom.id AS unitUomId,
+		unituom.name AS unitUomName,
+		dept.`name` AS proDeptName,
+		IF(feeding.`is_quota`=1,'是','否') AS isQuota,
+		feeding.`plan_count` AS planCount,
+		contractItem.`delivery_date` AS contractDeliveryDate,
+		feeding.`pro_dept` AS proDept
+		<include refid="sql_contract_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY ${sort} ${order},feeding.id DESC
+			</when>
+			<otherwise>
+				ORDER BY feeding.id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMapToOutsourcingContract" resultType="int">
+		SELECT COUNT(*)
+		<include refid="sql_contract_condition"/>
+	</select>
+
+	<sql id="sql_contract_condition">
+		FROM mes_production_feeding feeding
+		LEFT JOIN scm_outsourcing_contract_item contractItem ON contractItem.`id` = feeding.`outsource_contract_item_id`
+		LEFT JOIN scm_outsourcing_contract contract ON contract.`id` = contractItem.`contract_id`
+		LEFT JOIN cus_materiel materiel ON materiel.`id` = feeding.`materiel_id`
+		LEFT JOIN cus_dictionary unituom ON unituom.id = materiel.`unit_uom`
+		LEFT JOIN sys_dept dept ON dept.`dept_id`=feeding.`pro_dept`
+		LEFT JOIN sys_user users ON users.`user_id`=contract.purchase_person
+		<where>
+			<if test="id != null and id != ''"> and feeding.id = #{id} </if>
+			<if test="startTime != null and startTime != ''">  and  DATE_FORMAT(feeding.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(feeding.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="contractCode != null and contractCode != ''"> and contract.`contract_code` = #{contractCode} </if>
+			<if test="purchasePerson != null and purchasePerson != ''"> and contract.purchase_person = #{purchasePerson} </if>
+			<if test="purchasePersonName != null and purchasePersonName != ''"> and users.name LIKE #{purchasePersonName} </if>
+			<if test="serialNo != null and serialNo != ''"> and materiel.serial_no = #{serialNo} </if>
+			<if test="contractId != null and contractCode != ''"> and contract.`id` = #{contractId} </if>
+			<if test="status != null and status != ''"> and feeding.status = #{status} </if>
+			AND feeding.`outsource_contract_item_id` IS NOT NULL
+		</where>
 	</sql>
 	
 </mapper>

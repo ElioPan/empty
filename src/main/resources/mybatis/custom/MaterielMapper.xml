@@ -460,14 +460,14 @@
 	<select id="stockListForMap" resultType="map">
 			SELECT
 			GROUP_CONCAT(stock.`id`) AS id,
-			stock.`materiel_id` AS proId,
-			product.`name` AS productName,
-			product.`specification` AS model,
-			producttype.`id` AS productTypeId,
-			producttype.`name` AS productTypeName,
-			product.`serial_no` AS serialno,
-			dic.`id` AS unitId,
-			dic.`name` AS unitName,
+			stock.`materiel_id` AS materielId,
+			materiel.`name` AS materielName,
+			materiel.`specification` AS specification,
+			materieltype.`id` AS type,
+			materieltype.`name` AS typeName,
+			materiel.`serial_no` AS serialNo,
+			dic.`id` AS unitUom,
+			dic.`name` AS unitUomName,
 			stock.`batch` AS batch,
 			facility.`name` AS facilityName,
 			facility.`id` AS facilityId,
@@ -492,15 +492,15 @@
 				FROM scm_stock
 				WHERE `available_count` &gt;0
 				)stock
-			LEFT JOIN cus_materiel product ON product.id=stock.`materiel_id`
-			LEFT JOIN cus_materiel_type producttype ON producttype.`id`=product.`type`
-			LEFT JOIN cus_dictionary dic ON dic.`id`=product.`unit_uom`
+			LEFT JOIN cus_materiel materiel ON materiel.id=stock.`materiel_id`
+			LEFT JOIN cus_materiel_type materieltype ON materieltype.`id`=materiel.`type`
+			LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.`unit_uom`
 			LEFT JOIN cus_facility_location fl ON fl.`id`=stock.`wareh_location`
 			LEFT JOIN cus_facility facility ON facility.`id`=fl.`facility_id`
 			LEFT JOIN cus_dictionary dicf ON dicf.`id`=facility.`facility_type`
 	        <where>  
-			  		  <if test="fuzzySearch != null and fuzzySearch != ''"> and CONCAT(CONCAT(product.`serial_no`,product.`name`),product.`specification`) LIKE CONCAT(CONCAT('%',#{fuzzySearch}),'%') </if>  
-			  		  <if test="productTypeId != null and productTypeId != ''"> and product.`type` = #{productTypeId} </if>
+			  		  <if test="fuzzySearch != null and fuzzySearch != ''"> and CONCAT(CONCAT(materiel.`serial_no`,materiel.`name`),materiel.`specification`) LIKE CONCAT(CONCAT('%',#{fuzzySearch}),'%') </if>
+			  		  <if test="materielTypeId != null and materielTypeId != ''"> and materiel.`type` = #{materielTypeId} </if>
 			  		  <if test="facilityTypeId != null and facilityTypeId != ''"> and facility.`facility_type` = #{facilityTypeId} </if>
 			  		  <if test="delFlag != null and delFlag != ''"> and stock.`del_flag` = #{delFlag} </if>
 					  <if test="stockId != null and stockId.size()>0"> and stock.`id` IN  
@@ -511,7 +511,7 @@
 						</foreach>
 					  </if>
 					  <!-- 生产投料单查询条件 -->
-					  <if test="materielId != null and materielId != ''"> and product.`id` = #{materielId} </if>
+					  <if test="materielId != null and materielId != ''"> and materiel.`id` = #{materielId} </if>
 					  <if test="batch != null and batch != ''"> and stock.`batch` = #{batch} </if>
 					  
 					  
@@ -548,15 +548,15 @@
 				FROM scm_stock
 				WHERE `available_count` &gt;0
 				)stock
-				LEFT JOIN cus_materiel product ON product.id=stock.`materiel_id`
-				LEFT JOIN cus_materiel_type producttype ON producttype.`id`=product.`type`
-				LEFT JOIN cus_dictionary dic ON dic.`id`=product.`unit_uom`
+				LEFT JOIN cus_materiel materiel ON materiel.id=stock.`materiel_id`
+				LEFT JOIN cus_materiel_type materieltype ON materieltype.`id`=materiel.`type`
+				LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.`unit_uom`
 				LEFT JOIN cus_facility_location fl ON fl.`id`=stock.`wareh_location`
 				LEFT JOIN cus_facility facility ON facility.`id`=fl.`facility_id`
 				LEFT JOIN cus_dictionary dicf ON dicf.`id`=facility.`facility_type`
 		       <where>  
-			  		  <if test="fuzzySearch != null and fuzzySearch != ''"> and CONCAT(CONCAT(product.`serial_no`,product.`name`),product.`specification`) LIKE CONCAT(CONCAT('%',#{fuzzySearch}),'%') </if>  
-			  		  <if test="productTypeId != null and productTypeId != ''"> and product.`type` = #{productTypeId} </if>
+			  		  <if test="fuzzySearch != null and fuzzySearch != ''"> and CONCAT(CONCAT(materiel.`serial_no`,materiel.`name`),materiel.`specification`) LIKE CONCAT(CONCAT('%',#{fuzzySearch}),'%') </if>
+			  		  <if test="materielTypeId != null and materielTypeId != ''"> and materiel.`type` = #{materielTypeId} </if>
 			  		  <if test="facilityTypeId != null and facilityTypeId != ''"> and facility.`facility_type` = #{facilityTypeId} </if>
 			  		  <if test="delFlag != null and delFlag != ''"> and stock.`del_flag` = #{delFlag} </if>
 					  <if test="stockId != null and stockId.size()>0"> and stock.`id` IN  
@@ -568,7 +568,7 @@
 					  </if>
 					  
 					   <!-- 生产投料单查询条件 -->
-					  <if test="materielId != null and materielId != ''"> and product.`id` = #{materielId} </if>
+					  <if test="materielId != null and materielId != ''"> and materiel.`id` = #{materielId} </if>
 					  <if test="batch != null and batch != ''"> and stock.`batch` = #{batch} </if>
 			 </where>
 				GROUP BY stock.`batch`,stock.`wareh_location`,stock.`materiel_id`
