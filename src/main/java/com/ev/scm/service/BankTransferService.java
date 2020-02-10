@@ -1,5 +1,6 @@
 package com.ev.scm.service;
 
+import com.ev.framework.utils.R;
 import com.ev.scm.domain.BankTransferDO;
 
 import java.util.List;
@@ -27,4 +28,12 @@ public interface BankTransferService {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+	public R addBankTransfer(BankTransferDO bankTransferDO, String transferBodys, Long[] deleItemIds);
+
+	R audit(Long id);
+
+	R rollBackAudit(Long id);
+
+	R removeTransfer(Long[] ids);
 }

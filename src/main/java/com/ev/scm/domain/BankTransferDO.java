@@ -24,6 +24,10 @@ public class BankTransferDO implements Serializable {
 	//
     @ApiModelProperty(value = "")
 	private Long id;
+
+	@ApiModelProperty(value = "编号")
+	private String transferCode;
+
 	//转账日期
     @ApiModelProperty(value = "转账日期")
 	private Date transferDate;

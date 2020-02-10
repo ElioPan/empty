@@ -34,18 +34,16 @@
 	</select>
 
     <sql id="sql_column_list">
-		`id`,`transfer_date`,`
+		`id`,`transfer_code`,`transfer_date`,`
 transactor_id`,`audit_sign`,`auditor`,`audit_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 	</sql>
 
     <sql id="sql_condition">
         <where>
                             <if test="id != null and id != ''"> AND id = #{id} </if>
-                            <if test="transferDate != null and transferDate != ''"> AND transfer_date = #{transferDate} </if>
-                            <if test="
-transactorId != null and transactorId != ''"> AND 
-transactor_id = #{
-transactorId} </if>
+							<if test="transferCode != null and transferCode != ''"> AND transfer_code = #{transferCode} </if>
+							<if test="transferDate != null and transferDate != ''"> AND transfer_date = #{transferDate} </if>
+                            <if test="transactorId != null and transactorId != ''"> AND transactor_id = #{transactorId} </if>
                             <if test="auditSign != null and auditSign != ''"> AND audit_sign = #{auditSign} </if>
                             <if test="auditor != null and auditor != ''"> AND auditor = #{auditor} </if>
                             <if test="auditTime != null and auditTime != ''"> AND audit_time = #{auditTime} </if>
@@ -60,9 +58,9 @@ transactorId} </if>
 	<insert id="save" parameterType="com.ev.scm.domain.BankTransferDO" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO scm_bank_transfer
 		(
-			`transfer_date`, 
-			`
-transactor_id`, 
+			`transfer_date`,
+			`transfer_code`,
+			`transactor_id`,
 			`audit_sign`, 
 			`auditor`, 
 			`audit_time`, 
@@ -74,9 +72,9 @@ transactor_id`,
 		)
 		VALUES
 		(
-			#{transferDate}, 
-			#{
-transactorId}, 
+			#{transferDate},
+			#{transferCode},
+			#{transactorId},
 			#{auditSign}, 
 			#{auditor}, 
 			#{auditTime}, 
@@ -92,10 +90,8 @@ transactorId},
 		UPDATE scm_bank_transfer
 		<set>
 			<if test="transferDate != null">`transfer_date` = #{transferDate}, </if>
-			<if test="
-transactorId != null">`
-transactor_id` = #{
-transactorId}, </if>
+			<if test="transferCode != null">`transfer_code` = #{transferCode}, </if>
+			<if test="transactorId != null">`transactor_id` = #{transactorId}, </if>
 			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
 			<if test="auditor != null">`auditor` = #{auditor}, </if>
 			<if test="auditTime != null">`audit_time` = #{auditTime}, </if>
@@ -118,5 +114,19 @@ transactorId}, </if>
 			#{id}
 		</foreach>
 	</delete>
+
+
+	<select id="canDeletOfCount" resultType="int">
+		select
+		count(id)
+		from
+		scm_bank_transfer
+		where
+		audit_sign =178
+		and  id in
+		<foreach item="item" collection="id" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
 	
 </mapper>

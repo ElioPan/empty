@@ -28,4 +28,6 @@ public interface BankTransferDao {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+	int canDeletOfCount(Map<String, Object> map);
 }

@@ -117,5 +117,16 @@
 			#{id}
 		</foreach>
 	</delete>
+
+	<delete id="removeByTransferId">
+		DELETE
+		FROM
+		scm_bank_transfer_item
+		WHERE transfer_id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
 	
 </mapper>

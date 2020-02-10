@@ -51,5 +51,10 @@ public class BankTransferItemServiceImpl implements BankTransferItemService {
 	public int batchRemove(Long[] ids){
 		return bankTransferItemDao.batchRemove(ids);
 	}
-	
+
+	@Override
+	public int removeByTransferId(Long[] ids) {
+		return bankTransferItemDao.removeByTransferId(ids);
+	}
+
 }

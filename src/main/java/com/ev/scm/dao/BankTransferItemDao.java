@@ -1,11 +1,10 @@
 package com.ev.scm.dao;
 
 import com.ev.scm.domain.BankTransferItemDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 import java.util.Map;
-
-import org.apache.ibatis.annotations.Mapper;
 
 /**
  * 银行转账单主表
@@ -29,4 +28,7 @@ public interface BankTransferItemDao {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+	int removeByTransferId(Long[] ids);
+
 }

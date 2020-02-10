@@ -28,8 +28,8 @@ public class ScmBankTransferApiController {
     private BankTransferItemService bankTransferItemService;
 
 
-    @EvApiByToken(value = "/apis/scm/bankTransfer/addAndChange", method = RequestMethod.POST, apiTitle = "增加银行转账单")
-    @ApiOperation("增加银行转账单")
+    @EvApiByToken(value = "/apis/scm/bankTransfer/addAndChange", method = RequestMethod.POST, apiTitle = "增加/修改银行转账单")
+    @ApiOperation("增加/修改银行转账单")
     @Transactional(rollbackFor=Exception.class)
     public R addAndChangeTransfer(
             BankTransferDO bankTransferDO,
@@ -44,11 +44,31 @@ public class ScmBankTransferApiController {
                     "\"remarks\":\"备注\"\n" +
                     "}\n" +
                     "]") @RequestParam(value = "transferBodys", defaultValue = "", required = false) String transferBodys,
-            @ApiParam(value = "删除的明细行IDs") @RequestParam(value = "deleItemIds", defaultValue = "", required = false) Long[] deleItemIds) {
-        //jfdkgkk
-        return R.ok();
+            @ApiParam(value = "删除的明细行IDs") @RequestParam(value = "deleItemIds", required = false) Long[] deleItemIds) {
+
+        return bankTransferService.addBankTransfer(bankTransferDO,transferBodys,deleItemIds);
     }
 
+    @EvApiByToken(value = "/apis/scm/bankTransfer/audit", method = RequestMethod.POST, apiTitle = "审核—银行转账单")
+    @ApiOperation("审核—银行转账单")
+    @Transactional(rollbackFor = Exception.class)
+    public R auditPurchase(@ApiParam(value = "银行转账单id:", required = true) @RequestParam(value = "id") Long id) {
+        return bankTransferService.audit(id);
+    }
+
+    @EvApiByToken(value = "/apis/scm/bankTransfer/reverseAudit", method = RequestMethod.POST, apiTitle = "反审核—银行转账单")
+    @ApiOperation("反审核—银行转账单")
+    @Transactional(rollbackFor = Exception.class)
+    public R disAudit(@ApiParam(value = "银行转账单id:", required = true) @RequestParam(value = "id") Long id) {
+        return bankTransferService.rollBackAudit(id);
+    }
+
+    @EvApiByToken(value = "/apis/scm/bankTransfer/delet", method = RequestMethod.POST, apiTitle = "删除—银行转账单")
+    @ApiOperation("删除—银行转账单")
+    @Transactional(rollbackFor = Exception.class)
+    public R removeTransfers(@ApiParam(value = "银行转账单ids:", required = true) @RequestParam(value = "ids") Long[] ids) {
+        return bankTransferService.removeTransfer(ids);
+    }
 
 
 

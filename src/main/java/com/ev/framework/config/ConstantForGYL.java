@@ -199,5 +199,10 @@ public final class ConstantForGYL {
      */
     public static final Long WWHT = 271L;
 
+	/**
+	 * 银行转账单前缀
+	 */
+	public static final String BANK_TRANSFER = "YHZZ";
+
 
 }

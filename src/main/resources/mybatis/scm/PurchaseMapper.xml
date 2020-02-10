@@ -203,14 +203,13 @@
 		LEFT JOIN  sys_dept j on b.dept_id=j.dept_id
 		) aa
 		<where>
-			<if test="general != null and general != ''"> and CONCAT(purchaseCode,materielName,specification) LIKE CONCAT('%',#{general},'%') </if>
+			<if test="general != null and general != ''"> and CONCAT(materielName,specification,supplierName) LIKE CONCAT('%',#{general},'%') </if>
+			<if test="purchaseCode != null and purchaseCode != ''"> and purchaseCode = #{purchaseCode} </if>
 			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(applicantTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(applicantTime,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
 			<if test="createTime != null and createTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') =  DATE_FORMAT(#{createTime},'%Y-%m-%d')</if>
 			<if test="createBy != null and createBy != ''"> and createBy = #{createBy} </if>
-
 			<if test="applicantName != null and applicantName != ''"> and applicantName = #{applicantName} </if>
-
 			<if test="supplierId != null and supplierId != ''"> and supplierId = #{supplierId} </if>
 			<if test="materiel != null and materiel != ''"> and materielId = #{materiel} </if>
 			<if test="specification != null and specification != ''"> and specification = #{specification} </if>
