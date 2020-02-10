@@ -91,7 +91,8 @@ public class ScmPurchaseApiController {
     @ApiOperation("列表—采购申请单")
     public R purchaseOflist(@ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1") int pageno,
                             @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
-                            @ApiParam(value = "单据编号，物料名称，规格型号") @RequestParam(value = "general", defaultValue = "", required = false) String general,
+                            @ApiParam(value = "物料名称，规格型号,供应商名字") @RequestParam(value = "general", defaultValue = "", required = false) String general,
+                            @ApiParam(value = "单据编号") @RequestParam(value = "purchaseCode", defaultValue = "", required = false) String purchaseCode,
                             @ApiParam(value = "开始日期(申请时间)") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
                             @ApiParam(value = "截止日期(申请时间)") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
                             @ApiParam(value = "供应商") @RequestParam(value = "supplierId", defaultValue = "", required = false) Long supplierId,
@@ -110,7 +111,7 @@ public class ScmPurchaseApiController {
         params.put("general", general);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
-
+        params.put("purchaseCode", purchaseCode);
         params.put("supplierId", supplierId);
         params.put("materiel", materiel);
         params.put("specification", specification);
