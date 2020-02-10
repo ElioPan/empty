@@ -48,7 +48,7 @@ public class OutsourcingContractApiController {
     @ApiOperation("添加/修改委外合同（修改传入id）")
 	@Transactional(rollbackFor = Exception.class)
 	public R addOrUpdate(OutsourcingContractDO outsourcingContract,
-                         @ApiParam(value = "添加/修改销售合同明细:" +
+                         @ApiParam(value = "添加/修改委外合同明细:" +
                                  "[\n" +
                                  "    {\n" +
                                  "        \"id\":1,\n" +
@@ -90,7 +90,7 @@ public class OutsourcingContractApiController {
                                  "    }\n" +
                                  "]",
                                  required = true) @RequestParam(value = "bodyItem", defaultValue = "") String bodyItem,
-                         @ApiParam(value = "添加/修改销售合同收款条件:" +
+                         @ApiParam(value = "添加/修改委外合同收款条件:" +
                                  "[\n" +
                                  "    {\n" +
                                  "        \"id\":2,\n" +
