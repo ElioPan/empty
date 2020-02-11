@@ -27,4 +27,7 @@ public interface PaymentReceivedItemService {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+	int removeByReceivedId(Long[] ids);
+
 }

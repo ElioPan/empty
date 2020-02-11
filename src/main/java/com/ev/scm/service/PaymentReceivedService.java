@@ -1,5 +1,6 @@
 package com.ev.scm.service;
 
+import com.ev.framework.utils.R;
 import com.ev.scm.domain.PaymentReceivedDO;
 
 import java.util.List;
@@ -27,4 +28,18 @@ public interface PaymentReceivedService {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+	R addReceived(PaymentReceivedDO paymentReceivedDO, String paymentBodys, Long[] deleItemIds,String sign);
+
+	R audit(Long id,String sign);
+
+	R rollBackAudit(Long id,String sign);
+
+	int updateAuditSign(PaymentReceivedDO paymentReceived);
+
+	R removeReceived(Long[] ids);
+
+	int canDeletOfCount(Map<String, Object> map);
+
+
 }

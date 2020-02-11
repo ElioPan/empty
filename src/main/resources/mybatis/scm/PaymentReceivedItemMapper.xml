@@ -124,10 +124,7 @@ receivablePayablesAmount},
 			<if test="sourceId != null">`source_id` = #{sourceId}, </if>
 			<if test="sourcePayItemId != null">`source_pay_item_id` = #{sourcePayItemId}, </if>
 			<if test="accrualDate != null">`accrual_date` = #{accrualDate}, </if>
-			<if test="
-receivablePayablesAmount != null">`
-receivable_payables_amount` = #{
-receivablePayablesAmount}, </if>
+			<if test="receivablePayablesAmount != null">`receivable_payables_amount` = #{receivablePayablesAmount}, </if>
 			<if test="paidReceivedAmount != null">`paid_received_amount` = #{paidReceivedAmount}, </if>
 			<if test="thisAmount != null">`this_amount` = #{thisAmount}, </if>
 			<if test="noReceiptPaymentAmount != null">`no_receipt_payment_amount` = #{noReceiptPaymentAmount}, </if>
@@ -154,5 +151,22 @@ receivablePayablesAmount}, </if>
 			#{id}
 		</foreach>
 	</delete>
+
+
+
+
+	<delete id="removeByReceivedId">
+		DELETE
+		FROM
+		scm_payment_received_item
+		WHERE
+		payment_received_id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+
 	
 </mapper>

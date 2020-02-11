@@ -40,7 +40,8 @@ transactor_id`,`audit_sign`,`auditor`,`audit_time`,`create_by`,`create_time`,`up
 
     <sql id="sql_condition">
         <where>
-                            <if test="id != null and id != ''"> AND id = #{id} </if>
+							<if test="maxNo != null and maxNo != ''"> and LEFT(transfer_code,12) = #{maxNo} </if>
+							<if test="id != null and id != ''"> AND id = #{id} </if>
 							<if test="transferCode != null and transferCode != ''"> AND transfer_code = #{transferCode} </if>
 							<if test="transferDate != null and transferDate != ''"> AND transfer_date = #{transferDate} </if>
                             <if test="transactorId != null and transactorId != ''"> AND transactor_id = #{transactorId} </if>
@@ -52,7 +53,7 @@ transactor_id`,`audit_sign`,`auditor`,`audit_time`,`create_by`,`create_time`,`up
                             <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
                             <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
                             <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
-                    </where>
+       </where>
     </sql>
 	 
 	<insert id="save" parameterType="com.ev.scm.domain.BankTransferDO" useGeneratedKeys="true" keyProperty="id">

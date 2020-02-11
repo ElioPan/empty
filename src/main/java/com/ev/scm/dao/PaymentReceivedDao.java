@@ -28,4 +28,10 @@ public interface PaymentReceivedDao {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+	int updateAuditSign(PaymentReceivedDO paymentReceived);
+
+	int canDeletOfCount(Map<String, Object> map);
+
+
 }

@@ -51,5 +51,10 @@ public class PaymentReceivedItemServiceImpl implements PaymentReceivedItemServic
 	public int batchRemove(Long[] ids){
 		return paymentReceivedItemDao.batchRemove(ids);
 	}
-	
+
+	@Override
+	public int removeByReceivedId(Long[] ids) {
+		return paymentReceivedItemDao.removeByReceivedId(ids);
+	}
+
 }

@@ -1,6 +1,7 @@
 package com.ev.apis.controller.scm;
 
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.R;
 import com.ev.scm.domain.PaymentReceivedDO;
 import com.ev.scm.service.PaymentReceivedService;
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ScmPaymentReceivedApiController {
     @Autowired
     private PaymentReceivedService paymentReceivedService;
-
 
 
     @EvApiByToken(value = "/apis/scm/paymentReceived/addAndChange", method = RequestMethod.POST, apiTitle = "增加/修改--收款单")
@@ -50,8 +50,31 @@ public class ScmPaymentReceivedApiController {
                     "]") @RequestParam(value = "paymentBodys", defaultValue = "", required = false) String paymentBodys,
             @ApiParam(value = "删除的明细行IDs") @RequestParam(value = "deleItemIds", required = false) Long[] deleItemIds) {
 
-        return null;//paymentReceivedService.addReceived(paymentReceivedDO, paymentBodys, deleItemIds);
+        return paymentReceivedService.addReceived(paymentReceivedDO, paymentBodys, deleItemIds, ConstantForGYL.ALL_BILL);
     }
+
+    @EvApiByToken(value = "/apis/scm/paymentReceived/audit", method = RequestMethod.POST, apiTitle = "审核—收款单")
+    @ApiOperation("审核—收款单")
+    @Transactional(rollbackFor = Exception.class)
+    public R auditPurchase(@ApiParam(value = "收款单id:", required = true) @RequestParam(value = "id") Long id) {
+        return paymentReceivedService.audit(id,ConstantForGYL.ALL_BILL);
+    }
+
+    @EvApiByToken(value = "/apis/scm/paymentReceived/reverseAudit", method = RequestMethod.POST, apiTitle = "反审核—收款单")
+    @ApiOperation("反审核—收款单")
+    @Transactional(rollbackFor = Exception.class)
+    public R disAudit(@ApiParam(value = "收款单id:", required = true) @RequestParam(value = "id") Long id) {
+        return paymentReceivedService.rollBackAudit(id,ConstantForGYL.ALL_BILL);
+    }
+
+    @EvApiByToken(value = "/apis/scm/paymentReceived/delet", method = RequestMethod.POST, apiTitle = "删除—收款单")
+    @ApiOperation("删除—收款单")
+    @Transactional(rollbackFor = Exception.class)
+    public R removeReceived(@ApiParam(value = "收款单ids:", required = true) @RequestParam(value = "ids") Long[] ids) {
+        return paymentReceivedService.removeReceived(ids);
+    }
+
+
 
 
 

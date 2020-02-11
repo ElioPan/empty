@@ -39,7 +39,8 @@
 
     <sql id="sql_condition">
         <where>
-                            <if test="id != null and id != ''"> AND id = #{id} </if>
+							<if test="maxNo != null and maxNo != ''"> and LEFT(pr_code,CHAR_LENGTH(#{maxNo})) = #{maxNo} </if>
+							<if test="id != null and id != ''"> AND id = #{id} </if>
                             <if test="sign != null and sign != ''"> AND sign = #{sign} </if>
                             <if test="prType != null and prType != ''"> AND pr_type = #{prType} </if>
                             <if test="prCode != null and prCode != ''"> AND pr_code = #{prCode} </if>
@@ -56,7 +57,7 @@
                             <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
                             <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
                             <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
-                    </where>
+       </where>
     </sql>
 	 
 	<insert id="save" parameterType="com.ev.scm.domain.PaymentReceivedDO" useGeneratedKeys="true" keyProperty="id">
@@ -133,5 +134,51 @@
 			#{id}
 		</foreach>
 	</delete>
-	
+
+
+
+	<update id="updateAuditSign" parameterType="com.ev.scm.domain.PaymentReceivedDO">
+		UPDATE scm_payment_received
+		<set>
+			<if test="sign != null">`sign` = #{sign}, </if>
+			<if test="prType != null">`pr_type` = #{prType}, </if>
+			<if test="prCode != null">`pr_code` = #{prCode}, </if>
+			<if test="supplierClientId != null">`supplier_client_id` = #{supplierClientId}, </if>
+			<if test="prAmount != null">`pr_amount` = #{prAmount}, </if>
+			<if test="prDate != null">`pr_date` = #{prDate}, </if>
+			<if test="payee != null">`payee` = #{payee}, </if>
+			<if test="payer != null">`payer` = #{payer}, </if>
+			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="auditTime != null">`audit_time` = #{auditTime}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		WHERE
+		id = #{id}
+		and
+		sign=#{sign}
+	</update>
+
+
+    <select id="canDeletOfCount" resultType="int">
+        select
+        count(id)
+        from
+        scm_payment_received
+        where
+        audit_sign =178
+        and  id in
+        <foreach item="item" collection="id" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+
+
+
 </mapper>
