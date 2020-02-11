@@ -235,7 +235,6 @@
         dics.`name` AS sourceTypeName,
         item.source_code AS sourceCode,
         stockOut.`out_code` AS code,
-        '销售出库' AS thisSourceTypeName,
         stockOut.`create_time` AS createTime
         <include refid="sql_api_condition"/>
         <choose>
@@ -253,6 +252,13 @@
     <select id="countApi" resultType="int">
         SELECT
         COUNT(*)
+        <include refid="sql_api_condition"/>
+    </select>
+    <select id="countTotal" resultType="java.util.Map">
+        SELECT
+        COUNT(*) AS total,
+        SUM(item.`count`) AS totalCount,
+        SUM(item.`amount`) AS totalAmount
         <include refid="sql_api_condition"/>
     </select>
     <sql id="sql_api_condition">
@@ -287,6 +293,14 @@
             <if test="deptName != null and deptName != ''"> and dept.name LIKE #{deptName} </if>
             <if test="salesUserName != null and salesUserName != ''"> and salesUser.name LIKE #{salesUserName} </if>
             <if test="createByName != null and createByName != ''"> and creater.name LIKE #{createByName} </if>
+            <!-- 其他出库高级类型 -->
+            <if test="batch != null and batch != ''"> and stock.`batch` = #{batch} </if>
+            <if test="operatorName != null and operatorName != ''"> and operson.`name` LIKE #{operatorName} </if>
+            <if test="operator != null and operator != ''"> and stockOut.`operator` = #{operator} </if>
+            <if test="createByName != null and createByName != ''"> and creater.name LIKE #{createByName} </if>
+            <if test="createBy != null and createBy != ''"> and stockOut.`create_by` = #{createBy} </if>
+            <if test="createTime != null and createTime != ''">  and  DATE_FORMAT(stockOut.create_time,'%Y-%m-%d') =  DATE_FORMAT(#{createTime},'%Y-%m-%d')</if>
+
             <!-- 销售出库导入关联单据-->
             <if test="createStartTime != null and createStartTime != ''">  and  DATE_FORMAT(stockOut.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
             <if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(stockOut.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>

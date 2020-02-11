@@ -37,8 +37,8 @@ import java.util.Objects;
  *
  */
 @RestController
-@Api(value = "/",tags = "其他出库API")
-public class OtherStockOutApiController {
+@Api(value = "/",tags = "委外出库单API")
+public class OutsourcingStockOutApiController {
 
 	@Autowired
     private StockOutService stockOutService;
@@ -46,8 +46,8 @@ public class OtherStockOutApiController {
 	@Autowired
 	private DictionaryService dictionaryService;
 
-	@EvApiByToken(value = "/apis/otherStockOut/add", method = RequestMethod.POST, apiTitle = "增加其他出库")
-	@ApiOperation("增加其他出库")
+	@EvApiByToken(value = "/apis/outsourcingStockOut/add", method = RequestMethod.POST, apiTitle = "增加委外出库单")
+	@ApiOperation("增加委外出库单")
 	@Transactional(rollbackFor = Exception.class)
 	public R add(StockOutDO stockOutDO,
                  @ApiParam(value = "出库明细:" +
@@ -59,9 +59,11 @@ public class OtherStockOutApiController {
                          "        \"count\":201,\n" +
                          "        \"unitPrice\":1200,\n" +
                          "        \"amount\":24000,\n" +
+                         "        \"chargeOffCount\":201,\n" +
+                         "        \"purpose\":\"发料用途\"\n" +
                          "        \"sourceId\":11,\n" +
                          "        \"sourceType\":11,\n" +
-                         "        \"sourceCode\":\"CJHT20190720001\"\n" +
+                         "        \"sourceCode\":\"WWTL0001\"\n" +
                          "    },\n" +
                          "    {\n" +
                          "        \"stockId\":\"27,29\",\n" +
@@ -70,48 +72,50 @@ public class OtherStockOutApiController {
                          "        \"count\":101,\n" +
                          "        \"unitPrice\":1200,\n" +
                          "        \"amount\":12000,\n" +
+                         "        \"chargeOffCount\":201,\n" +
+                         "        \"purpose\":\"发料用途\"\n" +
                          "        \"sourceId\":25,\n" +
                          "        \"sourceType\":11,\n" +
-                         "        \"sourceCode\":\"CJHT20190720001\"\n" +
+                         "        \"sourceCode\":\"WWTL0001\"\n" +
                          "    }\n" +
                          "]"
                     , required = true)@RequestParam(value = "item",defaultValue = "") String item) {
-		DictionaryDO storageType = dictionaryService.get(ConstantForGYL.QTCK.intValue());
+		DictionaryDO storageType = dictionaryService.get(ConstantForGYL.WWCK.intValue());
         return stockOutService.add(stockOutDO, item, storageType);
 	}
 	
-	@EvApiByToken(value = "/apis/otherStockOut/audit", method = RequestMethod.POST, apiTitle = "审核其他出库")
-	@ApiOperation("审核其他出库")
+	@EvApiByToken(value = "/apis/outsourcingStockOut/audit", method = RequestMethod.POST, apiTitle = "审核委外出库单")
+	@ApiOperation("审核委外出库单")
 	@Transactional(rollbackFor = Exception.class)
 	public R audit(
 			@ApiParam(value = "出库单Id", required = true) @RequestParam(value = "id", defaultValue = "") Long id
     ) {
-		return stockOutService.audit(id, ConstantForGYL.QTCK);
+		return stockOutService.audit(id, ConstantForGYL.WWCK);
 	}
 
-    @EvApiByToken(value = "/apis/otherStockOut/reverseAudit", method = RequestMethod.POST, apiTitle = "反审核其他出库")
-    @ApiOperation("反审核其他出库")
+    @EvApiByToken(value = "/apis/outsourcingStockOut/reverseAudit", method = RequestMethod.POST, apiTitle = "反审核委外出库单")
+    @ApiOperation("反审核委外出库单")
     @Transactional(rollbackFor = Exception.class)
     public R reverseAudit(
             @ApiParam(value = "出库单Id", required = true) @RequestParam(value = "id", defaultValue = "") Long id
     ) {
-        return stockOutService.reverseAuditForR(id, ConstantForGYL.QTCK);
+        return stockOutService.reverseAuditForR(id, ConstantForGYL.WWCK);
     }
 	
-	@EvApiByToken(value = "/apis/otherStockOut/batchRemove", method = RequestMethod.POST, apiTitle = "删除其他出库")
-	@ApiOperation("批量删除其他出库")
+	@EvApiByToken(value = "/apis/outsourcingStockOut/batchRemove", method = RequestMethod.POST, apiTitle = "删除委外出库单")
+	@ApiOperation("批量删除委外出库单")
 	@Transactional(rollbackFor = Exception.class)
 	public R delete(
-			@ApiParam(value = "其他出库ID组", required = true) @RequestParam(value = "ids", defaultValue = "") Long[] ids
+			@ApiParam(value = "委外出库单ID组", required = true) @RequestParam(value = "ids", defaultValue = "") Long[] ids
     ) {
-		return stockOutService.batchDelete(ids,ConstantForGYL.QTCK);
+		return stockOutService.batchDelete(ids,ConstantForGYL.WWCK);
 	}
 	
-	@EvApiByToken(value = "/apis/otherStockOut/edit", method = RequestMethod.POST, apiTitle = "修改其他出库")
-	@ApiOperation("修改其他出库(头部ID与明细ID均传)")
+	@EvApiByToken(value = "/apis/outsourcingStockOut/edit", method = RequestMethod.POST, apiTitle = "修改委外出库单")
+	@ApiOperation("修改委外出库单(头部ID与明细ID均传)")
 	@Transactional(rollbackFor = Exception.class)
 	public R edit(StockOutDO stockOutDO,
-			@ApiParam(value = "修改其他出库明细" +
+			@ApiParam(value = "修改委外出库单明细" +
                     "[\n" +
                     "    {\n" +
                     "        \"id\":2,\n" +
@@ -141,11 +145,11 @@ public class OtherStockOutApiController {
                     , required = true) @RequestParam(value = "item", defaultValue = "") String item,
                   @ApiParam(value = "明细数组") @RequestParam(value = "itemIds", defaultValue = "", required = false) Long[] itemIds
     ) {
-		return stockOutService.edit(stockOutDO, item, ConstantForGYL.QTCK , itemIds);
+		return stockOutService.edit(stockOutDO, item, ConstantForGYL.WWCK , itemIds);
 	}
 	
-	@EvApiByToken(value = "/apis/otherStockOut/advancedQuery", method = RequestMethod.POST, apiTitle = "获取其他出库列表/高级查询")
-	@ApiOperation("获取其他出库列表/高级查询")
+	@EvApiByToken(value = "/apis/outsourcingStockOut/advancedQuery", method = RequestMethod.POST, apiTitle = "获取委外出库单列表/高级查询")
+	@ApiOperation("获取委外出库单列表/高级查询")
 	public R advancedQuery(
 			@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
 			@ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
@@ -155,6 +159,7 @@ public class OtherStockOutApiController {
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
             // 高级查询
+            @ApiParam(value = "发料部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
             @ApiParam(value = "业务类型") @RequestParam(value = "outboundType", defaultValue = "", required = false) Integer outboundType,
             @ApiParam(value = "规格型号") @RequestParam(value = "specification", defaultValue = "", required = false) String specification,
             @ApiParam(value = "批次") @RequestParam(value = "materielName", defaultValue = "", required = false) String batch,
@@ -164,6 +169,7 @@ public class OtherStockOutApiController {
             @ApiParam(value = "制单人") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
             @ApiParam(value = "制单人Id") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
             @ApiParam(value = "制单日期") @RequestParam(value = "createTime", defaultValue = "", required = false) String createTime
+
 			) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("offset", (pageno - 1) * pagesize);
@@ -175,6 +181,7 @@ public class OtherStockOutApiController {
         params.put("startTime", startTime);
         params.put("endTime", endTime);
         /*高级查询*/
+        params.put("deptId", deptId);
         params.put("specification", StringUtils.sqlLike(specification));
         params.put("batch", batch);
         params.put("auditSign", auditSign);
@@ -184,26 +191,28 @@ public class OtherStockOutApiController {
         params.put("createBy", createBy);
         params.put("createTime", createTime);
 
-        params.put("outboundType", Objects.isNull(outboundType)?ConstantForGYL.QTCK:outboundType);
+        params.put("outboundType", Objects.isNull(outboundType)?ConstantForGYL.WWCK:outboundType);
 		Map<String, Object> results = Maps.newHashMap();
 		List<Map<String, Object>> data = this.stockOutService.listApi(params);
-		int total = this.stockOutService.countApi(params);
+        Map<String, Object> map = this.stockOutService.countTotal(params);
+        int total = Integer.parseInt(map.getOrDefault("total",0).toString());
 		if ( data.size() > 0) {
             results.put("data", new DsResultResponse(pageno,pagesize,total,data));
+            results.put("total",map);
 		}
 		return R.ok(results);
 	}
 
-    @EvApiByToken(value = "/apis/otherStockOut/getDetail", method = RequestMethod.POST)
-    @ApiOperation("获取其他出库单详情")
+    @EvApiByToken(value = "/apis/outsourcingStockOut/getDetail", method = RequestMethod.POST)
+    @ApiOperation("获取委外出库单单详情")
     public R getDetail(
-            @ApiParam(value = "其他出库ID", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
+            @ApiParam(value = "委外出库单ID", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
         return R.ok(this.stockOutService.getDetail(id));
     }
 
     @ResponseBody
-    @EvApiByToken(value = "/apis/exportExcel/otherStockOut", method = RequestMethod.GET, apiTitle = "导出其他出库")
-    @ApiOperation("导出其他出库")
+    @EvApiByToken(value = "/apis/exportExcel/outsourcingStockOut", method = RequestMethod.GET, apiTitle = "导出委外出库单")
+    @ApiOperation("导出委外出库单")
     public void exportExcel(
             @ApiParam(value = "单据编号") @RequestParam(value = "outCode", defaultValue = "", required = false) String outCode,
             @ApiParam(value = "客户名称") @RequestParam(value = "clientName", defaultValue = "", required = false) String clientName,
@@ -240,13 +249,13 @@ public class OtherStockOutApiController {
         param.put("createBy", createBy);
         param.put("createTime", createTime);
 
-        param.put("outboundType", Objects.isNull(outboundType)?ConstantForGYL.QTCK:outboundType);
+        param.put("outboundType", Objects.isNull(outboundType)?ConstantForGYL.WWCK:outboundType);
         List<Map<String, Object>> data = this.stockOutService.listApi(param);
         ClassPathResource classPathResource = new ClassPathResource("poi/other_out_stock.xlsx");
         Map<String,Object> map = Maps.newHashMap();
         map.put("list", data);
         TemplateExportParams params = new TemplateExportParams(classPathResource.getPath());
-        modelMap.put(TemplateExcelConstants.FILE_NAME, "其他出库单");
+        modelMap.put(TemplateExcelConstants.FILE_NAME, "委外出库单单");
         modelMap.put(TemplateExcelConstants.PARAMS, params);
         modelMap.put(TemplateExcelConstants.MAP_DATA, map);
         PoiBaseView.render(modelMap, request, response,

@@ -47,4 +47,6 @@ public interface StockOutDao {
     int batchInsertStockDetailDO(List<StockItemDO> batchInsertStockDetailDO);
 
     int updateStockDetail(Map<String,Object>map);
+
+    Map<String, Object> countTotal(Map<String, Object> params);
 }

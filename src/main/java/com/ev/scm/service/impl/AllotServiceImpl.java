@@ -89,7 +89,7 @@ public class AllotServiceImpl implements AllotService {
         List<Map<String, Object>> params = stockListParam(bodys);
         // 获取库存明细表中保存的库位id数组
         List<Long> stockIds = stockOutService.getAllStockIds(params);
-        if (!stockOutService.checkInsert(params, stockIds)) {
+        if (stockOutService.checkInsert(params, stockIds)) {
             return R.error(messageSourceHandler.getMessage("stock.count.error", null));
         }
 
@@ -286,7 +286,7 @@ public class AllotServiceImpl implements AllotService {
         // 将JSON 解析出来以库存ID 数组 和 数量作为验证条件
         List<Map<String, Object>> stockListParam = stockListParam(itemDOS);
         List<Long> stockIds = stockOutService.getAllStockIds(stockListParam);
-        if (!stockOutService.checkInsert(stockListParam, stockIds)) {
+        if (stockOutService.checkInsert(stockListParam, stockIds)) {
             return R.error(messageSourceHandler.getMessage("allot.stock.error", null));
         }
         // 修改主表数据

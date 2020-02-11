@@ -60,21 +60,23 @@ public interface StockOutService {
 
     void insertStockInfo(Long id, Long outType);
 
-    StockItemDO saveStockDetailInfo(StockItemDO stockDetail, Long stockOutId, Long stockOutItemId, StockDO stockDO, BigDecimal change, Long storageType,
-                                    Long sourceType);
+    void saveStockDetailInfo(StockItemDO stockDetail, Long stockOutId, Long stockOutItemId, StockDO stockDO, BigDecimal change, Long storageType,
+                             Long sourceType);
 
     Pair<List<StockItemDO>, List<StockDO>> saveStockDetail(Long stockOutId, Long stockOutItemId, String stockId, BigDecimal proCount,
                                                              Long sourceType, Long storageType, List<StockDO> stockList);
 
     R edit(StockOutDO stockOutDO, String item, Long storageType, Long[] itemIds);
 
-    int batchUpdateStockDO(List<StockDO> batchUpdateStockDO);
+    void batchUpdateStockDO(List<StockDO> batchUpdateStockDO);
 
-    int batchInsertStockDetailDO(List<StockItemDO> batchInsertStockDetailDO);
+    void batchInsertStockDetailDO(List<StockItemDO> batchInsertStockDetailDO);
 
     void batchSaveStockInfo(List<Pair<List<StockItemDO>, List<StockDO>>> stockInfos);
 
     R batchDelete(Long[] ids, Long outType);
 
     R reverseAuditForR(Long id, Long outType);
+
+    Map<String, Object> countTotal(Map<String, Object> params);
 }

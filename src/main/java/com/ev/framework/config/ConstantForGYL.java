@@ -63,7 +63,11 @@ public final class ConstantForGYL {
 	/**
 	 * 销售出库
 	 */
-	public static final Long XSCK = 206L;
+	public static final Long XSCK = 188L;
+	/**
+	 * 委外出库
+	 */
+	public static final Long WWCK = 274L;
 	//==========================================================
 	/**
 	 * 生产入库

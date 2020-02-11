@@ -169,6 +169,7 @@
         salesUser.`name` AS salesPersonName,
         salesUserDept.name AS salesPersonDeptName,
         IF(item.is_check=0,'是','否') AS isCheck,
+        materiel.`id` AS materielId,
         materiel.serial_no AS materielSerialNo,
         materiel.name AS materielName,
         materiel.specification AS specification,
@@ -181,7 +182,7 @@
         item.`delivery_date` AS deliveryDate,
         dica.`name` AS auditSignName,
         sales.`contract_code` AS code,
-        '销售合同' AS　thisSourceTypeName,
+        '销售合同' AS thisSourceTypeName,
         sales.`create_time` AS createTime
         <include refid="sql_map_condition"/>
         <choose>

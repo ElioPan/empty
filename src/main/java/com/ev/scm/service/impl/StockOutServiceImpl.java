@@ -5,10 +5,7 @@ import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.MaterielService;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
-import com.ev.framework.utils.DateFormatUtil;
-import com.ev.framework.utils.MathUtils;
-import com.ev.framework.utils.R;
-import com.ev.framework.utils.ShiroUtils;
+import com.ev.framework.utils.*;
 import com.ev.scm.dao.StockOutDao;
 import com.ev.scm.domain.StockDO;
 import com.ev.scm.domain.StockItemDO;
@@ -123,6 +120,7 @@ public class StockOutServiceImpl implements StockOutService {
     public R add(StockOutDO stockOutDO, String item, DictionaryDO storageType) {
         Map<String, Object> result = Maps.newHashMap();
         List<StockOutItemDO> itemDOs = JSON.parseArray(item, StockOutItemDO.class);
+
         // 将JSON 解析出来以库存ID 数组 和 数量作为验证条件
         List<Map<String, Object>> params = this.stockListParam(itemDOs);
         // 获取库存明细表中保存的库位id数组
@@ -232,13 +230,18 @@ public class StockOutServiceImpl implements StockOutService {
     }
 
     @Override
-    public int batchInsertStockDetailDO(List<StockItemDO> batchInsertStockDetailDO) {
-        return stockOutDao.batchInsertStockDetailDO(batchInsertStockDetailDO);
+    public Map<String, Object> countTotal(Map<String, Object> params) {
+        return stockOutDao.countTotal(params);
     }
 
     @Override
-    public int batchUpdateStockDO(List<StockDO> batchUpdateStockDO) {
-        return stockOutDao.batchUpdateStockDO(batchUpdateStockDO);
+    public void batchInsertStockDetailDO(List<StockItemDO> batchInsertStockDetailDO) {
+        stockOutDao.batchInsertStockDetailDO(batchInsertStockDetailDO);
+    }
+
+    @Override
+    public void batchUpdateStockDO(List<StockDO> batchUpdateStockDO) {
+        stockOutDao.batchUpdateStockDO(batchUpdateStockDO);
     }
 
     private List<Map<String, Object>> stockListParam(List<StockOutItemDO> itemDOs) {
@@ -259,15 +262,34 @@ public class StockOutServiceImpl implements StockOutService {
         param.put("stockId", stockIds);
         // 获取即将出库产品实际数量
         List<Map<String, Object>> stockListForMap = materielService.stockCount(param);
+        // 将相同库存ID的数据当作一类数据统计
+        Map<String,BigDecimal> stringBigDecimalMap = Maps.newHashMap();
+        for (Map<String, Object> map : params) {
+            String stockId = map.get("id").toString();
+            if (stringBigDecimalMap.containsKey(stockId)) {
+                stringBigDecimalMap.put(stockId,stringBigDecimalMap.get(stockId).add(MathUtils.getBigDecimal(map.get("outCount"))));
+                continue;
+            }
+            stringBigDecimalMap.put(stockId,MathUtils.getBigDecimal(map.get("outCount")));
+        }
+
         for (Map<String, Object> stockCount : stockListForMap) {
-            for (Map<String, Object> outCount : params) {
-                if (outCount.get("id").toString().equals(stockCount.get("id").toString())) {
-                    if (MathUtils.getBigDecimal(stockCount.get("availableCount"))
-                            .compareTo(MathUtils.getBigDecimal(outCount.get("outCount"))) < 0) {
-                        return true;
-                    }
+            String stockId = stockCount.get("id").toString();
+            if (stringBigDecimalMap.containsKey(stockId)) {
+                if (MathUtils.getBigDecimal(stockCount.get("availableCount"))
+                        .compareTo(stringBigDecimalMap.get(stockId)) < 0) {
+                    return true;
                 }
             }
+
+//            for (Map<String, Object> outCount : params) {
+//                if (outCount.get("id").toString().equals(stockCount.get("id").toString())) {
+//                    if (MathUtils.getBigDecimal(stockCount.get("availableCount"))
+//                            .compareTo(MathUtils.getBigDecimal(outCount.get("outCount"))) < 0) {
+//                        return true;
+//                    }
+//                }
+//            }
         }
         return false;
     }
@@ -386,8 +408,8 @@ public class StockOutServiceImpl implements StockOutService {
     }
 
     @Override
-    public StockItemDO saveStockDetailInfo(StockItemDO stockDetail, Long stockOutId, Long stockOutItemId, StockDO stockDO, BigDecimal change,
-                                             Long storageType, Long sourceType) {
+    public void saveStockDetailInfo(StockItemDO stockDetail, Long stockOutId, Long stockOutItemId, StockDO stockDO, BigDecimal change,
+                                    Long storageType, Long sourceType) {
         stockDetail.setInbodyId(stockOutItemId);
         stockDetail.setStockId(stockDO.getId());
         stockDetail.setInheadId(stockOutId);
@@ -402,7 +424,6 @@ public class StockOutServiceImpl implements StockOutService {
         if (change.compareTo(BigDecimal.ZERO) < 0) {
             stockDetail.setHandleSign(0L);
         }
-        return stockDetail;
     }
 
     @Override
