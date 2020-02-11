@@ -207,12 +207,14 @@
     <select id="listApi" resultType="map">
         select
         stockOut.`id` AS id,
+        item.`id` AS itemId,
         stockOut.`out_time` AS outTime,
         stockOut.`out_code` AS outCode,
         dept.`name` AS deptName,
         salesUser.`name` AS salesUserName,
         client.`name` AS clientName,
         supplier.name AS supplierName,
+        materiel.`id` AS materielId,
         materiel.serial_no AS materielSerialNo,
         materiel.name AS materielName,
         materiel.specification AS specification,
