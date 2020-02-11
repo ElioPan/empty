@@ -234,8 +234,8 @@
         dics.`id` AS sourceType,
         dics.`name` AS sourceTypeName,
         item.source_code AS sourceCode,
-        stockOut.`out_code` AS　code,
-        '销售出库' AS　thisSourceTypeName,
+        stockOut.`out_code` AS code,
+        '销售出库' AS thisSourceTypeName,
         stockOut.`create_time` AS createTime
         <include refid="sql_api_condition"/>
         <choose>
@@ -253,7 +253,7 @@
     <select id="countApi" resultType="int">
         SELECT
         COUNT(*)
-        <include refid="sql_api_condition"></include>
+        <include refid="sql_api_condition"/>
     </select>
     <sql id="sql_api_condition">
         FROM scm_stock_out_item item
