@@ -151,16 +151,15 @@ public class ScmPurchaseContractApiController {
     public R editSalesContract(
             @ApiParam(value = "采购合同id",required = true) @RequestParam(value = "id",defaultValue = "") Long id,
             @ApiParam(value = "采购合同明细:详情回传过去的JSONArray",required = true) @RequestParam(value = "bodyItem", defaultValue = "") String bodyItem,
-            @ApiParam(value = "添加/修改采购合同收款条件:" +
-                    "[\n" +
-                    "    {\n" +
-                    "        \"id\":2,\n" +
-                    "        \"receivableDate\":\"2020-01-08 00:00:00\",\n" +
-                    "        \"receivableAmount\":500,\n" +
-                    "        \"receivedAmount\":1300,\n" +
-                    "        \"unpayAmount\":90,\n" +
-                    "        \"remarks\":\"这是备注\"\n" +
-                    "    }\n" +
+            @ApiParam(value = "添加/修改采购合同收款条件:[\n" +
+                    "{\n" +
+                    "\"id\":\"付款条件主键（更新时必传）\",\n" +
+                    "\"dueDate\":\"应付日期\",\n" +
+                    "\"payAmount\":\"应付金额\",\n" +
+                    "\"amountPaid\":\"已付金额\",\n" +
+                    "\"unpayAmount\":\"未付金额\",\n" +
+                    "\"remarks\":\"这是备注\"\n" +
+                    "}\n" +
                     "]", required = true) @RequestParam(value = "bodyPay", defaultValue = "") String bodyPay,
             @ApiParam(value = "被删除的付款条件ID") @RequestParam(value = "payIds", defaultValue = "", required = false) Long[] payIds
     ){
