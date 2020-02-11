@@ -195,14 +195,14 @@ public final class ConstantForGYL {
 	 * 盘点方案前缀
 	 */
 	public static final String PLAN_PDFA = "PDFA";
-    /**
-     * 委外合同前缀
-     */
-    public static final String OUTSOURCING_CONTRACT = "WWTH";
-    /**
-     * 委外合同
-     */
-    public static final Long WWHT = 271L;
+	/**
+	 * 委外合同前缀
+	 */
+	public static final String OUTSOURCING_CONTRACT = "WWTH";
+	/**
+	 * 委外合同
+	 */
+	public static final Long WWHT = 271L;
 
 	/**
 	 * 银行转账单前缀
