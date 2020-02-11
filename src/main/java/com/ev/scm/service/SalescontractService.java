@@ -7,7 +7,6 @@ import com.ev.scm.domain.SalescontractPayDO;
 import com.ev.scm.vo.ContractItemVO;
 import com.ev.scm.vo.ContractPayVO;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 

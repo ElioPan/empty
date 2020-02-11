@@ -3,7 +3,6 @@ package com.ev.scm.dao;
 import com.ev.scm.domain.SalescontractDO;
 import org.apache.ibatis.annotations.Mapper;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
