@@ -99,5 +99,20 @@ public class RabbitmqConfig {
         return BindingBuilder.bind(deviceDataQueue()).to(deviceDataExchange()).with(env.getProperty("data.device.routing.key.name"));
     }
 
+    @Bean(name = "noticeQueue")
+    public Queue noticeQueue(){
+        return new Queue("gyhl.data.notice.queue",true);
+    }
+
+    @Bean
+    public DirectExchange noticeDataExchange(){
+        return new DirectExchange("gyhl.data.notice.exchange",true, false);
+    }
+
+    @Bean
+    public Binding noticeDataBinding(){
+        return BindingBuilder.bind(noticeQueue()).to(noticeDataExchange()).with("gyhl.data.notice.routing.key");
+    }
+
 
 }

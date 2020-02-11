@@ -11,7 +11,7 @@ import org.apache.ibatis.annotations.Mapper;
  * 通知单
  * @author ev-monitor
  * @email 286600136@qq.com
- * @date 2019-08-26 12:53:30
+ * @date 2020-02-11 17:00:08
  */
 @Mapper
 public interface NoticeDao {

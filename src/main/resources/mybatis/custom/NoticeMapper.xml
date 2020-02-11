@@ -4,29 +4,23 @@
 <mapper namespace="com.ev.custom.dao.NoticeDao">
 
 	<select id="get" resultType="com.ev.custom.domain.NoticeDO">
-		select `id`,`plan_id`,`plan_type`,`begin_time`,`end_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_notice where id = #{value}
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM cus_notice 
+		WHERE id = #{value}
 	</select>
 
 	<select id="list" resultType="com.ev.custom.domain.NoticeDO">
-		select `id`,`plan_id`,`plan_type`,`begin_time`,`end_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_notice
-        <where>  
-		  		  <if test="id != null and id != ''"> and id = #{id} </if>
-		  		  <if test="planId != null and planId != ''"> and plan_id = #{planId} </if>
-		  		  <if test="planType != null and planType != ''"> and plan_type = #{planType} </if>
-		  		  <if test="beginTime != null and beginTime != ''"> and begin_time = #{beginTime} </if>
-		  		  <if test="endTime != null and endTime != ''"> and end_time = #{endTime} </if>
-		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
-		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
-		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
-		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
-		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
-		  		</where>
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM cus_notice
+		<include refid="sql_condition"/>
         <choose>
             <when test="sort != null and sort.trim() != ''">
-                order by ${sort} ${order}
+                ORDER BY ${sort} ${order}
             </when>
 			<otherwise>
-                order by id desc
+                ORDER BY id DESC
 			</otherwise>
         </choose>
 		<if test="offset != null and limit != null">
@@ -35,40 +29,60 @@
 	</select>
 	
  	<select id="count" resultType="int">
-		select count(*) from cus_notice
-		 <where>  
-		  		  <if test="id != null and id != ''"> and id = #{id} </if>
-		  		  <if test="planId != null and planId != ''"> and plan_id = #{planId} </if>
-		  		  <if test="planType != null and planType != ''"> and plan_type = #{planType} </if>
-		  		  <if test="beginTime != null and beginTime != ''"> and begin_time = #{beginTime} </if>
-		  		  <if test="endTime != null and endTime != ''"> and end_time = #{endTime} </if>
-		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
-		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
-		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
-		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
-		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
-		  		</where>
+        SELECT COUNT(*) FROM cus_notice
+		<include refid="sql_condition"/>
 	</select>
+
+    <sql id="sql_column_list">
+		`id`,`type`,`title`,`content`,`content_detail`,`from_user_id`,`to_user_id`,`expire_date`,`sign_status`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> AND id = #{id} </if>
+                            <if test="type != null and type != ''"> AND type = #{type} </if>
+                            <if test="title != null and title != ''"> AND title = #{title} </if>
+                            <if test="content != null and content != ''"> AND content = #{content} </if>
+                            <if test="contentDetail != null and contentDetail != ''"> AND content_detail = #{contentDetail} </if>
+                            <if test="fromUserId != null and fromUserId != ''"> AND from_user_id = #{fromUserId} </if>
+                            <if test="toUserId != null and toUserId != ''"> AND to_user_id = #{toUserId} </if>
+                            <if test="expireDate != null and expireDate != ''"> AND expire_date = #{expireDate} </if>
+                            <if test="signStatus != null and signStatus != ''"> AND sign_status = #{signStatus} </if>
+                            <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
 	 
 	<insert id="save" parameterType="com.ev.custom.domain.NoticeDO" useGeneratedKeys="true" keyProperty="id">
-		insert into cus_notice
+		INSERT INTO cus_notice
 		(
-			`plan_id`, 
-			`plan_type`, 
-			`begin_time`, 
-			`end_time`, 
+			`type`, 
+			`title`, 
+			`content`, 
+			`content_detail`, 
+			`from_user_id`, 
+			`to_user_id`, 
+			`expire_date`, 
+			`sign_status`, 
 			`create_by`, 
 			`create_time`, 
 			`update_by`, 
 			`update_time`, 
 			`del_flag`
 		)
-		values
+		VALUES
 		(
-			#{planId}, 
-			#{planType}, 
-			#{beginTime}, 
-			#{endTime}, 
+			#{type}, 
+			#{title}, 
+			#{content}, 
+			#{contentDetail}, 
+			#{fromUserId}, 
+			#{toUserId}, 
+			#{expireDate}, 
+			#{signStatus}, 
 			#{createBy}, 
 			#{createTime}, 
 			#{updateBy}, 
@@ -78,30 +92,34 @@
 	</insert>
 	 
 	<update id="update" parameterType="com.ev.custom.domain.NoticeDO">
-		update cus_notice 
+		UPDATE cus_notice
 		<set>
-			<if test="planId != null">`plan_id` = #{planId}, </if>
-			<if test="planType != null">`plan_type` = #{planType}, </if>
-			<if test="beginTime != null">`begin_time` = #{beginTime}, </if>
-			<if test="endTime != null">`end_time` = #{endTime}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="title != null">`title` = #{title}, </if>
+			<if test="content != null">`content` = #{content}, </if>
+			<if test="contentDetail != null">`content_detail` = #{contentDetail}, </if>
+			<if test="fromUserId != null">`from_user_id` = #{fromUserId}, </if>
+			<if test="toUserId != null">`to_user_id` = #{toUserId}, </if>
+			<if test="expireDate != null">`expire_date` = #{expireDate}, </if>
+			<if test="signStatus != null">`sign_status` = #{signStatus}, </if>
 			<if test="createBy != null">`create_by` = #{createBy}, </if>
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
 			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
 			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
 		</set>
-		where id = #{id}
+		WHERE id = #{id}
 	</update>
 	
 	<delete id="remove">
-		delete from cus_notice where id = #{value}
+		DELETE FROM cus_notice WHERE id = #{value}
 	</delete>
 	
 	<delete id="batchRemove">
-		delete from cus_notice where id in 
+        DELETE FROM cus_notice WHERE id IN
 		<foreach item="id" collection="array" open="(" separator="," close=")">
 			#{id}
 		</foreach>
 	</delete>
-
+	
 </mapper>
