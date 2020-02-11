@@ -381,7 +381,7 @@
 			<if test="operatorName != null and operatorName != ''"> AND operatorName like  CONCAT('%',#{operatorName},'%')  </if>
 			<if test="purchaseType != null and purchaseType != ''"> and purchaseType = #{purchaseType} </if>
 			<if test="materielName != null and materielName != ''"> and materielName like  CONCAT('%',#{materielName},'%') </if>
-			<if test="materielSpecification != null and materielSpecification != ''"> and specification ike  CONCAT('%',#{materielSpecification},'%') </if>
+			<if test="materielSpecification != null and materielSpecification != ''"> and specification like  CONCAT('%',#{materielSpecification},'%') </if>
 			<if test="auditSign != null and auditSign != ''"> and auditSign = #{auditSign} </if>
 			<if test="createBy != null and createBy != ''"> and createBy = #{createBy} </if>
 			<if test="createByName != null and createByName != ''"> AND createByName like  CONCAT('%',#{createByName},'%')  </if>
@@ -492,7 +492,7 @@
 			<if test="operatorName != null and operatorName != ''"> AND operatorName like  CONCAT('%',#{operatorName},'%')  </if>
 			<if test="purchaseType != null and purchaseType != ''"> and purchaseType = #{purchaseType} </if>
 			<if test="materielName != null and materielName != ''"> and materielName like  CONCAT('%',#{materielName},'%') </if>
-			<if test="materielSpecification != null and materielSpecification != ''"> and specification ike  CONCAT('%',#{materielSpecification},'%') </if>
+			<if test="materielSpecification != null and materielSpecification != ''"> and specification like  CONCAT('%',#{materielSpecification},'%') </if>
 			<if test="auditSign != null and auditSign != ''"> and auditSign = #{auditSign} </if>
 			<if test="createBy != null and createBy != ''"> and createBy = #{createBy} </if>
 			<if test="createByName != null and createByName != ''"> AND createByName like  CONCAT('%',#{createByName},'%')  </if>

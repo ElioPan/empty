@@ -1,5 +1,6 @@
 package com.ev.scm.service;
 
+import com.ev.framework.utils.R;
 import com.ev.scm.domain.ProcessingChargeDO;
 
 import java.util.List;
@@ -27,4 +28,18 @@ public interface ProcessingChargeService {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+    R addOrUpdateProcessingCharge(ProcessingChargeDO processingChargeDO, String bodyItem, Long[] itemIds);
+
+	R batchRemoveProcessingCharge(Long[] ids);
+
+	List<Map<String, Object>> listForMap(Map<String, Object> map);
+
+	int countForMap(Map<String, Object> map);
+
+	R audit(Long id);
+
+	R reverseAudit(Long id);
+
+	R getDetail(Long id);
 }
