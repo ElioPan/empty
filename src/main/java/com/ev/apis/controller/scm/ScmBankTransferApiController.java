@@ -42,7 +42,7 @@ public class ScmBankTransferApiController {
     @Transactional(rollbackFor = Exception.class)
     public R addAndChangeTransfer(
             BankTransferDO bankTransferDO,
-            @ApiParam(value = "盘点产品明细行：[\n" +
+            @ApiParam(value = "明细行：[\n" +
                     "{\n" +
                     "\"id\":\"明细主键（修改时必传）\",\n" +
                     "\"transferOutAcc\":\"转出账号\",\n" +

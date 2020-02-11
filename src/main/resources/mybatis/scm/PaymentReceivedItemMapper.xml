@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.PaymentReceivedItemDao">
+
+	<select id="get" resultType="com.ev.scm.domain.PaymentReceivedItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_payment_received_item 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.PaymentReceivedItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_payment_received_item
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+			<otherwise>
+                ORDER BY id DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+        SELECT COUNT(*) FROM scm_payment_received_item
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`payment_received_id`,`source_type`,`source_code`,`source_id`,`source_pay_item_id`,`accrual_date`,`
+receivable_payables_amount`,`paid_received_amount`,`this_amount`,`no_receipt_payment_amount`,`account_number`,`settlement_type`,`statement_number`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> AND id = #{id} </if>
+                            <if test="paymentReceivedId != null and paymentReceivedId != ''"> AND payment_received_id = #{paymentReceivedId} </if>
+                            <if test="sourceType != null and sourceType != ''"> AND source_type = #{sourceType} </if>
+                            <if test="sourceCode != null and sourceCode != ''"> AND source_code = #{sourceCode} </if>
+                            <if test="sourceId != null and sourceId != ''"> AND source_id = #{sourceId} </if>
+                            <if test="sourcePayItemId != null and sourcePayItemId != ''"> AND source_pay_item_id = #{sourcePayItemId} </if>
+                            <if test="accrualDate != null and accrualDate != ''"> AND accrual_date = #{accrualDate} </if>
+                            <if test="
+receivablePayablesAmount != null and receivablePayablesAmount != ''"> AND 
+receivable_payables_amount = #{
+receivablePayablesAmount} </if>
+                            <if test="paidReceivedAmount != null and paidReceivedAmount != ''"> AND paid_received_amount = #{paidReceivedAmount} </if>
+                            <if test="thisAmount != null and thisAmount != ''"> AND this_amount = #{thisAmount} </if>
+                            <if test="noReceiptPaymentAmount != null and noReceiptPaymentAmount != ''"> AND no_receipt_payment_amount = #{noReceiptPaymentAmount} </if>
+                            <if test="accountNumber != null and accountNumber != ''"> AND account_number = #{accountNumber} </if>
+                            <if test="settlementType != null and settlementType != ''"> AND settlement_type = #{settlementType} </if>
+                            <if test="statementNumber != null and statementNumber != ''"> AND statement_number = #{statementNumber} </if>
+                            <if test="remarks != null and remarks != ''"> AND remarks = #{remarks} </if>
+                            <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.PaymentReceivedItemDO" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO scm_payment_received_item
+		(
+			`payment_received_id`, 
+			`source_type`, 
+			`source_code`, 
+			`source_id`, 
+			`source_pay_item_id`, 
+			`accrual_date`, 
+			`
+receivable_payables_amount`, 
+			`paid_received_amount`, 
+			`this_amount`, 
+			`no_receipt_payment_amount`, 
+			`account_number`, 
+			`settlement_type`, 
+			`statement_number`, 
+			`remarks`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		VALUES
+		(
+			#{paymentReceivedId}, 
+			#{sourceType}, 
+			#{sourceCode}, 
+			#{sourceId}, 
+			#{sourcePayItemId}, 
+			#{accrualDate}, 
+			#{
+receivablePayablesAmount}, 
+			#{paidReceivedAmount}, 
+			#{thisAmount}, 
+			#{noReceiptPaymentAmount}, 
+			#{accountNumber}, 
+			#{settlementType}, 
+			#{statementNumber}, 
+			#{remarks}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.PaymentReceivedItemDO">
+		UPDATE scm_payment_received_item
+		<set>
+			<if test="paymentReceivedId != null">`payment_received_id` = #{paymentReceivedId}, </if>
+			<if test="sourceType != null">`source_type` = #{sourceType}, </if>
+			<if test="sourceCode != null">`source_code` = #{sourceCode}, </if>
+			<if test="sourceId != null">`source_id` = #{sourceId}, </if>
+			<if test="sourcePayItemId != null">`source_pay_item_id` = #{sourcePayItemId}, </if>
+			<if test="accrualDate != null">`accrual_date` = #{accrualDate}, </if>
+			<if test="
+receivablePayablesAmount != null">`
+receivable_payables_amount` = #{
+receivablePayablesAmount}, </if>
+			<if test="paidReceivedAmount != null">`paid_received_amount` = #{paidReceivedAmount}, </if>
+			<if test="thisAmount != null">`this_amount` = #{thisAmount}, </if>
+			<if test="noReceiptPaymentAmount != null">`no_receipt_payment_amount` = #{noReceiptPaymentAmount}, </if>
+			<if test="accountNumber != null">`account_number` = #{accountNumber}, </if>
+			<if test="settlementType != null">`settlement_type` = #{settlementType}, </if>
+			<if test="statementNumber != null">`statement_number` = #{statementNumber}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="remove">
+		DELETE FROM scm_payment_received_item WHERE id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+        DELETE FROM scm_payment_received_item WHERE id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+</mapper>

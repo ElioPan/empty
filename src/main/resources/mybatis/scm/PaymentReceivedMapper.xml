@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.PaymentReceivedDao">
+
+	<select id="get" resultType="com.ev.scm.domain.PaymentReceivedDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_payment_received 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.PaymentReceivedDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_payment_received
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+			<otherwise>
+                ORDER BY id DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+        SELECT COUNT(*) FROM scm_payment_received
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`sign`,`pr_type`,`pr_code`,`supplier_client_id`,`pr_amount`,`pr_date`,`payee`,`payer`,`audit_sign`,`auditor`,`audit_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> AND id = #{id} </if>
+                            <if test="sign != null and sign != ''"> AND sign = #{sign} </if>
+                            <if test="prType != null and prType != ''"> AND pr_type = #{prType} </if>
+                            <if test="prCode != null and prCode != ''"> AND pr_code = #{prCode} </if>
+                            <if test="supplierClientId != null and supplierClientId != ''"> AND supplier_client_id = #{supplierClientId} </if>
+                            <if test="prAmount != null and prAmount != ''"> AND pr_amount = #{prAmount} </if>
+                            <if test="prDate != null and prDate != ''"> AND pr_date = #{prDate} </if>
+                            <if test="payee != null and payee != ''"> AND payee = #{payee} </if>
+                            <if test="payer != null and payer != ''"> AND payer = #{payer} </if>
+                            <if test="auditSign != null and auditSign != ''"> AND audit_sign = #{auditSign} </if>
+                            <if test="auditor != null and auditor != ''"> AND auditor = #{auditor} </if>
+                            <if test="auditTime != null and auditTime != ''"> AND audit_time = #{auditTime} </if>
+                            <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.PaymentReceivedDO" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO scm_payment_received
+		(
+			`sign`, 
+			`pr_type`, 
+			`pr_code`, 
+			`supplier_client_id`, 
+			`pr_amount`, 
+			`pr_date`, 
+			`payee`, 
+			`payer`, 
+			`audit_sign`, 
+			`auditor`, 
+			`audit_time`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		VALUES
+		(
+			#{sign}, 
+			#{prType}, 
+			#{prCode}, 
+			#{supplierClientId}, 
+			#{prAmount}, 
+			#{prDate}, 
+			#{payee}, 
+			#{payer}, 
+			#{auditSign}, 
+			#{auditor}, 
+			#{auditTime}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.PaymentReceivedDO">
+		UPDATE scm_payment_received
+		<set>
+			<if test="sign != null">`sign` = #{sign}, </if>
+			<if test="prType != null">`pr_type` = #{prType}, </if>
+			<if test="prCode != null">`pr_code` = #{prCode}, </if>
+			<if test="supplierClientId != null">`supplier_client_id` = #{supplierClientId}, </if>
+			<if test="prAmount != null">`pr_amount` = #{prAmount}, </if>
+			<if test="prDate != null">`pr_date` = #{prDate}, </if>
+			<if test="payee != null">`payee` = #{payee}, </if>
+			<if test="payer != null">`payer` = #{payer}, </if>
+			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="auditTime != null">`audit_time` = #{auditTime}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="remove">
+		DELETE FROM scm_payment_received WHERE id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+        DELETE FROM scm_payment_received WHERE id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+</mapper>
