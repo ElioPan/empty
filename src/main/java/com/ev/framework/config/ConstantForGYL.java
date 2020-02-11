@@ -5,7 +5,8 @@ package com.ev.framework.config;
  *
  */
 public final class ConstantForGYL {
-    private ConstantForGYL() {
+
+	private ConstantForGYL() {
 	}
 
 	/**
@@ -207,6 +208,9 @@ public final class ConstantForGYL {
 	 * 银行转账单前缀
 	 */
 	public static final String BANK_TRANSFER = "YHZZ";
-
+	/**
+	 * 加工费用前缀
+	 */
+	public static final String PROCESSING_CHARGE = "JGFY";
 
 }
