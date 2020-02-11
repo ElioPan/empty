@@ -182,7 +182,6 @@
         item.`delivery_date` AS deliveryDate,
         dica.`name` AS auditSignName,
         sales.`contract_code` AS code,
-        '销售合同' AS thisSourceTypeName,
         sales.`create_time` AS createTime
         <include refid="sql_map_condition"/>
         <choose>

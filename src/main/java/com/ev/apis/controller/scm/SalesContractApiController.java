@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -195,6 +194,11 @@ public class SalesContractApiController {
         map.put("offset",(pageno-1)*pagesize);
         map.put("limit",pagesize);
         List<Map<String, Object>> data = salescontractService.listForMap(map);
+        for (Map<String, Object> datum : data) {
+            datum.put("thisSourceTypeName","销售合同");
+            datum.put("thisSourceType",ConstantForGYL.XSHT);
+        }
+
         Map<String, Object> stringBigDecimalMap = salescontractService.countForMap(map);
         int total = Integer.parseInt(stringBigDecimalMap.getOrDefault("total",0).toString());
         Map<String, Object> result = Maps.newHashMap();
