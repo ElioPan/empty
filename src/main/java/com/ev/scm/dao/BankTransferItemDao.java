@@ -31,4 +31,9 @@ public interface BankTransferItemDao {
 
 	int removeByTransferId(Long[] ids);
 
+	List<Map<String, Object>> detailOfItem(Map<String, Object> map);
+
+	int totalAmount(Map<String, Object> map);
+
+
 }

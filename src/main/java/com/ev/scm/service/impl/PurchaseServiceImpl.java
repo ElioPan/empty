@@ -88,7 +88,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     pdata.setPurchaseId(purchaseDO.getId());
                     purchaseItemService.save(pdata);
                 }
-                Map<String,Object>  result= new HashMap<String,Object>();
+                Map<String,Object>  result= new HashMap<>();
                 result.put("id",purchaseDO.getId());
                 return R.ok(result);
             } else {
@@ -109,7 +109,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                         purchaseItemService.save(pdata);
                     }
                 }
-                Map<String,Object>  result= new HashMap<String,Object>();
+                Map<String,Object>  result= new HashMap<>();
                 result.put("id",purchaseDO.getId());
                 return R.ok(result);
             } else {
@@ -166,7 +166,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     public R removePurchase(Long[] purchaseId) {
 
-        Map<String,Object>  map= new HashMap<String,Object>();
+        Map<String,Object>  map= new HashMap<>();
         map.put("id",purchaseId);
         int rows = purchaseDao.canDeletOfCount(map);
         if(Objects.equals(rows,purchaseId.length)) {
@@ -190,15 +190,15 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Override
     public R getdetail(Long id) {
-        Map<String,Object>  map= new HashMap<String,Object>();
+        Map<String,Object>  map= new HashMap<>();
         map.put("purchaseId",id);
 
         Map<String,Object> purchaseDetail = purchaseDao.detailOfPurchase(map);
         List<Map<String, Object>> detailOfItem = purchaseItemService.detailOfItem(map);
         Map<String, Object> aggregate = purchaseItemService.aggregate(map);
-        Map<String,Object>  result= new HashMap<String,Object>();
+        Map<String,Object>  result= new HashMap<>();
+        map.clear();
         if(Objects.nonNull(purchaseDetail)) {
-            map.clear();
             map.put("purchaseDetail",purchaseDetail);
             map.put("detailOfItem",detailOfItem);
             map.put("aggregate",aggregate); //总数量+总金额

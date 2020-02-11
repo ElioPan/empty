@@ -30,4 +30,11 @@ public interface BankTransferDao {
 	int batchRemove(Long[] ids);
 
 	int canDeletOfCount(Map<String, Object> map);
+
+	Map<String, Object> detailOfTransfer(Map<String, Object> map);
+
+	List<Map<String, Object>> listForMap(Map<String, Object> map);
+
+	int countForMap(Map<String, Object> map);
+
 }

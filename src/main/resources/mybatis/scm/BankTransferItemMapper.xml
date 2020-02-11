@@ -128,5 +128,34 @@
 		</foreach>
 	</delete>
 
-	
+	<select id="detailOfItem" resultType="map">
+		select
+		a.id as id ,
+		a.transfer_out_acc as transferOutAcc ,
+		b.name as transferOutAccName,
+		a.transfer_in_acc as transferInAcc,
+		c.name as transferInAccName,
+		a.transfer_amount as transferAmount,
+		a.settlement_type  as settlementType,
+		d.name as settlementTypeName,
+		a.statement_number as statementNumber ,
+		a.remarks
+		from
+		scm_bank_transfer_item  a
+		LEFT JOIN cus_dictionary b on  a.transfer_out_acc=b.id
+		LEFT JOIN cus_dictionary c on  a.transfer_in_acc=c.id
+		LEFT JOIN cus_dictionary d on  a.settlement_type=d.id
+		where
+			a.transfer_id=#{id}
+	</select>
+
+
+	<select id="totalAmount" resultType="int">
+		SELECT
+		sum(transfer_amount) as totalAmount
+		FROM scm_bank_transfer_item
+		WHERE
+          transfer_id=#{id}
+	</select>
+
 </mapper>

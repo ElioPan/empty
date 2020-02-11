@@ -62,6 +62,15 @@ public class BankTransferServiceImpl implements BankTransferService {
 		return bankTransferDao.batchRemove(ids);
 	}
 
+	@Override
+	public List<Map<String, Object>> listForMap(Map<String, Object> map) {
+		return bankTransferDao.listForMap(map);
+	}
+
+	@Override
+	public int countForMap(Map<String, Object> map) {
+		return bankTransferDao.countForMap(map);
+	}
 
 	@Override
 	public R addBankTransfer(BankTransferDO bankTransferDO,String transferBodys, Long[] deleItemIds){
@@ -118,7 +127,6 @@ public class BankTransferServiceImpl implements BankTransferService {
 		}
 	}
 
-
 	@Override
 	public R audit(Long id) {
 		BankTransferDO bankTransferDO = this.get(id);
@@ -162,7 +170,7 @@ public class BankTransferServiceImpl implements BankTransferService {
 	@Override
 	public R removeTransfer(Long[] ids) {
 
-		Map<String,Object>  map= new HashMap<String,Object>();
+		Map<String,Object>  map= new HashMap<>();
 		map.put("id",ids);
 		int rows = bankTransferDao.canDeletOfCount(map);
 		if(Objects.equals(rows,ids.length)) {
@@ -175,7 +183,24 @@ public class BankTransferServiceImpl implements BankTransferService {
 	}
 
 
-
+	@Override
+	public R getdetail(Long id) {
+		Map<String,Object>  map= new HashMap<>();
+		map.put("id",id);
+		Map<String,Object> transferDetail = bankTransferDao.detailOfTransfer(map);
+		List<Map<String, Object>> detailOfItem = bankTransferItemService.detailOfItem(map);
+		int totalAmount=bankTransferItemService.totalAmount(map);
+		Map<String,Object>  result= new HashMap<>();
+		map.clear();
+		if(Objects.nonNull(transferDetail)) {
+			map.put("transferDetail",transferDetail);
+			map.put("detailOfItem",detailOfItem);
+			//子表总金额
+			map.put("totalAmount",totalAmount);
+			result.put("data",map);
+		}
+		return R.ok(result);
+	}
 
 
 

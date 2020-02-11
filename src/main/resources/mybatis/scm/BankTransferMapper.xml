@@ -128,5 +128,99 @@ transactor_id`,`audit_sign`,`auditor`,`audit_time`,`create_by`,`create_time`,`up
 			#{item}
 		</foreach>
 	</select>
-	
+
+	<select id="detailOfTransfer" resultType="map">
+		select
+		a.id as id ,
+		a.transfer_code as transferCode,
+		a.transfer_date as transferDate,
+		a.transactor_id as transactorId,
+		b.name as transactorName,
+		a.audit_sign AS auditSign,
+		c.name as auditSignName,
+		a.auditor as auditor,
+		d.name as auditorName,
+		a.audit_time as auditTime,
+		a.create_by as createBy,
+		e.name as createByName,
+		a.create_time as createTime
+		from
+		scm_bank_transfer  a
+		LEFT JOIN sys_user b on  a.transactor_id=b.user_id
+		LEFT JOIN cus_dictionary c on  a.audit_sign=c.id
+		LEFT JOIN sys_user d on  a.auditor=d.user_id
+		LEFT JOIN sys_user  e on a.create_by=e.user_id
+		where
+		a.id=#{id}
+	</select>
+
+	<select id="listForMap" resultType="map">
+		select
+		a.id as id ,
+		a.transfer_code as transferCode,
+		a.transfer_date as transferDate,
+		a.`transactor_id` as transactorId,
+		b.name as transactorName,
+		a.audit_sign AS auditSign,
+		c.name as auditSignName,
+		d.id as itemId ,
+		d.transfer_out_acc as transferOutAcc,
+		e.name as transferOutAccName,
+		d.transfer_in_acc as transferInAcc,
+		f.name as transferInAccName,
+		d.transfer_amount as transferAmount,
+		d.settlement_type  as settlementType,
+		g.name as settlementTypeName,
+		d.statement_number as statementNumber,
+		d.remarks
+		from
+		scm_bank_transfer  a
+		LEFT JOIN sys_user b on  a.`transactor_id`=b.user_id
+		LEFT JOIN cus_dictionary c on  a.audit_sign=c.id
+		LEFT JOIN scm_bank_transfer_item d on a.id =d.transfer_id
+		LEFT JOIN cus_dictionary e on  d.transfer_out_acc=e.id
+		LEFT JOIN cus_dictionary f on  d.transfer_in_acc=f.id
+		LEFT JOIN cus_dictionary g on  d.settlement_type=g.id
+		<where>
+			<if test="id != null and id != ''"> AND id = #{id} </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(a.transfer_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(a.transfer_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="transferCode != null and transferCode != ''"> AND a.transfer_code = #{transferCode} </if>
+			<if test="auditSign != null and auditSign != ''"> AND a.audit_sign = #{auditSign} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY ${sort} ${order}
+			</when>
+			<otherwise>
+				ORDER BY id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="countForMap" resultType="int">
+		SELECT
+		COUNT(*)
+		from
+		scm_bank_transfer  a
+		LEFT JOIN sys_user b on  a.`transactor_id`=b.user_id
+		LEFT JOIN cus_dictionary c on  a.audit_sign=c.id
+		LEFT JOIN scm_bank_transfer_item d on a.id =d.transfer_id
+		LEFT JOIN cus_dictionary e on  d.transfer_out_acc=e.id
+		LEFT JOIN cus_dictionary f on  d.transfer_in_acc=f.id
+		LEFT JOIN cus_dictionary g on  d.settlement_type=g.id
+		<where>
+			<if test="id != null and id != ''"> AND id = #{id} </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(a.transfer_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(a.transfer_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="transferCode != null and transferCode != ''"> AND a.transfer_code = #{transferCode} </if>
+			<if test="auditSign != null and auditSign != ''"> AND a.audit_sign = #{auditSign} </if>
+		</where>
+	</select>
+
+
 </mapper>

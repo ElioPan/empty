@@ -57,4 +57,14 @@ public class BankTransferItemServiceImpl implements BankTransferItemService {
 		return bankTransferItemDao.removeByTransferId(ids);
 	}
 
+	@Override
+	public List<Map<String, Object>> detailOfItem(Map<String, Object> map) {
+		return bankTransferItemDao.detailOfItem(map);
+	}
+
+	@Override
+	public int totalAmount(Map<String, Object> map) {
+		return bankTransferItemDao.totalAmount(map);
+	}
+
 }

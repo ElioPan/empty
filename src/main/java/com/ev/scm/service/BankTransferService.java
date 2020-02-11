@@ -36,4 +36,10 @@ public interface BankTransferService {
 	R rollBackAudit(Long id);
 
 	R removeTransfer(Long[] ids);
+
+	R getdetail(Long id);
+
+	List<Map<String, Object>> listForMap(Map<String, Object> map);
+
+	int countForMap(Map<String, Object> map);
 }
