@@ -63,6 +63,8 @@ public class StockInItemDO implements Serializable {
 	//费用
     @ApiModelProperty(value = "费用")
 	private BigDecimal expense;
+	@ApiModelProperty(value = "成本")
+	private BigDecimal cost;
 	//创建人
     @ApiModelProperty(value = "创建人")
 	private Long createBy;

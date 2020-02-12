@@ -346,6 +346,7 @@
 			q.name as sourceTypeName,
 			aa.source_code	 as  sourceCode,
 			aa.source_id     as  sourceId,
+			aa.cost,
 			aa.expense
 			from
 				scm_stock_in  a
@@ -457,6 +458,7 @@
 		q.name as sourceTypeName,
 		aa.source_code	 as  sourceCode,
 		aa.source_id     as  sourceId,
+		aa.cost,
 		aa.expense
 		from
 		scm_stock_in  a

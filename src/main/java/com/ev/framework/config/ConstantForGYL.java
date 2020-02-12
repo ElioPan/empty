@@ -218,4 +218,14 @@ public final class ConstantForGYL {
 	 */
 	public static final String PAYMENT_ORDER = "FK";
 
+	/**
+	 * 委外入库类  型
+	 */
+	public static final Long OUTSOURCING_INSTOCK = 276L;
+
+	/**
+	 * 委外入库  单前缀
+	 */
+	public static final String OUTSOURCING_INSTOCK_CODE = "WWRK";
+
 }

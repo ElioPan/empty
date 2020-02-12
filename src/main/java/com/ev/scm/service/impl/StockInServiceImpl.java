@@ -356,7 +356,7 @@ public class StockInServiceImpl implements StockInService {
 			//修改
 			StockInDO InheadDo = stockInDao.get(headId);
 
-			if (InheadDo != null) {
+			if (Objects.nonNull(InheadDo)) {
 				if (Objects.equals(ConstantForGYL.WAIT_AUDIT,InheadDo.getAuditSign())) { //10---->178 待审核
 					stockInDao.update(stockInDO);
 
@@ -469,7 +469,7 @@ public class StockInServiceImpl implements StockInService {
 	public R deleBatch(Long[] ids){
 
 		//判断是否能够删除：inhead表待审核状态178 则允许删除
-		Map<String,Object>  map= new HashMap<String,Object>();
+		Map<String,Object>  map= new HashMap<>();
 		map.put("id",ids);
 		int rows= stockInDao.canDeletOfCount(map);
 		if (rows == ids.length) {
