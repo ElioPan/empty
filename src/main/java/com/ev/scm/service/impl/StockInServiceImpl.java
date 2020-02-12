@@ -8,6 +8,7 @@ import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
+import com.ev.framework.utils.ShiroUtils;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.dao.StockInDao;
 import com.ev.scm.dao.StockInItemDao;
@@ -415,7 +416,7 @@ public class StockInServiceImpl implements StockInService {
 		if (Objects.nonNull(pInheadDO)) {
 			if (!(Objects.equals(pInheadDO.getAuditSign(),ConstantForGYL.OK_AUDITED))) {
 				StockInDO stockInDO=new StockInDO();
-				stockInDO.setAuditor(auditor);
+				stockInDO.setAuditor(ShiroUtils.getUserId());
 				stockInDO.setAuditTime(new Date());
 				stockInDO.setId(Id);
 				stockInDO.setAuditSign(ConstantForGYL.OK_AUDITED); //179已审核

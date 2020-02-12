@@ -74,7 +74,7 @@ public class ScmSalesReturnInStockApiController {
     @ApiOperation("审核--销售退货入库")
     @Transactional(rollbackFor = Exception.class)
     public R changeAuditStatus(@ApiParam(value = "销售退货入库主表主键", required = true) @RequestParam(value = "inHeadId") Long inHeadId,
-                               @ApiParam(value = "审核人主键", required = true) @RequestParam(value = "auditor") Long auditor) {
+                               @ApiParam(value = "审核人主键", required = false) @RequestParam(value = "auditor") Long auditor) {
         return stockInService.auditAllTypeInStock(inHeadId, auditor ,ConstantForGYL.SALES_RETURN);
     }
 
