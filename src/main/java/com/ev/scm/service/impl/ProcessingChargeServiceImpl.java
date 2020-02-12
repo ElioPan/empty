@@ -74,6 +74,7 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 			processingChargeDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
 //			processingChargeDO.setBillCode(this.BillCode());
 			processingChargeDao.save(processingChargeDO);
+			id = processingChargeDO.getId();
 			for(ProcessingChargeItemDO itemDO : itemDOS){
 				itemDO.setChargeId(id);
 				processingChargeItemDao.save(itemDO);

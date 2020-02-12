@@ -42,6 +42,7 @@ public class SalesbillServiceImpl implements SalesbillService {
             salesBillDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
 //            salesBillDO.setBillCode(this.SalesBillCode());
             salesbillDao.save(salesBillDO);
+            id = salesBillDO.getId();
             for(SalesbillItemDO itemDO : itemDOS){
                 itemDO.setSalesbillId(id);
                 salesbillItemDao.save(itemDO);
