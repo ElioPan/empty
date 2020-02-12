@@ -360,7 +360,7 @@ public class StockInServiceImpl implements StockInService {
 				if (Objects.equals(ConstantForGYL.WAIT_AUDIT,InheadDo.getAuditSign())) { //10---->178 待审核
 					stockInDao.update(stockInDO);
 
-					if(ItemIds.length>0){
+					if(Objects.nonNull(ItemIds)&&ItemIds.length>0){
 						SstockInItemService.batchRemove(ItemIds);
 					}
 
