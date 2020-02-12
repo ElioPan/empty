@@ -30,4 +30,9 @@ public interface PaymentReceivedItemService {
 
 	int removeByReceivedId(Long[] ids);
 
+	List<Map<String, Object>> detailOfitem(Map<String, Object> map);
+
+	Map<String, Object> totallAmount(Map<String, Object> map);
+
+
 }

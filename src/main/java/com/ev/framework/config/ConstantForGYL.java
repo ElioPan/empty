@@ -213,4 +213,9 @@ public final class ConstantForGYL {
 	 */
 	public static final String PROCESSING_CHARGE = "JGFY";
 
+	/**
+	 * 付款单前缀
+	 */
+	public static final String PAYMENT_ORDER = "FK";
+
 }

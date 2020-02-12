@@ -57,4 +57,14 @@ public class PaymentReceivedItemServiceImpl implements PaymentReceivedItemServic
 		return paymentReceivedItemDao.removeByReceivedId(ids);
 	}
 
+	@Override
+	public List<Map<String, Object>> detailOfitem(Map<String, Object> map) {
+		return paymentReceivedItemDao.detailOfitem(map);
+	}
+
+	@Override
+	public Map<String, Object> totallAmount(Map<String, Object> map) {
+		return paymentReceivedItemDao.totallAmount(map);
+	}
+
 }

@@ -127,9 +127,9 @@
 			<if test="storageType != null">`Storage_type` = #{storageType}, </if>
 			<if test="sourceCompany != null">`source_company` = #{sourceCompany}, </if>
 
-			<if test="clientId != null"> and client_id = #{clientId}, </if>
-			<if test="deptId != null"> and dept_id = #{deptId}, </if>
-			<if test="inOutTime != null"> and in_out_time = #{inOutTime}, </if>
+			<if test="clientId != null"> client_id = #{clientId}, </if>
+			<if test="deptId != null"> dept_id = #{deptId}, </if>
+			<if test="inOutTime != null">  in_out_time = #{inOutTime}, </if>
 
 			<if test="operator != null">`operator` = #{operator}, </if>
 			<if test="auditor != null">`auditor` = #{auditor}, </if>

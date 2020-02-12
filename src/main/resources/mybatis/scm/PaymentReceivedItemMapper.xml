@@ -167,6 +167,44 @@ receivablePayablesAmount},
 	</delete>
 
 
+	<select id="detailOfitem" resultType="map">
+			SELECT
+			b.id,
+			b.accrual_date as accrualDate,
+			b.receivable_payables_amount as receivablePayablesAmount,
+			b.paid_received_amount as paid_receivedAmount,
+			b.this_amount as thisAmount,
+			b.no_receipt_payment_amount as noReceiptPaymentAmount,
+			b.statement_number as statementNumber,
+			b.account_number as accountNumber,
+			j.name as accountNumberName,
+			b.settlement_type as settlementType,
+			k.name as settlementTypeName,
+			b.remarks,
+			b.source_type as  sourceType,
+			m.name as sourceTypeName,
+			b.source_code as sourceCode,
+			b.source_id as sourceId
+			from
+			scm_payment_received  a
+			LEFT JOIN scm_payment_received_item b on a.id=b.payment_received_id
+			LEFT JOIN cus_dictionary j on b.account_number=j.id
+			LEFT JOIN cus_dictionary k on b.settlement_type=k.id
+			LEFT JOIN cus_dictionary m on b.source_type=m.id
+			WHERE
+			a.payment_received_id=#{id}
+	</select>
 
-	
+	<select id="totallAmount" resultType="map">
+		SELECT
+		IF(sum(a.receivable_payables_amount) is null,0,sum(a.receivable_payables_amount)) as totalReceivablePayablesAmount,
+		IF(sum(a.paid_received_amount) is null,0,sum(a.paid_received_amount)) as totalPaidReceivedAmount,
+		IF(sum(a.this_amount) is null,0,sum(a.this_amount))  as totalThisAmount,
+		IF(sum(a.no_receipt_payment_amount) is null,0,sum(a.no_receipt_payment_amount)) as totalNoReceiptPaymentAmount
+		from
+		scm_payment_received_item  a
+		WHERE
+		a.payment_received_id=#{id}
+	</select>
+
 </mapper>

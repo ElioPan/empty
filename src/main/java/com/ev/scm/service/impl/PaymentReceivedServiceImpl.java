@@ -72,6 +72,21 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 		return paymentReceivedDao.canDeletOfCount(map);
 	}
 
+	@Override
+	public List<Map<String, Object>> listForMap(Map<String, Object> map) {
+		return paymentReceivedDao.listForMap(map);
+	}
+
+	@Override
+	public Map<String, Object> countForMap(Map<String, Object> map) {
+		return paymentReceivedDao.countForMap(map);
+	}
+
+	@Override
+	public Map<String, Object> detailOfReceived(Map<String, Object> map) {
+		return paymentReceivedDao.detailOfReceived(map);
+	}
+
 
 	@Override
 	public R addReceived(PaymentReceivedDO paymentReceivedDO, String paymentBodys, Long[] deleItemIds,String sign){
@@ -79,11 +94,12 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 		if (Objects.isNull(paymentReceivedDO.getId())) {
 
 			Map<String, Object> param = Maps.newHashMapWithExpectedSize(3);
-			param.put("maxNo", ConstantForGYL.ALL_BILL);
+			param.put("maxNo", sign);
 			param.put("offset", 0);
 			param.put("limit", 1);
+			param.put("sign", sign);
 			List<PaymentReceivedDO> list = paymentReceivedDao.list(param);
-			paymentReceivedDO.setPrCode(DateFormatUtil.getWorkOrderno(ConstantForGYL.ALL_BILL,list.size()>0?list.get(0).getPrCode():null,4));
+			paymentReceivedDO.setPrCode(DateFormatUtil.getWorkOrderno(sign,list.size()>0?list.get(0).getPrCode():null,4));
 			paymentReceivedDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
 			paymentReceivedDO.setSign(sign);
 			int row = paymentReceivedDao.save(paymentReceivedDO);
@@ -177,6 +193,25 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 		}else{
 			return R.error(messageSourceHandler.getMessage("apis.mes.scrapt.auditOk",null));
 		}
+	}
+
+	@Override
+	public R getdetail(Long id) {
+		Map<String,Object>  map= new HashMap<>();
+		map.put("id",id);
+		Map<String,Object> receivedDetail = this.detailOfReceived(map);
+		List<Map<String, Object>> detailOfItem = paymentReceivedItemService.detailOfitem(map);
+		Map<String, Object> totallAmount = paymentReceivedItemService.totallAmount(map);
+		Map<String,Object>  result= new HashMap<>();
+		map.clear();
+		if(Objects.nonNull(receivedDetail)) {
+			map.put("receivedDetail",receivedDetail);
+			map.put("detailOfItem",detailOfItem);
+			//子表总金额
+			map.put("totallAmount",totallAmount);
+			result.put("data",map);
+		}
+		return R.ok(result);
 	}
 
 

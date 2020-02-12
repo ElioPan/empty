@@ -33,5 +33,11 @@ public interface PaymentReceivedDao {
 
 	int canDeletOfCount(Map<String, Object> map);
 
+	List<Map<String, Object>> listForMap(Map<String, Object> map);
+
+	Map<String, Object> countForMap(Map<String, Object> map);
+
+	Map<String, Object> detailOfReceived(Map<String, Object> map);
+
 
 }
