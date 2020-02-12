@@ -416,7 +416,7 @@ public class StockInServiceImpl implements StockInService {
 		if (Objects.nonNull(pInheadDO)) {
 			if (!(Objects.equals(pInheadDO.getAuditSign(),ConstantForGYL.OK_AUDITED))) {
 				StockInDO stockInDO=new StockInDO();
-				stockInDO.setAuditor(ShiroUtils.getUserId());
+				stockInDO.setAuditor(auditor);
 				stockInDO.setAuditTime(new Date());
 				stockInDO.setId(Id);
 				stockInDO.setAuditSign(ConstantForGYL.OK_AUDITED); //179已审核
