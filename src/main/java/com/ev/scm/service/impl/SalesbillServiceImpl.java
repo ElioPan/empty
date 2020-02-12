@@ -3,7 +3,6 @@ package com.ev.scm.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
-import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.dao.SalesbillDao;

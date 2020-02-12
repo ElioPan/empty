@@ -192,7 +192,7 @@ public class PurchaseStockOutApiController {
     }
 
     @ResponseBody
-    @EvApiByToken(value = "/apis/purchaseStockOut/exportExcel", method = RequestMethod.GET, apiTitle = "导出采购退货")
+    @EvApiByToken(value = "/apis/exportExcel/purchaseStockOut", method = RequestMethod.GET, apiTitle = "导出采购退货")
     @ApiOperation("导出采购退货")
     public void exportExcel(
             @ApiParam(value = "退货单号") @RequestParam(value = "outCode", defaultValue = "", required = false) String outCode,

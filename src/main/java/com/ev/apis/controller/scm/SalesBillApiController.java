@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -200,7 +201,7 @@ public class SalesBillApiController {
     }
 
     @ResponseBody
-    @EvApiByToken(value = "/apis/salesBill/exportExcel", method = RequestMethod.GET, apiTitle = "导出销售票据")
+    @EvApiByToken(value = "/apis/exportExcel/salesBill", method = RequestMethod.GET, apiTitle = "导出销售票据")
     @ApiOperation("导出销售票据")
     public void exportExcel(
             @ApiParam(value = "票据编号") @RequestParam(value = "billCode",required = false) String billCode,

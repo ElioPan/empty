@@ -183,7 +183,7 @@ public class ConsumingStockOutApiController {
     }
 
     @ResponseBody
-    @EvApiByToken(value = "/apis/consumingStockOut/exportExcel", method = RequestMethod.GET, apiTitle = "导出生产领用")
+    @EvApiByToken(value = "/apis/exportExcel/consumingStockOut", method = RequestMethod.GET, apiTitle = "导出生产领用")
     @ApiOperation("导出生产领用")
     public void exportExcel(
             @ApiParam(value = "单据编号") @RequestParam(value = "outCode", defaultValue = "", required = false) String outCode,

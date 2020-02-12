@@ -46,7 +46,7 @@ public class ProcessingChargeApiController {
 			@ApiParam(value = "添加加工费用明细:" +
                     "[\n" +
                     "    {\n" +
-                    "        \"id\":1,\n" +
+                    "        \"id\": 1,\n" +
                     "        \"materielId\":50,\n" +
                     "        \"count\":5,\n" +
                     "        \"unitPrice\":300,\n" +
@@ -55,12 +55,12 @@ public class ProcessingChargeApiController {
                     "        \"amount\":2000,\n" +
                     "        \"taxes\":2000,\n" +
                     "        \"taxAmount\":1300,\n" +
-                    "        \"sourceType\":187,\n" +
-                    "        \"sourceCode\":\"XSTH202002110003\",\n" +
-                    "        \"sourceId\":77\n" +
+                    "        \"sourceType\":130,\n" +
+                    "        \"sourceCode\":\"销售合同||加工费用单号\",\n" +
+                    "        \"sourceId\":1300\n" +
                     "    },\n" +
                     "    {\n" +
-                    "        \"id\":2,\n" +
+                    "        \"id\": 2,\n" +
                     "        \"materielId\":50,\n" +
                     "        \"count\":5,\n" +
                     "        \"unitPrice\":300,\n" +
@@ -69,9 +69,9 @@ public class ProcessingChargeApiController {
                     "        \"amount\":2000,\n" +
                     "        \"taxes\":2000,\n" +
                     "        \"taxAmount\":1300,\n" +
-                    "        \"sourceType\":187,\n" +
-                    "        \"sourceCode\":\"XSTH202002110003\",\n" +
-                    "        \"sourceId\":77\n" +
+                    "        \"sourceType\":130,\n" +
+                    "        \"sourceCode\":\"销售合同||加工费用单号\",\n" +
+                    "        \"sourceId\":1300\n" +
                     "    }\n" +
                     "]"
                     , required = true)
@@ -139,7 +139,7 @@ public class ProcessingChargeApiController {
     }
 
     @ResponseBody
-    @EvApiByToken(value = "/apis/processingCharge/exportExcel", method = RequestMethod.GET, apiTitle = "导出加工费用")
+    @EvApiByToken(value = "/apis/exportExcel/processingCharge", method = RequestMethod.GET, apiTitle = "导出加工费用")
     @ApiOperation("导出加工费用")
     public void exportExcel(
             @ApiParam(value = "票据编号") @RequestParam(value = "billCode",required = false) String billCode,

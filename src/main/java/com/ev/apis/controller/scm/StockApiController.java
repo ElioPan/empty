@@ -68,7 +68,7 @@ public class StockApiController {
 
     /*导入导出*/
     @ResponseBody
-    @EvApiByToken(value = "/apis/stock/importExcel", method = RequestMethod.POST, apiTitle = "期初库存导入")
+    @EvApiByToken(value = "/apis/importExcel/stock", method = RequestMethod.POST, apiTitle = "期初库存导入")
     @ApiOperation("期初库存导入")
     @Transactional(rollbackFor = Exception.class)
     public R readSupplier(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file) throws Exception {
@@ -166,7 +166,7 @@ public class StockApiController {
     }
 
     @ResponseBody
-    @EvApiByToken(value = "/apis/stock/exportExcel", method = RequestMethod.GET, apiTitle = "导出库存")
+    @EvApiByToken(value = "/apis/exportExcel/stock", method = RequestMethod.GET, apiTitle = "导出库存")
     @ApiOperation("导出库存")
     public void exportExcel(
             @ApiParam(value = "产品类型") @RequestParam(value = "productTypeId", defaultValue = "", required = false) Long productTypeId,
