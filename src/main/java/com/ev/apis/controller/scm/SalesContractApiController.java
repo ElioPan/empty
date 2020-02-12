@@ -233,9 +233,6 @@ public class SalesContractApiController {
         map.put("contractId", contractId);
         map.put("contractType", ConstantForGYL.XSHT);
         List<Map<String, Object>> data = contractAlterationService.listForMap(map);
-        for (Map<String, Object> datum : data) {
-            datum.put("thisSourceTypeName","销售出库");
-        }
         Map<String, Object> result = Maps.newHashMap();
         int total = contractAlterationService.countForMap(map);
         if (data.size() > 0) {

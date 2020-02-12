@@ -5,13 +5,10 @@ import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
-import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.domain.ProcessingChargeDO;
 import com.ev.scm.service.ProcessingChargeService;
-import com.ev.scm.service.SalescontractService;
-import com.ev.scm.service.StockOutService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * 加工费用控制器层
@@ -42,11 +38,7 @@ public class ProcessingChargeApiController {
 
 	@Autowired
 	private ProcessingChargeService processingChargeService;
-    @Autowired
-    private SalescontractService salescontractService;
-    @Autowired
-    private StockOutService stockOutService;
-	
+
 	@EvApiByToken(value = "/apis/processingCharge/addOrUpdate",method = RequestMethod.POST,apiTitle = "添加加工费用")
     @ApiOperation("添加/修改加工费用（修改传入id）")
 	@Transactional(rollbackFor = Exception.class)
@@ -64,7 +56,7 @@ public class ProcessingChargeApiController {
                     "        \"taxes\":2000,\n" +
                     "        \"taxAmount\":1300,\n" +
                     "        \"sourceType\":130,\n" +
-                    "        \"sourceCode\":\"销售合同||销售出库单号\",\n" +
+                    "        \"sourceCode\":\"销售合同||加工费用单号\",\n" +
                     "        \"sourceId\":1300\n" +
                     "    },\n" +
                     "    {\n" +
@@ -78,7 +70,7 @@ public class ProcessingChargeApiController {
                     "        \"taxes\":2000,\n" +
                     "        \"taxAmount\":1300,\n" +
                     "        \"sourceType\":130,\n" +
-                    "        \"sourceCode\":\"销售合同||销售出库单号\",\n" +
+                    "        \"sourceCode\":\"销售合同||加工费用单号\",\n" +
                     "        \"sourceId\":1300\n" +
                     "    }\n" +
                     "]"
@@ -99,22 +91,16 @@ public class ProcessingChargeApiController {
 	@EvApiByToken(value = "/apis/processingCharge/list",method = RequestMethod.GET,apiTitle = "获取加工费用列表/高级搜索")
     @ApiOperation("获取加工费用列表/高级搜索")
     public R list(
-            @ApiParam(value = "票据编号") @RequestParam(value = "billCode",required = false) String billCode,
-            @ApiParam(value = "客户名称") @RequestParam(value = "clientName",defaultValue = "",required = false)  String clientName,
+            @ApiParam(value = "发票号码") @RequestParam(value = "billCode",required = false) String billCode,
+            @ApiParam(value = "供应商名称") @RequestParam(value = "supplierName",defaultValue = "",required = false)  String supplierName,
             @ApiParam(value = "产品名称") @RequestParam(value = "materielName",required = false) String materielName,
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime",defaultValue = "",required = false)  String startTime,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime",defaultValue = "",required = false)  String endTime,
-            /*高级查询*/
-//            @ApiParam(value = "票据类型") @RequestParam(value = "billType",required = false) Long billType,
-//			@ApiParam(value = "规格型号") @RequestParam(value = "model",required = false) String model,
-//			@ApiParam(value = "审核状态") @RequestParam(value = "auditStatus",required = false) Long auditStatus,
-//			@ApiParam(value = "制单人") @RequestParam(value = "createBy",required = false) Long createBy,
-//			@ApiParam(value = "制单日期") @RequestParam(value = "createTime",required = false) Date createTime,
 			@ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
 			@ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize){
 		Map<String,Object> map = Maps.newHashMap();
         map.put("billCode",billCode);
-        map.put("clientName",StringUtils.sqlLike(clientName));
+        map.put("supplierName",StringUtils.sqlLike(supplierName));
         map.put("materielName",StringUtils.sqlLike(materielName));
         map.put("startTime", startTime);
         map.put("endTime",endTime);
@@ -122,10 +108,12 @@ public class ProcessingChargeApiController {
         map.put("offset",(pageno-1)*pagesize);
         map.put("limit",pagesize);
         List<Map<String, Object>> data = processingChargeService.listForMap(map);
-        int total = processingChargeService.countForMap(map);
+        Map<String, Object> countForMap = processingChargeService.countForMap(map);
+        int total = Integer.parseInt(countForMap.getOrDefault("total",0).toString());
         Map<String, Object> results = Maps.newHashMap();
         if (data.size() > 0) {
             results.put("data", new DsResultResponse(pageno,pagesize,total,data));
+            results.put("total", countForMap);
         }
         return R.ok(results);
 	}
@@ -150,53 +138,12 @@ public class ProcessingChargeApiController {
 	    return  processingChargeService.getDetail(id);
     }
 
-    @EvApiByToken(value = "/apis/processingCharge/importList",method = RequestMethod.GET,apiTitle = "获取加工费用列表/高级搜索")
-    @ApiOperation("销售发票的导入关联单据查询")
-    public R importList(
-            @ApiParam(value = "源单类型") @RequestParam(value = "sourceType",required = false) Long sourceType,
-            @ApiParam(value = "开始时间") @RequestParam(value = "startTime",defaultValue = "",required = false)  String startTime,
-            @ApiParam(value = "结束时间") @RequestParam(value = "endTime",defaultValue = "",required = false)  String endTime,
-            @ApiParam(value = "产品编号/产品名称/合同编号/客户名称 模糊查询") @RequestParam(value = "fuzzyInquire",required = false) String fuzzyInquire,
-            @ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
-            @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize){
-        Map<String,Object> map = Maps.newHashMap();
-
-        map.put("fuzzyInquire", fuzzyInquire);
-        map.put("startTime", startTime);
-        map.put("endTime",endTime);
-
-        map.put("offset",(pageno-1)*pagesize);
-        map.put("limit",pagesize);
-        if (Objects.equals(sourceType,ConstantForGYL.XSCK)) {
-            // 销售出库
-            // 出库类型
-            map.put("outboundType", ConstantForGYL.XSCK);
-            Map<String, Object> results = Maps.newHashMap();
-            List<Map<String, Object>> data = this.stockOutService.listApi(map);
-            int total = this.stockOutService.countApi(map);
-            if (data.size() > 0) {
-                results.put("data", new DsResultResponse(pageno,pagesize,total,data));
-            }
-            return R.ok(results);
-        }
-        // 销售合同
-        List<Map<String, Object>> data = salescontractService.listForMap(map);
-        Map<String, Object> stringBigDecimalMap = salescontractService.countForMap(map);
-        int total = Integer.parseInt(stringBigDecimalMap.getOrDefault("total",0).toString());
-        Map<String, Object> result = Maps.newHashMap();
-        if (data.size() > 0) {
-            result.put("data", new DsResultResponse(pageno,pagesize,total,data));
-            result.put("total", stringBigDecimalMap);
-        }
-        return R.ok(result);
-    }
-
     @ResponseBody
-    @EvApiByToken(value = "/apis/exportExcel/processingCharge", method = RequestMethod.GET, apiTitle = "导出销售出库")
-    @ApiOperation("导出销售出库")
+    @EvApiByToken(value = "/apis/exportExcel/processingCharge", method = RequestMethod.GET, apiTitle = "导出加工费用")
+    @ApiOperation("导出加工费用")
     public void exportExcel(
             @ApiParam(value = "票据编号") @RequestParam(value = "billCode",required = false) String billCode,
-            @ApiParam(value = "客户名称") @RequestParam(value = "clientName",defaultValue = "",required = false)  String clientName,
+            @ApiParam(value = "供应商名称") @RequestParam(value = "supplierName",defaultValue = "",required = false)  String supplierName,
             @ApiParam(value = "产品名称") @RequestParam(value = "materielName",required = false) String materielName,
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime",defaultValue = "",required = false)  String startTime,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime",defaultValue = "",required = false)  String endTime,
@@ -204,13 +151,13 @@ public class ProcessingChargeApiController {
             HttpServletRequest request, HttpServletResponse response, ModelMap modelMap) {
         Map<String,Object> param = Maps.newHashMap();
         param.put("billCode",billCode);
-        param.put("clientName",StringUtils.sqlLike(clientName));
+        param.put("supplierName",StringUtils.sqlLike(supplierName));
         param.put("materielName",StringUtils.sqlLike(materielName));
         param.put("startTime", startTime);
         param.put("endTime",endTime);
 
         List<Map<String, Object>> data = processingChargeService.listForMap(param);
-        ClassPathResource classPathResource = new ClassPathResource("poi/sales_bill.xlsx");
+        ClassPathResource classPathResource = new ClassPathResource("poi/processing_charge.xlsx");
         Map<String,Object> map = Maps.newHashMap();
         map.put("list", data);
         TemplateExportParams params = new TemplateExportParams(classPathResource.getPath());

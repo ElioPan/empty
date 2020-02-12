@@ -29,4 +29,10 @@ public interface ProcessingChargeDao {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+	List<Map<String, Object>> listForMap(Map<String, Object> map);
+
+	Map<String, Object> countForMap(Map<String, Object> map);
+
+	Map<String, Object> getDetail(Long id);
 }

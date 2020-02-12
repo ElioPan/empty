@@ -2,8 +2,9 @@ package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.ev.framework.config.ConstantForGYL;
-import com.ev.framework.utils.DateFormatUtil;
+import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
+import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.dao.ProcessingChargeDao;
 import com.ev.scm.dao.ProcessingChargeItemDao;
 import com.ev.scm.domain.ProcessingChargeDO;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-
+import java.util.Objects;
 
 
 @Service
@@ -24,6 +25,8 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 	private ProcessingChargeDao processingChargeDao;
 	@Autowired
 	private ProcessingChargeItemDao processingChargeItemDao;
+	@Autowired
+	private MessageSourceHandler messageSourceHandler;
 	
 	@Override
 	public ProcessingChargeDO get(Long id){
@@ -69,7 +72,7 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 			Map<String,Object> result = Maps.newHashMap();
 
 			processingChargeDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
-			processingChargeDO.setBillCode(this.BillCode());
+//			processingChargeDO.setBillCode(this.BillCode());
 			processingChargeDao.save(processingChargeDO);
 			for(ProcessingChargeItemDO itemDO : itemDOS){
 				itemDO.setChargeId(id);
@@ -95,42 +98,78 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 		return R.ok();
 	}
 
-	private String BillCode() {
-		Map<String, Object> param = Maps.newHashMapWithExpectedSize(3);
-		param.put("offset", 0);
-		param.put("limit", 1);
-		List<ProcessingChargeDO> list = this.list(param);
-		return DateFormatUtil.getWorkOrderNo(ConstantForGYL.PROCESSING_CHARGE, list.size() > 0 ? list.get(0).getBillCode() : null, 4);
-	}
+//	private String BillCode() {
+//		Map<String, Object> param = Maps.newHashMapWithExpectedSize(3);
+//		param.put("offset", 0);
+//		param.put("limit", 1);
+//		List<ProcessingChargeDO> list = this.list(param);
+//		return DateFormatUtil.getWorkOrderNo(ConstantForGYL.PROCESSING_CHARGE, list.size() > 0 ? list.get(0).getBillCode() : null, 4);
+//	}
 
 	@Override
 	public R batchRemoveProcessingCharge(Long[] ids) {
-		return null;
+		if (ids.length > 0) {
+			ProcessingChargeDO processingChargeDO;
+			for (Long id : ids) {
+				processingChargeDO = this.get(id);
+				if (Objects.equals(processingChargeDO.getAuditSign(),ConstantForGYL.OK_AUDITED)) {
+					return R.error(messageSourceHandler.getMessage("common.submit.delete.disabled", null));
+				}
+			}
+			this.batchRemove(ids);
+			processingChargeItemDao.batchRemoveByChargeIds(ids);
+			return R.ok();
+		}
+		return R.error();
 	}
 
 	@Override
 	public List<Map<String, Object>> listForMap(Map<String, Object> map) {
-		return null;
+		return processingChargeDao.listForMap(map);
 	}
 
 	@Override
-	public int countForMap(Map<String, Object> map) {
-		return 0;
+	public Map<String, Object> countForMap(Map<String, Object> map) {
+		return processingChargeDao.countForMap(map);
 	}
 
 	@Override
 	public R audit(Long id) {
-		return null;
+		ProcessingChargeDO processingChargeDO = this.get(id);
+		if (Objects.equals(processingChargeDO.getAuditSign(), ConstantForGYL.OK_AUDITED)) {
+			return R.error(messageSourceHandler.getMessage("common.duplicate.approved", null));
+		}
+		processingChargeDO.setAuditSign(ConstantForGYL.OK_AUDITED);
+		processingChargeDO.setAuditor(ShiroUtils.getUserId());
+		return this.update(processingChargeDO) > 0 ? R.ok() : R.error();
 	}
 
 	@Override
 	public R reverseAudit(Long id) {
-		return null;
+		ProcessingChargeDO processingChargeDO = this.get(id);
+		if (Objects.equals(processingChargeDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+			return R.error(messageSourceHandler.getMessage("common.massge.faildRollBackAudit", null));
+		}
+		processingChargeDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+		processingChargeDO.setAuditor(0L);
+		return this.update(processingChargeDO) > 0 ? R.ok() : R.error();
 	}
 
 	@Override
 	public R getDetail(Long id) {
-		return null;
+		Map<String,Object> result = Maps.newHashMap();
+		// 表头数据
+		result.put("processingCharge",processingChargeDao.getDetail(id));
+
+		Map<String,Object> param = Maps.newHashMap();
+		param.put("id",id);
+		// 子项目列表
+		List<Map<String, Object>> itemList = processingChargeItemDao.listForMap(param);
+		// 子项目金额的合计
+		Map<String, Object> itemTotalCount = processingChargeItemDao.countForMap(param);
+		result.put("itemList",itemList);
+		result.put("itemTotalCount",itemTotalCount);
+		return R.ok(result);
 	}
 
 }

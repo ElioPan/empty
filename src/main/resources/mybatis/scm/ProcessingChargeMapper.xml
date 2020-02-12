@@ -129,5 +129,116 @@
 			#{id}
 		</foreach>
 	</delete>
+
+	<!--自定义-->
+	<select id="listForMap" resultType="map">
+		SELECT
+		item.id AS itemId,
+		item.charge_id AS id,
+		bill.invoice_date AS invoiceDate,
+		supplier.`name` AS supplierName,
+		bill.invoice_type AS invoiceType,
+		dici.`name` AS invoiceyTypeName,
+		bill.`bill_code` AS billCode,
+		materiel.serial_no AS materielSerialNo,
+		materiel. NAME AS materielName,
+		materiel.specification AS specification,
+		item.`count` AS count,
+		item.unit_price AS unitPrice,
+		item.tax_unit_price AS taxUnitPrice,
+		item.`tax_rate` AS taxRate,
+		item.amount AS amount,
+		item.taxes AS taxes,
+		item.tax_amount AS taxAmount,
+		bill.audit_sign AS auditSign,
+		dica.`name` AS auditSignName,
+		item.source_type AS sourceType,
+		dict.`name` AS sourceTypeName,
+		item.source_code AS sourceCode
+		<include refid="sql_map_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by item.charge_id desc,item.id
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="map">
+		SELECT
+		COUNT(*) AS total,
+		SUM(item.`count`) AS totalCount,
+		SUM(item.`amount`) AS totalAmount,
+		SUM(item.`taxes`) AS totalTaxes,
+		SUM(item.`tax_amount`) AS totalTaxAmount
+		<include refid="sql_map_condition"/>
+	</select>
+
+	<sql id="sql_map_condition">
+		FROM
+		scm_processing_charge_item item
+		LEFT JOIN scm_processing_charge bill ON bill.id = item.charge_id
+		LEFT JOIN cus_supplier supplier ON supplier.id = bill.supplier_id
+		LEFT JOIN cus_dictionary dici ON dici.id = bill.invoice_type
+		LEFT JOIN cus_materiel materiel ON materiel.`id` = item.`materiel_id`
+		LEFT JOIN cus_dictionary dica ON dica.id = bill.audit_sign
+		LEFT JOIN cus_dictionary dict ON dict.id = item.source_type
+		<where>
+			<if test="billCode != null and billCode != ''"> and bill.bill_code = #{billCode} </if>
+			<if test="supplierName != null and supplierName != ''"> and supplier.name LIKE #{supplierName} </if>
+			<if test="materielName != null and materielName != ''"> and materiel.name LIKE #{materielName} </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(item.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(item.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+
+			<if test="id != null and id != ''"> and item.charge_id = #{id} </if>
+			<if test="itemId != null and itemId != ''"> and item.id = #{itemId} </if>
+			<if test="auditSign != null and auditSign != ''"> and bill.audit_sign = #{auditSign} </if>
+			<if test="auditor != null and auditor != ''"> and bill.auditor = #{auditor} </if>
+			<if test="auditTime != null and auditTime != ''"> and bill.audit_time = #{auditTime} </if>
+			<if test="createBy != null and createBy != ''"> and bill.create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and bill.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and bill.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and bill.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and bill.del_flag = #{delFlag} </if>
+		</where>
+	</sql>
+
+	<select id="getDetail" resultType="java.util.Map">
+ SELECT
+        bill.`id` AS id,
+        bill.`supplier_id` AS supplierId,
+        supplier.name AS supplierName,
+        bill.invoice_date AS invoiceDate,
+        bill.`invoice_user` AS invoiceUser,
+        users.`name` AS invoiceUserName,
+        bill.`bill_code` AS billCode,
+        bill.invoice_type AS invoiceType,
+        dici.`name` AS invoiceTypeName,
+        bill.stock_in_id AS stockInId,
+        stock.inhead_code AS stockInCode,
+        bill.`remarks` AS remarks,
+        bill.create_by AS createBy,
+        creater.`name` AS createByName,
+        bill.`create_time` AS createTime,
+        bill.auditor AS auditor,
+        auditor.`name` AS auditorName,
+        bill.`audit_time` AS auditTime,
+        bill.audit_sign AS auditSign,
+        dica.`name` AS auditSignName
+        FROM scm_processing_charge bill
+        LEFT JOIN cus_supplier supplier ON supplier.id = bill.supplier_id
+        LEFT JOIN cus_dictionary dici ON  dici.id = bill.invoice_type
+        LEFT JOIN scm_stock_in stock ON  stock.id = bill.stock_in_id
+        LEFT JOIN sys_user users ON  users.user_id = bill.invoice_user
+        LEFT JOIN sys_user creater ON  creater.user_id = bill.create_by
+        LEFT JOIN sys_user auditor ON  auditor.user_id = bill.auditor
+        LEFT JOIN cus_dictionary dica ON  dica.id = bill.audit_sign
+        WHERE bill.`id` = #{value}
+	</select>
 	
 </mapper>

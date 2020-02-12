@@ -40,7 +40,7 @@ public class SalesbillServiceImpl implements SalesbillService {
             Map<String,Object> result = Maps.newHashMap();
 
             salesBillDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
-            salesBillDO.setBillCode(this.SalesBillCode());
+//            salesBillDO.setBillCode(this.SalesBillCode());
             salesbillDao.save(salesBillDO);
             for(SalesbillItemDO itemDO : itemDOS){
                 itemDO.setSalesbillId(id);
@@ -84,8 +84,8 @@ public class SalesbillServiceImpl implements SalesbillService {
         if (Objects.equals(salesbillDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("common.massge.faildRollBackAudit", null));
         }
-        salesbillDO.setAuditSign(ConstantForGYL.OK_AUDITED);
-        salesbillDO.setAuditor(ShiroUtils.getUserId());
+        salesbillDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+        salesbillDO.setAuditor(0L);
         return this.update(salesbillDO) > 0 ? R.ok() : R.error();
 	}
 
@@ -168,17 +168,17 @@ public class SalesbillServiceImpl implements SalesbillService {
 		return salesbillDao.batchRemove(ids);
 	}
 	
-	public String SalesBillCode(){
-		String maxNo = DateFormatUtil.getWorkOrderno(ConstantForGYL.BILL_CODE);
-		Map<String, Object> param = Maps.newHashMapWithExpectedSize(3);
-		param.put("maxNo", maxNo);
-		param.put("offset", 0);
-		param.put("limit", 1);
-		List<SalesbillDO> list = this.list(param);
-		String taskNo = null;
-		if (list.size() > 0) {
-			taskNo = list.get(0).getBillCode();
-		}
-		return DateFormatUtil.getWorkOrderno(maxNo, taskNo);
-	}
+//	public String SalesBillCode(){
+//		String maxNo = DateFormatUtil.getWorkOrderno(ConstantForGYL.BILL_CODE);
+//		Map<String, Object> param = Maps.newHashMapWithExpectedSize(3);
+//		param.put("maxNo", maxNo);
+//		param.put("offset", 0);
+//		param.put("limit", 1);
+//		List<SalesbillDO> list = this.list(param);
+//		String taskNo = null;
+//		if (list.size() > 0) {
+//			taskNo = list.get(0).getBillCode();
+//		}
+//		return DateFormatUtil.getWorkOrderno(maxNo, taskNo);
+//	}
 }

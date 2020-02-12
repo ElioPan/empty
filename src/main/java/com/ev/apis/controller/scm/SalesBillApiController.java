@@ -151,7 +151,7 @@ public class SalesBillApiController {
 	    return  salesbillService.getDetail(id);
     }
 
-    @EvApiByToken(value = "/apis/salesBill/importList",method = RequestMethod.GET,apiTitle = "获取销售票据列表/高级搜索")
+    @EvApiByToken(value = "/apis/salesBill/importList",method = RequestMethod.GET,apiTitle = "销售发票的导入关联单据查询")
     @ApiOperation("销售发票的导入关联单据查询")
     public R importList(
             @ApiParam(value = "源单类型") @RequestParam(value = "sourceType",required = false) Long sourceType,
@@ -174,6 +174,10 @@ public class SalesBillApiController {
             map.put("outboundType", ConstantForGYL.XSCK);
             Map<String, Object> results = Maps.newHashMap();
             List<Map<String, Object>> data = this.stockOutService.listApi(map);
+            for (Map<String, Object> datum : data) {
+                datum.put("thisSourceType",ConstantForGYL.XSCK);
+                datum.put("thisSourceTypeName","销售出库");
+            }
             int total = this.stockOutService.countApi(map);
             if (data.size() > 0) {
                 results.put("data", new DsResultResponse(pageno,pagesize,total,data));
@@ -182,6 +186,10 @@ public class SalesBillApiController {
         }
         // 销售合同
         List<Map<String, Object>> data = salescontractService.listForMap(map);
+        for (Map<String, Object> datum : data) {
+            datum.put("thisSourceType",ConstantForGYL.XSHT);
+            datum.put("thisSourceTypeName","销售合同");
+        }
         Map<String, Object> stringBigDecimalMap = salescontractService.countForMap(map);
         int total = Integer.parseInt(stringBigDecimalMap.getOrDefault("total",0).toString());
         Map<String, Object> result = Maps.newHashMap();
@@ -193,8 +201,8 @@ public class SalesBillApiController {
     }
 
     @ResponseBody
-    @EvApiByToken(value = "/apis/exportExcel/salesBill", method = RequestMethod.GET, apiTitle = "导出销售出库")
-    @ApiOperation("导出销售出库")
+    @EvApiByToken(value = "/apis/exportExcel/salesBill", method = RequestMethod.GET, apiTitle = "导出销售票据")
+    @ApiOperation("导出销售票据")
     public void exportExcel(
             @ApiParam(value = "票据编号") @RequestParam(value = "billCode",required = false) String billCode,
             @ApiParam(value = "客户名称") @RequestParam(value = "clientName",defaultValue = "",required = false)  String clientName,
