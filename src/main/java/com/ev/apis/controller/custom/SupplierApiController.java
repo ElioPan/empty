@@ -320,7 +320,7 @@ public class SupplierApiController {
 
     /*导入导出*/
     @ResponseBody
-    @EvApiByToken(value = "/apis/importExcel/supplier", method = RequestMethod.POST, apiTitle = "供应商信息导入")
+    @EvApiByToken(value = "/apis/supplier/importExcel", method = RequestMethod.POST, apiTitle = "供应商信息导入")
     @ApiOperation("供应商信息导入")
     @Transactional(rollbackFor = Exception.class)
     public R readSupplier(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file) throws Exception {
@@ -406,7 +406,7 @@ public class SupplierApiController {
     }
 
     @ResponseBody
-    @EvApiByToken(value = "/apis/exportExcel/supplier", method = RequestMethod.GET, apiTitle = "导出供应商")
+    @EvApiByToken(value = "/apis/supplier/exportExcel", method = RequestMethod.GET, apiTitle = "导出供应商")
     @ApiOperation("导出供应商")
     public void exportExcel(
             @ApiParam(value = "单位名称/联系人") @RequestParam(value = "name", defaultValue = "", required = false) String name,

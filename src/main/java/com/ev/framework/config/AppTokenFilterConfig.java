@@ -11,7 +11,7 @@ import java.util.Map;
 
 
 @Configuration
-public class AppTokenFilterConfig {
+public class  AppTokenFilterConfig {
 
 	/**
 	 * xss过滤拦截器
@@ -25,7 +25,7 @@ public class AppTokenFilterConfig {
 		filterRegistrationBean.setEnabled(true);
 		filterRegistrationBean.addUrlPatterns("/apis/*");
 		Map<String, String> initParameters = Maps.newHashMap();
-		initParameters.put("excludes", "/apis/user/login*,/apis/user/getGroupsByUser,/apis/alarm/addEvAlarm,/apis/file/*,/apis/document/downloads,/apis/serviceCode/save,/apis/serviceCode/getServiceCode,/apis/user/checkToken,/apis/serviceCode/activateServiceCode,/apis/easyExcel/*,/apis/easyPoi/*,/apis/exportExcel/*");
+		initParameters.put("excludes", "/apis/user/login*,/apis/user/getGroupsByUser,/apis/alarm/addEvAlarm,/apis/file/*,/apis/document/downloads,/apis/serviceCode/save,/apis/serviceCode/getServiceCode,/apis/user/checkToken,/apis/serviceCode/activateServiceCode");
 		filterRegistrationBean.setInitParameters(initParameters);
 		return filterRegistrationBean;
 	}
@@ -38,7 +38,7 @@ public class AppTokenFilterConfig {
 		filterRegistrationBean.setEnabled(true);
 		filterRegistrationBean.addUrlPatterns("/apis/*");
 		Map<String, String> initParameters = Maps.newHashMap();
-		initParameters.put("excludes", "/apis/user/login*,/apis/user/getGroupsByUser,/apis/alarm/addEvAlarm,/apis/file/*,/apis/document/downloads,/apis/serviceCode/save,/apis/serviceCode/getServiceCode,/apis/user/checkToken,/apis/serviceCode/activateServiceCode,/apis/easyExcel/*,/apis/easyPoi/*,/apis/exportExcel/*");
+		initParameters.put("excludes", "/apis/user/login*,/apis/user/getGroupsByUser,/apis/alarm/addEvAlarm,/apis/file/*,/apis/document/downloads,/apis/serviceCode/save,/apis/serviceCode/getServiceCode,/apis/user/checkToken,/apis/serviceCode/activateServiceCode");
 		filterRegistrationBean.setInitParameters(initParameters);
 		return filterRegistrationBean;
 	}

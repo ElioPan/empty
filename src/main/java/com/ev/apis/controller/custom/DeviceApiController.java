@@ -762,7 +762,7 @@ public class DeviceApiController {
 
     /*导入导出*/
     @ResponseBody
-    @EvApiByToken(value = "/apis/exportExcel/device", method = RequestMethod.GET, apiTitle = "导出物料")
+    @EvApiByToken(value = "/apis/device/exportExcel", method = RequestMethod.GET, apiTitle = "导出物料")
     @ApiOperation("导出物料")
     public void exportExcel(
             @ApiParam(value = "设备名字或编码") @RequestParam(value = "nameAndType", defaultValue = "", required = false) String name,
@@ -811,7 +811,7 @@ public class DeviceApiController {
     }
     /*导入*/
     @ResponseBody
-    @EvApiByToken(value = "/apis/importExcel/device", method = RequestMethod.POST, apiTitle = "设备信息导入")
+    @EvApiByToken(value = "/apis/device/importExcel", method = RequestMethod.POST, apiTitle = "设备信息导入")
     @ApiOperation("设备信息导入")
     @Transactional(rollbackFor = Exception.class)
     public R readSupplier(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file) throws Exception {

@@ -376,7 +376,7 @@ public class OutsourcingContractApiController {
     }
 
     @ResponseBody
-    @EvApiByToken(value = "/apis/exportExcel/outsourcingContract", method = RequestMethod.GET, apiTitle = "导出合同")
+    @EvApiByToken(value = "/apis/outsourcingContract/exportExcel", method = RequestMethod.GET, apiTitle = "导出合同")
     @ApiOperation("导出合同")
     public void exportExcel(
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime",defaultValue = "",required = false)  String startTime,

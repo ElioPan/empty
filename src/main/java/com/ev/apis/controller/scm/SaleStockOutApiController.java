@@ -209,7 +209,7 @@ public class SaleStockOutApiController {
     }
 
     @ResponseBody
-    @EvApiByToken(value = "/apis/exportExcel/salesOutStock", method = RequestMethod.GET, apiTitle = "导出销售出库")
+    @EvApiByToken(value = "/apis/salesOutStock/exportExcel", method = RequestMethod.GET, apiTitle = "导出销售出库")
     @ApiOperation("导出销售出库")
     public void exportExcel(
             @ApiParam(value = "出库单号") @RequestParam(value = "outCode", defaultValue = "", required = false) String outCode,

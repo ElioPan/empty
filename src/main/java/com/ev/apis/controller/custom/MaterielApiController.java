@@ -353,7 +353,7 @@ public class MaterielApiController {
 
     /*导入导出*/
     @ResponseBody
-    @EvApiByToken(value = "/apis/exportExcel/materiel", method = RequestMethod.GET, apiTitle = "导出物料")
+    @EvApiByToken(value = "/apis/materiel/exportExcel", method = RequestMethod.GET, apiTitle = "导出物料")
     @ApiOperation("导出物料")
     public void exportExcel(
             @ApiParam(value = "物料编码") @RequestParam(value = "serialNo", defaultValue = "", required = false) String serialNo,
@@ -406,7 +406,7 @@ public class MaterielApiController {
     }
     /*导入*/
     @ResponseBody
-    @EvApiByToken(value = "/apis/importExcel/materiel", method = RequestMethod.POST, apiTitle = "物料信息导入")
+    @EvApiByToken(value = "/apis/materiel/importExcel", method = RequestMethod.POST, apiTitle = "物料信息导入")
     @ApiOperation("物料信息导入")
     @Transactional(rollbackFor = Exception.class)
     public R readSupplier(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file) throws Exception {

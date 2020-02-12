@@ -139,7 +139,7 @@ public class ProcessingChargeApiController {
     }
 
     @ResponseBody
-    @EvApiByToken(value = "/apis/exportExcel/processingCharge", method = RequestMethod.GET, apiTitle = "导出加工费用")
+    @EvApiByToken(value = "/apis/processingCharge/exportExcel", method = RequestMethod.GET, apiTitle = "导出加工费用")
     @ApiOperation("导出加工费用")
     public void exportExcel(
             @ApiParam(value = "票据编号") @RequestParam(value = "billCode",required = false) String billCode,

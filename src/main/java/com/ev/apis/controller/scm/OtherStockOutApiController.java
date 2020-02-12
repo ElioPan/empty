@@ -202,7 +202,7 @@ public class OtherStockOutApiController {
     }
 
     @ResponseBody
-    @EvApiByToken(value = "/apis/exportExcel/otherStockOut", method = RequestMethod.GET, apiTitle = "导出其他出库")
+    @EvApiByToken(value = "/apis/otherStockOut/exportExcel", method = RequestMethod.GET, apiTitle = "导出其他出库")
     @ApiOperation("导出其他出库")
     public void exportExcel(
             @ApiParam(value = "单据编号") @RequestParam(value = "outCode", defaultValue = "", required = false) String outCode,
