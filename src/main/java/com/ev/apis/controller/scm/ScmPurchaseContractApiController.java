@@ -184,6 +184,7 @@ public class ScmPurchaseContractApiController {
         map.put("endTime", endTime);
         map.put("contractCode", contractCode);
         map.put("createByName", StringUtils.sqlLike(createByName));
+        map.put("pageno",pageno);
         map.put("offset",(pageno-1)*pagesize);
         map.put("limit",pagesize);
         map.put("contractId", contractId);

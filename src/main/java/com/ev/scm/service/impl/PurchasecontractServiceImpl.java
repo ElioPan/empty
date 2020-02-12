@@ -310,7 +310,7 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 		int total = contractAlterationDao.countForMap(map);
 		if (data.size() > 0) {
 			DsResultResponse dsRet = new DsResultResponse();
-			Integer pagesize = (Integer) map.get("pagesize");
+			Integer pagesize = (Integer) map.get("limit");
 			dsRet.setDatas(data);
 			dsRet.setPageno((int) map.get("pageno"));
 			dsRet.setPagesize(pagesize);
