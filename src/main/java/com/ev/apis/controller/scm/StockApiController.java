@@ -211,8 +211,8 @@ public class StockApiController {
     ) {
         Map<String, Object> results = Maps.newHashMap();
         Map<String, Object> params = Maps.newHashMap();
-        params.put("pagesize", pagesize);
-        params.put("pageno", pageno);
+        params.put("offset", (pageno - 1) * pagesize);
+        params.put("limit", pagesize);
         params.put("productTypeId", productTypeId);
         params.put("fuzzySearch", fuzzySearch);
         params.put("facilityTypeId", facilityTypeId);
