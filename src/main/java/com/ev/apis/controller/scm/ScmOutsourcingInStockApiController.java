@@ -65,7 +65,7 @@ public class ScmOutsourcingInStockApiController {
 
                               "}\n" +
                               "]", required = true) @RequestParam(value = "bodyDetail", defaultValue = "") String bodyDetail,
-                      @ApiParam(value = "删除的明细id") @RequestParam(value = "ItemIds", required = false) Long[] itemIds) {
+                      @ApiParam(value = "删除的明细id") @RequestParam(value = "itemIds", required = false) Long[] itemIds) {
 
         return stockInService.addAndChangeInStockType(stockInDO, ConstantForGYL.OUTSOURCING_INSTOCK,bodyDetail,itemIds);
 

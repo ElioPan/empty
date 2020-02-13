@@ -61,7 +61,7 @@ public class ScmPurchaseInStockController {
                               "\"expense\":\"费用（采购入库）\"\n" +
                               "}\n" +
                               "]", required = true) @RequestParam(value = "bodyDetail", defaultValue = "") String bodyDetail,
-                      @ApiParam(value = "删除的明细id") @RequestParam(value = "ItemIds", required = false) Long[] itemIds) {
+                      @ApiParam(value = "删除的明细id") @RequestParam(value = "itemIds", required = false) Long[] itemIds) {
 
         return stockInService.addAndChangeInStockType(stockInDO,ConstantForGYL.PURCHASE_INSTOCK,bodyDetail,itemIds);
 

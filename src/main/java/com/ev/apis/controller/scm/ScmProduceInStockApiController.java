@@ -52,7 +52,7 @@ public class ScmProduceInStockApiController {
                               "\"sourceId\":\"原单id(追溯用，必传)\"\n" +
                               "}\n" +
                               "]", required = true) @RequestParam(value = "bodyDetail", defaultValue = "") String bodyDetail,
-                      @ApiParam(value = "删除的明细id") @RequestParam(value = "ItemIds", required = false) Long[] itemIds) {
+                      @ApiParam(value = "删除的明细id") @RequestParam(value = "itemIds", required = false) Long[] itemIds) {
 
 
         return stockInService.addAndChangeInStockType(stockInDO,ConstantForGYL.YDGOODS_WAREHOUSE,bodyDetail,itemIds);
