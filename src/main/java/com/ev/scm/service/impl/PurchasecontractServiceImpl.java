@@ -270,8 +270,10 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 		}
 		Map<String, Object> params = Maps.newHashMap();
 		params.put("id", purchaseContractId);
+		Map<String, Object> paramyId = Maps.newHashMap();
+		paramyId.put("purchaseContractId", purchaseContractId);
 		//合同明细++付款明细
-		List<PurchasecontractItemDO> oldDetailOfBody = purchasecontractItemService.list(params);
+		List<PurchasecontractItemDO> oldDetailOfBody = purchasecontractItemService.list(paramyId);
 		List<PurchasecontractPayDO> oldDetailOfPay = purchasecontractPayService.detailOfPay(params);
 		JSONObject alterationContent = new JSONObject();
 
@@ -371,6 +373,7 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 			for (PurchasecontractItemDO newPurchaseContractItemDO : newPurchaseContractItemList) {
 				Long itemId = newPurchaseContractItemDO.getId();
 				for (PurchasecontractItemDO oldContractItemDO : oldDetailOfBody) {
+					Long ii=oldContractItemDO.getId();
 					if (Objects.equals(itemId, oldContractItemDO.getId())) {
 						boolean isUpdate = false;
 						// 变更数量
