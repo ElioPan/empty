@@ -189,7 +189,7 @@
 		n.name as unitName,
 		aa.batch ,
 		aa.count ,
-		aa.unit_price	as unitPrice,
+		aa.unit_price as unitPrice,
 		aa.amount,
 		aa.warehouse,
 		o.name as warehouseName,

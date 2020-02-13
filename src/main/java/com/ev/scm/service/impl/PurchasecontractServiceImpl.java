@@ -143,6 +143,7 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 			}
 		}
 		result.put("id", id);
+		result.put("code", purchasecontractDO.getContractCode());
 		return R.ok(result);
 	}
 

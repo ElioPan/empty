@@ -176,7 +176,7 @@ public class ScmOutsourcingInStockApiController {
             @ApiParam(value = "退货截止时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
             @ApiParam(value = "规格型号") @RequestParam(value = "materielSpecification", defaultValue = "", required = false) String materielSpecification,
             @ApiParam(value = "制单人id") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
-            @ApiParam(value = "制单人名字",required = false) @RequestParam(value = "createByName", defaultValue = "", required = false) Long createByName,
+            @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) Long createByName,
             @ApiParam(value = "制单日期") @RequestParam(value = "createTime", defaultValue = "", required = false) String  createTime,
             HttpServletRequest request,
             HttpServletResponse response,

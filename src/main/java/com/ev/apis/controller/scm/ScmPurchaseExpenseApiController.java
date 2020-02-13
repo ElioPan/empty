@@ -44,7 +44,6 @@ public class ScmPurchaseExpenseApiController {
                                 @ApiParam(value = "添加采购申请明细:[\n" +
                                         "{\n" +
                                         "\"id\":\"明细行主键(修改时必传)\",\n" +
-                                        "\"expenseId\":\"费用id\",\n" +
                                         "\"unit\":\"单位id\",\n" +
                                         "\"count\":\"数量\",\n" +
                                         "\"taxUnitPrice\":\"含税单价\",\n" +
