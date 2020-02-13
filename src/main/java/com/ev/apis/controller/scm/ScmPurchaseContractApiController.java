@@ -194,7 +194,7 @@ public class ScmPurchaseContractApiController {
 
     @EvApiByToken(value = "/apis/scm/purchaseContract/alterationDetail",method = RequestMethod.GET,apiTitle = "变更详情—采购合同")
     @ApiOperation("变更详情—采购合同")
-    public R alterationDetail(@ApiParam(value = "主键ID",required = true) @RequestParam(value = "id",defaultValue = "")  Long id) {
+    public R alterationDetail(@ApiParam(value = "变更记录主键ID",required = true) @RequestParam(value = "id",defaultValue = "")  Long id) {
         return  purchasecontractService.getAlterationDetail(id);
     }
 
@@ -279,6 +279,9 @@ public class ScmPurchaseContractApiController {
         PoiBaseView.render(modelMap, request, response,
                 TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
     }
+
+
+
 
 
 }
