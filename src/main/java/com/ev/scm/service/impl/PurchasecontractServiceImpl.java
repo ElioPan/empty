@@ -328,7 +328,7 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 		Map<String,Object> result = Maps.newHashMap();
 		ContractAlterationDO contractAlterationDO = contractAlterationDao.get(id);
 
-		Map<String,Object>  map= new HashMap<String,Object>();
+		Map<String,Object>  map= new HashMap<>();
 		map.put("id",id);
 		Map<String, Object> detailOfHead = purchasecontractDao.detailOfContract(map);
 		result.put("detailOfHead",detailOfHead);

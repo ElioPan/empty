@@ -35,5 +35,6 @@ public interface PaymentReceivedItemDao {
 
 	Map<String, Object> totallAmount(Map<String, Object> map);
 
+	int whetherTheReference(Map<String, Object> map);
 
 }

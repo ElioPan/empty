@@ -207,4 +207,20 @@ receivablePayablesAmount},
 		a.payment_received_id=#{id}
 	</select>
 
+	<select id="whetherTheReference" resultType="int">
+		select
+		count(a.id) as `count`
+		FROM
+		scm_payment_received_item  a
+		LEFT JOIN scm_payment_received  b on a.payment_received_id=b.id
+		where
+			a.source_id=#{sourceId}
+			and
+			b.sign=#{sign}
+			and a.source_pay_item_id in
+		<foreach item="item" collection="sourceItemId" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+
 </mapper>

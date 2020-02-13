@@ -34,5 +34,8 @@ public interface PaymentReceivedItemService {
 
 	Map<String, Object> totallAmount(Map<String, Object> map);
 
+	Boolean whetherTheReference(String sign,Long id,Long[] payItemId);
+
+
 
 }
