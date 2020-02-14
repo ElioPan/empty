@@ -76,7 +76,7 @@ public class PaymentReceivedItemServiceImpl implements PaymentReceivedItemServic
 		map.put("sign",sign);
 
 		int rows = paymentReceivedItemDao.whetherTheReference(map);
-		
+
 		if(rows==0){
 			return true;
 		}else{

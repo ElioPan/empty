@@ -315,7 +315,6 @@
 			a.operator  as operator,
 			f.name as operatorName,
 			a.purchase_type  as purchaseType,
-			g.name as purchaseTypeName,
 			a.pay_account	 as payAccount,
 			a.auditor ,
 			h.name as auditorName,
