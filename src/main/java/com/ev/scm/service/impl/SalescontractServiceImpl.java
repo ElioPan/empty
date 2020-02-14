@@ -402,6 +402,7 @@ public class SalescontractServiceImpl implements SalescontractService {
             JSONObject alterationContentJSON = JSON.parseObject(alterationContent);
             JSONArray itemArray = alterationContentJSON.getJSONArray("itemArray");
             JSONArray payArray = alterationContentJSON.getJSONArray("payArray");
+            result.put("payArray", payArray);
             if (itemArray.size() > 0) {
                 Map<String, Object> param;
                 Map<String, Object> materiel;
@@ -418,7 +419,6 @@ public class SalescontractServiceImpl implements SalescontractService {
                     itemJSONObject.put("specification", materiel.getOrDefault("specification", ""));
                 }
                 result.put("itemArray", itemArray);
-                result.put("payArray", payArray);
                 return R.ok(result);
             }
         }
