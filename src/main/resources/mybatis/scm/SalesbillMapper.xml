@@ -214,6 +214,7 @@
         bill.invoice_date AS invoiceDate,
         bill.drawer AS drawer,
         users.`name` AS drawerName,
+        bill.`bill_code` AS billCode,
         bill.invoice_num AS invoiceNum,
         bill.invoice_type AS invoiceType,
         dici.`name` AS invoiceTypeName,
