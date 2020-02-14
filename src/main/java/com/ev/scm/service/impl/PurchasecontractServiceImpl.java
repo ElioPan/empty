@@ -264,6 +264,7 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 		if(!aBoolean){
 			return R.error(messageSourceHandler.getMessage("scm.canDelet.contractPayItem", null));
 		}
+
 		PurchasecontractDO purchasecontractDO = this.get(purchaseContractId);
 		if (Objects.equals(purchasecontractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
 			return R.error(messageSourceHandler.getMessage("scm.contract.isUpdate.notAlteration", null));
