@@ -5,6 +5,7 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
+import com.alibaba.fastjson.JSON;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.domain.FacilityDO;
 import com.ev.custom.domain.FacilityLocationDO;
@@ -90,7 +91,7 @@ public class StockApiController {
                         || StringUtils.isEmpty(facilityLocationName)
                         || StringUtils.isEmpty(facilityName)
                         || !NumberUtils.isNumber(stockEntity.getTotalCount())
-                        || !NumberUtils.isNumber(stockEntity.getUnitPrice())
+                        || !NumberUtils.isNumber(stockEntity.getAmount())
                         || StringUtils.isEmpty(stockEntity.getBatch())) {
                     return R.error(messageSourceHandler.getMessage("basicInfo.correct.param", null));
                 }
@@ -109,6 +110,8 @@ public class StockApiController {
             List<StockDO> stockDOs = Lists.newArrayList();
             StockDO stockDO;
             String serialNo;
+            String batch;
+            Integer isLot;
             for (StockEntity stockEntity : stockEntityList) {
                 stockDO = new StockDO();
                 // 默认仓库
@@ -139,8 +142,14 @@ public class StockApiController {
 
                 // 验证物料是否存在
                 serialNo = stockEntity.getSerialno();
+                batch = stockEntity.getBatch();
                 for (MaterielDO materielDO : materielDOs) {
                     if (Objects.equals(materielDO.getSerialNo(), serialNo)) {
+                        isLot = materielDO.getIsLot();
+                        if ((isLot == 1 && StringUtils.isEmpty(batch)) || (isLot != 1 && StringUtils.isNoneEmpty(batch))) {
+                            String[] args = {materielDO.getName()};
+                            return R.error(messageSourceHandler.getMessage("basicInfo.materiel.isLotError", args));
+                        }
                         isMaterielError = false;
                         stockDO.setMaterielId(materielDO.getId().longValue());
                         break;
@@ -155,7 +164,7 @@ public class StockApiController {
                 stockDO.setEnteringTime(now);
                 stockDO.setAvailableCount(count);
                 stockDO.setCount(count);
-                stockDO.setUnitPrice(BigDecimal.valueOf(Double.parseDouble(stockEntity.getUnitPrice())));
+                stockDO.setAmount(BigDecimal.valueOf(Double.parseDouble(stockEntity.getAmount())));
                 stockDO.setDelFlag(0);
                 stockDO.setCreateBy(userId);
                 stockDO.setCreateTime(now);
@@ -275,6 +284,53 @@ public class StockApiController {
         return R.ok();
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @EvApiByToken(value = "/apis/stock/save", method = RequestMethod.POST, apiTitle = "初始库存录入")
+    @ApiOperation("初始库存录入")
+    public R saveStock(@ApiParam(value = "出库明细:" +
+            "[\n" +
+            "    {\n" +
+            "        \"materielId\":25,\n" +
+            "        \"batch\":\"wh_ycl_001\",\n" +
+            "        \"warehouse\":1200,\n" +
+            "        \"warehLocation\":1200,\n" +
+            "        \"count\":201,\n" +
+            "        \"amount\":24000\n" +
+            "    },\n" +
+            "    {\n" +
+            "        \"materielId\":25,\n" +
+            "        \"batch\":\"wh_ycl_001\",\n" +
+            "        \"warehouse\":1200,\n" +
+            "        \"warehLocation\":1200,\n" +
+            "        \"count\":201,\n" +
+            "        \"amount\":24000\n" +
+            "    }\n" +
+            "]"
+            , required = true)@RequestParam(value = "item",defaultValue = "") String stockList) {
+        List<StockDO> itemDOs = JSON.parseArray(stockList, StockDO.class);
+        List<MaterielDO> materielDOs = materielService.list(Maps.newHashMap());
+        String batch;
+        Integer isLot;
+        if (itemDOs.size() > 0 && materielDOs.size()>0) {
+            for (StockDO itemDO : itemDOs) {
+                batch = itemDO.getBatch();
+                for (MaterielDO materielDO : materielDOs) {
+                    if (Objects.equals(materielDO.getId().longValue(), itemDO.getMaterielId())) {
+                        isLot = materielDO.getIsLot();
+                        if ((isLot == 1 && StringUtils.isEmpty(batch)) || (isLot != 1 && StringUtils.isNoneEmpty(batch))) {
+                            String[] args = {materielDO.getName()};
+                            return R.error(messageSourceHandler.getMessage("basicInfo.materiel.isLotError", args));
+                        }
+                        break;
+                    }
+                }
+
+            }
+            stockService.batchSave(itemDOs);
+            return R.ok();
+        }
+        return R.error(messageSourceHandler.getMessage("scm.stock.error", null));
+    }
 }
 
 
