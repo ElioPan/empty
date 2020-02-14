@@ -260,9 +260,11 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 	@Override
 	public R editPurchaseContract(Long purchaseContractId, String bodyItem, String bodyPay, Long[] deletPayIds) {
 
-		Boolean aBoolean = paymentReceivedItemService.whetherTheReference(ConstantForGYL.PAYMENT_ORDER, purchaseContractId, deletPayIds);
-		if(!aBoolean){
-			return R.error(messageSourceHandler.getMessage("scm.canDelet.contractPayItem", null));
+		if(Objects.nonNull(deletPayIds)&&deletPayIds.length>0){
+			Boolean aBoolean = paymentReceivedItemService.whetherTheReference(ConstantForGYL.PAYMENT_ORDER, purchaseContractId, deletPayIds);
+			if(!aBoolean){
+				return R.error(messageSourceHandler.getMessage("scm.canDelet.contractPayItem", null));
+			}
 		}
 
 		PurchasecontractDO purchasecontractDO = this.get(purchaseContractId);
@@ -418,10 +420,11 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 	public List<ContractPayVO> getContractPayVOS(String bodyPay, Long[] deletPayIds, List<PurchasecontractPayDO> oldDetailOfPay) {
 		List<ContractPayVO> payList = Lists.newArrayList();
 		ContractPayVO payVO;
+
 		if (oldDetailOfPay.size() > 0) {
 			// 若合同收款条件变了则执行修改操作
 			// 若被删除保存删除前的信息
-			if (deletPayIds.length > 0) {
+			if (Objects.nonNull(deletPayIds)&&deletPayIds.length > 0) {
 				List<PurchasecontractPayDO> collect = oldDetailOfPay.stream().filter(purchasecontractPayDO -> {
 					for (Long payId : deletPayIds) {
 						return Objects.equals(purchasecontractPayDO.getId(), payId);
@@ -447,6 +450,9 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 
 			// 修改合同收款条件
 			// 合同收款条件
+
+			PurchasecontractPayDO purchasecontractPayDOiD=oldDetailOfPay.get(0);
+
 			List<PurchasecontractPayDO> pay = JSON.parseArray(bodyPay, PurchasecontractPayDO.class);
 			for (PurchasecontractPayDO afterPayDO : pay) {
 				payVO = new ContractPayVO();
@@ -490,18 +496,20 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 							break;
 						}
 					}
+				}else{
+					// 若是新增数据
+					// 保存进合同收款条件子表
+					afterPayDO.setPurchaseContractId(purchasecontractPayDOiD.getPurchaseContractId());
+					purchasecontractPayService.save(afterPayDO);
+					// 保存入变更记录表
+					payVO.setId(afterPayDO.getId());
+					payVO.setReceivableDateAfter("");
+					payVO.setReceivableDateBefore(receivableDateAfter);
+					payVO.setReceivableAmountAfter("");
+					payVO.setReceivableAmountBefore(receivableAmountAfter.toPlainString());
+					payVO.setType("新增");
+					payList.add(payVO);
 				}
-				// 若是新增数据
-				// 保存进合同收款条件子表
-				purchasecontractPayService.save(afterPayDO);
-				// 保存入变更记录表
-				payVO.setId(afterPayDO.getId());
-				payVO.setReceivableDateAfter("");
-				payVO.setReceivableDateBefore(receivableDateAfter);
-				payVO.setReceivableAmountAfter("");
-				payVO.setReceivableAmountBefore(receivableAmountAfter.toPlainString());
-				payVO.setType("新增");
-				payList.add(payVO);
 			}
 		}
 		return payList;

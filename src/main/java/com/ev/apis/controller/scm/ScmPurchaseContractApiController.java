@@ -3,6 +3,8 @@ package com.ev.apis.controller.scm;
 import cn.afterturn.easypoi.entity.vo.TemplateExcelConstants;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
+import com.ev.custom.domain.DictionaryDO;
+import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.R;
@@ -39,6 +41,9 @@ public class ScmPurchaseContractApiController {
 
     @Autowired
     private PurchasecontractService purchasecontractService;
+
+    @Autowired
+    private DictionaryService dictionaryService;
 
     @EvApiByToken(value = "/apis/scm/purchaseContract/addOrUpdate",method = RequestMethod.POST,apiTitle = "添加/修改—采购合同")
     @ApiOperation("添加/修改—采购合同")
@@ -129,6 +134,13 @@ public class ScmPurchaseContractApiController {
 
         List<Map<String, Object>> data = purchasecontractService.listForMap(map);
         Map<String, Object> totalMap = purchasecontractService.countForMap(map);
+
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT.intValue());
+        String thisSourceTypeName = dictionaryDO.getName();
+        for (Map<String, Object> datum : data) {
+            datum.put("thisSourceType", ConstantForGYL.CGHT);
+            datum.put("thisSourceTypeName", thisSourceTypeName);
+        }
         Map<String, Object> result = Maps.newHashMap();
         if (data.size() > 0) {
             Map<String,Object>  dsRet= new HashMap<>();
@@ -161,7 +173,7 @@ public class ScmPurchaseContractApiController {
                     "\"remarks\":\"这是备注\"\n" +
                     "}\n" +
                     "]", required = true) @RequestParam(value = "bodyPay", defaultValue = "") String bodyPay,
-            @ApiParam(value = "被删除的付款条件ID") @RequestParam(value = "payIds", defaultValue = "", required = false) Long[] payIds
+            @ApiParam(value = "被删除的付款条件ID") @RequestParam(value = "payIds", required = false) Long[] payIds
     ){
         return purchasecontractService.editPurchaseContract(id, bodyItem, bodyPay,payIds);
     }

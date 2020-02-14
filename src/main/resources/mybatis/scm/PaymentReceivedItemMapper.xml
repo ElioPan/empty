@@ -209,17 +209,17 @@ receivablePayablesAmount},
 
 	<select id="whetherTheReference" resultType="int">
 		select
-		count(a.id) as `count`
+		count(*)
 		FROM
 		scm_payment_received_item  a
 		LEFT JOIN scm_payment_received  b on a.payment_received_id=b.id
 		where
-			a.source_id=#{sourceId}
+			a.`source_id`=#{sourceId}
 			and
-			b.sign=#{sign}
+			b.`sign`=#{sign}
 			and a.source_pay_item_id in
-		<foreach item="item" collection="sourceItemId" open="(" separator="," close=")">
-			#{item}
+		<foreach item="id" collection="sourceItemId" open="(" separator="," close=")">
+			#{id}
 		</foreach>
 	</select>
 
