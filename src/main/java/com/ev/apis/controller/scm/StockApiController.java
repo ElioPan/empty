@@ -18,7 +18,9 @@ import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.domain.StockDO;
+import com.ev.scm.domain.StockStartDO;
 import com.ev.scm.service.StockService;
+import com.ev.scm.service.StockStartService;
 import com.ev.scm.vo.StockEntity;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -39,10 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by guMingJie on 2020-01-22.
@@ -62,6 +61,8 @@ public class StockApiController {
     private FacilityService facilityService;
     @Autowired
     private MaterielService materielService;
+    @Autowired
+    private StockStartService stockStartService;
     @Autowired
     private MessageSourceHandler messageSourceHandler;
 
@@ -227,6 +228,52 @@ public class StockApiController {
         return R.ok(results);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @EvApiByToken(value = "/apis/stock/start", method = RequestMethod.POST, apiTitle = "设置库存初始时间")
+    @ApiOperation("设置库存初始时间")
+    public R save(@ApiParam(value = "启用年度") @RequestParam(value = "year", defaultValue = "", required = false) Integer year,
+                  @ApiParam(value = "启用月份") @RequestParam(value = "month", defaultValue = "", required = false) Integer month) {
+        Calendar now = Calendar.getInstance();
+        if (now.get(Calendar.YEAR) <= year && month >= now.get(Calendar.MONTH) + 1) {
+            Calendar start = Calendar.getInstance();
+            start.set(year, month, 1);
+            // 是否为修改
+            List<StockStartDO> list = stockStartService.list(Maps.newHashMap());
+            if (list.size() > 0) {
+                StockStartDO stockStartDO = list.get(0);
+                if (stockStartDO.getStatus() == 1) {
+                    return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
+                }
+                stockStartDO.setStartTime(start.getTime());
+                stockStartService.update(stockStartDO);
+                return R.ok();
+            }
+            // 为新增
+            StockStartDO stockStartDO = new StockStartDO();
+            stockStartDO.setStartTime(start.getTime());
+            stockStartDO.setStatus(0);
+            stockStartService.save(stockStartDO);
+            return R.ok();
+        }
+        return R.error(messageSourceHandler.getMessage("scm.stock.timeError", null));
+    }
+
+    @EvApiByToken(value = "/apis/stock/startDetail", method = RequestMethod.POST, apiTitle = "查看库存初始时间")
+    @ApiOperation("查看库存初始时间")
+    public R detail() {
+        // 是否为修改
+        List<StockStartDO> list = stockStartService.list(Maps.newHashMap());
+        if (list.size() > 0) {
+            StockStartDO stockStartDO = list.get(0);
+            Calendar startTime = Calendar.getInstance();
+            startTime.setTime(stockStartDO.getStartTime());
+            Map<String,Object> map = Maps.newHashMap();
+            map.put("year",startTime.get(Calendar.YEAR));
+            map.put("month",startTime.get(Calendar.MONTH) + 1);
+            return R.ok(map);
+        }
+        return R.ok();
+    }
 
 }
 
