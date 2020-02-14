@@ -228,4 +228,9 @@ public final class ConstantForGYL {
 	 */
 	public static final String OUTSOURCING_INSTOCK_CODE = "WWRK";
 
+	/**
+	 * 生产投料单
+	 */
+	public static final Long SCTLD = 277L;
+
 }

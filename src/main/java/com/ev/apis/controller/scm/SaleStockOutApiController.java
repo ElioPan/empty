@@ -196,6 +196,12 @@ public class SaleStockOutApiController {
 		List<Map<String, Object>> data = this.stockOutService.listApi(params);
 		int total = this.stockOutService.countApi(params);
 		if ( data.size() > 0) {
+            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.XSCK.intValue());
+            String thisSourceTypeName = dictionaryDO.getName();
+            for (Map<String, Object> datum : data) {
+                datum.put("thisSourceType", ConstantForGYL.XSCK);
+                datum.put("thisSourceTypeName", thisSourceTypeName);
+            }
             results.put("data", new DsResultResponse(pageno,pagesize,total,data));
 		}
 		return R.ok(results);

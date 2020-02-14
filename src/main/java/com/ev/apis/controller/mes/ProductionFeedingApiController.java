@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.ev.custom.domain.DictionaryDO;
+import com.ev.custom.service.DictionaryService;
+import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +42,8 @@ public class ProductionFeedingApiController {
 	private ProductionFeedingService productionFeedingService;
 	@Autowired
 	private ProductionFeedingDetailService productionFeedingDetailService;
+	@Autowired
+	private DictionaryService dictionaryService;
 	@Autowired
 	private MaterielService materielService;
 
@@ -135,26 +140,33 @@ public class ProductionFeedingApiController {
 		params.put("limit", pagesize);
 		Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
 		List<Map<String, Object>> data = productionFeedingDetailService.listForMap(params);
+		DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.SCTLD.intValue());
+		String thisSourceTypeName = dictionaryDO.getName();
+
 		// 获取实时库存
 		List<Map<String, Object>> stockListForMap = materielService.stockListForMap(Maps.newHashMap());
-		if (data.size() > 0 && stockListForMap.size() > 0) {
+		if (data.size() > 0 ) {
 			for (Map<String, Object> map : data) {
-				double availableCount = 0.0d;
-				for (Map<String, Object> stockList : stockListForMap) {
-					if (Objects.equals(stockList.get("materielId").toString(), map.get("materielId").toString())) {
-						// 如果没有批次要求则查出所有该商品的可用数量累计
-						if (!map.containsKey("batch")) {
-							availableCount += Double.parseDouble(stockList.get("availableCount").toString());
-							continue;
-						}
-						// 若制定了批次则将这一批次的可用数量查出记为实时数量
-						if (Objects.equals(stockList.get("batch").toString(), map.get("batchNo").toString())) {
-							availableCount += Double.parseDouble(stockList.get("availableCount").toString());
-						}
+				map.put("thisSourceType", ConstantForGYL.SCTLD);
+				map.put("thisSourceTypeName", thisSourceTypeName);
+				if (stockListForMap.size() > 0) {
+					double availableCount = 0.0d;
+					for (Map<String, Object> stockList : stockListForMap) {
+						if (Objects.equals(stockList.get("materielId").toString(), map.get("materielId").toString())) {
+							// 如果没有批次要求则查出所有该商品的可用数量累计
+							if (!map.containsKey("batch")) {
+								availableCount += Double.parseDouble(stockList.get("availableCount").toString());
+								continue;
+							}
+							// 若制定了批次则将这一批次的可用数量查出记为实时数量
+							if (Objects.equals(stockList.get("batch").toString(), map.get("batchNo").toString())) {
+								availableCount += Double.parseDouble(stockList.get("availableCount").toString());
+							}
 
+						}
 					}
+					map.put("availableCount", availableCount);
 				}
-				map.put("availableCount", availableCount);
 			}
 
 		}
