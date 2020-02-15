@@ -66,4 +66,9 @@ public class PurchasecontractPayServiceImpl implements PurchasecontractPayServic
 		return purchasecontractPayDao.totalOfPay(map);
 	}
 
+	@Override
+	public List<PurchasecontractPayDO> detailOfPayById(Map<String, Object> map) {
+		return purchasecontractPayDao.detailOfPayById(map);
+	}
+
 }

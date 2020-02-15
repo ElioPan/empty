@@ -49,12 +49,8 @@ public class ScmPaymentOrderApiController {
                     "\"sourceType\":\"源单类型\",\n" +
                     "\"sourceCode\":\"源单编号\",\n" +
                     "\"sourceId\":\"源单主键\",\n" +
-                    "\"sourcePayItemId\":\"源单明细主键\",\n" +
-                    "\"accrualDate\":\"应付日期\",\n" +
-                    "\"receivablePayablesAmount\":\"应付金额\",\n" +
-                    "\"paidReceivedAmount\":\"已付金额\",\n" +
+                    "\"sourcePayItemId\":\"源单付款条件明细主键\",\n" +
                     "\"thisAmount\":\"本次付款金额\",\n" +
-                    "\"noReceiptPaymentAmount\":\"未付金额\t\",\n" +
                     "\"accountNumber\":\"付款账号\",\n" +
                     "\"settlementType\":\"结算方式\",\n" +
                     "\"statementNumber\":\"结算号\",\n" +

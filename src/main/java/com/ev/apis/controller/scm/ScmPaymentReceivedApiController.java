@@ -50,11 +50,7 @@ public class ScmPaymentReceivedApiController {
                     "\"sourceCode\":\"源单编号\",\n" +
                     "\"sourceId\":\"源单主键\",\n" +
                     "\"sourcePayItemId\":\"源单明细主键\",\n" +
-                    "\"accrualDate\":\"应收日期\",\n" +
-                    "\"receivablePayablesAmount\":\"应收金额\",\n" +
-                    "\"paidReceivedAmount\":\"已收金额\",\n" +
                     "\"thisAmount\":\"本次收款金额\",\n" +
-                    "\"noReceiptPaymentAmount\":\"未收金额\t\",\n" +
                     "\"accountNumber\":\"收款账号\",\n" +
                     "\"settlementType\":\"结算方式\",\n" +
                     "\"statementNumber\":\"结算号\",\n" +

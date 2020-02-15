@@ -233,4 +233,11 @@ public final class ConstantForGYL {
 	 */
 	public static final Long SCTLD = 277L;
 
+
+	/**
+	 * 采购付款  付款单类型
+	 */
+	public static final Long PR_TYPE = 229L;
+
+
 }

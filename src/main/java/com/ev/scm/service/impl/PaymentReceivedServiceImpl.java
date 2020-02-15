@@ -9,13 +9,15 @@ import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.dao.PaymentReceivedDao;
 import com.ev.scm.domain.PaymentReceivedDO;
 import com.ev.scm.domain.PaymentReceivedItemDO;
+import com.ev.scm.domain.PurchasecontractPayDO;
+import com.ev.scm.domain.SalescontractPayDO;
 import com.ev.scm.service.PaymentReceivedItemService;
 import com.ev.scm.service.PaymentReceivedService;
+import com.ev.scm.service.PurchasecontractPayService;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 
@@ -27,6 +29,9 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 	private PaymentReceivedDao paymentReceivedDao;
 	@Autowired
 	private PaymentReceivedItemService paymentReceivedItemService;
+
+	@Autowired
+	private PurchasecontractPayService purchasecontractPayService;
 	
 	@Override
 	public PaymentReceivedDO get(Long id){
@@ -88,6 +93,11 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 		return paymentReceivedDao.detailOfReceived(map);
 	}
 
+	@Override
+	public List<SalescontractPayDO> detailOfSalePayById(Map<String, Object> map) {
+		return paymentReceivedDao.detailOfSalePayById(map);
+	}
+
 
 	@Override
 	public R addReceived(PaymentReceivedDO paymentReceivedDO, String paymentBodys, Long[] deleItemIds,String sign){
@@ -142,22 +152,61 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 
 	@Override
 	public R audit(Long id,String sign) {
+
 		PaymentReceivedDO paymentReceivedDO = this.get(id);
-		Map<String,Object>  map= new HashMap<String,Object>();
-		map.put("paymentReceivedId",id);
-		List<PaymentReceivedItemDO> list = paymentReceivedItemService.list(map);
-		Map<String,Object>  query= new HashMap<String,Object>();
-		Long[] itemId=new Long[list.size()];
-		for (int i=0;i<list.size();i++){
-			PaymentReceivedItemDO  paymentReceivedItemDO=list.get(i);
-			 Long sourcePayItemId = paymentReceivedItemDO.getSourcePayItemId();
-			 if(Objects.nonNull(sourcePayItemId)){
-				 itemId[0]=sourcePayItemId;
-			 }
+			Map<String,Object>  map= new HashMap<String,Object>();
+			map.put("paymentReceivedId",id);
+			map.put("sign",sign);
+			List<PaymentReceivedItemDO> list = paymentReceivedItemService.listOfBySign(map);
+			Map<String,Object>  query= new HashMap<String,Object>();
+			Long[] payItemId=new Long[list.size()];
+			for (int i=0;i<list.size();i++){
+				PaymentReceivedItemDO  paymentReceivedItemDO=list.get(i);
+				Long sourcePayItemId = paymentReceivedItemDO.getSourcePayItemId();
+				if(Objects.nonNull(sourcePayItemId)){
+					payItemId[0]=sourcePayItemId;
+				}
+			}
+			query.put("payItemId",payItemId);
+		if(Objects.equals(sign,ConstantForGYL.PAYMENT_ORDER)){
+			//采购合同
+			List<PurchasecontractPayDO> purchasecontractPayDOS = purchasecontractPayService.detailOfPayById(query);
+			if(!Objects.equals(payItemId.length,purchasecontractPayDOS.size())){
+				return R.error(messageSourceHandler.getMessage("scm.canDelet.contractPayItemDelet",null));
+			}
+			for(PaymentReceivedItemDO pyReceivedItemDo:list){
+				Long pyItemId=pyReceivedItemDo.getSourcePayItemId();
+
+				for(PurchasecontractPayDO purchasecontractPayDo:purchasecontractPayDOS){
+					if(Objects.equals(pyItemId,purchasecontractPayDo.getId())){
+						int compareTo = pyReceivedItemDo.getThisAmount().compareTo(purchasecontractPayDo.getUnpayAmount());
+						if(compareTo>0){
+							return R.error(messageSourceHandler.getMessage("scm.canDelet.contractPayItemChange",null));
+						}
+						break;
+					}
+				}
+			}
+		}else if(Objects.equals(sign,ConstantForGYL.ALL_BILL)){
+			//销售合同
+			List<SalescontractPayDO> salescontractPayDOS = this.detailOfSalePayById(query);
+			if(!Objects.equals(payItemId.length,salescontractPayDOS.size())){
+				return R.error(messageSourceHandler.getMessage("scm.canDelet.contractPayItemDelet",null));
+			}
+			for(PaymentReceivedItemDO pyReceivedItemDo:list){
+				Long pyItemId=pyReceivedItemDo.getSourcePayItemId();
+
+				for(SalescontractPayDO salecontractPayDo:salescontractPayDOS){
+					if(Objects.equals(pyItemId,salecontractPayDo.getId())){
+						int compareTo = pyReceivedItemDo.getThisAmount().compareTo(salecontractPayDo.getUnpayAmount());
+						if(compareTo>0){
+							return R.error(messageSourceHandler.getMessage("scm.canDelet.saleContractPayItemChange",null));
+						}
+						break;
+					}
+				}
+			}
 		}
-		query.put("itemId",itemId);
-
-
 
 
 		if(Objects.nonNull(paymentReceivedDO)){
@@ -169,6 +218,11 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 				btDo.setId(id);
 				btDo.setSign(sign);
 				this.updateAuditSign(btDo);
+
+
+
+
+
 				return R.ok();
 			}else{
 				return R.error(messageSourceHandler.getMessage("common.massge.okAudit",null));

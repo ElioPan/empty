@@ -2,6 +2,7 @@ package com.ev.scm.service;
 
 import com.ev.framework.utils.R;
 import com.ev.scm.domain.PaymentReceivedDO;
+import com.ev.scm.domain.SalescontractPayDO;
 
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,9 @@ public interface PaymentReceivedService {
 	Map<String, Object> countForMap(Map<String, Object> map);
 
 	Map<String, Object> detailOfReceived(Map<String, Object> map);
+
+	List<SalescontractPayDO> detailOfSalePayById(Map<String, Object> map);
+
 
 
 

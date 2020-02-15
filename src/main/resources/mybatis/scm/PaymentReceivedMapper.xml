@@ -344,5 +344,20 @@
 	</select>
 
 
+	<select id="detailOfSalePayById" resultType="com.ev.scm.domain.SalescontractPayDO">
+		select
+		id,
+		`receivable_date`,
+		`receivable_amount`,
+		`received_amount`,
+		`unpay_amount`
+		from scm_salescontract_pay
+		where id in
+		<foreach item="id" collection="payItemId" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+
+
 
 </mapper>

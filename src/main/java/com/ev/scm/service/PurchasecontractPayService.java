@@ -34,4 +34,6 @@ public interface PurchasecontractPayService {
 
 	Map<String, Object> totalOfPay(Map<String, Object> map);
 
+	List<PurchasecontractPayDO> detailOfPayById(Map<String, Object> map);
+
 }

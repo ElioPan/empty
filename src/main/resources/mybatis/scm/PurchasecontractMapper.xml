@@ -270,8 +270,8 @@
 			<if test="contractCode != null and contractCode != ''"> and  contractCode= #{contractCode} </if>
 			<if test="fuzzyQuery != null and fuzzyQuery != ''"> and CONCAT(supplierName,materielName) LIKE #{fuzzyQuery} </if>
 			<if test="contractType != null and contractType != ''"> and  contractType= #{contractType} </if>
-			<if test="supplierName != null and supplierName != ''"> and  supplierName= #{supplierName} </if>
-			<if test="materielName != null and materielName != ''"> and  materielName= #{materielName} </if>
+			<if test="supplierName != null and supplierName != ''"> and  supplierName like CONCAT('%',#{supplierName},'%') </if>
+			<if test="materielName != null and materielName != ''"> and  materielName  LIKE #{materielName} </if>
 			<if test="specification != null and specification != ''"> and  specification= #{specification} </if>
 			<if test="auditSign != null and auditSign != ''"> and  auditSign= #{auditSign} </if>
 			<if test="createBy != null and createBy != ''"> and  createBy= #{createBy} </if>
@@ -355,8 +355,8 @@
 			<if test="contractCode != null and contractCode != ''"> and  contractCode= #{contractCode} </if>
 			<if test="fuzzyQuery != null and fuzzyQuery != ''"> and CONCAT(supplierName,materielName) LIKE #{fuzzyQuery} </if>
 			<if test="contractType != null and contractType != ''"> and  contractType= #{contractType} </if>
-			<if test="supplierName != null and supplierName != ''"> and  supplierName= #{supplierName} </if>
-			<if test="materielName != null and materielName != ''"> and  materielName= #{materielName} </if>
+			<if test="supplierName != null and supplierName != ''"> and  supplierName like CONCAT('%',#{supplierName},'%') </if>
+			<if test="materielName != null and materielName != ''"> and  materielName  LIKE #{materielName} </if>
 			<if test="specification != null and specification != ''"> and  specification= #{specification} </if>
 			<if test="auditSign != null and auditSign != ''"> and  auditSign= #{auditSign} </if>
 			<if test="createBy != null and createBy != ''"> and  createBy= #{createBy} </if>

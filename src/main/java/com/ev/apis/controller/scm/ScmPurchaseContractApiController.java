@@ -124,7 +124,7 @@ public class ScmPurchaseContractApiController {
         map.put("fuzzyQuery", StringUtils.sqlLike(fuzzyQuery));
         map.put("contractType", contractType);
         // 高级查询
-        map.put("supplierName", StringUtils.sqlLike(supplierName));
+        map.put("supplierName", supplierName);
         map.put("materielName", StringUtils.sqlLike(materielName));
         map.put("specification",specification);
         map.put("auditSign", auditSign);

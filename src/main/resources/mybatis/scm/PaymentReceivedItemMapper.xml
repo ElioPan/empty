@@ -41,7 +41,7 @@ receivable_payables_amount`,`paid_received_amount`,`this_amount`,`no_receipt_pay
     <sql id="sql_condition">
         <where>
 
-			<if test="id != null and id != ''"> AND id = #{id} </if>
+							<if test="id != null and id != ''"> AND id = #{id} </if>
                             <if test="paymentReceivedId != null and paymentReceivedId != ''"> AND payment_received_id = #{paymentReceivedId} </if>
                             <if test="sourceType != null and sourceType != ''"> AND source_type = #{sourceType} </if>
                             <if test="sourceCode != null and sourceCode != ''"> AND source_code = #{sourceCode} </if>
@@ -166,13 +166,20 @@ receivablePayablesAmount},
 
 
 	<select id="detailOfitem" resultType="map">
+
 			SELECT
 			b.id,
+			IF(a.sign='SK',d.receivable_date,c.due_date) as accrualDate,
+			IF(a.sign='SK',d.receivable_amount,c.pay_amount) as receivablePayablesAmount,
+			IF(a.sign='SK',d.received_amount,c.amount_paid) as paid_receivedAmount,
+			b.this_amount as thisAmount,
+			IF(a.sign='SK',d.unpay_amount,c.unpay_amount) as noReceiptPaymentAmount,
 			b.accrual_date as accrualDate,
 			b.receivable_payables_amount as receivablePayablesAmount,
 			b.paid_received_amount as paid_receivedAmount,
 			b.this_amount as thisAmount,
 			b.no_receipt_payment_amount as noReceiptPaymentAmount,
+
 			b.statement_number as statementNumber,
 			b.account_number as accountNumber,
 			j.name as accountNumberName,
@@ -184,25 +191,61 @@ receivablePayablesAmount},
 			b.source_code as sourceCode,
 			b.source_id as sourceId
 			from
-			scm_payment_received  a
-			LEFT JOIN scm_payment_received_item b on a.id=b.payment_received_id
+			scm_payment_received_item  b
+			LEFT JOIN scm_purchasecontract_pay c on b.source_pay_item_id=c.id
+			LEFT JOIN scm_salescontract_pay d on b.source_pay_item_id=d.id
 			LEFT JOIN cus_dictionary j on b.account_number=j.id
 			LEFT JOIN cus_dictionary k on b.settlement_type=k.id
 			LEFT JOIN cus_dictionary m on b.source_type=m.id
+			LEFT JOIN scm_payment_received  a on  a.id =b.payment_received_id
 			WHERE
-			a.payment_received_id=#{id}
+			b.payment_received_id=#{id}
 	</select>
 
 	<select id="totallAmount" resultType="map">
-		SELECT
-		IF(sum(a.receivable_payables_amount) is null,0,sum(a.receivable_payables_amount)) as totalReceivablePayablesAmount,
-		IF(sum(a.paid_received_amount) is null,0,sum(a.paid_received_amount)) as totalPaidReceivedAmount,
-		IF(sum(a.this_amount) is null,0,sum(a.this_amount))  as totalThisAmount,
-		IF(sum(a.no_receipt_payment_amount) is null,0,sum(a.no_receipt_payment_amount)) as totalNoReceiptPaymentAmount
+		select
+		IF(sum(receivablePayablesAmount) is null,0,sum(receivablePayablesAmount)) as totalReceivablePayablesAmount,
+		IF(sum(paidReceivedAmount) is null,0,sum(paidReceivedAmount)) as totalPaidReceivedAmount,
+		IF(sum(thisAmount) is null,0,sum(thisAmount))  as totalThisAmount,
+		IF(sum(noReceiptPaymentAmount) is null,0,sum(noReceiptPaymentAmount)) as totalNoReceiptPaymentAmount
 		from
-		scm_payment_received_item  a
+		(
+		SELECT
+					b.id,
+					b.payment_received_id AS paymentReceivedId,
+					IF(a.sign='SK',d.receivable_date,c.due_date) as accrualDate,
+					IF(a.sign='SK',d.receivable_amount,c.pay_amount) as receivablePayablesAmount,
+					IF(a.sign='SK',d.received_amount,c.amount_paid) as paidReceivedAmount,
+					b.this_amount as thisAmount,
+					IF(a.sign='SK',d.unpay_amount,c.unpay_amount) as noReceiptPaymentAmount,
+					b.accrual_date as accrualDate,
+					b.receivable_payables_amount as receivablePayablesAmount,
+					b.paid_received_amount as paid_receivedAmount,
+					b.this_amount as thisAmount,
+					b.no_receipt_payment_amount as noReceiptPaymentAmount,
+
+					b.statement_number as statementNumber,
+					b.account_number as accountNumber,
+					j.name as accountNumberName,
+					b.settlement_type as settlementType,
+					k.name as settlementTypeName,
+					b.remarks,
+					b.source_type as  sourceType,
+					m.name as sourceTypeName,
+					b.source_code as sourceCode,
+					b.source_id as sourceId
+					from
+					scm_payment_received_item  b
+					LEFT JOIN scm_purchasecontract_pay c on b.source_pay_item_id=c.id
+					LEFT JOIN scm_salescontract_pay d on b.source_pay_item_id=d.id
+					LEFT JOIN cus_dictionary j on b.account_number=j.id
+					LEFT JOIN cus_dictionary k on b.settlement_type=k.id
+					LEFT JOIN cus_dictionary m on b.source_type=m.id
+					LEFT JOIN scm_payment_received  a on  a.id =b.payment_received_id
+					WHERE
+		)aa
 		WHERE
-		a.payment_received_id=#{id}
+		paymentReceivedId=#{id}
 	</select>
 
 	<select id="whetherTheReference" resultType="int">
@@ -220,5 +263,7 @@ receivablePayablesAmount},
 			#{id}
 		</foreach>
 	</select>
+
+
 
 </mapper>

@@ -1,6 +1,7 @@
 package com.ev.scm.dao;
 
 import com.ev.scm.domain.PaymentReceivedDO;
+import com.ev.scm.domain.SalescontractPayDO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -38,6 +39,8 @@ public interface PaymentReceivedDao {
 	Map<String, Object> countForMap(Map<String, Object> map);
 
 	Map<String, Object> detailOfReceived(Map<String, Object> map);
+
+	List<SalescontractPayDO> detailOfSalePayById(Map<String, Object> map);
 
 
 }
