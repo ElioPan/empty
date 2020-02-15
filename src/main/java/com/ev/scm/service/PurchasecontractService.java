@@ -52,4 +52,7 @@ public interface PurchasecontractService {
 	R alterationList(Map<String, Object> map);
 
 	R getAlterationDetail(Long id);
+
+	int wetherChangeContract(Map<String, Object> map);
+
 }

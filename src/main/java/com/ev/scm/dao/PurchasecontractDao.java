@@ -37,4 +37,6 @@ public interface PurchasecontractDao {
 
 	Map<String, Object> countForMap(Map<String, Object> map);
 
+	int wetherChangeContract(Map<String, Object> map);
+
 }

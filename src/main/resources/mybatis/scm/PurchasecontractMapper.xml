@@ -366,4 +366,18 @@
 	</select>
 
 
+	<select id="wetherChangeContract" resultType="int">
+		select
+		count(id)
+		from
+		scm_purchasecontract
+		where
+		audit_sign =179
+		and  contract_code in
+		<foreach item="item" collection="contractCode" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+
+
 </mapper>

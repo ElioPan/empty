@@ -86,6 +86,11 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 	}
 
 	@Override
+	public int wetherChangeContract(Map<String, Object> map) {
+		return purchasecontractDao.wetherChangeContract(map);
+	}
+
+	@Override
 	public R addOrChangePurchasecontract(PurchasecontractDO purchasecontractDO, String bodyItem, String bodyPay, Long[] itemIds, Long[] payIds) {
 		Map<String, Object> result = Maps.newHashMap();
 		Long id = purchasecontractDO.getId();
@@ -368,6 +373,7 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 		}
 		return R.ok(result);
 	}
+
 
 	public List<ContractItemVO> getContractItemVOS(String newBodyItem, List<PurchasecontractItemDO> oldDetailOfBody) {
 

@@ -194,6 +194,8 @@
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(invoiceDate,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
 			<if test="supplierName != null and supplierName != ''"> and supplierName LIKE CONCAT('%',#{supplierName},'%') </if>
 			<if test="materielName != null and materielName != ''"> and materielName LIKE CONCAT('%',#{materielName},'%') </if>
+			<if test="invoiceNum != null and invoiceNum != ''"> and invoiceNum = #{invoiceNum} </if>
+
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -263,6 +265,7 @@
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(invoiceDate,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
 			<if test="supplierName != null and supplierName != ''"> and supplierName LIKE CONCAT('%',#{supplierName},'%') </if>
 			<if test="materielName != null and materielName != ''"> and materielName LIKE CONCAT('%',#{materielName},'%') </if>
+			<if test="invoiceNum != null and invoiceNum != ''"> and invoiceNum = #{invoiceNum} </if>
 		</where>
 	</select>
 

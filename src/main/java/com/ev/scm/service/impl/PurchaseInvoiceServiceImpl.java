@@ -9,12 +9,15 @@ import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.dao.PurchaseInvoiceDao;
 import com.ev.scm.domain.PurchaseInvoiceDO;
 import com.ev.scm.domain.PurchaseInvoiceItemDO;
+import com.ev.scm.domain.PurchasecontractDO;
 import com.ev.scm.service.PurchaseInvoiceItemService;
 import com.ev.scm.service.PurchaseInvoiceService;
+import com.ev.scm.service.PurchasecontractService;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 
@@ -26,6 +29,8 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 	private PurchaseInvoiceDao purchaseInvoiceDao;
 	@Autowired
 	private PurchaseInvoiceItemService purchaseInvoiceItemService;
+	@Autowired
+	private PurchasecontractService purchasecontractService;
 
 	@Override
 	public PurchaseInvoiceDO get(Long id){
@@ -115,6 +120,20 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 
 	@Override
 	public R audit(Long id) {
+		Map<String,Object>  map= new HashMap<>();
+		map.put("purchasebillId",id);
+		List<PurchaseInvoiceItemDO> list = purchaseInvoiceItemService.getSourceCode(map);
+		String[] str=new String[list.size()];
+			for(int i=0;i<list.size();i++){
+				str[i]=list.get(i).getSourceCode();
+			}
+		map.clear();
+		map.put("contractCode",str) ;
+		int count = purchasecontractService.wetherChangeContract(map);
+		if(!Objects.equals(count,str.length)){
+			return R.error(messageSourceHandler.getMessage("scm.canDelet.contractChangeOrDelted",null));
+		}
+
 		PurchaseInvoiceDO purchaseInvoiceDO = purchaseInvoiceDao.get(id);
 		if(Objects.nonNull(purchaseInvoiceDO)){
 			if(Objects.equals(purchaseInvoiceDO.getAuditSign(),ConstantForGYL.WAIT_AUDIT)){
@@ -124,6 +143,7 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 				pDo.setAuditTime(new Date());
 				pDo.setId(id);
 				purchaseInvoiceDao.update(pDo);
+				changeContractorInvoicedAmount(id,list,true);
 				return R.ok();
 			}else{
 				return R.error(messageSourceHandler.getMessage("common.massge.okAudit",null));
@@ -133,8 +153,39 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 		}
 	}
 
+	public void changeContractorInvoicedAmount(Long id,List<PurchaseInvoiceItemDO> list,Boolean sign){
+		if(!list.isEmpty()){
+			for(PurchaseInvoiceItemDO purchaseInvoiceItemDO:list){
+				Map<String,Object>  qurey= new HashMap<>();
+				String sourceCode=purchaseInvoiceItemDO.getSourceCode();
+				qurey.put("sourceCode",sourceCode);
+				qurey.put("contractCode",sourceCode);
+				Map<String, Object> totalTaxAmount = purchaseInvoiceItemService.getTotalTaxAmount(qurey);
+				List<PurchasecontractDO> purchasecontractList = purchasecontractService.list(qurey);
+				if(!purchasecontractList.isEmpty()){
+					BigDecimal invoicedAmount=purchasecontractList.get(0).getInvoicedAmount();
+					BigDecimal taxAmount=new BigDecimal(totalTaxAmount.get("totalTaxAmount").toString());
+
+					PurchasecontractDO purchasecontractDO=purchasecontractList.get(0);
+					if(sign){
+						purchasecontractDO.setInvoicedAmount(invoicedAmount.add(taxAmount));
+					}else{
+						purchasecontractDO.setInvoicedAmount(invoicedAmount.subtract(taxAmount));
+					}
+					purchasecontractService.update(purchasecontractDO);
+				}
+
+			}
+		}
+	}
+
+
 	@Override
 	public R rollBackAudit(Long id) {
+		Map<String,Object>  map= new HashMap<>();
+		map.put("purchasebillId",id);
+		List<PurchaseInvoiceItemDO> list = purchaseInvoiceItemService.getSourceCode(map);
+
 		PurchaseInvoiceDO purchaseInvoiceDO = purchaseInvoiceDao.get(id);
 		if(Objects.nonNull(purchaseInvoiceDO)){
 			if(Objects.equals(purchaseInvoiceDO.getAuditSign(),ConstantForGYL.OK_AUDITED)){
@@ -143,6 +194,7 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 				pDo.setAuditor(0L);
 				pDo.setId(id);
 				purchaseInvoiceDao.update(pDo);
+				changeContractorInvoicedAmount(id,list,false);
 				return R.ok();
 			}else{
 				return R.error(messageSourceHandler.getMessage("common.massge.okWaitAudit",null));
@@ -155,7 +207,7 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 	@Override
 	public R removePurchase(Long[] ids) {
 
-		Map<String,Object>  map= new HashMap<String,Object>();
+		Map<String,Object>  map= new HashMap<>();
 		map.put("id",ids);
 		int rows = purchaseInvoiceDao.canDeletOfCount(map);
 		if(Objects.equals(rows,ids.length)) {
@@ -179,7 +231,7 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 
 	@Override
 	public R getDetail(Long id ){
-		Map<String,Object>  map= new HashMap<String,Object>();
+		Map<String,Object>  map= new HashMap<>();
 		map.put("id",id);
 		Map<String, Object> detailOfHead = purchaseInvoiceDao.getDetailOfHead(map);
 
@@ -187,7 +239,7 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 		Map<String, Object> totalOfItem = purchaseInvoiceItemService.totalOfItem(map);
 
 		map.clear();
-		Map<String,Object>  result= new HashMap<String,Object>();
+		Map<String,Object>  result= new HashMap<>();
 		if(Objects.nonNull(detailOfHead)){
 			map.put("detailOfHead",detailOfHead);
 			map.put("detailOfBody",detailOfBody);
