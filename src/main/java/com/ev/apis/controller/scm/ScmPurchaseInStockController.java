@@ -6,6 +6,7 @@ import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.R;
+import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.domain.StockInDO;
 import com.ev.scm.service.StockInItemService;
 import com.ev.scm.service.StockInService;
@@ -71,8 +72,8 @@ public class ScmPurchaseInStockController {
     @EvApiByToken(value = "/apis/scm/purchaseInStock/auditStatusChange", method = RequestMethod.POST, apiTitle = "审核--采购入库")
     @ApiOperation("审核--采购入库")
     @Transactional(rollbackFor = Exception.class)
-    public R changeAuditStatus(@ApiParam(value = "采购入库主表主键", required = true) @RequestParam(value = "inHeadId") Long inHeadId,
-                               @ApiParam(value = "审核人主键", required = true) @RequestParam(value = "auditor") Long auditor) {
+    public R changeAuditStatus(@ApiParam(value = "采购入库主表主键", required = true) @RequestParam(value = "inHeadId") Long inHeadId) {
+        Long auditor= ShiroUtils.getUserId();
         return stockInService.auditAllTypeInStock(inHeadId, auditor,ConstantForGYL.PURCHASE_INSTOCK);
     }
 
