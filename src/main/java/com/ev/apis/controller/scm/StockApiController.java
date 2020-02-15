@@ -18,8 +18,10 @@ import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.framework.utils.StringUtils;
+import com.ev.scm.domain.StockAnalysisDO;
 import com.ev.scm.domain.StockDO;
 import com.ev.scm.domain.StockStartDO;
+import com.ev.scm.service.StockAnalysisService;
 import com.ev.scm.service.StockService;
 import com.ev.scm.service.StockStartService;
 import com.ev.scm.vo.StockEntity;
@@ -29,6 +31,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang.math.NumberUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,6 +67,8 @@ public class StockApiController {
     private MaterielService materielService;
     @Autowired
     private StockStartService stockStartService;
+    @Autowired
+    private StockAnalysisService stockAnalysisService;
     @Autowired
     private MessageSourceHandler messageSourceHandler;
 
@@ -243,20 +248,20 @@ public class StockApiController {
     public R save(@ApiParam(value = "启用年度") @RequestParam(value = "year", defaultValue = "", required = false) Integer year,
                   @ApiParam(value = "启用月份") @RequestParam(value = "month", defaultValue = "", required = false) Integer month) {
         Calendar now = Calendar.getInstance();
-        if (now.get(Calendar.YEAR) <= year && month >= now.get(Calendar.MONTH) + 1) {
+        if (now.get(Calendar.YEAR) == year && month == now.get(Calendar.MONTH) + 1) {
             Calendar start = Calendar.getInstance();
             start.set(year, month, 1);
             // 是否为修改
-            List<StockStartDO> list = stockStartService.list(Maps.newHashMap());
-            if (list.size() > 0) {
-                StockStartDO stockStartDO = list.get(0);
-                if (stockStartDO.getStatus() == 1) {
-                    return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
-                }
-                stockStartDO.setStartTime(start.getTime());
-                stockStartService.update(stockStartDO);
-                return R.ok();
-            }
+//            List<StockStartDO> list = stockStartService.list(Maps.newHashMap());
+//            if (list.size() > 0) {
+//                StockStartDO stockStartDO = list.get(0);
+//                if (stockStartDO.getStatus() == 1) {
+//                    return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
+//                }
+//                stockStartDO.setStartTime(start.getTime());
+//                stockStartService.update(stockStartDO);
+//                return R.ok();
+//            }
             // 为新增
             StockStartDO stockStartDO = new StockStartDO();
             stockStartDO.setStartTime(start.getTime());
@@ -330,6 +335,37 @@ public class StockApiController {
             return R.ok();
         }
         return R.error(messageSourceHandler.getMessage("scm.stock.error", null));
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @EvApiByToken(value = "/apis/stock/endInitial", method = RequestMethod.POST, apiTitle = "结束初始化")
+    @ApiOperation("结束初始化")
+    public R endInitial() {
+        Map<String, Object> emptyMap = Maps.newHashMap();
+        List<StockStartDO> list = stockStartService.list(emptyMap);
+        if (list.size() == 0) {
+            return R.error(messageSourceHandler.getMessage("scm.stock.startTimeError", null));
+        }
+        List<StockDO> stockDOList = stockService.list(emptyMap);
+        StockAnalysisDO stockAnalysisDO;
+        StockStartDO stockStartDO = list.get(0);
+        Date period = stockStartDO.getStartTime();
+        List<StockAnalysisDO> stockAnalysisDOS = Lists.newArrayList();
+        for (StockDO stockDO : stockDOList) {
+            stockAnalysisDO = new StockAnalysisDO();
+            stockAnalysisDO.setMaterielId(stockDO.getMaterielId().intValue());
+            stockAnalysisDO.setBatch(stockDO.getBatch());
+            stockAnalysisDO.setInitialCount(stockDO.getCount());
+            stockAnalysisDO.setInitialAmount(stockDO.getAmount());
+            stockAnalysisDO.setPeriod(period);
+            stockAnalysisDOS.add(stockAnalysisDO);
+        }
+        stockAnalysisService.batchInsert(stockAnalysisDOS);
+
+        stockStartDO.setStatus(1);
+        stockStartService.update(stockStartDO);
+
+        return R.ok();
     }
 }
 

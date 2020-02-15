@@ -50,11 +50,10 @@
                     </where>
     </sql>
 	 
-	<insert id="save" parameterType="com.ev.scm.domain.StockStartDO">
+	<insert id="save" parameterType="com.ev.scm.domain.StockStartDO"  useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO scm_stock_start
 		(
-			`id`, 
-			`start_time`, 
+			`start_time`,
 			`status`, 
 			`create_by`, 
 			`create_time`, 
@@ -64,8 +63,7 @@
 		)
 		VALUES
 		(
-			#{id}, 
-			#{startTime}, 
+			#{startTime},
 			#{status}, 
 			#{createBy}, 
 			#{createTime}, 

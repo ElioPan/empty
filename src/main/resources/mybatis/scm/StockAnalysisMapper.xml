@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.StockAnalysisDao">
+
+	<select id="get" resultType="com.ev.scm.domain.StockAnalysisDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_stock_analysis 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.StockAnalysisDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_stock_analysis
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+			<otherwise>
+                ORDER BY id DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+        SELECT COUNT(*) FROM scm_stock_analysis
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`period`,`materiel_id`,`batch`,`initial_count`,`initial_amount`,`in_count`,`in_amount`,`out_count`,`out_amount`,`final_count`,`final_amount`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> AND id = #{id} </if>
+                            <if test="period != null and period != ''"> AND period = #{period} </if>
+                            <if test="materielId != null and materielId != ''"> AND materiel_id = #{materielId} </if>
+                            <if test="batch != null and batch != ''"> AND batch = #{batch} </if>
+                            <if test="initialCount != null and initialCount != ''"> AND initial_count = #{initialCount} </if>
+                            <if test="initialAmount != null and initialAmount != ''"> AND initial_amount = #{initialAmount} </if>
+                            <if test="inCount != null and inCount != ''"> AND in_count = #{inCount} </if>
+                            <if test="inAmount != null and inAmount != ''"> AND in_amount = #{inAmount} </if>
+                            <if test="outCount != null and outCount != ''"> AND out_count = #{outCount} </if>
+                            <if test="outAmount != null and outAmount != ''"> AND out_amount = #{outAmount} </if>
+                            <if test="finalCount != null and finalCount != ''"> AND final_count = #{finalCount} </if>
+                            <if test="finalAmount != null and finalAmount != ''"> AND final_amount = #{finalAmount} </if>
+                            <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.StockAnalysisDO" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO scm_stock_analysis
+		(
+			`period`,
+			`materiel_id`, 
+			`batch`, 
+			`initial_count`, 
+			`initial_amount`, 
+			`in_count`, 
+			`in_amount`, 
+			`out_count`, 
+			`out_amount`, 
+			`final_count`, 
+			`final_amount`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		VALUES
+		(
+			#{period},
+			#{materielId}, 
+			#{batch}, 
+			#{initialCount}, 
+			#{initialAmount}, 
+			#{inCount}, 
+			#{inAmount}, 
+			#{outCount}, 
+			#{outAmount}, 
+			#{finalCount}, 
+			#{finalAmount}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.StockAnalysisDO">
+		UPDATE scm_stock_analysis
+		<set>
+			<if test="period != null">`period` = #{period}, </if>
+			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
+			<if test="batch != null">`batch` = #{batch}, </if>
+			<if test="initialCount != null">`initial_count` = #{initialCount}, </if>
+			<if test="initialAmount != null">`initial_amount` = #{initialAmount}, </if>
+			<if test="inCount != null">`in_count` = #{inCount}, </if>
+			<if test="inAmount != null">`in_amount` = #{inAmount}, </if>
+			<if test="outCount != null">`out_count` = #{outCount}, </if>
+			<if test="outAmount != null">`out_amount` = #{outAmount}, </if>
+			<if test="finalCount != null">`final_count` = #{finalCount}, </if>
+			<if test="finalAmount != null">`final_amount` = #{finalAmount}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="remove">
+		DELETE FROM scm_stock_analysis WHERE id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+        DELETE FROM scm_stock_analysis WHERE id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!--自定义-->
+	<insert id="batchInsert" parameterType="List" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO scm_stock_analysis(
+		`period`,
+		`materiel_id`,
+		`batch`,
+		`initial_count`,
+		`initial_amount`,
+		`in_count`,
+		`in_amount`,
+		`out_count`,
+		`out_amount`,
+		`final_count`,
+		`final_amount`,
+		`create_by`,
+		`create_time`,
+		`update_by`,
+		`update_time`,
+		`del_flag`) VALUES
+		<foreach collection="list" item="obj" separator=",">
+			(
+			#{obj.period},
+			#{obj.materielId},
+			#{obj.batch},
+			#{obj.initialCount},
+			#{obj.initialAmount},
+			#{obj.inCount},
+			#{obj.inAmount},
+			#{obj.outCount},
+			#{obj.outAmount},
+			#{obj.finalCount},
+			#{obj.finalAmount},
+			#{obj.createBy},
+			#{obj.createTime},
+			#{obj.updateBy},
+			#{obj.updateTime},
+			#{obj.delFlag}
+			)
+		</foreach>
+	</insert>
+	
+</mapper>
