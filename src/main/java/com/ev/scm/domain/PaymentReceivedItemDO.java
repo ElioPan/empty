@@ -38,7 +38,7 @@ public class PaymentReceivedItemDO implements Serializable {
 	private Long sourceId;
 	//源单明细主键
     @ApiModelProperty(value = "源单明细主键")
-	private BigDecimal sourcePayItemId;
+	private Long sourcePayItemId;
 	//应收/应付日期
     @ApiModelProperty(value = "应收/应付日期")
 	private Date accrualDate;

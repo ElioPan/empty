@@ -100,7 +100,7 @@ public class ScmReturnMaterieInStockApiController {
                                   @ApiParam(value = "退料操作员id") @RequestParam(value = "operator", defaultValue = "", required = false) Long operator,
                                   @ApiParam(value = "退料操作员名字") @RequestParam(value = "operatorName", defaultValue = "", required = false) String operatorName,
                                   @ApiParam(value = "制单人id") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
-                                 @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) Long createByName,
+                                 @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
                                  @ApiParam(value = "制单时间") @RequestParam(value = "createTime", defaultValue = "", required = false) String  createTime  ) {
         Map<String, Object> resulst = new HashMap<>();
         Map<String, Object> params = new HashMap<>();

@@ -138,5 +138,16 @@
 		from scm_purchasecontract_pay
 		where purchase_contract_id=#{id}
 	</select>
-	
+
+
+	<!--<select id="detailOfPayById" resultType="com.ev.scm.domain.PurchasecontractPayDO">-->
+		<!--select-->
+		<!--id,-->
+		<!--`due_date`,-->
+		<!--`pay_amount`,-->
+		<!--from scm_purchasecontract_pay-->
+		<!--where purchase_contract_id=#{id}-->
+	<!--</select>-->
+
+
 </mapper>

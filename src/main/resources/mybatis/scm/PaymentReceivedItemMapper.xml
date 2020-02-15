@@ -40,17 +40,15 @@ receivable_payables_amount`,`paid_received_amount`,`this_amount`,`no_receipt_pay
 
     <sql id="sql_condition">
         <where>
-                            <if test="id != null and id != ''"> AND id = #{id} </if>
+
+			<if test="id != null and id != ''"> AND id = #{id} </if>
                             <if test="paymentReceivedId != null and paymentReceivedId != ''"> AND payment_received_id = #{paymentReceivedId} </if>
                             <if test="sourceType != null and sourceType != ''"> AND source_type = #{sourceType} </if>
                             <if test="sourceCode != null and sourceCode != ''"> AND source_code = #{sourceCode} </if>
                             <if test="sourceId != null and sourceId != ''"> AND source_id = #{sourceId} </if>
                             <if test="sourcePayItemId != null and sourcePayItemId != ''"> AND source_pay_item_id = #{sourcePayItemId} </if>
                             <if test="accrualDate != null and accrualDate != ''"> AND accrual_date = #{accrualDate} </if>
-                            <if test="
-receivablePayablesAmount != null and receivablePayablesAmount != ''"> AND 
-receivable_payables_amount = #{
-receivablePayablesAmount} </if>
+                            <if test="receivablePayablesAmount != null and receivablePayablesAmount != ''"> ANDreceivable_payables_amount = #{receivablePayablesAmount} </if>
                             <if test="paidReceivedAmount != null and paidReceivedAmount != ''"> AND paid_received_amount = #{paidReceivedAmount} </if>
                             <if test="thisAmount != null and thisAmount != ''"> AND this_amount = #{thisAmount} </if>
                             <if test="noReceiptPaymentAmount != null and noReceiptPaymentAmount != ''"> AND no_receipt_payment_amount = #{noReceiptPaymentAmount} </if>

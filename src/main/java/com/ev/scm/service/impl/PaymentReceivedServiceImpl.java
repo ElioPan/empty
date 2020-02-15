@@ -15,6 +15,7 @@ import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 
@@ -142,6 +143,23 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 	@Override
 	public R audit(Long id,String sign) {
 		PaymentReceivedDO paymentReceivedDO = this.get(id);
+		Map<String,Object>  map= new HashMap<String,Object>();
+		map.put("paymentReceivedId",id);
+		List<PaymentReceivedItemDO> list = paymentReceivedItemService.list(map);
+		Map<String,Object>  query= new HashMap<String,Object>();
+		Long[] itemId=new Long[list.size()];
+		for (int i=0;i<list.size();i++){
+			PaymentReceivedItemDO  paymentReceivedItemDO=list.get(i);
+			 Long sourcePayItemId = paymentReceivedItemDO.getSourcePayItemId();
+			 if(Objects.nonNull(sourcePayItemId)){
+				 itemId[0]=sourcePayItemId;
+			 }
+		}
+		query.put("itemId",itemId);
+
+
+
+
 		if(Objects.nonNull(paymentReceivedDO)){
 			if(Objects.equals(paymentReceivedDO.getAuditSign(),ConstantForGYL.WAIT_AUDIT)){
 				PaymentReceivedDO btDo=new PaymentReceivedDO();

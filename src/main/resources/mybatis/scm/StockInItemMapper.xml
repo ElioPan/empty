@@ -226,7 +226,7 @@
 		cpb.warehouse      AS warehouse,
 		cpb.wareh_location AS warehLocation,
 		cpb.inhead_id  AS inheadId,
-		cpb..cost,
+		cpb.cost,
 		cpb.source_type AS sourceType,
 		cph.storage_type AS storageType,
 		cpb.expense,

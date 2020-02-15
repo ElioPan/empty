@@ -105,7 +105,7 @@ public class ScmPurchaseInStockController {
                                  @ApiParam(value = "规格型号") @RequestParam(value = "materielSpecification", defaultValue = "", required = false) String materielSpecification,
                                  @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
                                  @ApiParam(value = "制单人id") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
-                                 @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) Long createByName) {
+                                 @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName) {
         Map<String, Object> resulst = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
         params.put("offset", (pageno - 1) * pagesize);
