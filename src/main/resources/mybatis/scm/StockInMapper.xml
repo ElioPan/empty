@@ -388,6 +388,8 @@
 			<if test="deptName != null and deptName != ''"> AND deptName like  CONCAT('%',#{deptName},'%')  </if>
 			<if test="batch != null and batch != ''"> and batch = #{batch} </if>
 			<if test="createTime != null and createTime != ''"> and createTime = #{createTime} </if>
+			<if test="createStartTime != null and createStartTime!= ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
+			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">

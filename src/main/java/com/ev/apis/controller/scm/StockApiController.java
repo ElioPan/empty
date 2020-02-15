@@ -14,14 +14,14 @@ import com.ev.custom.service.FacilityLocationService;
 import com.ev.custom.service.FacilityService;
 import com.ev.custom.service.MaterielService;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
-import com.ev.framework.utils.R;
-import com.ev.framework.utils.ShiroUtils;
-import com.ev.framework.utils.StringUtils;
+import com.ev.framework.utils.*;
 import com.ev.scm.domain.StockAnalysisDO;
 import com.ev.scm.domain.StockDO;
 import com.ev.scm.domain.StockStartDO;
 import com.ev.scm.service.StockAnalysisService;
+import com.ev.scm.service.StockInService;
 import com.ev.scm.service.StockService;
 import com.ev.scm.service.StockStartService;
 import com.ev.scm.vo.StockEntity;
@@ -31,7 +31,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang.math.NumberUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +66,8 @@ public class StockApiController {
     private MaterielService materielService;
     @Autowired
     private StockStartService stockStartService;
+    @Autowired
+    private StockInService stockInService;
     @Autowired
     private StockAnalysisService stockAnalysisService;
     @Autowired
@@ -367,6 +368,99 @@ public class StockApiController {
 
         return R.ok();
     }
+
+    @EvApiByToken(value = "/apis/stock/stockAnalysisTime", method = RequestMethod.POST, apiTitle = "获取本次期间")
+    @ApiOperation("获取本次期间")
+    public R stockOutAccountingTime() {
+        Map<String,Object> result = Maps.newHashMap();
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("offset", 0);
+        params.put("limit", 1);
+        List<StockAnalysisDO> list = stockAnalysisService.list(params);
+        if (list.size() > 0) {
+            StockAnalysisDO stockAnalysisDO = list.get(0);
+            result.put("period",stockAnalysisDO.getPeriod());
+        }
+        return R.ok(result);
+    }
+
+
+    @Transactional(rollbackFor = Exception.class)
+    @EvApiByToken(value = "/apis/stock/stockOutAccounting", method = RequestMethod.POST, apiTitle = "出库核算")
+    @ApiOperation("出库核算")
+    public R stockOutAccounting( @ApiParam(value = "计算时间",required = true) @RequestParam(value = "period",defaultValue = "")  String period) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("offset", 0);
+        params.put("limit", 1);
+        List<StockAnalysisDO> list = stockAnalysisService.list(params);
+        if (list.size() > 0) {
+            StockAnalysisDO stockAnalysisDO = list.get(0);
+            Calendar instance = Calendar.getInstance();
+            Date periodTime = DateFormatUtil.getDateByParttern(period, "yyyy-MM-dd");
+            Date oldPeriod = stockAnalysisDO.getPeriod();
+            if (periodTime == null) {
+                return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
+            }
+            instance.setTime(periodTime);
+            int newPeriodMonth = instance.get(Calendar.MONTH);
+            int newPeriodYear = instance.get(Calendar.YEAR);
+            instance.setTime(oldPeriod);
+            int oldPeriodMonth = instance.get(Calendar.MONTH);
+            int oldPeriodYear = instance.get(Calendar.YEAR);
+            if (newPeriodMonth == oldPeriodMonth && newPeriodYear == oldPeriodYear) {
+                if (stockAnalysisDO.getOutAmount() != null || stockAnalysisDO.getOutCount() != null) {
+                    return R.error(messageSourceHandler.getMessage("scm.stock.outError", null));
+                }
+
+
+
+            }
+            return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
+
+        }
+        return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @EvApiByToken(value = "/apis/stock/stockOutAccountingCheck", method = RequestMethod.POST, apiTitle = "检验出库核算")
+    @ApiOperation("检验出库核算")
+    public R stockOutAccountingCheck( @ApiParam(value = "计算时间",required = true) @RequestParam(value = "period",defaultValue = "")  String period) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("offset", 0);
+        params.put("limit", 1);
+        List<StockAnalysisDO> list = stockAnalysisService.list(params);
+        if (list.size() > 0) {
+            StockAnalysisDO stockAnalysisDO = list.get(0);
+            Calendar instance = Calendar.getInstance();
+            Date periodTime = DateFormatUtil.getDateByParttern(period, "yyyy-MM-dd");
+            Date oldPeriod = stockAnalysisDO.getPeriod();
+            if (periodTime == null) {
+                return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
+            }
+            instance.setTime(periodTime);
+            int newPeriodMonth = instance.get(Calendar.MONTH);
+            int newPeriodYear = instance.get(Calendar.YEAR);
+            instance.setTime(oldPeriod);
+            int oldPeriodMonth = instance.get(Calendar.MONTH);
+            int oldPeriodYear = instance.get(Calendar.YEAR);
+            if (newPeriodMonth == oldPeriodMonth && newPeriodYear == oldPeriodYear) {
+                if (stockAnalysisDO.getOutAmount() != null || stockAnalysisDO.getOutCount() != null) {
+                    return R.error(messageSourceHandler.getMessage("scm.stock.outError", null));
+                }
+                params.clear();
+                params.put("createStartTime", DatesUtil.getSupportBeginDayOfMonth(periodTime));
+                params.put("createEndTime", DatesUtil.getSupportEndDayOfMonth(periodTime));
+                params.put("auditSign", ConstantForGYL.OK_AUDITED);
+                List<Map<String, Object>> detailList = stockInService.listForMap(params);
+
+
+            }
+            return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
+
+        }
+        return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
+    }
+
 }
 
 
