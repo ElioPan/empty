@@ -354,7 +354,6 @@
 			LEFT JOIN  cus_client d  ON a.client_id=d.id
 			LEFT JOIN  sys_dept e    ON a.dept_id=e.dept_id
 			LEFT JOIN  sys_user f    ON a.operator=f.user_id
-			LEFT JOIN  cus_dictionary g  ON a.purchase_type=g.id
 			LEFT JOIN  sys_user  h  ON a.auditor=h.user_id
 			LEFT JOIN  cus_dictionary i  ON a.audit_sign=i.id
 			LEFT JOIN  sys_user j    ON a.create_by=j.user_id
@@ -426,7 +425,6 @@
 		a.operator  as operator,
 		f.name as operatorName,
 		a.purchase_type  as purchaseType,
-		g.name as purchaseTypeName,
 		a.pay_account	 as payAccount,
 		a.auditor ,
 		h.name as auditorName,
@@ -466,7 +464,6 @@
 		LEFT JOIN  cus_client d  ON a.client_id=d.id
 		LEFT JOIN  sys_dept e    ON a.dept_id=e.dept_id
 		LEFT JOIN  sys_user f    ON a.operator=f.user_id
-		LEFT JOIN  cus_dictionary g  ON a.purchase_type=g.id
 		LEFT JOIN  sys_user  h  ON a.auditor=h.user_id
 		LEFT JOIN  cus_dictionary i  ON a.audit_sign=i.id
 		LEFT JOIN  sys_user j    ON a.create_by=j.user_id
@@ -520,7 +517,7 @@
 		a.operator  as operator,
 		f.name as operatorName,
 		a.purchase_type  as purchaseType,
-		g.name as purchaseTypeName,
+		<!--g.name as purchaseTypeName,-->
 		a.pay_account	 as payAccount,
 		a.auditor ,
 		h.name as auditorName,
@@ -539,7 +536,6 @@
 		LEFT JOIN  cus_client d  ON a.client_id=d.id
 		LEFT JOIN  sys_dept e    ON a.dept_id=e.dept_id
 		LEFT JOIN  sys_user f    ON a.operator=f.user_id
-		LEFT JOIN  cus_dictionary g  ON a.purchase_type=g.id
 		LEFT JOIN  sys_user  h  ON a.auditor=h.user_id
 		LEFT JOIN  cus_dictionary i  ON a.audit_sign=i.id
 		LEFT JOIN  sys_user j    ON a.create_by=j.user_id
