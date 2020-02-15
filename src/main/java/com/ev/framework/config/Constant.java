@@ -38,6 +38,8 @@ public class Constant {
 
 	public static final String WECHAT_JSAPI_TICKET = "weChat:jsApiTicket";
 
+	public static final Integer BIGDECIMAL_ZERO = 4;
+
     /**
      * 供应商
      */

@@ -14,16 +14,15 @@ import com.ev.custom.service.FacilityLocationService;
 import com.ev.custom.service.FacilityService;
 import com.ev.custom.service.MaterielService;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.*;
 import com.ev.scm.domain.StockAnalysisDO;
 import com.ev.scm.domain.StockDO;
+import com.ev.scm.domain.StockOutItemDO;
 import com.ev.scm.domain.StockStartDO;
-import com.ev.scm.service.StockAnalysisService;
-import com.ev.scm.service.StockInService;
-import com.ev.scm.service.StockService;
-import com.ev.scm.service.StockStartService;
+import com.ev.scm.service.*;
 import com.ev.scm.vo.StockEntity;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -45,6 +44,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by guMingJie on 2020-01-22.
@@ -68,6 +68,10 @@ public class StockApiController {
     private StockStartService stockStartService;
     @Autowired
     private StockInService stockInService;
+    @Autowired
+    private StockOutService stockOutService;
+    @Autowired
+    private StockOutItemService stockOutItemService;
     @Autowired
     private StockAnalysisService stockAnalysisService;
     @Autowired
@@ -411,7 +415,66 @@ public class StockApiController {
                 if (stockAnalysisDO.getOutAmount() != null || stockAnalysisDO.getOutCount() != null) {
                     return R.error(messageSourceHandler.getMessage("scm.stock.outError", null));
                 }
+                params.clear();
+                // 入库单
+                params.put("createStartTime", DatesUtil.getSupportBeginDayOfMonth(periodTime));
+                params.put("createEndTime", DatesUtil.getSupportEndDayOfMonth(periodTime));
+                params.put("auditSign", ConstantForGYL.OK_AUDITED);
+                List<Map<String, Object>> stockInList = stockInService.listForMap(params);
+                List<StockOutItemDO> stockOutList = stockOutItemService.list(params);
+                // 加权平均法出库成本的算法：(月初结存金额+本月入库金额)/（月初结存数量+本月入库数量），算出当月加权平均
+                List<Map<String, Object>> stockInBatchEmpty = stockInList.stream()
+                        .filter(stringObjectMap -> !stringObjectMap.containsKey("batch"))
+                        .collect(Collectors.toList());
 
+                List<StockOutItemDO> stockOutBatchEmpty = stockOutList.stream()
+                        .filter(stockOutItemDO -> stockOutItemDO.getBatch() == null)
+                        .collect(Collectors.toList());
+
+                if (stockInBatchEmpty.size()>0 && stockOutBatchEmpty.size()>0){
+                    Map<String,BigDecimal> materielCountMap = Maps.newHashMap();
+                    Map<String,BigDecimal> materielAmountMap = Maps.newHashMap();
+                    Map<String,BigDecimal> materielUnitPriceMap = Maps.newHashMap();
+                    for (Map<String, Object> map : stockInBatchEmpty) {
+                        String materielId = map.get("materielId").toString();
+                        if (materielCountMap.containsKey(materielId)) {
+                            materielCountMap.put(materielId,materielCountMap.get(materielId).add(MathUtils.getBigDecimal(map.get("count"))));
+                            materielAmountMap.put(materielId,materielAmountMap.get(materielId).add(MathUtils.getBigDecimal(map.get("amount"))));
+                            continue;
+                        }
+                        materielCountMap.put(materielId,MathUtils.getBigDecimal(map.get("count")));
+                        materielCountMap.put(materielId,MathUtils.getBigDecimal(map.get("amount")));
+                    }
+                    Map<String,Object> map = Maps.newHashMap();
+                    map.put("period",period);
+                    List<StockAnalysisDO> stockAnalysisDOS = stockAnalysisService.list(map).stream()
+                            .filter(stockAnalysis -> stockAnalysis.getBatch() == null)
+                            .collect(Collectors.toList());
+                    for (StockAnalysisDO analysisDO : stockAnalysisDOS) {
+                        String materielId = analysisDO.getMaterielId().toString();
+                        if (materielCountMap.containsKey(materielId)) {
+                            // (月初结存金额+本月入库金额)/（月初结存数量+本月入库数量）
+                            materielUnitPriceMap.put(materielId
+                                    ,(analysisDO.getInitialAmount().add(materielAmountMap.get(materielId))).divide(analysisDO.getInitialCount().add(materielCountMap.get(materielId)), Constant.BIGDECIMAL_ZERO));
+                        }
+                     }
+                    for (StockOutItemDO itemDO : stockOutBatchEmpty) {
+                        String materielId = itemDO.getMaterielId().toString();
+                        if (materielUnitPriceMap.containsKey(materielId)) {
+                            BigDecimal unitPrice = materielUnitPriceMap.get(materielId);
+                            itemDO.setUnitPrice(unitPrice);
+                            itemDO.setAmount(itemDO.getCount().multiply(unitPrice));
+                        }
+                    }
+                    stockOutItemService.batchInsert(stockOutBatchEmpty);
+                }
+
+
+
+                // 分批认定法：物料属性中需要设置批次管理，入库时入库单需要录入批号，出库时出库单的单价以入库时相同批号的单价作为出库单价。
+                List<Map<String, Object>> batchNonEmpty = stockInList.stream()
+                        .filter(stringObjectMap -> stringObjectMap.containsKey("batch"))
+                        .collect(Collectors.toList());
 
 
             }
@@ -421,9 +484,8 @@ public class StockApiController {
         return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    @EvApiByToken(value = "/apis/stock/stockOutAccountingCheck", method = RequestMethod.POST, apiTitle = "检验出库核算")
-    @ApiOperation("检验出库核算")
+    @EvApiByToken(value = "/apis/stock/stockOutAccountingCheck", method = RequestMethod.POST, apiTitle = "检验出库核算（检查是否有单价为0的入库单存在）")
+    @ApiOperation("检验出库核算（检查是否有单价为0的入库单存在）")
     public R stockOutAccountingCheck( @ApiParam(value = "计算时间",required = true) @RequestParam(value = "period",defaultValue = "")  String period) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("offset", 0);
@@ -448,12 +510,22 @@ public class StockApiController {
                     return R.error(messageSourceHandler.getMessage("scm.stock.outError", null));
                 }
                 params.clear();
+                // 入库单
                 params.put("createStartTime", DatesUtil.getSupportBeginDayOfMonth(periodTime));
                 params.put("createEndTime", DatesUtil.getSupportEndDayOfMonth(periodTime));
                 params.put("auditSign", ConstantForGYL.OK_AUDITED);
-                List<Map<String, Object>> detailList = stockInService.listForMap(params);
+                List<Map<String, Object>> stockInList = stockInService.listForMap(params);
+                List<String> unitPriceEmpty = stockInList.stream()
+                        .filter(stringObjectMap -> !stringObjectMap.containsKey("unitPrice"))
+                        .map(stringObjectMap -> stringObjectMap.get("inheadCode").toString())
+                        .collect(Collectors.toList());
 
-
+                if (unitPriceEmpty.size() > 0) {
+                    String[] args = {unitPriceEmpty.toString()};
+                    // -1码为查询出有空的单价的错误码
+                    return R.error(-1,messageSourceHandler.getMessage("scm.stock.unitPriceEmpty", args));
+                }
+                return R.ok();
             }
             return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
 

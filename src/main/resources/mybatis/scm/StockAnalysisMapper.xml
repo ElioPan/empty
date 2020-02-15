@@ -40,7 +40,7 @@
     <sql id="sql_condition">
         <where>
                             <if test="id != null and id != ''"> AND id = #{id} </if>
-                            <if test="period != null and period != ''"> AND period = #{period} </if>
+                            <if test="period != null and period != ''"> AND DATE_FORMAT(period,'%Y-%m-%d') = DATE_FORMAT(#{period},'%Y-%m-%d') </if>
                             <if test="materielId != null and materielId != ''"> AND materiel_id = #{materielId} </if>
                             <if test="batch != null and batch != ''"> AND batch = #{batch} </if>
                             <if test="initialCount != null and initialCount != ''"> AND initial_count = #{initialCount} </if>
