@@ -186,12 +186,12 @@ public class PurchaseExpenseServiceImpl implements PurchaseExpenseService {
 
 	@Override
 	public R getDetail(Long id ){
-		Map<String,Object>  map= new HashMap<String,Object>();
+		Map<String,Object>  map= new HashMap<>();
 		map.put("id",id);
 		Map<String, Object> detailOfHead = purchaseExpenseDao.getDetailOfHead(map);
 		List<Map<String, Object>> detailOfBody = purchaseExpenseItemService.getDetailOfBody(map);
 		map.clear();
-		Map<String,Object>  result= new HashMap<String,Object>();
+		Map<String,Object>  result= new HashMap<>();
 		if(Objects.nonNull(detailOfHead)){
 			map.put("detailOfHead",detailOfHead);
 			map.put("detailOfBody",detailOfBody);

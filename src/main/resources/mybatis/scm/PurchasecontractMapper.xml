@@ -310,7 +310,7 @@
 		end closeStatusName,
 		a.close_status as closeStatus,
 		a.supplier_id as  supplierId,
-		b.name as supplierIdName,
+		b.name as supplierName,
 		i.materiel_id as materielId,
 		j.serial_no AS materielSerialNo,
 		j. NAME AS materielName,

@@ -70,6 +70,7 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 	@Override
 	public R addAndChange(PurchaseInvoiceDO purchaseInvoiceDO, String bodyItem, Long[]itemIds){
 
+		Map<String,Object>  map= new HashMap<String,Object>();
 		if (Objects.isNull(purchaseInvoiceDO.getId())) {
 			String prefix = DateFormatUtil.getWorkOrderno(ConstantForGYL.INVOICE, new Date());
 			Map<String, Object> params = Maps.newHashMapWithExpectedSize(3);
@@ -91,7 +92,10 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 					pdata.setPurchasebillId(purchaseInvoiceDO.getId());
 					purchaseInvoiceItemService.save(pdata);
 				}
-				return R.ok();
+
+
+				map.put("id",purchaseInvoiceDO.getId());
+				return R.ok(map);
 			} else {
 				return R.error();
 			}
@@ -111,7 +115,8 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 						purchaseInvoiceItemService.save(pdata);
 					}
 				}
-				return R.ok();
+				map.put("id",purchaseInvoiceDO.getId());
+				return R.ok(map);
 			} else {
 				return R.error();
 			}
