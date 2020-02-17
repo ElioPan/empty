@@ -27,6 +27,8 @@ public class CusWebSocket {
     // 与某个客户端的连接会话，需要通过它来给客户端发送数据
     private Session session;
 
+    private String userId;
+
 
     private Logger log = LoggerFactory.getLogger(CusWebSocket.class);
 
@@ -37,6 +39,7 @@ public class CusWebSocket {
     public void onOpen(@PathParam("userId")String userId, Session session) {
         log.info("新客户端连入，用户id：" + userId);
         this.session = session;
+        this.userId = userId;
         webSocketSet.add(this); // 加入set中
         addOnlineCount(); // 在线数加1
         if(userId!=null) {
@@ -96,6 +99,17 @@ public class CusWebSocket {
     public static void sendInfo(String message) throws IOException {
         for (CusWebSocket productWebSocket : webSocketSet) {
             productWebSocket.sendMessage(message);
+        }
+    }
+
+    /**
+     * 特定人自定义消息
+     */
+    public static void sendInfo(String message, String userId) throws IOException {
+        for (CusWebSocket productWebSocket : webSocketSet) {
+            if(productWebSocket.userId.equals(userId.toString())){
+                productWebSocket.sendMessage(message);
+            }
         }
     }
 

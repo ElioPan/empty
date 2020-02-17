@@ -136,7 +136,7 @@ public class RepairApiController {
     	record.setStatus(Constant.TS);
     	return repairEventService.saveRepairRecord(eventId, partIdArray, taglocationappearanceImage, record, repairEventDO);
     }
-    
+
     @Transactional(rollbackFor = Exception.class)
     @EvApiByToken(value = "/apis/repairCheck/completeCheck",method = RequestMethod.POST)
     @ApiOperation("提交维修完工验收")

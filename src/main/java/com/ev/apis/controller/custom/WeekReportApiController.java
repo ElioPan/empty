@@ -1,5 +1,6 @@
 package com.ev.apis.controller.custom;
 
+import com.ev.custom.service.NoticeService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.config.Constant;
@@ -39,6 +40,8 @@ public class WeekReportApiController {
     private UserAssocService userAssocService;
     @Autowired
     private MessageSourceHandler messageSourceHandler;
+    @Autowired
+    private NoticeService noticeService;
 
     @EvApiByToken(value = "/apis/weekReport/list", method = RequestMethod.GET, apiTitle = "获取周报列表信息")
     @ApiOperation("获取列表信息")
@@ -122,6 +125,7 @@ public class WeekReportApiController {
     public R comment(@ApiParam(value = "周报ID",required = true, example = "1") @RequestParam(value="weekReportId",defaultValue = "") Long weekReportId,
                      @ApiParam(value = "回复内容",required = true, example = "哈哈哈") @RequestParam(value="comment",defaultValue = "") String comment){
         weekReportService.commentWeekReport(weekReportId,comment);
+        noticeService.saveAndSendSocket("周报回复信息",comment,"{id:"+weekReportId+"}",281L,ShiroUtils.getUserId(),weekReportService.get(weekReportId).getId());
         return R.ok();
     }
 

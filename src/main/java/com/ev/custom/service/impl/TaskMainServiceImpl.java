@@ -9,6 +9,7 @@ import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.custom.domain.*;
 import com.ev.custom.service.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Maps;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -24,6 +25,9 @@ import com.ev.custom.dao.TaskMainDao;
 public class TaskMainServiceImpl implements TaskMainService {
 	@Autowired
 	private TaskMainDao taskMainDao;
+
+	@Autowired
+	private NoticeService noticeService;
 	
 	@Autowired
 	private ReportTaskService reportTaskService;
@@ -327,7 +331,7 @@ public class TaskMainServiceImpl implements TaskMainService {
 	}
 
 	@Override
-	public int replySave(TaskReplyDO taskReplyDO, Long[] ccList) {
+	public int replySave(TaskReplyDO taskReplyDO, Long[] ccList){
 		//Constant.REPLY	回复	reply
 		taskReplyDO.setReplyType(Constant.REPLY);
 		

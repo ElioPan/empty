@@ -46,6 +46,9 @@ public class TaskMainApiController {
 
 	@Autowired
 	private MessageSourceHandler messageSourceHandler;
+
+	@Autowired
+	private NoticeService noticeService;
     
 
     @EvApiByToken(value = "/apis/taskMain/list",method = RequestMethod.POST,apiTitle = "获取任务列表信息")
@@ -274,23 +277,9 @@ public class TaskMainApiController {
     	if (taskMainService.isAlreadyCheck(taskMainDO.getStatus())) {
 			return R.error("任务已验收不能回复");
 		}
-//    	Map<String, Object> params = Maps.newHashMapWithExpectedSize(3);
-//    	params.put("taskId",taskMainDO.getId());
-//		params.put("assocType","cc_person");
-//		params.put("replyId",0);
-//		List<Map<String,Object>> ccPerson = taskEmployeeService.listForMap(params);
-//		Long userId = ShiroUtils.getUserId();
-//		int count = 0;
-//    	for (Map<String, Object> map : ccPerson) {
-//			if (Objects.equals(Long.parseLong(map.get("employeeId").toString()), userId)) {
-//				break;
-//			}
-//			count ++;
-//			if (count == ccPerson.size()) {
-//				return R.error("您不是任务抄送人，不能进行回复");
-//			}
-//		}
+
 		int replySave = taskMainService.replySave(taskReplyDO, ccList);
+		noticeService.saveAndSendSocket("任务回复信息",taskReplyDO.getSolution(),"{id:"+taskMainDO.getId()+"}",281L,ShiroUtils.getUserId(),taskMainDO.getCreateBy());
 		if (replySave > 0) {
 			return R.ok();
 		}

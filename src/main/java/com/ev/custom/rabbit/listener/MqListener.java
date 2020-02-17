@@ -1,5 +1,8 @@
 package com.ev.custom.rabbit.listener;
 
+import com.ev.custom.domain.NoticeDO;
+import com.ev.custom.service.NoticeService;
+import com.ev.framework.socket.CusWebSocket;
 import com.ev.framework.utils.InfluxDbUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.influxdb.InfluxDB;
@@ -12,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.*;
 
 @Component
@@ -20,6 +24,9 @@ public class MqListener {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private NoticeService noticeService;
 
     @RabbitListener(queues = "${data.device.queue.name}",containerFactory = "singleListenerContainer")
     public void consumeUserLogQueue(@Payload byte[] message){
@@ -49,5 +56,23 @@ public class MqListener {
         }
         // 将两条数据批量插入到数据库中
         influxDB.batchInsert("sentinel_log", null, InfluxDB.ConsistencyLevel.ALL, records);
+    }
+
+    @RabbitListener(queues = "gyhl.data.notice.queue",containerFactory = "singleListenerContainer")
+    public void consumeNoticeQueue(@Payload byte[] message){
+        try {
+            NoticeDO notice=objectMapper.readValue(message, NoticeDO.class);
+            saveAndSendNotice(notice);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 保存数据到时序数据库
+     */
+    private void saveAndSendNotice(NoticeDO notice) throws IOException {
+        noticeService.save(notice);
+        CusWebSocket.sendInfo(notice.toString(),notice.getToUserId().toString());
     }
 }

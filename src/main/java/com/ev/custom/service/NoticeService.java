@@ -1,6 +1,7 @@
 package com.ev.custom.service;
 
 import com.ev.custom.domain.NoticeDO;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.List;
 import java.util.Map;
@@ -27,4 +28,6 @@ public interface NoticeService {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+	void saveAndSendSocket(String title, String content,String contentDetail, Long type, Long fromUser, Long toUser);
 }
