@@ -4,6 +4,8 @@ import cn.afterturn.easypoi.entity.vo.TemplateExcelConstants;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.apis.model.DsResultResponse;
+import com.ev.custom.domain.DictionaryDO;
+import com.ev.custom.service.DictionaryService;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.domain.SalescontractDO;
@@ -40,6 +42,8 @@ public class SalesContractApiController {
 
 	@Autowired
 	private SalescontractService salescontractService;
+    @Autowired
+    private DictionaryService dictionaryService;
     @Autowired
     private ContractAlterationService contractAlterationService;
 	
@@ -194,15 +198,17 @@ public class SalesContractApiController {
         map.put("offset",(pageno-1)*pagesize);
         map.put("limit",pagesize);
         List<Map<String, Object>> data = salescontractService.listForMap(map);
-        for (Map<String, Object> datum : data) {
-            datum.put("thisSourceTypeName","销售合同");
-            datum.put("thisSourceType",ConstantForGYL.XSHT);
-        }
-
         Map<String, Object> stringBigDecimalMap = salescontractService.countForMap(map);
         int total = Integer.parseInt(stringBigDecimalMap.getOrDefault("total",0).toString());
         Map<String, Object> result = Maps.newHashMap();
+
         if (data.size() > 0) {
+            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.XSHT.intValue());
+            String thisSourceTypeName = dictionaryDO.getName();
+            for (Map<String, Object> datum : data) {
+                datum.put("thisSourceType", ConstantForGYL.XSHT);
+                datum.put("thisSourceTypeName", thisSourceTypeName);
+            }
             result.put("data", new DsResultResponse(pageno,pagesize,total,data));
             result.put("total", stringBigDecimalMap);
         }
@@ -233,9 +239,6 @@ public class SalesContractApiController {
         map.put("contractId", contractId);
         map.put("contractType", ConstantForGYL.XSHT);
         List<Map<String, Object>> data = contractAlterationService.listForMap(map);
-        for (Map<String, Object> datum : data) {
-            datum.put("thisSourceTypeName","销售出库");
-        }
         Map<String, Object> result = Maps.newHashMap();
         int total = contractAlterationService.countForMap(map);
         if (data.size() > 0) {

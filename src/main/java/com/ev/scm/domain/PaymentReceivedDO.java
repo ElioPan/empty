@@ -1,12 +1,12 @@
 package com.ev.scm.domain;
 
-import java.io.Serializable;
-import java.util.Date;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
 
 /**
@@ -24,6 +24,8 @@ public class PaymentReceivedDO implements Serializable {
 	//
     @ApiModelProperty(value = "")
 	private Long id;
+	@ApiModelProperty(value = "客户/供应商")
+	private Long cusSupId;
 	//收付款单据标记（收款SK，付款FK）
     @ApiModelProperty(value = "收付款单据标记（收款SK，付款FK）")
 	private String sign;

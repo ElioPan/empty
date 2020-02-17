@@ -35,5 +35,10 @@ public interface PurchaseInvoiceItemDao {
 
 	Map<String, Object> totalOfItem(Map<String, Object> map);
 
+	List<PurchaseInvoiceItemDO> getSourceCode(Map<String, Object> map);
+
+	Map<String, Object> getTotalTaxAmount(Map<String, Object> map);
+
+
 
 }

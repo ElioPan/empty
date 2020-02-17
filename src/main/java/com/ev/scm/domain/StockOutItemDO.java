@@ -57,7 +57,7 @@ public class StockOutItemDO implements Serializable {
     private BigDecimal chargeOffCount;
 	//出库用途/退货原因
     @ApiModelProperty(value = "出库用途/退货原因")
-	private Long purpose;
+	private String purpose;
 	//出库状态
     @ApiModelProperty(value = "出库状态")
 	private Long outStatus;

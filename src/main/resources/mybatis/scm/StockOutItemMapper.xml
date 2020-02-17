@@ -11,16 +11,49 @@
 	</select>
 
 	<select id="list" resultType="com.ev.scm.domain.StockOutItemDO">
-		SELECT 
-		<include refid="sql_column_list"/>
-		FROM scm_stock_out_item
-		<include refid="sql_condition"/>
+		SELECT
+		item.*
+		FROM scm_stock_out_item item
+		LEFT JOIN scm_stock_out stock ON stock.`id`=item.`out_id`
+        <where>
+            <if test="id != null and id != ''"> and id = #{id} </if>
+            <if test="outId != null and outId != ''"> and out_id = #{outId} </if>
+            <if test="stockId != null and stockId != ''"> and stock_id = #{stockId} </if>
+            <if test="materielId != null and materielId != ''"> and materiel_id = #{materielId} </if>
+            <if test="batch != null and batch != ''"> and batch = #{batch} </if>
+            <if test="count != null and count != ''"> and count = #{count} </if>
+            <if test="unitPrice != null and unitPrice != ''"> and unit_price = #{unitPrice} </if>
+            <if test="sellUnitPrice != null and sellUnitPrice != ''"> and sell_unit_price = #{sellUnitPrice} </if>
+            <if test="amount != null and amount != ''"> and amount = #{amount} </if>
+            <if test="sellAmount != null and sellAmount != ''"> and sell_amount = #{sellAmount} </if>
+            <if test="purpose != null and purpose != ''"> and purpose = #{purpose} </if>
+            <if test="chargeOffCount != null and chargeOffCount != ''"> and charge_off_count = #{chargeOffCount} </if>
+            <if test="outStatus != null and outStatus != ''"> and out_status = #{outStatus} </if>
+            <if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
+            <if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+            <if test="sourceCode != null and sourceCode != ''"> and source_code = #{sourceCode} </if>
+            <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+            <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
+            <if test="createStartTime != null and createStartTime != ''">  and  DATE_FORMAT(stock.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
+            <if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(stock.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
+            <if test="auditSign != null and auditSign != ''"> and stock.audit_sign = #{auditSign} </if>
+            <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+            <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
+            <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+            <if test="sourceTypes != null and sourceTypes.size()>0"> and source_type IN
+                <foreach item="item" collection="sourceTypes" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
         <choose>
             <when test="sort != null and sort.trim() != ''">
                 order by ${sort} ${order}
             </when>
 			<otherwise>
-                order by id desc
+                order by item.id desc
 			</otherwise>
         </choose>
 		<if test="offset != null and limit != null">

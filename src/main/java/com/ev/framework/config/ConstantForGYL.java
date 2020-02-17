@@ -6,7 +6,7 @@ package com.ev.framework.config;
  */
 public final class ConstantForGYL {
 
-	private ConstantForGYL() {
+    private ConstantForGYL() {
 	}
 
 	/**
@@ -195,14 +195,14 @@ public final class ConstantForGYL {
 	 * 盘点方案前缀
 	 */
 	public static final String PLAN_PDFA = "PDFA";
-    /**
-     * 委外合同前缀
-     */
-    public static final String OUTSOURCING_CONTRACT = "WWTH";
-    /**
-     * 委外合同
-     */
-    public static final Long WWHT = 271L;
+	/**
+	 * 委外合同前缀
+	 */
+	public static final String OUTSOURCING_CONTRACT = "WWTH";
+	/**
+	 * 委外合同
+	 */
+	public static final Long WWHT = 271L;
 
 	/**
 	 * 银行转账单前缀
@@ -213,4 +213,39 @@ public final class ConstantForGYL {
 	 */
 	public static final String PROCESSING_CHARGE = "JGFY";
 
+	/**
+	 * 付款单前缀
+	 */
+	public static final String PAYMENT_ORDER = "FK";
+
+	/**
+	 * 委外入库类  型
+	 */
+	public static final Long OUTSOURCING_INSTOCK = 276L;
+
+	/**
+	 * 委外入库  单前缀
+	 */
+	public static final String OUTSOURCING_INSTOCK_CODE = "WWRK";
+
+	/**
+	 * 生产投料单
+	 */
+	public static final Long SCTLD = 277L;
+
+
+	/**
+	 * 采购付款  付款单类型
+	 */
+	public static final Long PR_TYPE = 229L;
+
+	/**
+	 * 加权平均  计价方法
+	 */
+	public static final Integer WEIGHTED_AVERAGE = 144;
+
+	/**
+	 * 分批认定 计价方法
+	 */
+	public static final Integer BATCH_FINDS = 143;
 }

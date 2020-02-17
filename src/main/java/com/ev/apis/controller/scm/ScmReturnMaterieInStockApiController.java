@@ -54,7 +54,7 @@ public class ScmReturnMaterieInStockApiController {
                               "\"sourceCode\":\"SCLY20190720001\"," +
                               "\"sourceId\":1}"+
                               "]", required = true) @RequestParam(value = "bodyDetail", defaultValue = "") String bodyDetail,
-                      @ApiParam(value = "删除的明细id") @RequestParam(value = "ItemIds", required = false) Long[] itemIds) {
+                      @ApiParam(value = "删除的明细id") @RequestParam(value = "itemIds", required = false) Long[] itemIds) {
 
         return stockInService.addAndChangeInStockType(stockInDO,ConstantForGYL.TLRK,bodyDetail,itemIds);
     }
@@ -94,13 +94,13 @@ public class ScmReturnMaterieInStockApiController {
                                   @ApiParam(value = "物料名（模糊）") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
                                   @ApiParam(value = "退料起始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
                                   @ApiParam(value = "退料截止时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
-                                  @ApiParam(value = "规格型号") @RequestParam(value = "materielSpecification", defaultValue = "", required = false) String materielSpecification,
+                                  @ApiParam(value = "规格型号") @RequestParam(value = "specification", defaultValue = "", required = false) String specification,
                                   @ApiParam(value = "批次") @RequestParam(value = "batch", defaultValue = "", required = false) String batch,
                                   @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
                                   @ApiParam(value = "退料操作员id") @RequestParam(value = "operator", defaultValue = "", required = false) Long operator,
                                   @ApiParam(value = "退料操作员名字") @RequestParam(value = "operatorName", defaultValue = "", required = false) String operatorName,
                                   @ApiParam(value = "制单人id") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
-                                 @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) Long createByName,
+                                 @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
                                  @ApiParam(value = "制单时间") @RequestParam(value = "createTime", defaultValue = "", required = false) String  createTime  ) {
         Map<String, Object> resulst = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
@@ -111,7 +111,7 @@ public class ScmReturnMaterieInStockApiController {
         params.put("startTime", startTime);
         params.put("endTime", endTime);
         params.put("deptName",deptName );
-        params.put("materielSpecification",materielSpecification );
+        params.put("materielSpecification",specification );
         params.put("batch", batch);
         params.put("auditSign",auditSign);
         params.put("operator", operator);

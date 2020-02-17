@@ -35,6 +35,6 @@ public interface PurchasecontractPayDao {
 
 	Map<String, Object> totalOfPay(Map<String, Object> map);
 
-
+	List<PurchasecontractPayDO> detailOfPayById(Map<String, Object> map);
 
 }

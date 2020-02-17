@@ -6,6 +6,7 @@ import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.R;
+import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.domain.StockInDO;
 import com.ev.scm.service.StockInItemService;
 import com.ev.scm.service.StockInService;
@@ -61,12 +62,11 @@ public class ScmSalesReturnInStockApiController {
                               "\"sourceType\":源单类型,\n" +
                               "\"sourceCode\":\"原单编码\"\n" +
                               "\"sourceId\":\"原单id(追溯用，必传)\"\n" +
-
                               "}\n" +
                               "]", required = true) @RequestParam(value = "bodyDetail", defaultValue = "") String bodyDetail,
-                      @ApiParam(value = "删除的明细id") @RequestParam(value = "ItemIds", required = false) Long[] itemIds) {
+                      @ApiParam(value = "删除的明细id") @RequestParam(value = "ItemIds", required = false) Long[] ItemIds) {
 
-        return stockInService.addAndChangeInStockType(stockInDO,ConstantForGYL.SALES_RETURN,bodyDetail,itemIds);
+        return stockInService.addAndChangeInStockType(stockInDO,ConstantForGYL.SALES_RETURN,bodyDetail,ItemIds);
 
     }
 
@@ -74,7 +74,8 @@ public class ScmSalesReturnInStockApiController {
     @ApiOperation("审核--销售退货入库")
     @Transactional(rollbackFor = Exception.class)
     public R changeAuditStatus(@ApiParam(value = "销售退货入库主表主键", required = true) @RequestParam(value = "inHeadId") Long inHeadId,
-                               @ApiParam(value = "审核人主键", required = true) @RequestParam(value = "auditor") Long auditor) {
+                               @ApiParam(value = "审核人主键") @RequestParam(value = "auditor",required = false) Long auditor) {
+        auditor= ShiroUtils.getUserId();
         return stockInService.auditAllTypeInStock(inHeadId, auditor ,ConstantForGYL.SALES_RETURN);
     }
 
@@ -175,9 +176,11 @@ public class ScmSalesReturnInStockApiController {
             @ApiParam(value = "退货截止时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
             @ApiParam(value = "规格型号") @RequestParam(value = "materielSpecification", defaultValue = "", required = false) String materielSpecification,
             @ApiParam(value = "制单人id") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
-            @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) Long createByName,
+            @ApiParam(value = "制单人名字",required = false) @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
             @ApiParam(value = "制单日期") @RequestParam(value = "createTime", defaultValue = "", required = false) String  createTime,
-            HttpServletRequest request, HttpServletResponse response, ModelMap modelMap) {
+            HttpServletRequest request,
+            HttpServletResponse response,
+            ModelMap modelMap) {
 
         Map<String, Object> params = new HashMap<>();
 

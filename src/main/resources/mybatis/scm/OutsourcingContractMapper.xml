@@ -168,7 +168,6 @@
         dics.`name` AS sourceTypeName,
         item.source_code AS sourceCode,
         outsourcing.`contract_code` AS code,
-        '委外合同' AS thisSourceTypeName,
         outsourcing.`create_time` AS createTime
         <include refid="sql_map_condition"/>
         <choose>

@@ -6,6 +6,7 @@ import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.R;
+import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.domain.StockInDO;
 import com.ev.scm.service.StockInItemService;
 import com.ev.scm.service.StockInService;
@@ -61,7 +62,7 @@ public class ScmPurchaseInStockController {
                               "\"expense\":\"费用（采购入库）\"\n" +
                               "}\n" +
                               "]", required = true) @RequestParam(value = "bodyDetail", defaultValue = "") String bodyDetail,
-                      @ApiParam(value = "删除的明细id") @RequestParam(value = "ItemIds", required = false) Long[] itemIds) {
+                      @ApiParam(value = "删除的明细id") @RequestParam(value = "itemIds", required = false) Long[] itemIds) {
 
         return stockInService.addAndChangeInStockType(stockInDO,ConstantForGYL.PURCHASE_INSTOCK,bodyDetail,itemIds);
 
@@ -71,8 +72,8 @@ public class ScmPurchaseInStockController {
     @EvApiByToken(value = "/apis/scm/purchaseInStock/auditStatusChange", method = RequestMethod.POST, apiTitle = "审核--采购入库")
     @ApiOperation("审核--采购入库")
     @Transactional(rollbackFor = Exception.class)
-    public R changeAuditStatus(@ApiParam(value = "采购入库主表主键", required = true) @RequestParam(value = "inHeadId") Long inHeadId,
-                               @ApiParam(value = "审核人主键", required = true) @RequestParam(value = "auditor") Long auditor) {
+    public R changeAuditStatus(@ApiParam(value = "采购入库主表主键", required = true) @RequestParam(value = "inHeadId") Long inHeadId) {
+        Long auditor= ShiroUtils.getUserId();
         return stockInService.auditAllTypeInStock(inHeadId, auditor,ConstantForGYL.PURCHASE_INSTOCK);
     }
 
@@ -105,7 +106,7 @@ public class ScmPurchaseInStockController {
                                  @ApiParam(value = "规格型号") @RequestParam(value = "materielSpecification", defaultValue = "", required = false) String materielSpecification,
                                  @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
                                  @ApiParam(value = "制单人id") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
-                                 @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) Long createByName) {
+                                 @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName) {
         Map<String, Object> resulst = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
         params.put("offset", (pageno - 1) * pagesize);

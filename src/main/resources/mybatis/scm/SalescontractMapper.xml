@@ -175,6 +175,7 @@
         materiel.specification AS specification,
         unitUom.name AS unitUomName,
         item.`count` AS count,
+        item.`tax_rate` AS taxRate,
         item.`unit_price` AS unitPrice,
         item.`tax_unit_price` AS taxUnitPrice,
         item.`amount` AS amount,

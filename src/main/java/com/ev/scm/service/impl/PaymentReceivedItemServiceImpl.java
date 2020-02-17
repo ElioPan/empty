@@ -1,14 +1,14 @@
 package com.ev.scm.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Map;
-
 import com.ev.scm.dao.PaymentReceivedItemDao;
 import com.ev.scm.domain.PaymentReceivedItemDO;
 import com.ev.scm.service.PaymentReceivedItemService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 
@@ -51,5 +51,43 @@ public class PaymentReceivedItemServiceImpl implements PaymentReceivedItemServic
 	public int batchRemove(Long[] ids){
 		return paymentReceivedItemDao.batchRemove(ids);
 	}
-	
+
+	@Override
+	public int removeByReceivedId(Long[] ids) {
+		return paymentReceivedItemDao.removeByReceivedId(ids);
+	}
+
+	@Override
+	public List<Map<String, Object>> detailOfitem(Map<String, Object> map) {
+		return paymentReceivedItemDao.detailOfitem(map);
+	}
+
+	@Override
+	public Map<String, Object> totallAmount(Map<String, Object> map) {
+		return paymentReceivedItemDao.totallAmount(map);
+	}
+
+	@Override
+	public Boolean whetherTheReference(String sign,Long id,Long[] payItemId) {
+
+		Map<String,Object>  map= new HashMap<>();
+		map.put("sourceId",id);
+		map.put("sourceItemId",payItemId);
+		map.put("sign",sign);
+
+		int rows = paymentReceivedItemDao.whetherTheReference(map);
+
+		if(rows==0){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	@Override
+	public List<PaymentReceivedItemDO> listOfBySign(Map<String, Object> map) {
+		return paymentReceivedItemDao.listOfBySign(map);
+	}
+
+
 }

@@ -3,6 +3,7 @@ package com.ev.apis.controller.scm;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.R;
+import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.domain.StockInDO;
 import com.ev.scm.service.StockInItemService;
 import com.ev.scm.service.StockInService;
@@ -52,7 +53,7 @@ public class ScmProduceInStockApiController {
                               "\"sourceId\":\"原单id(追溯用，必传)\"\n" +
                               "}\n" +
                               "]", required = true) @RequestParam(value = "bodyDetail", defaultValue = "") String bodyDetail,
-                      @ApiParam(value = "删除的明细id") @RequestParam(value = "ItemIds", required = false) Long[] itemIds) {
+                      @ApiParam(value = "删除的明细id") @RequestParam(value = "itemIds", required = false) Long[] itemIds) {
 
 
         return stockInService.addAndChangeInStockType(stockInDO,ConstantForGYL.YDGOODS_WAREHOUSE,bodyDetail,itemIds);
@@ -63,7 +64,8 @@ public class ScmProduceInStockApiController {
     @ApiOperation("审核--生产入库")
     @Transactional(rollbackFor = Exception.class)
     public R changeAuditStatus(@ApiParam(value = "生产入库主表主键", required = true) @RequestParam(value = "inHeadId") Long inHeadId,
-                               @ApiParam(value = "审核人主键", required = true) @RequestParam(value = "auditor") Long auditor) {
+                               @ApiParam(value = "审核人主键", required = false) @RequestParam(value = "auditor") Long auditor) {
+        auditor= ShiroUtils.getUserId();
         return stockInService.auditAllTypeInStock(inHeadId, auditor, ConstantForGYL.YDGOODS_WAREHOUSE);
     }
 
@@ -92,14 +94,14 @@ public class ScmProduceInStockApiController {
                                  @ApiParam(value = "入库起始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
                                  @ApiParam(value = "入库截止时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
                                  @ApiParam(value = "生产部门名字") @RequestParam(value = "deptName", defaultValue = "", required = false) String deptName,
-                                 @ApiParam(value = "规格型号") @RequestParam(value = "materielSpecification", defaultValue = "", required = false) String materielSpecification,
+                                 @ApiParam(value = "规格型号") @RequestParam(value = "specification", defaultValue = "", required = false) String specification,
                                  @ApiParam(value = "批次") @RequestParam(value = "batch", defaultValue = "", required = false) String batch,
                                  @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
                                  @ApiParam(value = "入库操作员id") @RequestParam(value = "operator", defaultValue = "", required = false) Long operator,
                                  @ApiParam(value = "入库操作员名字") @RequestParam(value = "operatorName", defaultValue = "", required = false) String operatorName,
 
                                  @ApiParam(value = "制单人id") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
-                                 @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) Long createByName,
+                                 @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
                                  @ApiParam(value = "制单时间") @RequestParam(value = "createTime", defaultValue = "", required = false) String  createTime  ) {
         Map<String, Object> resulst = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
@@ -112,7 +114,7 @@ public class ScmProduceInStockApiController {
         params.put("startTime", startTime);
         params.put("endTime", endTime);
         params.put("deptName",deptName );
-        params.put("materielSpecification",materielSpecification );
+        params.put("materielSpecification",specification );
         params.put("batch", batch);
         params.put("auditSign",auditSign);
         params.put("operator", operator);

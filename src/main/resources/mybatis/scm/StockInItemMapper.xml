@@ -48,6 +48,7 @@
 		`source_code`,
 		`source_id`,
 		`expense`,
+		`cost`,
 		`create_by`,
 		`create_time`,
 		`update_by`,
@@ -71,6 +72,7 @@
 			<if test="sourceCode != null and sourceCode != ''"> and source_code = #{sourceCode} </if>
 			<if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
 			<if test="expense != null and expense != ''"> and expense = #{expense} </if>
+			<if test="cost != null and cost != ''"> and cost = #{cost} </if>
 			<if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
 			<if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
 			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
@@ -95,6 +97,7 @@
 		`source_code`,
 		`source_id`,
 		`expense`,
+		`cost`,
 		`create_by`,
 		`create_time`,
 		`update_by`,
@@ -116,6 +119,7 @@
 		#{sourceCode},
 		#{sourceId},
 		#{expense},
+		#{cost},
 		#{createBy},
 		#{createTime},
 		#{updateBy},
@@ -140,6 +144,7 @@
 			<if test="sourceCode != null">`source_code` = #{sourceCode}, </if>
 			<if test="sourceId != null">`source_id` = #{sourceId}, </if>
 			<if test="expense != null">`expense` = #{expense}, </if>
+			<if test="cost != null">`cost` = #{cost}, </if>
 			<if test="createBy != null">`create_by` = #{createBy}, </if>
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
@@ -184,7 +189,7 @@
 		n.name as unitName,
 		aa.batch ,
 		aa.count ,
-		aa.unit_price	as unitPrice,
+		aa.unit_price as unitPrice,
 		aa.amount,
 		aa.warehouse,
 		o.name as warehouseName,
@@ -195,6 +200,7 @@
 		q.name as sourceTypeName,
 		aa.source_code	 as  sourceCode,
 		aa.source_id     as  sourceId,
+		aa.cost,
 		aa.expense
 		from
 		scm_stock_in_item  aa
@@ -220,7 +226,7 @@
 		cpb.warehouse      AS warehouse,
 		cpb.wareh_location AS warehLocation,
 		cpb.inhead_id  AS inheadId,
-
+		cpb.cost,
 		cpb.source_type AS sourceType,
 		cph.storage_type AS storageType,
 		cpb.expense,
@@ -274,6 +280,7 @@
 			a.source_singletype as sourceSingletype,
 			f.name        AS   sourceSingletypeName,
 			a.expense,
+			a.cost,
 			a.source_singlecode AS sourceSinglecode
 		from  scm_stock_in_item  a
 		LEFT JOIN cus_materiel    b ON a.pro_id=b.id
@@ -305,6 +312,7 @@
 		a.warehouse,
 		f.name as warehouseName,
 		a.expense,
+		a.cost,
 		a.wareh_location as warehLocation,
 		g.name as  warehLocationName,
 		a.source_singletype as sourceSingletype,

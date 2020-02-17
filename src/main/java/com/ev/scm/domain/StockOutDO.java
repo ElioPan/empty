@@ -21,7 +21,7 @@ public class StockOutDO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //
-    @ApiModelProperty(value = "")
+    @ApiModelProperty()
     private Long id;
     //出库单据号/单据编号
     @ApiModelProperty(value = "出库单据号/单据编号", hidden = true)
@@ -36,10 +36,10 @@ public class StockOutDO implements Serializable {
     @ApiModelProperty(value = "供应商ID")
     private Long supplierId;
     //销售员
-    @ApiModelProperty(value = "销售员", required = true)
+    @ApiModelProperty(value = "销售员")
     private Long salesUser;
     //生产部门ID/销售部门ID
-    @ApiModelProperty(value = "生产部门ID/销售部门ID", required = true)
+    @ApiModelProperty(value = "生产部门ID/销售部门ID")
     private Long deptId;
     //销售方式(0现销/1赊销)
     @ApiModelProperty(value = "销售方式(0现销/1赊销)")

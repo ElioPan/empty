@@ -3,6 +3,7 @@ package com.ev.apis.controller.scm;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.R;
+import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.domain.StockInDO;
 import com.ev.scm.service.StockInItemService;
 import com.ev.scm.service.StockInService;
@@ -55,7 +56,7 @@ public class ScmOtherInStockApiController {
                               "\"sourceId\":\"原单id(追溯用，必传)\"\n" +
                               "}\n" +
                               "]", required = true) @RequestParam(value = "bodyDetail", defaultValue = "") String bodyDetail,
-                      @ApiParam(value = "删除的明细id") @RequestParam(value = "ItemIds", required = false) Long[] itemIds) {
+                      @ApiParam(value = "删除的明细id") @RequestParam(value = "itemIds", required = false) Long[] itemIds) {
 
         return stockInService.addAndChangeInStockType(stockInDO,ConstantForGYL.OTHER_WAREHOUSE,bodyDetail,itemIds);
     }
@@ -64,7 +65,8 @@ public class ScmOtherInStockApiController {
     @ApiOperation("审核--其他入库")
     @Transactional(rollbackFor = Exception.class)
     public R changeAuditStatus(@ApiParam(value = "其他入库主表主键", required = true) @RequestParam(value = "inHeadId", defaultValue = "") Long inHeadId,
-                               @ApiParam(value = "审核人主键", required = true) @RequestParam(value = "auditor") Long auditor) {
+                               @ApiParam(value = "审核人主键") @RequestParam(value = "auditor") Long auditor) {
+        auditor= ShiroUtils.getUserId();
         return stockInService.auditAllTypeInStock(inHeadId, auditor,ConstantForGYL.OTHER_WAREHOUSE);
     }
 
@@ -100,7 +102,7 @@ public class ScmOtherInStockApiController {
                                  @ApiParam(value = "入库操作员id") @RequestParam(value = "operator", defaultValue = "", required = false) Long operator,
                                  @ApiParam(value = "入库操作员名字") @RequestParam(value = "operatorName", defaultValue = "", required = false) String operatorName,
                                  @ApiParam(value = "制单人id") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
-                                 @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) Long createByName,
+                                 @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
                                  @ApiParam(value = "制单时间") @RequestParam(value = "createTime", defaultValue = "", required = false) String  createTime  ) {
         Map<String, Object> resulst = new HashMap<>();
         Map<String, Object> params = new HashMap<>();

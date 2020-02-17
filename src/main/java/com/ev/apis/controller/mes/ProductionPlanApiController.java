@@ -102,11 +102,16 @@ public class ProductionPlanApiController {
         }else{
             data = productionPlanService.listForMap(params);
         }
+
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
         Map<String, Object> count = productionPlanService.countForMap(params);
 		results.put("count", count);
 		int total = count.containsKey("total") ? Integer.parseInt(count.get("total").toString()) : 0;
 		if (data.size() > 0) {
+			for (Map<String, Object> datum : data) {
+				datum.put("thisSourceType",ConstantForMES.SCJH);
+				datum.put("thisSourceTypeName","生产计划");
+			}
 			DsResultResponse dsRet = new DsResultResponse();
 			dsRet.setDatas(data);
 			dsRet.setPageno(pageno);

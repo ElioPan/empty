@@ -66,4 +66,14 @@ public class PurchaseInvoiceItemServiceImpl implements PurchaseInvoiceItemServic
 		return purchaseInvoiceItemDao.totalOfItem(map);
 	}
 
+	@Override
+	public List<PurchaseInvoiceItemDO> getSourceCode(Map<String, Object> map) {
+		return purchaseInvoiceItemDao.getSourceCode(map);
+	}
+
+	@Override
+	public Map<String, Object> getTotalTaxAmount(Map<String, Object> map) {
+		return purchaseInvoiceItemDao.getTotalTaxAmount(map);
+	}
+
 }

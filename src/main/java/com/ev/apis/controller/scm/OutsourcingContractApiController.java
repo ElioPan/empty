@@ -4,6 +4,8 @@ import cn.afterturn.easypoi.entity.vo.TemplateExcelConstants;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.apis.model.DsResultResponse;
+import com.ev.custom.domain.DictionaryDO;
+import com.ev.custom.service.DictionaryService;
 import com.ev.custom.service.MaterielService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
@@ -50,6 +52,8 @@ public class OutsourcingContractApiController {
     private ProductionFeedingDetailService productionFeedingDetailService;
     @Autowired
     private ProductionFeedingService productionFeedingService;
+    @Autowired
+    private DictionaryService dictionaryService;
     @Autowired
     private MaterielService materielService;
 	
@@ -210,6 +214,12 @@ public class OutsourcingContractApiController {
         int total = Integer.parseInt(stringBigDecimalMap.getOrDefault("total",0).toString());
         Map<String, Object> result = Maps.newHashMap();
         if (data.size() > 0) {
+            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.WWHT.intValue());
+            String thisSourceTypeName = dictionaryDO.getName();
+            for (Map<String, Object> datum : data) {
+                datum.put("thisSourceType", ConstantForGYL.WWHT);
+                datum.put("thisSourceTypeName", thisSourceTypeName);
+            }
             result.put("data", new DsResultResponse(pageno,pagesize,total,data));
             result.put("total", stringBigDecimalMap);
         }

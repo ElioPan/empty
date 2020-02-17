@@ -165,6 +165,7 @@
         createUser.`name` AS createUserName,
         stockOut.`create_time` AS createTime,
         auditor.`name` AS auditorName,
+        stockOut.`audit_sign` AS auditSign,
         stockOut.`audit_time` AS auditTime
         <include refid="sql_map_condition"/>
         <choose>

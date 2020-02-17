@@ -138,5 +138,21 @@
 		from scm_purchasecontract_pay
 		where purchase_contract_id=#{id}
 	</select>
-	
+
+
+	<select id="detailOfPayById" resultType="com.ev.scm.domain.PurchasecontractPayDO">
+		select
+		id,
+		`due_date`,
+		`pay_amount`,
+		`amount_paid`,
+		`unpay_amount`
+		from scm_purchasecontract_pay
+		where id in
+		<foreach item="id" collection="payItemId" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+
+
 </mapper>

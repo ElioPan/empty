@@ -484,7 +484,40 @@ public class DatesUtil {
 		return lDate;
 	}
 
+	/**
+	 * 根据提供的年月日获取该月份的第一天
+	 */
+	public static String getSupportBeginDayOfMonth(Date date) {
+		Calendar startDate = Calendar.getInstance();
+		startDate.setTime(date);
+		startDate.set(Calendar.DAY_OF_MONTH, 1);
+		startDate.set(Calendar.HOUR_OF_DAY, 0);
+		startDate.set(Calendar.MINUTE, 0);
+		startDate.set(Calendar.SECOND, 0);
+		startDate.set(Calendar.MILLISECOND, 0);
+		Date firstDate = startDate.getTime();
+		//  SimpleDateFormat myFmt7=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat myFmt7=new SimpleDateFormat("yyyy-MM-dd");
+		return myFmt7.format(firstDate);
 
+	}
+
+	/**
+	 * 根据提供的年月获取该月份的最后一天
+	 */
+	public  static String getSupportEndDayOfMonth(Date date) {
+		Calendar startDate = Calendar.getInstance();
+		startDate.setTime(date);
+		startDate.set(Calendar.DAY_OF_MONTH, startDate.getActualMaximum(Calendar.DAY_OF_MONTH));
+		startDate.set(Calendar.HOUR_OF_DAY, 23);
+		startDate.set(Calendar.MINUTE, 59);
+		startDate.set(Calendar.SECOND, 59);
+		startDate.set(Calendar.MILLISECOND, 999);
+		Date firstDate = startDate.getTime();
+//   SimpleDateFormat myFmt7=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat myFmt7=new SimpleDateFormat("yyyy-MM-dd");
+		return myFmt7.format(firstDate);
+	}
 
 
 }

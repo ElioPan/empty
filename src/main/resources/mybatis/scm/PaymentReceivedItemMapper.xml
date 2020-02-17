@@ -40,17 +40,15 @@ receivable_payables_amount`,`paid_received_amount`,`this_amount`,`no_receipt_pay
 
     <sql id="sql_condition">
         <where>
-                            <if test="id != null and id != ''"> AND id = #{id} </if>
+
+							<if test="id != null and id != ''"> AND id = #{id} </if>
                             <if test="paymentReceivedId != null and paymentReceivedId != ''"> AND payment_received_id = #{paymentReceivedId} </if>
                             <if test="sourceType != null and sourceType != ''"> AND source_type = #{sourceType} </if>
                             <if test="sourceCode != null and sourceCode != ''"> AND source_code = #{sourceCode} </if>
                             <if test="sourceId != null and sourceId != ''"> AND source_id = #{sourceId} </if>
                             <if test="sourcePayItemId != null and sourcePayItemId != ''"> AND source_pay_item_id = #{sourcePayItemId} </if>
                             <if test="accrualDate != null and accrualDate != ''"> AND accrual_date = #{accrualDate} </if>
-                            <if test="
-receivablePayablesAmount != null and receivablePayablesAmount != ''"> AND 
-receivable_payables_amount = #{
-receivablePayablesAmount} </if>
+                            <if test="receivablePayablesAmount != null and receivablePayablesAmount != ''"> ANDreceivable_payables_amount = #{receivablePayablesAmount} </if>
                             <if test="paidReceivedAmount != null and paidReceivedAmount != ''"> AND paid_received_amount = #{paidReceivedAmount} </if>
                             <if test="thisAmount != null and thisAmount != ''"> AND this_amount = #{thisAmount} </if>
                             <if test="noReceiptPaymentAmount != null and noReceiptPaymentAmount != ''"> AND no_receipt_payment_amount = #{noReceiptPaymentAmount} </if>
@@ -124,10 +122,7 @@ receivablePayablesAmount},
 			<if test="sourceId != null">`source_id` = #{sourceId}, </if>
 			<if test="sourcePayItemId != null">`source_pay_item_id` = #{sourcePayItemId}, </if>
 			<if test="accrualDate != null">`accrual_date` = #{accrualDate}, </if>
-			<if test="
-receivablePayablesAmount != null">`
-receivable_payables_amount` = #{
-receivablePayablesAmount}, </if>
+			<if test="receivablePayablesAmount != null">`receivable_payables_amount` = #{receivablePayablesAmount}, </if>
 			<if test="paidReceivedAmount != null">`paid_received_amount` = #{paidReceivedAmount}, </if>
 			<if test="thisAmount != null">`this_amount` = #{thisAmount}, </if>
 			<if test="noReceiptPaymentAmount != null">`no_receipt_payment_amount` = #{noReceiptPaymentAmount}, </if>
@@ -154,5 +149,121 @@ receivablePayablesAmount}, </if>
 			#{id}
 		</foreach>
 	</delete>
-	
+
+
+
+
+	<delete id="removeByReceivedId">
+		DELETE
+		FROM
+		scm_payment_received_item
+		WHERE
+		payment_received_id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<select id="detailOfitem" resultType="map">
+
+			SELECT
+			b.id,
+			IF(a.sign='SK',d.receivable_date,c.due_date) as accrualDate,
+			IF(a.sign='SK',d.receivable_amount,c.pay_amount) as receivablePayablesAmount,
+			IF(a.sign='SK',d.received_amount,c.amount_paid) as paid_receivedAmount,
+			b.this_amount as thisAmount,
+			IF(a.sign='SK',d.unpay_amount,c.unpay_amount) as noReceiptPaymentAmount,
+			b.accrual_date as accrualDate,
+			b.receivable_payables_amount as receivablePayablesAmount,
+			b.paid_received_amount as paid_receivedAmount,
+			b.this_amount as thisAmount,
+			b.no_receipt_payment_amount as noReceiptPaymentAmount,
+
+			b.statement_number as statementNumber,
+			b.account_number as accountNumber,
+			j.name as accountNumberName,
+			b.settlement_type as settlementType,
+			k.name as settlementTypeName,
+			b.remarks,
+			b.source_type as  sourceType,
+			m.name as sourceTypeName,
+			b.source_code as sourceCode,
+			b.source_id as sourceId
+			from
+			scm_payment_received_item  b
+			LEFT JOIN scm_purchasecontract_pay c on b.source_pay_item_id=c.id
+			LEFT JOIN scm_salescontract_pay d on b.source_pay_item_id=d.id
+			LEFT JOIN cus_dictionary j on b.account_number=j.id
+			LEFT JOIN cus_dictionary k on b.settlement_type=k.id
+			LEFT JOIN cus_dictionary m on b.source_type=m.id
+			LEFT JOIN scm_payment_received  a on  a.id =b.payment_received_id
+			WHERE
+			b.payment_received_id=#{id}
+	</select>
+
+	<select id="totallAmount" resultType="map">
+		select
+		IF(sum(receivablePayablesAmount) is null,0,sum(receivablePayablesAmount)) as totalReceivablePayablesAmount,
+		IF(sum(paidReceivedAmount) is null,0,sum(paidReceivedAmount)) as totalPaidReceivedAmount,
+		IF(sum(thisAmount) is null,0,sum(thisAmount))  as totalThisAmount,
+		IF(sum(noReceiptPaymentAmount) is null,0,sum(noReceiptPaymentAmount)) as totalNoReceiptPaymentAmount
+		from
+		(
+		SELECT
+					b.id,
+					b.payment_received_id AS paymentReceivedId,
+					IF(a.sign='SK',d.receivable_date,c.due_date) as accrualDate,
+					IF(a.sign='SK',d.receivable_amount,c.pay_amount) as receivablePayablesAmount,
+					IF(a.sign='SK',d.received_amount,c.amount_paid) as paidReceivedAmount,
+					b.this_amount as thisAmount,
+					IF(a.sign='SK',d.unpay_amount,c.unpay_amount) as noReceiptPaymentAmount,
+					b.accrual_date as accrualDate,
+					b.receivable_payables_amount as receivablePayablesAmount,
+					b.paid_received_amount as paid_receivedAmount,
+					b.this_amount as thisAmount,
+					b.no_receipt_payment_amount as noReceiptPaymentAmount,
+
+					b.statement_number as statementNumber,
+					b.account_number as accountNumber,
+					j.name as accountNumberName,
+					b.settlement_type as settlementType,
+					k.name as settlementTypeName,
+					b.remarks,
+					b.source_type as  sourceType,
+					m.name as sourceTypeName,
+					b.source_code as sourceCode,
+					b.source_id as sourceId
+					from
+					scm_payment_received_item  b
+					LEFT JOIN scm_purchasecontract_pay c on b.source_pay_item_id=c.id
+					LEFT JOIN scm_salescontract_pay d on b.source_pay_item_id=d.id
+					LEFT JOIN cus_dictionary j on b.account_number=j.id
+					LEFT JOIN cus_dictionary k on b.settlement_type=k.id
+					LEFT JOIN cus_dictionary m on b.source_type=m.id
+					LEFT JOIN scm_payment_received  a on  a.id =b.payment_received_id
+					WHERE
+		)aa
+		WHERE
+		paymentReceivedId=#{id}
+	</select>
+
+	<select id="whetherTheReference" resultType="int">
+		select
+		count(*)
+		FROM
+		scm_payment_received_item  a
+		LEFT JOIN scm_payment_received  b on a.payment_received_id=b.id
+		where
+			a.`source_id`=#{sourceId}
+			and
+			b.`sign`=#{sign}
+			and a.source_pay_item_id in
+		<foreach item="id" collection="sourceItemId" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+
+
+
 </mapper>

@@ -137,14 +137,14 @@
         item.id AS itemId,
         item.salesbill_id AS id,
         bill.invoice_date AS invoiceDate,
-        client.name AS clientName,
+        client.`name` AS clientName,
         bill.invoice_type AS invoiceType,
         dici.`name` AS invoiceyTypeName,
-        bill.invoice_num AS invoiceNum,
+        bill.`bill_code` AS billCode,
         materiel.serial_no AS materielSerialNo,
-        materiel.name AS materielName,
+        materiel. NAME AS materielName,
         materiel.specification AS specification,
-        item.count AS count,
+        item.`count` AS count,
         item.unit_price AS unitPrice,
         item.tax_unit_price AS taxUnitPrice,
         item.tax_rate AS taxRate,
@@ -156,6 +156,7 @@
         item.source_type AS sourceType,
         dict.`name` AS sourceTypeName,
         item.source_code AS sourceCode
+
         <include refid="sql_map_condition"/>
         <choose>
             <when test="sort != null and sort.trim() != ''">
@@ -177,13 +178,14 @@
     </select>
 
     <sql id="sql_map_condition">
-        FROM scm_salesbill_item item
+        FROM
+        scm_salesbill_item item
         LEFT JOIN scm_salesbill bill ON bill.id = item.salesbill_id
         LEFT JOIN cus_client client ON client.id = bill.client_id
-        LEFT JOIN cus_dictionary dici ON  dici.id = bill.invoice_type
-        LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
-        LEFT JOIN cus_dictionary dica ON  dica.id = bill.audit_sign
-        LEFT JOIN cus_dictionary dict ON  dict.id = item.source_type
+        LEFT JOIN cus_dictionary dici ON dici.id = bill.invoice_type
+        LEFT JOIN cus_materiel materiel ON materiel.`id` = item.`materiel_id`
+        LEFT JOIN cus_dictionary dica ON dica.id = bill.audit_sign
+        LEFT JOIN cus_dictionary dict ON dict.id = item.source_type
         <where>
             <if test="billCode != null and billCode != ''"> and bill.bill_code = #{billCode} </if>
             <if test="clientName != null and clientName != ''"> and client.name LIKE #{clientName} </if>
@@ -212,6 +214,7 @@
         bill.invoice_date AS invoiceDate,
         bill.drawer AS drawer,
         users.`name` AS drawerName,
+        bill.`bill_code` AS billCode,
         bill.invoice_num AS invoiceNum,
         bill.invoice_type AS invoiceType,
         dici.`name` AS invoiceTypeName,

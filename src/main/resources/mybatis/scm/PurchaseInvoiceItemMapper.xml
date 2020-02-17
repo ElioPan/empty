@@ -193,5 +193,23 @@
 		h.purchasebill_id=#{id}
 	</select>
 
+	<select id="getSourceCode" resultType="com.ev.scm.domain.PurchaseInvoiceItemDO">
+		SELECT
+		DISTINCT
+		h.source_code
+		from
+		scm_purchase_invoice_item h
+		WHERE
+		h.purchasebill_id=#{purchasebillId}
+	</select>
+
+	<select id="getTotalTaxAmount" resultType="map">
+		SELECT
+		IF(sum(h.tax_amount)is null,0,sum(h.tax_amount)) as totalTaxAmount
+		from
+		scm_purchase_invoice_item h
+		WHERE
+		h.source_code=#{sourceCode}
+	</select>
 	
 </mapper>

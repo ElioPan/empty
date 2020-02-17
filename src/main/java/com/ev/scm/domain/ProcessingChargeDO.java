@@ -40,7 +40,7 @@ public class ProcessingChargeDO implements Serializable {
 	private Long invoiceType;
 	//委外入库ID
     @ApiModelProperty(value = "委外入库ID")
-	private String stockInId;
+	private Long stockInId;
 	//审核状态
     @ApiModelProperty(value = "审核状态")
 	private Long auditSign;

@@ -31,7 +31,7 @@ public class StockEntity {
     private String facilityLocationName;
     @Excel(name = "期初数量")
     private String totalCount;
-    @Excel(name = "期初单价")
-    private String unitPrice;
+    @Excel(name = "期初金额")
+    private String amount;
 
 }

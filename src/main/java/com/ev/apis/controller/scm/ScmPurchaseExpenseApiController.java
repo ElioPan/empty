@@ -41,10 +41,10 @@ public class ScmPurchaseExpenseApiController {
     @ApiOperation("保存/修改—采购费用")
     @Transactional(rollbackFor = Exception.class)
     public R addPurchaseProduct(PurchaseExpenseDO purchaseExpenseDO,
-                                @ApiParam(value = "添加采购申请明细:[\n" +
+                                @ApiParam(value = "添加采购费用明细:[\n" +
                                         "{\n" +
                                         "\"id\":\"明细行主键(修改时必传)\",\n" +
-                                        "\"expenseId\":\"费用id\",\n" +
+                                        "\"expenseId\":\"费用主键\",\n" +
                                         "\"unit\":\"单位id\",\n" +
                                         "\"count\":\"数量\",\n" +
                                         "\"taxUnitPrice\":\"含税单价\",\n" +
@@ -55,7 +55,7 @@ public class ScmPurchaseExpenseApiController {
                                         "\"taxAmount\":\"含税金额（价格合计）\"\n" +
                                         "}\n" +
                                         "]", required = true) @RequestParam(value = "item", defaultValue = "") String item,
-                                @ApiParam(value = "删除的明细行id:") @RequestParam(value = "itemIds") Long[] deleItemIds){
+                                @ApiParam(value = "删除的明细行id:") @RequestParam(value = "itemIds",required = false) Long[] deleItemIds){
         return purchaseExpenseService.addPurchase(purchaseExpenseDO,item,deleItemIds);
     }
 
@@ -84,6 +84,8 @@ public class ScmPurchaseExpenseApiController {
     @ApiOperation("列表—采购费用")
     public R purchaseOflist(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
                             @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+                            @ApiParam(value = "发票号") @RequestParam(value = "invoiceNum", defaultValue = "", required = false) String invoiceNum,
+                            @ApiParam(value = "费用名称") @RequestParam(value = "expenceName", defaultValue = "", required = false) String expenceName,
                             @ApiParam(value = "供应商名称") @RequestParam(value = "supplierName", defaultValue = "", required = false) String supplierName,
                             @ApiParam(value = "开始日期(开票时间)") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
                             @ApiParam(value = "截止日期(开票时间)") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime) {
@@ -94,6 +96,8 @@ public class ScmPurchaseExpenseApiController {
         params.put("supplierName", supplierName);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
+        params.put("invoiceNum", invoiceNum);
+        params.put("expenceName", expenceName);
 
         List<Map<String, Object>> list = purchaseExpenseService.listForMap(params);
         //数量中添加统计  数量  + 金额

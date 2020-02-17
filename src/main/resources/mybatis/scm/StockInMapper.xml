@@ -127,9 +127,9 @@
 			<if test="storageType != null">`Storage_type` = #{storageType}, </if>
 			<if test="sourceCompany != null">`source_company` = #{sourceCompany}, </if>
 
-			<if test="clientId != null"> and client_id = #{clientId}, </if>
-			<if test="deptId != null"> and dept_id = #{deptId}, </if>
-			<if test="inOutTime != null"> and in_out_time = #{inOutTime}, </if>
+			<if test="clientId != null"> client_id = #{clientId}, </if>
+			<if test="deptId != null"> dept_id = #{deptId}, </if>
+			<if test="inOutTime != null">  in_out_time = #{inOutTime}, </if>
 
 			<if test="operator != null">`operator` = #{operator}, </if>
 			<if test="auditor != null">`auditor` = #{auditor}, </if>
@@ -315,7 +315,6 @@
 			a.operator  as operator,
 			f.name as operatorName,
 			a.purchase_type  as purchaseType,
-			g.name as purchaseTypeName,
 			a.pay_account	 as payAccount,
 			a.auditor ,
 			h.name as auditorName,
@@ -346,6 +345,7 @@
 			q.name as sourceTypeName,
 			aa.source_code	 as  sourceCode,
 			aa.source_id     as  sourceId,
+			aa.cost,
 			aa.expense
 			from
 				scm_stock_in  a
@@ -354,7 +354,6 @@
 			LEFT JOIN  cus_client d  ON a.client_id=d.id
 			LEFT JOIN  sys_dept e    ON a.dept_id=e.dept_id
 			LEFT JOIN  sys_user f    ON a.operator=f.user_id
-			LEFT JOIN  cus_dictionary g  ON a.purchase_type=g.id
 			LEFT JOIN  sys_user  h  ON a.auditor=h.user_id
 			LEFT JOIN  cus_dictionary i  ON a.audit_sign=i.id
 			LEFT JOIN  sys_user j    ON a.create_by=j.user_id
@@ -389,6 +388,8 @@
 			<if test="deptName != null and deptName != ''"> AND deptName like  CONCAT('%',#{deptName},'%')  </if>
 			<if test="batch != null and batch != ''"> and batch = #{batch} </if>
 			<if test="createTime != null and createTime != ''"> and createTime = #{createTime} </if>
+			<if test="createStartTime != null and createStartTime!= ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
+			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -426,7 +427,6 @@
 		a.operator  as operator,
 		f.name as operatorName,
 		a.purchase_type  as purchaseType,
-		g.name as purchaseTypeName,
 		a.pay_account	 as payAccount,
 		a.auditor ,
 		h.name as auditorName,
@@ -457,6 +457,7 @@
 		q.name as sourceTypeName,
 		aa.source_code	 as  sourceCode,
 		aa.source_id     as  sourceId,
+		aa.cost,
 		aa.expense
 		from
 		scm_stock_in  a
@@ -465,7 +466,6 @@
 		LEFT JOIN  cus_client d  ON a.client_id=d.id
 		LEFT JOIN  sys_dept e    ON a.dept_id=e.dept_id
 		LEFT JOIN  sys_user f    ON a.operator=f.user_id
-		LEFT JOIN  cus_dictionary g  ON a.purchase_type=g.id
 		LEFT JOIN  sys_user  h  ON a.auditor=h.user_id
 		LEFT JOIN  cus_dictionary i  ON a.audit_sign=i.id
 		LEFT JOIN  sys_user j    ON a.create_by=j.user_id
@@ -519,7 +519,7 @@
 		a.operator  as operator,
 		f.name as operatorName,
 		a.purchase_type  as purchaseType,
-		g.name as purchaseTypeName,
+		<!--g.name as purchaseTypeName,-->
 		a.pay_account	 as payAccount,
 		a.auditor ,
 		h.name as auditorName,
@@ -538,7 +538,6 @@
 		LEFT JOIN  cus_client d  ON a.client_id=d.id
 		LEFT JOIN  sys_dept e    ON a.dept_id=e.dept_id
 		LEFT JOIN  sys_user f    ON a.operator=f.user_id
-		LEFT JOIN  cus_dictionary g  ON a.purchase_type=g.id
 		LEFT JOIN  sys_user  h  ON a.auditor=h.user_id
 		LEFT JOIN  cus_dictionary i  ON a.audit_sign=i.id
 		LEFT JOIN  sys_user j    ON a.create_by=j.user_id

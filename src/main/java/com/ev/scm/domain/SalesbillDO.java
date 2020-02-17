@@ -39,7 +39,7 @@ public class SalesbillDO implements Serializable {
     @ApiModelProperty(value = "发票类型")
 	private Long invoiceType;
 	//发票号码
-    @ApiModelProperty(value = "发票号码")
+    @ApiModelProperty(value = "单据号")
 	private String invoiceNum;
 	//审核状态
     @ApiModelProperty(value = "审核状态")

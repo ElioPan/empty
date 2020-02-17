@@ -137,5 +137,70 @@
 			#{id}
 		</foreach>
 	</delete>
-	
+
+	<!--自定义-->
+    <delete id="batchRemoveByChargeIds">
+		DELETE FROM scm_processing_charge_item WHERE charge_id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		item.id AS id,
+		materiel.serial_no AS materielSerialNo,
+		materiel.name AS materielName,
+		materiel.specification AS specification,
+		unitUom.`name` AS unitUomName,
+		item.`count` AS count,
+		item.unit_price AS unitPrice,
+		item.tax_unit_price AS taxnitPrice,
+		item.tax_rate AS taxRate,
+		item.amount AS amount,
+		item.taxes AS taxes,
+		item.tax_amount AS taxAmount,
+		item.source_type AS sourceType,
+		dict.`name` AS sourceTypeName,
+		item.source_code AS sourceCode
+		<include refid="sql_map_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by item.charge_id desc,item.id
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="map">
+		SELECT
+		COUNT(*) AS count,
+		SUM(item.`count`) AS totalCount,
+		SUM(item.amount) AS totalAmount,
+		SUM(item.taxes) AS totalTaxes,
+		SUM(item.tax_amount) AS totalTaxAmount
+		<include refid="sql_map_condition"/>
+	</select>
+
+	<sql id="sql_map_condition">
+		FROM scm_processing_charge_item item
+		LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
+		LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
+		LEFT JOIN cus_dictionary dict ON  dict.id = item.source_type
+		<where>
+			<if test="id != null and id != ''"> and item.charge_id = #{id} </if>
+			<if test="itemId != null and itemId != ''"> and item.id = #{itemId} </if>
+			<if test="createBy != null and createBy != ''"> and item.create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> and item.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> and item.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> and item.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> and item.del_flag = #{delFlag} </if>
+		</where>
+	</sql>
+
 </mapper>

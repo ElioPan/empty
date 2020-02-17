@@ -1,11 +1,10 @@
 package com.ev.scm.dao;
 
 import com.ev.scm.domain.PaymentReceivedItemDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 import java.util.Map;
-
-import org.apache.ibatis.annotations.Mapper;
 
 /**
  * 收款/付款明细
@@ -29,4 +28,15 @@ public interface PaymentReceivedItemDao {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+	int removeByReceivedId(Long[] ids);
+
+	List<Map<String, Object>> detailOfitem(Map<String, Object> map);
+
+	Map<String, Object> totallAmount(Map<String, Object> map);
+
+	int whetherTheReference(Map<String, Object> map);
+
+	List<PaymentReceivedItemDO> listOfBySign(Map<String, Object> map);
+
 }

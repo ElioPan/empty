@@ -131,7 +131,7 @@ public class ScmPurchaseApiController {
             dsRet.setPageno(pageno);
             dsRet.setPagesize(pagesize);
             dsRet.setTotalRows(count);
-            dsRet.setTotalPages((int) (count + pagesize - 1) / pagesize);
+            dsRet.setTotalPages( (count + pagesize - 1) / pagesize);
             results.put("data", dsRet);
         }
         return R.ok(results);

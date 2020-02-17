@@ -574,7 +574,19 @@ public class StockOutServiceImpl implements StockOutService {
 
         List<Map<String, Object>> stockOutItem = stockOutItemService.listForMap(param);
         results.put("stockOutItem", stockOutItem);
-
+        if (stockOutItem.size() > 0) {
+            Map<String,Object> params;
+            for (Map<String, Object> map : stockOutItem) {
+                params = Maps.newHashMap();
+                params.put("materielId",map.get("materielId"));
+                params.put("batch",map.get("batch"));
+                params.put("locationId",map.get("locationId"));
+                List<Map<String, Object>> stockListForMap = materielService.stockListForMap(params);
+                if (stockListForMap.size() > 0) {
+                    map.put("availableCount",stockListForMap.get(0).get("availableCount"));
+                }
+            }
+        }
         return results;
     }
 

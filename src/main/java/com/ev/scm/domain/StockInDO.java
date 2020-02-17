@@ -47,7 +47,7 @@ public class StockInDO implements Serializable {
 	private Long operator;
 	//采购方式/销售方式
     @ApiModelProperty(value = "采购方式/销售方式")
-	private String purchaseType;
+	private Integer purchaseType;
 	//付款帐号
     @ApiModelProperty(value = "付款帐号")
 	private String payAccount;

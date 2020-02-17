@@ -188,6 +188,8 @@
 			<if test="supplierName != null and supplierName != ''"> and supplierName LIKE CONCAT('%',#{supplierName},'%') </if>
 			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(applicantTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(applicantTime,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="invoiceNum != null and invoiceNum != ''"> and invoiceNum =#{invoiceNum} </if>
+			<if test="expenceName != null and expenceName != ''"> and name LIKE CONCAT('%',#{expenceName},'%') </if>
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -255,6 +257,8 @@
 			<if test="supplierName != null and supplierName != ''"> and supplierName LIKE CONCAT('%',#{supplierName},'%') </if>
 			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(applicantTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(applicantTime,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="invoiceNum != null and invoiceNum != ''"> and invoiceNum =#{invoiceNum} </if>
+			<if test="expenceName != null and expenceName != ''"> and name LIKE CONCAT('%',#{expenceName},'%') </if>
 		</where>
 	</select>
 
@@ -277,7 +281,7 @@
 			a.create_by as createBy,
 			i.name as createByName,
 			a.remarks,
-			a.create_time as createTime,
+			a.create_time as createTime
 		from
 		scm_purchase_expense a
 		LEFT JOIN  cus_supplier  f on  a.supplier_id =f.id

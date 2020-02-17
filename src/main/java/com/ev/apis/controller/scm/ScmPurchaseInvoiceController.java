@@ -56,7 +56,7 @@ public class ScmPurchaseInvoiceController {
                                           "\"taxAmount\":\"价格合计\",\n" +
                                           "\"sourceId\":\"原单主键\",\n" +
                                           "\"sourceType\":\"源单类型\",\n" +
-                                          "\"sourceCode\":\"来源单号\"\n" +
+                                          "\"sourceCode\":\"来源单号(必填且写准确，不然审核测试会出错)\"\n" +
                                           "}\n" +
                                           "]\n", required = true)
                                   @RequestParam(value = "bodyItem", defaultValue = "") String bodyItem,
@@ -90,7 +90,8 @@ public class ScmPurchaseInvoiceController {
     public R purchaseOflist(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
                             @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
                             @ApiParam(value = "供应商名称") @RequestParam(value = "supplierName", defaultValue = "", required = false) String supplierName,
-                            @ApiParam(value = "物料名称") @RequestParam(value = "supplierName", defaultValue = "", required = false) String materielName,
+                            @ApiParam(value = "物料名称") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
+                            @ApiParam(value = "发票号码") @RequestParam(value = "invoiceNum", defaultValue = "", required = false) String invoiceNum,
                             @ApiParam(value = "开始日期(开票时间)") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
                             @ApiParam(value = "截止日期(开票时间)") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime) {
 
@@ -99,6 +100,7 @@ public class ScmPurchaseInvoiceController {
         params.put("limit", pagesize);
         params.put("supplierName", supplierName);
         params.put("materielName", materielName);
+        params.put("invoiceNum", invoiceNum);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
 
@@ -113,7 +115,6 @@ public class ScmPurchaseInvoiceController {
             dsRet.put("pagesize",pagesize);
             dsRet.put("totalPages",(Integer.parseInt(countForMaps.get("count").toString()) + pagesize - 1) / pagesize);
             dsRet.put("totalRows", countForMaps.get("count"));
-
             dsRet.put("totalTaxes",countForMaps.get("totalTaxes"));
             dsRet.put("totalTaxAmount",countForMaps.get("totalTaxAmount"));
             dsRet.put("totalCount",countForMaps.get("totalCount"));

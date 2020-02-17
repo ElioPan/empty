@@ -34,12 +34,14 @@
 	</select>
 
     <sql id="sql_column_list">
-		`id`,`sign`,`pr_type`,`pr_code`,`supplier_client_id`,`pr_amount`,`pr_date`,`payee`,`payer`,`audit_sign`,`auditor`,`audit_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+		`id`,`cus_sup_id`,``sign`,`pr_type`,`pr_code`,`supplier_client_id`,`pr_amount`,`pr_date`,`payee`,`payer`,`audit_sign`,`auditor`,`audit_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 	</sql>
 
     <sql id="sql_condition">
         <where>
-                            <if test="id != null and id != ''"> AND id = #{id} </if>
+							<if test="maxNo != null and maxNo != ''"> and LEFT(pr_code,CHAR_LENGTH(#{maxNo})) = #{maxNo} </if>
+							<if test="id != null and id != ''"> AND id = #{id} </if>
+							<if test="cusSupId != null and cusSupId != ''"> AND cus_sup_id = #{cusSupId} </if>
                             <if test="sign != null and sign != ''"> AND sign = #{sign} </if>
                             <if test="prType != null and prType != ''"> AND pr_type = #{prType} </if>
                             <if test="prCode != null and prCode != ''"> AND pr_code = #{prCode} </if>
@@ -56,13 +58,14 @@
                             <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
                             <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
                             <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
-                    </where>
+       </where>
     </sql>
 	 
 	<insert id="save" parameterType="com.ev.scm.domain.PaymentReceivedDO" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO scm_payment_received
 		(
-			`sign`, 
+			`sign`,
+			`cus_sup_id`,
 			`pr_type`, 
 			`pr_code`, 
 			`supplier_client_id`, 
@@ -81,7 +84,8 @@
 		)
 		VALUES
 		(
-			#{sign}, 
+			#{sign},
+			#{cusSupId},
 			#{prType}, 
 			#{prCode}, 
 			#{supplierClientId}, 
@@ -104,6 +108,7 @@
 		UPDATE scm_payment_received
 		<set>
 			<if test="sign != null">`sign` = #{sign}, </if>
+			<if test="cusSupId != null">`cus_sup_id` = #{cusSupId}, </if>
 			<if test="prType != null">`pr_type` = #{prType}, </if>
 			<if test="prCode != null">`pr_code` = #{prCode}, </if>
 			<if test="supplierClientId != null">`supplier_client_id` = #{supplierClientId}, </if>
@@ -133,5 +138,226 @@
 			#{id}
 		</foreach>
 	</delete>
-	
+
+
+
+	<update id="updateAuditSign" parameterType="com.ev.scm.domain.PaymentReceivedDO">
+		UPDATE scm_payment_received
+		<set>
+			<if test="sign != null">`sign` = #{sign}, </if>
+			<if test="cusSupId != null">`cus_sup_id` = #{cusSupId}, </if>
+			<if test="prType != null">`pr_type` = #{prType}, </if>
+			<if test="prCode != null">`pr_code` = #{prCode}, </if>
+			<if test="supplierClientId != null">`supplier_client_id` = #{supplierClientId}, </if>
+			<if test="prAmount != null">`pr_amount` = #{prAmount}, </if>
+			<if test="prDate != null">`pr_date` = #{prDate}, </if>
+			<if test="payee != null">`payee` = #{payee}, </if>
+			<if test="payer != null">`payer` = #{payer}, </if>
+			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+			<if test="auditor != null">`auditor` = #{auditor}, </if>
+			<if test="auditTime != null">`audit_time` = #{auditTime}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		WHERE
+		id = #{id}
+		and
+		sign=#{sign}
+	</update>
+
+
+    <select id="canDeletOfCount" resultType="int">
+        select
+        count(id)
+        from
+        scm_payment_received
+        where
+        audit_sign =178
+        and  id in
+        <foreach item="item" collection="id" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		*
+		FROM
+		(
+		SELECT
+		a.id,
+		a.create_time AS createTime,
+		a.pr_date AS prDate,
+		a.pr_code AS prCode,
+		a.cus_sup_id as  cusSupId,
+		IF(a.sign='sk',c.name,d.name) AS cusSupName,
+		a.pr_type as prType,
+		e.name as prTypeName,
+		a.payee ,
+		g.name as payeeName,
+		a.payer,
+		f.name as payerName,
+		a.audit_sign as auditSign,
+		h.name as auditSignName,
+		b.account_number as accountNumber,
+		j.name as accountNumberName,
+		b.settlement_type as settlementType,
+		k.name as settlementTypeName,
+		b.this_amount as thisAmount,
+		b.remarks,
+		b.source_type as  sourceType,
+		m.name as sourceTypeName,
+		b.source_code as sourceCode
+		from
+		scm_payment_received  a
+		LEFT JOIN scm_payment_received_item b on a.id=b.payment_received_id
+		LEFT JOIN cus_client c on a.cus_sup_id=c.id
+		LEFT JOIN cus_supplier d on a.cus_sup_id=d.id
+		LEFT JOIN cus_dictionary e on a.pr_type=e.id
+		LEFT JOIN sys_user g on a.payee=g.user_id
+		LEFT JOIN sys_user f on a.payer=f.user_id
+		LEFT JOIN cus_dictionary h on a.audit_sign=h.id
+		LEFT JOIN cus_dictionary j on b.account_number=j.id
+		LEFT JOIN cus_dictionary k on b.settlement_type=k.id
+		LEFT JOIN cus_dictionary m on b.source_type=m.id
+		)aa
+		<where>
+			<if test="id != null and id != ''"> AND id = #{id} </if>
+			<if test="cusSupId != null and cusSupId != ''"> AND cus_sup_id = #{cusSupId} </if>
+			<if test="cusSupName != null and cusSupName != ''"> AND cusSupName like CONCAT('%', #{cusSupName},'%') </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="accountNumber != null and accountNumber != ''"> AND accountNumber = #{accountNumber} </if>
+			<if test="settlementType != null and settlementType != ''"> AND settlementType = #{settlementType} </if>
+			<if test="sign != null and sign != ''"> AND sign = #{sign} </if>
+			<if test="prCode != null and prCode != ''"> AND prCode = #{prCode} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY ${sort} ${order}
+			</when>
+			<otherwise>
+				ORDER BY id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="map">
+		SELECT
+		COUNT(*) as `count`,
+		sum(thisAmount) as totalThisAmount,
+		FROM
+		(
+		SELECT
+		a.id,
+		a.create_time AS createTime,
+		a.pr_date AS prDate,
+		a.pr_code AS prCode,
+		a.cus_sup_id as  cusSupId,
+		IF(a.sign='sk',c.name,d.name) AS cusSupName,
+		a.pr_type as prType,
+		e.name as prTypeName,
+		a.payee ,
+		g.name as payeeName,
+		a.payer,
+		f.name as payerName,
+		a.audit_sign as auditSign,
+		h.name as auditSignName,
+		b.account_number as accountNumber,
+		j.name as accountNumberName,
+		b.settlement_type as settlementType,
+		k.name as settlementTypeName,
+		b.this_amount as thisAmount,
+		b.remarks,
+		b.source_type as  sourceType,
+		m.name as sourceTypeName,
+		b.source_code as sourceCode
+		from
+		scm_payment_received  a
+		LEFT JOIN scm_payment_received_item b on a.id=b.payment_received_id
+		LEFT JOIN cus_client c on a.cus_sup_id=c.id
+		LEFT JOIN cus_supplier d on a.cus_sup_id=d.id
+		LEFT JOIN cus_dictionary e on a.pr_type=e.id
+		LEFT JOIN sys_user g on a.payee=g.user_id
+		LEFT JOIN sys_user f on a.payer=f.user_id
+		LEFT JOIN cus_dictionary h on a.audit_sign=h.id
+		LEFT JOIN cus_dictionary j on b.account_number=j.id
+		LEFT JOIN cus_dictionary k on b.settlement_type=k.id
+		LEFT JOIN cus_dictionary m on b.source_type=m.id
+		)aa
+		<where>
+			<if test="id != null and id != ''"> AND id = #{id} </if>
+			<if test="cusSupId != null and cusSupId != ''"> AND cus_sup_id = #{cusSupId} </if>
+			<if test="cusSupName != null and cusSupName != ''"> AND cusSupName like CONCAT('%', #{cusSupName},'%') </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="accountNumber != null and accountNumber != ''"> AND accountNumber = #{accountNumber} </if>
+			<if test="settlementType != null and settlementType != ''"> AND settlementType = #{settlementType} </if>
+			<if test="sign != null and sign != ''"> AND sign = #{sign} </if>
+			<if test="prCode != null and prCode != ''"> AND prCode = #{prCode} </if>
+		</where>
+	</select>
+
+
+	<select id="detailOfReceived" resultType="map">
+		SELECT
+		a.id,
+		a.create_time AS createTime,
+		a.pr_date AS prDate,
+		a.pr_code AS prCode,
+		a.cus_sup_id as  cusSupId,
+		IF(a.sign='sk',c.name,d.name) AS cusSupName,
+		a.pr_type as prType,
+		e.name as prTypeName,
+		a.pr_amount as prAmount,
+		a.payee ,
+		g.name as payeeName,
+		a.payer,
+		f.name as payerName,
+		a.audit_sign as auditSign,
+		h.name as auditSignName,
+		a.auditor,
+		i.name as auditorName,
+		a.create_by as createBy,
+		n.name as createByName,
+		a.create_time as createTime,
+		a.audit_time as auditTime
+		FROM
+		scm_payment_received a
+		LEFT JOIN scm_payment_received_item b on a.id=b.payment_received_id
+		LEFT JOIN cus_client c on a.cus_sup_id=c.id
+		LEFT JOIN cus_supplier d on a.cus_sup_id=d.id
+		LEFT JOIN cus_dictionary e on a.pr_type=e.id
+		LEFT JOIN sys_user g on a.payee=g.user_id
+		LEFT JOIN sys_user f on a.payer=f.user_id
+		LEFT JOIN cus_dictionary h on a.audit_sign=h.id
+		LEFT JOIN sys_user i on a.auditor=i.user_id
+		LEFT JOIN sys_user n on a.create_by=n.user_id
+		where
+		a.id=#{id}
+	</select>
+
+
+	<select id="detailOfSalePayById" resultType="com.ev.scm.domain.SalescontractPayDO">
+		select
+		id,
+		`receivable_date`,
+		`receivable_amount`,
+		`received_amount`,
+		`unpay_amount`
+		from scm_salescontract_pay
+		where id in
+		<foreach item="id" collection="payItemId" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+
+
+
 </mapper>

@@ -194,6 +194,8 @@
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(invoiceDate,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
 			<if test="supplierName != null and supplierName != ''"> and supplierName LIKE CONCAT('%',#{supplierName},'%') </if>
 			<if test="materielName != null and materielName != ''"> and materielName LIKE CONCAT('%',#{materielName},'%') </if>
+			<if test="invoiceNum != null and invoiceNum != ''"> and invoiceNum = #{invoiceNum} </if>
+
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -263,6 +265,7 @@
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(invoiceDate,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
 			<if test="supplierName != null and supplierName != ''"> and supplierName LIKE CONCAT('%',#{supplierName},'%') </if>
 			<if test="materielName != null and materielName != ''"> and materielName LIKE CONCAT('%',#{materielName},'%') </if>
+			<if test="invoiceNum != null and invoiceNum != ''"> and invoiceNum = #{invoiceNum} </if>
 		</where>
 	</select>
 
@@ -276,19 +279,23 @@
 			a.bill_type as billType,
 			g.name as billTypeName,
 			a.invoice_num as invoiceNum,
+			a.drawer,
 			a.remarks,
 			a.create_by as createBy,
 			n.name as createByName,
 			a.create_time as createTime,
 			a.auditor,
 			o.name as auditorName,
-			a.audit_time as auditTime
+			a.audit_time as auditTime,
+			a.audit_sign as auditSign,
+			m.name as auditSignName
 		from
 		scm_purchase_invoice a
 		LEFT JOIN  cus_supplier  f on  a.supplier_id =f.id
 		LEFT JOIN  cus_dictionary  g on  a.bill_type =g.id
 		LEFT JOIN  sys_user   n on  a.create_by=n.user_id
 		LEFT JOIN  sys_user   o on  a.auditor=o.user_id
+		LEFT JOIN  cus_dictionary m on  a.audit_sign =m.id
 		where
 		 a.id=#{id}
 	</select>
