@@ -29,4 +29,10 @@ public interface StockAnalysisService {
 	int batchRemove(Long[] ids);
 
 	int batchInsert(List<StockAnalysisDO> stockAnalysisDOS);
+
+	int batchUpdate(List<StockAnalysisDO> stockAnalysisBatchEmptyDOS);
+
+    List<Map<String, Object>> listForMap(Map<String, Object> params);
+
+	int countForMap(Map<String, Object> params);
 }

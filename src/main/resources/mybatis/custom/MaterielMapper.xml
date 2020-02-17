@@ -54,6 +54,13 @@
 		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
 		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
 		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+					<if test="materielIdList != null and materielIdList.size()>0"> and id IN
+						<foreach item="item" collection="materielIdList" open="(" separator="," close=")" index="index">
+							<if test="item!=null">
+								#{item}
+							</if>
+						</foreach>
+					</if>
 		  		</where>
         <choose>
             <when test="sort != null and sort.trim() != ''">
@@ -513,6 +520,7 @@
 					  <!-- 生产投料单查询条件 -->
 					  <if test="materielId != null and materielId != ''"> and materiel.`id` = #{materielId} </if>
 					  <if test="batch != null and batch != ''"> and stock.`batch` = #{batch} </if>
+				      <if test="locationId != null and locationId != ''"> and stock.`wareh_location` = #{locationId} </if>
 					  
 					  
 			 </where>
@@ -570,6 +578,7 @@
 					   <!-- 生产投料单查询条件 -->
 					  <if test="materielId != null and materielId != ''"> and materiel.`id` = #{materielId} </if>
 					  <if test="batch != null and batch != ''"> and stock.`batch` = #{batch} </if>
+				     <if test="locationId != null and locationId != ''"> and stock.`wareh_location` = #{locationId} </if>
 			 </where>
 				GROUP BY stock.`batch`,stock.`wareh_location`,stock.`materiel_id`
 	      )t

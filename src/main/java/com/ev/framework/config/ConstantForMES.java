@@ -48,6 +48,10 @@ public final class ConstantForMES{
 	 */
 	public static final String SCJH_PREFIX = "SCJH";
 	/**
+	 * 生产计划
+	 */
+	public static final Integer SCJH = 278;
+	/**
 	 * 计划
 	 */
 	public static final Integer PLAN = 231;

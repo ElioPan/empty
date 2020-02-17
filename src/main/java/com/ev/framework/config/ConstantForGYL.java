@@ -6,7 +6,7 @@ package com.ev.framework.config;
  */
 public final class ConstantForGYL {
 
-	private ConstantForGYL() {
+    private ConstantForGYL() {
 	}
 
 	/**
@@ -240,6 +240,11 @@ public final class ConstantForGYL {
 	public static final Long PR_TYPE = 229L;
 
 	/**
+	 * 加权平均  计价方法
+	 */
+	public static final Integer WEIGHTED_AVERAGE = 144;
+
+	/**
 	 * 按数量分配
 	 */
 	public static final Long COUNT_DISTRIBUTION = 279L;
@@ -248,4 +253,8 @@ public final class ConstantForGYL {
 	 */
 	public static final Long AMOUNT_DISTRIBUTION = 280L;
 
+	/**
+	 * 分批认定 计价方法
+	 */
+	public static final Integer BATCH_FINDS = 143;
 }

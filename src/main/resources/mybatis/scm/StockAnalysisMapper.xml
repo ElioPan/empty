@@ -33,8 +33,8 @@
 		<include refid="sql_condition"/>
 	</select>
 
-    <sql id="sql_column_list">
-		`id`,`period`,`materiel_id`,`batch`,`initial_count`,`initial_amount`,`in_count`,`in_amount`,`out_count`,`out_amount`,`final_count`,`final_amount`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	<sql id="sql_column_list">
+		`id`,`period`,`materiel_id`,`batch`,`initial_count`,`initial_amount`,`in_count`,`in_amount`,`out_count`,`out_amount`,`final_count`,`final_amount`,`is_close`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 	</sql>
 
     <sql id="sql_condition">
@@ -51,6 +51,7 @@
                             <if test="outAmount != null and outAmount != ''"> AND out_amount = #{outAmount} </if>
                             <if test="finalCount != null and finalCount != ''"> AND final_count = #{finalCount} </if>
                             <if test="finalAmount != null and finalAmount != ''"> AND final_amount = #{finalAmount} </if>
+							<if test="isClose != null"> AND is_close = #{isClose} </if>
                             <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
                             <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
                             <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
@@ -72,7 +73,8 @@
 			`out_count`, 
 			`out_amount`, 
 			`final_count`, 
-			`final_amount`, 
+			`final_amount`,
+			`is_close`,
 			`create_by`, 
 			`create_time`, 
 			`update_by`, 
@@ -91,7 +93,8 @@
 			#{outCount}, 
 			#{outAmount}, 
 			#{finalCount}, 
-			#{finalAmount}, 
+			#{finalAmount},
+			#{isClose},
 			#{createBy}, 
 			#{createTime}, 
 			#{updateBy}, 
@@ -114,6 +117,7 @@
 			<if test="outAmount != null">`out_amount` = #{outAmount}, </if>
 			<if test="finalCount != null">`final_count` = #{finalCount}, </if>
 			<if test="finalAmount != null">`final_amount` = #{finalAmount}, </if>
+			<if test="isClose != null">`is_close` = #{isClose}, </if>
 			<if test="createBy != null">`create_by` = #{createBy}, </if>
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
@@ -122,8 +126,8 @@
 		</set>
 		WHERE id = #{id}
 	</update>
-	
-	<delete id="remove">
+
+    <delete id="remove">
 		DELETE FROM scm_stock_analysis WHERE id = #{value}
 	</delete>
 	
@@ -148,6 +152,7 @@
 		`out_amount`,
 		`final_count`,
 		`final_amount`,
+		`is_close`,
 		`create_by`,
 		`create_time`,
 		`update_by`,
@@ -166,6 +171,7 @@
 			#{obj.outAmount},
 			#{obj.finalCount},
 			#{obj.finalAmount},
+			#{obj.isClose},
 			#{obj.createBy},
 			#{obj.createTime},
 			#{obj.updateBy},
@@ -174,5 +180,253 @@
 			)
 		</foreach>
 	</insert>
+
+	<update id="batchUpdate" parameterType="List">
+		UPDATE scm_stock_analysis
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="period=case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.period!=null">
+						when id=#{item.id} then #{item.period}
+					</if>
+					<if test="item.period==null">
+						when id=#{item.id} then scm_stock_analysis.period
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="materiel_id =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.materielId!=null">
+						when id=#{item.id} then #{item.materielId}
+					</if>
+					<if test="item.materielId==null">
+						when id=#{item.id} then scm_stock_analysis.materiel_id
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="batch =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.batch!=null">
+						when id=#{item.id} then #{item.batch}
+					</if>
+					<if test="item.batch==null">
+						when id=#{item.id} then scm_stock_analysis.batch
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="initial_count =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.initialCount!=null">
+						when id=#{item.id} then #{item.initialCount}
+					</if>
+					<if test="item.initialCount==null">
+						when id=#{item.id} then scm_stock_analysis.initial_count
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="initial_amount =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.initialAmount!=null">
+						when id=#{item.id} then #{item.initialAmount}
+					</if>
+					<if test="item.initialAmount==null">
+						when id=#{item.id} then scm_stock_analysis.initial_amount
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="in_count =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.inCount!=null">
+						when id=#{item.id} then #{item.inCount}
+					</if>
+					<if test="item.inCount==null">
+						when id=#{item.id} then scm_stock_analysis.in_count
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="in_amount =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.inAmount!=null">
+						when id=#{item.id} then #{item.inAmount}
+					</if>
+					<if test="item.inAmount==null">
+						when id=#{item.id} then scm_stock_analysis.in_amount
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="out_count =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.outCount!=null">
+						when id=#{item.id} then #{item.outCount}
+					</if>
+					<if test="item.outCount==null">
+						when id=#{item.id} then scm_stock_analysis.out_count
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="out_amount =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.outAmount!=null">
+						when id=#{item.id} then #{item.outAmount}
+					</if>
+					<if test="item.outAmount==null">
+						when id=#{item.id} then scm_stock_analysis.out_amount
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="final_count =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.finalCount!=null">
+						when id=#{item.id} then #{item.finalCount}
+					</if>
+					<if test="item.finalCount==null">
+						when id=#{item.id} then scm_stock_analysis.final_count
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="final_amount =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.finalAmount!=null">
+						when id=#{item.id} then #{item.finalAmount}
+					</if>
+					<if test="item.finalAmount==null">
+						when id=#{item.id} then scm_stock_analysis.final_amount
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="is_close =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.isClose!=null">
+						when id=#{item.id} then #{item.isClose}
+					</if>
+					<if test="item.isClose==null">
+						when id=#{item.id} then scm_stock_analysis.is_close
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="create_by =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.createBy!=null">
+						when id=#{item.id} then #{item.createBy}
+					</if>
+					<if test="item.createBy==null">
+						when id=#{item.id} then scm_stock_analysis.create_by
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="create_time =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.createTime!=null">
+						when id=#{item.id} then #{item.createTime}
+					</if>
+					<if test="item.createTime==null">
+						when id=#{item.id} then scm_stock_analysis.create_time
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="update_by =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.updateBy!=null">
+						when id=#{item.id} then #{item.updateBy}
+					</if>
+					<if test="item.updateBy==null">
+						when id=#{item.id} then scm_stock_analysis.update_by
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="update_time =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.updateTime!=null">
+						when id=#{item.id} then #{item.updateTime}
+					</if>
+					<if test="item.updateTime==null">
+						when id=#{item.id} then scm_stock_analysis.update_time
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="del_flag =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.delFlag!=null">
+						when id=#{item.id} then #{item.delFlag}
+					</if>
+					<if test="item.delFlag==null">
+						when id=#{item.id} then scm_stock_analysis.del_flag
+					</if>
+				</foreach>
+			</trim>
+		</trim>
+		WHERE id IN
+		<foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+			#{item.id}
+		</foreach>
+	</update>
+
+	<select id="listForMap" resultType="java.util.Map">
+		    SELECT
+		    analysis.`id` AS id,
+		    analysis.`period` AS period,
+			analysis.`materiel_id` AS materielId,
+			 materiel.serial_no AS materielSerialNo,
+        	 materiel.name AS materielName,
+        	 materiel.specification AS specification,
+        	 unitUom.name AS unitUomName,
+			analysis.`batch` AS batch,
+			analysis.`initial_count` AS initialCount,
+			analysis.`initial_amount` AS initialAmount,
+			analysis.`in_count` AS inCount,
+			analysis.`in_amount` AS inAmount,
+			analysis.`out_count` AS outCount,
+			analysis.`out_amount` AS outAmount,
+			analysis.`final_count` AS finalCount,
+			analysis.`final_amount` AS finalAmount,
+			analysis.`is_close` AS isClose
+			<include refid="sql_map_condition"/>
+			<choose>
+				<when test="sort != null and sort.trim() != ''">
+					ORDER BY ${sort} ${order}
+				</when>
+				<otherwise>
+					ORDER BY id DESC
+				</otherwise>
+			</choose>
+			<if test="offset != null and limit != null">
+				limit #{offset}, #{limit}
+			</if>
+
+	</select>
+
+
+	<select id="countForMap" resultType="java.lang.Integer">
+		SELECT
+		COUNT(*)
+		<include refid="sql_map_condition"/>
+	</select>
+
+	<sql id="sql_map_condition">
+		FROM scm_stock_analysis analysis
+		LEFT JOIN cus_materiel materiel ON materiel.`id`=analysis.`materiel_id`
+		LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
+		<where>
+			<if test="id != null and id != ''"> AND analysis.id = #{id} </if>
+			<if test="period != null and period != ''"> AND DATE_FORMAT(analysis.period,'%Y-%m-%d') = DATE_FORMAT(#{period},'%Y-%m-%d') </if>
+			<if test="materielId != null and materielId != ''"> AND analysis.materiel_id = #{materielId} </if>
+			<if test="materielName != null and materielName != ''"> AND materiel.`name` LIKE #{materielName} </if>
+			<if test="batch != null and batch != ''"> AND analysis.batch = #{batch} </if>
+			<if test="initialCount != null and initialCount != ''"> AND analysis.initial_count = #{initialCount} </if>
+			<if test="initialAmount != null and initialAmount != ''"> AND analysis.initial_amount = #{initialAmount} </if>
+			<if test="inCount != null and inCount != ''"> AND analysis.in_count = #{inCount} </if>
+			<if test="inAmount != null and inAmount != ''"> AND analysis.in_amount = #{inAmount} </if>
+			<if test="outCount != null and outCount != ''"> AND analysis.out_count = #{outCount} </if>
+			<if test="outAmount != null and outAmount != ''"> AND analysis.out_amount = #{outAmount} </if>
+			<if test="finalCount != null and finalCount != ''"> AND analysis.final_count = #{finalCount} </if>
+			<if test="finalAmount != null and finalAmount != ''"> AND analysis.final_amount = #{finalAmount} </if>
+			<if test="isClose != null"> AND analysis.is_close = #{isClose} </if>
+			<if test="createBy != null and createBy != ''"> AND analysis.create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> AND analysis.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> AND analysis.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> AND analysis.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> AND analysis.del_flag = #{delFlag} </if>
+		</where>
+	</sql>
 	
 </mapper>
