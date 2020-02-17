@@ -64,9 +64,8 @@ public class ScmOtherInStockApiController {
     @EvApiByToken(value = "/apis/scm/otherInStock/auditStatusChange", method = RequestMethod.POST, apiTitle = "审核--其他入库")
     @ApiOperation("审核--其他入库")
     @Transactional(rollbackFor = Exception.class)
-    public R changeAuditStatus(@ApiParam(value = "其他入库主表主键", required = true) @RequestParam(value = "inHeadId", defaultValue = "") Long inHeadId,
-                               @ApiParam(value = "审核人主键") @RequestParam(value = "auditor") Long auditor) {
-        auditor= ShiroUtils.getUserId();
+    public R changeAuditStatus(@ApiParam(value = "其他入库主表主键", required = true) @RequestParam(value = "inHeadId", defaultValue = "") Long inHeadId) {
+        Long auditor= ShiroUtils.getUserId();
         return stockInService.auditAllTypeInStock(inHeadId, auditor,ConstantForGYL.OTHER_WAREHOUSE);
     }
 

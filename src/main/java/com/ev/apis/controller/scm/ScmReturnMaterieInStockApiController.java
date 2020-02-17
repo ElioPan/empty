@@ -3,6 +3,7 @@ package com.ev.apis.controller.scm;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.R;
+import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.domain.StockInDO;
 import com.ev.scm.service.StockInItemService;
 import com.ev.scm.service.StockInService;
@@ -63,8 +64,8 @@ public class ScmReturnMaterieInStockApiController {
     @EvApiByToken(value = "/apis/scm/returnMaterielStock/auditStatusChange", method = RequestMethod.POST, apiTitle = "审核--生产退料入库")
     @ApiOperation("审核--生产退料入库")
     @Transactional(rollbackFor = Exception.class)
-    public R changeAuditStatus(@ApiParam(value = "主表主键", required = true) @RequestParam(value = "inHeadId", defaultValue = "") Long inHeadId,
-                               @ApiParam(value = "审核人主键", required = true) @RequestParam(value = "auditor", defaultValue = "") Long auditor) {
+    public R changeAuditStatus(@ApiParam(value = "主表主键", required = true) @RequestParam(value = "inHeadId", defaultValue = "") Long inHeadId) {
+        Long auditor= ShiroUtils.getUserId();
         return stockInService.auditAllTypeInStock(inHeadId, auditor,ConstantForGYL.TLRK);
     }
 

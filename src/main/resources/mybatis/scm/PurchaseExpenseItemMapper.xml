@@ -190,6 +190,25 @@
 	</select>
 
 
+	<select id="getTotailTaxAmount" resultType="int">
+		SELECT
+		IF(SUM(taxAmount)is null,0,SUM(taxAmount)) AS totailTaxAmount
+		FROM
+		(
+			SELECT
+			b.purchase_id,
+			a.id,
+			a.tax_amount as taxAmount
+			FROM
+			scm_purchase_expense_item a
+			LEFT JOIN scm_purchase_expense b on a.purchase_expense_id=b.id
+			where
+			b.purchase_id in
+			<foreach item="id" collection="purchaseId" open="(" separator="," close=")">
+				#{id}
+			</foreach>
+		)aa
+	</select>
 
 	
 </mapper>

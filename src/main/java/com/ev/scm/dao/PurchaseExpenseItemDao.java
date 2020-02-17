@@ -33,4 +33,6 @@ public interface PurchaseExpenseItemDao {
 
 	List<Map<String, Object>> getDetailOfBody(Map<String, Object> map);
 
+	int getTotailTaxAmount(Map<String, Object> map);
+
 }
