@@ -239,5 +239,13 @@ public final class ConstantForGYL {
 	 */
 	public static final Long PR_TYPE = 229L;
 
+	/**
+	 * 按数量分配
+	 */
+	public static final Long COUNT_DISTRIBUTION = 279L;
+	/**
+	 * 按金额分配
+	 */
+	public static final Long AMOUNT_DISTRIBUTION = 280L;
 
 }
