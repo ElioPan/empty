@@ -899,40 +899,44 @@ public class StockApiController {
             long newMillis = instance.getTimeInMillis();
             instance.setTime(oldPeriod);
             instance.set(Calendar.DAY_OF_MONTH, 1);
-            Date time = instance.getTime();
-            long oldMillis = instance.getTimeInMillis();
             instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) - 1);
             long upOldInMillis = instance.getTimeInMillis();
 
-            if (newMillis == oldMillis
-                    || (newMillis == upOldInMillis && stockAnalysisDO.getIsClose() == 0)) {
+            if (newMillis == upOldInMillis && stockAnalysisDO.getIsClose() == 0) {
                 params.clear();
-                params.put("period", time);
+                params.put("period", periodTime);
                 // 上一期的列表
                 List<StockAnalysisDO> lastTerm = stockAnalysisService.list(params);
-                List<StockAnalysisDO> stockAnalysisInsertDOS = Lists.newArrayList();
-                List<StockAnalysisDO> stockAnalysisUpdateDOS = Lists.newArrayList();
                 for (StockAnalysisDO stockAnalysis : lastTerm) {
-                    stockAnalysisDO = new StockAnalysisDO();
-                    stockAnalysisDO.setMaterielId(stockAnalysis.getMaterielId());
-                    stockAnalysisDO.setBatch(stockAnalysis.getBatch());
-                    stockAnalysisDO.setInitialCount(stockAnalysis.getFinalCount());
-                    stockAnalysisDO.setInitialAmount(stockAnalysis.getFinalAmount());
-                    if (newMillis == upOldInMillis) {
-                        stockAnalysisUpdateDOS.add(stockAnalysisDO);
-                        continue;
-                    }
-                    instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) + 2);
-                    stockAnalysisDO.setPeriod(instance.getTime());
-                    stockAnalysisInsertDOS.add(stockAnalysisDO);
+                    stockAnalysis.setIsClose(1);
                 }
-                stockAnalysisService.batchInsert(stockAnalysisInsertDOS);
-                stockAnalysisService.batchUpdate(stockAnalysisUpdateDOS);
+                stockAnalysisService.batchUpdate(lastTerm);
                 return R.ok();
             }
             return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
         }
         return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
+    }
+
+    @EvApiByToken(value = "/apis/stock/analysis", method = RequestMethod.POST, apiTitle = "报表分析")
+    @ApiOperation("报表分析")
+    public R analysis(@ApiParam(value = "计算时间", required = true) @RequestParam(value = "period", defaultValue = "") String period,
+                  @ApiParam(value = "物料名称", required = true) @RequestParam(value = "materielName", defaultValue = "") String materielName,
+                  @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+                  @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize
+                  ) {
+        Map<String, Object> results = Maps.newHashMap();
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("offset", (pageno - 1) * pagesize);
+        params.put("limit", pagesize);
+        params.put("period", period);
+        params.put("materielName", StringUtils.sqlLike(materielName));
+        List<Map<String, Object>> data = stockAnalysisService.listForMap(params);
+        int total = stockAnalysisService.countForMap(params);
+        if (data.size() > 0) {
+            results.put("data", new DsResultResponse(pageno, pagesize, total, data));
+        }
+        return R.ok(results);
     }
 
 }

@@ -62,4 +62,14 @@ public class StockAnalysisServiceImpl implements StockAnalysisService {
 		return stockAnalysisDao.batchUpdate(stockAnalysisBatchEmptyDOS);
 	}
 
+	@Override
+	public List<Map<String, Object>> listForMap(Map<String, Object> params) {
+		return stockAnalysisDao.listForMap(params);
+	}
+
+	@Override
+	public int countForMap(Map<String, Object> params) {
+		return stockAnalysisDao.countForMap(params);
+	}
+
 }

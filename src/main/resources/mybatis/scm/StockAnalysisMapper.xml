@@ -33,7 +33,7 @@
 		<include refid="sql_condition"/>
 	</select>
 
-    <sql id="sql_column_list">
+	<sql id="sql_column_list">
 		`id`,`period`,`materiel_id`,`batch`,`initial_count`,`initial_amount`,`in_count`,`in_amount`,`out_count`,`out_amount`,`final_count`,`final_amount`,`is_close`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 	</sql>
 
@@ -49,9 +49,9 @@
                             <if test="inAmount != null and inAmount != ''"> AND in_amount = #{inAmount} </if>
                             <if test="outCount != null and outCount != ''"> AND out_count = #{outCount} </if>
                             <if test="outAmount != null and outAmount != ''"> AND out_amount = #{outAmount} </if>
-                            <if test="isClose != null and isClose != ''"> AND is_close = #{isClose} </if>
+                            <if test="finalCount != null and finalCount != ''"> AND final_count = #{finalCount} </if>
                             <if test="finalAmount != null and finalAmount != ''"> AND final_amount = #{finalAmount} </if>
-							<if test="createBy != null"> AND create_by = #{createBy} </if>
+							<if test="isClose != null"> AND is_close = #{isClose} </if>
                             <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
                             <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
                             <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
@@ -360,5 +360,73 @@
 			#{item.id}
 		</foreach>
 	</update>
+
+	<select id="listForMap" resultType="java.util.Map">
+		    SELECT
+		    analysis.`id` AS id,
+		    analysis.`period` AS period,
+			analysis.`materiel_id` AS materielId,
+			 materiel.serial_no AS materielSerialNo,
+        	 materiel.name AS materielName,
+        	 materiel.specification AS specification,
+        	 unitUom.name AS unitUomName,
+			analysis.`batch` AS batch,
+			analysis.`initial_count` AS initialCount,
+			analysis.`initial_amount` AS initialAmount,
+			analysis.`in_count` AS inCount,
+			analysis.`in_amount` AS inAmount,
+			analysis.`out_count` AS outCount,
+			analysis.`out_amount` AS outAmount,
+			analysis.`final_count` AS finalCount,
+			analysis.`final_amount` AS finalAmount,
+			analysis.`is_close` AS isClose
+			<include refid="sql_map_condition"/>
+			<choose>
+				<when test="sort != null and sort.trim() != ''">
+					ORDER BY ${sort} ${order}
+				</when>
+				<otherwise>
+					ORDER BY id DESC
+				</otherwise>
+			</choose>
+			<if test="offset != null and limit != null">
+				limit #{offset}, #{limit}
+			</if>
+
+	</select>
+
+
+	<select id="countForMap" resultType="java.lang.Integer">
+		SELECT
+		COUNT(*)
+		<include refid="sql_map_condition"/>
+	</select>
+
+	<sql id="sql_map_condition">
+		FROM scm_stock_analysis analysis
+		LEFT JOIN cus_materiel materiel ON materiel.`id`=analysis.`materiel_id`
+		LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
+		<where>
+			<if test="id != null and id != ''"> AND analysis.id = #{id} </if>
+			<if test="period != null and period != ''"> AND DATE_FORMAT(analysis.period,'%Y-%m-%d') = DATE_FORMAT(#{period},'%Y-%m-%d') </if>
+			<if test="materielId != null and materielId != ''"> AND analysis.materiel_id = #{materielId} </if>
+			<if test="materielName != null and materielName != ''"> AND materiel.`name` LIKE #{materielName} </if>
+			<if test="batch != null and batch != ''"> AND analysis.batch = #{batch} </if>
+			<if test="initialCount != null and initialCount != ''"> AND analysis.initial_count = #{initialCount} </if>
+			<if test="initialAmount != null and initialAmount != ''"> AND analysis.initial_amount = #{initialAmount} </if>
+			<if test="inCount != null and inCount != ''"> AND analysis.in_count = #{inCount} </if>
+			<if test="inAmount != null and inAmount != ''"> AND analysis.in_amount = #{inAmount} </if>
+			<if test="outCount != null and outCount != ''"> AND analysis.out_count = #{outCount} </if>
+			<if test="outAmount != null and outAmount != ''"> AND analysis.out_amount = #{outAmount} </if>
+			<if test="finalCount != null and finalCount != ''"> AND analysis.final_count = #{finalCount} </if>
+			<if test="finalAmount != null and finalAmount != ''"> AND analysis.final_amount = #{finalAmount} </if>
+			<if test="isClose != null"> AND analysis.is_close = #{isClose} </if>
+			<if test="createBy != null and createBy != ''"> AND analysis.create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> AND analysis.create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> AND analysis.update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> AND analysis.update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> AND analysis.del_flag = #{delFlag} </if>
+		</where>
+	</sql>
 	
 </mapper>
