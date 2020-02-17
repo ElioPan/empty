@@ -41,9 +41,10 @@ public class ScmPurchaseExpenseApiController {
     @ApiOperation("保存/修改—采购费用")
     @Transactional(rollbackFor = Exception.class)
     public R addPurchaseProduct(PurchaseExpenseDO purchaseExpenseDO,
-                                @ApiParam(value = "添加采购申请明细:[\n" +
+                                @ApiParam(value = "添加采购费用明细:[\n" +
                                         "{\n" +
                                         "\"id\":\"明细行主键(修改时必传)\",\n" +
+                                        "\"expenseId\":\"费用主键\",\n" +
                                         "\"unit\":\"单位id\",\n" +
                                         "\"count\":\"数量\",\n" +
                                         "\"taxUnitPrice\":\"含税单价\",\n" +

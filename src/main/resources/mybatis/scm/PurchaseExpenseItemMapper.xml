@@ -171,7 +171,6 @@
 			a.code,
 			a.type,
 			d.name as typeName,
-
 			c.unit,
 			e.name as unitName,
 			c.count,

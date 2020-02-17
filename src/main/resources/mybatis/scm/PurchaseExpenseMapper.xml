@@ -281,7 +281,7 @@
 			a.create_by as createBy,
 			i.name as createByName,
 			a.remarks,
-			a.create_time as createTime,
+			a.create_time as createTime
 		from
 		scm_purchase_expense a
 		LEFT JOIN  cus_supplier  f on  a.supplier_id =f.id

@@ -65,7 +65,7 @@ public class PurchaseExpenseServiceImpl implements PurchaseExpenseService {
 
 	@Override
 	public R addPurchase(PurchaseExpenseDO purchaseExpenseDO, String body, Long[] itemIds) {
-
+		Map<String,Object>  map= new HashMap<String,Object>();
 		if (Objects.isNull(purchaseExpenseDO.getId())) {
 			String prefix = DateFormatUtil.getWorkOrderno(ConstantForGYL.EXPENCE, new Date());
 			Map<String, Object> params = Maps.newHashMapWithExpectedSize(3);
@@ -88,7 +88,8 @@ public class PurchaseExpenseServiceImpl implements PurchaseExpenseService {
 					pdata.setPurchaseExpenseId(purchaseExpenseDO.getId());
 					purchaseExpenseItemService.save(pdata);
 				}
-				return R.ok();
+				map.put("id",purchaseExpenseDO.getId());
+				return R.ok(map);
 			} else {
 				return R.error();
 			}
@@ -108,6 +109,7 @@ public class PurchaseExpenseServiceImpl implements PurchaseExpenseService {
 						purchaseExpenseItemService.save(pdata);
 					}
 				}
+				map.put("id",purchaseExpenseDO.getId());
 				return R.ok();
 			} else {
 				return R.error();

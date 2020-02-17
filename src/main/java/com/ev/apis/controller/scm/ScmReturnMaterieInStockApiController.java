@@ -94,7 +94,7 @@ public class ScmReturnMaterieInStockApiController {
                                   @ApiParam(value = "物料名（模糊）") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
                                   @ApiParam(value = "退料起始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
                                   @ApiParam(value = "退料截止时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
-                                  @ApiParam(value = "规格型号") @RequestParam(value = "materielSpecification", defaultValue = "", required = false) String materielSpecification,
+                                  @ApiParam(value = "规格型号") @RequestParam(value = "specification", defaultValue = "", required = false) String specification,
                                   @ApiParam(value = "批次") @RequestParam(value = "batch", defaultValue = "", required = false) String batch,
                                   @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
                                   @ApiParam(value = "退料操作员id") @RequestParam(value = "operator", defaultValue = "", required = false) Long operator,
@@ -111,7 +111,7 @@ public class ScmReturnMaterieInStockApiController {
         params.put("startTime", startTime);
         params.put("endTime", endTime);
         params.put("deptName",deptName );
-        params.put("materielSpecification",materielSpecification );
+        params.put("materielSpecification",specification );
         params.put("batch", batch);
         params.put("auditSign",auditSign);
         params.put("operator", operator);
