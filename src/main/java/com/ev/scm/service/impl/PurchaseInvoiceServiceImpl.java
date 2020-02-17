@@ -158,28 +158,27 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 		}
 	}
 
-	public void changeContractorInvoicedAmount(Long id,List<PurchaseInvoiceItemDO> list,Boolean sign){
-		if(!list.isEmpty()){
-			for(PurchaseInvoiceItemDO purchaseInvoiceItemDO:list){
-				Map<String,Object>  qurey= new HashMap<>();
-				String sourceCode=purchaseInvoiceItemDO.getSourceCode();
-				qurey.put("sourceCode",sourceCode);
-				qurey.put("contractCode",sourceCode);
+	public void changeContractorInvoicedAmount(Long id, List<PurchaseInvoiceItemDO> list, Boolean sign) {
+		if (!list.isEmpty()) {
+			for (PurchaseInvoiceItemDO purchaseInvoiceItemDO : list) {
+				Map<String, Object> qurey = new HashMap<>();
+				String sourceCode = purchaseInvoiceItemDO.getSourceCode();
+				qurey.put("sourceCode", sourceCode);
+				qurey.put("contractCode", sourceCode);
 				Map<String, Object> totalTaxAmount = purchaseInvoiceItemService.getTotalTaxAmount(qurey);
 				List<PurchasecontractDO> purchasecontractList = purchasecontractService.list(qurey);
-				if(!purchasecontractList.isEmpty()){
-					BigDecimal invoicedAmount=purchasecontractList.get(0).getInvoicedAmount();
-					BigDecimal taxAmount=new BigDecimal(totalTaxAmount.get("totalTaxAmount").toString());
+				if (!purchasecontractList.isEmpty()) {
+					BigDecimal invoicedAmount = (purchasecontractList.get(0).getInvoicedAmount() == null || "".equals(purchasecontractList.get(0).getInvoicedAmount())) ? new BigDecimal(0) : purchasecontractList.get(0).getInvoicedAmount();
+					BigDecimal taxAmount = new BigDecimal(totalTaxAmount.get("totalTaxAmount").toString());
 
-					PurchasecontractDO purchasecontractDO=purchasecontractList.get(0);
-					if(sign){
+					PurchasecontractDO purchasecontractDO = purchasecontractList.get(0);
+					if (sign) {
 						purchasecontractDO.setInvoicedAmount(invoicedAmount.add(taxAmount));
-					}else{
+					} else {
 						purchasecontractDO.setInvoicedAmount(invoicedAmount.subtract(taxAmount));
 					}
 					purchasecontractService.update(purchasecontractDO);
 				}
-
 			}
 		}
 	}
