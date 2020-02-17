@@ -58,6 +58,7 @@ public class PurchaseStockOutApiController {
                          "        \"count\":201,\n" +
                          "        \"unitPrice\":1200,\n" +
                          "        \"amount\":24000,\n" +
+                         "        \"purpose\":\"退货原因\",\n" +
                          "        \"sourceId\":11,\n" +
                          "        \"sourceType\":11,\n" +
                          "        \"sourceCode\":\"CJHT20190720001\"\n" +
@@ -69,6 +70,7 @@ public class PurchaseStockOutApiController {
                          "        \"count\":101,\n" +
                          "        \"unitPrice\":1200,\n" +
                          "        \"amount\":12000,\n" +
+                         "        \"purpose\":\"退货原因\",\n" +
                          "        \"sourceId\":25,\n" +
                          "        \"sourceType\":11,\n" +
                          "        \"sourceCode\":\"CJHT20190720001\"\n" +
@@ -120,6 +122,7 @@ public class PurchaseStockOutApiController {
                     "        \"count\":201,\n" +
                     "        \"unitPrice\":1200,\n" +
                     "        \"amount\":24000,\n" +
+                    "        \"purpose\":\"退货原因\",\n" +
                     "        \"sourceId\":11,\n" +
                     "        \"sourceType\":11,\n" +
                     "        \"sourceCode\":\"CJHT20190720001\"\n" +
@@ -132,6 +135,7 @@ public class PurchaseStockOutApiController {
                     "        \"count\":101,\n" +
                     "        \"unitPrice\":1200,\n" +
                     "        \"amount\":12000,\n" +
+                    "        \"purpose\":\"退货原因\",\n" +
                     "        \"sourceId\":25,\n" +
                     "        \"sourceType\":11,\n" +
                     "        \"sourceCode\":\"CJHT20190720001\"\n" +
