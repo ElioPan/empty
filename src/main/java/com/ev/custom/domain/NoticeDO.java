@@ -4,36 +4,37 @@ import java.io.Serializable;
 import java.util.Date;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-
-
+import lombok.NoArgsConstructor;
 
 /**
- * 通知单
- * 
- * @author ev-monitor
- * @email 286600136@qq.com
- * @date 2020-02-11 17:00:08
+ *  * 通知单
+ *  *
+ *  * @author ev-monitor
+ *  * @email 286600136@qq.com
+ *  * @date 2020-02-11 17:00:08
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @ApiModel(value = "通知单")
 public class NoticeDO implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
 	//主键
     @ApiModelProperty(value = "主键")
 	private Long id;
-	//计划主键
-    @ApiModelProperty(value = "计划主键")
+	//消息类型
+    @ApiModelProperty(value = "消息类型")
 	private Long type;
-	//计划类型
-    @ApiModelProperty(value = "计划类型")
+	//标题
+    @ApiModelProperty(value = "标题")
 	private String title;
-	//开始时间
-    @ApiModelProperty(value = "开始时间")
+	//消息内容
+    @ApiModelProperty(value = "消息内容")
 	private String content;
-	//消息详情
-    @ApiModelProperty(value = "消息详情")
+	//消息详情详
+    @ApiModelProperty(value = "消息情")
 	private String contentDetail;
 	//发送人
     @ApiModelProperty(value = "发送人")
@@ -63,4 +64,12 @@ public class NoticeDO implements Serializable {
     @ApiModelProperty(value = "删除状态")
 	private Integer delFlag;
 
+	public NoticeDO(Long type, String title, String content,String contentDetail, Long fromUserId, Long toUserId) {
+		this.type = type;
+		this.title = title;
+		this.content = content;
+		this.contentDetail = contentDetail;
+		this.fromUserId = fromUserId;
+		this.toUserId = toUserId;
+	}
 }

@@ -1,5 +1,6 @@
 package com.ev.apis.controller.custom;
 
+import com.ev.custom.service.NoticeService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.config.Constant;
@@ -31,14 +32,14 @@ import java.util.Objects;
 public class MonthReportApiController {
     @Autowired
     private MonthReportService monthReportService;
-
     @Autowired
     private DeptService deptService;
-
     @Autowired
     private UserAssocService userAssocService;
     @Autowired
     private MessageSourceHandler messageSourceHandler;
+    @Autowired
+    private NoticeService noticeService;
 
 
     @EvApiByToken(value = "/apis/monthReport/list", method = RequestMethod.GET, apiTitle = "获取月报列表信息")
@@ -121,6 +122,7 @@ public class MonthReportApiController {
     public R remove(@ApiParam(value = "月报ID", required = true, example = "1") @RequestParam(value = "monthReportId", defaultValue = "") Long monthReportId,
                     @ApiParam(value = "回复内容", required = true, example = "哈哈哈") @RequestParam(value = "comment", defaultValue = "") String comment) {
         monthReportService.commentMonthReport(monthReportId, comment);
+        noticeService.saveAndSendSocket("周报回复信息",comment,"{id:"+monthReportId+"}",281L,ShiroUtils.getUserId(),monthReportService.get(monthReportId).getId());
         return R.ok();
     }
 

@@ -1,5 +1,6 @@
 package com.ev.apis.controller.custom;
 
+import com.ev.custom.service.NoticeService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.config.Constant;
@@ -40,6 +41,8 @@ public class DailyReportApiController {
     @Autowired
     private MessageSourceHandler messageSourceHandler;
 
+    @Autowired
+    private NoticeService noticeService;
 
     @EvApiByToken(value = "/apis/dailyReport/list", method = RequestMethod.POST, apiTitle = "获取日志列表信息")
     @ApiOperation("获取日志列表信息")
@@ -207,6 +210,7 @@ public class DailyReportApiController {
                     @ApiParam(value = "回复内容", required = true, example = "哈哈哈") @RequestParam(value = "comment", defaultValue = "") String
                             comment) {
         dailyReportService.commentDailyReport(dailyReportId, comment);
+        noticeService.saveAndSendSocket("日志回复信息",comment,"{id:"+dailyReportId+"}",281L,ShiroUtils.getUserId(),dailyReportService.get(dailyReportId).getId());
         return R.ok();
     }
 
