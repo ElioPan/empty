@@ -69,8 +69,6 @@ public class StockApiController {
     @Autowired
     private StockInService stockInService;
     @Autowired
-    private StockOutService stockOutService;
-    @Autowired
     private StockOutItemService stockOutItemService;
     @Autowired
     private StockAnalysisService stockAnalysisService;
@@ -286,9 +284,9 @@ public class StockApiController {
             StockStartDO stockStartDO = list.get(0);
             Calendar startTime = Calendar.getInstance();
             startTime.setTime(stockStartDO.getStartTime());
-            Map<String,Object> map = Maps.newHashMap();
-            map.put("year",startTime.get(Calendar.YEAR));
-            map.put("month",startTime.get(Calendar.MONTH) + 1);
+            Map<String, Object> map = Maps.newHashMap();
+            map.put("year", startTime.get(Calendar.YEAR));
+            map.put("month", startTime.get(Calendar.MONTH) + 1);
             return R.ok(map);
         }
         return R.ok();
@@ -316,12 +314,12 @@ public class StockApiController {
             "        \"amount\":24000\n" +
             "    }\n" +
             "]"
-            , required = true)@RequestParam(value = "item",defaultValue = "") String stockList) {
+            , required = true) @RequestParam(value = "item", defaultValue = "") String stockList) {
         List<StockDO> itemDOs = JSON.parseArray(stockList, StockDO.class);
         List<MaterielDO> materielDOs = materielService.list(Maps.newHashMap());
         String batch;
         Integer isLot;
-        if (itemDOs.size() > 0 && materielDOs.size()>0) {
+        if (itemDOs.size() > 0 && materielDOs.size() > 0) {
             for (StockDO itemDO : itemDOs) {
                 batch = itemDO.getBatch();
                 for (MaterielDO materielDO : materielDOs) {
@@ -363,6 +361,7 @@ public class StockApiController {
             stockAnalysisDO.setInitialCount(stockDO.getCount());
             stockAnalysisDO.setInitialAmount(stockDO.getAmount());
             stockAnalysisDO.setPeriod(period);
+            stockAnalysisDO.setIsClose(0);
             stockAnalysisDOS.add(stockAnalysisDO);
         }
         stockAnalysisService.batchInsert(stockAnalysisDOS);
@@ -376,14 +375,14 @@ public class StockApiController {
     @EvApiByToken(value = "/apis/stock/stockAnalysisTime", method = RequestMethod.POST, apiTitle = "获取本次期间")
     @ApiOperation("获取本次期间")
     public R stockOutAccountingTime() {
-        Map<String,Object> result = Maps.newHashMap();
+        Map<String, Object> result = Maps.newHashMap();
         Map<String, Object> params = Maps.newHashMap();
         params.put("offset", 0);
         params.put("limit", 1);
         List<StockAnalysisDO> list = stockAnalysisService.list(params);
         if (list.size() > 0) {
             StockAnalysisDO stockAnalysisDO = list.get(0);
-            result.put("period",stockAnalysisDO.getPeriod());
+            result.put("period", stockAnalysisDO.getPeriod());
         }
         return R.ok(result);
     }
@@ -392,7 +391,7 @@ public class StockApiController {
     @Transactional(rollbackFor = Exception.class)
     @EvApiByToken(value = "/apis/stock/stockOutAccounting", method = RequestMethod.POST, apiTitle = "出库核算")
     @ApiOperation("出库核算")
-    public R stockOutAccounting( @ApiParam(value = "计算时间",required = true) @RequestParam(value = "period",defaultValue = "")  String period) {
+    public R stockOutAccounting(@ApiParam(value = "计算时间", required = true) @RequestParam(value = "period", defaultValue = "") String period) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("offset", 0);
         params.put("limit", 1);
@@ -406,12 +405,12 @@ public class StockApiController {
                 return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
             }
             instance.setTime(periodTime);
-            int newPeriodMonth = instance.get(Calendar.MONTH);
-            int newPeriodYear = instance.get(Calendar.YEAR);
+            instance.set(Calendar.DAY_OF_MONTH, 1);
+            long newMillis = instance.getTimeInMillis();
             instance.setTime(oldPeriod);
-            int oldPeriodMonth = instance.get(Calendar.MONTH);
-            int oldPeriodYear = instance.get(Calendar.YEAR);
-            if (newPeriodMonth == oldPeriodMonth && newPeriodYear == oldPeriodYear) {
+            instance.set(Calendar.DAY_OF_MONTH, 1);
+            long oldMillis = instance.getTimeInMillis();
+            if (newMillis == oldMillis) {
                 if (stockAnalysisDO.getOutAmount() != null || stockAnalysisDO.getOutCount() != null) {
                     return R.error(messageSourceHandler.getMessage("scm.stock.outError", null));
                 }
@@ -423,6 +422,7 @@ public class StockApiController {
                 List<Map<String, Object>> stockInList = stockInService.listForMap(params);
                 List<StockOutItemDO> stockOutList = stockOutItemService.list(params);
                 // 加权平均法出库成本的算法：(月初结存金额+本月入库金额)/（月初结存数量+本月入库数量），算出当月加权平均
+
                 List<Map<String, Object>> stockInBatchEmpty = stockInList.stream()
                         .filter(stringObjectMap -> !stringObjectMap.containsKey("batch"))
                         .collect(Collectors.toList());
@@ -431,52 +431,152 @@ public class StockApiController {
                         .filter(stockOutItemDO -> stockOutItemDO.getBatch() == null)
                         .collect(Collectors.toList());
 
-                if (stockInBatchEmpty.size()>0 && stockOutBatchEmpty.size()>0){
-                    Map<String,BigDecimal> materielCountMap = Maps.newHashMap();
-                    Map<String,BigDecimal> materielAmountMap = Maps.newHashMap();
-                    Map<String,BigDecimal> materielUnitPriceMap = Maps.newHashMap();
+                if (stockInBatchEmpty.size() > 0 && stockOutBatchEmpty.size() > 0) {
+                    Map<String, BigDecimal> materielOutCountMap = Maps.newHashMap();
+                    Map<String, BigDecimal> materielOutAmountMap = Maps.newHashMap();
+                    Map<String, BigDecimal> materielInCountMap = Maps.newHashMap();
+                    Map<String, BigDecimal> materielInAmountMap = Maps.newHashMap();
+                    Map<String, BigDecimal> materielInUnitPriceMap = Maps.newHashMap();
                     for (Map<String, Object> map : stockInBatchEmpty) {
                         String materielId = map.get("materielId").toString();
-                        if (materielCountMap.containsKey(materielId)) {
-                            materielCountMap.put(materielId,materielCountMap.get(materielId).add(MathUtils.getBigDecimal(map.get("count"))));
-                            materielAmountMap.put(materielId,materielAmountMap.get(materielId).add(MathUtils.getBigDecimal(map.get("amount"))));
+                        if (materielInCountMap.containsKey(materielId)) {
+                            materielInCountMap.put(materielId, materielInCountMap.get(materielId).add(MathUtils.getBigDecimal(map.get("count"))));
+                            materielInAmountMap.put(materielId, materielInAmountMap.get(materielId).add(MathUtils.getBigDecimal(map.get("amount"))));
                             continue;
                         }
-                        materielCountMap.put(materielId,MathUtils.getBigDecimal(map.get("count")));
-                        materielCountMap.put(materielId,MathUtils.getBigDecimal(map.get("amount")));
+                        materielInCountMap.put(materielId, MathUtils.getBigDecimal(map.get("count")));
+                        materielInAmountMap.put(materielId, MathUtils.getBigDecimal(map.get("amount")));
                     }
-                    Map<String,Object> map = Maps.newHashMap();
-                    map.put("period",period);
-                    List<StockAnalysisDO> stockAnalysisDOS = stockAnalysisService.list(map).stream()
+                    Map<String, Object> map = Maps.newHashMap();
+                    map.put("period", period);
+                    List<StockAnalysisDO> stockAnalysisBatchEmptyDOS = stockAnalysisService.list(map).stream()
                             .filter(stockAnalysis -> stockAnalysis.getBatch() == null)
                             .collect(Collectors.toList());
-                    for (StockAnalysisDO analysisDO : stockAnalysisDOS) {
+                    for (StockAnalysisDO analysisDO : stockAnalysisBatchEmptyDOS) {
                         String materielId = analysisDO.getMaterielId().toString();
-                        if (materielCountMap.containsKey(materielId)) {
+                        if (materielInCountMap.containsKey(materielId)) {
                             // (月初结存金额+本月入库金额)/（月初结存数量+本月入库数量）
-                            materielUnitPriceMap.put(materielId
-                                    ,(analysisDO.getInitialAmount().add(materielAmountMap.get(materielId))).divide(analysisDO.getInitialCount().add(materielCountMap.get(materielId)), Constant.BIGDECIMAL_ZERO));
-                        }
-                     }
-                    for (StockOutItemDO itemDO : stockOutBatchEmpty) {
-                        String materielId = itemDO.getMaterielId().toString();
-                        if (materielUnitPriceMap.containsKey(materielId)) {
-                            BigDecimal unitPrice = materielUnitPriceMap.get(materielId);
-                            itemDO.setUnitPrice(unitPrice);
-                            itemDO.setAmount(itemDO.getCount().multiply(unitPrice));
+                            BigDecimal inAmount = materielInAmountMap.get(materielId);
+                            BigDecimal inCount = materielInCountMap.get(materielId);
+                            materielInUnitPriceMap.put(materielId
+                                    , (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
                         }
                     }
+
+                    for (StockOutItemDO itemDO : stockOutBatchEmpty) {
+                        String materielId = itemDO.getMaterielId().toString();
+                        if (materielInUnitPriceMap.containsKey(materielId)) {
+                            BigDecimal unitPrice = materielInUnitPriceMap.get(materielId);
+                            itemDO.setUnitPrice(unitPrice);
+                            BigDecimal count = itemDO.getCount();
+                            BigDecimal amount = count.multiply(unitPrice);
+                            itemDO.setAmount(amount);
+
+                            if (materielOutCountMap.containsKey(materielId)) {
+                                materielOutCountMap.put(materielId, materielOutCountMap.get(materielId).add(count));
+                                materielOutAmountMap.put(materielId, materielOutAmountMap.get(materielId).add(amount));
+                                continue;
+                            }
+                            materielOutCountMap.put(materielId, count);
+                            materielOutAmountMap.put(materielId, amount);
+                        }
+                    }
+
+
+                    for (StockAnalysisDO analysisDO : stockAnalysisBatchEmptyDOS) {
+                        String materielId = analysisDO.getMaterielId().toString();
+                        if (materielOutCountMap.containsKey(materielId)) {
+                            BigDecimal outCount = materielOutCountMap.get(materielId);
+                            BigDecimal outAmount = materielOutAmountMap.get(materielId);
+                            analysisDO.setOutCount(outCount);
+                            analysisDO.setOutAmount(outAmount);
+                            // 期末结存数量=期初数量+本月入库数量-本月发出数量
+                            BigDecimal finalCount = analysisDO.getInitialCount()
+                                    .add(analysisDO.getInCount() == null ? BigDecimal.ZERO : analysisDO.getInCount())
+                                    .subtract(outCount);
+                            analysisDO.setFinalCount(finalCount);
+                            // 期末结存金额=期初金额+本月入库金额-本月发出金额
+                            BigDecimal finalAmount = analysisDO.getFinalAmount()
+                                    .add(analysisDO.getInAmount() == null ? BigDecimal.ZERO : analysisDO.getInAmount())
+                                    .subtract(outAmount);
+                            analysisDO.setFinalAmount(finalAmount);
+                        }
+                    }
+
+                    stockAnalysisService.batchUpdate(stockAnalysisBatchEmptyDOS);
                     stockOutItemService.batchInsert(stockOutBatchEmpty);
                 }
 
 
-
                 // 分批认定法：物料属性中需要设置批次管理，入库时入库单需要录入批号，出库时出库单的单价以入库时相同批号的单价作为出库单价。
-                List<Map<String, Object>> batchNonEmpty = stockInList.stream()
+                List<Map<String, Object>> stockInBatchNonEmpty = stockInList.stream()
                         .filter(stringObjectMap -> stringObjectMap.containsKey("batch"))
                         .collect(Collectors.toList());
+                List<StockOutItemDO> stockOutBatchNonEmpty = stockOutList.stream()
+                        .filter(stockOutItemDO -> stockOutItemDO.getBatch() != null)
+                        .collect(Collectors.toList());
 
+                if (stockOutBatchNonEmpty.size() > 0 && stockInBatchNonEmpty.size() > 0) {
+                    Map<String, BigDecimal> materielInUnitPriceMap = Maps.newHashMap();
+                    Map<String, BigDecimal> materielOutCountMap = Maps.newHashMap();
+                    Map<String, BigDecimal> materielOutAmountMap = Maps.newHashMap();
+                    for (Map<String, Object> map : stockInBatchNonEmpty) {
+                        String materielIdAndBatch = map.get("materielId").toString() + "&" + map.get("batch").toString();
+                        if (materielInUnitPriceMap.containsKey(materielIdAndBatch)) {
+                            continue;
+                        }
+                        materielInUnitPriceMap.put(materielIdAndBatch, MathUtils.getBigDecimal(map.get("unitPrice")));
 
+                    }
+
+                    Map<String, Object> map = Maps.newHashMap();
+                    map.put("period", period);
+                    List<StockAnalysisDO> stockAnalysisBatchNonEmptyDOS = stockAnalysisService.list(map).stream()
+                            .filter(stockAnalysis -> stockAnalysis.getBatch() != null)
+                            .collect(Collectors.toList());
+
+                    for (StockOutItemDO itemDO : stockOutBatchNonEmpty) {
+                        String materielIdAndBatch = itemDO.getMaterielId().toString() + "&" + itemDO.getBatch();
+                        if (materielInUnitPriceMap.containsKey(materielIdAndBatch)) {
+                            BigDecimal unitPrice = materielInUnitPriceMap.get(materielIdAndBatch);
+                            BigDecimal count = itemDO.getCount();
+                            BigDecimal amount = itemDO.getCount().multiply(unitPrice);
+                            itemDO.setUnitPrice(unitPrice);
+                            itemDO.setAmount(amount);
+
+                            if (materielOutCountMap.containsKey(materielIdAndBatch)) {
+                                materielOutCountMap.put(materielIdAndBatch, materielOutCountMap.get(materielIdAndBatch).add(count));
+                                materielOutAmountMap.put(materielIdAndBatch, materielOutAmountMap.get(materielIdAndBatch).add(amount));
+                                continue;
+                            }
+                            materielOutCountMap.put(materielIdAndBatch, count);
+                            materielOutAmountMap.put(materielIdAndBatch, amount);
+                        }
+                    }
+
+                    for (StockAnalysisDO stockAnalysisBatchNonEmptyDO : stockAnalysisBatchNonEmptyDOS) {
+                        String materielIdAndBatch = stockAnalysisBatchNonEmptyDO.getMaterielId().toString() + "&" + stockAnalysisBatchNonEmptyDO.getBatch();
+                        if (materielOutCountMap.containsKey(materielIdAndBatch)) {
+                            BigDecimal outCount = materielOutCountMap.get(materielIdAndBatch);
+                            BigDecimal outAmount = materielOutAmountMap.get(materielIdAndBatch);
+                            stockAnalysisBatchNonEmptyDO.setOutCount(outCount);
+                            stockAnalysisBatchNonEmptyDO.setOutAmount(outAmount);
+                            // 期末结存数量=期初数量+本月入库数量-本月发出数量
+                            BigDecimal finalCount = stockAnalysisBatchNonEmptyDO.getInitialCount()
+                                    .add(stockAnalysisBatchNonEmptyDO.getInCount() == null ? BigDecimal.ZERO : stockAnalysisBatchNonEmptyDO.getInCount())
+                                    .subtract(outCount);
+                            stockAnalysisBatchNonEmptyDO.setFinalCount(finalCount);
+                            // 期末结存金额=期初金额+本月入库金额-本月发出金额
+                            BigDecimal finalAmount = stockAnalysisBatchNonEmptyDO.getFinalAmount()
+                                    .add(stockAnalysisBatchNonEmptyDO.getInAmount() == null ? BigDecimal.ZERO : stockAnalysisBatchNonEmptyDO.getInAmount())
+                                    .subtract(outAmount);
+                            stockAnalysisBatchNonEmptyDO.setFinalAmount(finalAmount);
+                        }
+                    }
+                    stockAnalysisService.batchUpdate(stockAnalysisBatchNonEmptyDOS);
+                    stockOutItemService.batchInsert(stockOutBatchEmpty);
+                }
+                return R.ok();
             }
             return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
 
@@ -486,7 +586,7 @@ public class StockApiController {
 
     @EvApiByToken(value = "/apis/stock/stockOutAccountingCheck", method = RequestMethod.POST, apiTitle = "检验出库核算（检查是否有单价为0的入库单存在）")
     @ApiOperation("检验出库核算（检查是否有单价为0的入库单存在）")
-    public R stockOutAccountingCheck( @ApiParam(value = "计算时间",required = true) @RequestParam(value = "period",defaultValue = "")  String period) {
+    public R stockOutAccountingCheck(@ApiParam(value = "计算时间", required = true) @RequestParam(value = "period", defaultValue = "") String period) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("offset", 0);
         params.put("limit", 1);
@@ -500,12 +600,12 @@ public class StockApiController {
                 return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
             }
             instance.setTime(periodTime);
-            int newPeriodMonth = instance.get(Calendar.MONTH);
-            int newPeriodYear = instance.get(Calendar.YEAR);
+            instance.set(Calendar.DAY_OF_MONTH, 1);
+            long newMillis = instance.getTimeInMillis();
             instance.setTime(oldPeriod);
-            int oldPeriodMonth = instance.get(Calendar.MONTH);
-            int oldPeriodYear = instance.get(Calendar.YEAR);
-            if (newPeriodMonth == oldPeriodMonth && newPeriodYear == oldPeriodYear) {
+            instance.set(Calendar.DAY_OF_MONTH, 1);
+            long oldMillis = instance.getTimeInMillis();
+            if (newMillis == oldMillis) {
                 if (stockAnalysisDO.getOutAmount() != null || stockAnalysisDO.getOutCount() != null) {
                     return R.error(messageSourceHandler.getMessage("scm.stock.outError", null));
                 }
@@ -523,12 +623,181 @@ public class StockApiController {
                 if (unitPriceEmpty.size() > 0) {
                     String[] args = {unitPriceEmpty.toString()};
                     // -1码为查询出有空的单价的错误码
-                    return R.error(-1,messageSourceHandler.getMessage("scm.stock.unitPriceEmpty", args));
+                    return R.error(-1, messageSourceHandler.getMessage("scm.stockIn.unitPriceEmpty", args));
                 }
                 return R.ok();
             }
             return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
 
+        }
+        return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
+    }
+
+    @EvApiByToken(value = "/apis/stock/checkEndingCarryOver", method = RequestMethod.POST, apiTitle = "检验期末结转（检查是否有单价为0的入库单/出库单存在）")
+    @ApiOperation("检验期末结转（检查是否有单价为0的入库单/出库单存在）")
+    public R checkEndingCarryOver(@ApiParam(value = "计算时间", required = true) @RequestParam(value = "period", defaultValue = "") String period) {
+        // 期末结账
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("offset", 0);
+        params.put("limit", 1);
+        List<StockAnalysisDO> list = stockAnalysisService.list(params);
+        if (list.size() > 0) {
+            StockAnalysisDO stockAnalysisDO = list.get(0);
+            Calendar instance = Calendar.getInstance();
+            Date periodTime = DateFormatUtil.getDateByParttern(period, "yyyy-MM-dd");
+            Date oldPeriod = stockAnalysisDO.getPeriod();
+            if (periodTime == null) {
+                return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
+            }
+            instance.setTime(periodTime);
+            instance.set(Calendar.DAY_OF_MONTH, 1);
+            long newMillis = instance.getTimeInMillis();
+            instance.setTime(oldPeriod);
+            instance.set(Calendar.DAY_OF_MONTH, 1);
+            long oldMillis = instance.getTimeInMillis();
+            instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) - 1);
+            long upOldInMillis = instance.getTimeInMillis();
+            if (newMillis == oldMillis
+                    || (newMillis == upOldInMillis && stockAnalysisDO.getIsClose() == 0)) {
+                params.clear();
+                // 入库单
+                params.put("createStartTime", DatesUtil.getSupportBeginDayOfMonth(periodTime));
+                params.put("createEndTime", DatesUtil.getSupportEndDayOfMonth(periodTime));
+                params.put("auditSign", ConstantForGYL.OK_AUDITED);
+                List<Map<String, Object>> stockInList = stockInService.listForMap(params);
+                List<String> stockInUnitPriceEmpty = stockInList.stream()
+                        .filter(stringObjectMap -> !stringObjectMap.containsKey("unitPrice"))
+                        .map(stringObjectMap -> stringObjectMap.get("inheadCode").toString())
+                        .collect(Collectors.toList());
+
+                if (stockInUnitPriceEmpty.size() > 0) {
+                    String[] args = {stockInUnitPriceEmpty.toString()};
+                    // -1码为查询出有空的单价的错误码
+                    return R.error(-1, messageSourceHandler.getMessage("scm.stockIn.unitPriceEmpty", args));
+                }
+                List<StockOutItemDO> stockOutUnitPriceEmpty = stockOutItemService.list(params).stream()
+                        .filter(stockOutItemDO -> stockOutItemDO.getUnitPrice() == null)
+                        .collect(Collectors.toList());
+                if (stockOutUnitPriceEmpty.size() > 0) {
+                    // -1码为查询出有空的单价的错误码
+                    return R.error(-1, messageSourceHandler.getMessage("scm.stockOut.unitPriceEmpty", null));
+                }
+                return R.ok();
+            }
+
+            return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
+        }
+        return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
+    }
+
+    @EvApiByToken(value = "/apis/stock/endingCarryOver", method = RequestMethod.POST, apiTitle = "期末结转")
+    @ApiOperation("期末结转")
+    public R endingCarryOver(@ApiParam(value = "计算时间", required = true) @RequestParam(value = "period", defaultValue = "") String period) {
+        // 期末结账
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("offset", 0);
+        params.put("limit", 1);
+        List<StockAnalysisDO> list = stockAnalysisService.list(params);
+        if (list.size() > 0) {
+            StockAnalysisDO stockAnalysisDO = list.get(0);
+            Calendar instance = Calendar.getInstance();
+            Date periodTime = DateFormatUtil.getDateByParttern(period, "yyyy-MM-dd");
+            Date oldPeriod = stockAnalysisDO.getPeriod();
+            if (periodTime == null) {
+                return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
+            }
+            instance.setTime(periodTime);
+            instance.set(Calendar.DAY_OF_MONTH, 1);
+            long newMillis = instance.getTimeInMillis();
+            instance.setTime(oldPeriod);
+            instance.set(Calendar.DAY_OF_MONTH, 1);
+            long oldMillis = instance.getTimeInMillis();
+            instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) - 1);
+            long upOldInMillis = instance.getTimeInMillis();
+            if (newMillis == oldMillis
+                    || (newMillis == upOldInMillis && stockAnalysisDO.getIsClose() == 0)) {
+                params.clear();
+                params.put("period", oldPeriod);
+                // 上一期的列表
+                List<StockAnalysisDO> lastTerm = stockAnalysisService.list(params);
+                List<StockAnalysisDO> stockAnalysisInsertDOS = Lists.newArrayList();
+                List<StockAnalysisDO> stockAnalysisUpdateDOS = Lists.newArrayList();
+                for (StockAnalysisDO stockAnalysis : lastTerm) {
+                    stockAnalysisDO = new StockAnalysisDO();
+                    stockAnalysisDO.setMaterielId(stockAnalysis.getMaterielId());
+                    stockAnalysisDO.setBatch(stockAnalysis.getBatch());
+                    stockAnalysisDO.setInitialCount(stockAnalysis.getFinalCount());
+                    stockAnalysisDO.setInitialAmount(stockAnalysis.getFinalAmount());
+                    if (newMillis == upOldInMillis) {
+                        stockAnalysisUpdateDOS.add(stockAnalysisDO);
+                        continue;
+                    }
+                    instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) + 2);
+                    stockAnalysisDO.setPeriod(instance.getTime());
+                    stockAnalysisInsertDOS.add(stockAnalysisDO);
+                }
+                stockAnalysisService.batchInsert(stockAnalysisInsertDOS);
+                stockAnalysisService.batchUpdate(stockAnalysisUpdateDOS);
+                return R.ok();
+            }
+            return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
+        }
+        return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
+    }
+
+    @EvApiByToken(value = "/apis/stock/endingClose", method = RequestMethod.POST, apiTitle = "期末关账")
+    @ApiOperation("期末关账")
+    public R endingClose(@ApiParam(value = "计算时间", required = true) @RequestParam(value = "period", defaultValue = "") String period) {
+        // 期末结账
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("offset", 0);
+        params.put("limit", 1);
+        List<StockAnalysisDO> list = stockAnalysisService.list(params);
+        if (list.size() > 0) {
+            StockAnalysisDO stockAnalysisDO = list.get(0);
+            Calendar instance = Calendar.getInstance();
+            Date periodTime = DateFormatUtil.getDateByParttern(period, "yyyy-MM-dd");
+            Date oldPeriod = stockAnalysisDO.getPeriod();
+            if (periodTime == null) {
+                return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
+            }
+            instance.setTime(periodTime);
+            instance.set(Calendar.DAY_OF_MONTH, 1);
+            long newMillis = instance.getTimeInMillis();
+            instance.setTime(oldPeriod);
+            instance.set(Calendar.DAY_OF_MONTH, 1);
+            Date time = instance.getTime();
+            long oldMillis = instance.getTimeInMillis();
+            instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) - 1);
+            long upOldInMillis = instance.getTimeInMillis();
+
+            if (newMillis == oldMillis
+                    || (newMillis == upOldInMillis && stockAnalysisDO.getIsClose() == 0)) {
+                params.clear();
+                params.put("period", time);
+                // 上一期的列表
+                List<StockAnalysisDO> lastTerm = stockAnalysisService.list(params);
+                List<StockAnalysisDO> stockAnalysisInsertDOS = Lists.newArrayList();
+                List<StockAnalysisDO> stockAnalysisUpdateDOS = Lists.newArrayList();
+                for (StockAnalysisDO stockAnalysis : lastTerm) {
+                    stockAnalysisDO = new StockAnalysisDO();
+                    stockAnalysisDO.setMaterielId(stockAnalysis.getMaterielId());
+                    stockAnalysisDO.setBatch(stockAnalysis.getBatch());
+                    stockAnalysisDO.setInitialCount(stockAnalysis.getFinalCount());
+                    stockAnalysisDO.setInitialAmount(stockAnalysis.getFinalAmount());
+                    if (newMillis == upOldInMillis) {
+                        stockAnalysisUpdateDOS.add(stockAnalysisDO);
+                        continue;
+                    }
+                    instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) + 2);
+                    stockAnalysisDO.setPeriod(instance.getTime());
+                    stockAnalysisInsertDOS.add(stockAnalysisDO);
+                }
+                stockAnalysisService.batchInsert(stockAnalysisInsertDOS);
+                stockAnalysisService.batchUpdate(stockAnalysisUpdateDOS);
+                return R.ok();
+            }
+            return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
         }
         return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
     }

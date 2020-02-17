@@ -56,5 +56,10 @@ public class StockAnalysisServiceImpl implements StockAnalysisService {
 	public int batchInsert(List<StockAnalysisDO> stockAnalysisDOS){
 		return stockAnalysisDao.batchInsert(stockAnalysisDOS);
 	}
-	
+
+	@Override
+	public int batchUpdate(List<StockAnalysisDO> stockAnalysisBatchEmptyDOS) {
+		return stockAnalysisDao.batchUpdate(stockAnalysisBatchEmptyDOS);
+	}
+
 }

@@ -30,4 +30,6 @@ public interface StockAnalysisDao {
 	int batchRemove(Long[] ids);
 
 	int batchInsert(List<StockAnalysisDO> stockAnalysisDOS);
+
+	int batchUpdate(List<StockAnalysisDO> stockAnalysisBatchEmptyDOS);
 }

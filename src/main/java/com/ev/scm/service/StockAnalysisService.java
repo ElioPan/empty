@@ -29,4 +29,6 @@ public interface StockAnalysisService {
 	int batchRemove(Long[] ids);
 
 	int batchInsert(List<StockAnalysisDO> stockAnalysisDOS);
+
+	int batchUpdate(List<StockAnalysisDO> stockAnalysisBatchEmptyDOS);
 }

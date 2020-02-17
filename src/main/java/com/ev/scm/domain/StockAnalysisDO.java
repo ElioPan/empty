@@ -57,6 +57,9 @@ public class StockAnalysisDO implements Serializable {
 	//期末结存金额
     @ApiModelProperty(value = "期末结存金额")
 	private BigDecimal finalAmount;
+	//是否关账（0否/1关）
+	@ApiModelProperty(value = "是否关账（0否/1关）")
+	private Integer isClose;
 	//创建人
     @ApiModelProperty(value = "创建人")
 	private Long createBy;
