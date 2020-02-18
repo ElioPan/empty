@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.ev.framework.config.Constant;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.google.common.collect.Lists;
 import org.springframework.beans.BeanUtils;
@@ -278,7 +279,7 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
             BigDecimal wasteRate = bomDetailDO.getWasteRate();
             BigDecimal standardCount = bomDetailDO.getStandardCount();
             BigDecimal planCount = planDO.getPlanCount();
-            BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100), 2)
+            BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100), Constant.BIGDECIMAL_ZERO)
                     .multiply(planCount);
             feedingDetail.put("planFeeding", planFeeding);
             feedingDetailList.add(feedingDetail);

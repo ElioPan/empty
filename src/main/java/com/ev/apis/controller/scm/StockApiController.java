@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  */
 
 
-@Api(value = "/", tags = "库存")
+@Api(value = "/", tags = "库存API")
 @RestController
 public class StockApiController {
 
@@ -254,18 +254,21 @@ public class StockApiController {
         Calendar now = Calendar.getInstance();
         if (now.get(Calendar.YEAR) == year && month == now.get(Calendar.MONTH) + 1) {
             Calendar start = Calendar.getInstance();
-            start.set(year, month, 1);
+            start.set(Calendar.YEAR, year);
+
+            start.set(Calendar.MONTH, month - 1);
+            start.set(Calendar.DAY_OF_MONTH, 1);
             // 是否为修改
-//            List<StockStartDO> list = stockStartService.list(Maps.newHashMap());
-//            if (list.size() > 0) {
-//                StockStartDO stockStartDO = list.get(0);
-//                if (stockStartDO.getStatus() == 1) {
-//                    return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
-//                }
-//                stockStartDO.setStartTime(start.getTime());
-//                stockStartService.update(stockStartDO);
-//                return R.ok();
-//            }
+            List<StockStartDO> list = stockStartService.list(Maps.newHashMap());
+            if (list.size() > 0) {
+                StockStartDO stockStartDO = list.get(0);
+                if (stockStartDO.getStatus() == 1) {
+                    return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
+                }
+                stockStartDO.setStartTime(start.getTime());
+                stockStartService.update(stockStartDO);
+                return R.ok();
+            }
             // 为新增
             StockStartDO stockStartDO = new StockStartDO();
             stockStartDO.setStartTime(start.getTime());
@@ -300,24 +303,38 @@ public class StockApiController {
             "[\n" +
             "    {\n" +
             "        \"materielId\":25,\n" +
-            "        \"batch\":\"wh_ycl_001\",\n" +
-            "        \"warehouse\":1200,\n" +
-            "        \"warehLocation\":1200,\n" +
-            "        \"count\":201,\n" +
+            "        \"batch\":\"wh_ycl_0045\",\n" +
+            "        \"warehouse\":3,\n" +
+            "        \"warehLocation\":7,\n" +
+            "        \"count\":2011,\n" +
             "        \"amount\":24000\n" +
             "    },\n" +
             "    {\n" +
             "        \"materielId\":25,\n" +
-            "        \"batch\":\"wh_ycl_001\",\n" +
-            "        \"warehouse\":1200,\n" +
-            "        \"warehLocation\":1200,\n" +
-            "        \"count\":201,\n" +
+            "        \"batch\":\"wh_ycl_0034\",\n" +
+            "        \"warehouse\":4,\n" +
+            "        \"warehLocation\":8,\n" +
+            "        \"count\":241,\n" +
             "        \"amount\":24000\n" +
             "    }\n" +
             "]"
-            , required = true) @RequestParam(value = "item", defaultValue = "") String stockList) {
+            , required = true) @RequestParam(value = "item", defaultValue = "") String stockList,
+                       @ApiParam(value = "明细数组") @RequestParam(value = "itemIds", defaultValue = "", required = false) Long[] itemIds) {
+        Map<String, Object> emptyMap = Maps.newHashMap();
+        List<StockStartDO> list = stockStartService.list(emptyMap);
+        if (list.size() == 0) {
+            return R.error(messageSourceHandler.getMessage("scm.stock.startTimeError", null));
+        }
+        if (list.get(0).getStatus() == 1) {
+            return R.error(messageSourceHandler.getMessage("scm.stock.error", null));
+        }
+
+        if (itemIds.length > 0) {
+            stockService.batchRemove(itemIds);
+        }
+        Date now = new Date();
         List<StockDO> itemDOs = JSON.parseArray(stockList, StockDO.class);
-        List<MaterielDO> materielDOs = materielService.list(Maps.newHashMap());
+        List<MaterielDO> materielDOs = materielService.list(emptyMap);
         String batch;
         Integer isLot;
         if (itemDOs.size() > 0 && materielDOs.size() > 0) {
@@ -326,20 +343,53 @@ public class StockApiController {
                 for (MaterielDO materielDO : materielDOs) {
                     if (Objects.equals(materielDO.getId().longValue(), itemDO.getMaterielId())) {
                         isLot = materielDO.getIsLot();
-                        if ((isLot == 1 && StringUtils.isEmpty(batch)) || (isLot != 1 && StringUtils.isNoneEmpty(batch))) {
+                        if (isLot == 1 && StringUtils.isEmpty(batch)) {
                             String[] args = {materielDO.getName()};
                             return R.error(messageSourceHandler.getMessage("basicInfo.materiel.isLotError", args));
                         }
+                        BigDecimal count = itemDO.getCount();
+                        BigDecimal amount = itemDO.getAmount();
+                        itemDO.setAvailableCount(count);
+                        itemDO.setUnitPrice(amount.divide(count,Constant.BIGDECIMAL_ZERO));
+                        itemDO.setEnteringTime(now);
+                        itemDO.setDelFlag(0);
                         break;
                     }
                 }
 
             }
-            stockService.batchSave(itemDOs);
+            List<StockDO> batchSave = itemDOs.stream().filter(itemDO -> itemDO.getId() == null).collect(Collectors.toList());
+            if (batchSave.size() > 0) {
+                stockService.batchSave(batchSave);
+            }
+            List<StockDO> batchUpdate = itemDOs.stream().filter(itemDO -> itemDO.getId() != null).collect(Collectors.toList());
+            if (batchUpdate.size() > 0) {
+                stockService.batchUpdate(batchUpdate);
+            }
             return R.ok();
         }
         return R.error(messageSourceHandler.getMessage("scm.stock.error", null));
     }
+
+    @EvApiByToken(value = "/apis/stock/startList", method = RequestMethod.POST, apiTitle = "期初库存列表")
+    @ApiOperation("期初库存列表")
+    public R startList() {
+
+        Map<String, Object> results = Maps.newHashMap();
+        List<Map<String, Object>> data = stockService.listForMap(results);
+        Map<String, Object> countForMap = stockService.countForMap(results);
+        results.put("data",data);
+        results.put("total",countForMap);
+        int startStatus=0;
+        if (data.size() > 0) {
+            List<StockStartDO> list = stockStartService.list(Maps.newHashMap());
+            startStatus=list.get(0).getStatus();
+        }
+        results.put("startStatus",startStatus);
+        return R.ok(results);
+    }
+
+
 
     @Transactional(rollbackFor = Exception.class)
     @EvApiByToken(value = "/apis/stock/endInitial", method = RequestMethod.POST, apiTitle = "结束初始化")
@@ -350,6 +400,10 @@ public class StockApiController {
         if (list.size() == 0) {
             return R.error(messageSourceHandler.getMessage("scm.stock.startTimeError", null));
         }
+        if (list.get(0).getStatus() == 1) {
+            return R.error(messageSourceHandler.getMessage("scm.stock.error", null));
+        }
+
         List<StockDO> stockDOList = stockService.list(emptyMap);
         StockAnalysisDO stockAnalysisDO;
         StockStartDO stockStartDO = list.get(0);
@@ -411,10 +465,14 @@ public class StockApiController {
             instance.setTime(oldPeriod);
             instance.set(Calendar.DAY_OF_MONTH, 1);
             long oldMillis = instance.getTimeInMillis();
+
+            instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) - 1);
+            long upOldInMillis = instance.getTimeInMillis();
+
+            if (newMillis == upOldInMillis && stockAnalysisDO.getIsClose() == 0) {
+                return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
+            }
             if (newMillis == oldMillis) {
-                if (stockAnalysisDO.getOutAmount() != null || stockAnalysisDO.getOutCount() != null) {
-                    return R.error(messageSourceHandler.getMessage("scm.stock.outError", null));
-                }
                 params.clear();
                 // 入库单
                 params.put("createStartTime", DatesUtil.getSupportBeginDayOfMonth(periodTime));
@@ -624,7 +682,7 @@ public class StockApiController {
                                 .subtract(outCount);
                         analysisDO.setFinalCount(finalCount);
                         // 期末结存金额=期初金额+本月入库金额-本月发出金额
-                        BigDecimal finalAmount = analysisDO.getFinalAmount()
+                        BigDecimal finalAmount = analysisDO.getInitialAmount()
                                 .add(inAmount)
                                 .subtract(outAmount);
                         analysisDO.setFinalAmount(finalAmount);
@@ -738,10 +796,13 @@ public class StockApiController {
             instance.setTime(oldPeriod);
             instance.set(Calendar.DAY_OF_MONTH, 1);
             long oldMillis = instance.getTimeInMillis();
+            instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) - 1);
+            long upOldInMillis = instance.getTimeInMillis();
+            if (newMillis == upOldInMillis && stockAnalysisDO.getIsClose() == 0) {
+                return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
+            }
+
             if (newMillis == oldMillis) {
-                if (stockAnalysisDO.getOutAmount() != null || stockAnalysisDO.getOutCount() != null) {
-                    return R.error(messageSourceHandler.getMessage("scm.stock.outError", null));
-                }
                 params.clear();
                 // 入库单
                 params.put("createStartTime", DatesUtil.getSupportBeginDayOfMonth(periodTime));
@@ -749,7 +810,7 @@ public class StockApiController {
                 params.put("auditSign", ConstantForGYL.OK_AUDITED);
                 List<Map<String, Object>> stockInList = stockInService.listForMap(params);
                 List<String> unitPriceEmpty = stockInList.stream()
-                        .filter(stringObjectMap -> !stringObjectMap.containsKey("unitPrice"))
+                        .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("unitPrice")).compareTo(BigDecimal.ZERO)==0)
                         .map(stringObjectMap -> stringObjectMap.get("inheadCode").toString())
                         .collect(Collectors.toList());
 
@@ -799,7 +860,7 @@ public class StockApiController {
                 params.put("auditSign", ConstantForGYL.OK_AUDITED);
                 List<Map<String, Object>> stockInList = stockInService.listForMap(params);
                 List<String> stockInUnitPriceEmpty = stockInList.stream()
-                        .filter(stringObjectMap -> !stringObjectMap.containsKey("unitPrice"))
+                        .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("unitPrice")).compareTo(BigDecimal.ZERO)==0)
                         .map(stringObjectMap -> stringObjectMap.get("inheadCode").toString())
                         .collect(Collectors.toList());
 
@@ -809,7 +870,7 @@ public class StockApiController {
                     return R.error(-1, messageSourceHandler.getMessage("scm.stockIn.unitPriceEmpty", args));
                 }
                 List<StockOutItemDO> stockOutUnitPriceEmpty = stockOutItemService.list(params).stream()
-                        .filter(stockOutItemDO -> stockOutItemDO.getUnitPrice() == null)
+                        .filter(stockOutItemDO -> stockOutItemDO.getUnitPrice().compareTo(BigDecimal.ZERO) == 0)
                         .collect(Collectors.toList());
                 if (stockOutUnitPriceEmpty.size() > 0) {
                     // -1码为查询出有空的单价的错误码
@@ -823,6 +884,7 @@ public class StockApiController {
         return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @EvApiByToken(value = "/apis/stock/endingCarryOver", method = RequestMethod.POST, apiTitle = "期末结转")
     @ApiOperation("期末结转")
     public R endingCarryOver(@ApiParam(value = "计算时间", required = true) @RequestParam(value = "period", defaultValue = "") String period) {
@@ -847,15 +909,20 @@ public class StockApiController {
             long oldMillis = instance.getTimeInMillis();
             instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) - 1);
             long upOldInMillis = instance.getTimeInMillis();
+            instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) + 2);
             if (newMillis == oldMillis
                     || (newMillis == upOldInMillis && stockAnalysisDO.getIsClose() == 0)) {
                 params.clear();
-                params.put("period", oldPeriod);
+                params.put("period", period);
                 // 上一期的列表
                 List<StockAnalysisDO> lastTerm = stockAnalysisService.list(params);
                 List<StockAnalysisDO> stockAnalysisInsertDOS = Lists.newArrayList();
                 List<StockAnalysisDO> stockAnalysisUpdateDOS = Lists.newArrayList();
+                if (lastTerm.get(0).getIsClose()==1){
+                    return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
+                }
                 for (StockAnalysisDO stockAnalysis : lastTerm) {
+
                     stockAnalysisDO = new StockAnalysisDO();
                     stockAnalysisDO.setMaterielId(stockAnalysis.getMaterielId());
                     stockAnalysisDO.setBatch(stockAnalysis.getBatch());
@@ -865,12 +932,17 @@ public class StockApiController {
                         stockAnalysisUpdateDOS.add(stockAnalysisDO);
                         continue;
                     }
-                    instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) + 2);
+                    stockAnalysisDO.setIsClose(0);
                     stockAnalysisDO.setPeriod(instance.getTime());
                     stockAnalysisInsertDOS.add(stockAnalysisDO);
                 }
-                stockAnalysisService.batchInsert(stockAnalysisInsertDOS);
-                stockAnalysisService.batchUpdate(stockAnalysisUpdateDOS);
+
+                if (stockAnalysisInsertDOS.size() > 0) {
+                    stockAnalysisService.batchInsert(stockAnalysisInsertDOS);
+                }
+                if (stockAnalysisUpdateDOS.size() > 0) {
+                    stockAnalysisService.batchUpdate(stockAnalysisUpdateDOS);
+                }
                 return R.ok();
             }
             return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
@@ -878,6 +950,7 @@ public class StockApiController {
         return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @EvApiByToken(value = "/apis/stock/endingClose", method = RequestMethod.POST, apiTitle = "期末关账")
     @ApiOperation("期末关账")
     public R endingClose(@ApiParam(value = "计算时间", required = true) @RequestParam(value = "period", defaultValue = "") String period) {
@@ -904,9 +977,13 @@ public class StockApiController {
 
             if (newMillis == upOldInMillis && stockAnalysisDO.getIsClose() == 0) {
                 params.clear();
-                params.put("period", periodTime);
+                params.put("period", period);
                 // 上一期的列表
                 List<StockAnalysisDO> lastTerm = stockAnalysisService.list(params);
+                if (lastTerm.get(0).getIsClose()==1){
+                    return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
+                }
+
                 for (StockAnalysisDO stockAnalysis : lastTerm) {
                     stockAnalysis.setIsClose(1);
                 }
@@ -920,16 +997,18 @@ public class StockApiController {
 
     @EvApiByToken(value = "/apis/stock/analysis", method = RequestMethod.POST, apiTitle = "报表分析")
     @ApiOperation("报表分析")
-    public R analysis(@ApiParam(value = "计算时间", required = true) @RequestParam(value = "period", defaultValue = "") String period,
-                  @ApiParam(value = "物料名称", required = true) @RequestParam(value = "materielName", defaultValue = "") String materielName,
-                  @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
-                  @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize
-                  ) {
+    public R analysis(@ApiParam(value = "计算时间") @RequestParam(value = "period", defaultValue = "", required = false) String period,
+                      @ApiParam(value = "物料名称") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
+                      @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+                      @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+                      @ApiParam(value = "显示已关账期间（1是/0否）") @RequestParam(value = "isClose", defaultValue = "1", required = false) int isClose
+    ) {
         Map<String, Object> results = Maps.newHashMap();
         Map<String, Object> params = Maps.newHashMap();
         params.put("offset", (pageno - 1) * pagesize);
         params.put("limit", pagesize);
         params.put("period", period);
+        params.put("isClose",isClose);
         params.put("materielName", StringUtils.sqlLike(materielName));
         List<Map<String, Object>> data = stockAnalysisService.listForMap(params);
         int total = stockAnalysisService.countForMap(params);

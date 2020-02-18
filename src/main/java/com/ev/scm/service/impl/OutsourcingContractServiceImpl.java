@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ev.custom.service.MaterielService;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
@@ -415,7 +416,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
             BigDecimal wasteRate = bomDetailDO.getWasteRate();
             BigDecimal standardCount = bomDetailDO.getStandardCount();
             BigDecimal planCount = itemDO.getCount();
-            BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100), 2)
+            BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100), Constant.BIGDECIMAL_ZERO)
                     .multiply(planCount);
             feedingDetail.put("planFeeding", planFeeding);
             feedingDetailList.add(feedingDetail);

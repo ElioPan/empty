@@ -61,4 +61,19 @@ public class StockServiceImpl implements StockService {
         return  stockDao.batchSave(stockDOs);
     }
 
+	@Override
+	public List<Map<String, Object>> listForMap(Map<String, Object> results) {
+		return stockDao.listForMap(results);
+	}
+
+	@Override
+	public Map<String, Object> countForMap(Map<String, Object> results) {
+		return stockDao.countForMap(results);
+	}
+
+	@Override
+	public int batchUpdate(List<StockDO> batchUpdate) {
+		return stockDao.batchUpdate(batchUpdate);
+	}
+
 }
