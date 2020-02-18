@@ -49,7 +49,17 @@ public class NoticeServiceImpl implements NoticeService {
 	public int count(Map<String, Object> map){
 		return noticeDao.count(map);
 	}
-	
+
+	@Override
+	public List<Map<String, Object>> listForMap(Map<String, Object> map) {
+		return noticeDao.listForMap(map);
+	}
+
+	@Override
+	public int countForMap(Map<String, Object> map) {
+		return noticeDao.countForMap(map);
+	}
+
 	@Override
 	public int save(NoticeDO notice){
 		return noticeDao.save(notice);

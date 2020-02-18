@@ -20,6 +20,10 @@ public interface NoticeService {
 	List<NoticeDO> list(Map<String, Object> map);
 	
 	int count(Map<String, Object> map);
+
+	List<Map<String,Object>> listForMap(Map<String, Object> map);
+
+	int countForMap(Map<String, Object> map);
 	
 	int save(NoticeDO notice);
 	

@@ -1,5 +1,6 @@
 package com.ev.apis.controller.custom;
 
+import com.alibaba.fastjson.JSONObject;
 import com.ev.custom.service.NoticeService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
@@ -210,7 +211,9 @@ public class DailyReportApiController {
                     @ApiParam(value = "回复内容", required = true, example = "哈哈哈") @RequestParam(value = "comment", defaultValue = "") String
                             comment) {
         dailyReportService.commentDailyReport(dailyReportId, comment);
-        noticeService.saveAndSendSocket("日志回复信息",comment,"{id:"+dailyReportId+"}",281L,ShiroUtils.getUserId(),dailyReportService.get(dailyReportId).getId());
+        JSONObject contentDetail = new JSONObject();
+        contentDetail.put("id",dailyReportId);
+        noticeService.saveAndSendSocket("日志回复信息",comment,contentDetail.toString(),282L,ShiroUtils.getUserId(),dailyReportService.get(dailyReportId).getId());
         return R.ok();
     }
 

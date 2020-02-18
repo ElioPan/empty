@@ -1,5 +1,6 @@
 package com.ev.apis.controller.custom;
 
+import com.alibaba.fastjson.JSONObject;
 import com.ev.custom.service.NoticeService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
@@ -122,7 +123,9 @@ public class MonthReportApiController {
     public R remove(@ApiParam(value = "月报ID", required = true, example = "1") @RequestParam(value = "monthReportId", defaultValue = "") Long monthReportId,
                     @ApiParam(value = "回复内容", required = true, example = "哈哈哈") @RequestParam(value = "comment", defaultValue = "") String comment) {
         monthReportService.commentMonthReport(monthReportId, comment);
-        noticeService.saveAndSendSocket("周报回复信息",comment,"{id:"+monthReportId+"}",281L,ShiroUtils.getUserId(),monthReportService.get(monthReportId).getId());
+        JSONObject contentDetail = new JSONObject();
+        contentDetail.put("id",monthReportId);
+        noticeService.saveAndSendSocket("月报回复信息",comment,contentDetail.toString(),284L,ShiroUtils.getUserId(),monthReportService.get(monthReportId).getId());
         return R.ok();
     }
 

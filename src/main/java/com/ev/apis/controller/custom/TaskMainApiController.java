@@ -1,5 +1,6 @@
 package com.ev.apis.controller.custom;
 
+import com.alibaba.fastjson.JSONObject;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.config.Constant;
@@ -279,7 +280,9 @@ public class TaskMainApiController {
 		}
 
 		int replySave = taskMainService.replySave(taskReplyDO, ccList);
-		noticeService.saveAndSendSocket("任务回复信息",taskReplyDO.getSolution(),"{id:"+taskMainDO.getId()+"}",281L,ShiroUtils.getUserId(),taskMainDO.getCreateBy());
+    	JSONObject contentDetail = new JSONObject();
+		contentDetail.put("id",taskMainDO.getId());
+		noticeService.saveAndSendSocket("任务回复信息",taskReplyDO.getSolution(),contentDetail.toString(),281L,ShiroUtils.getUserId(),taskMainDO.getCreateBy());
 		if (replySave > 0) {
 			return R.ok();
 		}

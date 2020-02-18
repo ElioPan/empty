@@ -33,6 +33,46 @@
 		<include refid="sql_condition"/>
 	</select>
 
+	<select id="listForMap" resultType="map">
+		SELECT
+		notice.id AS id,
+		notice.type as typeId,
+		notice.title as title,
+		notice.content as content,
+		notice.content_detail as contentDetail,
+		notice.sign_status as signStatus,
+		dic.`name` as typeName,
+		fromuser.`name` as fromUserName,
+		touser.`name` as toUserName
+		FROM
+		cus_notice notice
+		LEFT JOIN cus_dictionary dic ON dic.id = notice.type
+		LEFT JOIN sys_user fromuser ON fromuser.user_id = notice.from_user_id
+		LEFT JOIN sys_user touser ON touser.user_id = notice.to_user_id
+		<include refid="condition_for_map"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY ${sort} ${order}
+			</when>
+			<otherwise>
+				ORDER BY notice.id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="int">
+        select count(*)
+		FROM
+		cus_notice notice
+		LEFT JOIN cus_dictionary dic ON dic.id = notice.type
+		LEFT JOIN sys_user fromuser ON fromuser.user_id = notice.from_user_id
+		LEFT JOIN sys_user touser ON touser.user_id = notice.to_user_id
+		<include refid="condition_for_map"/>
+	</select>
+
     <sql id="sql_column_list">
 		`id`,`type`,`title`,`content`,`content_detail`,`from_user_id`,`to_user_id`,`expire_date`,`sign_status`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 	</sql>
@@ -55,6 +95,17 @@
                             <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
                     </where>
     </sql>
+
+	<sql id="condition_for_map">
+		<where>
+			<if test="id != null and id != ''"> AND notice.id = #{id} </if>
+			<if test="type != null and type != ''"> AND notice.type = #{type} </if>
+			<if test="title != null and title != ''"> AND notice.title = #{title} </if>
+			<if test="fromUserId != null and fromUserId != ''"> AND notice.from_user_id = #{fromUserId} </if>
+			<if test="toUserId != null and toUserId != ''"> AND notice.to_user_id = #{toUserId} </if>
+			<if test="signStatus != null and signStatus != ''"> AND notice.sign_status = #{signStatus} </if>
+		</where>
+	</sql>
 	 
 	<insert id="save" parameterType="com.ev.custom.domain.NoticeDO" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO cus_notice
