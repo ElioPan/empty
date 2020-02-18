@@ -245,7 +245,21 @@ public final class ConstantForGYL {
 	public static final Integer WEIGHTED_AVERAGE = 144;
 
 	/**
+	 * 按数量分配
+	 */
+	public static final Long COUNT_DISTRIBUTION = 279L;
+	/**
+	 * 按金额分配
+	 */
+	public static final Long AMOUNT_DISTRIBUTION = 280L;
+
+	/**
 	 * 分批认定 计价方法
 	 */
 	public static final Integer BATCH_FINDS = 143;
+
+
+
+
+
 }

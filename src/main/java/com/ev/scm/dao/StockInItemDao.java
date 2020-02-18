@@ -3,7 +3,6 @@ package com.ev.scm.dao;
 
 import com.ev.scm.domain.StockInItemDO;
 import org.apache.ibatis.annotations.Mapper;
-import sun.util.resources.ga.LocaleNames_ga;
 
 import java.util.List;
 import java.util.Map;
@@ -46,6 +45,11 @@ public interface StockInItemDao {
 
 	List<Map<String, Object>> deatilOfBody(Map<String, Object> map);
 
+	int updateExpense(Map<String, Object> map);
 
+	List<Map<String, Object>> getListBystockInId(Map<String, Object> map);
+
+	//totailAmount,totailCount
+	Map<String, Object> getTotailCountAmount(Long id);
 
 }

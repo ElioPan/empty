@@ -1,5 +1,8 @@
 package com.ev.apis.controller.scm;
 
+import cn.afterturn.easypoi.entity.vo.TemplateExcelConstants;
+import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
+import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.R;
@@ -12,11 +15,16 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +72,7 @@ public class ScmProduceInStockApiController {
     @ApiOperation("审核--生产入库")
     @Transactional(rollbackFor = Exception.class)
     public R changeAuditStatus(@ApiParam(value = "生产入库主表主键", required = true) @RequestParam(value = "inHeadId") Long inHeadId,
-                               @ApiParam(value = "审核人主键", required = false) @RequestParam(value = "auditor") Long auditor) {
+                               @ApiParam(value = "审核人主键") @RequestParam(value = "auditor",required = false) Long auditor) {
         auditor= ShiroUtils.getUserId();
         return stockInService.auditAllTypeInStock(inHeadId, auditor, ConstantForGYL.YDGOODS_WAREHOUSE);
     }
@@ -163,6 +171,53 @@ public class ScmProduceInStockApiController {
 
 
 
+    @ResponseBody
+    @EvApiByToken(value = "/apis/scm/exportExcel/produceInStocketOut", method = RequestMethod.GET, apiTitle = "导出生产入库")
+    @ApiOperation("导出生产入库")
+    public void exportExcel(
+            @ApiParam(value = "单据编号") @RequestParam(value = "inheadCode", defaultValue = "", required = false) String inheadCode,
+            @ApiParam(value = "物料名（模糊）") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
+            @ApiParam(value = "入库起始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
+            @ApiParam(value = "入库截止时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
+            @ApiParam(value = "生产部门名字") @RequestParam(value = "deptName", defaultValue = "", required = false) String deptName,
+            @ApiParam(value = "规格型号") @RequestParam(value = "specification", defaultValue = "", required = false) String specification,
+            @ApiParam(value = "批次") @RequestParam(value = "batch", defaultValue = "", required = false) String batch,
+            @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
+            @ApiParam(value = "入库操作员id") @RequestParam(value = "operator", defaultValue = "", required = false) Long operator,
+            @ApiParam(value = "入库操作员名字") @RequestParam(value = "operatorName", defaultValue = "", required = false) String operatorName,
+            @ApiParam(value = "制单人id") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
+            @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
+            @ApiParam(value = "制单时间") @RequestParam(value = "createTime", defaultValue = "", required = false) String  createTime,
+            HttpServletRequest request, HttpServletResponse response, ModelMap modelMap) {
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("inheadCode", inheadCode);
+        params.put("materielName",materielName );
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+        params.put("deptName",deptName );
+        params.put("materielSpecification",specification );
+        params.put("batch", batch);
+        params.put("auditSign",auditSign);
+        params.put("operator", operator);
+        params.put("operatorName",operatorName);
+        params.put("createBy",createBy );
+        params.put("createByName", createByName);
+        params.put("createTime", createTime);
+        params.put("storageType", ConstantForGYL.YDGOODS_WAREHOUSE);
+
+        List<Map<String, Object>> list = stockInService.listForMap(params);
+
+        ClassPathResource classPathResource = new ClassPathResource("poi/scm_produce_in_stock.xlsx");
+        Map<String,Object> map = Maps.newHashMap();
+        map.put("list", list);
+        TemplateExportParams result = new TemplateExportParams(classPathResource.getPath());
+        modelMap.put(TemplateExcelConstants.FILE_NAME, "生产入库");
+        modelMap.put(TemplateExcelConstants.PARAMS, result);
+        modelMap.put(TemplateExcelConstants.MAP_DATA, map);
+        PoiBaseView.render(modelMap, request, response,
+                TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
+    }
 
 
 

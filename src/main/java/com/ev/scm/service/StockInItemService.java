@@ -49,4 +49,11 @@ public interface StockInItemService {
 
 	String addAllTypeInStock(Long id,Long Type);
 
+	int updateExpense(Map<String, Object> map);
+
+	List<Map<String, Object>> getListBystockInId(Map<String, Object> map);
+
+	//totailAmount,totailCount
+	Map<String, Object> getTotailCountAmount(Long id);
+
 }

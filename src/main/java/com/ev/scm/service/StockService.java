@@ -31,4 +31,10 @@ public interface StockService {
 	List<StockDO> getProCountForMap(Map<String, Object> map);
 
     int batchSave(List<StockDO> stockDOs);
+
+	List<Map<String, Object>> listForMap(Map<String, Object> results);
+
+	Map<String, Object> countForMap(Map<String, Object> results);
+
+	int batchUpdate(List<StockDO> batchUpdate);
 }

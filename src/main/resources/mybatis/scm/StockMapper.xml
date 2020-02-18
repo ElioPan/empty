@@ -151,7 +151,7 @@
 		</where>
 	</select>
 
-    <!-- 批量保存库存明细 -->
+	<!-- 批量保存库存明细 -->
     <insert id="batchSave" parameterType="List" useGeneratedKeys="true" keyProperty="id">
         insert into scm_stock
         (
@@ -194,5 +194,207 @@
             )
         </foreach>
     </insert>
+
+	<select id="listForMap" resultType="java.util.Map">
+		SELECT
+			stock.`id` AS id,
+			stock.`materiel_id` AS materielId,
+			materiel.`name` AS materielName,
+			materiel.`specification` AS specification,
+			materiel.`serial_no` AS serialNo,
+			dic.`id` AS unitUom,
+			dic.`name` AS unitUomName,
+			stock.`batch` AS batch,
+			facility.`name` AS warehouseName,
+			facility.`id` AS warehouse,
+			fl. NAME AS warehLocationName,
+			stock.`wareh_location` AS warehLocation,
+			stock.`unit_price` AS unitPrice,
+			stock.`count` AS count,
+			stock.`amount` AS amount
+		FROM
+			scm_stock stock
+		LEFT JOIN cus_materiel materiel ON materiel.id = stock.`materiel_id`
+		LEFT JOIN cus_dictionary dic ON dic.`id` = materiel.`unit_uom`
+		LEFT JOIN cus_facility_location fl ON fl.`id` = stock.`wareh_location`
+		LEFT JOIN cus_facility facility ON facility.`id` = fl.`facility_id`
+	</select>
+	<select id="countForMap" resultType="java.util.Map" parameterType="List">
+		SELECT
+		SUM(stock.`count`) AS totalCount,
+		SUM(stock.`amount`) AS totalAmount
+		FROM scm_stock stock
+	</select>
+
+	<update id="batchUpdate" parameterType="List">
+		UPDATE scm_stock
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="entering_time=case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.enteringTime!=null">
+						when id=#{item.id} then #{item.enteringTime}
+					</if>
+					<if test="item.enteringTime==null">
+						when id=#{item.id} then scm_stock.entering_time
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="materiel_id =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.materielId!=null">
+						when id=#{item.id} then #{item.materielId}
+					</if>
+					<if test="item.materielId==null">
+						when id=#{item.id} then scm_stock.materiel_id
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="code=case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.code!=null">
+						when id=#{item.id} then #{item.code}
+					</if>
+					<if test="item.code==null">
+						when id=#{item.id} then scm_stock.code
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="batch =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.batch!=null">
+						when id=#{item.id} then #{item.batch}
+					</if>
+					<if test="item.batch==null">
+						when id=#{item.id} then scm_stock.batch
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="count =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.count!=null">
+						when id=#{item.id} then #{item.count}
+					</if>
+					<if test="item.count==null">
+						when id=#{item.id} then scm_stock.count
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="available_count =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.availableCount!=null">
+						when id=#{item.id} then #{item.availableCount}
+					</if>
+					<if test="item.availableCount==null">
+						when id=#{item.id} then scm_stock.available_count
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="unit_price =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.unitPrice!=null">
+						when id=#{item.id} then #{item.unitPrice}
+					</if>
+					<if test="item.unitPrice==null">
+						when id=#{item.id} then scm_stock.unit_price
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="amount =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.amount!=null">
+						when id=#{item.id} then #{item.amount}
+					</if>
+					<if test="item.amount==null">
+						when id=#{item.id} then scm_stock.amount
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="source_company =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.sourceCompany!=null">
+						when id=#{item.id} then #{item.sourceCompany}
+					</if>
+					<if test="item.sourceCompany==null">
+						when id=#{item.id} then scm_stock.source_company
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="warehouse =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.warehouse!=null">
+						when id=#{item.id} then #{item.warehouse}
+					</if>
+					<if test="item.warehouse==null">
+						when id=#{item.id} then scm_stock.warehouse
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="wareh_location =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.warehLocation!=null">
+						when id=#{item.id} then #{item.warehLocation}
+					</if>
+					<if test="item.warehLocation==null">
+						when id=#{item.id} then scm_stock.wareh_location
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="create_by =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.createBy!=null">
+						when id=#{item.id} then #{item.createBy}
+					</if>
+					<if test="item.createBy==null">
+						when id=#{item.id} then scm_stock.create_by
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="create_time =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.createTime!=null">
+						when id=#{item.id} then #{item.createTime}
+					</if>
+					<if test="item.createTime==null">
+						when id=#{item.id} then scm_stock.create_time
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="update_by =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.updateBy!=null">
+						when id=#{item.id} then #{item.updateBy}
+					</if>
+					<if test="item.updateBy==null">
+						when id=#{item.id} then scm_stock.update_by
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="update_time =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.updateTime!=null">
+						when id=#{item.id} then #{item.updateTime}
+					</if>
+					<if test="item.updateTime==null">
+						when id=#{item.id} then scm_stock.update_time
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="del_flag =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.delFlag!=null">
+						when id=#{item.id} then #{item.delFlag}
+					</if>
+					<if test="item.delFlag==null">
+						when id=#{item.id} then scm_stock.del_flag
+					</if>
+				</foreach>
+			</trim>
+		</trim>
+		WHERE id IN
+		<foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+			#{item.id}
+		</foreach>
+
+	</update>
 
 </mapper>

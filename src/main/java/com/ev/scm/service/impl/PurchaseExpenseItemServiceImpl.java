@@ -35,7 +35,8 @@ public class PurchaseExpenseItemServiceImpl implements PurchaseExpenseItemServic
 	public int save(PurchaseExpenseItemDO purchaseExpenseItem){
 		return purchaseExpenseItemDao.save(purchaseExpenseItem);
 	}
-	
+
+
 	@Override
 	public int update(PurchaseExpenseItemDO purchaseExpenseItem){
 		return purchaseExpenseItemDao.update(purchaseExpenseItem);
@@ -59,6 +60,21 @@ public class PurchaseExpenseItemServiceImpl implements PurchaseExpenseItemServic
 	@Override
 	public List<Map<String, Object>> getDetailOfBody(Map<String, Object> map) {
 		return purchaseExpenseItemDao.getDetailOfBody(map);
+	}
+
+	@Override
+	public int getTotailTaxAmount(Map<String, Object> map) {
+		return purchaseExpenseItemDao.getTotailTaxAmount(map);
+	}
+
+	@Override
+	public List<Map<String, Object>> getListByPurchaseId(Map<String, Object> map) {
+		return purchaseExpenseItemDao.getListByPurchaseId(map);
+	}
+
+	@Override
+	public int getTotailCountAmount(Long id) {
+		return purchaseExpenseItemDao.getTotailCountAmount(id);
 	}
 
 }
