@@ -49,6 +49,10 @@ public class MesProcessAndCraftApiController {
     @Transactional(rollbackFor = Exception.class)
     public R addAndChangeProcess(ProcessDO processDO,
                                  @ApiParam(value = "检验项目明细:[{\"proId\":3,\"whetherCheck\":1(1是 0否),\"remark\":\"备注\"}]", required = true)  @RequestParam(value = "processCheck", defaultValue = "", required = false) String processCheck) {
+        //将审核状态变为待审核状态
+        if(processDO.getAuditSign()==null){
+            processDO.setAuditSign(ConstantForMES.WAIT_AUDIT);
+        }
         return processService.saveAndChange(processDO, processCheck, "");
     }
 
