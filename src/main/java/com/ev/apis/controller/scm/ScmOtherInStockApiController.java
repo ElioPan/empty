@@ -98,7 +98,7 @@ public class ScmOtherInStockApiController {
                                  @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
                                  @ApiParam(value = "单据编号") @RequestParam(value = "inheadCode", defaultValue = "", required = false) String inheadCode,
 
-                                 @ApiParam(value = "供应商（模糊）") @RequestParam(value = "supplierName", defaultValue = "", required = false) String supplierName,
+                                 @ApiParam(value = "供应商（模糊）") @RequestParam(value = "sourceCompanyName", defaultValue = "", required = false) String sourceCompanyName,
                                  @ApiParam(value = "物料名（模糊）") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
                                  @ApiParam(value = "入库起始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
                                  @ApiParam(value = "入库截止时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
@@ -116,7 +116,7 @@ public class ScmOtherInStockApiController {
         params.put("offset", (pageno - 1) * pagesize);
         params.put("limit", pagesize);
         params.put("inheadCode", inheadCode);
-        params.put("supplierName", supplierName);
+        params.put("supplierName", sourceCompanyName);
         params.put("materielName",materielName );
         params.put("startTime", startTime);
         params.put("endTime", endTime);

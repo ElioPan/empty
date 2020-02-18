@@ -93,9 +93,11 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
                     BigDecimal meanValue;
                     if(sign){
-                        meanValue=totailExprnseAmountBig.divide(new BigDecimal(String.valueOf(totailCountAmount.get("totailCount"))), Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+                        BigDecimal totailCount= new BigDecimal(String.valueOf(totailCountAmount.get("totailCount")));
+                        meanValue=totailExprnseAmountBig.divide(totailCount, Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
                     }else{
-                        meanValue=totailExprnseAmountBig.divide(new BigDecimal(String.valueOf(totailCountAmount.get("totailAmount"))),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+                        BigDecimal totailAmount= new BigDecimal(String.valueOf(totailCountAmount.get("totailAmount")));
+                        meanValue=totailExprnseAmountBig.divide(totailAmount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
                     }
                     Map<String,Object>  query= new HashMap<>();
                     query.put("expence",meanValue);
