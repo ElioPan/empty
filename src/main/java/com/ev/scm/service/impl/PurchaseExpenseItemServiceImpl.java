@@ -67,4 +67,14 @@ public class PurchaseExpenseItemServiceImpl implements PurchaseExpenseItemServic
 		return purchaseExpenseItemDao.getTotailTaxAmount(map);
 	}
 
+	@Override
+	public List<Map<String, Object>> getListByPurchaseId(Map<String, Object> map) {
+		return purchaseExpenseItemDao.getListByPurchaseId(map);
+	}
+
+	@Override
+	public int getTotailCountAmount(Long id) {
+		return purchaseExpenseItemDao.getTotailCountAmount(id);
+	}
+
 }

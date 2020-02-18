@@ -401,8 +401,50 @@
 	</select>
 
 
+	<update id="updateExpense" parameterType="map">
+		UPDATE
+			scm_stock_in_item a
+		set
+		    a.expense=#{expense}
+		WHERE
+			a.inhead_id =#{stockInId}
+	</update>
+
+	<select id="getListBystockInId" resultType="map">
+		SELECT
+		a.inhead_id as stockInId,
+		a.id,
+		a.count as `count`
+		IF(a.amount is null,0,a.amount) AS amount
+		FROM
+		scm_stock_in_item a
+		LEFT JOIN scm_stock_in b on a.inhead_id=b.id
+		where
+		b.id in
+		<foreach item="id" collection="purchaseId" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
 
 
+	<select id="getTotailCountAmount" resultType="map">
+		SELECT
+		IF(SUM(amount)is null,0,SUM(amount)) AS totailAmount,
+		IF(SUM(`count`)is null,0,SUM(`count`)) AS totailCount
+		FROM
+		(
+			SELECT
+			a.inhead_id as stockInId,
+			a.id,
+			a.count as `count`,
+			a.amount
+			FROM
+			scm_stock_in_item a
+			LEFT JOIN scm_stock_in b on a.inhead_id=b.id
+			where
+			b.id=#{value}
+		)aa
+	</select>
 
 
 </mapper>

@@ -52,15 +52,8 @@ public class ScmInStockAccountingApiController {
     @Transactional(rollbackFor = Exception.class)
     public R allocation(
             @ApiParam(value = "采购费用分配标准") @RequestParam(value = "distributionType") Long distributionType,
-            @ApiParam(value = "总数量(列表合计中toatalCount)") @RequestParam(value = "toatalCount") String toatalCount,
-            @ApiParam(value = "总金额(列表合计中toatalAmount)") @RequestParam(value = "toatalAmount") String toatalAmount,
-            @ApiParam(value = "列表明细：[\n" +
-                    "{\n" +
-                    "\"inheadId\":\"入库单主表主键（列表中的id）（必传）\"\n" +
-                    "\"id\":\"子表主键(列表中stockInItemId字段)（必传）\"\n" +
-                    "}\n" +
-                    "]") @RequestParam(value = "detailAccounting") String detailAccounting) {
-        return inStockAccountingService.allocationAmount(distributionType,toatalCount,toatalAmount,detailAccounting);
+            @ApiParam(value = "入库单主表主键（列表行中的id）（必传）") @RequestParam(value = "detailAccounting") Long[] detailAccounting) {
+        return inStockAccountingService.allocationAmount(distributionType,detailAccounting);
     }
 
 

@@ -1,20 +1,19 @@
 package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
-import com.ev.scm.domain.StockItemDO;
+import com.ev.scm.domain.StockInItemDO;
 import com.ev.scm.service.InStockAccountingService;
 import com.ev.scm.service.PurchaseExpenseItemService;
-import com.ev.scm.service.StockItemService;
+import com.ev.scm.service.StockInItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * @Author Kuzi
@@ -27,7 +26,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
     private MessageSourceHandler messageSourceHandler;
 
     @Autowired
-    private StockItemService stockItemService;
+    private StockInItemService stockIntemService;
 
     @Autowired
     private PurchaseExpenseItemService purchaseExpenseItemService;
@@ -35,51 +34,78 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
     @Override
     public R saveAccounting(String detailAccounting) {
-        List<StockItemDO> stockItemDOS = JSONObject.parseArray(detailAccounting, StockItemDO.class);
-        if(stockItemDOS.isEmpty()){
+        List<StockInItemDO> stockInItemDOs = JSONObject.parseArray(detailAccounting, StockInItemDO.class);
+        if(stockInItemDOs.isEmpty()){
             return R.error();
         }else{
-            for (StockItemDO stockItemDO:stockItemDOS){
-                stockItemService.update(stockItemDO);
+            for (StockInItemDO stockInItemDO:stockInItemDOs){
+                stockIntemService.update(stockInItemDO);
             }
             return R.ok();
         }
     }
 
     @Override
-    public R allocationAmount(Long distributionType,String toatalCount,String toatalAmount,String detailAccounting) {
+    public R allocationAmount(Long distributionType,Long[] detailAccounting) {
 
-        List<StockItemDO> stockItemDOs = JSONObject.parseArray(detailAccounting, StockItemDO.class);
+        List nowList=new ArrayList();
+        for (int i = 0; i < detailAccounting.length; i++) {
+            nowList.add(detailAccounting[i]);
+        }
+        nowList=new ArrayList(new HashSet(nowList));
 
-        if(stockItemDOs.isEmpty()){
-            return R.error();
+
+        Long[] stockInheadIds=new Long[nowList.size()];
+        for (int i = 0; i < nowList.size(); i++) {
+            stockInheadIds[i]=Long.valueOf(String.valueOf(nowList.get(i)));
+        }
+        Map<String,Object> map= new HashMap<>();
+        map.put("purchaseId",stockInheadIds);
+        //提交的所有id的费用的总和
+        int totailTaxAmount = purchaseExpenseItemService.getTotailTaxAmount(map);
+
+        if(Objects.equals(0,totailTaxAmount)) {
+            return R.ok(messageSourceHandler.getMessage("scm.ocation.contractExpenceIsNull", null));
+
         }else{
-            Long[] purchaseInStockId=new Long[stockItemDOs.size()];
-            for (int i=0;i<stockItemDOs.size();i++){
-                purchaseInStockId[i]=stockItemDOs.get(i).getInheadId();
-            }
-            //统计所有有关联的费用总和
-            Map<String,Object> map= new HashMap<>();
-            map.put("purchaseId",purchaseInStockId);
-            int totailTaxAmount = purchaseExpenseItemService.getTotailTaxAmount(map);
-            if(Objects.equals(0,totailTaxAmount)){
-                return R.ok(messageSourceHandler.getMessage("scm.ocation.contractExpenceIsNull",null));
-            }else{
-                if(Objects.equals(detailAccounting, ConstantForGYL.COUNT_DISTRIBUTION)){
+                if(Objects.equals(distributionType, ConstantForGYL.COUNT_DISTRIBUTION)){
                     //按数量
-
-
-
+                    changeExpenseOfStockInItem(stockInheadIds,true);
                     return R.ok(messageSourceHandler.getMessage("scm.ocation.contractExpenceIsOkByCount",null));
                 }else {
-                    //按金额
 
-
+                    changeExpenseOfStockInItem(stockInheadIds,false);
                     return R.ok(messageSourceHandler.getMessage("scm.ocation.contractExpenceIsOkByAmount",null));
                 }
-            }
         }
     }
+
+    public void  changeExpenseOfStockInItem( Long[] stockInheadIds,Boolean sign){
+
+            for(int j=0;j<stockInheadIds.length;j++){
+
+                //某个采购单关联的所有费用总和
+                int totailExprnseAmount = purchaseExpenseItemService.getTotailCountAmount(stockInheadIds[j]);
+                if(!Objects.equals(0,totailExprnseAmount)){
+                    BigDecimal totailExprnseAmountBig=new BigDecimal(totailExprnseAmount);
+                    //totailAmount,totailCount
+                    Map<String, Object> totailCountAmount = stockIntemService.getTotailCountAmount(stockInheadIds[j]);
+
+                    BigDecimal meanValue;
+                    if(sign){
+                        meanValue=totailExprnseAmountBig.divide(new BigDecimal(String.valueOf(totailCountAmount.get("totailCount"))), Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+                    }else{
+                        meanValue=totailExprnseAmountBig.divide(new BigDecimal(String.valueOf(totailCountAmount.get("totailAmount"))),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+                    }
+                    Map<String,Object>  query= new HashMap<>();
+                    query.put("expence",meanValue);
+                    query.put("stockInId",stockInheadIds[j]);
+                    stockIntemService.updateExpense(query);
+                }
+            }
+    }
+
+
 
 
 

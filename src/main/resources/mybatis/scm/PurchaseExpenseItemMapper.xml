@@ -198,7 +198,7 @@
 			SELECT
 			b.purchase_id,
 			a.id,
-			a.tax_amount as taxAmount
+			a.tax_amount as taxAmount,
 			FROM
 			scm_purchase_expense_item a
 			LEFT JOIN scm_purchase_expense b on a.purchase_expense_id=b.id
@@ -210,5 +210,37 @@
 		)aa
 	</select>
 
-	
+	<select id="getListByPurchaseId" resultType="map">
+		SELECT
+		b.purchase_id as stockInId,
+		a.id,
+		IF(a.tax_amount is null,0,a.tax_amount) AS taxAmount
+		FROM
+		scm_purchase_expense_item a
+		LEFT JOIN scm_purchase_expense b on a.purchase_expense_id=b.id
+		where
+		b.purchase_id in
+		<foreach item="id" collection="purchaseId" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+
+	<select id="getTotailCountAmount" resultType="int">
+		SELECT
+		IF(SUM(taxAmount)is null,0,SUM(taxAmount)) AS totailTaxAmount,
+		FROM
+		(
+		SELECT
+		b.purchase_id,
+		a.id,
+		a.tax_amount as taxAmount
+		FROM
+		scm_purchase_expense_item a
+		LEFT JOIN scm_purchase_expense b on a.purchase_expense_id=b.id
+		where
+		b.purchase_id=#{value}
+		)aa
+	</select>
+
+
 </mapper>

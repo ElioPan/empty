@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -74,6 +75,21 @@ public class StockInItemServiceImpl implements StockInItemService {
 	@Override
 	public int batchRemove(Long[] ids){
 		return stockInItemDao.batchRemove(ids);
+	}
+
+	@Override
+	public int updateExpense(Map<String, Object> map) {
+		return stockInItemDao.updateExpense(map);
+	}
+
+	@Override
+	public List<Map<String, Object>> getListBystockInId(Map<String, Object> map) {
+		return stockInItemDao.getListBystockInId(map);
+	}
+
+	@Override
+	public Map<String, Object> getTotailCountAmount(Long id) {
+		return stockInItemDao.getTotailCountAmount(id);
 	}
 
 	@Override
@@ -317,6 +333,8 @@ public class StockInItemServiceImpl implements StockInItemService {
 
 
 	}
+
+
 
 }
 

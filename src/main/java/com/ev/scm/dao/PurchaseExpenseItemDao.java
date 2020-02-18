@@ -35,4 +35,9 @@ public interface PurchaseExpenseItemDao {
 
 	int getTotailTaxAmount(Map<String, Object> map);
 
+	List<Map<String, Object>> getListByPurchaseId(Map<String, Object> map);
+
+
+	int getTotailCountAmount(Long id);
+
 }

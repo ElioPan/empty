@@ -257,4 +257,9 @@ public final class ConstantForGYL {
 	 * 分批认定 计价方法
 	 */
 	public static final Integer BATCH_FINDS = 143;
+
+
+
+
+
 }

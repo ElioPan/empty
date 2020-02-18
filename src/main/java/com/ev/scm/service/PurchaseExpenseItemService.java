@@ -34,6 +34,10 @@ public interface PurchaseExpenseItemService {
 
 	int getTotailTaxAmount(Map<String, Object> map);
 
+	List<Map<String, Object>> getListByPurchaseId(Map<String, Object> map);
+
+	//totailTaxAmount,totailCount
+	int getTotailCountAmount(Long id);
 
 
 }

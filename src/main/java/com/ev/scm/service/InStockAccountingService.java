@@ -12,7 +12,7 @@ public  interface InStockAccountingService  {
 
     public R saveAccounting(String detailAccounting);
 
-    public R  allocationAmount(Long distributionType,String toatalCount,String toatalAmount,String detailAccounting);
+    public R allocationAmount(Long distributionType,Long[] detailAccounting);
 
 
 
