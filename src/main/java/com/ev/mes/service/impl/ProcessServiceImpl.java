@@ -73,7 +73,7 @@ public class ProcessServiceImpl implements ProcessService {
 
         if (Objects.nonNull(processDO.getId())) {
             //更新
-
+            processDO.setAuditSign(ConstantForMES.WAIT_AUDIT);
             processDao.update(processDO);
 
             //检验项目+设备  --先全删后新增
@@ -118,7 +118,7 @@ public class ProcessServiceImpl implements ProcessService {
                 suffix = list.get(0).getCode();
             }
             processDO.setCode(DateFormatUtil.getWorkOrderno(prefix, suffix));
-
+            processDO.setAuditSign(ConstantForMES.WAIT_AUDIT);
             processDao.save(processDO);
 
             if (!"".equals(processCheck)) {
