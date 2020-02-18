@@ -85,6 +85,14 @@ public class StockApiController {
         if (file.isEmpty()) {
             return R.error(messageSourceHandler.getMessage("file.nonSelect", null));
         }
+        List<StockStartDO> list = stockStartService.list(Maps.newHashMap());
+        if (list.size() == 0) {
+            return R.error(messageSourceHandler.getMessage("scm.stock.startTimeError", null));
+        }
+        if (list.get(0).getStatus() == 1) {
+            return R.error(messageSourceHandler.getMessage("scm.stock.error", null));
+        }
+
         ImportParams params = new ImportParams();
         params.setTitleRows(0);
         params.setHeadRows(1);
@@ -100,7 +108,8 @@ public class StockApiController {
                         || StringUtils.isEmpty(facilityName)
                         || !NumberUtils.isNumber(stockEntity.getTotalCount())
                         || !NumberUtils.isNumber(stockEntity.getAmount())
-                        || StringUtils.isEmpty(stockEntity.getBatch())) {
+//                        || StringUtils.isEmpty(stockEntity.getBatch()
+                        ) {
                     return R.error(messageSourceHandler.getMessage("basicInfo.correct.param", null));
                 }
 
@@ -126,6 +135,7 @@ public class StockApiController {
                 facilityName = stockEntity.getFacilityName();
                 facilityLocationName = stockEntity.getFacilityLocationName();
                 for (FacilityDO facilityDO : facilityDOs) {
+                    isFacilityError =true;
                     if (Objects.equals(facilityDO.getName(), facilityName)) {
                         Integer facilityDOId = facilityDO.getId();
                         // 默认库位
@@ -139,22 +149,21 @@ public class StockApiController {
                                 break;
                             }
                         }
-                        if (isFacilityError) {
-                            String[] args = {facilityName, facilityLocationName};
-                            return R.error(messageSourceHandler.getMessage("basicInfo.facility.isFacilityError", args));
-                        }
                         stockDO.setWarehouse(facilityDOId.longValue());
                         break;
                     }
                 }
-
+                if (isFacilityError) {
+                    String[] args = {facilityName, facilityLocationName};
+                    return R.error(messageSourceHandler.getMessage("basicInfo.facility.isFacilityError", args));
+                }
                 // 验证物料是否存在
                 serialNo = stockEntity.getSerialno();
                 batch = stockEntity.getBatch();
                 for (MaterielDO materielDO : materielDOs) {
                     if (Objects.equals(materielDO.getSerialNo(), serialNo)) {
                         isLot = materielDO.getIsLot();
-                        if ((isLot == 1 && StringUtils.isEmpty(batch)) || (isLot != 1 && StringUtils.isNoneEmpty(batch))) {
+                        if (isLot == 1 && StringUtils.isEmpty(batch)) {
                             String[] args = {materielDO.getName()};
                             return R.error(messageSourceHandler.getMessage("basicInfo.materiel.isLotError", args));
                         }
@@ -172,7 +181,9 @@ public class StockApiController {
                 stockDO.setEnteringTime(now);
                 stockDO.setAvailableCount(count);
                 stockDO.setCount(count);
-                stockDO.setAmount(BigDecimal.valueOf(Double.parseDouble(stockEntity.getAmount())));
+                BigDecimal amount = BigDecimal.valueOf(Double.parseDouble(stockEntity.getAmount()));
+                stockDO.setAmount(amount);
+                stockDO.setUnitPrice(amount.divide(count,Constant.BIGDECIMAL_ZERO));
                 stockDO.setDelFlag(0);
                 stockDO.setCreateBy(userId);
                 stockDO.setCreateTime(now);
@@ -417,6 +428,7 @@ public class StockApiController {
             stockAnalysisDO.setInitialAmount(stockDO.getAmount());
             stockAnalysisDO.setPeriod(period);
             stockAnalysisDO.setIsClose(0);
+            stockAnalysisDO.setDelFlag(0);
             stockAnalysisDOS.add(stockAnalysisDO);
         }
         stockAnalysisService.batchInsert(stockAnalysisDOS);
@@ -564,24 +576,25 @@ public class StockApiController {
                         materielInCountMap.put(materielId, MathUtils.getBigDecimal(stockInBatch.get("count")));
                         materielInAmountMap.put(materielId, MathUtils.getBigDecimal(stockInBatch.get("amount")));
                     }
-
-                    // 计算出库成本单价
-                    for (StockAnalysisDO analysisDO : stockAnalysisList) {
-                        String materielId = analysisDO.getMaterielId().toString();
-                        if (materielInCountMap.containsKey(materielId)) {
-                            // (月初结存金额+本月入库金额)/（月初结存数量+本月入库数量）
-                            BigDecimal inAmount = materielInAmountMap.get(materielId);
-                            BigDecimal inCount = materielInCountMap.get(materielId);
-                            analysisDO.setInCount(inCount);
-                            analysisDO.setInAmount(inAmount);
-                            materielInUnitPriceMap.put(materielId
-                                    , (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
-                            continue;
-                        }
-                        analysisDO.setInAmount(BigDecimal.ZERO);
-                        analysisDO.setInCount(BigDecimal.ZERO);
-                    }
                 }
+
+                // 计算出库成本单价
+                for (StockAnalysisDO analysisDO : stockAnalysisList) {
+                    String materielId = analysisDO.getMaterielId().toString();
+                    if (materielInCountMap.containsKey(materielId)) {
+                        // (月初结存金额+本月入库金额)/（月初结存数量+本月入库数量）
+                        BigDecimal inAmount = materielInAmountMap.get(materielId);
+                        BigDecimal inCount = materielInCountMap.get(materielId);
+                        analysisDO.setInCount(inCount);
+                        analysisDO.setInAmount(inAmount);
+                        materielInUnitPriceMap.put(materielId
+                                , (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
+                        continue;
+                    }
+                    analysisDO.setInAmount(BigDecimal.ZERO);
+                    analysisDO.setInCount(BigDecimal.ZERO);
+                }
+
 
                 // 分批认定入库
                 if (stockInBatchNonEmpty.size() > 0) {
@@ -596,24 +609,24 @@ public class StockApiController {
                         materielInCountMap.put(materielIdAndBatch, MathUtils.getBigDecimal(stockInBatch.get("count")));
                         materielInAmountMap.put(materielIdAndBatch, MathUtils.getBigDecimal(stockInBatch.get("amount")));
                     }
+                }
 
-                    // 计算出库成本单价
-                    for (StockAnalysisDO analysisDO : stockAnalysisList) {
-                        String materielIdAndBatch = analysisDO.getMaterielId().toString() + "&" + analysisDO.getBatch();
+                // 计算出库成本单价
+                for (StockAnalysisDO analysisDO : stockAnalysisList) {
+                    String materielIdAndBatch = analysisDO.getMaterielId().toString() + "&" + analysisDO.getBatch();
 
-                        if (materielInCountMap.containsKey(materielIdAndBatch)) {
-                            // (月初结存金额+本月入库金额)/（月初结存数量+本月入库数量）
-                            BigDecimal inAmount = materielInAmountMap.get(materielIdAndBatch);
-                            BigDecimal inCount = materielInCountMap.get(materielIdAndBatch);
-                            analysisDO.setInCount(inCount);
-                            analysisDO.setInAmount(inAmount);
-                            materielInUnitPriceMap.put(materielIdAndBatch
-                                    , (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
-                            continue;
-                        }
-                        analysisDO.setInAmount(BigDecimal.ZERO);
-                        analysisDO.setInCount(BigDecimal.ZERO);
+                    if (materielInCountMap.containsKey(materielIdAndBatch)) {
+                        // (月初结存金额+本月入库金额)/（月初结存数量+本月入库数量）
+                        BigDecimal inAmount = materielInAmountMap.get(materielIdAndBatch);
+                        BigDecimal inCount = materielInCountMap.get(materielIdAndBatch);
+                        analysisDO.setInCount(inCount);
+                        analysisDO.setInAmount(inAmount);
+                        materielInUnitPriceMap.put(materielIdAndBatch
+                                , (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
+                        continue;
                     }
+                    analysisDO.setInAmount(BigDecimal.ZERO);
+                    analysisDO.setInCount(BigDecimal.ZERO);
                 }
 
                 // 加权平均出库
@@ -669,11 +682,33 @@ public class StockApiController {
                 // 分析所有物料
                 for (StockAnalysisDO analysisDO : stockAnalysisList) {
                     String materielId = analysisDO.getMaterielId().toString();
+                    String materielIdAndBatch = analysisDO.getMaterielId().toString() + "&" + analysisDO.getBatch();
+
                     BigDecimal inCount = analysisDO.getInCount() == null ? BigDecimal.ZERO : analysisDO.getInCount();
                     BigDecimal inAmount = analysisDO.getInAmount() == null ? BigDecimal.ZERO : analysisDO.getInAmount();
+                    // 加权平均
                     if (materielOutCountMap.containsKey(materielId)) {
                         BigDecimal outCount = materielOutCountMap.get(materielId);
                         BigDecimal outAmount = materielOutAmountMap.get(materielId);
+                        analysisDO.setOutCount(outCount);
+                        analysisDO.setOutAmount(outAmount);
+                        // 期末结存数量=期初数量+本月入库数量-本月发出数量
+                        BigDecimal finalCount = analysisDO.getInitialCount()
+                                .add(inCount)
+                                .subtract(outCount);
+                        analysisDO.setFinalCount(finalCount);
+                        // 期末结存金额=期初金额+本月入库金额-本月发出金额
+                        BigDecimal finalAmount = analysisDO.getInitialAmount()
+                                .add(inAmount)
+                                .subtract(outAmount);
+                        analysisDO.setFinalAmount(finalAmount);
+                        continue;
+                    }
+
+                    // 分批认定
+                    if (materielOutCountMap.containsKey(materielIdAndBatch)) {
+                        BigDecimal outCount = materielOutCountMap.get(materielIdAndBatch);
+                        BigDecimal outAmount = materielOutAmountMap.get(materielIdAndBatch);
                         analysisDO.setOutCount(outCount);
                         analysisDO.setOutAmount(outAmount);
                         // 期末结存数量=期初数量+本月入库数量-本月发出数量
@@ -921,6 +956,10 @@ public class StockApiController {
                 if (lastTerm.get(0).getIsClose()==1){
                     return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
                 }
+                if (lastTerm.get(0).getFinalCount()==null){
+                    return R.error(messageSourceHandler.getMessage("scm.stock.outError", null));
+                }
+
                 for (StockAnalysisDO stockAnalysis : lastTerm) {
 
                     stockAnalysisDO = new StockAnalysisDO();
@@ -933,6 +972,7 @@ public class StockApiController {
                         continue;
                     }
                     stockAnalysisDO.setIsClose(0);
+                    stockAnalysisDO.setDelFlag(0);
                     stockAnalysisDO.setPeriod(instance.getTime());
                     stockAnalysisInsertDOS.add(stockAnalysisDO);
                 }
@@ -1001,7 +1041,7 @@ public class StockApiController {
                       @ApiParam(value = "物料名称") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
                       @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
                       @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
-                      @ApiParam(value = "显示已关账期间（1是/0否）") @RequestParam(value = "isClose", defaultValue = "1", required = false) int isClose
+                      @ApiParam(value = "显示已关账期间（1是/0否）") @RequestParam(value = "isClose", defaultValue = "", required = false) Integer isClose
     ) {
         Map<String, Object> results = Maps.newHashMap();
         Map<String, Object> params = Maps.newHashMap();

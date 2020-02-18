@@ -48,7 +48,7 @@ public class StockOutDO implements Serializable {
     @ApiModelProperty(value = "出库时间/退货日期", required = true)
     private Date outTime;
     //出库操作员/采购员/销售员
-    @ApiModelProperty(value = "出库操作员/采购员/销售员", required = true)
+    @ApiModelProperty(value = "出库操作员/采购员/销售员")
     private Long operator;
     //审核人员
     @ApiModelProperty(value = "审核人员", hidden = true)
