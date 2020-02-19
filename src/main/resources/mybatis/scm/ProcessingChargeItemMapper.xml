@@ -187,7 +187,7 @@
 		<include refid="sql_map_condition"/>
 	</select>
 
-	<sql id="sql_map_condition">
+    <sql id="sql_map_condition">
 		FROM scm_processing_charge_item item
 		LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
 		LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
@@ -202,5 +202,15 @@
 			<if test="delFlag != null and delFlag != ''"> and item.del_flag = #{delFlag} </if>
 		</where>
 	</sql>
+
+	<select id="getCountBySource" resultType="java.math.BigDecimal">
+		SELECT
+		SUM(`count`)
+		FROM scm_processing_charge_item
+		<where>
+			<if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
+			<if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+		</where>
+	</select>
 
 </mapper>

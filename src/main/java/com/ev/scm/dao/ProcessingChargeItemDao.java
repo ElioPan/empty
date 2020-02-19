@@ -2,6 +2,7 @@ package com.ev.scm.dao;
 
 import com.ev.scm.domain.ProcessingChargeItemDO;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -35,4 +36,6 @@ public interface ProcessingChargeItemDao {
     List<Map<String, Object>> listForMap(Map<String, Object> param);
 
 	Map<String, Object> countForMap(Map<String, Object> param);
+
+	BigDecimal getCountBySource(Map<String, Object> map);
 }

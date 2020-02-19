@@ -2,6 +2,7 @@ package com.ev.scm.service;
 
 import com.ev.scm.domain.ProcessingChargeItemDO;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -27,4 +28,6 @@ public interface ProcessingChargeItemService {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+    BigDecimal getCountBySource(Map<String, Object> map);
 }

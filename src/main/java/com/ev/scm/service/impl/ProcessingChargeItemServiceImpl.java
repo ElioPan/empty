@@ -3,6 +3,7 @@ package com.ev.scm.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -51,5 +52,10 @@ public class ProcessingChargeItemServiceImpl implements ProcessingChargeItemServ
 	public int batchRemove(Long[] ids){
 		return processingChargeItemDao.batchRemove(ids);
 	}
-	
+
+	@Override
+	public BigDecimal getCountBySource(Map<String, Object> map) {
+		return processingChargeItemDao.getCountBySource(map);
+	}
+
 }
