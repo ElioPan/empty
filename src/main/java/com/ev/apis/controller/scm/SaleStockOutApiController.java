@@ -107,18 +107,20 @@ public class SaleStockOutApiController {
         }
         SalescontractItemDO detailDO;
         BigDecimal contractCount;
-        for (Long sourceId : count.keySet()) {
-            detailDO = salescontractItemService.get(sourceId);
-            contractCount = detailDO.getCount();
-            // 查询源单已被选择数量
-            Map<String,Object> map = Maps.newHashMap();
-            map.put("sourceId",sourceId);
-            map.put("sourceType",ConstantForGYL.XSHT);
-            BigDecimal bySource = stockOutItemService.getCountBySource(map);
-            BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
-            if (contractCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
-                String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString()};
-                return R.error(messageSourceHandler.getMessage("stock.number.error", args));
+        if (count.size() > 0) {
+            for (Long sourceId : count.keySet()) {
+                detailDO = salescontractItemService.get(sourceId);
+                contractCount = detailDO.getCount();
+                // 查询源单已被选择数量
+                Map<String,Object> map = Maps.newHashMap();
+                map.put("sourceId",sourceId);
+                map.put("sourceType",ConstantForGYL.XSHT);
+                BigDecimal bySource = stockOutItemService.getCountBySource(map);
+                BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
+                if (contractCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
+                    String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString()};
+                    return R.error(messageSourceHandler.getMessage("stock.number.error", args));
+                }
             }
         }
 
@@ -192,6 +194,7 @@ public class SaleStockOutApiController {
                     , required = true) @RequestParam(value = "item", defaultValue = "") String item,
                   @ApiParam(value = "明细数组") @RequestParam(value = "itemIds", defaultValue = "", required = false) Long[] itemIds) {
         // 与源单数量对比
+        // 与源单数量对比
         List<StockOutItemDO> itemDOs = JSON.parseArray(item, StockOutItemDO.class);
         Map<Long, BigDecimal> count = Maps.newHashMap();
         for (StockOutItemDO itemDO : itemDOs) {
@@ -203,18 +206,20 @@ public class SaleStockOutApiController {
         }
         SalescontractItemDO detailDO;
         BigDecimal contractCount;
-        for (Long sourceId : count.keySet()) {
-            detailDO = salescontractItemService.get(sourceId);
-            contractCount = detailDO.getCount();
-            // 查询源单已被选择数量
-            Map<String,Object> map = Maps.newHashMap();
-            map.put("sourceId",sourceId);
-            map.put("sourceType",ConstantForGYL.XSHT);
-            BigDecimal bySource = stockOutItemService.getCountBySource(map);
-            BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
-            if (contractCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
-                String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString()};
-                return R.error(messageSourceHandler.getMessage("stock.number.error", args));
+        if (count.size() > 0) {
+            for (Long sourceId : count.keySet()) {
+                detailDO = salescontractItemService.get(sourceId);
+                contractCount = detailDO.getCount();
+                // 查询源单已被选择数量
+                Map<String,Object> map = Maps.newHashMap();
+                map.put("sourceId",sourceId);
+                map.put("sourceType",ConstantForGYL.XSHT);
+                BigDecimal bySource = stockOutItemService.getCountBySource(map);
+                BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
+                if (contractCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
+                    String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString()};
+                    return R.error(messageSourceHandler.getMessage("stock.number.error", args));
+                }
             }
         }
 

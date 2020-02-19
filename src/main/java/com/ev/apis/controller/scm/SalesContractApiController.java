@@ -156,6 +156,7 @@ public class SalesContractApiController {
               @ApiParam(value = "合同开始时间") @RequestParam(value = "contractStartTime",defaultValue = "",required = false)  String contractStartTime,
               @ApiParam(value = "合同结束时间") @RequestParam(value = "contractEndTime",defaultValue = "",required = false)  String contractEndTime,
               @ApiParam(value = "客户名称") @RequestParam(value = "clientName",defaultValue = "",required = false)  String clientName,
+              @ApiParam(value = "客户Id") @RequestParam(value = "clientId",defaultValue = "",required = false)  Long clientId,
               @ApiParam(value = "产品名称") @RequestParam(value = "materielName",defaultValue = "",required = false)  String materielName,
               @ApiParam(value = "规格型号") @RequestParam(value = "specification",required = false) String specification,
               @ApiParam(value = "销售部门") @RequestParam(value = "salesPersonDept",defaultValue = "",required = false)  Long salesPersonDept,
@@ -182,6 +183,7 @@ public class SalesContractApiController {
         map.put("contractStartTime", contractStartTime);
         map.put("contractEndTime", contractEndTime);
         map.put("clientName", StringUtils.sqlLike(clientName));
+        map.put("clientId", clientId);
         map.put("materielName", StringUtils.sqlLike(materielName));
         map.put("specification",StringUtils.sqlLike(specification));
         map.put("salesPersonDept", salesPersonDept);
