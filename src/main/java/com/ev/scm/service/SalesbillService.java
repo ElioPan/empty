@@ -3,6 +3,7 @@ package com.ev.scm.service;
 import com.ev.scm.domain.SalesbillDO;
 import com.ev.framework.utils.R;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -42,4 +43,6 @@ public interface SalesbillService {
     List<Map<String, Object>> listForMap(Map<String, Object> map);
 
     int countForMap(Map<String, Object> map);
+
+    BigDecimal getCountBySource(Map<String, Object> map);
 }

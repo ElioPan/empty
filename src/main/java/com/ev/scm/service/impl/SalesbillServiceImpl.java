@@ -14,6 +14,7 @@ import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -131,6 +132,11 @@ public class SalesbillServiceImpl implements SalesbillService {
     @Override
     public int countForMap(Map<String, Object> map) {
         return salesbillDao.countForMap(map);
+    }
+
+    @Override
+    public BigDecimal getCountBySource(Map<String, Object> map) {
+        return salesbillItemDao.getCountBySource(map);
     }
 
     @Override

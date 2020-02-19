@@ -3,13 +3,18 @@ package com.ev.apis.controller.scm;
 import cn.afterturn.easypoi.entity.vo.TemplateExcelConstants;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
+import com.alibaba.fastjson.JSON;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
+import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.domain.SalesbillDO;
+import com.ev.scm.domain.SalesbillItemDO;
+import com.ev.scm.domain.SalescontractItemDO;
 import com.ev.scm.service.SalesbillService;
+import com.ev.scm.service.SalescontractItemService;
 import com.ev.scm.service.SalescontractService;
 import com.ev.scm.service.StockOutService;
 import com.google.common.collect.Maps;
@@ -27,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,6 +50,10 @@ public class SalesBillApiController {
 	private SalesbillService salesbillService;
     @Autowired
     private SalescontractService salescontractService;
+    @Autowired
+    private SalescontractItemService salescontractItemService;
+    @Autowired
+    private MessageSourceHandler messageSourceHandler;
     @Autowired
     private StockOutService stockOutService;
 	
@@ -85,6 +95,35 @@ public class SalesBillApiController {
                     , required = true)
             @RequestParam(value = "bodyItem", defaultValue = "") String bodyItem,
             @ApiParam(value = "被删除的销售合同明细ID") @RequestParam(value = "itemIds", defaultValue = "", required = false) Long[] itemIds){
+        // 与源单数量对比
+        List<SalesbillItemDO> itemDOs = JSON.parseArray(bodyItem, SalesbillItemDO.class);
+        Map<Long, BigDecimal> count = Maps.newHashMap();
+        for (SalesbillItemDO itemDO : itemDOs) {
+            Long sourceId = itemDO.getSourceId();
+            if (count.containsKey(sourceId)) {
+                count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
+            }
+            count.put(itemDO.getSourceId(), itemDO.getCount());
+        }
+        SalescontractItemDO detailDO;
+        BigDecimal contractCount;
+        if (count.size() > 0) {
+            for (Long sourceId : count.keySet()) {
+                detailDO = salescontractItemService.get(sourceId);
+                contractCount = detailDO.getCount();
+                // 查询源单已被选择数量
+                Map<String,Object> map = Maps.newHashMap();
+                map.put("sourceId",sourceId);
+                map.put("sourceType",ConstantForGYL.XSHT);
+                BigDecimal bySource = salesbillService.getCountBySource(map);
+                BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
+                if (contractCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
+                    String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString()};
+                    return R.error(messageSourceHandler.getMessage("stock.number.error", args));
+                }
+            }
+        }
+
 		return salesbillService.addOrUpdateSalesBill(salesBillDO, bodyItem, itemIds);
 	}
 	
