@@ -151,6 +151,8 @@ public class OtherStockOutApiController {
 			@ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
             @ApiParam(value = "单据编号") @RequestParam(value = "outCode", defaultValue = "", required = false) String outCode,
             @ApiParam(value = "客户名称") @RequestParam(value = "clientName", defaultValue = "", required = false) String clientName,
+            @ApiParam(value = "客户Id") @RequestParam(value = "clientId", defaultValue = "", required = false) Long clientId,
+
             @ApiParam(value = "物料名称") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
@@ -170,7 +172,8 @@ public class OtherStockOutApiController {
         params.put("limit", pagesize);
 
         params.put("outCode", outCode);
-        params.put("supplierName", StringUtils.sqlLike(clientName));
+        params.put("clientName", StringUtils.sqlLike(clientName));
+        params.put("clientId", clientId);
         params.put("materielName", StringUtils.sqlLike(materielName));
         params.put("startTime", startTime);
         params.put("endTime", endTime);
@@ -189,6 +192,12 @@ public class OtherStockOutApiController {
 		List<Map<String, Object>> data = this.stockOutService.listApi(params);
 		int total = this.stockOutService.countApi(params);
 		if ( data.size() > 0) {
+            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.QTCK.intValue());
+            String thisSourceTypeName = dictionaryDO.getName();
+            for (Map<String, Object> datum : data) {
+                datum.put("thisSourceType", ConstantForGYL.QTCK);
+                datum.put("thisSourceTypeName", thisSourceTypeName);
+            }
             results.put("data", new DsResultResponse(pageno,pagesize,total,data));
 		}
 		return R.ok(results);

@@ -3,14 +3,20 @@ package com.ev.apis.controller.scm;
 import cn.afterturn.easypoi.entity.vo.TemplateExcelConstants;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
+import com.alibaba.fastjson.JSON;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
+import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
+import com.ev.mes.domain.ProductionFeedingDetailDO;
+import com.ev.mes.service.ProductionFeedingDetailService;
 import com.ev.scm.domain.StockOutDO;
+import com.ev.scm.domain.StockOutItemDO;
+import com.ev.scm.service.StockOutItemService;
 import com.ev.scm.service.StockOutService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
@@ -27,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +49,16 @@ public class ConsumingStockOutApiController {
 	@Autowired
     private StockOutService stockOutService;
 
-	@Autowired
+    @Autowired
+    private StockOutItemService stockOutItemService;
+
+    @Autowired
+    private MessageSourceHandler messageSourceHandler;
+
+    @Autowired
+    private ProductionFeedingDetailService productionFeedingDetailService;
+
+    @Autowired
 	private DictionaryService dictionaryService;
 
 	@EvApiByToken(value = "/apis/consumingStockOut/add", method = RequestMethod.POST, apiTitle = "增加生产领用")
@@ -77,6 +93,36 @@ public class ConsumingStockOutApiController {
                          "    }\n" +
                          "]"
                     , required = true)@RequestParam(value = "item",defaultValue = "") String item) {
+        // 与源单数量对比
+        List<StockOutItemDO> itemDOs = JSON.parseArray(item, StockOutItemDO.class);
+        Map<Long, BigDecimal> count = Maps.newHashMap();
+        for (StockOutItemDO itemDO : itemDOs) {
+            Long sourceId = itemDO.getSourceId();
+            if (count.containsKey(sourceId)) {
+                count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
+            }
+            count.put(itemDO.getSourceId(), itemDO.getCount());
+        }
+        ProductionFeedingDetailDO detailDO;
+        BigDecimal feedingCount;
+        if (count.size() > 0) {
+            for (Long sourceId : count.keySet()) {
+                detailDO = productionFeedingDetailService.get(sourceId);
+                feedingCount = detailDO.getPlanFeeding();
+                // 查询源单已被选择数量
+                Map<String,Object> map = Maps.newHashMap();
+                map.put("sourceId",sourceId);
+                map.put("sourceType",ConstantForGYL.SCTLD);
+                BigDecimal bySource = stockOutItemService.getCountBySource(map);
+                BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
+                if (feedingCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
+                    String [] args = {count.get(sourceId).toPlainString(),feedingCount.subtract(countByOutSource).toPlainString()};
+                    return R.error(messageSourceHandler.getMessage("stock.number.error", args));
+                }
+            }
+        }
+
+
 		DictionaryDO storageType = dictionaryService.get(ConstantForGYL.LYCK.intValue());
         return stockOutService.add(stockOutDO, item, storageType);
 	}
@@ -87,8 +133,37 @@ public class ConsumingStockOutApiController {
 	public R audit(
 			@ApiParam(value = "出库单Id", required = true) @RequestParam(value = "id", defaultValue = "") Long id
     ) {
-		return stockOutService.audit(id, ConstantForGYL.LYCK);
+        R audit = stockOutService.audit(id, ConstantForGYL.LYCK);
+        // 反写生产投料单数量
+        if (Integer.parseInt(audit.get("code").toString())==0) {
+            Map<Long, BigDecimal> count = this.getFeedingCountMap(id);
+            ProductionFeedingDetailDO detailDO;
+            BigDecimal outCount;
+            for (Long sourceId : count.keySet()) {
+                detailDO = productionFeedingDetailService.get(sourceId);
+                outCount = detailDO.getOutCount()==null?BigDecimal.ZERO:detailDO.getOutCount();
+                detailDO.setOutCount(outCount.add(count.get(sourceId)));
+                productionFeedingDetailService.update(detailDO);
+            }
+        }
+
+        return audit;
 	}
+
+    private Map<Long, BigDecimal> getFeedingCountMap(Long id) {
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("outId", id);
+        List<StockOutItemDO> list = stockOutItemService.list(map);
+        Map<Long, BigDecimal> count = Maps.newHashMap();
+        for (StockOutItemDO itemDO : list) {
+            Long sourceId = itemDO.getSourceId();
+            if (count.containsKey(sourceId)) {
+                count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
+            }
+            count.put(itemDO.getSourceId(), itemDO.getCount());
+        }
+        return count;
+    }
 
     @EvApiByToken(value = "/apis/consumingStockOut/reverseAudit", method = RequestMethod.POST, apiTitle = "反审核生产领用")
     @ApiOperation("反审核生产领用")
@@ -96,7 +171,21 @@ public class ConsumingStockOutApiController {
     public R reverseAudit(
             @ApiParam(value = "出库单Id", required = true) @RequestParam(value = "id", defaultValue = "") Long id
     ) {
-        return stockOutService.reverseAuditForR(id, ConstantForGYL.LYCK);
+        R reverseAuditForR = stockOutService.reverseAuditForR(id, ConstantForGYL.LYCK);
+        // 反写委外投料单数量
+        if (Integer.parseInt(reverseAuditForR.get("code").toString())==0) {
+            Map<Long, BigDecimal> count = this.getFeedingCountMap(id);
+            ProductionFeedingDetailDO detailDO;
+            BigDecimal outCount;
+            for (Long sourceId : count.keySet()) {
+                detailDO = productionFeedingDetailService.get(sourceId);
+                outCount = detailDO.getOutCount();
+                detailDO.setOutCount(outCount.subtract(count.get(sourceId)));
+                productionFeedingDetailService.update(detailDO);
+            }
+        }
+
+        return reverseAuditForR;
     }
 	
 	@EvApiByToken(value = "/apis/consumingStockOut/batchRemove", method = RequestMethod.POST, apiTitle = "删除生产领用")
@@ -141,6 +230,36 @@ public class ConsumingStockOutApiController {
                     "]"
                     , required = true) @RequestParam(value = "item", defaultValue = "") String item,
                   @ApiParam(value = "明细数组") @RequestParam(value = "itemIds", defaultValue = "", required = false) Long[] itemIds) {
+        // 与源单数量对比
+        List<StockOutItemDO> itemDOs = JSON.parseArray(item, StockOutItemDO.class);
+        Map<Long, BigDecimal> count = Maps.newHashMap();
+        for (StockOutItemDO itemDO : itemDOs) {
+            Long sourceId = itemDO.getSourceId();
+            if (count.containsKey(sourceId)) {
+                count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
+            }
+            count.put(itemDO.getSourceId(), itemDO.getCount());
+        }
+        ProductionFeedingDetailDO detailDO;
+        BigDecimal feedingCount;
+        if (count.size() > 0) {
+            for (Long sourceId : count.keySet()) {
+                detailDO = productionFeedingDetailService.get(sourceId);
+                feedingCount = detailDO.getPlanFeeding();
+                // 查询源单已被选择数量
+                Map<String,Object> map = Maps.newHashMap();
+                map.put("sourceId",sourceId);
+                map.put("sourceType",ConstantForGYL.SCTLD);
+                BigDecimal bySource = stockOutItemService.getCountBySource(map);
+                BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
+                if (feedingCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
+                    String [] args = {count.get(sourceId).toPlainString(),feedingCount.subtract(countByOutSource).toPlainString()};
+                    return R.error(messageSourceHandler.getMessage("stock.number.error", args));
+                }
+            }
+        }
+
+
 		return stockOutService.edit(stockOutDO, item, ConstantForGYL.LYCK , itemIds);
 	}
 	
@@ -153,9 +272,16 @@ public class ConsumingStockOutApiController {
             @ApiParam(value = "部门ID" ) @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
             @ApiParam(value = "物料名称") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
-            @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime
+            @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
             /*高级查询*/
-
+            @ApiParam(value = "规格型号") @RequestParam(value = "specification", defaultValue = "", required = false) String specification,
+            @ApiParam(value = "批次") @RequestParam(value = "materielName", defaultValue = "", required = false) String batch,
+            @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
+            @ApiParam(value = "领料人") @RequestParam(value = "operatorName", defaultValue = "", required = false) String operatorName,
+            @ApiParam(value = "领料人Id") @RequestParam(value = "operator", defaultValue = "", required = false) Long operator,
+            @ApiParam(value = "制单人") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
+            @ApiParam(value = "制单人Id") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
+            @ApiParam(value = "制单日期") @RequestParam(value = "createTime", defaultValue = "", required = false) String createTime
 			) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("offset", (pageno - 1) * pagesize);
@@ -167,11 +293,27 @@ public class ConsumingStockOutApiController {
         params.put("startTime", startTime);
         params.put("endTime", endTime);
 
+        /*高级查询*/
+        params.put("specification", StringUtils.sqlLike(specification));
+        params.put("batch", batch);
+        params.put("auditSign", auditSign);
+        params.put("operatorName", StringUtils.sqlLike(operatorName));
+        params.put("createByName", StringUtils.sqlLike(createByName));
+        params.put("operator", operator);
+        params.put("createBy", createBy);
+        params.put("createTime", createTime);
+
         params.put("outboundType", ConstantForGYL.LYCK);
 		Map<String, Object> results = Maps.newHashMap();
 		List<Map<String, Object>> data = this.stockOutService.listApi(params);
 		int total = this.stockOutService.countApi(params);
 		if ( data.size() > 0) {
+            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.LYCK.intValue());
+            String thisSourceTypeName = dictionaryDO.getName();
+            for (Map<String, Object> datum : data) {
+                datum.put("thisSourceType", ConstantForGYL.LYCK);
+                datum.put("thisSourceTypeName", thisSourceTypeName);
+            }
             results.put("data", new DsResultResponse(pageno,pagesize,total,data));
 		}
 		return R.ok(results);
