@@ -285,13 +285,15 @@
             <if test="outCode != null and outCode != ''"> and stockOut.out_code = #{outCode} </if>
             <if test="clientName != null and clientName != ''"> and client.name LIKE #{clientName} </if>
             <if test="supplierName != null and supplierName != ''"> and supplier.name LIKE #{supplierName} </if>
+            <if test="clientId != null and clientId != ''"> and client.id = #{clientId} </if>
+            <if test="supplierId != null and supplierId != ''"> and supplier.id = #{supplierId} </if>
             <if test="materielName != null and materielName != ''"> and materiel.`name` LIKE #{materielName} </if>
             <if test="auditSign != null and auditSign != ''"> and stockOut.audit_sign = #{auditSign} </if>
             <if test="deptId != null and deptId != ''"> and stockOut.dept_id = #{deptId} </if>
             <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(stockOut.out_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(stockOut.out_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
             <!-- 销售出库高级类型 -->
-            <if test="salesType != null and salesType != ''"> and stockOut.sales_type = #{salesType} </if>
+            <if test="salesType != null"> and stockOut.sales_type = #{salesType} </if>
             <if test="specification != null and specification != ''"> and materiel.`specification` LIKE #{specification} </if>
             <if test="deptName != null and deptName != ''"> and dept.name LIKE #{deptName} </if>
             <if test="salesUserName != null and salesUserName != ''"> and salesUser.name LIKE #{salesUserName} </if>
