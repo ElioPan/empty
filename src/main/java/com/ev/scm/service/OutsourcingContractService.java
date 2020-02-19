@@ -7,6 +7,7 @@ import com.ev.scm.domain.OutsourcingContractPayDO;
 import com.ev.scm.vo.ContractItemVO;
 import com.ev.scm.vo.ContractPayVO;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -58,4 +59,6 @@ public interface OutsourcingContractService {
     R getDetail(Long outsourcingContractId);
 
     R getAlterationDetail(Long id);
+
+    BigDecimal getCountBySource(Map<String, Object> map);
 }

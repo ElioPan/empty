@@ -546,4 +546,9 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         return R.ok(result);
     }
 
+    @Override
+    public BigDecimal getCountBySource(Map<String, Object> map) {
+        return outsourcingContractItemDao.getCountBySource(map);
+    }
+
 }

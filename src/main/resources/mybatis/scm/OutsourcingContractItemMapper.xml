@@ -214,7 +214,7 @@
 		<include refid="sql_contract_condition"/>
 	</select>
 
-	<sql id="sql_contract_condition">
+    <sql id="sql_contract_condition">
 		FROM scm_outsourcing_contract_item item
 		LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
 		LEFT JOIN mes_bom bom ON bom.`id`=item.`bom_id`
@@ -225,5 +225,15 @@
 			<if test="contractId != null and contractId != ''"> and item.contract_id = #{contractId} </if>
 		</where>
 	</sql>
+
+	<select id="getCountBySource" resultType="java.math.BigDecimal">
+		SELECT
+		SUM(`count`)
+		FROM scm_outsourcing_contract_item
+		<where>
+			<if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
+			<if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+		</where>
+	</select>
 
 </mapper>
