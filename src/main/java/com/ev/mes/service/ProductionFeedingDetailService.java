@@ -40,5 +40,4 @@ public interface ProductionFeedingDetailService {
 
 	void removeByHeadId(Long id);
 
-    String getCountByOutsourcing(Map<String, Object> params);
 }

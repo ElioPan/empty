@@ -36,5 +36,4 @@ public interface ProductionFeedingDetailDao {
 
 	int removeByHeadId(Long id);
 
-	String getCountByOutsourcing(Map<String, Object> params);
 }

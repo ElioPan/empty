@@ -51,8 +51,7 @@ public class ProductionFeedingApiController {
 	 * 获取生产投料父项列表(上表)
 	 * 说明：
 	 * 本表数据由生产计划单关联对应的生产投料单、生产领料单、生产报废单、即时库存等数据生成。上表数据选中下表动态显示相应的数据   
-	 * @see #childList(int, int, String, String, String, String, Long)  生产投料子项目列表
-	 * 
+	 *
 	 * @date 2019-11-28
 	 * @author gumingjie
 	 *
@@ -123,6 +122,7 @@ public class ProductionFeedingApiController {
 			@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
 			@ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
             @ApiParam(value = "生产投料单号") @RequestParam(value = "planNo", defaultValue = "", required = false) String planNo,
+			@ApiParam(value = "状态ID") @RequestParam(value = "auditSign", defaultValue = "", required = false) Integer auditSign,
             @ApiParam(value = "物料名称") @RequestParam(value = "materialsName", defaultValue = "", required = false) String materialsName,
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
@@ -135,6 +135,7 @@ public class ProductionFeedingApiController {
         params.put("startTime", startTime);
         params.put("endTime", endTime);
 		params.put("headId", headId);
+		params.put("auditSign", auditSign);
 
 		params.put("offset", (pageno - 1) * pagesize);
 		params.put("limit", pagesize);
@@ -145,7 +146,9 @@ public class ProductionFeedingApiController {
 
 		// 获取实时库存
 		List<Map<String, Object>> stockListForMap = materielService.stockListForMap(Maps.newHashMap());
-		if (data.size() > 0 ) {
+		int total = productionFeedingDetailService.countForMap(params);
+		if (data.size() > 0) {
+			// quoteCount  可领数量
 			for (Map<String, Object> map : data) {
 				map.put("thisSourceType", ConstantForGYL.SCTLD);
 				map.put("thisSourceTypeName", thisSourceTypeName);
@@ -169,9 +172,6 @@ public class ProductionFeedingApiController {
 				}
 			}
 
-		}
-		int total = productionFeedingDetailService.countForMap(params);
-		if (data.size() > 0) {
 			DsResultResponse dsRet = new DsResultResponse();
 			dsRet.setDatas(data);
 			dsRet.setPageno(pageno);

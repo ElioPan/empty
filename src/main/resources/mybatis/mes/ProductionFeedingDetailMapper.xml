@@ -47,6 +47,7 @@
 			facility.name as defaultFacilityName,
 			location.name as defaultLocationName,
 
+		feeding.`feeding_no` AS feedingNo,
         feeding.`id` AS feedingId,
         headmaterial.`name` AS productName,
         headmaterial.specification AS productSpecification,
@@ -174,21 +175,12 @@
 		<where>  
             <if test="headId != null and headId != ''"> and detail.head_id = #{headId} </if>
             <if test="planNo != null and planNo != ''"> and feeding.`feeding_no` LIKE CONCAT('%', #{planNo},'%' )</if>
+			<if test="auditSign != null and auditSign != ''"> and feeding.`audit_sign` = #{auditSign} </if>
             <if test="materialsName != null and materialsName != ''"> and material.name LIKE CONCAT('%', #{materialsName},'%' )</if>
             <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(feeding.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(feeding.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
         </where>
 	</sql>
 
-	<select id="getCountByOutsourcing" resultType="string">
-		SELECT
-		SUM(count)
-		FROM scm_stock_out_item
-		<where>
-			<if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
-			<if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
-		</where>
 
-	</select>
-	
 </mapper>

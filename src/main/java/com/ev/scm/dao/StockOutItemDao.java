@@ -4,6 +4,7 @@ import com.ev.scm.domain.StockItemDO;
 import com.ev.scm.domain.StockOutItemDO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -42,4 +43,6 @@ public interface StockOutItemDao {
     int batchInsert(List<StockOutItemDO> stockOutItemDOs);
 
     int batchUpdate(List<StockOutItemDO> stockOutItemDOs);
+
+    BigDecimal getCountBySource(Map<String, Object> params);
 }

@@ -108,16 +108,18 @@ public class OutsourcingStockOutApiController {
         }
         ProductionFeedingDetailDO detailDO;
         BigDecimal planFeeding;
+        Map<String,Object> map;
         for (Long sourceId : count.keySet()) {
             detailDO = feedingDetailService.get(sourceId);
             planFeeding = detailDO.getPlanFeeding();
             // 查询源单已被选择数量
-            Map<String,Object> map = Maps.newHashMap();
+            map = Maps.newHashMap();
             map.put("sourceId",sourceId);
             map.put("sourceType",ConstantForGYL.WWTLD);
-            BigDecimal countByOutsourcing = new BigDecimal(feedingDetailService.getCountByOutsourcing(map));
-            if (planFeeding.compareTo(count.get(sourceId).add(countByOutsourcing))<0){
-                String [] args = {count.get(sourceId).toPlainString(),planFeeding.subtract(countByOutsourcing).toPlainString()};
+            BigDecimal bySource = stockOutItemService.getCountBySource(map);
+            BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
+            if (planFeeding.compareTo(count.get(sourceId).add(countByOutSource))<0){
+                String [] args = {count.get(sourceId).toPlainString(),planFeeding.subtract(countByOutSource).toPlainString()};
                 return R.error(messageSourceHandler.getMessage("stock.number.error", args));
             }
         }
@@ -242,16 +244,18 @@ public class OutsourcingStockOutApiController {
         }
         ProductionFeedingDetailDO detailDO;
         BigDecimal planFeeding;
+        Map<String,Object> map;
         for (Long sourceId : count.keySet()) {
             detailDO = feedingDetailService.get(sourceId);
             planFeeding = detailDO.getPlanFeeding();
             // 查询源单已被选择数量
-            Map<String,Object> map = Maps.newHashMap();
+            map = Maps.newHashMap();
             map.put("sourceId",sourceId);
             map.put("sourceType",ConstantForGYL.WWTLD);
-            BigDecimal countByOutsourcing = new BigDecimal(feedingDetailService.getCountByOutsourcing(map));
-            if (planFeeding.compareTo(count.get(sourceId).add(countByOutsourcing))<0){
-                String [] args = {count.get(sourceId).toPlainString(),planFeeding.subtract(countByOutsourcing).toPlainString()};
+            BigDecimal bySource = stockOutItemService.getCountBySource(map);
+            BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
+            if (planFeeding.compareTo(count.get(sourceId).add(countByOutSource))<0){
+                String [] args = {count.get(sourceId).toPlainString(),planFeeding.subtract(countByOutSource).toPlainString()};
                 return R.error(messageSourceHandler.getMessage("stock.number.error", args));
             }
         }

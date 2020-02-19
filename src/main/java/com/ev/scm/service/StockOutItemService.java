@@ -2,6 +2,7 @@ package com.ev.scm.service;
 
 import com.ev.scm.domain.StockOutItemDO;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -40,5 +41,7 @@ public interface StockOutItemService {
     int batchInsert(List<StockOutItemDO> stockOutItemDOs);
 
     int batchUpdate(List<StockOutItemDO> stockOutItemDOs);
+
+    BigDecimal getCountBySource(Map<String, Object> params);
 
 }

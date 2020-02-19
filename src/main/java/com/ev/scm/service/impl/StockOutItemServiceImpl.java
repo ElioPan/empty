@@ -3,6 +3,7 @@ package com.ev.scm.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -82,6 +83,11 @@ public class StockOutItemServiceImpl implements StockOutItemService {
     @Override
     public int batchUpdate(List<StockOutItemDO> stockOutItemDOs) {
         return  stockOutItemDao.batchUpdate(stockOutItemDOs);
+    }
+
+    @Override
+    public BigDecimal getCountBySource(Map<String, Object> params) {
+        return stockOutItemDao.getCountBySource(params);
     }
 
 }
