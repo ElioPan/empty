@@ -186,7 +186,7 @@
 		LEFT JOIN  cus_dictionary  d on  a.type =d.id
 		LEFT JOIN  cus_dictionary  e on  c.unit =e.id
 	 	WHERE
-   		 c.expense_id=#{id}
+   		 c.purchase_expense_id=#{id}
 	</select>
 
 

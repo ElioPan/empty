@@ -3,6 +3,8 @@ package com.ev.apis.controller.scm;
 import cn.afterturn.easypoi.entity.vo.TemplateExcelConstants;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
+import com.ev.custom.domain.DictionaryDO;
+import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.R;
@@ -42,6 +44,9 @@ public class ScmPurchaseInStockController {
     private StockInService stockInService;
     @Autowired
     private StockInItemService stockInItemService;
+
+    @Autowired
+    private DictionaryService dictionaryService;
 
     @EvApiByToken(value = "/apis/scm/purchaseInStock/saveAndChange", method = RequestMethod.POST, apiTitle = "新增/修改—采购入库")
     @ApiOperation("新增/修改—采购入库")
@@ -126,6 +131,13 @@ public class ScmPurchaseInStockController {
 
         Map<String, Object> totalForMap = stockInService.countForMap(params);
         List<Map<String, Object>> detailList = stockInService.listForMap(params);
+
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT.intValue());
+        String thisSourceTypeName = dictionaryDO.getName();
+        for (Map<String, Object> datum : detailList) {
+            datum.put("thisSourceType", ConstantForGYL.CGHT);
+            datum.put("thisSourceTypeName", thisSourceTypeName);
+        }
 
         if (!detailList.isEmpty()) {
             Map<String, Object> dsRet = new HashMap<>();
