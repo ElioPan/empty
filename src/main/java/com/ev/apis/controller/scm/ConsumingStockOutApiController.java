@@ -12,8 +12,10 @@ import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
+import com.ev.mes.domain.ProductionFeedingDO;
 import com.ev.mes.domain.ProductionFeedingDetailDO;
 import com.ev.mes.service.ProductionFeedingDetailService;
+import com.ev.mes.service.ProductionFeedingService;
 import com.ev.scm.domain.StockOutDO;
 import com.ev.scm.domain.StockOutItemDO;
 import com.ev.scm.service.StockOutItemService;
@@ -57,6 +59,9 @@ public class ConsumingStockOutApiController {
 
     @Autowired
     private ProductionFeedingDetailService productionFeedingDetailService;
+
+    @Autowired
+    private ProductionFeedingService productionFeedingService;
 
     @Autowired
 	private DictionaryService dictionaryService;
@@ -108,6 +113,10 @@ public class ConsumingStockOutApiController {
         if (count.size() > 0) {
             for (Long sourceId : count.keySet()) {
                 detailDO = productionFeedingDetailService.get(sourceId);
+                ProductionFeedingDO productionFeedingDO = productionFeedingService.get(detailDO.getHeadId());
+                if (productionFeedingDO.getIsQuota()==0 || productionFeedingDO.getIsQuota()==null) {
+                    continue;
+                }
                 feedingCount = detailDO.getPlanFeeding();
                 // 查询源单已被选择数量
                 Map<String,Object> map = Maps.newHashMap();
@@ -245,6 +254,10 @@ public class ConsumingStockOutApiController {
         if (count.size() > 0) {
             for (Long sourceId : count.keySet()) {
                 detailDO = productionFeedingDetailService.get(sourceId);
+                ProductionFeedingDO productionFeedingDO = productionFeedingService.get(detailDO.getHeadId());
+                if (productionFeedingDO.getIsQuota()==0 || productionFeedingDO.getIsQuota()==null) {
+                    continue;
+                }
                 feedingCount = detailDO.getPlanFeeding();
                 // 查询源单已被选择数量
                 Map<String,Object> map = Maps.newHashMap();

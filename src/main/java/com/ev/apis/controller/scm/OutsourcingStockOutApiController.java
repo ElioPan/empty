@@ -12,8 +12,10 @@ import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
+import com.ev.mes.domain.ProductionFeedingDO;
 import com.ev.mes.domain.ProductionFeedingDetailDO;
 import com.ev.mes.service.ProductionFeedingDetailService;
+import com.ev.mes.service.ProductionFeedingService;
 import com.ev.scm.domain.StockOutDO;
 import com.ev.scm.domain.StockOutItemDO;
 import com.ev.scm.service.StockOutItemService;
@@ -55,6 +57,9 @@ public class OutsourcingStockOutApiController {
 
     @Autowired
     private ProductionFeedingDetailService feedingDetailService;
+
+    @Autowired
+    private ProductionFeedingService productionFeedingService;
 
     @Autowired
     private MessageSourceHandler messageSourceHandler;
@@ -111,6 +116,10 @@ public class OutsourcingStockOutApiController {
         Map<String,Object> map;
         for (Long sourceId : count.keySet()) {
             detailDO = feedingDetailService.get(sourceId);
+            ProductionFeedingDO productionFeedingDO = productionFeedingService.get(detailDO.getHeadId());
+            if (productionFeedingDO.getIsQuota()==0 || productionFeedingDO.getIsQuota()==null) {
+                continue;
+            }
             planFeeding = detailDO.getPlanFeeding();
             // 查询源单已被选择数量
             map = Maps.newHashMap();
@@ -247,6 +256,10 @@ public class OutsourcingStockOutApiController {
         Map<String,Object> map;
         for (Long sourceId : count.keySet()) {
             detailDO = feedingDetailService.get(sourceId);
+            ProductionFeedingDO productionFeedingDO = productionFeedingService.get(detailDO.getHeadId());
+            if (productionFeedingDO.getIsQuota()==0 || productionFeedingDO.getIsQuota()==null) {
+                continue;
+            }
             planFeeding = detailDO.getPlanFeeding();
             // 查询源单已被选择数量
             map = Maps.newHashMap();
