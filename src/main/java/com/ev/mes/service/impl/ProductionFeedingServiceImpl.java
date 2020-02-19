@@ -163,6 +163,11 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 		return productionFeedingDao.countForMapToOutsourcingContract(map);
 	}
 
+	@Override
+	public int countBySource(Map<String, Object> map) {
+		return productionFeedingDao.countBySource(map);
+	}
+
 	private List<ProductionFeedingDetailDO> getFeedingDetailList(Long id) {
 		Map<String, Object> param = Maps.newHashMapWithExpectedSize(1);
 		param.put("headId", id);

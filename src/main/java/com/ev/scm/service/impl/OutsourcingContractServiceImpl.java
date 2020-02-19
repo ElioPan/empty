@@ -194,6 +194,26 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         params.put("contractId", outsourcingContractId);
         // 委外合同物料列表详情
         List<OutsourcingContractItemDO> outsourcingContractItemList = outsourcingContractItemDao.list(params);
+        // 若对应的投料单已经执行了的，委外合同限制变更
+        List<Long> itemIdList = outsourcingContractItemList
+                .stream()
+                .filter(outsourcingContractItemDO -> outsourcingContractItemDO.getBomId() != null)
+                .map(OutsourcingContractItemDO::getId)
+                .collect(Collectors.toList());
+        if (itemIdList.size() > 0) {
+            Map<String,Object> map = Maps.newHashMap();
+            map.put("sourceType",ConstantForGYL.WWTLD);
+            for (Long itemId : itemIdList) {
+                ProductionFeedingDO feedingDO = feedingService.getByOutsourcingContractItemId(itemId);
+                map.put("sourceId",feedingDO.getId());
+                int count = feedingService.countBySource(map);
+                if (count>0) {
+                    return R.error(messageSourceHandler.getMessage("scm.contract.isUpdate.childList", null));
+                }
+            }
+        }
+
+
         // 委外合同收款条件
         List<OutsourcingContractPayDO> outsourcingContractPayList = outsourcingContractPayDao.list(params);
         JSONObject alterationContent = new JSONObject();

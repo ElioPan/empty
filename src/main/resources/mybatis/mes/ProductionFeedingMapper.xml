@@ -250,6 +250,7 @@
 		<include refid="sql_contract_condition"/>
 	</select>
 
+
 	<sql id="sql_contract_condition">
 		FROM mes_production_feeding feeding
 		LEFT JOIN scm_outsourcing_contract_item contractItem ON contractItem.`id` = feeding.`outsource_contract_item_id`
@@ -271,5 +272,16 @@
 			AND feeding.`outsource_contract_item_id` IS NOT NULL
 		</where>
 	</sql>
-	
+
+	<select id="countBySource" resultType="java.lang.Integer">
+		SELECT
+		COUNT(*)
+		FROM scm_stock_out_item item
+		LEFT JOIN mes_production_feeding_detail mpfd ON item.source_id = mpfd.id
+		<where>
+			<if test="sourceId != null and sourceId != ''"> and mpfd.head_id = #{sourceId} </if>
+			<if test="sourceType != null and sourceType != ''"> and item.source_type = #{sourceType} </if>
+		</where>
+	</select>
+
 </mapper>

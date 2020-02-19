@@ -45,4 +45,6 @@ public interface ProductionFeedingDao {
     List<Map<String, Object>> listForMapToOutsourcingContract(Map<String, Object> map);
 
 	int countForMapToOutsourcingContract(Map<String, Object> map);
+
+	int countBySource(Map<String, Object> map);
 }
