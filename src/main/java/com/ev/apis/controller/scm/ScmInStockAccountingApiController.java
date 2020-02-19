@@ -72,11 +72,14 @@ public class ScmInStockAccountingApiController {
                     "\"id\":\"列表行中的stockInItemId字段（必传）\",\n" +
                     "\"inheadId\":\"入库主键（列表行中的id字段）\",\n" +
                     "\"sourceId\":\"源单主键\",\n" +
+                    "\"materielId\":\"物料主键\",\n" +
                     "\"count\":\"数量\",\n" +
                     "}\n" +
                     "]") @RequestParam(value = "detailAccounting") String detailAccounting) {
         return inStockAccountingService.disposeAutoAccounting(detailAccounting);
     }
+
+
 
 
 

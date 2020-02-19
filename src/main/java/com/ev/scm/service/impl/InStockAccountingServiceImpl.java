@@ -201,13 +201,30 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         return R.ok();
    }
 
+
     @Override
     public R disposeAutoAccounting(String detailAccounting){
+
+       //根据入库单的产品去找bom里的组件物料明细，并计算本次核销的物料数量
+        List<StockInItemDO> stockInItemDOs = JSONObject.parseArray(detailAccounting, StockInItemDO.class);
+        for (StockInItemDO stockInItemDo:stockInItemDOs){
+            //产品id
+            Long inStockMaterialId=stockInItemDo.getMaterielId();
+
+
+
+        }
+
+
+        //根据原单合同id找到投料单的id，再根据投料id单找委外出库单
 
 
 
        return null;
-
     }
+
+
+
+
 
 }
