@@ -135,10 +135,10 @@ public class ScmPurchaseContractApiController {
         List<Map<String, Object>> data = purchasecontractService.listForMap(map);
         Map<String, Object> totalMap = purchasecontractService.countForMap(map);
 
-        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PURCHASE.intValue());
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT.intValue());
         String thisSourceTypeName = dictionaryDO.getName();
         for (Map<String, Object> datum : data) {
-            datum.put("thisSourceType", ConstantForGYL.PURCHASE);
+            datum.put("thisSourceType", ConstantForGYL.CGHT);
             datum.put("thisSourceTypeName", thisSourceTypeName);
         }
         Map<String, Object> result = Maps.newHashMap();

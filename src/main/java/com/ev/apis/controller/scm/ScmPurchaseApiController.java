@@ -4,7 +4,10 @@ import cn.afterturn.easypoi.entity.vo.TemplateExcelConstants;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.apis.model.DsResultResponse;
+import com.ev.custom.domain.DictionaryDO;
+import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.R;
 import com.ev.scm.domain.PurchaseDO;
 import com.ev.scm.service.PurchaseService;
@@ -35,6 +38,8 @@ import java.util.Map;
 public class ScmPurchaseApiController {
     @Autowired
     private PurchaseService purchaseService;
+    @Autowired
+    private DictionaryService dictionaryService;
 
 
     @EvApiByToken(value = "/apis/scm/purchase/addAndChange", method = RequestMethod.POST, apiTitle = "保存/修改 —采购申请单")
@@ -124,6 +129,13 @@ public class ScmPurchaseApiController {
 
         List<Map<String, Object>> list = purchaseService.listForMap(params);
         int count = purchaseService.countForMap(params);
+
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PURCHASE.intValue());
+        String thisSourceTypeName = dictionaryDO.getName();
+        for (Map<String, Object> datum : list) {
+            datum.put("thisSourceType", ConstantForGYL.PURCHASE);
+            datum.put("thisSourceTypeName", thisSourceTypeName);
+        }
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(2);
         if (!list.isEmpty()) {
             DsResultResponse dsRet = new DsResultResponse();
