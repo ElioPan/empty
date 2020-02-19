@@ -233,6 +233,7 @@
 				j.specification AS specification,
 				j.unit_uom as  unitUom,
 				k.name AS unitUomName,
+				j.is_lot as isLot,
 				IF(i.is_check=0,'否','是') AS isCheck,
 				IF(i.is_overcharge=0,'否','是') AS isOvercharge,
 				i.proportion,

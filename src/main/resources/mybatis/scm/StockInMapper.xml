@@ -337,6 +337,7 @@
 			m.specification ,
 			m.unit_uom as unitNom,
 			n.name as unitName,
+			m.is_lot as isLot,
 			aa.id as stockInItemId,
 			aa.batch ,
 			aa.count ,
