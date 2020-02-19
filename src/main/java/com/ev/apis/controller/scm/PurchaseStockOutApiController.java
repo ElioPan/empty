@@ -3,14 +3,20 @@ package com.ev.apis.controller.scm;
 import cn.afterturn.easypoi.entity.vo.TemplateExcelConstants;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
+import com.alibaba.fastjson.JSON;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
+import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
+import com.ev.scm.domain.StockInItemDO;
 import com.ev.scm.domain.StockOutDO;
+import com.ev.scm.domain.StockOutItemDO;
+import com.ev.scm.service.StockInItemService;
+import com.ev.scm.service.StockOutItemService;
 import com.ev.scm.service.StockOutService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
@@ -27,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +48,12 @@ public class PurchaseStockOutApiController {
 
 	@Autowired
     private StockOutService stockOutService;
+    @Autowired
+    private StockInItemService stockInItemService;
+    @Autowired
+    private StockOutItemService stockOutItemService;
+    @Autowired
+    private MessageSourceHandler messageSourceHandler;
 
 	@Autowired
 	private DictionaryService dictionaryService;
@@ -77,6 +90,35 @@ public class PurchaseStockOutApiController {
                          "    }\n" +
                          "]"
                     , required = true)@RequestParam(value = "item",defaultValue = "") String item) {
+        // 与源单数量对比
+        List<StockOutItemDO> itemDOs = JSON.parseArray(item, StockOutItemDO.class);
+        Map<Long, BigDecimal> count = Maps.newHashMap();
+        for (StockOutItemDO itemDO : itemDOs) {
+            Long sourceId = itemDO.getSourceId();
+            if (count.containsKey(sourceId)) {
+                count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
+            }
+            count.put(itemDO.getSourceId(), itemDO.getCount());
+        }
+        StockInItemDO detailDO;
+        BigDecimal contractCount;
+        if (count.size() > 0) {
+            for (Long sourceId : count.keySet()) {
+                detailDO = stockInItemService.get(sourceId);
+                contractCount = detailDO.getCount();
+                // 查询源单已被选择数量
+                Map<String,Object> map = Maps.newHashMap();
+                map.put("sourceId",sourceId);
+                map.put("sourceType",ConstantForGYL.PURCHASE_INSTOCK);
+                BigDecimal bySource = stockOutItemService.getCountBySource(map);
+                BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
+                if (contractCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
+                    String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString()};
+                    return R.error(messageSourceHandler.getMessage("stock.number.error", args));
+                }
+            }
+        }
+
 		DictionaryDO storageType = dictionaryService.get(ConstantForGYL.CGTH);
         return stockOutService.add(stockOutDO, item, storageType);
 	}
@@ -143,6 +185,36 @@ public class PurchaseStockOutApiController {
                     "]"
                     , required = true) @RequestParam(value = "item", defaultValue = "") String item,
                   @ApiParam(value = "明细数组") @RequestParam(value = "itemIds", defaultValue = "", required = false) Long[] itemIds) {
+        // 与源单数量对比
+        List<StockOutItemDO> itemDOs = JSON.parseArray(item, StockOutItemDO.class);
+        Map<Long, BigDecimal> count = Maps.newHashMap();
+        for (StockOutItemDO itemDO : itemDOs) {
+            Long sourceId = itemDO.getSourceId();
+            if (count.containsKey(sourceId)) {
+                count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
+            }
+            count.put(itemDO.getSourceId(), itemDO.getCount());
+        }
+        StockInItemDO detailDO;
+        BigDecimal contractCount;
+        if (count.size() > 0) {
+            for (Long sourceId : count.keySet()) {
+                detailDO = stockInItemService.get(sourceId);
+                contractCount = detailDO.getCount();
+                // 查询源单已被选择数量
+                Map<String,Object> map = Maps.newHashMap();
+                map.put("sourceId",sourceId);
+                map.put("sourceType",ConstantForGYL.PURCHASE_INSTOCK);
+                BigDecimal bySource = stockOutItemService.getCountBySource(map);
+                BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
+                if (contractCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
+                    String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString()};
+                    return R.error(messageSourceHandler.getMessage("stock.number.error", args));
+                }
+            }
+        }
+
+
 		return stockOutService.edit(stockOutDO, item, ConstantForGYL.CGTH.longValue() , itemIds);
 	}
 	
