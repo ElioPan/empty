@@ -58,6 +58,7 @@ public class ConsumingStockOutApiController {
                          "        \"count\":201,\n" +
                          "        \"unitPrice\":1200,\n" +
                          "        \"amount\":24000,\n" +
+                         "        \"purpose\":\"领料用途\"\n" +
                          "        \"sourceId\":11,\n" +
                          "        \"sourceType\":11,\n" +
                          "        \"sourceCode\":\"SCTL20190720001\"\n" +
@@ -69,6 +70,7 @@ public class ConsumingStockOutApiController {
                          "        \"count\":101,\n" +
                          "        \"unitPrice\":1200,\n" +
                          "        \"amount\":12000,\n" +
+                         "        \"purpose\":\"领料用途\"\n" +
                          "        \"sourceId\":25,\n" +
                          "        \"sourceType\":11,\n" +
                          "        \"sourceCode\":\"SCTL20190720001\"\n" +
