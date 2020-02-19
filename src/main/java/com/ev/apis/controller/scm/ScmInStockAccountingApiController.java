@@ -43,24 +43,40 @@ public class ScmInStockAccountingApiController {
         return inStockAccountingService.saveAccounting(detailAccounting);
     }
 
-
     /*
      * 分配后改变采购入库单的费用字段值，前端刷新列表显示费用有值（初始化为0）
      */
-    @EvApiByToken(value = "/apis/scm/inStockAccounting/purchaseInStockAccounting", method = RequestMethod.POST, apiTitle = "分配--采购入库核算")
+    @EvApiByToken(value = "/apis/scm/inStockAccounting/purchaseInStockAllocation ", method = RequestMethod.POST, apiTitle = "分配--采购入库核算")
     @ApiOperation("分配--采购入库核算")
     @Transactional(rollbackFor = Exception.class)
     public R allocation(
             @ApiParam(value = "采购费用分配标准") @RequestParam(value = "distributionType") Long distributionType,
-            @ApiParam(value = "入库单主表主键（列表行中的id）（必传）") @RequestParam(value = "detailAccounting") Long[] detailAccounting) {
-        return inStockAccountingService.allocationAmount(distributionType,detailAccounting);
+            @ApiParam(value = "入库单主表主键（列表行中的id字段）（必传）") @RequestParam(value = "detailAccounting") Long[] stockInIds) {
+        return inStockAccountingService.allocationAmount(distributionType,stockInIds);
     }
 
+    @EvApiByToken(value = "/apis/scm/inStockAccounting/purchaseBusinessAccounting", method = RequestMethod.POST, apiTitle = "核算--采购入库核算")
+    @ApiOperation("核算--采购入库核算")
+    @Transactional(rollbackFor = Exception.class)
+    public R  businessAccounting (
+            @ApiParam(value = "入库单主表主键（列表行中的id字段）（必传）") @RequestParam(value = "stockInIds") Long[] stockInIds) {
+        return inStockAccountingService.disposeBusinessAccounting(stockInIds);
+    }
 
-
-
-
-
+    @EvApiByToken(value = "/apis/scm/inStockAccounting/subcontractInStock", method = RequestMethod.POST, apiTitle = "自动核销--委外入库核算")
+    @ApiOperation("自动核销--委外入库核算")
+    @Transactional(rollbackFor = Exception.class)
+    public R autoAccountingSubcontractInStock(
+            @ApiParam(value = "列表明细：[\n" +
+                    "{\n" +
+                    "\"id\":\"列表行中的stockInItemId字段（必传）\",\n" +
+                    "\"inheadId\":\"入库主键（列表行中的id字段）\",\n" +
+                    "\"sourceId\":\"源单主键\",\n" +
+                    "\"count\":\"数量\",\n" +
+                    "}\n" +
+                    "]") @RequestParam(value = "detailAccounting") String detailAccounting) {
+        return inStockAccountingService.disposeAutoAccounting(detailAccounting);
+    }
 
 
 

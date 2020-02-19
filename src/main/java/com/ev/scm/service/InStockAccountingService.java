@@ -14,8 +14,8 @@ public  interface InStockAccountingService  {
 
     public R allocationAmount(Long distributionType,Long[] detailAccounting);
 
+    R disposeBusinessAccounting(Long[] stockInIds);
 
-
-
+    R disposeAutoAccounting(String detailAccounting);
 
 }

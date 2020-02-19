@@ -81,5 +81,7 @@ public class StockInDO implements Serializable {
 	//删除状态（）
     @ApiModelProperty(value = "删除状态（）")
 	private Integer delFlag;
+	@ApiModelProperty(value = "核算1，分配0（默认0）")
+	private Integer sign;
 
 }

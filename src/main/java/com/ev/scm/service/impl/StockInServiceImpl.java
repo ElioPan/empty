@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @EnableTransactionManagement
@@ -186,16 +187,15 @@ public class StockInServiceImpl implements StockInService {
 		int pagesize = (int) params.get("pagesize");
 		int pageno = (int) params.get("pageno");
 		int counts = this.count(params);
-		Map<String, Object> resuls = new HashMap<String, Object>();
+		Map<String, Object> resuls = new HashMap<>();
 		List<Map<String, Object>> detailList = this.getlistByIndata(params);
 		if (detailList.size() > 0) {
-			DsResultResponse dsResultResponse = new DsResultResponse() {{
-				setDatas(detailList);
-				setPageno(pageno);
-				setPagesize(pagesize);
-				setTotalRows(counts);
-				setTotalPages((Integer) ((counts + pagesize - 1) / pagesize));
-			}};
+			DsResultResponse dsResultResponse = new DsResultResponse() ;
+			dsResultResponse.setDatas(detailList);
+			dsResultResponse.setPageno(pageno);
+			dsResultResponse.setPagesize(pagesize);
+			dsResultResponse.setTotalRows(counts);
+			dsResultResponse.setTotalPages((Integer) ((counts + pagesize - 1) / pagesize));
 			resuls.put("data", dsResultResponse);
 			return R.ok(resuls);
 		} else {
@@ -266,7 +266,7 @@ public class StockInServiceImpl implements StockInService {
 		if (StringUtils.isNotEmpty(propurchaseInbodyDO)) {
 
 
-			List<StockInItemDO> inbodyCDos = new ArrayList<StockInItemDO>();
+			List<StockInItemDO> inbodyCDos = new ArrayList<>();
 			inbodyCDos = JSON.parseArray(propurchaseInbodyDO, StockInItemDO.class);
 
 			//保存子表信息
@@ -335,6 +335,7 @@ public class StockInServiceImpl implements StockInService {
 			stockInDO.setInheadCode(code);
 			stockInDO.setAuditSign(ConstantForGYL.WAIT_AUDIT );
 			stockInDO.setStorageType(storageType);
+			if(Objects.equals(storageType,ConstantForGYL.PURCHASE_INSTOCK)){stockInDO.setSign(0);}
 			stockInDao.save(stockInDO);
 
 			if (StringUtils.isNotEmpty(bodyDetail)) {
@@ -343,6 +344,7 @@ public class StockInServiceImpl implements StockInService {
 				Map<String, Object> query = Maps.newHashMap();
 				for (StockInItemDO propuinbody : inbodyCDos) {
 					propuinbody.setInheadId(stockInDO.getId());
+					if(Objects.equals(storageType,ConstantForGYL.PURCHASE_INSTOCK)){propuinbody.setExpense(BigDecimal.ZERO);}
 					SstockInItemService.save(propuinbody);
 				}
 				//将主表主键返回前端，审核使用。
@@ -357,7 +359,7 @@ public class StockInServiceImpl implements StockInService {
 			StockInDO InheadDo = stockInDao.get(headId);
 
 			if (Objects.nonNull(InheadDo)) {
-				if (Objects.equals(ConstantForGYL.WAIT_AUDIT,InheadDo.getAuditSign())) { //10---->178 待审核
+				if (Objects.equals(ConstantForGYL.WAIT_AUDIT,InheadDo.getAuditSign())) {
 					stockInDao.update(stockInDO);
 
 					if(Objects.nonNull(ItemIds)&&ItemIds.length>0){
@@ -370,9 +372,16 @@ public class StockInServiceImpl implements StockInService {
 						Map<String, Object> query = Maps.newHashMap();
 						for (StockInItemDO propuinbody : inbodyCDos) {
 							if(Objects.nonNull(propuinbody.getId())){
+								if(Objects.equals(storageType,ConstantForGYL.PURCHASE_INSTOCK)){
+									StockInItemDO inItemDO = SstockInItemService.get(propuinbody.getId());
+									if(!Objects.equals(inItemDO.getAmount().compareTo(propuinbody.getAmount()),0)||!Objects.equals(inItemDO.getCount().compareTo(propuinbody.getCount()),0)){
+										propuinbody.setExpense(BigDecimal.ZERO);
+									}
+								}
 								SstockInItemService.update(propuinbody);
 							}else{
 								propuinbody.setInheadId(stockInDO.getId());
+								if(Objects.equals(storageType,ConstantForGYL.PURCHASE_INSTOCK)){propuinbody.setExpense(BigDecimal.ZERO);}
 								SstockInItemService.save(propuinbody);
 							}
 						}
@@ -391,7 +400,6 @@ public class StockInServiceImpl implements StockInService {
 			}
 		}
 	}
-
 
 
 	private String purchaseContractCode(String constant) {
@@ -445,7 +453,7 @@ public class StockInServiceImpl implements StockInService {
 				if (counts == 1) {
 					//允许反审核   //将Stock、etail表中数据做物理删除;+将主表中数据做标记为10待审核。
 					String resuls = this.dealProcessCounterAudit(type, inHeadId);
-					if (resuls.equals("ok")) {
+					if ("ok".equals(resuls)) {
 						return R.ok();
 					} else {
 						//反审核失败！

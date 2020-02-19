@@ -93,6 +93,11 @@ public class StockInItemServiceImpl implements StockInItemService {
 	}
 
 	@Override
+	public int batchUpdate(List<StockInItemDO> stockOutItemDOs) {
+		return stockInItemDao.batchUpdate(stockOutItemDOs);
+	}
+
+	@Override
 	public String getProByHeadId(Long id , String code) {
 
 		List<Map<String, Object>> inProList = stockInItemDao.getProByHeadId(id);

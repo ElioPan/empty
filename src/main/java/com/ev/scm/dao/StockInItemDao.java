@@ -52,4 +52,6 @@ public interface StockInItemDao {
 	//totailAmount,totailCount
 	Map<String, Object> getTotailCountAmount(Long id);
 
+	int batchUpdate(List<StockInItemDO> stockOutItemDOs);
+
 }

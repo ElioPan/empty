@@ -240,26 +240,6 @@
 
 	<!--=======================================================================================================-->
 
-	<!--<select id="getProByHeadId" resultType="map">-->
-	<!--select-->
-	<!--cph.in_time     AS  enteringTime,-->
-	<!--cpb.pro_id      AS proId,-->
-	<!--cpb.pro_batch   AS batch,-->
-	<!--cpb.pro_count   AS count,-->
-	<!--cpb.pro_price	AS price,-->
-	<!--cpb.pro_amount  AS amount,-->
-	<!--cph.source_company AS sourceCompany,-->
-	<!--cpb.warehouse      AS warehouse,-->
-	<!--cpb.wareh_location AS warehLocation,-->
-	<!--cpb.inhead_id  AS inheadId,-->
-	<!--cpb.source_singletype AS sourceSingletype,-->
-	<!--cph.storage_type AS storageType,-->
-	<!--cpb.expense,-->
-	<!--cpb.id AS inbodyId-->
-	<!--from  scm_stock_in_item  cpb-->
-	<!--LEFT JOIN scm_stock_in  cph ON cpb.inhead_id=cph.id-->
-	<!--where   cpb.inhead_id=#{value}-->
-	<!--</select>-->
 
 
 	<select id="getBodyDetalByHeadId" resultType="map">
@@ -445,6 +425,48 @@
 			b.id=#{value}
 		)aa
 	</select>
+
+
+	<update id="batchUpdate" parameterType="List">
+		UPDATE scm_stock_in_item
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="unit_price=case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.unitPrice!=null">
+						when id=#{item.id} then #{item.unitPrice}
+					</if>
+					<if test="item.unitPrice==null">
+						when id=#{item.id} then scm_stock_in_item.unit_price
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="amount =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.amount!=null">
+						when id=#{item.id} then #{item.amount}
+					</if>
+					<if test="item.amount==null">
+						when id=#{item.id} then scm_stock_in_item.amount
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="expense =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.expense!=null">
+						when id=#{item.id} then #{item.expense}
+					</if>
+					<if test="item.expense==null">
+						when id=#{item.id} then scm_stock_in_item.expense
+					</if>
+				</foreach>
+			</trim>
+
+		</trim>
+		WHERE id IN
+		<foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+			#{item.id}
+		</foreach>
+	</update>
 
 
 </mapper>
