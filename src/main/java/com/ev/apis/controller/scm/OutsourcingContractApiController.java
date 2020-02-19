@@ -40,6 +40,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 委外合同控制器层
@@ -158,7 +159,10 @@ public class OutsourcingContractApiController {
                 BigDecimal bySource = outsourcingContractService.getCountBySource(map);
                 BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
                 if (contractCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
-                    String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString()};
+                    List<OutsourcingContractItemDO> collect = itemDOs.stream()
+                            .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
+                            .collect(Collectors.toList());
+                    String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
                     return R.error(messageSourceHandler.getMessage("stock.number.error", args));
                 }
             }

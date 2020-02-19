@@ -39,6 +39,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 
@@ -128,7 +129,10 @@ public class OutsourcingStockOutApiController {
             BigDecimal bySource = stockOutItemService.getCountBySource(map);
             BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
             if (planFeeding.compareTo(count.get(sourceId).add(countByOutSource))<0){
-                String [] args = {count.get(sourceId).toPlainString(),planFeeding.subtract(countByOutSource).toPlainString()};
+                List<StockOutItemDO> collect = itemDOs.stream()
+                        .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
+                        .collect(Collectors.toList());
+                String [] args = {count.get(sourceId).toPlainString(),planFeeding.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
                 return R.error(messageSourceHandler.getMessage("stock.number.error", args));
             }
         }
@@ -268,7 +272,10 @@ public class OutsourcingStockOutApiController {
             BigDecimal bySource = stockOutItemService.getCountBySource(map);
             BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
             if (planFeeding.compareTo(count.get(sourceId).add(countByOutSource))<0){
-                String [] args = {count.get(sourceId).toPlainString(),planFeeding.subtract(countByOutSource).toPlainString()};
+                List<StockOutItemDO> collect = itemDOs.stream()
+                        .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
+                        .collect(Collectors.toList());
+                String [] args = {count.get(sourceId).toPlainString(),planFeeding.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
                 return R.error(messageSourceHandler.getMessage("stock.number.error", args));
             }
         }

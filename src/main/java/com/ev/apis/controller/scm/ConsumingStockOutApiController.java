@@ -271,7 +271,10 @@ public class ConsumingStockOutApiController {
                 BigDecimal bySource = stockOutItemService.getCountBySource(map);
                 BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
                 if (feedingCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
-                    String [] args = {count.get(sourceId).toPlainString(),feedingCount.subtract(countByOutSource).toPlainString()};
+                    List<StockOutItemDO> collect = itemDOs.stream()
+                            .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
+                            .collect(Collectors.toList());
+                    String [] args = {count.get(sourceId).toPlainString(),feedingCount.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
                     return R.error(messageSourceHandler.getMessage("stock.number.error", args));
                 }
             }
