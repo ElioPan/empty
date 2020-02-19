@@ -77,8 +77,8 @@
 		COUNT(*) 
 		<include refid="sql_map_condition"/>
 	</select>
-	 
-	<insert id="save" parameterType="com.ev.mes.domain.ProductionFeedingDetailDO" useGeneratedKeys="true" keyProperty="id">
+
+    <insert id="save" parameterType="com.ev.mes.domain.ProductionFeedingDetailDO" useGeneratedKeys="true" keyProperty="id">
 		insert into mes_production_feeding_detail
 		(
 			`head_id`,
@@ -179,5 +179,16 @@
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(feeding.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
         </where>
 	</sql>
+
+	<select id="getCountByOutsourcing" resultType="string">
+		SELECT
+		SUM(count)
+		FROM scm_stock_out_item
+		<where>
+			<if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
+			<if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+		</where>
+
+	</select>
 	
 </mapper>

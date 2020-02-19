@@ -30,21 +30,15 @@ public interface ProductionFeedingDetailService {
 
 	/**
 	 * 获取子项目列表
-	 * @param params
-	 * @return
 	 */
 	List<Map<String, Object>> listForMap(Map<String, Object> params);
 
 	/**
 	 * 获取子项目数量
-	 * @param params
-	 * @return
 	 */
 	int countForMap(Map<String, Object> params);
 
-	/**
-	 * @param id
-	 */
 	void removeByHeadId(Long id);
 
+    String getCountByOutsourcing(Map<String, Object> params);
 }

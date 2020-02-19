@@ -232,6 +232,10 @@ public final class ConstantForGYL {
 	 * 生产投料单
 	 */
 	public static final Long SCTLD = 277L;
+	/**
+	 * 委外投料单
+	 */
+	public static final Long WWTLD = 272L;
 
 
 	/**

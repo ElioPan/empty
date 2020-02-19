@@ -67,4 +67,9 @@ public class ProductionFeedingDetailServiceImpl implements ProductionFeedingDeta
 		productionFeedingDetailDao.removeByHeadId(id);
 	}
 
+	@Override
+	public String getCountByOutsourcing(Map<String, Object> params) {
+		return productionFeedingDetailDao.getCountByOutsourcing(params);
+	}
+
 }

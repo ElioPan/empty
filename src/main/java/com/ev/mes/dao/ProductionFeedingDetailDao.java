@@ -30,20 +30,11 @@ public interface ProductionFeedingDetailDao {
 	
 	int batchRemove(Long[] ids);
 
-	/**
-	 * @param params
-	 * @return
-	 */
 	List<Map<String, Object>> listForMap(Map<String, Object> params);
 
-	/**
-	 * @param params
-	 * @return
-	 */
 	int countForMap(Map<String, Object> params);
 
-	/**
-	 * @param id
-	 */
 	int removeByHeadId(Long id);
+
+	String getCountByOutsourcing(Map<String, Object> params);
 }
