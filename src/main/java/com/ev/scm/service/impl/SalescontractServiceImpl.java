@@ -156,6 +156,10 @@ public class SalescontractServiceImpl implements SalescontractService {
         if (salescontractDO.getCloseStatus() == 1) {
             return R.error(messageSourceHandler.getMessage("common.contract.isCloseStatus", null));
         }
+        if (this.childCount(id)>0) {
+            return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));
+        }
+
 //        if (!Objects.equals(salescontractDO.getAuditor(), ShiroUtils.getUserId())) {
 //            return R.error(messageSourceHandler.getMessage("common.approved.user", null));
 //        }
@@ -356,6 +360,11 @@ public class SalescontractServiceImpl implements SalescontractService {
             }
         }
         return itemList;
+    }
+
+    @Override
+    public int childCount(Long id) {
+        return salesContractDao.childCount(id);
     }
 
     @Override

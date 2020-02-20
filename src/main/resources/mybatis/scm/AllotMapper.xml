@@ -196,6 +196,8 @@
             <if test="fuzzySearch != null and fuzzySearch != ''"> AND CONCAT(CONCAT(materiel.`name`,materiel.`serial_no`),allot.`serialno`) LIKE CONCAT(CONCAT('%',#{fuzzySearch}),'%') </if>
             <if test="outFacility != null and outFacility != ''"> AND outfac.`id` = #{outFacility} </if>
             <if test="inFacility != null and inFacility != ''"> AND infac.`id` = #{inFacility} </if>
+			<if test="code != null and code != ''"> AND allot.`serialno` = #{code} </if>
+			<if test="materielName != null and materielName != ''"> AND materiel.`name` LIKE #{materielName} </if>
             <if test="startTime != null and startTime != ''">  AND  DATE_FORMAT(allot.`create_time`,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''"> AND DATE_FORMAT(allot.`create_time`,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
             <if test="userId != null and userId != ''">AND (allot.`allot_user` = #{userId} OR allot.`create_by` = #{userId}) </if>

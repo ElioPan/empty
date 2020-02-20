@@ -37,4 +37,6 @@ public interface SalescontractDao {
 
     Map<String, Object> getDetail(Long salesContractId);
 
+	int childCount(Long id);
+
 }
