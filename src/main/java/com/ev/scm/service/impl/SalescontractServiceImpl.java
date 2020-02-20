@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -144,6 +145,7 @@ public class SalescontractServiceImpl implements SalescontractService {
         }
         salescontractDO.setAuditSign(ConstantForGYL.OK_AUDITED);
         salescontractDO.setAuditor(ShiroUtils.getUserId());
+        salescontractDO.setAuditTime(new Date());
         return this.update(salescontractDO) > 0 ? R.ok() : R.error();
     }
 

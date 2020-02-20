@@ -33,10 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -403,6 +400,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         }
         // 修改单据状态
         outsourcingContractDO.setAuditSign(ConstantForGYL.OK_AUDITED);
+        outsourcingContractDO.setAuditTime(new Date());
         outsourcingContractDO.setAuditor(ShiroUtils.getUserId());
         return this.update(outsourcingContractDO) > 0 ? R.ok() : R.error();
     }
