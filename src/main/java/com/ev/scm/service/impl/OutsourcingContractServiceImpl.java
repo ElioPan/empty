@@ -540,13 +540,16 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
     public R getAlterationDetail(Long id) {
         Map<String, Object> result = Maps.newHashMap();
         ContractAlterationDO contractAlterationDO = contractAlterationDao.get(id);
-        Map<String, Object> outsourcingContract = outsourcingContractDao.getDetail(id);
+        Map<String, Object> outsourcingContract = outsourcingContractDao.getDetail(contractAlterationDO.getContractId());
         result.put("contract", outsourcingContract);
         String alterationContent = contractAlterationDO.getAlterationContent();
         if (StringUtils.isNoneEmpty(alterationContent)) {
             JSONObject alterationContentJSON = JSON.parseObject(alterationContent);
             JSONArray itemArray = alterationContentJSON.getJSONArray("itemArray");
             JSONArray payArray = alterationContentJSON.getJSONArray("payArray");
+            if (payArray.size() > 0) {
+                result.put("payArray", payArray);
+            }
             if (itemArray.size() > 0) {
                 Map<String, Object> param;
                 Map<String, Object> materiel;
@@ -563,7 +566,6 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                     itemJSONObject.put("specification", materiel.getOrDefault("specification", ""));
                 }
                 result.put("itemArray", itemArray);
-                result.put("payArray", payArray);
                 return R.ok(result);
             }
         }
