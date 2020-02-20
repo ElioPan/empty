@@ -304,6 +304,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                             break;
                         }
                     }
+                    continue;
                 }
                 // 若是新增数据
                 // 保存进合同收款条件子表
