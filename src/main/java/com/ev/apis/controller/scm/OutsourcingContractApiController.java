@@ -137,7 +137,10 @@ public class OutsourcingContractApiController {
                               @ApiParam(value = "被删除的委外合同明细ID") @RequestParam(value = "itemIds", defaultValue = "", required = false) Long[] itemIds,
                               @ApiParam(value = "被删除的委外合同条件ID") @RequestParam(value = "payIds", defaultValue = "", required = false) Long[] payIds){
         // 与源单数量对比
-        List<OutsourcingContractItemDO> itemDOs = JSON.parseArray(bodyItem, OutsourcingContractItemDO.class);
+        List<OutsourcingContractItemDO> itemDOs = JSON.parseArray(bodyItem, OutsourcingContractItemDO.class)
+                .stream()
+                .filter(outsourcingContractItemDO -> outsourcingContractItemDO.getSourceId()!=null)
+                .collect(Collectors.toList());
         Map<Long, BigDecimal> count = Maps.newHashMap();
         for (OutsourcingContractItemDO itemDO : itemDOs) {
             Long sourceId = itemDO.getSourceId();
