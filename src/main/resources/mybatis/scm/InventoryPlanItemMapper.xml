@@ -182,6 +182,7 @@
  <!--  根据条件查询要盘点商品信息，数量-->
 	<select id="getProMsgCount" resultType="map">
 		SELECT
+		a.id,
 		a.materiel_id as materielId,
 		b.name as materielName,
 		b.serial_no as serialno,
