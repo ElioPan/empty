@@ -3,7 +3,6 @@ package com.ev.mes.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
-import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -120,7 +119,6 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 		Map<String,Object> map = Maps.newHashMap();
 		map.put("sourceTypes",outStockIds);
 		map.put("sourceId",id);
-		map.put("sourceType", ConstantForGYL.TLRK);
 
         if (this.isCited(id) || productionFeedingDao.childCount(map)>0) {
 			return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));

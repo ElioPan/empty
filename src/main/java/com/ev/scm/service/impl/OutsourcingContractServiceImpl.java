@@ -452,6 +452,12 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
             return R.error(messageSourceHandler.getMessage("common.massge.faildRollBackAudit", null));
         }
 
+        int childCount = outsourcingContractDao.childCount(id);
+        if (childCount>0) {
+            return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));
+        }
+
+
         Map<String,Object> param = Maps.newHashMap();
         param.put("contractId",id);
         List<Long> itemIdList = outsourcingContractItemDao.list(param)
@@ -509,7 +515,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
     public R getDetail(Long outsourcingContractId) {
         Map<String, Object> result = Maps.newHashMap();
         Map<String, Object> outsourcingContract = outsourcingContractDao.getDetail(outsourcingContractId);
-        if (outsourcingContract.isEmpty()){
+        if (outsourcingContract == null){
             return R.error(messageSourceHandler.getMessage("apis.check.buildWinStockD", null));
         }
         result.put("outsourcingContract", outsourcingContract);
