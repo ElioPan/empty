@@ -186,20 +186,33 @@ public class OutsourcingStockOutApiController {
     public R reverseAudit(
             @ApiParam(value = "出库单Id", required = true) @RequestParam(value = "id", defaultValue = "") Long id
     ) {
-        R reverseAudit = stockOutService.reverseAuditForR(id, ConstantForGYL.WWCK);
-        // 反写委外投料单数量
-        if (Integer.parseInt(reverseAudit.get("code").toString())==0) {
-            Map<Long, BigDecimal> count = this.getFeedingCountMap(id);
-            ProductionFeedingDetailDO detailDO;
-            BigDecimal outCount;
-            for (Long sourceId : count.keySet()) {
-                detailDO = feedingDetailService.get(sourceId);
-                outCount = detailDO.getOutCount();
-                detailDO.setOutCount(outCount.subtract(count.get(sourceId)));
-                feedingDetailService.update(detailDO);
+	    Map<String,Object> map = Maps.newHashMap();
+	    map.put("outId",id);
+        List<StockOutItemDO> list = stockOutItemService.list(map);
+        if (list.size() > 0) {
+            for (StockOutItemDO itemDO : list) {
+                if (itemDO.getChargeOffCount() != null && itemDO.getChargeOffCount().compareTo(BigDecimal.ZERO)!=0) {
+                    return R.error(messageSourceHandler.getMessage("common.massge.faildRollBackAudit", null));
+                }
             }
+
+            R reverseAudit = stockOutService.reverseAuditForR(id, ConstantForGYL.WWCK);
+            // 反写委外投料单数量
+            if (Integer.parseInt(reverseAudit.get("code").toString())==0) {
+                Map<Long, BigDecimal> count = this.getFeedingCountMap(id);
+                ProductionFeedingDetailDO detailDO;
+                BigDecimal outCount;
+                for (Long sourceId : count.keySet()) {
+                    detailDO = feedingDetailService.get(sourceId);
+                    outCount = detailDO.getOutCount();
+                    detailDO.setOutCount(outCount.subtract(count.get(sourceId)));
+                    feedingDetailService.update(detailDO);
+                }
+            }
+            return reverseAudit;
         }
-        return reverseAudit;
+
+        return R.error();
     }
 	
 	@EvApiByToken(value = "/apis/outsourcingStockOut/batchRemove", method = RequestMethod.POST, apiTitle = "删除委外出库单")
