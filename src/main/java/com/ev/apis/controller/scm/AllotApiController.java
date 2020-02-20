@@ -85,7 +85,7 @@ public class AllotApiController {
 			@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
 			@ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
 			@ApiParam(value = "单据编号、产品名称、产品编号模糊查询") @RequestParam(value = "fuzzySearch", defaultValue = "", required = false) String fuzzySearch,
-			@ApiParam(value = "单据编号") @RequestParam(value = "code", defaultValue = "", required = false) String code,
+			@ApiParam(value = "单据编号") @RequestParam(value = "allotCode", defaultValue = "", required = false) String allotCode,
 			@ApiParam(value = "产品名称") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
 			@ApiParam(value = "开始时间（单据日期）") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
 			@ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
@@ -99,7 +99,7 @@ public class AllotApiController {
 		params.put("fuzzySearch", fuzzySearch);
 		params.put("outFacility", outFacility);
 		params.put("inFacility", inFacility);
-		params.put("code", code);
+		params.put("code", allotCode);
 		params.put("materielName", StringUtils.sqlLike(materielName));
 
 

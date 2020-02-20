@@ -154,6 +154,7 @@
         dicu.`value` AS unitValue,
         detail.`count` AS allotCount,
         detail.`price` AS materielPrice,<!-- 单价 -->
+		IFNULL(detail.`count`,0)*IFNULL(detail.`price`,0) AS amount,
         outlo.`name` AS outLocationName,
         outfac.`name` AS outFacilityName,
         inlo.`name` AS inLocationName,

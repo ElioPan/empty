@@ -267,7 +267,7 @@
 			<if test="purchasePerson != null and purchasePerson != ''"> and contract.purchase_person = #{purchasePerson} </if>
 			<if test="purchasePersonName != null and purchasePersonName != ''"> and users.name LIKE #{purchasePersonName} </if>
 			<if test="serialNo != null and serialNo != ''"> and materiel.serial_no = #{serialNo} </if>
-			<if test="contractId != null and contractCode != ''"> and contract.`id` = #{contractId} </if>
+			<if test="contractId != null and contractId != ''"> and contract.`id` = #{contractId} </if>
 			<if test="status != null and status != ''"> and feeding.status = #{status} </if>
 			AND feeding.`outsource_contract_item_id` IS NOT NULL
 		</where>
@@ -283,5 +283,36 @@
 			<if test="sourceType != null and sourceType != ''"> and item.source_type = #{sourceType} </if>
 		</where>
 	</select>
+
+
+	<select id="childCount" resultType="int">
+    SELECT
+    COUNT(*)
+    FROM
+    (
+    SELECT
+    item.id
+    FROM
+    mes_production_feeding_detail item
+    LEFT JOIN scm_purchase_item purchase ON purchase.source_id = item.id
+    LEFT JOIN scm_stock_out_item outi ON outi.source_id = item.id
+		<where>
+			<if test="sourceId != null and sourceId != ''"> and item.head_id = #{sourceId} </if>
+			<if test="sourceTypes != null and sourceTypes.size()>0"> and purchase.source_type IN
+				<foreach item="item" collection="sourceTypes" open="(" separator="," close=")" index="index">
+					<if test="item!=null">
+						#{item}
+					</if>
+				</foreach>
+				and outi.source_type IN
+				<foreach item="item" collection="sourceTypes" open="(" separator="," close=")" index="index">
+					<if test="item!=null">
+						#{item}
+					</if>
+				</foreach>
+			</if>
+		</where>
+    ) a
+    </select>
 
 </mapper>
