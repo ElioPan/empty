@@ -295,21 +295,24 @@
     FROM
     mes_production_feeding_detail item
     LEFT JOIN scm_purchase_item purchase ON purchase.source_id = item.id
+    LEFT JOIN scm_stock_in_item ini ON ini.source_id = item.id
     LEFT JOIN scm_stock_out_item outi ON outi.source_id = item.id
 		<where>
 			<if test="sourceId != null and sourceId != ''"> and item.head_id = #{sourceId} </if>
-			<if test="sourceTypes != null and sourceTypes.size()>0"> and purchase.source_type IN
+			<if test="sourceTypes != null and sourceTypes.size()>0"> and (purchase.source_type IN
 				<foreach item="item" collection="sourceTypes" open="(" separator="," close=")" index="index">
 					<if test="item!=null">
 						#{item}
 					</if>
 				</foreach>
-				and outi.source_type IN
+				OR outi.source_type IN
 				<foreach item="item" collection="sourceTypes" open="(" separator="," close=")" index="index">
 					<if test="item!=null">
 						#{item}
 					</if>
 				</foreach>
+				OR ini.source_type = #{sourceType}
+				 )
 			</if>
 		</where>
     ) a
