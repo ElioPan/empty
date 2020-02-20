@@ -214,6 +214,9 @@ public class SalescontractServiceImpl implements SalescontractService {
         List<ContractItemVO> itemList = this.getContractItemVOS(bodyItem, salesContractItemList);
         alterationContent.put("itemArray", itemList);
 
+        for (SalescontractPayDO salescontractPayDO : salesContractPayList) {
+            salescontractPayDO.setSalescontractId(salesContractId);
+        }
         List<ContractPayVO> payList = this.getContractPayVOS(bodyPay, payIds, salesContractPayList);
         alterationContent.put("payArray", payList);
 

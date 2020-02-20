@@ -218,6 +218,9 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         List<ContractItemVO> itemList = this.getContractItemVOS(bodyItem, outsourcingContractItemList);
         alterationContent.put("itemArray", itemList);
 
+        for (OutsourcingContractPayDO outsourcingContractPayDO : outsourcingContractPayList) {
+            outsourcingContractPayDO.setContractId(outsourcingContractId);
+        }
         List<ContractPayVO> payList = this.getContractPayVOS(bodyPay, payIds, outsourcingContractPayList);
         alterationContent.put("payArray", payList);
 
@@ -346,7 +349,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                         }
 
                         if (outsourcingContractItemTaxAmount.compareTo(newOutsourcingContractItemTaxAmount) != 0) {
-                            contractItemVO.setTaxAmountAfter(newOutsourcingContractItemCount.toPlainString());
+                            contractItemVO.setTaxAmountAfter(newOutsourcingContractItemTaxAmount.toPlainString());
                             isUpdate = true;
                         }
 
@@ -555,8 +558,9 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                 Map<String, Object> materiel;
                 for (int i = 0; i < itemArray.size(); i++) {
                     JSONObject itemJSONObject = itemArray.getJSONObject(i);
+                    OutsourcingContractItemDO outsourcingContractItemDO = outsourcingContractItemDao.get(Long.parseLong(itemJSONObject.get("id").toString()));
                     param = Maps.newHashMap();
-                    param.put("id", itemJSONObject.get("materielId"));
+                    param.put("id", outsourcingContractItemDO.getMaterielId());
                     param.put("offset", 0);
                     param.put("limit", 1);
                     materiel = materielService.listForMap(param).get(0);
