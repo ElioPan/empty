@@ -240,5 +240,21 @@
         LEFT JOIN cus_dictionary dica ON  dica.id = bill.audit_sign
         WHERE bill.`id` = #{value}
 	</select>
+
+<!--	<select id="childCount" resultType="int">-->
+<!--    SELECT-->
+<!--    COUNT(*)-->
+<!--    FROM-->
+<!--    (-->
+<!--    SELECT-->
+<!--    spci.id-->
+<!--    FROM-->
+<!--    scm_processing_charge_item spci-->
+<!--    LEFT JOIN scm_stock_in_item ini ON ini.source_id = spci.id-->
+<!--    WHERE-->
+<!--    ini.source_type =276-->
+<!--    AND spci.charge_id = #{value}-->
+<!--    ) a-->
+<!--    </select>-->
 	
 </mapper>

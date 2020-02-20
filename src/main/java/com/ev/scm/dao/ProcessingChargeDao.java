@@ -35,4 +35,6 @@ public interface ProcessingChargeDao {
 	Map<String, Object> countForMap(Map<String, Object> map);
 
 	Map<String, Object> getDetail(Long id);
+
+//	int childCount(Long id);
 }
