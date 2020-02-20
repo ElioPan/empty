@@ -215,6 +215,8 @@
         item.`charge_off_count` AS chargeOffCount,
         dics.`name` AS sourceTypeName,
         item.`source_code` AS sourceCode,
+        item.`source_id` AS sourceId,
+        item.`source_type` AS sourceType,
         item.`purpose` AS purposeName
         FROM scm_stock_out_item item
         LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`

@@ -190,6 +190,8 @@
 		item.delivery_date AS deliveryDate,
 		dics.`id` AS sourceType,
 		dics.`name` AS sourceTypeName,
+		item.`source_id` AS sourceId,
+		item.`source_type` AS sourceType,
 		item.source_code AS sourceCode,
 		item.remarks AS remarks
 		<include refid="sql_contract_condition"/>
