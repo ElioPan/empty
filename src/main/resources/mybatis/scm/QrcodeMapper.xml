@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.QrcodeDao">
+
+	<select id="get" resultType="com.ev.scm.domain.QrcodeDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_qrcode 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.QrcodeDO">
+	SELECT
+	<include refid="sql_column_list"/>
+	FROM scm_qrcode
+	<include refid="sql_condition"/>
+	<choose>
+		<when test="sort != null and sort.trim() != ''">
+			ORDER BY ${sort} ${order}
+		</when>
+		<otherwise>
+			ORDER BY id DESC
+		</otherwise>
+	</choose>
+	<if test="offset != null and limit != null">
+		limit #{offset}, #{limit}
+	</if>
+</select>
+
+	<select id="count" resultType="int">
+		SELECT COUNT(*) FROM scm_qrcode
+		<include refid="sql_condition"/>
+	</select>
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		qrcode.id as id,
+		qrcode.batch as batch,
+		qrcode.contract_no as contractNo,
+		qrcode.count as count,
+		qrcode.materiel_no as materielNo,
+		qrcode.stock_id as stockId,
+		materiel.id as materielId,
+		materiel.`name` as materielName,
+		materiel.specification as specification,
+		uom.id as uomId,
+		uom.`name` as uomName
+		FROM
+		scm_qrcode qrcode
+		LEFT JOIN scm_stock stock on stock.id = qrcode.stock_id
+		LEFT JOIN cus_materiel materiel on materiel.id = qrcode.materiel_id
+		LEFT JOIN cus_dictionary uom on uom.id = materiel.unit_uom
+		LEFT JOIN mes_material_inspection inspection on inspection.id = qrcode.inspection_id
+		<include refid="sql_condition_map"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY ${sort} ${order}
+			</when>
+			<otherwise>
+				ORDER BY id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForMap" resultType="int">
+		SELECT COUNT(*) FROM
+		scm_qrcode qrcode
+		LEFT JOIN scm_stock stock on stock.id = qrcode.stock_id
+		LEFT JOIN cus_materiel materiel on materiel.id = stock.materiel_id
+		LEFT JOIN cus_dictionary uom on uom.id = materiel.unit_uom
+		LEFT JOIN mes_material_inspection inspection on inspection.id = qrcode.inspection_id
+		<include refid="sql_condition_map"/>
+	</select>
+
+	<sql id="sql_condition_map">
+		<where>
+			<if test="id != null and id != ''"> AND qrcode.id = #{id} </if>
+			<if test="inspectionId != null and inspectionId != ''"> AND qrcode.inspection_id = #{inspectionId} </if>
+			<if test="contractNo != null and contractNo != ''"> AND qrcode.contract_no = #{contractNo} </if>
+			<if test="stockId != null and stockId != ''"> AND qrcode.stock_id = #{stockId} </if>
+			<if test="materielId != null and materielId != ''"> AND qrcode.materiel_id = #{materielId} </if>
+			<if test="materielNo != null and materielNo != ''"> AND qrcode.materiel_no = #{materielNo} </if>
+		</where>
+	</sql>
+
+    <sql id="sql_column_list">
+		`id`,`inspection_id`,`contract_no`,`stock_id`,`materiel_id`,`materiel_no`,`batch`,`count`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> AND id = #{id} </if>
+                            <if test="inspectionId != null and inspectionId != ''"> AND inspection_id = #{inspectionId} </if>
+                            <if test="contractNo != null and contractNo != ''"> AND contract_no = #{contractNo} </if>
+                            <if test="stockId != null and stockId != ''"> AND stock_id = #{stockId} </if>
+                            <if test="materielId != null and materielId != ''"> AND materiel_id = #{materielId} </if>
+                            <if test="materielNo != null and materielNo != ''"> AND materiel_no = #{materielNo} </if>
+                            <if test="batch != null and batch != ''"> AND batch = #{batch} </if>
+                            <if test="count != null and count != ''"> AND count = #{count} </if>
+                            <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.QrcodeDO" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO scm_qrcode
+		(
+			`inspection_id`, 
+			`contract_no`, 
+			`stock_id`, 
+			`materiel_id`, 
+			`materiel_no`, 
+			`batch`, 
+			`count`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		VALUES
+		(
+			#{inspectionId}, 
+			#{contractNo}, 
+			#{stockId}, 
+			#{materielId}, 
+			#{materielNo}, 
+			#{batch}, 
+			#{count}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.QrcodeDO">
+		UPDATE scm_qrcode
+		<set>
+		<if test="inspectionId != null">`inspection_id` = #{inspectionId}, </if>
+		<if test="contractNo != null">`contract_no` = #{contractNo}, </if>
+		<if test="stockId != null">`stock_id` = #{stockId}, </if>
+		<if test="materielId != null">`materiel_id` = #{materielId}, </if>
+		<if test="materielNo != null">`materiel_no` = #{materielNo}, </if>
+		<if test="batch != null">`batch` = #{batch}, </if>
+		<if test="count != null">`count` = #{count}, </if>
+		<if test="createBy != null">`create_by` = #{createBy}, </if>
+		<if test="createTime != null">`create_time` = #{createTime}, </if>
+		<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+		<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+		<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+	</set>
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="remove">
+		DELETE FROM scm_qrcode WHERE id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+        DELETE FROM scm_qrcode WHERE id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+</mapper>
