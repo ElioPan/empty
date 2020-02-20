@@ -145,6 +145,7 @@
 		SELECT
 		feeding.`id` AS id,
 		feeding.`production_plan_id` AS productionPlanId,
+		feeding.`outsource_contract_item_id` AS outsourceContractItemId,
 		plan.`plan_no` AS planNo,
 		feeding.`materiel_id` AS materielId,
 		material.serial_no AS materialSerialNo,
@@ -209,7 +210,7 @@
 		  		 	<if test="productionPlanNo != null and productionPlanNo != ''"> and plan.`plan_no` = #{productionPlanNo} </if>
                     <if test="deptId != null and deptId != ''"> and feeding.`pro_dept` = #{deptId} </if>
 		  			<if test="status != null and status != ''"> and feeding.status = #{status} </if>
-					AND feeding.`production_plan_id` IS NOT NULL
+			        <if test="isPlan != null and isPlan != ''"> AND feeding.`production_plan_id` IS NOT NULL </if>
 					<!-- 上为列表查询字段 -->
 		  		</where>
 	</sql>
@@ -218,6 +219,7 @@
 	<select id="listForMapToOutsourcingContract" resultType="map">
 		SELECT
 		feeding.`id` AS id,
+		feeding.`outsource_contract_item_id` AS outsourceContractItemId,
 		contract.`contract_code` AS contractCode,
 		feeding.`feeding_no` AS feedingNo,
 		feeding.`materiel_id` AS materielId,
