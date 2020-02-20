@@ -230,6 +230,7 @@
 		IF(feeding.`is_quota`=1,'是','否') AS isQuota,
 		feeding.`plan_count` AS planCount,
 		contractItem.`delivery_date` AS contractDeliveryDate,
+		feeding.`status` AS auditSign,
 		feeding.`pro_dept` AS proDept
 		<include refid="sql_contract_condition"/>
 		<choose>
