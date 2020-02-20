@@ -231,7 +231,9 @@
 		feeding.`plan_count` AS planCount,
 		contractItem.`delivery_date` AS contractDeliveryDate,
 		feeding.`status` AS auditSign,
-		feeding.`pro_dept` AS proDept
+		dicu.`name` AS auditSignName,
+		feeding.`pro_dept` AS proDept,
+		users.`name` AS purchasePersonName
 		<include refid="sql_contract_condition"/>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -258,6 +260,7 @@
 		LEFT JOIN scm_outsourcing_contract contract ON contract.`id` = contractItem.`contract_id`
 		LEFT JOIN cus_materiel materiel ON materiel.`id` = feeding.`materiel_id`
 		LEFT JOIN cus_dictionary unituom ON unituom.id = materiel.`unit_uom`
+		LEFT JOIN cus_dictionary dicu ON dicu.id = feeding.`status`
 		LEFT JOIN sys_dept dept ON dept.`dept_id`=feeding.`pro_dept`
 		LEFT JOIN sys_user users ON users.`user_id`=contract.purchase_person
 		<where>
