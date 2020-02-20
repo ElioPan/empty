@@ -49,4 +49,6 @@ public interface StockOutDao {
     int updateStockDetail(Map<String,Object>map);
 
     Map<String, Object> countTotal(Map<String, Object> params);
+
+    int childCount(Long id);
 }

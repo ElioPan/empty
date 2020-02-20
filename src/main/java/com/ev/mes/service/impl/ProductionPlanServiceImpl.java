@@ -327,6 +327,13 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
                 && !Objects.equals(ConstantForMES.PLAN, workingProcedurePlanList.get(0).getStatus())) {
             return R.error(messageSourceHandler.getMessage("plan.workingPlan.issuedPlan", null));
         }
+
+        // 看有无生成生产入库单
+        int productionStockInCount  = productionPlanDao.productionStockInCount(id);
+        if (productionStockInCount > 0) {
+            return R.error(messageSourceHandler.getMessage("plan.child.nonIssuedPlan.reverseIssuedPlan", null));
+        }
+
         // 若都未产生下级单据则将投料单删除
         if (feedingList.size() > 0) {
             feedingService.removeHeadAndBody(feedingList.get(0).getId());

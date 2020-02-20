@@ -81,4 +81,8 @@ public class StockInItemDO implements Serializable {
     @ApiModelProperty(value = "删除状态（）")
 	private Integer delFlag;
 
+	@ApiModelProperty(value = "未核销完毕的组件物料")
+	private String materialIdCount;
+	
+
 }

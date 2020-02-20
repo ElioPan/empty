@@ -76,6 +76,7 @@ public class ProductionFeedingApiController {
         if (StringUtils.isNoneEmpty(sort)) {
             params.put("offset", 0);
             params.put("limit", 1);
+            params.put("isPlan",1);
             List<Map<String, Object>> maps = this.productionFeedingService.listForMap(params);
             if (maps.size() > 0 && maps.get(0).containsKey(sort)) {
                 params.put("sort", sort);
@@ -92,6 +93,7 @@ public class ProductionFeedingApiController {
 
 		params.put("offset", (pageno - 1) * pagesize);
 		params.put("limit", pagesize);
+		params.put("isPlan",1);
 		Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
 		List<Map<String, Object>> data = productionFeedingService.listForMap(params);
 		int total = productionFeedingService.countForMap(params);

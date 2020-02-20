@@ -58,4 +58,6 @@ public interface SalescontractService {
     List<ContractPayVO> getContractPayVOS(String bodyPay, Long[] payIds, List<SalescontractPayDO> salesContractPayList);
 
     List<ContractItemVO> getContractItemVOS(String bodyItem, List<SalescontractItemDO> salesContractItemList);
+
+    int childCount(Long id);
 }

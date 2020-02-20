@@ -137,7 +137,10 @@ public class OutsourcingContractApiController {
                               @ApiParam(value = "被删除的委外合同明细ID") @RequestParam(value = "itemIds", defaultValue = "", required = false) Long[] itemIds,
                               @ApiParam(value = "被删除的委外合同条件ID") @RequestParam(value = "payIds", defaultValue = "", required = false) Long[] payIds){
         // 与源单数量对比
-        List<OutsourcingContractItemDO> itemDOs = JSON.parseArray(bodyItem, OutsourcingContractItemDO.class);
+        List<OutsourcingContractItemDO> itemDOs = JSON.parseArray(bodyItem, OutsourcingContractItemDO.class)
+                .stream()
+                .filter(outsourcingContractItemDO -> outsourcingContractItemDO.getSourceId()!=null)
+                .collect(Collectors.toList());
         Map<Long, BigDecimal> count = Maps.newHashMap();
         for (OutsourcingContractItemDO itemDO : itemDOs) {
             Long sourceId = itemDO.getSourceId();
@@ -364,7 +367,7 @@ public class OutsourcingContractApiController {
             for (Map<String, Object> map : data) {
                 double availableCount = 0.0d;
                 for (Map<String, Object> stockList : stockListForMap) {
-                    if (Objects.equals(stockList.get("proId").toString(), map.get("materielId").toString())) {
+                    if (Objects.equals(stockList.get("materielId").toString(), map.get("materielId").toString())) {
                         // 如果没有批次要求则查出所有该商品的可用数量累计
                         if (!map.containsKey("batch")) {
                             availableCount += Double.parseDouble(stockList.get("availableCount").toString());

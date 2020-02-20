@@ -145,6 +145,7 @@
 		SELECT
 		feeding.`id` AS id,
 		feeding.`production_plan_id` AS productionPlanId,
+		feeding.`outsource_contract_item_id` AS outsourceContractItemId,
 		plan.`plan_no` AS planNo,
 		feeding.`materiel_id` AS materielId,
 		material.serial_no AS materialSerialNo,
@@ -209,7 +210,7 @@
 		  		 	<if test="productionPlanNo != null and productionPlanNo != ''"> and plan.`plan_no` = #{productionPlanNo} </if>
                     <if test="deptId != null and deptId != ''"> and feeding.`pro_dept` = #{deptId} </if>
 		  			<if test="status != null and status != ''"> and feeding.status = #{status} </if>
-					AND feeding.`production_plan_id` IS NOT NULL
+			        <if test="isPlan != null and isPlan != ''"> AND feeding.`production_plan_id` IS NOT NULL </if>
 					<!-- 上为列表查询字段 -->
 		  		</where>
 	</sql>
@@ -218,6 +219,7 @@
 	<select id="listForMapToOutsourcingContract" resultType="map">
 		SELECT
 		feeding.`id` AS id,
+		feeding.`outsource_contract_item_id` AS outsourceContractItemId,
 		contract.`contract_code` AS contractCode,
 		feeding.`feeding_no` AS feedingNo,
 		feeding.`materiel_id` AS materielId,
@@ -230,7 +232,10 @@
 		IF(feeding.`is_quota`=1,'是','否') AS isQuota,
 		feeding.`plan_count` AS planCount,
 		contractItem.`delivery_date` AS contractDeliveryDate,
-		feeding.`pro_dept` AS proDept
+		feeding.`status` AS auditSign,
+		dicu.`name` AS auditSignName,
+		feeding.`pro_dept` AS proDept,
+		users.`name` AS purchasePersonName
 		<include refid="sql_contract_condition"/>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -257,6 +262,7 @@
 		LEFT JOIN scm_outsourcing_contract contract ON contract.`id` = contractItem.`contract_id`
 		LEFT JOIN cus_materiel materiel ON materiel.`id` = feeding.`materiel_id`
 		LEFT JOIN cus_dictionary unituom ON unituom.id = materiel.`unit_uom`
+		LEFT JOIN cus_dictionary dicu ON dicu.id = feeding.`status`
 		LEFT JOIN sys_dept dept ON dept.`dept_id`=feeding.`pro_dept`
 		LEFT JOIN sys_user users ON users.`user_id`=contract.purchase_person
 		<where>
@@ -267,7 +273,7 @@
 			<if test="purchasePerson != null and purchasePerson != ''"> and contract.purchase_person = #{purchasePerson} </if>
 			<if test="purchasePersonName != null and purchasePersonName != ''"> and users.name LIKE #{purchasePersonName} </if>
 			<if test="serialNo != null and serialNo != ''"> and materiel.serial_no = #{serialNo} </if>
-			<if test="contractId != null and contractCode != ''"> and contract.`id` = #{contractId} </if>
+			<if test="contractId != null and contractId != ''"> and contract.`id` = #{contractId} </if>
 			<if test="status != null and status != ''"> and feeding.status = #{status} </if>
 			AND feeding.`outsource_contract_item_id` IS NOT NULL
 		</where>
@@ -283,5 +289,52 @@
 			<if test="sourceType != null and sourceType != ''"> and item.source_type = #{sourceType} </if>
 		</where>
 	</select>
+
+
+	<select id="childCount" resultType="int">
+    SELECT
+    COUNT(*)
+    FROM
+    (
+    SELECT
+    item.id
+    FROM
+    mes_production_feeding_detail item
+    LEFT JOIN scm_purchase_item purchase ON purchase.source_id = item.id
+    LEFT JOIN scm_stock_in_item ini ON ini.source_id = item.id
+    LEFT JOIN scm_stock_out_item outi ON outi.source_id = item.id
+    LEFT JOIN scm_outsourcing_contract_item soci ON soci.source_id = item.id
+		<where>
+			<if test="sourceId != null and sourceId != ''"> and item.head_id = #{sourceId} </if>
+			<if test="sourceTypes != null and sourceTypes.size()>0"> and (
+			 	purchase.source_type IN
+				<foreach item="item" collection="sourceTypes" open="(" separator="," close=")" index="index">
+					<if test="item!=null">
+						#{item}
+					</if>
+				</foreach>
+				OR outi.source_type IN
+				<foreach item="item" collection="sourceTypes" open="(" separator="," close=")" index="index">
+					<if test="item!=null">
+						#{item}
+					</if>
+				</foreach>
+				OR ini.source_type IN
+				<foreach item="item" collection="sourceTypes" open="(" separator="," close=")" index="index">
+					<if test="item!=null">
+						#{item}
+					</if>
+				</foreach>
+				OR soci.source_type IN
+				<foreach item="item" collection="sourceTypes" open="(" separator="," close=")" index="index">
+					<if test="item!=null">
+						#{item}
+					</if>
+				</foreach>
+				 )
+			</if>
+		</where>
+    ) a
+    </select>
 
 </mapper>

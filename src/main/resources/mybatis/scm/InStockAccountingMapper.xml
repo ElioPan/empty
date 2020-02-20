@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.InStockAccountingDao">
+
+
+
+
+
+    <select id="getBomItem" resultType="map">
+        SELECT
+        b.id,
+        b.materiel_id as materielId,
+        b.standard_count as standardCount
+        FROM
+        mes_bom_detail b
+        LEFT JOIN scm_outsourcing_contract_item  a on b.bom_id=a.bom_id
+        WHERE
+        a.id=#{value}
+    </select>
+
+    <select id="getStockOutDetail" resultType="com.ev.scm.domain.StockOutItemDO">
+        SELECT
+            a.id,
+            a.count,
+            a.unit_price,
+            a.materiel_id,
+            a.charge_off_count,
+            a.source_id
+        FROM
+        scm_stock_out_item  a
+        LEFT JOIN scm_stock_out b on a.out_id=b.id
+        LEFT JOIN mes_production_feeding_detail c on a.source_id=c.id
+        LEFT JOIN mes_production_feeding  d on c.head_id=d.id
+        WHERE
+            b.outbound_type=274    <!--委外委外出库类型-->
+            and
+            b.audit_sign=179     <!--已审核的委外委外出库-->
+            <!--此处可在加一个查询 and a.sourceType=277 生产投料单-->
+            and a.count &gt; a.charge_off_count   <!--发出数量大于已核销数量拿出来-->
+            AND
+            d.outsource_contract_item_id=#{value}   <!--委外合同子表id-->
+    </select>
+
+
+    <update id="batchUpdateStockOutItem" parameterType="List">
+        UPDATE scm_stock_out_item
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="charge_off_count=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.chargeOffCount!=null">
+                        when id=#{item.id} then #{item.chargeOffCount}
+                    </if>
+                    <if test="item.unitPrice==null">
+                        when id=#{item.id} then scm_stock_out_item.charge_off_count
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        WHERE id IN
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id}
+        </foreach>
+    </update>
+
+
+    <select id="getTotalTaxAmountCount" resultType="map">
+            select
+                SUM(a.count) as totailCount,
+                SUM(a.tax_amount) as taxAmount
+            FROM
+              scm_processing_charge_item a
+            LEFT JOIN scm_stock_in_item b on b.id=a.source_id
+            WHERE
+              b.id=#{value}
+    </select>
+
+
+
+</mapper>

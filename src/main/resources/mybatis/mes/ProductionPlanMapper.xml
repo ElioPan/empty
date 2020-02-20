@@ -345,5 +345,22 @@
         </if>
     </select>
 
+	<!--生产入库源单验证-->
+    <select id="productionStockInCount" resultType="int">
+	SELECT
+    COUNT(*)
+    FROM
+    (
+    SELECT
+    outi.id
+    FROM
+    mes_production_plan plan
+    LEFT JOIN scm_stock_in_item ini ON ini.source_id = plan.id
+    WHERE
+    ini.source_type = 278
+    AND plan.`id` = #{value}
+    ) a
+	</select>
+
 
 </mapper>

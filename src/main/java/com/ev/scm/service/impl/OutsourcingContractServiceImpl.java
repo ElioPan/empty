@@ -33,10 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -221,6 +218,9 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         List<ContractItemVO> itemList = this.getContractItemVOS(bodyItem, outsourcingContractItemList);
         alterationContent.put("itemArray", itemList);
 
+        for (OutsourcingContractPayDO outsourcingContractPayDO : outsourcingContractPayList) {
+            outsourcingContractPayDO.setContractId(outsourcingContractId);
+        }
         List<ContractPayVO> payList = this.getContractPayVOS(bodyPay, payIds, outsourcingContractPayList);
         alterationContent.put("payArray", payList);
 
@@ -304,6 +304,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                             break;
                         }
                     }
+                    continue;
                 }
                 // 若是新增数据
                 // 保存进合同收款条件子表
@@ -349,7 +350,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                         }
 
                         if (outsourcingContractItemTaxAmount.compareTo(newOutsourcingContractItemTaxAmount) != 0) {
-                            contractItemVO.setTaxAmountAfter(newOutsourcingContractItemCount.toPlainString());
+                            contractItemVO.setTaxAmountAfter(newOutsourcingContractItemTaxAmount.toPlainString());
                             isUpdate = true;
                         }
 
@@ -403,6 +404,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         }
         // 修改单据状态
         outsourcingContractDO.setAuditSign(ConstantForGYL.OK_AUDITED);
+        outsourcingContractDO.setAuditTime(new Date());
         outsourcingContractDO.setAuditor(ShiroUtils.getUserId());
         return this.update(outsourcingContractDO) > 0 ? R.ok() : R.error();
     }
@@ -453,6 +455,12 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         if (!Objects.equals(outsourcingContractDO.getAuditSign(), ConstantForGYL.OK_AUDITED)) {
             return R.error(messageSourceHandler.getMessage("common.massge.faildRollBackAudit", null));
         }
+
+        int childCount = outsourcingContractDao.childCount(id);
+        if (childCount>0) {
+            return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));
+        }
+
 
         Map<String,Object> param = Maps.newHashMap();
         param.put("contractId",id);
@@ -511,7 +519,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
     public R getDetail(Long outsourcingContractId) {
         Map<String, Object> result = Maps.newHashMap();
         Map<String, Object> outsourcingContract = outsourcingContractDao.getDetail(outsourcingContractId);
-        if (outsourcingContract.isEmpty()){
+        if (outsourcingContract == null){
             return R.error(messageSourceHandler.getMessage("apis.check.buildWinStockD", null));
         }
         result.put("outsourcingContract", outsourcingContract);
@@ -536,20 +544,24 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
     public R getAlterationDetail(Long id) {
         Map<String, Object> result = Maps.newHashMap();
         ContractAlterationDO contractAlterationDO = contractAlterationDao.get(id);
-        Map<String, Object> outsourcingContract = outsourcingContractDao.getDetail(id);
+        Map<String, Object> outsourcingContract = outsourcingContractDao.getDetail(contractAlterationDO.getContractId());
         result.put("contract", outsourcingContract);
         String alterationContent = contractAlterationDO.getAlterationContent();
         if (StringUtils.isNoneEmpty(alterationContent)) {
             JSONObject alterationContentJSON = JSON.parseObject(alterationContent);
             JSONArray itemArray = alterationContentJSON.getJSONArray("itemArray");
             JSONArray payArray = alterationContentJSON.getJSONArray("payArray");
+            if (payArray.size() > 0) {
+                result.put("payArray", payArray);
+            }
             if (itemArray.size() > 0) {
                 Map<String, Object> param;
                 Map<String, Object> materiel;
                 for (int i = 0; i < itemArray.size(); i++) {
                     JSONObject itemJSONObject = itemArray.getJSONObject(i);
+                    OutsourcingContractItemDO outsourcingContractItemDO = outsourcingContractItemDao.get(Long.parseLong(itemJSONObject.get("id").toString()));
                     param = Maps.newHashMap();
-                    param.put("id", itemJSONObject.get("materielId"));
+                    param.put("id", outsourcingContractItemDO.getMaterielId());
                     param.put("offset", 0);
                     param.put("limit", 1);
                     materiel = materielService.listForMap(param).get(0);
@@ -559,7 +571,6 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                     itemJSONObject.put("specification", materiel.getOrDefault("specification", ""));
                 }
                 result.put("itemArray", itemArray);
-                result.put("payArray", payArray);
                 return R.ok(result);
             }
         }

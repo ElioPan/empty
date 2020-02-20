@@ -1,23 +1,13 @@
 package com.ev.mes.service.impl;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
+import com.alibaba.fastjson.JSON;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
+import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
+import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
-import com.ev.scm.domain.StockOutItemDO;
-import com.ev.scm.service.StockOutItemService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.alibaba.fastjson.JSON;
-import com.ev.framework.config.ConstantForMES;
-import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.StringUtils;
 import com.ev.mes.dao.ProductionFeedingDao;
 import com.ev.mes.domain.ProductionFeedingDO;
@@ -25,6 +15,13 @@ import com.ev.mes.domain.ProductionFeedingDetailDO;
 import com.ev.mes.service.ProductionFeedingDetailService;
 import com.ev.mes.service.ProductionFeedingService;
 import com.google.common.collect.Maps;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductionFeedingServiceImpl implements ProductionFeedingService {
@@ -34,8 +31,6 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 	private ProductionFeedingDetailService feedingDetailService;
 	@Autowired
 	private DictionaryService dictionaryService;
-	@Autowired
-	private StockOutItemService stockOutItemService;
     @Autowired
     private MessageSourceHandler messageSourceHandler;
 
@@ -116,18 +111,17 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
         if (!Objects.equals(ConstantForMES.OK_AUDITED, feedingDO.getStatus())) {
             return R.error(messageSourceHandler.getMessage("receipt.reverseAudit.nonWaitingAudit", null));
         }
-        // 检查投料单下是否有出库单
+        // 检查投料单下是否有下游单据
 		List<Integer> outStockIds = dictionaryService.listByType(ConstantForMES.FEEDING)
 				.stream()
 				.map(DictionaryDO::getId)
 				.collect(Collectors.toList());
-        Map<String,Object> map = Maps.newHashMap();
-        map.put("sourceTypes",outStockIds);
-        map.put("sourceId",id);
-		List<StockOutItemDO> outStockList = stockOutItemService.list(map);
+		Map<String,Object> map = Maps.newHashMap();
+		map.put("sourceTypes",outStockIds);
+		map.put("sourceId",id);
 
-        if (this.isCited(id) || outStockList.size()>0) {
-			return R.error(messageSourceHandler.getMessage("common.approvedOrChild.delete.disabled", null));
+        if (this.isCited(id) || productionFeedingDao.childCount(map)>0) {
+			return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));
         }
 
         ProductionFeedingDO productionFeedingDO = new ProductionFeedingDO();

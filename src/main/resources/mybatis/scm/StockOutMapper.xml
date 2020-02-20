@@ -544,5 +544,21 @@
 		SET handle_sign = 1
 		WHERE inhead_id = #{inheadId} AND in_out_type = #{inOutType}
     </update>
+
+    <select id="childCount" resultType="int">
+    SELECT
+    COUNT(*)
+    FROM
+    (
+    SELECT
+    outi.id
+    FROM
+    scm_stock_out_item outi
+    LEFT JOIN scm_stock_in_item ini ON ini.source_id = outi.id
+    WHERE
+    ini.source_type IN (204,199)
+    AND outi.`out_id` = #{value}
+    ) a
+    </select>
 	
 </mapper>

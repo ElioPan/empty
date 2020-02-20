@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -144,6 +145,7 @@ public class SalescontractServiceImpl implements SalescontractService {
         }
         salescontractDO.setAuditSign(ConstantForGYL.OK_AUDITED);
         salescontractDO.setAuditor(ShiroUtils.getUserId());
+        salescontractDO.setAuditTime(new Date());
         return this.update(salescontractDO) > 0 ? R.ok() : R.error();
     }
 
@@ -156,6 +158,10 @@ public class SalescontractServiceImpl implements SalescontractService {
         if (salescontractDO.getCloseStatus() == 1) {
             return R.error(messageSourceHandler.getMessage("common.contract.isCloseStatus", null));
         }
+        if (this.childCount(id)>0) {
+            return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));
+        }
+
 //        if (!Objects.equals(salescontractDO.getAuditor(), ShiroUtils.getUserId())) {
 //            return R.error(messageSourceHandler.getMessage("common.approved.user", null));
 //        }
@@ -208,6 +214,9 @@ public class SalescontractServiceImpl implements SalescontractService {
         List<ContractItemVO> itemList = this.getContractItemVOS(bodyItem, salesContractItemList);
         alterationContent.put("itemArray", itemList);
 
+        for (SalescontractPayDO salescontractPayDO : salesContractPayList) {
+            salescontractPayDO.setSalescontractId(salesContractId);
+        }
         List<ContractPayVO> payList = this.getContractPayVOS(bodyPay, payIds, salesContractPayList);
         alterationContent.put("payArray", payList);
 
@@ -292,6 +301,7 @@ public class SalescontractServiceImpl implements SalescontractService {
                             break;
                         }
                     }
+                    continue;
                 }
                 // 若是新增数据
                 // 保存进合同收款条件子表
@@ -356,6 +366,11 @@ public class SalescontractServiceImpl implements SalescontractService {
             }
         }
         return itemList;
+    }
+
+    @Override
+    public int childCount(Long id) {
+        return salesContractDao.childCount(id);
     }
 
     @Override

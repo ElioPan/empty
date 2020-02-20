@@ -36,4 +36,6 @@ public interface ProductionPlanDao {
 	Map<String, Object> countForMap(Map<String, Object> params);
 
     List<Map<String, Object>> listDialogMap(Map<String, Object> params);
+
+    int productionStockInCount(Long id);
 }

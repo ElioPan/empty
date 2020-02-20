@@ -117,9 +117,13 @@
     <select id="getDetail" resultType="map">
         SELECT
             item.`id` AS itemId,
+            materiel.`id` AS materielId,
             materiel.`name` AS materielName,
             materiel.`serial_no` AS materielSerialno,
             materiel.`specification` AS specification,
+            item.`stock_id` AS stockId,
+            stock.`batch` AS batch,
+            dicu.`name` AS unitName,
             outlo.`name` AS outLocationName,
             outlo.`id` AS outLocation,
             outfac.`name` AS outFacilityName,
@@ -253,7 +257,7 @@
                     </if>
                 </foreach>
             </trim>
-            <trim prefix="create_by =case" suffix="end,">
+           <!-- <trim prefix="create_by =case" suffix="end,">
                 <foreach collection="list" item="item" index="index">
                     <if test="item.createBy!=null">
                         when id=#{item.id} then #{item.createBy}
@@ -302,7 +306,7 @@
                         when id=#{item.id} then cus_allot_detail.del_flag
                     </if>
                 </foreach>
-            </trim>
+            </trim>-->
         </trim>
         WHERE id IN
         <foreach collection="list" index="index" item="item" separator="," open="(" close=")">

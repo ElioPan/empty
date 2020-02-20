@@ -210,7 +210,7 @@
     <sql id="sql_map_condition">
         FROM
         scm_salescontract_item item
-        LEFT JOIN scm_salescontract sales ON sales.id = item.salesContract_id
+        LEFT JOIN scm_salescontract sales ON sales.id = item.salescontract_id
         LEFT JOIN cus_dictionary dict ON  dict.id = sales.contract_type
         LEFT JOIN cus_client client ON client.id = sales.client_id
         LEFT JOIN sys_user salesUser ON salesUser.user_id = sales.sales_person
@@ -289,6 +289,32 @@
         LEFT JOIN cus_dictionary dica ON dica.id = sales.audit_sign
         WHERE sales.id = #{value}
     </select>
+
+    <select id="childCount" resultType="int">
+    SELECT
+    COUNT(*)
+    FROM
+    (
+    SELECT
+    item.id
+    FROM
+    scm_salescontract_item item
+    LEFT JOIN scm_purchase_item purchase ON purchase.source_id = item.id
+    LEFT JOIN scm_stock_out_item outi ON outi.source_id = item.id
+    LEFT JOIN scm_salesbill_item sitem ON sitem.source_id = item.id
+    LEFT JOIN scm_outsourcing_contract_item soci ON soci.source_id = item.id
+    WHERE
+    item.`salescontract_id` = #{value} AND
+    (
+    purchase.source_type = 204
+    OR outi.source_type = 204
+    OR sitem.source_type = 204
+    OR soci.source_type = 204
+    )
+
+    ) a
+    </select>
+
 
 	
 </mapper>

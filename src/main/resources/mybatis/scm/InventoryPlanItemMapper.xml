@@ -182,7 +182,8 @@
  <!--  根据条件查询要盘点商品信息，数量-->
 	<select id="getProMsgCount" resultType="map">
 		SELECT
-		a.materiel_id,
+		a.id,
+		a.materiel_id as materielId,
 		b.name as materielName,
 		b.serial_no as serialno,
 		b.specification as materielModel,
@@ -191,8 +192,8 @@
 		a.warehouse as warehouseId,
 		c.name  as  warehouseName,
 		a.wareh_location as swarehLocation,
-		d.name   as  wareh_locationName,
-		sum(a.count) as system_count
+		d.name   as  warehLocationName,
+		sum(a.count) as systemCount
 		FROM      scm_stock     a
 		LEFT JOIN cus_materiel   b  ON  a.materiel_id = b.id
 		LEFT JOIN cus_facility  c  ON  a.warehouse = c.id

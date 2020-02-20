@@ -151,6 +151,12 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 		if (Objects.equals(processingChargeDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
 			return R.error(messageSourceHandler.getMessage("common.massge.faildRollBackAudit", null));
 		}
+//		int childCount = processingChargeDao.childCount(id);
+//		if (childCount>0) {
+//			return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));
+//		}
+
+
 		processingChargeDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
 		processingChargeDO.setAuditor(0L);
 		return this.update(processingChargeDO) > 0 ? R.ok() : R.error();

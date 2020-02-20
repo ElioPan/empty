@@ -34,4 +34,6 @@ public interface OutsourcingContractDao {
     Map<String, Object> countForMap(Map<String, Object> map);
 
 	Map<String, Object> getDetail(Long outsourcingContractId);
+
+    int childCount(Long id);
 }

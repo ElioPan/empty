@@ -186,6 +186,10 @@ public class OutsourcingStockOutApiController {
     public R reverseAudit(
             @ApiParam(value = "出库单Id", required = true) @RequestParam(value = "id", defaultValue = "") Long id
     ) {
+        if (stockOutService.childCount(id) >0 ) {
+            return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));
+        }
+
 	    Map<String,Object> map = Maps.newHashMap();
 	    map.put("outId",id);
         List<StockOutItemDO> list = stockOutItemService.list(map);
