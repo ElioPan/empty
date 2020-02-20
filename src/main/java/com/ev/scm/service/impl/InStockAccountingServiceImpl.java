@@ -1,5 +1,6 @@
 package com.ev.scm.service.impl;
 
+import com.alibaba.druid.sql.visitor.functions.If;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -15,6 +16,10 @@ import com.ev.scm.service.InStockAccountingService;
 import com.ev.scm.service.PurchaseExpenseItemService;
 import com.ev.scm.service.StockInItemService;
 import com.ev.scm.service.StockInService;
+import com.sun.org.apache.bcel.internal.generic.IFEQ;
+import com.sun.org.apache.bcel.internal.generic.IFNE;
+import jdk.internal.org.objectweb.asm.tree.InnerClassNode;
+import org.omg.CORBA.OBJ_ADAPTER;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -373,6 +378,11 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         //批量更新委外入库子表
         stockIntemService.batchUpdate(newStockInItemDo);
     }
+
+
+
+
+
 
 
 

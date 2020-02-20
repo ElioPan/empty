@@ -276,8 +276,8 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 
 	@Override
 	public R buildWinStock(Long planId ){
-		Map<String, Object> result = new HashMap<String, Object>();
-		Map<String, Object> params = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> params = new HashMap<>();
 		params.put("id", planId);
 		if (inventoryPlanService.count(params)!= 0) {
 			params.remove("id");
@@ -350,8 +350,8 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 
 	@Override
 	public R buildLossStock(Long planId ){
-		Map<String, Object> result = new HashMap<String, Object>();
-		Map<String, Object> params = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> params = new HashMap<>();
 		params.put("id", planId);
 		if (inventoryPlanService.count(params) != 0) {
 			params.remove("id");

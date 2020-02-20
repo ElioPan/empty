@@ -126,11 +126,15 @@
 		select
 		a.id,
 		a.plan_time as planTime,
+		a.acture_time as actureTime,
 		a.code,
-		case when   b.name is null  then '所有仓库'
-		when   b.name is not  null  then b.name end warehouseName,
-		c.name  AS statusName,
+		a.warehouse,
+		b.name as warehouseName,
+		a.check_status as checkStatus,
+		c.name  AS checkStatusName,
+		a.checkers,
 		d.name  AS checkerName,
+		a.create_by as createBy,
 		dd.name AS createName,
 		a.create_time AS createTime
 		from scm_inventory_plan a
@@ -185,19 +189,18 @@
 	<!--根据盘点主表主键获取库存商品信息-->
 	<select id="getProMsgByHeadId" resultType="map">
 		select
+			a.id,
 			a.materiel_id AS materielId,
-
 			b.name as materielName,
 			b.serial_no as serialno,
 			b.specification ,
-			b.unit_uom as unit,
-			e.name as unitName,
-
+			b.unit_uom as unitNom,
+			e.name as unitNomName,
 			a.batch,
-			a.warehouse as warehouseId,
+			a.warehouse as warehouse,
 			c.name  as  warehouseName,
-			a.wareh_location as locationId,
-			d.name   as locationName,
+			a.wareh_location as warehLocation,
+			d.name   as warehLocationName,
 			a.system_count  as  systemCount,
 			a.check_count  as  checkCount,
 			a.profit_loss  as  profitLos
@@ -206,7 +209,7 @@
 		LEFT JOIN cus_facility c ON a.warehouse=c.id
 		LEFT JOIN cus_facility_location  d ON a.wareh_location=d.id
 		LEFT JOIN cus_dictionary e ON b.unit_uom=e.id
-		WHERE a.pro_id in (select pro_id  from scm_inventory_plan_item  where head_id=#{id})
+		WHERE a.materiel_id in (select materiel_id  from scm_inventory_plan_item  where head_id=#{id})
 	</select>
 
 	<select id="countOfStatus" resultType="int">
