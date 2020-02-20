@@ -367,7 +367,7 @@ public class OutsourcingContractApiController {
             for (Map<String, Object> map : data) {
                 double availableCount = 0.0d;
                 for (Map<String, Object> stockList : stockListForMap) {
-                    if (Objects.equals(stockList.get("proId").toString(), map.get("materielId").toString())) {
+                    if (Objects.equals(stockList.get("materielId").toString(), map.get("materielId").toString())) {
                         // 如果没有批次要求则查出所有该商品的可用数量累计
                         if (!map.containsKey("batch")) {
                             availableCount += Double.parseDouble(stockList.get("availableCount").toString());
