@@ -56,6 +56,7 @@ public class ScmReturnMaterieInStockApiController {
                               "\"batch\":\"A001\"," +
                               "\"count\":11," +
                               "\"unitPrice\":1003000," +
+                              "\"amount\":1003000," +
                               "\"warehouse\":1," +
                               "\"warehLocation\":2," +
                               "\"returnReason\":\"不好用\"," +

@@ -53,7 +53,8 @@
 		`create_time`,
 		`update_by`,
 		`update_time`,
-		`del_flag`
+		`del_flag`,
+		`materialId_count`
 	</sql>
 
 	<sql id="sql_condition">
@@ -78,6 +79,7 @@
 			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
 			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
 			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+			<if test="materialIdCount != null and materialIdCount != ''"> and materialId_count = #{materialIdCount} </if>
 		</where>
 	</sql>
 
@@ -102,7 +104,8 @@
 		`create_time`,
 		`update_by`,
 		`update_time`,
-		`del_flag`
+		`del_flag`,
+		`materialId_count`
 		)
 		values
 		(
@@ -124,7 +127,8 @@
 		#{createTime},
 		#{updateBy},
 		#{updateTime},
-		#{delFlag}
+		#{delFlag},
+		#{materialIdCount}
 		)
 	</insert>
 
@@ -150,6 +154,7 @@
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
 			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
 			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+			<if test="materialIdCount != null">`materialId_count` = #{materialIdCount}</if>
 		</set>
 		where id = #{id}
 	</update>
