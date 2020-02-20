@@ -120,6 +120,8 @@
             materiel.`name` AS materielName,
             materiel.`serial_no` AS materielSerialno,
             materiel.`specification` AS specification,
+            item.`stock_id` AS stockId,
+            stock.`batch` AS batch,
             outlo.`name` AS outLocationName,
             outlo.`id` AS outLocation,
             outfac.`name` AS outFacilityName,

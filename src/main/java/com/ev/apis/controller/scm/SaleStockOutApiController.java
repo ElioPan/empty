@@ -149,6 +149,9 @@ public class SaleStockOutApiController {
     public R reverseAudit(
             @ApiParam(value = "出库单Id", required = true) @RequestParam(value = "id", defaultValue = "") Long id
     ) {
+        if (stockOutService.salesChildCount(id) >0 ) {
+            return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));
+        }
         return stockOutService.reverseAuditForR(id, ConstantForGYL.XSCK);
     }
 	

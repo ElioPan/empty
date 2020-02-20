@@ -79,4 +79,7 @@ public interface StockOutService {
     R reverseAuditForR(Long id, Long outType);
 
     Map<String, Object> countTotal(Map<String, Object> params);
+
+    int salesChildCount(Long id);
+
 }

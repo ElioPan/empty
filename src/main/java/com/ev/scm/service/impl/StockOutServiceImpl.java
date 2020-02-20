@@ -235,6 +235,11 @@ public class StockOutServiceImpl implements StockOutService {
     }
 
     @Override
+    public int salesChildCount(Long id) {
+        return stockOutDao.salesChildCount(id);
+    }
+
+    @Override
     public void batchInsertStockDetailDO(List<StockItemDO> batchInsertStockDetailDO) {
         stockOutDao.batchInsertStockDetailDO(batchInsertStockDetailDO);
     }
