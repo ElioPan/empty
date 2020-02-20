@@ -296,17 +296,22 @@
     FROM
     (
     SELECT
-    purchase.source_type
+    item.id
     FROM
     scm_salescontract_item item
     LEFT JOIN scm_purchase_item purchase ON purchase.source_id = item.id
     LEFT JOIN scm_stock_out_item outi ON outi.source_id = item.id
     LEFT JOIN scm_salesbill_item sitem ON sitem.source_id = item.id
+    LEFT JOIN scm_outsourcing_contract_item soci ON soci.source_id = item.id
     WHERE
+    item.`salescontract_id` = #{value} AND
+    (
     purchase.source_type = 204
-    AND outi.source_type = 204
-    AND sitem.source_type = 204
-    AND item.`salescontract_id` = #{value}
+    OR outi.source_type = 204
+    OR sitem.source_type = 204
+    OR soci.source_type = 204
+    )
+
     ) a
     </select>
 
