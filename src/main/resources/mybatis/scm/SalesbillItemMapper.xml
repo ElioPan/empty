@@ -162,6 +162,8 @@
         item.tax_amount AS taxAmount,
         item.source_type AS sourceType,
         dict.`name` AS sourceTypeName,
+		item.source_type AS sourceType,
+		item.source_id AS sourceId,
         item.source_code AS sourceCode
         <include refid="sql_map_condition"/>
         <choose>
