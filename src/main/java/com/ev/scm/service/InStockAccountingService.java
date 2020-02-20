@@ -1,6 +1,10 @@
 package com.ev.scm.service;
 
 import com.ev.framework.utils.R;
+import com.ev.scm.domain.StockOutItemDO;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Author Kuzi
@@ -17,5 +21,16 @@ public  interface InStockAccountingService  {
     R disposeBusinessAccounting(Long[] stockInIds);
 
     R disposeAutoAccounting(String detailAccounting);
+
+    List<Map<String, Object>> getBomItem(Long ContractItemId);
+
+    List<StockOutItemDO> getStockOutDetail(Long ContractItemId);
+
+    int batchUpdateStockOutItem(List<StockOutItemDO> stockOutItemDOs);
+
+    Map<String, Object> getTotalTaxAmountCount(Long stockInItemId);
+
+
+
 
 }

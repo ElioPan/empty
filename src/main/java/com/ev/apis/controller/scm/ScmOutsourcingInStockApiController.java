@@ -84,6 +84,7 @@ public class ScmOutsourcingInStockApiController {
     @Transactional(rollbackFor = Exception.class)
     public R reverseAudit(@ApiParam(value = "委外入库主表主键", required = true) @RequestParam(value = "inHeadId", defaultValue = "") Long inHeadId) {
 
+        //TODO    此处设置校验，如果材料费用大于0，则不允许反审核(避免核算出错)
         return stockInService.disAuditInStock(inHeadId, ConstantForGYL.OUTSOURCING_INSTOCK);
     }
 
@@ -125,7 +126,6 @@ public class ScmOutsourcingInStockApiController {
         params.put("storageType", ConstantForGYL.OUTSOURCING_INSTOCK);
         params.put("offset", (pageno - 1) * pagesize);
         params.put("limit", pagesize);
-
         Map<String, Object> totalForMap = stockInService.countForMap(params);
         List<Map<String, Object>> detailList = stockInService.listForMap(params);
 

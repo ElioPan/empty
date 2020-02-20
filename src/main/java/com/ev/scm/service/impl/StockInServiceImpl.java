@@ -345,6 +345,7 @@ public class StockInServiceImpl implements StockInService {
 				for (StockInItemDO propuinbody : inbodyCDos) {
 					propuinbody.setInheadId(stockInDO.getId());
 					if(Objects.equals(storageType,ConstantForGYL.PURCHASE_INSTOCK)){propuinbody.setExpense(BigDecimal.ZERO);}
+					if(Objects.equals(storageType,ConstantForGYL.OUTSOURCING_INSTOCK)){propuinbody.setMaterialIdCount("0");}
 					SstockInItemService.save(propuinbody);
 				}
 				//将主表主键返回前端，审核使用。
@@ -374,6 +375,7 @@ public class StockInServiceImpl implements StockInService {
 							if(Objects.nonNull(propuinbody.getId())){
 								if(Objects.equals(storageType,ConstantForGYL.PURCHASE_INSTOCK)){
 									StockInItemDO inItemDO = SstockInItemService.get(propuinbody.getId());
+									if(Objects.equals(storageType,ConstantForGYL.OUTSOURCING_INSTOCK)){propuinbody.setMaterialIdCount("0");}
 									if(!Objects.equals(inItemDO.getAmount().compareTo(propuinbody.getAmount()),0)||!Objects.equals(inItemDO.getCount().compareTo(propuinbody.getCount()),0)){
 										propuinbody.setExpense(BigDecimal.ZERO);
 									}
