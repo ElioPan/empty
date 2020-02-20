@@ -125,6 +125,7 @@
         select
 		allot.`id` AS id,
 		allot.`allot_code` AS allotCode,
+		allotUser.`user_id` AS allotUser,
 		allotUser.`name` AS allotUserName,
 		allot.`allot_time` AS allotTime,
 		dica.id AS auditSign,
