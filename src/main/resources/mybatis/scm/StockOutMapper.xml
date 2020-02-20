@@ -545,7 +545,7 @@
 		WHERE inhead_id = #{inheadId} AND in_out_type = #{inOutType}
     </update>
 
-    <select id="salesChildCount" resultType="int">
+    <select id="childCount" resultType="int">
     SELECT
     COUNT(*)
     FROM
@@ -555,9 +555,8 @@
     FROM
     scm_stock_out_item outi
     LEFT JOIN scm_stock_in_item ini ON ini.source_id = outi.id
-
     WHERE
-    ini.source_type = 204
+    ini.source_type IN (204,199)
     AND outi.`out_id` = #{value}
     ) a
     </select>

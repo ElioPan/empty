@@ -80,6 +80,6 @@ public interface StockOutService {
 
     Map<String, Object> countTotal(Map<String, Object> params);
 
-    int salesChildCount(Long id);
+    int childCount(Long id);
 
 }

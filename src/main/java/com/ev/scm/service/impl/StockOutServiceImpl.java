@@ -235,8 +235,8 @@ public class StockOutServiceImpl implements StockOutService {
     }
 
     @Override
-    public int salesChildCount(Long id) {
-        return stockOutDao.salesChildCount(id);
+    public int childCount(Long id) {
+        return stockOutDao.childCount(id);
     }
 
     @Override

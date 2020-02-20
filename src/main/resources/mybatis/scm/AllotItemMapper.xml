@@ -123,6 +123,7 @@
             materiel.`specification` AS specification,
             item.`stock_id` AS stockId,
             stock.`batch` AS batch,
+            dicu.`name` AS unitName,
             outlo.`name` AS outLocationName,
             outlo.`id` AS outLocation,
             outfac.`name` AS outFacilityName,
