@@ -137,8 +137,8 @@
 		allot.`create_time` AS createTime
 		FROM scm_allot allot
 		LEFT JOIN sys_user allotUser ON allotUser.`user_id`=allot.`allot_user`
-		LEFT JOIN sys_user createUser ON createUser.`user_id`=allot.`auditor`
-		LEFT JOIN sys_user auditUser ON auditUser.`user_id`=allot.`create_by`
+		LEFT JOIN sys_user createUser ON createUser.`user_id`=allot.`create_by`
+		LEFT JOIN sys_user auditUser ON auditUser.`user_id`=allot.auditor
 		LEFT JOIN cus_dictionary dica ON dica.`id` = allot.`audit_sign`
 		where allot.`id` = #{value}
     </select>
