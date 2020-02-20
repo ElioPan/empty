@@ -264,7 +264,22 @@ public class AllotServiceImpl implements AllotService {
     public Map<String, Object> getDetail(Long id) {
         Map<String, Object> results = Maps.newHashMap();
         results.put("allot", allotDao.getDetail(id));
-        results.put("item", allotItemService.getDetail(id));
+        List<Map<String, Object>> item = allotItemService.getDetail(id);
+        if (item.size() > 0) {
+            Map<String,Object> params;
+            for (Map<String, Object> map : item) {
+                params = Maps.newHashMap();
+                params.put("materielId",map.get("materielId"));
+                params.put("batch",map.get("batch"));
+                params.put("locationId",map.get("outLocation"));
+                List<Map<String, Object>> stockListForMap = materielService.stockListForMap(params);
+                if (stockListForMap.size() > 0) {
+                    map.put("availableCount",stockListForMap.get(0).get("availableCount"));
+                }
+            }
+        }
+
+        results.put("item", item);
         return results;
     }
 

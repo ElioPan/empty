@@ -117,6 +117,7 @@
     <select id="getDetail" resultType="map">
         SELECT
             item.`id` AS itemId,
+            materiel.`id` AS materielId,
             materiel.`name` AS materielName,
             materiel.`serial_no` AS materielSerialno,
             materiel.`specification` AS specification,
