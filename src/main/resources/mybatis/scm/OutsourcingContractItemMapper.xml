@@ -233,6 +233,7 @@
 		SUM(`count`)
 		FROM scm_outsourcing_contract_item
 		<where>
+			<if test="id != null and id != ''"> and id <![CDATA[<>]]> #{id} </if>
 			<if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
 			<if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
 		</where>

@@ -142,11 +142,14 @@ public class OutsourcingContractApiController {
                 .filter(outsourcingContractItemDO -> outsourcingContractItemDO.getSourceId()!=null)
                 .collect(Collectors.toList());
         Map<Long, BigDecimal> count = Maps.newHashMap();
+        Map<Long, Long> sourceIdAndItemId = Maps.newHashMap();
         for (OutsourcingContractItemDO itemDO : itemDOs) {
             Long sourceId = itemDO.getSourceId();
             if (count.containsKey(sourceId)) {
                 count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
+                continue;
             }
+            sourceIdAndItemId.put(sourceId,itemDO.getId());
             count.put(itemDO.getSourceId(), itemDO.getCount());
         }
         SalescontractItemDO detailDO;
@@ -157,6 +160,7 @@ public class OutsourcingContractApiController {
                 contractCount = detailDO.getCount();
                 // 查询源单已被选择数量
                 Map<String,Object> map = Maps.newHashMap();
+                map.put("id",sourceIdAndItemId.get(sourceId));
                 map.put("sourceId",sourceId);
                 map.put("sourceType",ConstantForGYL.XSHT);
                 BigDecimal bySource = outsourcingContractService.getCountBySource(map);
@@ -211,6 +215,43 @@ public class OutsourcingContractApiController {
                     required = true) @RequestParam(value = "bodyPay", defaultValue = "") String bodyPay,
             @ApiParam(value = "被删除的委外合同条件ID") @RequestParam(value = "payIds", defaultValue = "", required = false) Long[] payIds
     ){
+        List<OutsourcingContractItemDO> itemDOs = JSON.parseArray(bodyItem, OutsourcingContractItemDO.class)
+                .stream()
+                .filter(outsourcingContractItemDO -> outsourcingContractItemDO.getSourceId()!=null)
+                .collect(Collectors.toList());
+        Map<Long, BigDecimal> count = Maps.newHashMap();
+        Map<Long, Long> sourceIdAndItemId = Maps.newHashMap();
+        for (OutsourcingContractItemDO itemDO : itemDOs) {
+            Long sourceId = itemDO.getSourceId();
+            if (count.containsKey(sourceId)) {
+                count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
+                continue;
+            }
+            sourceIdAndItemId.put(sourceId,itemDO.getId());
+            count.put(itemDO.getSourceId(), itemDO.getCount());
+        }
+        SalescontractItemDO detailDO;
+        BigDecimal contractCount;
+        if (count.size() > 0) {
+            for (Long sourceId : count.keySet()) {
+                detailDO = salescontractItemService.get(sourceId);
+                contractCount = detailDO.getCount();
+                // 查询源单已被选择数量
+                Map<String,Object> map = Maps.newHashMap();
+                map.put("id",sourceIdAndItemId.get(sourceId));
+                map.put("sourceId",sourceId);
+                map.put("sourceType",ConstantForGYL.XSHT);
+                BigDecimal bySource = outsourcingContractService.getCountBySource(map);
+                BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
+                if (contractCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
+                    List<OutsourcingContractItemDO> collect = itemDOs.stream()
+                            .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
+                            .collect(Collectors.toList());
+                    String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
+                    return R.error(messageSourceHandler.getMessage("stock.number.error", args));
+                }
+            }
+        }
 		return  outsourcingContractService.editOutsourcingContract(outsourcingContractId, bodyItem, bodyPay,payIds);
 	}
 	
@@ -361,31 +402,35 @@ public class OutsourcingContractApiController {
         params.put("limit", pagesize);
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
         List<Map<String, Object>> data = productionFeedingDetailService.listForMap(params);
+
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.WWTLD.intValue());
+        String thisSourceTypeName = dictionaryDO.getName();
         // 获取实时库存
         List<Map<String, Object>> stockListForMap = materielService.stockListForMap(Maps.newHashMap());
-        if (data.size() > 0 && stockListForMap.size() > 0) {
-            for (Map<String, Object> map : data) {
-                double availableCount = 0.0d;
-                for (Map<String, Object> stockList : stockListForMap) {
-                    if (Objects.equals(stockList.get("materielId").toString(), map.get("materielId").toString())) {
-                        // 如果没有批次要求则查出所有该商品的可用数量累计
-                        if (!map.containsKey("batch")) {
-                            availableCount += Double.parseDouble(stockList.get("availableCount").toString());
-                            continue;
-                        }
-                        // 若制定了批次则将这一批次的可用数量查出记为实时数量
-                        if (Objects.equals(stockList.get("batch").toString(), map.get("batchNo").toString())) {
-                            availableCount += Double.parseDouble(stockList.get("availableCount").toString());
-                        }
-
-                    }
-                }
-                map.put("availableCount", availableCount);
-            }
-
-        }
         int total = productionFeedingDetailService.countForMap(params);
         if (data.size() > 0) {
+            for (Map<String, Object> map : data) {
+                map.put("thisSourceType", ConstantForGYL.WWTLD);
+                map.put("thisSourceTypeName", thisSourceTypeName);
+                double availableCount = 0.0d;
+                if (stockListForMap.size() > 0) {
+                    for (Map<String, Object> stockList : stockListForMap) {
+                        if (Objects.equals(stockList.get("materielId").toString(), map.get("materielId").toString())) {
+                            // 如果没有批次要求则查出所有该商品的可用数量累计
+                            if (!map.containsKey("batch")) {
+                                availableCount += Double.parseDouble(stockList.get("availableCount").toString());
+                                continue;
+                            }
+                            // 若制定了批次则将这一批次的可用数量查出记为实时数量
+                            if (Objects.equals(stockList.get("batch").toString(), map.get("batchNo").toString())) {
+                                availableCount += Double.parseDouble(stockList.get("availableCount").toString());
+                            }
+
+                        }
+                    }
+                    map.put("availableCount", availableCount);
+                }
+            }
             results.put("data", new DsResultResponse(pageno,pagesize,total,data));
         }
         return R.ok(results);
