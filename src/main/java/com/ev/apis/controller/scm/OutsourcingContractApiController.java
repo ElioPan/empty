@@ -142,11 +142,14 @@ public class OutsourcingContractApiController {
                 .filter(outsourcingContractItemDO -> outsourcingContractItemDO.getSourceId()!=null)
                 .collect(Collectors.toList());
         Map<Long, BigDecimal> count = Maps.newHashMap();
+        Map<Long, Long> sourceIdAndItemId = Maps.newHashMap();
         for (OutsourcingContractItemDO itemDO : itemDOs) {
             Long sourceId = itemDO.getSourceId();
             if (count.containsKey(sourceId)) {
                 count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
+                continue;
             }
+            sourceIdAndItemId.put(sourceId,itemDO.getId());
             count.put(itemDO.getSourceId(), itemDO.getCount());
         }
         SalescontractItemDO detailDO;
@@ -157,6 +160,7 @@ public class OutsourcingContractApiController {
                 contractCount = detailDO.getCount();
                 // 查询源单已被选择数量
                 Map<String,Object> map = Maps.newHashMap();
+                map.put("id",sourceIdAndItemId.get(sourceId));
                 map.put("sourceId",sourceId);
                 map.put("sourceType",ConstantForGYL.XSHT);
                 BigDecimal bySource = outsourcingContractService.getCountBySource(map);
@@ -211,6 +215,43 @@ public class OutsourcingContractApiController {
                     required = true) @RequestParam(value = "bodyPay", defaultValue = "") String bodyPay,
             @ApiParam(value = "被删除的委外合同条件ID") @RequestParam(value = "payIds", defaultValue = "", required = false) Long[] payIds
     ){
+        List<OutsourcingContractItemDO> itemDOs = JSON.parseArray(bodyItem, OutsourcingContractItemDO.class)
+                .stream()
+                .filter(outsourcingContractItemDO -> outsourcingContractItemDO.getSourceId()!=null)
+                .collect(Collectors.toList());
+        Map<Long, BigDecimal> count = Maps.newHashMap();
+        Map<Long, Long> sourceIdAndItemId = Maps.newHashMap();
+        for (OutsourcingContractItemDO itemDO : itemDOs) {
+            Long sourceId = itemDO.getSourceId();
+            if (count.containsKey(sourceId)) {
+                count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
+                continue;
+            }
+            sourceIdAndItemId.put(sourceId,itemDO.getId());
+            count.put(itemDO.getSourceId(), itemDO.getCount());
+        }
+        SalescontractItemDO detailDO;
+        BigDecimal contractCount;
+        if (count.size() > 0) {
+            for (Long sourceId : count.keySet()) {
+                detailDO = salescontractItemService.get(sourceId);
+                contractCount = detailDO.getCount();
+                // 查询源单已被选择数量
+                Map<String,Object> map = Maps.newHashMap();
+                map.put("id",sourceIdAndItemId.get(sourceId));
+                map.put("sourceId",sourceId);
+                map.put("sourceType",ConstantForGYL.XSHT);
+                BigDecimal bySource = outsourcingContractService.getCountBySource(map);
+                BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
+                if (contractCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
+                    List<OutsourcingContractItemDO> collect = itemDOs.stream()
+                            .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
+                            .collect(Collectors.toList());
+                    String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
+                    return R.error(messageSourceHandler.getMessage("stock.number.error", args));
+                }
+            }
+        }
 		return  outsourcingContractService.editOutsourcingContract(outsourcingContractId, bodyItem, bodyPay,payIds);
 	}
 	

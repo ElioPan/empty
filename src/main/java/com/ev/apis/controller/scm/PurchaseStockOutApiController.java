@@ -99,6 +99,7 @@ public class PurchaseStockOutApiController {
             Long sourceId = itemDO.getSourceId();
             if (count.containsKey(sourceId)) {
                 count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
+                continue;
             }
             count.put(itemDO.getSourceId(), itemDO.getCount());
         }
@@ -193,11 +194,14 @@ public class PurchaseStockOutApiController {
         // 与源单数量对比
         List<StockOutItemDO> itemDOs = JSON.parseArray(item, StockOutItemDO.class);
         Map<Long, BigDecimal> count = Maps.newHashMap();
+        Map<Long, Long> sourceIdAndItemId = Maps.newHashMap();
         for (StockOutItemDO itemDO : itemDOs) {
             Long sourceId = itemDO.getSourceId();
             if (count.containsKey(sourceId)) {
                 count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
+                continue;
             }
+            sourceIdAndItemId.put(sourceId,itemDO.getId());
             count.put(itemDO.getSourceId(), itemDO.getCount());
         }
         StockInItemDO detailDO;
@@ -208,6 +212,7 @@ public class PurchaseStockOutApiController {
                 contractCount = detailDO.getCount();
                 // 查询源单已被选择数量
                 Map<String,Object> map = Maps.newHashMap();
+                map.put("id",sourceIdAndItemId.get(sourceId));
                 map.put("sourceId",sourceId);
                 map.put("sourceType",ConstantForGYL.PURCHASE_INSTOCK);
                 BigDecimal bySource = stockOutItemService.getCountBySource(map);

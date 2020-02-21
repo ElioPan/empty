@@ -99,11 +99,14 @@ public class SalesBillApiController {
         // 与源单数量对比
         List<SalesbillItemDO> itemDOs = JSON.parseArray(bodyItem, SalesbillItemDO.class);
         Map<Long, BigDecimal> count = Maps.newHashMap();
+        Map<Long, Long> sourceIdAndItemId = Maps.newHashMap();
         for (SalesbillItemDO itemDO : itemDOs) {
             Long sourceId = itemDO.getSourceId();
             if (count.containsKey(sourceId)) {
                 count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
+                continue;
             }
+            sourceIdAndItemId.put(sourceId,itemDO.getId());
             count.put(itemDO.getSourceId(), itemDO.getCount());
         }
         SalescontractItemDO detailDO;
@@ -114,6 +117,7 @@ public class SalesBillApiController {
                 contractCount = detailDO.getCount();
                 // 查询源单已被选择数量
                 Map<String,Object> map = Maps.newHashMap();
+                map.put("id",sourceIdAndItemId.get(sourceId));
                 map.put("sourceId",sourceId);
                 map.put("sourceType",ConstantForGYL.XSHT);
                 BigDecimal bySource = salesbillService.getCountBySource(map);
