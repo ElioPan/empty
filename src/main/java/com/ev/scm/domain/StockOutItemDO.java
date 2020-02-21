@@ -70,6 +70,9 @@ public class StockOutItemDO implements Serializable {
 	//来源单号
     @ApiModelProperty(value = "来源单号")
 	private String sourceCode;
+	//二维码ID qrcode_id
+	@ApiModelProperty(value = "二维码ID")
+	private Long qrcodeId;
 	//创建人
     @ApiModelProperty(value = "创建人")
 	private Long createBy;

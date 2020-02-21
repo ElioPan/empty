@@ -32,6 +32,7 @@
             <if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
             <if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
             <if test="sourceCode != null and sourceCode != ''"> and source_code = #{sourceCode} </if>
+            <if test="qrcodeId != null and qrcodeId != ''"> and qrcode_id = #{qrcodeId} </if>
             <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
             <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
             <if test="createStartTime != null and createStartTime != ''">  and  DATE_FORMAT(stock.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
@@ -67,7 +68,7 @@
 	</select>
 
     <sql id="sql_column_list">
-		`id`,`out_id`,`stock_id`,`materiel_id`,`batch`,`count`,`unit_price`,`sell_unit_price`,`amount`,`sell_amount`,`charge_off_count`,`purpose`,`out_status`,`source_id`,`source_type`,`source_code`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+		`id`,`out_id`,`stock_id`,`materiel_id`,`batch`,`count`,`unit_price`,`sell_unit_price`,`amount`,`sell_amount`,`charge_off_count`,`purpose`,`out_status`,`source_id`,`source_type`,`source_code`,`qrcode_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 	</sql>
 
     <sql id="sql_condition">
@@ -87,6 +88,7 @@
                             <if test="outStatus != null and outStatus != ''"> and out_status = #{outStatus} </if>
                             <if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
                             <if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+                              <if test="qrcodeId != null and qrcodeId != ''"> and qrcode_id = #{qrcodeId} </if>
                             <if test="sourceCode != null and sourceCode != ''"> and source_code = #{sourceCode} </if>
                             <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
                             <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
@@ -117,10 +119,11 @@
 			`sell_amount`,
 			`charge_off_count`,
 			`purpose`, 
-			`out_status`, 
-			`source_id`, 
+			`out_status`,
+			`source_id`,
 			`source_type`, 
-			`source_code`, 
+			`source_code`,
+			`qrcode_id`,
 			`create_by`, 
 			`create_time`, 
 			`update_by`, 
@@ -143,7 +146,8 @@
 			#{outStatus}, 
 			#{sourceId}, 
 			#{sourceType}, 
-			#{sourceCode}, 
+			#{sourceCode},
+			#{qrcodeId},
 			#{createBy}, 
 			#{createTime}, 
 			#{updateBy}, 
@@ -170,6 +174,7 @@
 			<if test="sourceId != null">`source_id` = #{sourceId}, </if>
 			<if test="sourceType != null">`source_type` = #{sourceType}, </if>
 			<if test="sourceCode != null">`source_code` = #{sourceCode}, </if>
+            <if test="qrcodeId != null">`qrcode_id` = #{qrcodeId}, </if>
 			<if test="createBy != null">`create_by` = #{createBy}, </if>
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
@@ -217,6 +222,7 @@
         item.`source_code` AS sourceCode,
         item.`source_id` AS sourceId,
         item.`source_type` AS sourceType,
+        item.`qrcode_id` AS qrcodeId,
         item.`purpose` AS purposeName
         FROM scm_stock_out_item item
         LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
@@ -263,6 +269,7 @@
         `source_id`,
         `source_type`,
         `source_code`,
+        `qrcode_id`,
         `create_by`,
         `create_time`,
         `update_by`,
@@ -285,6 +292,7 @@
             #{obj.sourceId},
             #{obj.sourceType},
             #{obj.sourceCode},
+            #{obj.qrcodeId},
             #{obj.createBy},
             #{obj.createTime},
             #{obj.updateBy},
@@ -444,6 +452,16 @@
                     </if>
                     <if test="item.sourceCode==null">
                         when id=#{item.id} then scm_stock_out_item.source_code
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="qrcode_id =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.qrcodeId!=null">
+                        when id=#{item.id} then #{item.qrcodeId}
+                    </if>
+                    <if test="item.qrcodeId==null">
+                        when id=#{item.id} then scm_stock_out_item.qrcode_id
                     </if>
                 </foreach>
             </trim>
