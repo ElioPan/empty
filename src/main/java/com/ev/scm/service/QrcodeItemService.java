@@ -28,4 +28,6 @@ public interface QrcodeItemService {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+	int batchInsert(List<QrcodeItemDO> qrcodeItemDOList);
 }

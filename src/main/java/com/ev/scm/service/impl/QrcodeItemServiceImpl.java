@@ -52,4 +52,9 @@ public class QrcodeItemServiceImpl implements QrcodeItemService {
 	public int batchRemove(Long[] ids){
 		return qrcodeItemDao.batchRemove(ids);
 	}
+
+	@Override
+	public int batchInsert(List<QrcodeItemDO> qrcodeItemDOList) {
+		return qrcodeItemDao.batchInsert(qrcodeItemDOList);
+	}
 }

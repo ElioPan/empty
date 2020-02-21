@@ -28,8 +28,12 @@ public interface QrcodeService {
 	int countForMap(Map<String, Object> map);
 	
 	int save(QrcodeDO qrcode);
+
+	int batchInsert(List<QrcodeDO> qrcodeDOList);
 	
 	int update(QrcodeDO qrcode);
+
+	int batchUpdate(List<QrcodeDO> qrcodeDOList);
 	
 	int remove(Long id);
 	

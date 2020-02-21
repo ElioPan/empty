@@ -144,6 +144,44 @@
 			#{delFlag}
 		)
 	</insert>
+
+
+	<insert id="batchInsert" parameterType="List" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO scm_qrcode
+		(
+		`inspection_id`,
+		`contract_no`,
+		`stock_id`,
+		`materiel_id`,
+		`materiel_no`,
+		`batch`,
+		`count`,
+		`remain_count`,
+		`create_by`,
+		`create_time`,
+		`update_by`,
+		`update_time`,
+		`del_flag`
+		)
+		VALUES
+		<foreach collection="list" item="obj" separator=",">
+			(
+			#{obj.inspectionId},
+			#{obj.contractNo},
+			#{obj.stockId},
+			#{obj.materielId},
+			#{obj.materielNo},
+			#{obj.batch},
+			#{obj.count},
+			#{obj.remainCount},
+			#{obj.createBy},
+			#{obj.createTime},
+			#{obj.updateBy},
+			#{obj.updateTime},
+			#{obj.delFlag}
+			)
+		</foreach>
+	</insert>
 	 
 	<update id="update" parameterType="com.ev.scm.domain.QrcodeDO">
 		UPDATE scm_qrcode
@@ -163,6 +201,108 @@
 		<if test="delFlag != null">`del_flag` = #{delFlag}</if>
 	</set>
 		WHERE id = #{id}
+	</update>
+
+	<!-- 批量修改数据 -->
+	<update id="batchUpdate">
+		UPDATE scm_qrcode
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="inspection_id=case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.inspectionId!=null">
+						when id=#{item.id} then #{item.inspectionId}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="contract_no =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.contractNo!=null">
+						when id=#{item.id} then #{item.contractNo}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="stock_id =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.stockId!=null">
+						when id=#{item.id} then #{item.stockId}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="materiel_id =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.materielId!=null">
+						when id=#{item.id} then #{item.materielId}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="materiel_no =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.materielNo!=null">
+						when id=#{item.id} then #{item.materielNo}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="batch =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.batch!=null">
+						when id=#{item.id} then #{item.batch}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="count =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.count!=null">
+						when id=#{item.id} then #{item.count}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="remain_count =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.remainCount!=null">
+						when id=#{item.id} then #{item.remainCount}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="create_by =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.createBy!=null">
+						when id=#{item.id} then #{item.createBy}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="create_time =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.createTime!=null">
+						when id=#{item.id} then #{item.createTime}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="update_by =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.updateBy!=null">
+						when id=#{item.id} then #{item.updateBy}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="update_time =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.updateTime!=null">
+						when id=#{item.id} then #{item.updateTime}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="del_flag =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.delFlag!=null">
+						when id=#{item.id} then #{item.delFlag}
+					</if>
+				</foreach>
+			</trim>
+		</trim>
+		WHERE id IN
+		<foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+			#{item.id}
+		</foreach>
 	</update>
 	
 	<delete id="remove">

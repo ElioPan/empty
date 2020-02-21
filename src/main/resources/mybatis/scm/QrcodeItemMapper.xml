@@ -81,6 +81,37 @@
 			#{delFlag}
 		)
 	</insert>
+
+	<insert id="batchInsert" parameterType="List" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO scm_qrcode_item
+		(
+			`qrcode_id`,
+			`in_out_type`,
+			`inhead_id`,
+			`inbody_id`,
+			`count`,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
+			`del_flag`
+		)
+		VALUES
+		<foreach collection="list" item="obj" separator=",">
+		(
+			#{obj.qrcodeId},
+			#{obj.inOutType},
+			#{obj.inheadId},
+			#{obj.inbodyId},
+			#{obj.count},
+			#{obj.createBy},
+			#{obj.createTime},
+			#{obj.updateBy},
+			#{obj.updateTime},
+			#{obj.delFlag}
+		)
+		</foreach>
+	</insert>
 	 
 	<update id="update" parameterType="com.ev.scm.domain.QrcodeItemDO">
 		UPDATE scm_qrcode_item

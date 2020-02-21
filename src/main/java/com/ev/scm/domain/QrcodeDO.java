@@ -2,6 +2,8 @@ package com.ev.scm.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import com.ev.framework.utils.ShiroUtils;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -52,19 +54,19 @@ public class QrcodeDO implements Serializable {
 	private BigDecimal remainCount;
 	//创建人
     @ApiModelProperty(value = "创建人")
-	private Long createBy;
+	private Long createBy = ShiroUtils.getUserId();
 	//创建时间
     @ApiModelProperty(value = "创建时间")
-	private Date createTime;
+	private Date createTime = new Date();
 	//修改人
     @ApiModelProperty(value = "修改人")
-	private Long updateBy;
+	private Long updateBy = ShiroUtils.getUserId();
 	//修改时间
     @ApiModelProperty(value = "修改时间")
-	private Date updateTime;
+	private Date updateTime = new Date();
 	//删除状态
     @ApiModelProperty(value = "删除状态")
-	private Integer delFlag;
+	private Integer delFlag = 0;
 
 	public QrcodeDO(Long inspectionId, String contractNo, Long materielId, String materielNo, String batch, BigDecimal count) {
 		this.inspectionId = inspectionId;

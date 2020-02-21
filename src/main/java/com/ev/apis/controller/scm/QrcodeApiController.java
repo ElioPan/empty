@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +78,7 @@ public class QrcodeApiController {
             result.put("qrCodeList",qrcodeDOList);
             return R.ok(result);
         }
+        List<QrcodeDO> qrcodeDOS = new ArrayList<>();
         MaterialInspectionDO materialInspectionDO = materialInspectionService.get(inspectionId);
         BigDecimal totalCount = materialInspectionDO.getQualifiedCount();
         do{
@@ -88,8 +90,9 @@ public class QrcodeApiController {
             }
             totalCount = totalCount.subtract(unitCount);
             QrcodeDO qrcodeDO = new QrcodeDO(inspectionId, materialInspectionDO.getSourceNo(), Long.parseLong(materialInspectionDO.getMaterielId().toString()), materielNo, materialInspectionDO.getBatchNo(), thisCount);
-            qrcodeService.save(qrcodeDO);
+            qrcodeDOS.add(qrcodeDO);
         }while(totalCount.compareTo(BigDecimal.ZERO)>0);
+        qrcodeService.batchInsert(qrcodeDOS);
         qrcodeDOList = qrcodeService.listForMap(new HashMap<String,Object>(){{put("inspectionId",inspectionId);}});
         result.put("qrCodeList",qrcodeDOList);
         return R.ok(result);
