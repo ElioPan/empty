@@ -2,25 +2,22 @@ package com.ev.apis.controller.scm;
 
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
-import com.ev.framework.utils.PageUtils;
-import com.ev.framework.utils.Query;
+import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
-import com.ev.framework.utils.StringUtils;
 import com.ev.mes.domain.MaterialInspectionDO;
 import com.ev.mes.service.MaterialInspectionService;
 import com.ev.scm.domain.QrcodeDO;
 import com.ev.scm.service.QrcodeService;
 import com.google.common.collect.Maps;
-import com.google.zxing.qrcode.encoder.QRCode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +30,9 @@ import java.util.Map;
 @RestController
 @Api(value = "/",tags = "库存二维码API")
 public class QrcodeApiController {
+    @Autowired
+    private MessageSourceHandler messageSourceHandler;
+
     @Autowired
     QrcodeService qrcodeService;
 
@@ -60,7 +60,7 @@ public class QrcodeApiController {
         return R.ok(results);
     }
 
-    @EvApiByToken(value = "/apis/scm/qrcode/save",method = RequestMethod.GET,apiTitle = "保存库存二维码")
+    @EvApiByToken(value = "/apis/scm/qrcode/save",method = RequestMethod.POST,apiTitle = "保存库存二维码")
     @ApiOperation("保存库存二维码")
     public R save(@ApiParam(value = "检验单据ID") @RequestParam(value = "inspectionId",required = false) Long inspectionId,
                   @ApiParam(value = "物料编号") @RequestParam(value = "materielNo",required = false) String materielNo,
@@ -92,6 +92,44 @@ public class QrcodeApiController {
         }while(totalCount.compareTo(BigDecimal.ZERO)>0);
         qrcodeDOList = qrcodeService.listForMap(new HashMap<String,Object>(){{put("inspectionId",inspectionId);}});
         result.put("qrCodeList",qrcodeDOList);
+        return R.ok(result);
+    }
+
+    @EvApiByToken(value = "/apis/scm/qrcode/inDetail",method = RequestMethod.GET,apiTitle = "获取入库时二维码信息")
+    @ApiOperation("获取入库时二维码信息")
+    public R inDetail(@ApiParam(value = "二维码主键") @RequestParam(value = "qrCodeId") Long qrCodeId){
+        Map<String,Object> result = new HashMap<>();
+        /**
+         * 先验证是否二维码已经有入库信息
+         */
+        QrcodeDO qrcodeDO = qrcodeService.get(qrCodeId);
+        if(qrcodeDO == null){
+            return R.error(messageSourceHandler.getMessage("scm.qrcode.invalid",null));
+        }
+        if(qrcodeDO.getStockId() != null){
+            return R.error(messageSourceHandler.getMessage("scm.qrcode.alreadyIn",null));
+        }
+        List<Map<String,Object>> qrCodeList = qrcodeService.listForMap(new HashMap<String,Object>(){{put("id",qrCodeId);}});
+        result.put("qrCodeInfo",qrCodeList.get(0));
+        return R.ok(result);
+    }
+
+    @EvApiByToken(value = "/apis/scm/qrcode/outDetail",method = RequestMethod.GET,apiTitle = "获取出库时二维码信息")
+    @ApiOperation("获取出库时二维码信息")
+    public R outDetail(@ApiParam(value = "二维码主键") @RequestParam(value = "qrCodeId") Long qrCodeId){
+        Map<String,Object> result = new HashMap<>();
+        /**
+         * 验证是否包含此二维码信息
+         */
+        QrcodeDO qrcodeDO = qrcodeService.get(qrCodeId);
+        if(qrcodeDO == null){
+            return R.error(messageSourceHandler.getMessage("scm.qrcode.invalid",null));
+        }
+        if(qrcodeDO.getStockId() == null){
+            return R.error(messageSourceHandler.getMessage("scm.qrcode.notIn",null));
+        }
+        List<Map<String,Object>> qrCodeList = qrcodeService.listForMap(new HashMap<String,Object>(){{put("id",qrCodeId);}});
+        result.put("qrCodeInfo",qrCodeList.get(0));
         return R.ok(result);
     }
 }

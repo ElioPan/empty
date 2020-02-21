@@ -47,6 +47,9 @@ public class QrcodeDO implements Serializable {
 	//数量
     @ApiModelProperty(value = "数量")
 	private BigDecimal count;
+	//剩余数量
+	@ApiModelProperty(value = "剩余数量")
+	private BigDecimal remainCount;
 	//创建人
     @ApiModelProperty(value = "创建人")
 	private Long createBy;
@@ -70,5 +73,6 @@ public class QrcodeDO implements Serializable {
 		this.materielNo = materielNo;
 		this.batch = batch;
 		this.count = count;
+		this.remainCount = count;
 	}
 }

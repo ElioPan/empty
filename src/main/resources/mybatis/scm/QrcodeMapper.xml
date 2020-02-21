@@ -39,6 +39,7 @@
 		qrcode.batch as batch,
 		qrcode.contract_no as contractNo,
 		qrcode.count as count,
+		qrcode.remain_count as remainCount,
 		qrcode.materiel_no as materielNo,
 		qrcode.stock_id as stockId,
 		materiel.id as materielId,
@@ -88,7 +89,7 @@
 	</sql>
 
     <sql id="sql_column_list">
-		`id`,`inspection_id`,`contract_no`,`stock_id`,`materiel_id`,`materiel_no`,`batch`,`count`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+		`id`,`inspection_id`,`contract_no`,`stock_id`,`materiel_id`,`materiel_no`,`batch`,`count`,`remain_count`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 	</sql>
 
     <sql id="sql_condition">
@@ -118,7 +119,8 @@
 			`materiel_id`, 
 			`materiel_no`, 
 			`batch`, 
-			`count`, 
+			`count`,
+			`remain_count`,
 			`create_by`, 
 			`create_time`, 
 			`update_by`, 
@@ -133,7 +135,8 @@
 			#{materielId}, 
 			#{materielNo}, 
 			#{batch}, 
-			#{count}, 
+			#{count},
+			#{remainCount},
 			#{createBy}, 
 			#{createTime}, 
 			#{updateBy}, 
@@ -152,6 +155,7 @@
 		<if test="materielNo != null">`materiel_no` = #{materielNo}, </if>
 		<if test="batch != null">`batch` = #{batch}, </if>
 		<if test="count != null">`count` = #{count}, </if>
+		<if test="remainCount != null">`remain_count` = #{remainCount}, </if>
 		<if test="createBy != null">`create_by` = #{createBy}, </if>
 		<if test="createTime != null">`create_time` = #{createTime}, </if>
 		<if test="updateBy != null">`update_by` = #{updateBy}, </if>
