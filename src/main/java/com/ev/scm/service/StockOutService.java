@@ -5,6 +5,7 @@ import com.ev.framework.utils.R;
 import com.ev.scm.domain.StockDO;
 import com.ev.scm.domain.StockItemDO;
 import com.ev.scm.domain.StockOutDO;
+import com.ev.scm.domain.StockOutItemDO;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
@@ -39,6 +40,8 @@ public interface StockOutService {
     int update(StockOutDO stockOutDO);
 
     R add(StockOutDO stockOutDO, String item, DictionaryDO storageType);
+
+    R addByQrcodeId(StockOutDO stockOutDO, List<StockOutItemDO> itemDOS, DictionaryDO storageType);
 
     Map<String, Object> getDetail(Long id);
 
@@ -81,5 +84,7 @@ public interface StockOutService {
     Map<String, Object> countTotal(Map<String, Object> params);
 
     int childCount(Long id);
+
+    boolean isQrcode(Long id);
 
 }

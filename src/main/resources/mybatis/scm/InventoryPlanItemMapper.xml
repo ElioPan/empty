@@ -145,16 +145,18 @@
 		d.name   as unitName,
 		c.sale_price as materielPrice,
 		case when a.profit_loss &lt;0 then -(a.profit_loss*c.sale_price)
-		when a.profit_loss &gt; 0 then (a.profit_loss*c.sale_price) end  pro_amount,
-		a.batch  as pro_batch,
+				when a.profit_loss &gt; 0 then (a.profit_loss*c.sale_price)
+				end  proAmount,
+		a.batch  as batch,
 		case when a.profit_loss &lt; 0 then -(a.profit_loss)
-		when  a.profit_loss &gt; 0 then a.profit_loss end pro_countl,
+				when  a.profit_loss &gt; 0 then a.profit_loss
+				end profitLoss,
 		f.code,
-		f.document_type as documentType_id,
-		g.name as documentType_name
+		f.document_type as documentTypeId,
+		g.name as documentTypeName
 		FROM scm_inventory_plan_item   a
 		LEFT JOIN cus_materiel  b   ON  a.materiel_id=b.id
-		LEFT JOIN cus_materiel     c   ON a.pro_id=c.id
+		LEFT JOIN cus_materiel     c   ON a.materiel_id=c.id
 		LEFT JOIN cus_dictionary  d  ON b.unit_uom=d.id
 		LEFT JOIN scm_inventory_plan  e  ON a.head_id=e.id
 		LEFT JOIN scm_inventory_plan_fitloss  f  ON a.head_id=f.head_id

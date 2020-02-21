@@ -412,7 +412,7 @@ public class OutsourcingStockOutApiController {
         Map<String,Object> map = Maps.newHashMap();
         map.put("list", data);
         TemplateExportParams params = new TemplateExportParams(classPathResource.getPath());
-        modelMap.put(TemplateExcelConstants.FILE_NAME, "委外出库单单");
+        modelMap.put(TemplateExcelConstants.FILE_NAME, "委外出库单");
         modelMap.put(TemplateExcelConstants.PARAMS, params);
         modelMap.put(TemplateExcelConstants.MAP_DATA, map);
         PoiBaseView.render(modelMap, request, response,
