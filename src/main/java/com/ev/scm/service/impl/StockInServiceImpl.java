@@ -338,16 +338,21 @@ public class StockInServiceImpl implements StockInService {
 			if(Objects.equals(storageType,ConstantForGYL.PURCHASE_INSTOCK)){stockInDO.setSign(0);}
 			stockInDao.save(stockInDO);
 
-			if (StringUtils.isNotEmpty(bodyDetail)) {
+			if(StringUtils.isNotEmpty(bodyDetail)){
 				List<StockInItemDO>inbodyCDos = JSON.parseArray(bodyDetail, StockInItemDO.class);
-				//保存子表信息
 				Map<String, Object> query = Maps.newHashMap();
-				for (StockInItemDO propuinbody : inbodyCDos) {
-					propuinbody.setInheadId(stockInDO.getId());
-					if(Objects.equals(storageType,ConstantForGYL.PURCHASE_INSTOCK)){propuinbody.setExpense(BigDecimal.ZERO);}
-					if(Objects.equals(storageType,ConstantForGYL.OUTSOURCING_INSTOCK)){propuinbody.setMaterialIdCount("0");}
-					SstockInItemService.save(propuinbody);
-				}
+					if(Objects.nonNull(inbodyCDos.get(0).getQrcodeId())){
+						//走扫码费非审核直接入库
+						diposeQrInStock(inbodyCDos,stockInDO,storageType);
+					}else{
+						//走审核入库
+						for (StockInItemDO propuinbody : inbodyCDos) {
+							propuinbody.setInheadId(stockInDO.getId());
+							if(Objects.equals(storageType,ConstantForGYL.PURCHASE_INSTOCK)){propuinbody.setExpense(BigDecimal.ZERO);}
+							if(Objects.equals(storageType,ConstantForGYL.OUTSOURCING_INSTOCK)){propuinbody.setMaterialIdCount("0");}
+							SstockInItemService.save(propuinbody);
+						}
+					}
 				//将主表主键返回前端，审核使用。
 				query.put("msg", "保存成功");
 				query.put("inHeadId", stockInDO.getId());
@@ -402,6 +407,21 @@ public class StockInServiceImpl implements StockInService {
 			}
 		}
 	}
+
+
+	public void diposeQrInStock(List<StockInItemDO> inbodyCDos, StockInDO stockInDO, Long storageType) {
+
+		for (StockInItemDO propurcahseInbody : inbodyCDos) {
+			propurcahseInbody.setInheadId(stockInDO.getId());
+			if (Objects.equals(storageType, ConstantForGYL.PURCHASE_INSTOCK)) {propurcahseInbody.setExpense(BigDecimal.ZERO);}
+			if (Objects.equals(storageType, ConstantForGYL.OUTSOURCING_INSTOCK)) {propurcahseInbody.setMaterialIdCount("0");}
+			SstockInItemService.save(propurcahseInbody);
+		}
+
+
+	}
+
+
 
 
 	private String purchaseContractCode(String constant) {

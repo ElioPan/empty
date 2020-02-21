@@ -65,6 +65,7 @@ public class ScmPurchaseInStockController {
                               "\"sourceCode\":\"原单编码\"\n" +
                               "\"sourceId\":\"原单id(追溯用，必传)\"\n" +
                               "\"expense\":\"费用（采购入库）\"\n" +
+                              "\"qrcodeId\":\"二维码主键id\"\n" +
                               "}\n" +
                               "]", required = true) @RequestParam(value = "bodyDetail", defaultValue = "") String bodyDetail,
                       @ApiParam(value = "删除的明细id") @RequestParam(value = "itemIds", required = false) Long[] itemIds) {

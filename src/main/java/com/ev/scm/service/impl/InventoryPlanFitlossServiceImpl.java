@@ -1,5 +1,6 @@
 package com.ev.scm.service.impl;
 
+import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.scm.dao.InventoryPlanFitlossDao;
 import com.ev.scm.domain.InventoryPlanDO;
@@ -73,10 +74,10 @@ public class InventoryPlanFitlossServiceImpl implements InventoryPlanFitlossServ
 			}
 			int rows = 0;
 			for (Map<String, Object> mapDetail : listMap) {
-				headId=Long.parseLong(mapDetail.get("head_id").toString());
+				headId=Long.parseLong(mapDetail.get("headId").toString());
 				InventoryPlanFitlossDO cFLDo = new InventoryPlanFitlossDO();
 				cFLDo.setHeadId(headId);
-				cFLDo.setBodyId(Long.parseLong(mapDetail.get("body_id").toString()));
+				cFLDo.setBodyId(Long.parseLong(mapDetail.get("itemId").toString()));
 				cFLDo.setCode(code);
 				cFLDo.setDocumentType(documentType);
 				rows += checkProfitlossDao.save(cFLDo);
@@ -112,10 +113,10 @@ public class InventoryPlanFitlossServiceImpl implements InventoryPlanFitlossServ
 		int rows=checkProfitlossDao.countOfYKCount(queryPY);
 		int lines=checkProfitlossDao.countOfYKCount(queryPK);
 		if(rows==1&&lines==1){
-			//更新方案表状态为25
+			//更新方案表状态为192  执行结束
 			InventoryPlanDO checkHeadDO =new InventoryPlanDO();
 			checkHeadDO.setId(planId);
-			checkHeadDO.setCheckStatus(25L);
+			checkHeadDO.setCheckStatus(ConstantForGYL.EXECUTE_OVER);
 			checkHeadService.update(checkHeadDO);
 			return 1;
 		}else{

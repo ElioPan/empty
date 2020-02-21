@@ -189,7 +189,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 		List<Map<String, Object>> bodyDetails = inventoryPlanService.getProMsgByHeadId(params);
 		params.remove("id");
 
-		if (headDetails.size() > 0 && bodyDetails.size() > 0) {
+		if (headDetails.size() > 0 ) {
 			params.put("headDetails", headDetails);
 			params.put("bodyDetails", bodyDetails);
 		} else {
@@ -292,10 +292,11 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 
 			params.put("documentType", ConstantForGYL.PYDJ );  //  32--->198//PYDJ  盘盈单据
 			int otherInLines = inventoryPlanFitlossService.countOfOtherByPY(params);//是否已经生成其他入库 headId+documentType
-			int linesPL = inventoryPlanFitlossService.count(params);   //是否已经生成盘盈单（lines>0 是）
+			int linesPL = inventoryPlanFitlossService.count(params);   //是否已经生成盘赢单（lines>0 是）
 
 			if (!(Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_NON))) {  //   23-->190未执行
 				if ( Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_OVER) && rows > 0 && otherInLines == 0) {//  25--->192执行结束
+						//	EXECUTE_NOW
 
 					//允许返回生成其他入库的数据，但是盈亏单不更新
 					params.put("checkStatus", ConstantForGYL.EXECUTE_OVER);//  25--->192执行结束
@@ -314,10 +315,11 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				} else if (Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_NOW) && rows > 0 && otherInLines == 0 && linesPL == 0) {//   24-->191执行中
 
 					//将盘盈数据保存至盈亏表中,保存后并验证更改方案的状态为25
-					//Boolean aBoolean = inventoryPlanFitlossService.saveProfitORLoss(profitLossMsg, 32L);
+					Boolean aBoolean = inventoryPlanFitlossService.saveProfitORLoss(profitLossMsg, 32L);
 
 					//返回生成其他入库的数据。
 					params.remove("checkStatus");
+					params.remove("documentType");
 					List<Map<String, Object>> profitLossMsgNow = inventoryPlanItemService.getProfitLossMsg(params);
 
 					result.put("BodyData", profitLossMsgNow);
@@ -395,6 +397,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 					//Boolean aBoolean = inventoryPlanFitlossService.saveProfitORLoss(profitLossMsg, 28L);
 					//返回生成其他入库的数据。
 					params.remove("checkStatus");
+					params.remove("documentType");
 					List<Map<String, Object>> profitLossMsgNow = inventoryPlanItemService.getProfitLossMsg(params);
 
 					result.put("BodyData", profitLossMsgNow);

@@ -150,7 +150,7 @@ public class ScmInventoryPlanApiController {
     @ApiOperation("生成盘盈单")
     public R buildInStockByCheck(
             @ApiParam(value = "盘点方案id", required = true) @RequestParam(value = "planId") Long planId) {
-        return inventoryPlanService.buildLossStock(planId);
+        return inventoryPlanService.buildWinStock(planId);
     }
 
     @EvApiByToken(value = "/apis/scm/inventoryPlan/buildLossStock", method = RequestMethod.POST, apiTitle = "生成盘亏单")
