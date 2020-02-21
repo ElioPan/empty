@@ -138,7 +138,7 @@
 		DISTINCT
 		a.head_id as headId,
 		a.id as itemId,
-		a.materiel_id,
+		a.materiel_id as materielId,
 		b.name   as materielName,
 		b.specification ,
 		b.unit_uom   as unitId,
