@@ -315,7 +315,7 @@ public class OutsourcingStockOutApiController {
             @ApiParam(value = "发料部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
             @ApiParam(value = "业务类型") @RequestParam(value = "outboundType", defaultValue = "", required = false) Integer outboundType,
             @ApiParam(value = "规格型号") @RequestParam(value = "specification", defaultValue = "", required = false) String specification,
-            @ApiParam(value = "批次") @RequestParam(value = "materielName", defaultValue = "", required = false) String batch,
+            @ApiParam(value = "批次") @RequestParam(value = "batch", defaultValue = "", required = false) String batch,
             @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
             @ApiParam(value = "出库员") @RequestParam(value = "operatorName", defaultValue = "", required = false) String operatorName,
             @ApiParam(value = "出库员Id") @RequestParam(value = "operator", defaultValue = "", required = false) Long operator,

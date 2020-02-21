@@ -146,6 +146,7 @@
 		feeding.`id` AS id,
 		feeding.`production_plan_id` AS productionPlanId,
 		feeding.`outsource_contract_item_id` AS outsourceContractItemId,
+		contract.`contract_code` AS contractCode,
 		plan.`plan_no` AS planNo,
 		feeding.`materiel_id` AS materielId,
 		material.serial_no AS materialSerialNo,
@@ -201,7 +202,9 @@
         LEFT JOIN cus_dictionary dicts ON dicts.id = feeding.`status`
 		LEFT JOIN sys_user createuser ON createuser.`user_id`=feeding.`create_by`
 		LEFT JOIN sys_user audituser ON audituser.`user_id`=feeding.`auditor`
-		
+		<!-- 委外合同 -->
+		LEFT JOIN scm_outsourcing_contract_item contractItem ON contractItem.`id` = feeding.`outsource_contract_item_id`
+		LEFT JOIN scm_outsourcing_contract contract ON contract.`id` = contractItem.`contract_id`
 		<where>  
 		  		 	<if test="id != null and id != ''"> and feeding.id = #{id} </if>
 		  		 	<if test="startTime != null and startTime != ''">  and  DATE_FORMAT(feeding.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
