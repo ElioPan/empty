@@ -46,5 +46,5 @@ public interface QrcodeService {
 	 * 出库后调用方法修改二维码信息以及保存二维码库存变更记录
 	 * @param params 前端扫码参数列表[{......,qrCodeId:1,count:5}{......,qrCodeId:2,count:5}]
 	 */
-	void saveOutQrCode(List<StockOutItemDO> params);
+	void saveOutQrCode(List<StockOutItemDO> stockOutItems, List<StockOutItemDO> params);
 }
