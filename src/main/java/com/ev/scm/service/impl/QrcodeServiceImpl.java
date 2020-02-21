@@ -3,7 +3,6 @@ package com.ev.scm.service.impl;
 import com.ev.scm.domain.StockDO;
 import com.ev.scm.domain.StockInItemDO;
 import com.ev.scm.domain.StockOutItemDO;
-import org.omg.CORBA.Object;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +25,7 @@ public class QrcodeServiceImpl implements QrcodeService {
 	public QrcodeDO get(Long id){
 		return qrcodeDao.get(id);
 	}
-	
+
 	@Override
 	public List<QrcodeDO> list(Map<String, Object> map){
 		return qrcodeDao.list(map);
@@ -77,7 +76,7 @@ public class QrcodeServiceImpl implements QrcodeService {
 				if(Objects.equals(stockDO.getMaterielId(),stockInItemDO.getMaterielId()) &&
 						(stockDO.getWarehouse()+"-"+stockDO.getWarehLocation()).equals(stockInItemDO.getWarehouse()+"-"+stockInItemDO.getWarehLocation()) &&
 						stockDO.getBatch().equals(stockInItemDO.getBatch())){
-					QrcodeDO qrcodeDO = qrcodeDao.get(stockInItemDO.get);
+					QrcodeDO qrcodeDO = qrcodeDao.get(1L);
 				}
 			}
 		}
