@@ -250,6 +250,7 @@
         contract.auditor AS auditor,
         auditUser.`name` AS auditorName,
         contract.`audit_time` AS auditTime,
+        contract.close_status AS closeStatus,
         IF(contract.close_status=0,'未关闭','关闭') AS closeStatusName,
         contract.audit_sign AS auditSign,
         dica.`name` AS auditSignName
