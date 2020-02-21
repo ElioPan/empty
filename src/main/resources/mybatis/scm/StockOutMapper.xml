@@ -238,6 +238,7 @@
         dics.`name` AS sourceTypeName,
         item.source_code AS sourceCode,
         stockOut.`out_code` AS code,
+        item.`qrcode_id` AS qrcodeId,
         stockOut.`create_time` AS createTime
         <include refid="sql_api_condition"/>
         <choose>
