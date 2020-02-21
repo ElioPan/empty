@@ -83,5 +83,8 @@ public class StockInDO implements Serializable {
 	private Integer delFlag;
 	@ApiModelProperty(value = "核算1，分配0（默认0）")
 	private Integer sign;
+	@ApiModelProperty(value = "采是否扫码入库1是，null否")
+	private Integer qrSign;
+
 
 }

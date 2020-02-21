@@ -54,7 +54,8 @@
 		`update_by`,
 		`update_time`,
 		`del_flag`,
-		`materialId_count`
+		`materialId_count`,
+		`qrcode_id`
 	</sql>
 
 	<sql id="sql_condition">
@@ -80,6 +81,8 @@
 			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
 			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
 			<if test="materialIdCount != null and materialIdCount != ''"> and materialId_count = #{materialIdCount} </if>
+			<if test="qrcodeId != null and qrcodeId != ''"> and qrcode_id = #{qrcodeId} </if>
+
 		</where>
 	</sql>
 
@@ -105,7 +108,8 @@
 		`update_by`,
 		`update_time`,
 		`del_flag`,
-		`materialId_count`
+		`materialId_count`,
+		`qrcode_id`
 		)
 		values
 		(
@@ -128,7 +132,8 @@
 		#{updateBy},
 		#{updateTime},
 		#{delFlag},
-		#{materialIdCount}
+		#{materialIdCount},
+		#{qrcodeId}
 		)
 	</insert>
 
@@ -155,6 +160,7 @@
 			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
 			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
 			<if test="materialIdCount != null">`materialId_count` = #{materialIdCount}</if>
+			<if test="qrcodeId != null">`qrcode_id` = #{qrcodeId}</if>
 		</set>
 		where id = #{id}
 	</update>

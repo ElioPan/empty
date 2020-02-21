@@ -191,7 +191,7 @@
 		a.batch,
 		a.warehouse as warehouseId,
 		c.name  as  warehouseName,
-		a.wareh_location as swarehLocation,
+		a.wareh_location as warehLocation,
 		d.name   as  warehLocationName,
 		sum(a.count) as systemCount,
 		0 as  checkCount,

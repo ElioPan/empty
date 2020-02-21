@@ -4,8 +4,10 @@
 <mapper namespace="com.ev.scm.dao.StockInDao">
 
 	<select id="get" resultType="com.ev.scm.domain.StockInDO">
-		select `id`,`inhead_code`,`storage_type`,`source_company`,`operator`,`auditor`,`audit_sign`,`audit_time`,`in_time`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`sign` from scm_stock_in where id = #{value}
+		select `id`,`inhead_code`,`storage_type`,`source_company`,`operator`,`auditor`,`audit_sign`,`audit_time`,`in_time`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`sign`,`qr_sign` from scm_stock_in where id = #{value}
 	</select>
+
+
 
 	<select id="list" resultType="com.ev.scm.domain.StockInDO">
 		select `id`,`inhead_code`,`storage_type`,`source_company`,
@@ -14,7 +16,7 @@
 		in_out_time,
 		`operator`,`auditor`,`audit_sign`,`audit_time`,
 		`in_time`,`remarks`,`create_by`,`create_time`,`update_by`,
-		`update_time`,`del_flag`,`sign` from scm_stock_in
+		`update_time`,`del_flag`,`sign`,`qr_sign` from scm_stock_in
 		<where>
 			<if test="maxNo != null and maxNo != ''"> and LEFT(inhead_code,12) = #{maxNo} </if>
 			<if test="id != null and id != ''"> and id = #{id} </if>
@@ -34,6 +36,7 @@
 			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
 			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
 			<if test="sign != null and sign != ''"> and sign = #{sign} </if>
+			<if test="qrSign != null and qrSign != ''"> and qr_sign = #{qrSign} </if>
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -55,7 +58,6 @@
 			<if test="clientId != null and clientId != ''"> and client_id = #{clientId} </if>
 			<if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
 			<if test="inOutTime != null and inOutTime != ''"> and in_out_time = #{inOutTime} </if>
-
 			<if test="id != null and id != ''"> and id = #{id} </if>
 			<if test="inheadCode != null and inheadCode != ''"> and inhead_code = #{inheadCode} </if>
 			<if test="storageType != null and storageType != ''"> and Storage_type = #{storageType} </if>
@@ -72,8 +74,11 @@
 			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
 			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
 			<if test="sign != null and sign != ''"> and sign = #{sign} </if>
+			<if test="qrSign != null and qrSign != ''"> and qr_sign = #{qrSign} </if>
 		</where>
 	</select>
+
+
 
 	<insert id="save" parameterType="com.ev.scm.domain.StockInDO" useGeneratedKeys="true" keyProperty="id">
 		insert into scm_stock_in
@@ -97,7 +102,8 @@
 		`update_by`,
 		`update_time`,
 		`del_flag`,
-		`sign`
+		`sign`,
+		`qr_sign`
 		)
 		values
 		(
@@ -120,10 +126,11 @@
 		#{updateBy},
 		#{updateTime},
 		#{delFlag},
-		#{sign}
+		#{sign},
+		#{qrSign}
 		)
 	</insert>
-
+	
 	<update id="update" parameterType="com.ev.scm.domain.StockInDO">
 		update scm_stock_in
 		<set>
@@ -147,6 +154,7 @@
 			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
 			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
 			<if test="sign != null">`sign` = #{sign}</if>
+			<if test="qrSign != null">`qr_sign` = #{qrcodeId}</if>
 		</set>
 		where id = #{id}
 	</update>
