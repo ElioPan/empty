@@ -1,6 +1,8 @@
 package com.ev.scm.service.impl;
 
 import com.ev.scm.domain.StockDO;
+import com.ev.scm.domain.StockInItemDO;
+import com.ev.scm.domain.StockOutItemDO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -64,12 +66,12 @@ public class QrcodeServiceImpl implements QrcodeService {
 	}
 
 	@Override
-	public void saveInQrCode(List<StockDO> stockDOS, List<Map<String, Object>> params) {
+	public void saveInQrCode(List<StockDO> stockDOS, List<StockInItemDO> params) {
 
 	}
 
 	@Override
-	public void saveOutQrCode(List<Map<String, Object>> params) {
+	public void saveOutQrCode(List<StockOutItemDO> params) {
 
 	}
 

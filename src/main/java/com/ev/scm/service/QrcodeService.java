@@ -2,6 +2,8 @@ package com.ev.scm.service;
 
 import com.ev.scm.domain.QrcodeDO;
 import com.ev.scm.domain.StockDO;
+import com.ev.scm.domain.StockInItemDO;
+import com.ev.scm.domain.StockOutItemDO;
 
 import java.util.List;
 import java.util.Map;
@@ -38,11 +40,11 @@ public interface QrcodeService {
 	 * @param stockDOS 保存的库存列表
 	 * @param params 前端扫码参数列表[{......,qrCodeId:1}{......,qrCodeId:2}]
 	 */
-	void saveInQrCode(List<StockDO> stockDOS, List<Map<String,Object>> params);
+	void saveInQrCode(List<StockDO> stockDOS, List<StockInItemDO> params);
 
 	/**
 	 * 出库后调用方法修改二维码信息以及保存二维码库存变更记录
 	 * @param params 前端扫码参数列表[{......,qrCodeId:1,count:5}{......,qrCodeId:2,count:5}]
 	 */
-	void saveOutQrCode(List<Map<String,Object>> params);
+	void saveOutQrCode(List<StockOutItemDO> params);
 }
