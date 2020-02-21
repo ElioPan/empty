@@ -1,20 +1,30 @@
 package com.ev.apis.controller.scm;
 
+import cn.afterturn.easypoi.entity.vo.TemplateExcelConstants;
+import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
+import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.utils.R;
 import com.ev.scm.domain.InventoryPlanDO;
+import com.ev.scm.service.InventoryPlanItemService;
 import com.ev.scm.service.InventoryPlanService;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +41,8 @@ import java.util.Map;
 public class ScmInventoryPlanApiController {
     @Autowired
     private InventoryPlanService inventoryPlanService;
+    @Autowired
+    private InventoryPlanItemService inventoryPlanItemService;
 
     @EvApiByToken(value = "/apis/scm/inventoryPlan/choceProCount", method = RequestMethod.POST, apiTitle = "查询（“增加盘点方案”明细行商品）")
     @ApiOperation("查询（“增加盘点方案”明细行商品）")
@@ -120,15 +132,15 @@ public class ScmInventoryPlanApiController {
     public R saveEditResuls(
             InventoryPlanDO checkHeadDO,
             @ApiParam(value = "盘点产品明细行：[{" +
-                    "\"id\":1," +
+                    "\"id\":1(必传)," +
                     "\"materielId\":2," +
-                    "\"stockId\":2," +
-                    "\"warehouse\":2," +
-                    "\"warehLocation\":2," +
+                    "\"stockId\":库存（没有可不填）," +
+                    "\"warehouse\":仓库id," +
+                    "\"warehLocation\":库位id," +
                     "\"batch\":\"20191225001\"," +
-                    "\"systemCount\":50," +
-                    "\"checkCount\":49," +
-                    "\"profitLoss\":-1}" +
+                    "\"systemCount\":系统数量," +
+                    "\"checkCount\":盘点数量," +
+                    "\"profitLoss\":（盈亏数量 （赢+亏-））}" +
                     "]") @RequestParam(value = "checkBodyDO") String checkBodys) {
         return inventoryPlanService.savePlanDetail(checkHeadDO,checkBodys);
     }
@@ -148,6 +160,31 @@ public class ScmInventoryPlanApiController {
         return inventoryPlanService.buildLossStock( planId );
     }
 
+
+    @ResponseBody
+    @EvApiByToken(value = "/apis/scm/exportExcel/systemCountGetOut", method = RequestMethod.GET, apiTitle = "导出系统库存")
+    @ApiOperation("导出系统库存")
+    public void exportExcel(
+            @ApiParam(value = "仓库id(选择所有仓库id为空)",required = true) @RequestParam(value = "warehouse") Long warehouse,
+            @ApiParam(value = "商品名称/编码：String") @RequestParam(value = "syntheticData", defaultValue = "") String syntheticData,
+            HttpServletRequest request, HttpServletResponse response, ModelMap modelMap) {
+
+        Map<String,Object> query = com.beust.jcommander.internal.Maps.newHashMap();
+        query.put("warehouse",warehouse);
+        query.put("name",syntheticData);
+
+        List<Map<String, Object>> list = inventoryPlanItemService.getProMsgCount(query);
+
+        ClassPathResource classPathResource = new ClassPathResource("poi/scm_inventory_plan.xlsx");
+        Map<String,Object> map = Maps.newHashMap();
+        map.put("list", list);
+        TemplateExportParams result = new TemplateExportParams(classPathResource.getPath());
+        modelMap.put(TemplateExcelConstants.FILE_NAME, "系统库存");
+        modelMap.put(TemplateExcelConstants.PARAMS, result);
+        modelMap.put(TemplateExcelConstants.MAP_DATA, map);
+        PoiBaseView.render(modelMap, request, response,
+                TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
+    }
 
 
 

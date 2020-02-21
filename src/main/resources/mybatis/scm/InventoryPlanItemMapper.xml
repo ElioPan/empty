@@ -193,7 +193,9 @@
 		c.name  as  warehouseName,
 		a.wareh_location as swarehLocation,
 		d.name   as  warehLocationName,
-		sum(a.count) as systemCount
+		sum(a.count) as systemCount,
+		0 as  checkCount,
+		0  as  profitLos
 		FROM      scm_stock     a
 		LEFT JOIN cus_materiel   b  ON  a.materiel_id = b.id
 		LEFT JOIN cus_facility  c  ON  a.warehouse = c.id

@@ -1,5 +1,6 @@
 package com.ev.scm.service.impl;
 
+import com.alibaba.druid.sql.visitor.functions.If;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -7,7 +8,6 @@ import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
-import com.ev.mes.domain.BomDetailDO;
 import com.ev.scm.dao.InStockAccountingDao;
 import com.ev.scm.domain.StockInDO;
 import com.ev.scm.domain.StockInItemDO;
@@ -16,10 +16,15 @@ import com.ev.scm.service.InStockAccountingService;
 import com.ev.scm.service.PurchaseExpenseItemService;
 import com.ev.scm.service.StockInItemService;
 import com.ev.scm.service.StockInService;
+import com.sun.org.apache.bcel.internal.generic.IFEQ;
+import com.sun.org.apache.bcel.internal.generic.IFNE;
+import jdk.internal.org.objectweb.asm.tree.InnerClassNode;
+import org.omg.CORBA.OBJ_ADAPTER;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -37,12 +42,11 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
     @Autowired
     private StockInService stockInService;
-
     @Autowired
     private PurchaseExpenseItemService purchaseExpenseItemService;
-
     @Autowired
     private InStockAccountingDao  inStockAccountingDao;
+
 
     @Override
     public List<Map<String, Object>> getBomItem(Long ContractItemId) {
@@ -248,11 +252,12 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
             Long contrackItemId=stockInItemDo.getId();
 
             List<Map<String, Object>> newMaterialCountList=new ArrayList<>();
-            Map<String,Object>  oneNewMaterialCounts= new HashMap<>();
+
+            //此行产品所有组件物料核销后的成本，每个组件物料核销数乘委外出库单件的累加
+            BigDecimal totailCost=new BigDecimal(BigInteger.ZERO);
 
             //获取入库单子表信息验证是否已经核算完毕,
             StockInItemDO checkStockInItemDO = stockIntemService.get(stockInItemId);
-
             if (Objects.equals("1",checkStockInItemDO.getMaterialIdCount())) {
                 //跳出本次循环  1核算完毕
                 break;
@@ -290,9 +295,10 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 break;
             }else{
                 //核销的物料和出库明细的物料相等，即可计算核销。
-                List<StockOutItemDO> newStockOutItemDoList=new ArrayList<>();
-                for(int k=0;k<bomItems.size();k++){
 
+                for(int k=0;k<bomItems.size();k++){
+                    List<StockOutItemDO> newStockOutItemDoList=new ArrayList<>();
+                    Map<String,Object>  oneNewMaterialCounts= new HashMap<>();
                     //需要核销的数量
                     BigDecimal standardCount=new BigDecimal(bomItems.get(k).get("standardCount").toString());
                     //需要核销的物料
@@ -302,6 +308,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                     List<StockOutItemDO> stockOutDetail = this.getStockOutDetail(contrackItemId);
 
                     for(StockOutItemDO stockOutItemDO:stockOutDetail){
+
                         if(Objects.equals(0,standardCount.compareTo(BigDecimal.ZERO))){
                             break;
                         }
@@ -316,16 +323,20 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                                 standardCount=standardCount.subtract(canChargeOffCount);
                                 newStockOutItemDoList.add(stockOutItemDO);
 
+                                totailCost=totailCost.add(stockOutItemDO.getSellUnitPrice().multiply(canChargeOffCount));
+
                             }else if(standardCount.compareTo(canChargeOffCount)==0){
                                 stockOutItemDO.setChargeOffCount(canChargeOffCount.add(chargeOffCount));
                                 standardCount=standardCount.subtract(canChargeOffCount);
                                 newStockOutItemDoList.add(stockOutItemDO);
+                                totailCost=totailCost.add(stockOutItemDO.getSellUnitPrice().multiply(standardCount));
                                 break;
 
                             }else if(standardCount.compareTo(canChargeOffCount)<0){
                                 stockOutItemDO.setChargeOffCount(canChargeOffCount.add(standardCount));
                                 standardCount=standardCount.subtract(standardCount);
                                 newStockOutItemDoList.add(stockOutItemDO);
+                                totailCost=totailCost.add(stockOutItemDO.getSellUnitPrice().multiply(standardCount));
                                 break;
                             }
                         }
@@ -342,7 +353,13 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                     }
                 }
             }
-            checkStockInItemDO.setMaterialIdCount(newMaterialCountList.toString());
+            if(newMaterialCountList.size()>0){
+                checkStockInItemDO.setMaterialIdCount(newMaterialCountList.toString());
+
+            }else{
+                checkStockInItemDO.setMaterialIdCount("1");
+            }
+            checkStockInItemDO.setCost(totailCost);
             stockIntemService.update(checkStockInItemDO);
         }
        return R.ok();
@@ -361,6 +378,11 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         //批量更新委外入库子表
         stockIntemService.batchUpdate(newStockInItemDo);
     }
+
+
+
+
+
 
 
 
