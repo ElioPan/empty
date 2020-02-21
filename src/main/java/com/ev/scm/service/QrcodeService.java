@@ -35,14 +35,14 @@ public interface QrcodeService {
 
 	/**
 	 * 入库后调用方法保存二维码信息
-	 * @param stockDOS
-	 * @param params
+	 * @param stockDOS 保存的库存列表
+	 * @param params 前端扫码参数列表[{......,qrCodeId:1}{......,qrCodeId:2}]
 	 */
 	void saveInQrCode(List<StockDO> stockDOS, List<Map<String,Object>> params);
 
 	/**
 	 * 出库后调用方法修改二维码信息以及保存二维码库存变更记录
-	 * @param params
+	 * @param params 前端扫码参数列表[{......,qrCodeId:1,count:5}{......,qrCodeId:2,count:5}]
 	 */
 	void saveOutQrCode(List<Map<String,Object>> params);
 }
