@@ -102,6 +102,7 @@
                             <if test="materielNo != null and materielNo != ''"> AND materiel_no = #{materielNo} </if>
                             <if test="batch != null and batch != ''"> AND batch = #{batch} </if>
                             <if test="count != null and count != ''"> AND count = #{count} </if>
+							<if test="remainCount != null and remainCount != ''"> AND remain_count &lt; #{remainCount} </if>
                             <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
                             <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
                             <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>

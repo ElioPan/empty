@@ -10,13 +10,11 @@ import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.dao.StockOutDao;
-import com.ev.scm.domain.StockDO;
-import com.ev.scm.domain.StockItemDO;
-import com.ev.scm.domain.StockOutDO;
-import com.ev.scm.domain.StockOutItemDO;
+import com.ev.scm.domain.*;
 import com.ev.scm.service.StockItemService;
 import com.ev.scm.service.StockOutItemService;
 import com.ev.scm.service.StockOutService;
+import com.ev.scm.service.StockService;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -43,7 +41,8 @@ public class StockOutServiceImpl implements StockOutService {
     private MessageSourceHandler messageSourceHandler;
     @Autowired
     private QrcodeServiceImpl qrcodeService;
-
+    @Autowired
+    private StockService stockService;
     @Autowired
     private StockItemService stockItemService;
 
@@ -195,6 +194,18 @@ public class StockOutServiceImpl implements StockOutService {
 
     @Override
     public R addByQrcodeId(StockOutDO stockOutDO, List<StockOutItemDO> itemDOs, DictionaryDO storageType) {
+        // 检查二维码中的数量还足不足
+        Map<String,Object> params ;
+        for (StockOutItemDO itemDO : itemDOs) {
+            params = Maps.newHashMap();
+            params.put("id",itemDO.getQrcodeId());
+            params.put("remainCount",itemDO.getCount());
+            List<QrcodeDO> errorList = qrcodeService.list(params);
+            if (errorList.size() > 0) {
+                return R.error(messageSourceHandler.getMessage("scm.stock.code.outError", null));
+            }
+        }
+
         // 设置出库类型
         long storageTypeId = storageType.getId().longValue();
         stockOutDO.setOutboundType(storageTypeId);
@@ -217,31 +228,68 @@ public class StockOutServiceImpl implements StockOutService {
         stockOutDO.setOutCode(DateFormatUtil.getWorkOrderno(maxNo, taskNo));
 
         // 保存主表数据
-//        int count = this.stockOutDao.save(stockOutDO);
-//        Long stockOutId = stockOutDO.getId();
-        String batch;
+        this.stockOutDao.save(stockOutDO);
+        Long stockOutId = stockOutDO.getId();
         Map<String, String> materielIdAndBatchForStockId = Maps.newHashMap();
+        Map<String, BigDecimal> materielIdAndBatchForCount = Maps.newHashMap();
+        List<StockOutItemDO> insertStockOutItemDOs = Lists.newArrayList();
+        List<StockDO> updateStockDOList = Lists.newArrayList();
+        List<StockItemDO> insertStockItemDOList = Lists.newArrayList();
+        String batch;
+        StockDO stockDO;
+        StockItemDO stockItemDO;
         for (StockOutItemDO itemDO : itemDOs) {
+            String stockId = itemDO.getStockId();
+            BigDecimal count = itemDO.getCount();
             batch = itemDO.getBatch();
             batch = batch == null ? "" : batch;
-            String materielIdAndBatch = (itemDO.getMaterielId().toString()) + "&" + batch;
+
+            long stockIdLong = Long.parseLong(stockId);
+            stockDO = stockService.get(stockIdLong);
+            stockDO.setCount(stockDO.getCount().subtract(count));
+            stockDO.setAvailableCount(stockDO.getAvailableCount().subtract(count));
+            updateStockDOList.add(stockDO);
+
+            stockItemDO = new StockItemDO();
+            stockItemDO.setStockId(stockIdLong);
+            stockItemDO.setUnitPrice(itemDO.getUnitPrice());
+            stockItemDO.setCount(count.multiply(new BigDecimal(-1)));
+            stockItemDO.setInOutType(storageTypeId);
+            stockItemDO.setSourceType(itemDO.getSourceType());
+            stockItemDO.setHandleSign(1L);
+            insertStockItemDOList.add(stockItemDO);
+
+            String materielIdAndBatch = itemDO.getMaterielId().toString() + "&" + batch;
             if (materielIdAndBatchForStockId.containsKey(materielIdAndBatch)) {
-                materielIdAndBatchForStockId.put(materielIdAndBatch, materielIdAndBatchForStockId.get(materielIdAndBatch)+","+itemDO.getStockId());
+                materielIdAndBatchForStockId.put(materielIdAndBatch, materielIdAndBatchForStockId.get(materielIdAndBatch)+","+stockId);
+                materielIdAndBatchForCount.put(materielIdAndBatch,materielIdAndBatchForCount.get(materielIdAndBatch).add(count));
                 continue;
             }
-            materielIdAndBatchForStockId.put(materielIdAndBatch,itemDO.getStockId());
+            materielIdAndBatchForCount.put(materielIdAndBatch,count);
+            materielIdAndBatchForStockId.put(materielIdAndBatch,stockId);
         }
-
-        Map<String,Object> params ;
-        for (StockOutItemDO itemDO : itemDOs) {
-            params = Maps.newHashMap();
-            params.put("id",itemDO.getQrcodeId());
-            params.put("outCount",itemDO.getCount());
-            qrcodeService.list(params);
+        StockOutItemDO stockOutItemDO;
+        for (String s : materielIdAndBatchForStockId.keySet()) {
+            for (StockOutItemDO itemDO : itemDOs) {
+                batch = itemDO.getBatch();
+                batch = batch == null ? "" : batch;
+                String materielIdAndBatch = itemDO.getMaterielId().toString() + "&" + batch;
+                if (s.equals(materielIdAndBatch)) {
+                    stockOutItemDO = itemDO;
+                    stockOutItemDO.setStockId(materielIdAndBatchForStockId.get(s));
+                    stockOutItemDO.setCount(materielIdAndBatchForCount.get(s));
+                    stockOutItemDO.setOutId(stockOutId);
+                    insertStockOutItemDOs.add(stockOutItemDO);
+                    break;
+                }
+            }
         }
+        stockOutItemService.batchInsert(insertStockOutItemDOs);
+        stockService.batchUpdate(updateStockDOList);
+        this.batchInsertStockDetailDO(insertStockItemDOList);
+        qrcodeService.saveOutQrCode(insertStockOutItemDOs,itemDOs);
 
-
-        return R.error();
+        return R.ok();
     }
 
     @Override
@@ -261,7 +309,12 @@ public class StockOutServiceImpl implements StockOutService {
     @Override
     public R batchDelete(Long[] ids, Long outType) {
         for (Long id : ids) {
-            if (Objects.equal(this.get(id).getAuditSign(), ConstantForGYL.OK_AUDITED)) {
+            StockOutDO stockOutDO = this.get(id);
+            if (this.isQrcode(id)) {
+                return R.error(messageSourceHandler.getMessage("scm.stock.code.operateError", null));
+            }
+
+            if (Objects.equal(stockOutDO.getAuditSign(), ConstantForGYL.OK_AUDITED)) {
                 return R.error(messageSourceHandler.getMessage("common.approvedOrChild.delete.disabled", null));
             }
         }
@@ -271,6 +324,10 @@ public class StockOutServiceImpl implements StockOutService {
     @Override
     public R reverseAuditForR(Long id, Long outType) {
         StockOutDO stockOutDO = get(id);
+        if (this.isQrcode(id)) {
+            return R.error(messageSourceHandler.getMessage("scm.stock.code.operateError", null));
+        }
+        
         Long auditSignId = stockOutDO.getAuditSign();
         int count = 0;
         // 若是已审核状态设置审核状态为反审核
@@ -294,6 +351,17 @@ public class StockOutServiceImpl implements StockOutService {
     @Override
     public int childCount(Long id) {
         return stockOutDao.childCount(id);
+    }
+
+    @Override
+    public boolean isQrcode(Long id) {
+        Map<String,Object> map = Maps.newHashMap();
+        map.put("outId",id);
+        List<StockOutItemDO> list = stockOutItemService.list(map);
+        if (list.size() > 0) {
+            return list.get(0).getQrcodeId() != null;
+        }
+        return true;
     }
 
     @Override

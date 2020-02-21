@@ -85,4 +85,6 @@ public interface StockOutService {
 
     int childCount(Long id);
 
+    boolean isQrcode(Long id);
+
 }
