@@ -84,7 +84,7 @@ public class StockInItemDO implements Serializable {
 	@ApiModelProperty(value = "未核销完毕的组件物料")
 	private String materialIdCount;
 	@ApiModelProperty(value = "二维码主键")
-	private String qrcodeId;
+	private Long qrcodeId;
 
 
 }
