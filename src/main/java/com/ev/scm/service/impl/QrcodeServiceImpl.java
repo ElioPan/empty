@@ -3,11 +3,13 @@ package com.ev.scm.service.impl;
 import com.ev.scm.domain.StockDO;
 import com.ev.scm.domain.StockInItemDO;
 import com.ev.scm.domain.StockOutItemDO;
+import org.omg.CORBA.Object;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.ev.scm.dao.QrcodeDao;
 import com.ev.scm.domain.QrcodeDO;
@@ -67,7 +69,18 @@ public class QrcodeServiceImpl implements QrcodeService {
 
 	@Override
 	public void saveInQrCode(List<StockDO> stockDOS, List<StockInItemDO> params) {
-
+		for(StockInItemDO stockInItemDO:params){
+			for(StockDO stockDO : stockDOS){
+				/**
+				 * 库位相同，物料相同，批号相同的分组
+				 */
+				if(Objects.equals(stockDO.getMaterielId(),stockInItemDO.getMaterielId()) &&
+						(stockDO.getWarehouse()+"-"+stockDO.getWarehLocation()).equals(stockInItemDO.getWarehouse()+"-"+stockInItemDO.getWarehLocation()) &&
+						stockDO.getBatch().equals(stockInItemDO.getBatch())){
+					QrcodeDO qrcodeDO = qrcodeDao.get(stockInItemDO.get);
+				}
+			}
+		}
 	}
 
 	@Override
