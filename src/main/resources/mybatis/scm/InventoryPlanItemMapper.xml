@@ -138,6 +138,7 @@
 		SELECT
 		DISTINCT
 		a.head_id as headId,
+		e.code,
 		a.id as itemId,
 		a.materiel_id as materielId,
 		b.name   as materielName,
