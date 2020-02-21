@@ -216,6 +216,7 @@
 		from
 		(
 			SELECT
+				i.id ascontractItemId,
 				a.id,
 				a.contract_date as contractDate,
 				a.contract_code as contractCode,
@@ -301,6 +302,7 @@
 		from
 		(
 		SELECT
+		i.id ascontractItemId,
 		a.id,
 		a.contract_date as contractDate,
 		a.contract_code as contractCode,
@@ -325,7 +327,6 @@
 		i.tax_amount AS taxAmount,
 		i.unit_price AS unitPrice,
 		i.tax_rate AS taxRate,
-
 		i.amount AS amount,
 		i.taxes,
 		i.tax_unit_price AS taxUnitPrice,

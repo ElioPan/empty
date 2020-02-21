@@ -117,7 +117,6 @@ public class ScmPurchaseContractApiController {
         // 列表查询
         map.put("offset",(pageno-1)*pagesize);
         map.put("limit",pagesize);
-
         map.put("startTime", startTime);
         map.put("endTime", endTime);
         map.put("contractCode", contractCode);
@@ -131,10 +130,8 @@ public class ScmPurchaseContractApiController {
         map.put("createBy", createBy);
         map.put("createTime", createTime);
         map.put("closeStatus",closeStatus);
-
         List<Map<String, Object>> data = purchasecontractService.listForMap(map);
         Map<String, Object> totalMap = purchasecontractService.countForMap(map);
-
         DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT.intValue());
         String thisSourceTypeName = dictionaryDO.getName();
         for (Map<String, Object> datum : data) {

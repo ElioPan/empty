@@ -61,7 +61,6 @@ public class ScmInventoryPlanApiController {
     public R addAndChangePlan(
             InventoryPlanDO checkHeadDO,
             @ApiParam(value = "盘点产品明细行：[{\"materielId\":2," +
-                    "\"id\":(明细主键（修改时必传）)," +
                     "\"stockId\":2," +
                     "\"warehouse\":2," +
                     "\"warehLocation\":2," +

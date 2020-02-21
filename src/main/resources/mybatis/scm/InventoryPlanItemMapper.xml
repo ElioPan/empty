@@ -94,6 +94,7 @@
 		)
 	</insert>
 
+
 	<update id="update" parameterType="com.ev.scm.domain.InventoryPlanItemDO">
 		UPDATE scm_inventory_plan_item
 		<set>
@@ -153,7 +154,12 @@
 				end profitLoss,
 		f.code,
 		f.document_type as documentTypeId,
-		g.name as documentTypeName
+		g.name as documentTypeName,
+		a.warehouse,
+		j.name as warehouseName,
+		a.wareh_location as warehLocation,
+		k.name as warehLocationName,
+		a.stock_id as stockId
 		FROM scm_inventory_plan_item   a
 		LEFT JOIN cus_materiel  b   ON  a.materiel_id=b.id
 		LEFT JOIN cus_materiel     c   ON a.materiel_id=c.id
@@ -161,6 +167,8 @@
 		LEFT JOIN scm_inventory_plan  e  ON a.head_id=e.id
 		LEFT JOIN scm_inventory_plan_fitloss  f  ON a.head_id=f.head_id
 		LEFT JOIN cus_dictionary  g  ON f.document_type=g.id
+		LEFT JOIN cus_facility  j  ON  a.warehouse = j.id
+		LEFT JOIN cus_facility_location  k  ON  a.wareh_location = k.id
 		<where>
 			<if test="profitLoss != null and profitLoss != ''and profitLoss == -1"> and a.profit_loss &lt; 0 </if>
 

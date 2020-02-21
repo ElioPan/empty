@@ -203,13 +203,15 @@
 			d.name   as warehLocationName,
 			a.system_count  as  systemCount,
 			a.check_count  as  checkCount,
-			a.profit_loss  as  profitLos
+			a.profit_loss  as  profitLos,
+			a.stock_id as stockId
 		from scm_inventory_plan_item  a
 		LEFT JOIN cus_materiel  b ON a.materiel_id=b.id
 		LEFT JOIN cus_facility c ON a.warehouse=c.id
 		LEFT JOIN cus_facility_location  d ON a.wareh_location=d.id
 		LEFT JOIN cus_dictionary e ON b.unit_uom=e.id
-		WHERE a.materiel_id in (select materiel_id  from scm_inventory_plan_item  where head_id=#{id})
+		WHERE a.head_id=#{id}
+		<!--WHERE a.head_id in (select materiel_id  from scm_inventory_plan_item  where head_id=#{id})-->
 	</select>
 
 	<select id="countOfStatus" resultType="int">
