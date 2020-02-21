@@ -1,6 +1,7 @@
 package com.ev.scm.service;
 
 import com.ev.scm.domain.QrcodeDO;
+import com.ev.scm.domain.StockDO;
 
 import java.util.List;
 import java.util.Map;
@@ -31,4 +32,17 @@ public interface QrcodeService {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+	/**
+	 * 入库后调用方法保存二维码信息
+	 * @param stockDOS
+	 * @param params
+	 */
+	void saveInQrCode(List<StockDO> stockDOS, List<Map<String,Object>> params);
+
+	/**
+	 * 出库后调用方法修改二维码信息以及保存二维码库存变更记录
+	 * @param params
+	 */
+	void saveOutQrCode(List<Map<String,Object>> params);
 }

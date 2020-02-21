@@ -1,5 +1,6 @@
 package com.ev.scm.service.impl;
 
+import com.ev.scm.domain.StockDO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -61,5 +62,15 @@ public class QrcodeServiceImpl implements QrcodeService {
 	public int batchRemove(Long[] ids){
 		return qrcodeDao.batchRemove(ids);
 	}
-	
+
+	@Override
+	public void saveInQrCode(List<StockDO> stockDOS, List<Map<String, Object>> params) {
+
+	}
+
+	@Override
+	public void saveOutQrCode(List<Map<String, Object>> params) {
+
+	}
+
 }
