@@ -272,6 +272,7 @@ public class AllotServiceImpl implements AllotService {
                 params.put("materielId",map.get("materielId"));
                 params.put("batch",map.get("batch"));
                 params.put("locationId",map.get("outLocation"));
+                params.put("facilityId",map.get("facId"));
                 List<Map<String, Object>> stockListForMap = materielService.stockListForMap(params);
                 if (stockListForMap.size() > 0) {
                     map.put("availableCount",stockListForMap.get(0).get("availableCount"));
