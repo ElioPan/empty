@@ -307,10 +307,12 @@ public class StockInItemServiceImpl implements StockInItemService {
 				stockDO.setCode(purchaseContractCode(storageTypeId));
 				stockDO.setMaterielId(Long.parseLong(mapDertails.containsKey("materielId")?mapDertails.get("materielId").toString():"0"));
 				stockDO.setBatch(mapDertails.containsKey("batch")?mapDertails.get("batch").toString():null);
-				stockDO.setCount((BigDecimal)(mapDertails.containsKey("count")?mapDertails.get("count"):0));
-				stockDO.setAvailableCount((BigDecimal) (mapDertails.containsKey("count")?mapDertails.get("count"):0));
-				stockDO.setUnitPrice((BigDecimal)(mapDertails.containsKey("unitPrice")?mapDertails.get("unitPrice"):0));
-				stockDO.setAmount((BigDecimal)(mapDertails.containsKey("amount")?mapDertails.get("amount"):0)) ;
+
+				stockDO.setCount((mapDertails.containsKey("count")?new BigDecimal(mapDertails.get("count").toString()): BigDecimal.ZERO));
+				stockDO.setAvailableCount( (mapDertails.containsKey("count")?new BigDecimal(mapDertails.get("count").toString()):BigDecimal.ZERO));
+				stockDO.setUnitPrice((mapDertails.containsKey("unitPrice")?new BigDecimal(mapDertails.get("unitPrice").toString()):BigDecimal.ZERO));
+				stockDO.setAmount((mapDertails.containsKey("amount")?new BigDecimal(mapDertails.get("amount").toString()):BigDecimal.ZERO)) ;
+
 				stockDO.setSourceCompany(Long.parseLong(mapDertails.containsKey("sourceCompany")?mapDertails.get("sourceCompany").toString():"0"));
 				stockDO.setWarehouse(Long.parseLong(mapDertails.containsKey("warehouse")?mapDertails.get("warehouse").toString():null));
 				stockDO.setWarehLocation(Long.parseLong(mapDertails.containsKey("warehLocation")?mapDertails.get("warehLocation").toString():"0"));
@@ -324,8 +326,8 @@ public class StockInItemServiceImpl implements StockInItemService {
 
 					//入库类型 stragoeType
 					stockItemDo.setInOutType(Long.parseLong(mapDertails.containsKey("storageType")?mapDertails.get("storageType").toString():null));
-					stockItemDo.setUnitPrice((BigDecimal) (mapDertails.containsKey("unitPrice")?mapDertails.get("unitPrice"):0));
-					stockItemDo.setCount((BigDecimal)(mapDertails.containsKey("count")?mapDertails.get("count"):0));
+					stockItemDo.setUnitPrice((BigDecimal) (mapDertails.containsKey("unitPrice")?new BigDecimal(mapDertails.get("unitPrice").toString()):BigDecimal.ZERO));
+					stockItemDo.setCount((BigDecimal)(mapDertails.containsKey("count")?new BigDecimal(mapDertails.get("count").toString()):BigDecimal.ZERO));
 
 					stockDetailService.save(stockItemDo);
 				}
