@@ -410,7 +410,7 @@ public class SalescontractServiceImpl implements SalescontractService {
     public R getAlterationDetail(Long id) {
         Map<String, Object> result = Maps.newHashMap();
         ContractAlterationDO contractAlterationDO = contractAlterationDao.get(id);
-        Map<String, Object> salesContract = salesContractDao.getDetail(id);
+        Map<String, Object> salesContract = salesContractDao.getDetail(contractAlterationDO.getContractId());
         result.put("contract", salesContract);
         String alterationContent = contractAlterationDO.getAlterationContent();
         if (StringUtils.isNoneEmpty(alterationContent)) {

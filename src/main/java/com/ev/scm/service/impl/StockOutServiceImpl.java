@@ -212,6 +212,10 @@ public class StockOutServiceImpl implements StockOutService {
         stockOutDO.setOutboundType(storageTypeId);
         // 设置审核状态为待审核
         stockOutDO.setAuditSign(ConstantForGYL.OK_AUDITED);
+        Date now = new Date();
+        stockOutDO.setOutTime(now);
+        stockOutDO.setAuditTime(now);
+        stockOutDO.setAuditor(ShiroUtils.getUserId());
         // 设置出库单据号
         String value = storageType.getValue();
 
