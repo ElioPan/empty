@@ -41,7 +41,7 @@ public class QrcodeApiController {
     MaterialInspectionService materialInspectionService;
 
     @EvApiByToken(value = "/apis/scm/qrcode/list",method = RequestMethod.GET,apiTitle = "获取二维码列表")
-    @ApiOperation("获取销售票据列表/高级搜索")
+    @ApiOperation("获取二维码列表")
     public R list(@ApiParam(value = "检验单据ID") @RequestParam(value = "inspectionId",required = false) String inspectionId,
                           @ApiParam(value = "库存ID") @RequestParam(value = "stockId",defaultValue = "",required = false)  String stockId,
                           @ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
