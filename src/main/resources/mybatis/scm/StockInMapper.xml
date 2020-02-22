@@ -564,6 +564,20 @@
 	</select>
 
 
+	<select id="wetherHaveQrSign" resultType="int">
+		select
+		count(*)
+		from scm_stock_in
+		WHERE
+		storage_type=#{storageType}
+		and
+		qr_sign is not null
+		and
+		stock_id in
+		<foreach item="item" collection="id" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
 
 
 </mapper>

@@ -161,9 +161,6 @@
 	</select>
 
 
-
-
-
 	<!-- 批量保存库存明细 -->
 	<insert id="batchSave" parameterType="List" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO scm_stock_item
@@ -198,6 +195,8 @@
 			#{obj.delFlag}
 		</foreach>
 	</insert>
+
+
 
 
 

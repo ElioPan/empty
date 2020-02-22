@@ -86,6 +86,9 @@ public interface StockInService {
 
 	Map<String, Object> deatilOfhead(Map<String, Object> map);
 
+	int wetherHaveQrSign(Map<String, Object> map);
+
+
 
 
 }
