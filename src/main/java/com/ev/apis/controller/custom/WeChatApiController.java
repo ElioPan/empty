@@ -31,11 +31,26 @@ public class WeChatApiController extends BaseController {
     @Autowired
     private WeChatService weChatService;
 
-    @EvApiByToken(value = "/apis/weChat/getSignature",method = RequestMethod.POST,apiTitle = "获取签名信息")
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    @EvApiByToken(value = "/apis/weChat/getAccessToken", method = RequestMethod.POST, apiTitle = "获取调用接口凭证")
+    @ApiOperation("获取调用接口凭证")
+    R getAccessTOken(@ApiParam(value = "企业ID", required = true) @RequestParam(value = "corpid", defaultValue = "") String corpid,
+                     @ApiParam(value = "appSecrect", required = true) @RequestParam(value = "corpsecret", defaultValue = "") String corpsecret,
+                     @ApiParam(value = "地址url", required = true) @RequestParam(value = "url", defaultValue = "") String url) throws IOException, ParseException {
+        Map<String, Object> results = new HashMap<>();
+        results = weChatService.getAccessToken(corpid, corpsecret, new Date());
+        return R.ok(results);
+    }
+
+    @EvApiByToken(value = "/apis/weChat/getSignature", method = RequestMethod.POST, apiTitle = "获取签名信息")
     @ApiOperation("获取签名信息")
-    R getSignature(@ApiParam(value = "地址url",required = true) @RequestParam(value = "url",defaultValue = "") String url) throws IOException, ParseException {
-        Map<String,Object> results = new HashMap<>();
-        results = weChatService.getSignature(url);
+    R getSignature(@ApiParam(value = "企业ID", required = true) @RequestParam(value = "corpid", defaultValue = "") String corpid,
+                   @ApiParam(value = "appSecrect", required = true) @RequestParam(value = "corpsecret", defaultValue = "") String corpsecret,
+                   @ApiParam(value = "地址url", required = true) @RequestParam(value = "url", defaultValue = "") String url) throws IOException, ParseException {
+        Map<String, Object> results = new HashMap<>();
+        results = weChatService.getSignature(corpid, corpsecret, url, new Date());
         return R.ok(results);
     }
 }

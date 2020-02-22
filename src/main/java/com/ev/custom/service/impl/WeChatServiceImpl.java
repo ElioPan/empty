@@ -4,6 +4,7 @@ import com.ev.custom.service.WeChatService;
 import com.ev.framework.config.Constant;
 import com.ev.framework.utils.WeChatUtil;
 import com.google.common.collect.Maps;
+import com.squareup.moshi.Json;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,39 +26,49 @@ public class WeChatServiceImpl implements WeChatService {
     private StringRedisTemplate redisTemplate;
 
     @Override
-    public Map<String,Object> getSignature(String url) throws IOException, ParseException {
+    public JSONObject getAccessToken(String corpid, String corpsecre,Date now) throws IOException, ParseException {
         JSONObject jsAccessToken = JSONObject.fromObject(redisTemplate.opsForValue().get(Constant.WECHAT_ACCESS_TOKEN));
-        Date now = new Date();
         /**
          * 首先校验accessToken是否过期
          */
         if(jsAccessToken.size()==0){
-            jsAccessToken = WeChatUtil.getAccessToken("wx6188bd4995b3f83b","-VXQbPLuS0FAPem5O5n_fcuLipHQP7fJjOmvxPVt8YU");
+            jsAccessToken = WeChatUtil.getAccessToken(corpid,corpsecre);
             jsAccessToken.put("expireDate", com.ev.framework.utils.DateUtils.format(DateUtils.addSeconds(now,4800),"yyyy-MM-dd HH:mm:ss"));
             redisTemplate.opsForValue().set(Constant.WECHAT_ACCESS_TOKEN,jsAccessToken.toString());
         }else{
             if(DateUtils.parseDate(jsAccessToken.get("expireDate").toString(),"yyyy-MM-dd HH:mm:ss").compareTo(now)<0){
-                jsAccessToken = WeChatUtil.getAccessToken("wx6188bd4995b3f83b","-VXQbPLuS0FAPem5O5n_fcuLipHQP7fJjOmvxPVt8YU");
+                jsAccessToken = WeChatUtil.getAccessToken(corpid,corpsecre);
                 jsAccessToken.put("expireDate", com.ev.framework.utils.DateUtils.format(DateUtils.addSeconds(now,4800),"yyyy-MM-dd HH:mm:ss"));
                 redisTemplate.opsForValue().set(Constant.WECHAT_ACCESS_TOKEN,jsAccessToken.toString());
             }
         }
-        /**
-         * 判断JSAPITICKET是否过期
-         */
-        String jsAccessTokenStr = jsAccessToken.optString("access_token");
+        return jsAccessToken;
+    }
+
+    @Override
+    public JSONObject getJsapiTicket(String accessToken,Date now) throws IOException, ParseException {
         JSONObject jsApiTicket = JSONObject.fromObject(redisTemplate.opsForValue().get(Constant.WECHAT_JSAPI_TICKET));
         if(jsApiTicket.size()==0){
-            jsApiTicket = WeChatUtil.getJsapiTicket(jsAccessTokenStr);
+            jsApiTicket = WeChatUtil.getJsapiTicket(accessToken);
             jsApiTicket.put("expireDate", com.ev.framework.utils.DateUtils.format(DateUtils.addSeconds(now,4800),"yyyy-MM-dd HH:mm:ss"));
-            redisTemplate.opsForValue().set(Constant.WECHAT_JSAPI_TICKET,jsAccessToken.toString());
+            redisTemplate.opsForValue().set(Constant.WECHAT_JSAPI_TICKET,accessToken.toString());
         }else{
             if(DateUtils.parseDate(jsApiTicket.get("expireDate").toString(),"yyyy-MM-dd HH:mm:ss").compareTo(now)<0){
-                jsApiTicket = WeChatUtil.getJsapiTicket(jsAccessTokenStr);
+                jsApiTicket = WeChatUtil.getJsapiTicket(accessToken);
                 jsApiTicket.put("expireDate", com.ev.framework.utils.DateUtils.format(DateUtils.addSeconds(now,4800),"yyyy-MM-dd HH:mm:ss"));
                 redisTemplate.opsForValue().set(Constant.WECHAT_JSAPI_TICKET,jsApiTicket.toString());
             }
         }
+        return jsApiTicket;
+    }
+
+    @Override
+    public JSONObject getSignature(String corpid, String corpsecre,String url,Date now) throws IOException, ParseException {
+        /**
+         * 判断JSAPITICKET是否过期
+         */
+        String jsAccessTokenStr = getAccessToken(corpid,corpsecre,now).optString("access_token");
+        JSONObject jsApiTicket = getJsapiTicket(jsAccessTokenStr,now);
         /**
          * 生成签名
          */
@@ -79,7 +90,7 @@ public class WeChatServiceImpl implements WeChatService {
         {
             e.printStackTrace();
         }
-        Map<String,Object> results = Maps.newHashMap();
+        JSONObject results = new JSONObject();
         results.put("appId","wx6188bd4995b3f83b");
         results.put("timestamp",now.getTime());
         results.put("nonceStr",noncestr);
