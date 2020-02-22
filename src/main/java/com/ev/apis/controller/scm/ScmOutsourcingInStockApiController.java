@@ -114,7 +114,7 @@ public class ScmOutsourcingInStockApiController {
         Map<String, Object> params = new HashMap<>();
 
         params.put("inheadCode", inheadCode);
-        params.put("clientName", clientName);
+        params.put("sourceCompanyName", clientName);
         params.put("materielName", materielName);
         params.put("auditSign", auditSign);
         params.put("startTime", startTime);
