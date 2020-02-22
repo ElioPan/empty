@@ -14,6 +14,7 @@ import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -141,6 +142,7 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 			return R.error(messageSourceHandler.getMessage("common.duplicate.approved", null));
 		}
 		processingChargeDO.setAuditSign(ConstantForGYL.OK_AUDITED);
+		processingChargeDO.setAuditTime(new Date());
 		processingChargeDO.setAuditor(ShiroUtils.getUserId());
 		return this.update(processingChargeDO) > 0 ? R.ok() : R.error();
 	}
