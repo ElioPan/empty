@@ -238,8 +238,8 @@
             <if test="createBy != null and createBy != ''"> and sales.create_by = #{createBy} </if>
             <if test="createTime != null and createTime != ''"> and DATE_FORMAT(sales.create_time,'%Y-%m-%d') = DATE_FORMAT(#{createTime},'%Y-%m-%d') </if>
             <!--导入关联单据查询-->
-            <if test="createStartTime != null and createStartTime != ''"> and  DATE_FORMAT(sales.create_by,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
-            <if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(sales.create_by,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
+            <if test="createStartTime != null and createStartTime != ''"> and  DATE_FORMAT(sales.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
+            <if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(sales.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
             <if test="fuzzyInquire != null and fuzzyInquire != ''"> and CONCAT(materiel.`name`,materiel.`serial_no`,sales.`contract_code`,client.`name`) LIKE #{fuzzyInquire} </if>
 
             <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
