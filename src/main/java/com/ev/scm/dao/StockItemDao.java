@@ -44,4 +44,8 @@ public interface StockItemDao {
 //
 //
 //	int removeOutByInheadId(Long id);
+
+
+	int batchSave(List<StockItemDO> stockItemDOs);
+
 }

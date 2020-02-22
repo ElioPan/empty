@@ -1,7 +1,7 @@
 package com.ev.scm.service;
 
-import com.ev.scm.domain.StockInItemDO;
 import com.ev.scm.domain.StockInDO;
+import com.ev.scm.domain.StockInItemDO;
 
 import java.util.List;
 import java.util.Map;
@@ -57,6 +57,8 @@ public interface StockInItemService {
 	Map<String, Object> getTotailCountAmount(Long id);
 
 	int batchUpdate(List<StockInItemDO> stockOutItemDOs);
+
+	int batchSave(List<StockInItemDO> stockDOs);
 
 
 }

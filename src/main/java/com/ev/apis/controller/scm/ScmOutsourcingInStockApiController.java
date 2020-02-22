@@ -62,7 +62,7 @@ public class ScmOutsourcingInStockApiController {
                               "\"sourceType\":源单类型,\n" +
                               "\"sourceCode\":\"原单编码\"\n" +
                               "\"sourceId\":\"原单id(追溯用，必传)\"\n" +
-
+                              "\"qrcodeId\":\"二维码主键id\"\n" +
                               "}\n" +
                               "]", required = true) @RequestParam(value = "bodyDetail", defaultValue = "") String bodyDetail,
                       @ApiParam(value = "删除的明细id") @RequestParam(value = "itemIds", required = false) Long[] itemIds) {
@@ -109,12 +109,14 @@ public class ScmOutsourcingInStockApiController {
                                  @ApiParam(value = "规格型号") @RequestParam(value = "materielSpecification", defaultValue = "", required = false) String materielSpecification,
                                  @ApiParam(value = "制单人id") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
                                  @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
-                                 @ApiParam(value = "制单日期") @RequestParam(value = "createTime", defaultValue = "", required = false) String  createTime  ) {
+                                 @ApiParam(value = "制单日期") @RequestParam(value = "createTime", defaultValue = "", required = false) String  createTime,
+                                 @ApiParam(value = "制单起始日期") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String  createStartTime,
+                                 @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime) {
         Map<String, Object> resulst = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
 
         params.put("inheadCode", inheadCode);
-        params.put("clientName", clientName);
+        params.put("sourceCompanyName", clientName);
         params.put("materielName", materielName);
         params.put("auditSign", auditSign);
         params.put("startTime", startTime);
@@ -126,6 +128,9 @@ public class ScmOutsourcingInStockApiController {
         params.put("storageType", ConstantForGYL.OUTSOURCING_INSTOCK);
         params.put("offset", (pageno - 1) * pagesize);
         params.put("limit", pagesize);
+        params.put("createStartTime", createStartTime);
+        params.put("createEndTime", createEndTime);
+
         Map<String, Object> totalForMap = stockInService.countForMap(params);
         List<Map<String, Object>> detailList = stockInService.listForMap(params);
 

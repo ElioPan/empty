@@ -521,6 +521,7 @@
 					  <if test="materielId != null and materielId != ''"> and materiel.`id` = #{materielId} </if>
 					  <if test="batch != null and batch != ''"> and stock.`batch` = #{batch} </if>
 				      <if test="locationId != null and locationId != ''"> and stock.`wareh_location` = #{locationId} </if>
+				      <if test="facilityId != null and facilityId != ''"> and stock.`warehouse` = #{facilityId} </if>
 					  
 					  
 			 </where>
@@ -579,6 +580,7 @@
 					  <if test="materielId != null and materielId != ''"> and materiel.`id` = #{materielId} </if>
 					  <if test="batch != null and batch != ''"> and stock.`batch` = #{batch} </if>
 				     <if test="locationId != null and locationId != ''"> and stock.`wareh_location` = #{locationId} </if>
+				   	<if test="facilityId != null and facilityId != ''"> and stock.`warehouse` = #{facilityId} </if>
 			 </where>
 				GROUP BY stock.`batch`,stock.`wareh_location`,stock.`materiel_id`,stock.`warehouse`
 	      )t
@@ -722,7 +724,7 @@
 						</foreach>
 					  </if>
 			 </where>
-		GROUP BY stock.`batch`,stock.`wareh_location`,stock.`materiel_id`
+		GROUP BY stock.`batch`,stock.`wareh_location`,stock.`materiel_id`,stock.`warehouse`
 	</select>
 
     <select id="getAllCode" resultType="java.lang.String">

@@ -221,8 +221,8 @@
             <if test="closeStatus != null"> and close_status = #{closeStatus} </if>
 
             <!--导入关联单据查询-->
-            <if test="createStartTime != null and createStartTime != ''"> and  DATE_FORMAT(outsourcing.create_by,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
-            <if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(outsourcing.create_by,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
+            <if test="createStartTime != null and createStartTime != ''"> and  DATE_FORMAT(outsourcing.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
+            <if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(outsourcing.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
             <if test="fuzzyInquire != null and fuzzyInquire != ''"> and CONCAT(materiel.`name`,materiel.`specification`,materiel.`serial_no`,outsourcing.`contract_code`,supplier.`name`) LIKE #{fuzzyInquire} </if>
             <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
             <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>

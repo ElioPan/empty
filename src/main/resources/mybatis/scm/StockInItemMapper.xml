@@ -480,4 +480,61 @@
 	</update>
 
 
+
+
+	<!-- 批量保存库存明细 -->
+	<insert id="batchSave" parameterType="List" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_stock
+		(
+		`inhead_id`,
+		`materiel_id`,
+		`batch`,
+		`count`,
+		`unit_price`,
+		`amount`,
+		`warehouse`,
+		`wareh_location`,
+		`return_reason`,
+		`source_type`,
+		`source_code`,
+		`source_id`,
+		`expense`,
+		`cost`,
+		`create_by`,
+		`create_time`,
+		`update_by`,
+		`update_time`,
+		`del_flag`,
+		`materialId_count`,
+		`qrcode_id`
+		)
+		values
+		<foreach collection="list" item="obj" separator=",">
+			(
+			#{obj.inheadId},
+			#{obj.materielId},
+			#{obj.batch},
+			#{obj.count},
+			#{obj.unitPrice},
+			#{obj.amount},
+			#{obj.warehouse},
+			#{obj.warehLocation},
+			#{obj.returnReason},
+			#{obj.sourceType},
+			#{obj.sourceCode},
+			#{obj.sourceId},
+			#{obj.expense},
+			#{obj.cost},
+			#{obj.createBy},
+			#{obj.createTime},
+			#{obj.updateBy},
+			#{obj.updateTime},
+			#{obj.delFlag},
+			#{obj.materialIdCount},
+			#{obj.qrcodeId}
+			)
+		</foreach>
+	</insert>
+
+
 </mapper>

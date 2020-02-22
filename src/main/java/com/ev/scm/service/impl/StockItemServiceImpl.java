@@ -105,6 +105,10 @@ public class StockItemServiceImpl implements StockItemService {
 		}
 	}
 
+	@Override
+	public int batchSave(List<StockItemDO> stockItemDOs) {
+		return stockItemDao.batchSave(stockItemDOs);
+	}
 
 
 	@Override

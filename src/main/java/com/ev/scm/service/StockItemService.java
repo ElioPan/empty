@@ -41,6 +41,8 @@ public interface StockItemService {
 
 	int getStockIdByHeadIds(Long exitentryType,Long inheadId);
 
+	int batchSave(List<StockItemDO> stockItemDOs);
+
 
 
 }
