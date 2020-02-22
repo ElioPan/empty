@@ -411,12 +411,23 @@ public class StockInServiceImpl implements StockInService {
 
 	public void diposeQrInStock(List<StockInItemDO> inbodyCDos, StockInDO stockInDO, Long storageType) {
 
-		for (StockInItemDO propurcahseInbody : inbodyCDos) {
-			propurcahseInbody.setInheadId(stockInDO.getId());
-			if (Objects.equals(storageType, ConstantForGYL.PURCHASE_INSTOCK)) {propurcahseInbody.setExpense(BigDecimal.ZERO);}
-			if (Objects.equals(storageType, ConstantForGYL.OUTSOURCING_INSTOCK)) {propurcahseInbody.setMaterialIdCount("0");}
-			SstockInItemService.save(propurcahseInbody);
-		}
+			List<StockInItemDO> newInbodyCDos=new ArrayList<>();
+			Map<String,Object>  map= new HashMap<>();
+			for(int i=0;i<inbodyCDos.size();i++){
+				map.put("i",inbodyCDos.get(i));
+			}
+			for(int i=1;i<map.size();i++){
+				StockInItemDO s =(StockInItemDO)map.get("i");
+
+			}
+
+//			inbodyCDos.remove(propurcahseInbody);
+//
+//			propurcahseInbody.setInheadId(stockInDO.getId());
+//			if (Objects.equals(storageType, ConstantForGYL.PURCHASE_INSTOCK)) {propurcahseInbody.setExpense(BigDecimal.ZERO);}
+//			if (Objects.equals(storageType, ConstantForGYL.OUTSOURCING_INSTOCK)) {propurcahseInbody.setMaterialIdCount("0");}
+//			SstockInItemService.save(propurcahseInbody);
+
 
 
 	}

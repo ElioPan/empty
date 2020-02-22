@@ -19,6 +19,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -275,7 +276,8 @@ public class StockOutServiceImpl implements StockOutService {
                 batch = batch == null ? "" : batch;
                 String materielIdAndBatch = itemDO.getMaterielId().toString() + "&" + batch;
                 if (s.equals(materielIdAndBatch)) {
-                    stockOutItemDO = itemDO;
+                    stockOutItemDO = new StockOutItemDO();
+                    BeanUtils.copyProperties(itemDO,stockOutItemDO);
                     stockOutItemDO.setStockId(materielIdAndBatchForStockId.get(s));
                     stockOutItemDO.setCount(materielIdAndBatchForCount.get(s));
                     stockOutItemDO.setOutId(stockOutId);
