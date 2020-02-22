@@ -52,6 +52,7 @@
 			inspection.`remarks` AS remarks,
 			inspection.`auditor` AS auditorId,
 			audituser.`name` AS auditorName,
+		    inspection.`is_printed_qrcode` AS isPrintedQrcode,
 			inspection.`create_by` AS createrId,
 			createuser.`name` AS createrName, 
 			inspection.`status` AS statusId,
@@ -120,7 +121,8 @@
 			`industrial_waste_count`, 
 			`scrap_waste_count`, 
 			`auditor`, 
-			`status`, 
+			`status`,
+			`is_printed_qrcode`,
 			`remarks`, 
 			`create_by`, 
 			`create_time`, 
@@ -149,7 +151,8 @@
 			#{industrialWasteCount}, 
 			#{scrapWasteCount}, 
 			#{auditor}, 
-			#{status}, 
+			#{status},
+			#{isPrintedQrcode},
 			#{remarks}, 
 			#{createBy}, 
 			#{createTime}, 
@@ -182,6 +185,7 @@
 			<if test="scrapWasteCount != null">`scrap_waste_count` = #{scrapWasteCount}, </if>
 			<if test="auditor != null">`auditor` = #{auditor}, </if>
 			<if test="status != null">`status` = #{status}, </if>
+			<if test="isPrintedQrcode != null">`is_printed_qrcode` = #{isPrintedQrcode}, </if>
 			<if test="remarks != null">`remarks` = #{remarks}, </if>
 			<if test="createBy != null">`create_by` = #{createBy}, </if>
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
@@ -231,6 +235,7 @@
 		  		  <if test="scrapWasteCount != null and scrapWasteCount != ''"> and scrap_waste_count = #{scrapWasteCount} </if>
 		  		  <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
 		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+			      <if test="isPrintedQrcode != null and isPrintedQrcode != ''"> and is_printed_qrcode = #{isPrintedQrcode} </if>
 		  		  <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
 		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
 		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
@@ -267,6 +272,7 @@
 		  	 <if test="clientId != null and clientId != ''"> and inspection.client_id = #{clientId} </if>
             <if test="clientName != null and clientName != ''"> and client.name like CONCAT('%', #{clientName},'%') </if>
 		  	 <if test="status != null and status != ''"> and inspection.status = #{status} </if>
+			<if test="isPrintedQrcode != null and isPrintedQrcode != ''"> and inspection.is_printed_qrcode = #{isPrintedQrcode} </if>
 		  	 <!-- 检验单类型 -->
 		  	 <if test="inspectionType != null and inspectionType != ''"> and inspection.inspection_type = #{inspectionType} </if>
 		</where>
