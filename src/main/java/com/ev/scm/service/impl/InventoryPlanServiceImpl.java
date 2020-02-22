@@ -394,7 +394,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 
 				} else if (Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_NOW)&& rows > 0 && otherInLines == 0 && linesPL == 0) {
 					//将盘盈数据保存至盈亏表中,保存后并验证更改方案的状态为25
-					//Boolean aBoolean = inventoryPlanFitlossService.saveProfitORLoss(profitLossMsg, 28L);
+					Boolean aBoolean = inventoryPlanFitlossService.saveProfitORLoss(profitLossMsg, 28L);
 					//返回生成其他入库的数据。
 					params.remove("checkStatus");
 					params.remove("documentType");

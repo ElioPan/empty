@@ -54,4 +54,6 @@ public interface StockInItemDao {
 
 	int batchUpdate(List<StockInItemDO> stockInItemDOs);
 
+	int batchSave(List<StockInItemDO> stockDOs);
+
 }

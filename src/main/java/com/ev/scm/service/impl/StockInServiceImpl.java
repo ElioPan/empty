@@ -12,12 +12,10 @@ import com.ev.framework.utils.ShiroUtils;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.dao.StockInDao;
 import com.ev.scm.dao.StockInItemDao;
-import com.ev.scm.domain.StockInDO;
-import com.ev.scm.domain.StockInItemDO;
-import com.ev.scm.service.StockItemService;
-import com.ev.scm.service.StockInItemService;
-import com.ev.scm.service.StockInService;
+import com.ev.scm.domain.*;
+import com.ev.scm.service.*;
 import com.google.common.collect.Maps;
+import com.sun.org.apache.bcel.internal.generic.NEW;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -30,7 +28,8 @@ import java.util.*;
 public class StockInServiceImpl implements StockInService {
 	@Autowired
 	private StockInDao stockInDao;
-
+	@Autowired
+	private StockItemService  stockItemService;
 	@Autowired
 	private StockInService  stockInService;
 
@@ -41,12 +40,17 @@ public class StockInServiceImpl implements StockInService {
 	private StockItemService stockDetailService;
 
 	@Autowired
-	private StockInItemDao stockInItemDao;
-	@Autowired
 	private MessageSourceHandler messageSourceHandler;
 
 	@Autowired
 	private DictionaryService dictionaryService;
+	@Autowired
+	private QrcodeService qrcodeService;
+	@Autowired
+	private StockService stockService;
+	@Autowired
+	private StockInItemService stockInItemService;
+
 
 	@Override
 	public R addOtherIn(StockInDO stockInDO , String proInbodyList) {
@@ -61,7 +65,7 @@ public class StockInServiceImpl implements StockInService {
 				List<StockInItemDO> inbodyCDos = JSON.parseArray(proInbodyList, StockInItemDO.class);
 				for (StockInItemDO propuinbody : inbodyCDos) {
 					propuinbody.setInheadId(stockInDO.getId());
-					int lines = stockInItemDao.save(propuinbody);
+					int lines = stockInItemService.save(propuinbody);
 				}
 				//将主表主键返回前端，审核使用。
 				query.put("msg", "保存成功");
@@ -331,19 +335,40 @@ public class StockInServiceImpl implements StockInService {
 
 		Long headId = stockInDO.getId();
 		if(Objects.isNull(headId)){
-			//保寸主表信息
-			stockInDO.setInheadCode(code);
-			stockInDO.setAuditSign(ConstantForGYL.WAIT_AUDIT );
-			stockInDO.setStorageType(storageType);
-			if(Objects.equals(storageType,ConstantForGYL.PURCHASE_INSTOCK)){stockInDO.setSign(0);}
-			stockInDao.save(stockInDO);
-
 			if(StringUtils.isNotEmpty(bodyDetail)){
-				List<StockInItemDO>inbodyCDos = JSON.parseArray(bodyDetail, StockInItemDO.class);
+				List<StockInItemDO> inbodyCDos = JSON.parseArray(bodyDetail, StockInItemDO.class);
+				Boolean qR=Objects.nonNull(inbodyCDos.get(0).getQrcodeId());
+				if(qR){
+					for(StockInItemDO stockInItemDo:inbodyCDos ){
+						QrcodeDO qrcodeDo = qrcodeService.get(stockInItemDo.getQrcodeId());
+						if(!Objects.nonNull(qrcodeDo.getStockId())){
+							String [] args = {stockInItemDo.getMaterielId().toString()};
+							return R.error(messageSourceHandler.getMessage("scm.stockIn.inStockIsOver",args));
+						}
+					}
+				}
+				//保寸主表信息
+				stockInDO.setInheadCode(code);
+				stockInDO.setAuditSign(ConstantForGYL.WAIT_AUDIT );
+				stockInDO.setStorageType(storageType);
+				if(Objects.equals(storageType,ConstantForGYL.PURCHASE_INSTOCK)){stockInDO.setSign(0);}
+				if(qR){
+					stockInDO.setQrSign(1);
+					stockInDO.setAuditor(ShiroUtils.getUserId());
+					stockInDO.setAuditSign(ConstantForGYL.OK_AUDITED );
+					stockInDO.setAuditTime(new Date());
+				}
+
+				stockInDao.save(stockInDO);
+
 				Map<String, Object> query = Maps.newHashMap();
-					if(Objects.nonNull(inbodyCDos.get(0).getQrcodeId())){
-						//走扫码费非审核直接入库
+					if(qR){
+						//走扫码非审核直接入库
 						diposeQrInStock(inbodyCDos,stockInDO,storageType);
+						//将主表主键返回前端，审核使用。
+						query.put("msg", "保存成功");
+						query.put("inHeadId", stockInDO.getId());
+						return R.ok(query);
 					}else{
 						//走审核入库
 						for (StockInItemDO propuinbody : inbodyCDos) {
@@ -352,11 +377,10 @@ public class StockInServiceImpl implements StockInService {
 							if(Objects.equals(storageType,ConstantForGYL.OUTSOURCING_INSTOCK)){propuinbody.setMaterialIdCount("0");}
 							SstockInItemService.save(propuinbody);
 						}
+						query.put("msg", "保存成功");
+						query.put("inHeadId", stockInDO.getId());
+						return R.ok(query);
 					}
-				//将主表主键返回前端，审核使用。
-				query.put("msg", "保存成功");
-				query.put("inHeadId", stockInDO.getId());
-				return R.ok(query);
 			}else{
 				return R.error(messageSourceHandler.getMessage("scm.inStock.isIn.haveNoDetail",null));
 			}
@@ -409,30 +433,65 @@ public class StockInServiceImpl implements StockInService {
 	}
 
 
-	public void diposeQrInStock(List<StockInItemDO> inbodyCDos, StockInDO stockInDO, Long storageType) {
+	public void diposeQrInStock(List<StockInItemDO> inbodyCdos, StockInDO stockInDO, Long storageType) {
 
-			List<StockInItemDO> newInbodyCDos=new ArrayList<>();
-			Map<String,Object>  map= new HashMap<>();
-			for(int i=0;i<inbodyCDos.size();i++){
-				map.put("i",inbodyCDos.get(i));
+		List<StockInItemDO> newInbodyCdos = new ArrayList<>();
+		List<StockInItemDO> otherInbodyCdos = inbodyCdos;
+		List <StockDO>  stockDos=new ArrayList<>();
+		Long inheadId=stockInDO.getId();
+		for (StockInItemDO outStockInItemDo:inbodyCdos) {
+			//比对条件
+			String outSmaterialBatch=outStockInItemDo.getMaterielId().toString()+"-"+outStockInItemDo.getBatch().toString();
+			Long location=outStockInItemDo.getWarehLocation();
+			BigDecimal stockInCounts=BigDecimal.ZERO;
+
+			StockDO stockDo=new StockDO();
+				stockDo.setMaterielId(outStockInItemDo.getMaterielId());
+				stockDo.setBatch(outStockInItemDo.getBatch());
+				stockDo.setWarehouse(outStockInItemDo.getWarehouse());
+				stockDo.setWarehLocation(outStockInItemDo.getWarehLocation());
+				stockDo.setSourceCompany(stockInDO.getSourceCompany()==null?stockInDO.getClientId():stockInDO.getSourceCompany());
+				stockDo.setUnitPrice(outStockInItemDo.getUnitPrice());
+				stockDo.setAmount(outStockInItemDo.getAmount());
+//				stockDo.getEnteringTime(new Date());
+
+			for (StockInItemDO innerSockInItemDo:otherInbodyCdos) {
+				innerSockInItemDo.setInheadId(inheadId);
+				if (Objects.equals(storageType, ConstantForGYL.PURCHASE_INSTOCK)) {innerSockInItemDo.setExpense(BigDecimal.ZERO);}
+				if (Objects.equals(storageType, ConstantForGYL.OUTSOURCING_INSTOCK)) {innerSockInItemDo.setMaterialIdCount("0");}
+				newInbodyCdos.add(innerSockInItemDo);
+
+				String innerMaterialBatch=innerSockInItemDo.getMaterielId().toString()+"-"+innerSockInItemDo.getBatch().toString();
+				if(Objects.equals(outSmaterialBatch,innerMaterialBatch)&&Objects.equals(location,innerSockInItemDo.getWarehLocation())){
+					stockInCounts=stockInCounts.add(innerSockInItemDo.getCount());
+					otherInbodyCdos.remove(innerSockInItemDo);
+				}
 			}
-			for(int i=1;i<map.size();i++){
-				StockInItemDO s =(StockInItemDO)map.get("i");
+			if(!Objects.equals(0,stockInCounts.compareTo(BigDecimal.ZERO))){
+				stockDo.setCount(stockInCounts);
+				stockDo.setAvailableCount(stockInCounts);
 
+				stockDos.add(stockDo);
 			}
+		}
+		stockService.batchSave(stockDos);
 
-//			inbodyCDos.remove(propurcahseInbody);
-//
-//			propurcahseInbody.setInheadId(stockInDO.getId());
-//			if (Objects.equals(storageType, ConstantForGYL.PURCHASE_INSTOCK)) {propurcahseInbody.setExpense(BigDecimal.ZERO);}
-//			if (Objects.equals(storageType, ConstantForGYL.OUTSOURCING_INSTOCK)) {propurcahseInbody.setMaterialIdCount("0");}
-//			SstockInItemService.save(propurcahseInbody);
+		List<StockItemDO> stockItemDos=new ArrayList<>();
+		for(StockDO stockDO1:stockDos){
+			StockItemDO stockItemDO=new StockItemDO();
+			stockItemDO.setStockId(stockDO1.getId());
+			stockItemDO.setInheadId(stockInDO.getId());
+			stockItemDO.setUnitPrice(stockDO1.getUnitPrice());
+			stockItemDO.setCount(stockDO1.getCount());
+			stockItemDO.setSourceType(storageType);
+			stockItemDos.add(stockItemDO);
+		}
+		stockItemService.batchSave(stockItemDos);
 
+		stockInItemService.batchSave(newInbodyCdos);
 
-
+		qrcodeService.saveInQrCode(stockDos,newInbodyCdos);
 	}
-
-
 
 
 	private String purchaseContractCode(String constant) {

@@ -91,6 +91,7 @@
 		)
 	</insert>
 
+
 	<update id="update" parameterType="com.ev.scm.domain.StockItemDO">
 		UPDATE scm_stock_item
 		<set>
@@ -158,6 +159,45 @@
 			#{item}
 		</foreach>
 	</select>
+
+
+
+
+
+	<!-- 批量保存库存明细 -->
+	<insert id="batchSave" parameterType="List" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO scm_stock_item
+		(
+		`stock_id`,
+		`inhead_id`,
+		`inbody_id`,
+		`unit_price`,
+		`count`,
+		`in_out_type`,
+		`source_type`,
+		`handle_sign`,
+		`create_by`,
+		`create_time`,
+		`update_by`,
+		`update_time`,
+		`del_flag`
+		)
+		<foreach collection="list" item="obj" separator=",">
+			#{obj.stockId},
+			#{obj.inheadId},
+			#{obj.inbodyId},
+			#{obj.unitPrice},
+			#{obj.count},
+			#{obj.inOutType},
+			#{obj.sourceType},
+			#{obj.handleSign},
+			#{obj.createBy},
+			#{obj.createTime},
+			#{obj.updateBy},
+			#{obj.updateTime},
+			#{obj.delFlag}
+		</foreach>
+	</insert>
 
 
 

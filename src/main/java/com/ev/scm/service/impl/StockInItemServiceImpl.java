@@ -98,6 +98,11 @@ public class StockInItemServiceImpl implements StockInItemService {
 	}
 
 	@Override
+	public int batchSave(List<StockInItemDO> stockDOs) {
+		return stockInItemDao.batchSave(stockDOs);
+	}
+
+	@Override
 	public String getProByHeadId(Long id , String code) {
 
 		List<Map<String, Object>> inProList = stockInItemDao.getProByHeadId(id);
