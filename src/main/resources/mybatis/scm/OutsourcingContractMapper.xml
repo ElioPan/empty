@@ -149,6 +149,7 @@
         IF(outsourcing.close_status=0,'未关闭','关闭') AS closeStatusName,
         supplier.`name` AS supplierName,
         materiel.`id` AS materielId,
+        materiel.`is_lot` AS isLot,
         materiel.serial_no AS materielSerialNo,
         materiel.name AS materielName,
         materiel.specification AS specification,
