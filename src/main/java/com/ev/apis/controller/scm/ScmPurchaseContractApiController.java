@@ -111,7 +111,9 @@ public class ScmPurchaseContractApiController {
             @ApiParam(value = "审核状态") @RequestParam(value = "auditSign",required = false) Long auditSign,
             @ApiParam(value = "制单人") @RequestParam(value = "createBy",defaultValue = "",required = false)  Long createBy,
             @ApiParam(value = "制单日期") @RequestParam(value = "createTime",defaultValue = "",required = false)  String createTime,
-            @ApiParam(value = "关闭状态/0未关/1关闭") @RequestParam(value = "closeStatus",defaultValue = "",required = false)  Long closeStatus){
+            @ApiParam(value = "关闭状态/0未关/1关闭") @RequestParam(value = "closeStatus",defaultValue = "",required = false)  Long closeStatus,
+            @ApiParam(value = "制单起始日期") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String  createStartTime,
+            @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime){
 
         Map<String, Object> map = Maps.newHashMap();
         // 列表查询
@@ -130,6 +132,9 @@ public class ScmPurchaseContractApiController {
         map.put("createBy", createBy);
         map.put("createTime", createTime);
         map.put("closeStatus",closeStatus);
+        map.put("createStartTime", createStartTime);
+        map.put("createEndTime", createEndTime);
+
         List<Map<String, Object>> data = purchasecontractService.listForMap(map);
         Map<String, Object> totalMap = purchasecontractService.countForMap(map);
         DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT.intValue());

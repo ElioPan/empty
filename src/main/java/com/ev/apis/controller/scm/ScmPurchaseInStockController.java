@@ -112,7 +112,9 @@ public class ScmPurchaseInStockController {
                                  @ApiParam(value = "规格型号") @RequestParam(value = "materielSpecification", defaultValue = "", required = false) String materielSpecification,
                                  @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
                                  @ApiParam(value = "制单人id") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
-                                 @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName) {
+                                 @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
+                                 @ApiParam(value = "制单起始日期") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String  createStartTime,
+                                 @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime) {
         Map<String, Object> resulst = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
         params.put("offset", (pageno - 1) * pagesize);
@@ -127,8 +129,10 @@ public class ScmPurchaseInStockController {
         params.put("auditSign",auditSign);
         params.put("createBy",createBy );
         params.put("createByName", createByName);
-
+        params.put("createStartTime", createStartTime);
+        params.put("createEndTime", createEndTime);
         params.put("storageType", ConstantForGYL.PURCHASE_INSTOCK);
+
 
         Map<String, Object> totalForMap = stockInService.countForMap(params);
         List<Map<String, Object>> detailList = stockInService.listForMap(params);

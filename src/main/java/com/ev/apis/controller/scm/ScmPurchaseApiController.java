@@ -108,7 +108,9 @@ public class ScmPurchaseApiController {
                             @ApiParam(value = "申请人") @RequestParam(value = "applicant", defaultValue = "", required = false) Long applicant,
                             @ApiParam(value = "申请人名字") @RequestParam(value = "applicantName", defaultValue = "", required = false) String applicantName,
                             @ApiParam(value = "制单人") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
-                            @ApiParam(value = "制单日期") @RequestParam(value = "createTime", defaultValue = "", required = false) String createTime) {
+                            @ApiParam(value = "制单日期") @RequestParam(value = "createTime", defaultValue = "", required = false) String createTime,
+                            @ApiParam(value = "制单起始日期") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String  createStartTime,
+                            @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime) {
 
         Map<String, Object> params = Maps.newHashMap();
         params.put("offset", (pageno - 1) * pagesize);
@@ -126,6 +128,8 @@ public class ScmPurchaseApiController {
         params.put("createBy", createBy);
         params.put("createTime", createTime);
         params.put("applicantName", applicantName);
+        params.put("createStartTime", createStartTime);
+        params.put("createEndTime", createEndTime);
 
         List<Map<String, Object>> list = purchaseService.listForMap(params);
         int count = purchaseService.countForMap(params);

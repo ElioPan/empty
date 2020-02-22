@@ -278,6 +278,8 @@
 			<if test="auditSign != null and auditSign != ''"> and  auditSign= #{auditSign} </if>
 			<if test="createBy != null and createBy != ''"> and  createBy= #{createBy} </if>
 			<if test="createTime != null and createTime != ''"> and  createTime= #{createTime} </if>
+			<if test="createStartTime != null and createStartTime!= ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
+			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
 			<if test="closeStatus != null and closeStatus != ''"> and  closeStatus= #{closeStatus} </if>
 		</where>
 		<choose>
