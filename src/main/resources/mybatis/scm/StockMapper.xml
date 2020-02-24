@@ -35,7 +35,7 @@
 	</select>
 
 	<sql id="sql_column_list">
-		`id`,`entering_time`,`materiel_id`,`code`,`batch`,`available_count`,`count`,`unit_price`,`amount`,`source_company`,`warehouse`,`wareh_location`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+		`id`,`entering_time`,`materiel_id`,`code`,`batch`,`available_count`,`count`,`unit_price`,`amount`,`source_company`,`warehouse`,`wareh_location`,`qrcode_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 	</sql>
 
 	<sql id="sql_condition">
@@ -49,6 +49,7 @@
 			<if test="availableCount != null and availableCount != ''"> AND available_count = #{availableCount} </if>
 			<if test="count != null and count != ''"> AND count = #{count} </if>
 			<if test="unitPrice != null and unitPrice != ''"> AND unit_price = #{unitPrice} </if>
+			<if test="qrcodeId != null and qrcodeId != ''"> and qrcode_id = #{qrcodeId} </if>
 			<if test="amount != null and amount != ''"> AND amount = #{amount} </if>
 			<if test="sourceCompany != null and sourceCompany != ''"> AND source_company = #{sourceCompany} </if>
 			<if test="warehouse != null and warehouse != ''"> AND warehouse = #{warehouse} </if>
@@ -75,6 +76,7 @@
 		`source_company`,
 		`warehouse`,
 		`wareh_location`,
+			`qrcode_id`,
 		`create_by`,
 		`create_time`,
 		`update_by`,
@@ -94,6 +96,7 @@
 		#{sourceCompany},
 		#{warehouse},
 		#{warehLocation},
+					#{qrcodeId},
 		#{createBy},
 		#{createTime},
 		#{updateBy},
@@ -116,6 +119,7 @@
 			<if test="sourceCompany != null">`source_company` = #{sourceCompany}, </if>
 			<if test="warehouse != null">`warehouse` = #{warehouse}, </if>
 			<if test="warehLocation != null">`wareh_location` = #{warehLocation}, </if>
+			<if test="qrcodeId != null">`qrcode_id` = #{qrcodeId}, </if>
 			<if test="createBy != null">`create_by` = #{createBy}, </if>
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
@@ -166,7 +170,8 @@
         `source_company`,
         `warehouse`,
         `wareh_location`,
-        `create_by`,
+		`qrcode_id`,
+		`create_by`,
         `create_time`,
         `update_by`,
         `update_time`,
@@ -186,6 +191,7 @@
             #{obj.sourceCompany},
             #{obj.warehouse},
             #{obj.warehLocation},
+			#{obj.qrcodeId},
             #{obj.createBy},
             #{obj.createTime},
             #{obj.updateBy},
@@ -336,6 +342,16 @@
 					</if>
 					<if test="item.warehLocation==null">
 						when id=#{item.id} then scm_stock.wareh_location
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="qrcode_id =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.qrcodeId!=null">
+						when id=#{item.id} then #{item.qrcodeId}
+					</if>
+					<if test="item.qrcodeId==null">
+						when id=#{item.id} then scm_stock.qrcode_id
 					</if>
 				</foreach>
 			</trim>

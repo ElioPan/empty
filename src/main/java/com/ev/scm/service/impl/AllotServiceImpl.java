@@ -1,9 +1,8 @@
 package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.ev.scm.domain.StockDO;
+import com.ev.scm.domain.*;
 import com.ev.custom.service.MaterielService;
-import com.ev.scm.domain.StockItemDO;
 import com.ev.scm.service.StockItemService;
 import com.ev.scm.service.StockService;
 import com.ev.framework.config.ConstantForGYL;
@@ -13,19 +12,19 @@ import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.dao.AllotDao;
 import com.ev.scm.dao.StockOutDao;
-import com.ev.scm.domain.AllotDO;
-import com.ev.scm.domain.AllotItemDO;
 import com.ev.scm.service.AllotItemService;
 import com.ev.scm.service.AllotService;
 import com.ev.scm.service.StockOutService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -44,6 +43,8 @@ public class AllotServiceImpl implements AllotService {
     private MaterielService materielService;
     @Autowired
     private StockItemService stockDetailService;
+    @Autowired
+    private QrcodeServiceImpl qrcodeService;
     @Autowired
     private MessageSourceHandler messageSourceHandler;
 
@@ -85,6 +86,11 @@ public class AllotServiceImpl implements AllotService {
         Map<String, Object> result = Maps.newHashMap();
         // 先验证是否能调拨
         List<AllotItemDO> bodys = JSON.parseArray(body, AllotItemDO.class);
+        // 是否为二维码出库
+        if (bodys.get(0).getQrcodeId() != null) {
+            return this.addByQrcodeId(allot,bodys);
+        }
+
         // 将JSON 解析出来以库存ID 数组 和 数量作为验证条件
         List<Map<String, Object>> params = stockListParam(bodys);
         // 获取库存明细表中保存的库位id数组
@@ -129,6 +135,108 @@ public class AllotServiceImpl implements AllotService {
         return R.error();
     }
 
+    @Override
+    public R addByQrcodeId(AllotDO allot, List<AllotItemDO> bodys) {
+        // 检查二维码中的数量还足不足
+        Map<String,Object> params ;
+        for (AllotItemDO itemDO : bodys) {
+            params = Maps.newHashMap();
+            params.put("id",itemDO.getQrcodeId());
+            params.put("remainCount",itemDO.getCount());
+            List<QrcodeDO> errorList = qrcodeService.list(params);
+            if (errorList.size() > 0) {
+                return R.error(messageSourceHandler.getMessage("scm.stock.code.outError", null));
+            }
+        }
+        // 设置调拨单据号
+        Long storageTypeId = ConstantForGYL.DB;
+        // 设置审核状态为待审核
+        allot.setAuditSign(ConstantForGYL.OK_AUDITED);
+        allot.setAuditTime(new Date());
+        allot.setAuditor(ShiroUtils.getUserId());
+        // 保存主表数据
+        int count = this.save(allot);
+        Long allotId = allot.getId();
+        // 保存调拨产品
+        List<String> collect = bodys.stream().map(AllotItemDO::getStockId).collect(Collectors.toList());
+        Map<String,Object> map = Maps.newHashMap();
+        map.put("stockId",collect);
+        List<Map<String, Object>> stockListForMap = materielService.stockListForMap(map);
+
+        List<Long>stockIds = Lists.newArrayList();
+        for (String s : collect) {
+            stockIds.add(Long.parseLong(s));
+        }
+        List<StockDO> stockList = materielService.stockList(stockIds);
+        // 保存调拨产品
+        if (count > 0) {
+            List<StockDO> insertNewStockList = Lists.newArrayList();
+            insertNewStockList.addAll(stockList);
+
+            // 修改原有库存数据
+            List<StockItemDO> insertStockItemDOList = Lists.newArrayList();
+            StockItemDO stockItemDO;
+            for (StockDO stockDO : stockList) {
+                stockDO.setCount(BigDecimal.ZERO);
+                stockDO.setAvailableCount(BigDecimal.ZERO);
+                stockDO.setQrcodeId(0L);
+
+                stockItemDO = new StockItemDO();
+                stockItemDO.setStockId(stockDO.getId());
+                stockItemDO.setUnitPrice(stockDO.getUnitPrice());
+                stockItemDO.setCount(stockDO.getCount().multiply(new BigDecimal(-1)));
+                stockItemDO.setInOutType(storageTypeId);
+                stockItemDO.setSourceType(storageTypeId);
+                stockItemDO.setHandleSign(1L);
+                insertStockItemDOList.add(stockItemDO);
+            }
+
+            // 保存调拨后产品的库存数据
+            stockService.batchSave(insertNewStockList);
+            for (StockDO stockDO : insertNewStockList) {
+                stockItemDO = new StockItemDO();
+                stockItemDO.setStockId(stockDO.getId());
+                stockItemDO.setUnitPrice(stockDO.getUnitPrice());
+                stockItemDO.setCount(stockDO.getCount());
+                stockItemDO.setInOutType(storageTypeId);
+                stockItemDO.setSourceType(storageTypeId);
+                stockItemDO.setHandleSign(1L);
+                insertStockItemDOList.add(stockItemDO);
+            }
+
+            qrcodeService.transferHandler(insertNewStockList,bodys);
+            stockService.batchUpdate(stockList);
+            stockOutService.batchInsertStockDetailDO(insertStockItemDOList);
+
+
+            List<AllotItemDO> insertAllotItemDOs = Lists.newArrayList();
+            AllotItemDO allotItemDO;
+            for (Map<String, Object> stringObjectMap : stockListForMap) {
+                allotItemDO = new AllotItemDO();
+                String stockId = stringObjectMap.get("id").toString();
+                allotItemDO.setAllotId(allotId);
+                for (AllotItemDO obj : bodys) {
+                    // 保存调拨明细表
+                    if (Arrays.asList(stockId.split(",")).contains(obj.getStockId())) {
+                        if (allotItemDO.getQrcodeId()!=null) {
+                            allotItemDO.setCount(allotItemDO.getCount().add(obj.getCount()));
+                            continue;
+                        }
+                        BeanUtils.copyProperties(obj,allotItemDO);
+                        allotItemDO.setQrcodeId(obj.getQrcodeId());
+                    }
+
+                }
+                allotItemDO.setStockId(stockId);
+                insertAllotItemDOs.add(allotItemDO);
+            }
+
+            allotItemService.batchInsert(insertAllotItemDOs);
+            return R.ok();
+        }
+        return R.error();
+    }
+
     private List<Map<String, Object>> stockListParam(List<AllotItemDO> bodys) {
         List<Map<String, Object>> params = new ArrayList<>();
         Map<String, Object> param;
@@ -164,7 +272,21 @@ public class AllotServiceImpl implements AllotService {
     }
 
     @Override
+    public boolean isQrcode(Long id) {
+        Map<String,Object> map = Maps.newHashMap();
+        map.put("allotId",id);
+        List<AllotItemDO> list = allotItemService.list(map);
+        if (list.size() > 0) {
+            return list.get(0).getQrcodeId() != null;
+        }
+        return true;
+    }
+
+    @Override
     public R reverseAudit(Long id, Long storageType) {
+        if (this.isQrcode(id)) {
+            return R.error(messageSourceHandler.getMessage("scm.stock.code.operateError", null));
+        }
         AllotDO allot = get(id);
         Long auditSignId = allot.getAuditSign();
         int count;

@@ -1,5 +1,6 @@
 package com.ev.scm.service;
 
+import com.ev.scm.domain.AllotItemDO;
 import com.ev.scm.domain.StockDO;
 import com.ev.framework.utils.R;
 import com.ev.scm.domain.AllotDO;
@@ -47,5 +48,9 @@ public interface AllotService {
 
     R audit(Long id, Long storageType);
 
+    R addByQrcodeId(AllotDO allot, List<AllotItemDO> bodys);
+
     R reverseAudit(Long id, Long db);
+
+    boolean isQrcode(Long id);
 }
