@@ -3,11 +3,15 @@ package com.ev.custom.service.impl;
 import com.ev.custom.service.WeChatService;
 import com.ev.framework.config.Constant;
 import com.ev.framework.utils.WeChatUtil;
+import com.ev.system.domain.DeptDO;
+import com.ev.system.domain.UserDO;
 import com.google.common.collect.Maps;
 import com.squareup.moshi.Json;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -16,28 +20,37 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.Formatter;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+
 @Service
 public class WeChatServiceImpl implements WeChatService {
+    @Value("${wechat.corpid}")
+    private String corpid;
+
+    @Value("${wechat.mobilesecret}")
+    private String mobilesecret;
+
     @Autowired
     private StringRedisTemplate redisTemplate;
 
     @Override
-    public JSONObject getAccessToken(String corpid, String corpsecre,Date now) throws IOException, ParseException {
+    public String getMobileAccessToken(Date now) throws IOException, ParseException {
+        return getAccessToken(corpid,mobilesecret,now).optString("access_token");
+    }
+
+    @Override
+    public JSONObject getAccessToken(String corpid, String corpsecret,Date now) throws IOException, ParseException {
         JSONObject jsAccessToken = JSONObject.fromObject(redisTemplate.opsForValue().get(Constant.WECHAT_ACCESS_TOKEN));
         /**
          * 首先校验accessToken是否过期
          */
         if(jsAccessToken.size()==0){
-            jsAccessToken = WeChatUtil.getAccessToken(corpid,corpsecre);
+            jsAccessToken = WeChatUtil.getAccessToken(corpid,corpsecret);
             jsAccessToken.put("expireDate", com.ev.framework.utils.DateUtils.format(DateUtils.addSeconds(now,4800),"yyyy-MM-dd HH:mm:ss"));
             redisTemplate.opsForValue().set(Constant.WECHAT_ACCESS_TOKEN,jsAccessToken.toString());
         }else{
             if(DateUtils.parseDate(jsAccessToken.get("expireDate").toString(),"yyyy-MM-dd HH:mm:ss").compareTo(now)<0){
-                jsAccessToken = WeChatUtil.getAccessToken(corpid,corpsecre);
+                jsAccessToken = WeChatUtil.getAccessToken(corpid,corpsecret);
                 jsAccessToken.put("expireDate", com.ev.framework.utils.DateUtils.format(DateUtils.addSeconds(now,4800),"yyyy-MM-dd HH:mm:ss"));
                 redisTemplate.opsForValue().set(Constant.WECHAT_ACCESS_TOKEN,jsAccessToken.toString());
             }
@@ -96,6 +109,69 @@ public class WeChatServiceImpl implements WeChatService {
         results.put("nonceStr",noncestr);
         results.put("signature",signature);
         return results;
+    }
+
+    /**
+     * 创建企业微信成员
+     * @param userDO
+     * @return
+     */
+    @Override
+    public JSONObject createUser(UserDO userDO) throws IOException, ParseException {
+        String accessToken = getMobileAccessToken(new Date());
+        //TODO 临时上传代码
+        return null;
+
+    }
+
+    @Override
+    public JSONObject getUser(String userId) {
+        return null;
+    }
+
+    @Override
+    public JSONObject updateUser(UserDO userDO) {
+        return null;
+    }
+
+    @Override
+    public JSONObject deleteUser(String userId) {
+        return null;
+    }
+
+    @Override
+    public JSONObject batchdeleteUser(List<String> userIds) {
+        return null;
+    }
+
+    @Override
+    public JSONObject getUserSimpleList(String deptId, Integer fetchChild) {
+        return null;
+    }
+
+    @Override
+    public JSONObject getUserList(String deptId, Integer fetchChild) {
+        return null;
+    }
+
+    @Override
+    public JSONObject createDepartment(DeptDO deptDO) {
+        return null;
+    }
+
+    @Override
+    public JSONObject updateDeptment(DeptDO deptDO) {
+        return null;
+    }
+
+    @Override
+    public JSONObject deleteDepartment(String deptId) {
+        return null;
+    }
+
+    @Override
+    public JSONObject getDepartmentList(String deptId) {
+        return null;
     }
 
     private static String byteToHex(final byte[] hash) {

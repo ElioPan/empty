@@ -1,17 +1,16 @@
 package com.ev.scm.service.impl;
 
+import com.ev.framework.config.ConstantForGYL;
+import com.ev.mes.domain.MaterialInspectionDO;
+import com.ev.scm.dao.QrcodeDao;
 import com.ev.scm.domain.*;
 import com.ev.scm.service.QrcodeItemService;
+import com.ev.scm.service.QrcodeService;
 import com.ev.scm.service.StockOutService;
-import com.ev.scm.service.StockService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.*;
-
-import com.ev.scm.dao.QrcodeDao;
-import com.ev.scm.service.QrcodeService;
 
 
 @Service
@@ -80,7 +79,42 @@ public class QrcodeServiceImpl implements QrcodeService {
         return qrcodeDao.batchRemove(ids);
     }
 
-	/**
+    @Override
+    public Boolean isMultipleType(Integer inType, MaterialInspectionDO materialInspectionDO) {
+        if(inType==0){
+            if(!Objects.equals(materialInspectionDO.getSourceType(), ConstantForGYL.CGHT)){
+                return false;
+            }
+        }else if(inType==1){
+            /*if(!Objects.equals(materialInspectionDO.getSourceType(), ConstantForGYL.)){
+                return false;
+            }*/
+        }else if(inType==2){
+            if(!Objects.equals(materialInspectionDO.getSourceType(), ConstantForGYL.WWHT)){
+                return false;
+            }
+        }else if(inType==3){
+            //TODO
+        }
+        return true;
+    }
+
+    /**
+     * 判断是否多单入库
+     * @param isMultiple 1：是，0：否
+     * @param contractNo 合同编号
+     * @param materialInspectionDO 检验单
+     * @return 返回结果
+     */
+    @Override
+    public Boolean isMultipleIn(Integer isMultiple, String contractNo, MaterialInspectionDO materialInspectionDO) {
+        if(isMultiple==0 && !Objects.equals(contractNo,materialInspectionDO.getSourceNo())){
+            return false;
+        }
+        return true;
+    }
+
+    /**
 	 * 入库后调用方法保存二维码信息
 	 * @param stockDOS 保存的库存列表
 	 * @param params 前端扫码参数列表[{......,qrCodeId:1}{......,qrCodeId:2}]
@@ -142,6 +176,7 @@ public class QrcodeServiceImpl implements QrcodeService {
     @Override
     public void transferHandler(List<StockDO> stockDOS, List<AllotItemDO> allotItemDOS) {
         //TODO
+
     }
 
 }

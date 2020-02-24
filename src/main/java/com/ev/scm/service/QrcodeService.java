@@ -1,5 +1,7 @@
 package com.ev.scm.service;
 
+import com.baomidou.mybatisplus.extension.api.R;
+import com.ev.mes.domain.MaterialInspectionDO;
 import com.ev.scm.domain.*;
 
 import java.util.List;
@@ -37,6 +39,22 @@ public interface QrcodeService {
 	int batchRemove(Long[] ids);
 
 	/**
+	 * 判断二维码是否不符合单据类型
+	 * @param inType 0：采购入库，1：生产入库，2：委外入库，3：其他入库
+	 * @return 返回结果
+	 */
+	Boolean isMultipleType(Integer inType, MaterialInspectionDO materialInspectionDO);
+
+	/**
+	 * 判断是否多单入库
+	 * @param isMultiple 1：是，0：否
+	 * @param contractNo 合同编号
+	 * @param materialInspectionDO 检验单
+	 * @return
+	 */
+	Boolean isMultipleIn(Integer isMultiple, String contractNo, MaterialInspectionDO materialInspectionDO);
+
+	/**
 	 * 入库后调用方法保存二维码信息
 	 * @param stockDOS 保存的库存列表
 	 * @param params 前端扫码参数列表[{......,qrCodeId:1}{......,qrCodeId:2}]
@@ -49,5 +67,10 @@ public interface QrcodeService {
 	 */
 	void saveOutQrCode(List<StockOutItemDO> stockOutItems, List<StockOutItemDO> params);
 
+	/**
+	 * 库存调拨后二维码修改逻辑
+	 * @param stockDOS 调入的库存列表
+	 * @param allotItemDOS 前端扫码参数列表
+	 */
 	void transferHandler(List<StockDO> stockDOS, List<AllotItemDO> allotItemDOS);
 }

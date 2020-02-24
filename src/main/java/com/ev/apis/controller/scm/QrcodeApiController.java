@@ -18,10 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 库存二维码控制器层
@@ -106,7 +103,11 @@ public class QrcodeApiController {
 
     @EvApiByToken(value = "/apis/scm/qrcode/inDetail",method = RequestMethod.GET,apiTitle = "获取入库时二维码信息")
     @ApiOperation("获取入库时二维码信息")
-    public R inDetail(@ApiParam(value = "二维码主键") @RequestParam(value = "qrCodeId") Long qrCodeId){
+    public R inDetail(@ApiParam(value = "二维码主键") @RequestParam(value = "qrCodeId") Long qrCodeId,
+                      @ApiParam(value = "供应商主键") @RequestParam(value = "supplierId") Long supplierId,
+                      @ApiParam(value = "入库类型") @RequestParam(value = "inType") Integer inType,
+                      @ApiParam(value = "是否多单入库") @RequestParam(value = "isMultiple") Integer isMultiple,
+                      @ApiParam(value = "合同号") @RequestParam(value = "contractNo") String contractNo){
         Map<String,Object> result = new HashMap<>();
         /**
          * 先验证是否二维码已经有入库信息
@@ -118,6 +119,26 @@ public class QrcodeApiController {
         if(qrcodeDO.getStockId() != null){
             return R.error(messageSourceHandler.getMessage("scm.qrcode.alreadyIn",null));
         }
+        /**
+         * 验证是否是一个供应商
+         */
+        MaterialInspectionDO materialInspectionDO = materialInspectionService.get(qrcodeDO.getInspectionId());
+        if(!Objects.equals(materialInspectionDO.getSupplierId(),supplierId)){
+            return R.error(messageSourceHandler.getMessage("scm.qrcode.in.oneSupplier",null));
+        }
+        /**
+         * 判断单据类型是否一致
+         */
+        if(!qrcodeService.isMultipleType(inType, materialInspectionDO)){
+            return R.error(messageSourceHandler.getMessage("scm.qrcode.in.oneTypeIn",null));
+        }
+        /**
+         * 判断合同号是否一致
+         */
+        if(!qrcodeService.isMultipleIn(isMultiple,contractNo, materialInspectionDO)){
+            return R.error(messageSourceHandler.getMessage("scm.qrcode.in.oneContract",null));
+        }
+
         List<Map<String,Object>> qrCodeList = qrcodeService.listForMap(new HashMap<String,Object>(){{put("id",qrCodeId);}});
         result.put("qrCodeInfo",qrCodeList.get(0));
         return R.ok(result);
