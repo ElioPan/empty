@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -69,7 +71,7 @@ public class DeptApiController extends BaseController {
     @Transactional(rollbackFor = Exception.class)
     @EvApiByToken(value = "/apis/dept/add",method = RequestMethod.POST,apiTitle = "新增部门")
     @ApiOperation("新增部门")
-    public R save(DeptDO sysDept) {
+    public R save(DeptDO sysDept) throws IOException, ParseException {
         if (Constant.DEMO_ACCOUNT.equals(getUsername())) {
             return R.error(1, messageSourceHandler.getMessage("basicInfo.showProject.update",null));
         }

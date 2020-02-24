@@ -14,6 +14,13 @@ import java.util.Map;
  * 企业微信接口
  */
 public interface WeChatService {
+    /**
+     * 获取通讯录管理secret
+     * @param now 当前时间
+     * @return
+     * @throws IOException
+     * @throws ParseException
+     */
     public String getMobileAccessToken(Date now) throws IOException, ParseException;
 
     public JSONObject getAccessToken(String corpid, String corpsecre, Date now) throws IOException, ParseException;
@@ -30,52 +37,52 @@ public interface WeChatService {
     /**
      *读取成员
      */
-    public JSONObject getUser(String userId);
+    public JSONObject getUser(String userId) throws IOException, ParseException;
 
     /**
      *更新成员
      */
-    public JSONObject updateUser(UserDO userDO);
+    public JSONObject updateUser(UserDO userDO) throws IOException, ParseException;
 
     /**
      *删除成员
      */
-    public JSONObject deleteUser(String userId);
+    public JSONObject deleteUser(String userId) throws IOException, ParseException;
 
     /**
      *批量删除成员
      */
-    public JSONObject batchdeleteUser(List<String> userIds);
+    public JSONObject batchDeleteUser(List<String> userIds) throws IOException, ParseException;
 
     /**
      *获取部门成员
      */
-    public JSONObject getUserSimpleList(String deptId,Integer fetchChild);
+    public JSONObject getUserSimpleList(String deptId,Integer fetchChild) throws IOException, ParseException;
 
     /**
      *获取部门成员详情
      */
-    public JSONObject getUserList(String deptId,Integer fetchChild);
+    public JSONObject getUserList(String deptId,Integer fetchChild) throws IOException, ParseException;
 
     /**
      *创建部门
      */
-    public JSONObject createDepartment(DeptDO deptDO);
+    public JSONObject createDepartment(DeptDO deptDO) throws IOException, ParseException;
 
     /**
      *更新部门
      */
-    public JSONObject updateDeptment(DeptDO deptDO);
+    public JSONObject updateDeptment(DeptDO deptDO) throws IOException, ParseException;
 
     /**
      *删除部门
      */
-    public JSONObject deleteDepartment(String deptId);
+    public JSONObject deleteDepartment(String deptId) throws IOException, ParseException;
 
     /**
      *获取部门列表
      */
-    public JSONObject getDepartmentList(String deptId);
+    public JSONObject getDepartmentList(String deptId) throws IOException, ParseException;
 
 
 }

@@ -77,6 +77,6 @@ data:
       key:
         name: gyhl.data.device.routing.key
 wechat:
-  corpid: wx6fae89b33d9202da
+  corpid: wx6188bd4995b3f83b
   corpsecret: TODO
-  mobilesecret: YGxHqgfLHvTx4FnbCl6ko3_n6_zGDD2zxUEuKDDMHDc
+  mobilesecret: YGxHqgfLHvTx4FnbCl6ko9t2Wj2phmFJWJyEhqMjeaE

@@ -3,6 +3,8 @@ package com.ev.system.service;
 import com.ev.common.domain.Tree;
 import com.ev.system.domain.DeptDO;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +20,7 @@ public interface DeptService {
 	
 	int count(Map<String, Object> map);
 	
-	int save(DeptDO sysDept);
+	int save(DeptDO sysDept) throws IOException, ParseException;
 	
 	int update(DeptDO sysDept);
 	

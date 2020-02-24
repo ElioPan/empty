@@ -14,6 +14,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +87,7 @@ public class DeptController extends BaseController {
 	@ResponseBody
 	@PostMapping("/save")
 	@RequiresPermissions("system:sysDept:add")
-	public R save(DeptDO sysDept) {
+	public R save(DeptDO sysDept) throws IOException, ParseException {
 		if (Constant.DEMO_ACCOUNT.equals(getUsername())) {
 			return R.error(1, "演示系统不允许修改,完整体验请部署程序");
 		}

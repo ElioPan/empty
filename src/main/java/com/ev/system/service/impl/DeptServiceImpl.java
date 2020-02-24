@@ -2,11 +2,14 @@ package com.ev.system.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.ev.custom.service.WeChatService;
 import com.ev.framework.utils.StringUtils;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.*;
 
 import com.ev.common.domain.Tree;
@@ -21,6 +24,9 @@ import com.ev.system.service.DeptService;
 public class DeptServiceImpl implements DeptService {
 	@Autowired
 	private DeptDao sysDeptMapper;
+
+	@Autowired
+	private WeChatService weChatService;
 
 	@Override
 	public DeptDO get(Long deptId){
@@ -38,8 +44,11 @@ public class DeptServiceImpl implements DeptService {
 	}
 
 	@Override
-	public int save(DeptDO sysDept){
-		return sysDeptMapper.save(sysDept);
+	public int save(DeptDO sysDept) throws IOException, ParseException {
+		int count = sysDeptMapper.save(sysDept);
+		//同步企业微信部门信息
+		weChatService.createDepartment(sysDept);
+		return count;
 	}
 
 	@Override

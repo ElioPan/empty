@@ -1,17 +1,19 @@
 package com.ev.custom.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.ev.custom.service.WeChatService;
+import com.ev.custom.vo.WxDeptEntity;
+import com.ev.custom.vo.WxUserEntity;
 import com.ev.framework.config.Constant;
+import com.ev.framework.utils.DateFormatUtil;
+import com.ev.framework.utils.HttpClientUtils;
 import com.ev.framework.utils.WeChatUtil;
 import com.ev.system.domain.DeptDO;
 import com.ev.system.domain.UserDO;
-import com.google.common.collect.Maps;
-import com.squareup.moshi.Json;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +22,10 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Date;
+import java.util.Formatter;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class WeChatServiceImpl implements WeChatService {
@@ -32,7 +37,30 @@ public class WeChatServiceImpl implements WeChatService {
 
     @Autowired
     private StringRedisTemplate redisTemplate;
+    
+    public static final String EXPIRE_DATE = "expireDate";
 
+    public static final String CREATE_USER_URI = "https://qyapi.weixin.qq.com/cgi-bin/user/create?access_token=ACCESS_TOKEN";
+
+    public static final String GET_USER_URI = "https://qyapi.weixin.qq.com/cgi-bin/user/get?access_token=ACCESS_TOKEN&userid=USERID";
+
+    public static final String UPDATE_USER_URI = "https://qyapi.weixin.qq.com/cgi-bin/user/update?access_token=ACCESS_TOKEN";
+
+    public static final String DELETE_USER_URI = "https://qyapi.weixin.qq.com/cgi-bin/user/delete?access_token=ACCESS_TOKEN&userid=USERID";
+
+    public static final String BATCH_DELETE_USER_URI = "https://qyapi.weixin.qq.com/cgi-bin/user/batchdelete?access_token=ACCESS_TOKEN";
+
+    public static final String SIMPLE_LIST_USER_URI = "https://qyapi.weixin.qq.com/cgi-bin/user/simplelist?access_token=ACCESS_TOKEN&department_id=DEPARTMENT_ID&fetch_child=FETCH_CHILD";
+
+    public static final String LIST_USER_URI = "https://qyapi.weixin.qq.com/cgi-bin/user/list?access_token=ACCESS_TOKEN&department_id=DEPARTMENT_ID&fetch_child=FETCH_CHILD";
+
+    public static final String CREATE_DEPT_URI = "https://qyapi.weixin.qq.com/cgi-bin/department/create?access_token=ACCESS_TOKEN";
+
+    public static final String UPDATE_DEPT_URI = "https://qyapi.weixin.qq.com/cgi-bin/department/update?access_token=ACCESS_TOKEN";
+
+    public static final String DELETE_DEPT_URI = "https://qyapi.weixin.qq.com/cgi-bin/department/delete?access_token=ACCESS_TOKEN&id=ID";
+
+    public static final String LIST_DEPT_URI = "https://qyapi.weixin.qq.com/cgi-bin/department/list?access_token=ACCESS_TOKEN&id=ID";
     @Override
     public String getMobileAccessToken(Date now) throws IOException, ParseException {
         return getAccessToken(corpid,mobilesecret,now).optString("access_token");
@@ -46,12 +74,12 @@ public class WeChatServiceImpl implements WeChatService {
          */
         if(jsAccessToken.size()==0){
             jsAccessToken = WeChatUtil.getAccessToken(corpid,corpsecret);
-            jsAccessToken.put("expireDate", com.ev.framework.utils.DateUtils.format(DateUtils.addSeconds(now,4800),"yyyy-MM-dd HH:mm:ss"));
+            jsAccessToken.put(EXPIRE_DATE, com.ev.framework.utils.DateUtils.format(DateUtils.addSeconds(now,4800),DateFormatUtil.DATE_PATTERN));
             redisTemplate.opsForValue().set(Constant.WECHAT_ACCESS_TOKEN,jsAccessToken.toString());
         }else{
-            if(DateUtils.parseDate(jsAccessToken.get("expireDate").toString(),"yyyy-MM-dd HH:mm:ss").compareTo(now)<0){
+            if(DateUtils.parseDate(jsAccessToken.get(EXPIRE_DATE).toString(), DateFormatUtil.DATE_PATTERN).compareTo(now)<0){
                 jsAccessToken = WeChatUtil.getAccessToken(corpid,corpsecret);
-                jsAccessToken.put("expireDate", com.ev.framework.utils.DateUtils.format(DateUtils.addSeconds(now,4800),"yyyy-MM-dd HH:mm:ss"));
+                jsAccessToken.put(EXPIRE_DATE, com.ev.framework.utils.DateUtils.format(DateUtils.addSeconds(now,4800),DateFormatUtil.DATE_PATTERN));
                 redisTemplate.opsForValue().set(Constant.WECHAT_ACCESS_TOKEN,jsAccessToken.toString());
             }
         }
@@ -63,12 +91,12 @@ public class WeChatServiceImpl implements WeChatService {
         JSONObject jsApiTicket = JSONObject.fromObject(redisTemplate.opsForValue().get(Constant.WECHAT_JSAPI_TICKET));
         if(jsApiTicket.size()==0){
             jsApiTicket = WeChatUtil.getJsapiTicket(accessToken);
-            jsApiTicket.put("expireDate", com.ev.framework.utils.DateUtils.format(DateUtils.addSeconds(now,4800),"yyyy-MM-dd HH:mm:ss"));
+            jsApiTicket.put(EXPIRE_DATE, com.ev.framework.utils.DateUtils.format(DateUtils.addSeconds(now,4800),DateFormatUtil.DATE_PATTERN));
             redisTemplate.opsForValue().set(Constant.WECHAT_JSAPI_TICKET,accessToken.toString());
         }else{
-            if(DateUtils.parseDate(jsApiTicket.get("expireDate").toString(),"yyyy-MM-dd HH:mm:ss").compareTo(now)<0){
+            if(DateUtils.parseDate(jsApiTicket.get(EXPIRE_DATE).toString(),DateFormatUtil.DATE_PATTERN).compareTo(now)<0){
                 jsApiTicket = WeChatUtil.getJsapiTicket(accessToken);
-                jsApiTicket.put("expireDate", com.ev.framework.utils.DateUtils.format(DateUtils.addSeconds(now,4800),"yyyy-MM-dd HH:mm:ss"));
+                jsApiTicket.put(EXPIRE_DATE, com.ev.framework.utils.DateUtils.format(DateUtils.addSeconds(now,4800),DateFormatUtil.DATE_PATTERN));
                 redisTemplate.opsForValue().set(Constant.WECHAT_JSAPI_TICKET,jsApiTicket.toString());
             }
         }
@@ -119,59 +147,115 @@ public class WeChatServiceImpl implements WeChatService {
     @Override
     public JSONObject createUser(UserDO userDO) throws IOException, ParseException {
         String accessToken = getMobileAccessToken(new Date());
-        //TODO 临时上传代码
-        return null;
+        WxUserEntity wxUserEntity = new WxUserEntity();
+        wxUserEntity.setUserid(userDO.getUsername());
+        wxUserEntity.setName(userDO.getName());
+        wxUserEntity.setDeptId(userDO.getDeptId());
+        wxUserEntity.setMobile(userDO.getMobile());
+        wxUserEntity.setEmail(userDO.getEmail());
+        String url = CREATE_USER_URI.replace("ACCESS_TOKEN", accessToken);
+        String json = HttpClientUtils.sendJsonStr(url, JSON.toJSONString(wxUserEntity));
+        return JSONObject.fromObject(json);
 
     }
 
     @Override
-    public JSONObject getUser(String userId) {
-        return null;
+    public JSONObject getUser(String userId) throws IOException, ParseException{
+        String accessToken = getMobileAccessToken(new Date());
+        String url = GET_USER_URI.replace("ACCESS_TOKEN", accessToken).replace("USERID",userId);
+        String json = HttpClientUtils.doGet(url,null);
+        return JSONObject.fromObject(json);
     }
 
     @Override
-    public JSONObject updateUser(UserDO userDO) {
-        return null;
+    public JSONObject updateUser(UserDO userDO) throws IOException, ParseException {
+        String accessToken = getMobileAccessToken(new Date());
+        WxUserEntity wxUserEntity = new WxUserEntity();
+        wxUserEntity.setUserid(userDO.getUsername());
+        wxUserEntity.setName(userDO.getName());
+        wxUserEntity.setDeptId(userDO.getDeptId());
+        wxUserEntity.setMobile(userDO.getMobile());
+        wxUserEntity.setEmail(userDO.getEmail());
+        String url = UPDATE_USER_URI.replace("ACCESS_TOKEN", accessToken);
+        String json = HttpClientUtils.sendJsonStr(url, JSON.toJSONString(wxUserEntity));
+        return JSONObject.fromObject(json);
     }
 
     @Override
-    public JSONObject deleteUser(String userId) {
-        return null;
+    public JSONObject deleteUser(String userId) throws IOException, ParseException {
+        String accessToken = getMobileAccessToken(new Date());
+        String url = DELETE_USER_URI.replace("ACCESS_TOKEN", accessToken).replace("USERID",userId);
+        String json = HttpClientUtils.doGet(url,null);
+        return JSONObject.fromObject(json);
     }
 
     @Override
-    public JSONObject batchdeleteUser(List<String> userIds) {
-        return null;
+    public JSONObject batchDeleteUser(List<String> userIds) throws IOException, ParseException {
+        String accessToken = getMobileAccessToken(new Date());
+        String url = BATCH_DELETE_USER_URI.replace("ACCESS_TOKEN", accessToken);
+        JSONObject params = new JSONObject();
+        params.put("useridlist",userIds);
+        String json = HttpClientUtils.sendJsonStr(url, JSON.toJSONString(params));
+        return JSONObject.fromObject(json);
     }
 
     @Override
-    public JSONObject getUserSimpleList(String deptId, Integer fetchChild) {
-        return null;
+    public JSONObject getUserSimpleList(String deptId, Integer fetchChild) throws IOException, ParseException {
+        String accessToken = getMobileAccessToken(new Date());
+        String url = SIMPLE_LIST_USER_URI.replace("ACCESS_TOKEN", accessToken).replace("DEPARTMENT_ID",deptId).replace("FETCH_CHILD",fetchChild.toString());
+        String json = HttpClientUtils.doGet(url,null);
+        return JSONObject.fromObject(json);
     }
 
     @Override
-    public JSONObject getUserList(String deptId, Integer fetchChild) {
-        return null;
+    public JSONObject getUserList(String deptId, Integer fetchChild) throws IOException, ParseException {
+        String accessToken = getMobileAccessToken(new Date());
+        String url = LIST_USER_URI.replace("ACCESS_TOKEN", accessToken).replace("DEPARTMENT_ID",deptId).replace("FETCH_CHILD",fetchChild.toString());
+        String json = HttpClientUtils.doGet(url,null);
+        return JSONObject.fromObject(json);
     }
 
     @Override
-    public JSONObject createDepartment(DeptDO deptDO) {
-        return null;
+    public JSONObject createDepartment(DeptDO deptDO) throws IOException, ParseException {
+        String accessToken = getMobileAccessToken(new Date());
+        WxDeptEntity wxDeptEntity = new WxDeptEntity();
+        wxDeptEntity.setId(deptDO.getDeptId());
+        wxDeptEntity.setName(deptDO.getName());
+        wxDeptEntity.setParentid(deptDO.getParentId()==0?null:deptDO.getParentId());
+        wxDeptEntity.setOrder(deptDO.getOrderNum());
+        String url = CREATE_DEPT_URI.replace("ACCESS_TOKEN", accessToken);
+        String params = JSON.toJSONString(wxDeptEntity);
+        String json = HttpClientUtils.sendJsonStr(url, params);
+        return JSONObject.fromObject(json);
     }
 
     @Override
-    public JSONObject updateDeptment(DeptDO deptDO) {
-        return null;
+    public JSONObject updateDeptment(DeptDO deptDO) throws IOException, ParseException {
+        String accessToken = getMobileAccessToken(new Date());
+        WxDeptEntity wxDeptEntity = new WxDeptEntity();
+        wxDeptEntity.setId(deptDO.getDeptId());
+        wxDeptEntity.setName(deptDO.getName());
+        wxDeptEntity.setParentid(deptDO.getParentId()==0?null:deptDO.getParentId());
+        wxDeptEntity.setOrder(deptDO.getOrderNum());
+        String url = UPDATE_DEPT_URI.replace("ACCESS_TOKEN", accessToken);
+        String json = HttpClientUtils.sendJsonStr(url, JSON.toJSONString(wxDeptEntity));
+        return JSONObject.fromObject(json);
     }
 
     @Override
-    public JSONObject deleteDepartment(String deptId) {
-        return null;
+    public JSONObject deleteDepartment(String deptId) throws IOException, ParseException {
+        String accessToken = getMobileAccessToken(new Date());
+        String url = DELETE_DEPT_URI.replace("ACCESS_TOKEN", accessToken).replace("ID",deptId);
+        String json = HttpClientUtils.doGet(url,null);
+        return JSONObject.fromObject(json);
     }
 
     @Override
-    public JSONObject getDepartmentList(String deptId) {
-        return null;
+    public JSONObject getDepartmentList(String deptId) throws IOException, ParseException {
+        String accessToken = getMobileAccessToken(new Date());
+        String url = LIST_DEPT_URI.replace("ACCESS_TOKEN", accessToken).replace("ID",deptId);
+        String json = HttpClientUtils.doGet(url,null);
+        return JSONObject.fromObject(json);
     }
 
     private static String byteToHex(final byte[] hash) {
