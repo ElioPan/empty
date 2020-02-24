@@ -98,6 +98,7 @@ public class QrcodeApiController {
          * 修改检验单的状态
          */
         materialInspectionDO.setIsPrintedQrcode(1);
+        materialInspectionDO.setUnitCodeCount(unitCount);
         materialInspectionService.update(materialInspectionDO);
         result.put("qrCodeList",qrcodeDOList);
         return R.ok(result);

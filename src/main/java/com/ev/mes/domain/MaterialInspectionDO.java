@@ -85,6 +85,9 @@ public class MaterialInspectionDO implements Serializable {
 	// 是否已打印二维码
 	@ApiModelProperty(value = "是否已打印二维码", hidden = true)
 	private Integer isPrintedQrcode = 0;
+	// 单位二维码数量
+	@ApiModelProperty(value = "单位二维码数量", hidden = true)
+	private BigDecimal unitCodeCount;
 	// 备注
 	@ApiModelProperty(value = "备注", hidden = true)
 	private String remarks;

@@ -53,6 +53,7 @@
 			inspection.`auditor` AS auditorId,
 			audituser.`name` AS auditorName,
 		    inspection.`is_printed_qrcode` AS isPrintedQrcode,
+		    inspection.`unit_code_count` AS unitCodeCount,
 			inspection.`create_by` AS createrId,
 			createuser.`name` AS createrName, 
 			inspection.`status` AS statusId,
@@ -123,6 +124,7 @@
 			`auditor`, 
 			`status`,
 			`is_printed_qrcode`,
+			`unit_code_count`,
 			`remarks`, 
 			`create_by`, 
 			`create_time`, 
@@ -153,6 +155,7 @@
 			#{auditor}, 
 			#{status},
 			#{isPrintedQrcode},
+			#{unitCodeCount},
 			#{remarks}, 
 			#{createBy}, 
 			#{createTime}, 
@@ -186,6 +189,7 @@
 			<if test="auditor != null">`auditor` = #{auditor}, </if>
 			<if test="status != null">`status` = #{status}, </if>
 			<if test="isPrintedQrcode != null">`is_printed_qrcode` = #{isPrintedQrcode}, </if>
+			<if test="unitCodeCount != null">`unit_code_count` = #{unitCodeCount}, </if>
 			<if test="remarks != null">`remarks` = #{remarks}, </if>
 			<if test="createBy != null">`create_by` = #{createBy}, </if>
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
