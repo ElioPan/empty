@@ -1,6 +1,7 @@
 package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.ev.framework.utils.ListUtils;
 import com.ev.scm.domain.*;
 import com.ev.custom.service.MaterielService;
 import com.ev.scm.service.StockItemService;
@@ -22,6 +23,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -82,7 +84,7 @@ public class AllotServiceImpl implements AllotService {
     }
 
     @Override
-    public R add(AllotDO allot, String body) {
+    public R add(AllotDO allot, String body) throws IOException, ClassNotFoundException {
         Map<String, Object> result = Maps.newHashMap();
         // 先验证是否能调拨
         List<AllotItemDO> bodys = JSON.parseArray(body, AllotItemDO.class);
@@ -136,7 +138,7 @@ public class AllotServiceImpl implements AllotService {
     }
 
     @Override
-    public R addByQrcodeId(AllotDO allot, List<AllotItemDO> bodys) {
+    public R addByQrcodeId(AllotDO allot, List<AllotItemDO> bodys) throws IOException, ClassNotFoundException {
         // 检查二维码中的数量还足不足
         Map<String,Object> params ;
         for (AllotItemDO itemDO : bodys) {
@@ -170,16 +172,11 @@ public class AllotServiceImpl implements AllotService {
         List<StockDO> stockList = materielService.stockList(stockIds);
         // 保存调拨产品
         if (count > 0) {
-            List<StockDO> insertNewStockList = Lists.newArrayList();
-            insertNewStockList.addAll(stockList);
-
+            List<StockDO> insertNewStockList = ListUtils.deepCopy(stockList);
             // 修改原有库存数据
             List<StockItemDO> insertStockItemDOList = Lists.newArrayList();
             StockItemDO stockItemDO;
             for (StockDO stockDO : stockList) {
-                stockDO.setCount(BigDecimal.ZERO);
-                stockDO.setAvailableCount(BigDecimal.ZERO);
-                stockDO.setQrcodeId(0L);
 
                 stockItemDO = new StockItemDO();
                 stockItemDO.setStockId(stockDO.getId());
@@ -189,6 +186,10 @@ public class AllotServiceImpl implements AllotService {
                 stockItemDO.setSourceType(storageTypeId);
                 stockItemDO.setHandleSign(1L);
                 insertStockItemDOList.add(stockItemDO);
+
+                stockDO.setCount(BigDecimal.ZERO);
+                stockDO.setAvailableCount(BigDecimal.ZERO);
+                stockDO.setQrcodeId(0L);
             }
 
             // 保存调拨后产品的库存数据
@@ -214,7 +215,6 @@ public class AllotServiceImpl implements AllotService {
             for (Map<String, Object> stringObjectMap : stockListForMap) {
                 allotItemDO = new AllotItemDO();
                 String stockId = stringObjectMap.get("id").toString();
-                allotItemDO.setAllotId(allotId);
                 for (AllotItemDO obj : bodys) {
                     // 保存调拨明细表
                     if (Arrays.asList(stockId.split(",")).contains(obj.getStockId())) {
@@ -227,6 +227,7 @@ public class AllotServiceImpl implements AllotService {
                     }
 
                 }
+                allotItemDO.setAllotId(allotId);
                 allotItemDO.setStockId(stockId);
                 insertAllotItemDOs.add(allotItemDO);
             }

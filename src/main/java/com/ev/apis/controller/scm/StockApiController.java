@@ -101,10 +101,10 @@ public class StockApiController {
         String facilityName;
         if (stockEntityList.size() > 0) {
             for (StockEntity stockEntity : stockEntityList) {
-                facilityLocationName = stockEntity.getFacilityLocationName();
+//                facilityLocationName = stockEntity.getFacilityLocationName();
                 facilityName = stockEntity.getFacilityName();
                 if (StringUtils.isEmpty(stockEntity.getSerialno())
-                        || StringUtils.isEmpty(facilityLocationName)
+//                        || StringUtils.isEmpty(facilityLocationName)
                         || StringUtils.isEmpty(facilityName)
                         || !NumberUtils.isNumber(stockEntity.getTotalCount())
                         || !NumberUtils.isNumber(stockEntity.getAmount())

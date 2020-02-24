@@ -5,6 +5,7 @@ import com.ev.scm.domain.StockDO;
 import com.ev.framework.utils.R;
 import com.ev.scm.domain.AllotDO;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,7 @@ public interface AllotService {
 
     int save(AllotDO allot);
 
-    R add(AllotDO allot, String body);
+    R add(AllotDO allot, String body) throws IOException, ClassNotFoundException;
 
     int update(AllotDO allot);
 
@@ -48,7 +49,7 @@ public interface AllotService {
 
     R audit(Long id, Long storageType);
 
-    R addByQrcodeId(AllotDO allot, List<AllotItemDO> bodys);
+    R addByQrcodeId(AllotDO allot, List<AllotItemDO> bodys) throws IOException, ClassNotFoundException;
 
     R reverseAudit(Long id, Long db);
 

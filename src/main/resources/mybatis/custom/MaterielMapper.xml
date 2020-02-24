@@ -587,7 +587,8 @@
 	</select>
 	
 	<select id="stockList" resultType="com.ev.scm.domain.StockDO">
-		SELECT `id`,`count`,`available_count`,`unit_price`
+		SELECT
+		`id`,`entering_time`,`materiel_id`,`code`,`batch`,`available_count`,`count`,`unit_price`,`amount`,`source_company`,`warehouse`,`wareh_location`,`qrcode_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 		FROM scm_stock
 		WHERE `id` in
 		<foreach item="id" collection="list" open="(" separator="," close=")" index="index">

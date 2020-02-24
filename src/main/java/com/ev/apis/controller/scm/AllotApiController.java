@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +58,7 @@ public class AllotApiController {
                     "        \"price\":5000\n" +
                     "    }\n" +
                     "]"
-                    , required = true) @RequestParam(value = "body", defaultValue = "") String body) {
+                    , required = true) @RequestParam(value = "body", defaultValue = "") String body) throws IOException, ClassNotFoundException {
 		return allotService.add(allotDO, body);
 	}
 
