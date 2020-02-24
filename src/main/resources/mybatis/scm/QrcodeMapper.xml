@@ -46,13 +46,16 @@
 		materiel.`name` as materielName,
 		materiel.specification as specification,
 		uom.id as uomId,
-		uom.`name` as uomName
+		uom.`name` as uomName,
+		supplier.id as supplierId,
+		supplier.`name` as supplierName
 		FROM
 		scm_qrcode qrcode
 		LEFT JOIN scm_stock stock on stock.id = qrcode.stock_id
 		LEFT JOIN cus_materiel materiel on materiel.id = qrcode.materiel_id
 		LEFT JOIN cus_dictionary uom on uom.id = materiel.unit_uom
 		LEFT JOIN mes_material_inspection inspection on inspection.id = qrcode.inspection_id
+		LEFT JOIN cus_supplier supplier on supplier.id = inspection.supplier_id
 		<include refid="sql_condition_map"/>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -71,9 +74,10 @@
 		SELECT COUNT(*) FROM
 		scm_qrcode qrcode
 		LEFT JOIN scm_stock stock on stock.id = qrcode.stock_id
-		LEFT JOIN cus_materiel materiel on materiel.id = stock.materiel_id
+		LEFT JOIN cus_materiel materiel on materiel.id = qrcode.materiel_id
 		LEFT JOIN cus_dictionary uom on uom.id = materiel.unit_uom
 		LEFT JOIN mes_material_inspection inspection on inspection.id = qrcode.inspection_id
+		LEFT JOIN cus_supplier supplier on supplier.id = inspection.supplier_id
 		<include refid="sql_condition_map"/>
 	</select>
 
