@@ -60,5 +60,8 @@ public class InventoryPlanDO implements Serializable {
     @ApiModelProperty(value = "删除状态",hidden=true)
 	private Integer delFlag;
 
+	@ApiModelProperty(value = "扫码盘点标记（1是，null否）")
+	private Integer qrSign;
+
 
 }

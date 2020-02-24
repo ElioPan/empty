@@ -4,11 +4,12 @@
 <mapper namespace="com.ev.scm.dao.InventoryPlanDao">
 
 	<select id="get" resultType="com.ev.scm.domain.InventoryPlanDO">
-		select `id`,`plan_time`,`acture_time`,`code`,`warehouse`,`check_status`,`checkers`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from scm_inventory_plan where id = #{value}
+		select `id`,`plan_time`,`acture_time`,`code`,`warehouse`,`check_status`,`checkers`,`remarks`,
+		`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`qr_sign` from scm_inventory_plan where id = #{value}
 	</select>
 
 	<select id="list" resultType="com.ev.scm.domain.InventoryPlanDO">
-		select `id`,`plan_time`,`acture_time`,`code`,`warehouse`,`check_status`,`checkers`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from scm_inventory_plan
+		select `id`,`plan_time`,`acture_time`,`code`,`warehouse`,`check_status`,`checkers`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`qr_sign` from scm_inventory_plan
         <where>
 			      <if test="maxNo != null and maxNo != ''"> and LEFT(code,CHAR_LENGTH(#{maxNo})) = #{maxNo} </if>
 				  <if test="id != null and id != ''"> and id = #{id} </if>
@@ -24,6 +25,7 @@
 		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
 		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
 		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+			      <if test="qrSign != null and qrSign != ''"> and qr_sign = #{qrSign} </if>
 		  		</where>
         <choose>
             <when test="sort != null and sort.trim() != ''">
@@ -54,9 +56,12 @@
 		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
 		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
 		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
-		  		</where>
+				   <if test="qrSign != null and qrSign != ''"> and qr_sign = #{qrSign} </if>
+
+		 </where>
 	</select>
-	 
+
+
 	<insert id="save" parameterType="com.ev.scm.domain.InventoryPlanDO" useGeneratedKeys="true" keyProperty="id">
 		insert into scm_inventory_plan
 		(
@@ -71,7 +76,8 @@
 			`create_time`, 
 			`update_by`, 
 			`update_time`, 
-			`del_flag`
+			`del_flag`,
+			`qr_sign`
 		)
 		values
 		(
@@ -86,10 +92,10 @@
 			#{createTime}, 
 			#{updateBy}, 
 			#{updateTime}, 
-			#{delFlag}
+			#{delFlag},
+			#{qrSign}
 		)
 	</insert>
-	 
 	<update id="update" parameterType="com.ev.scm.domain.InventoryPlanDO">
 		update scm_inventory_plan
 		<set>
@@ -105,6 +111,7 @@
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
 			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
 			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+			<if test="qrSign != null">`qr_sign` = #{qrSign}</if>
 		</set>
 		where id = #{id}
 	</update>
@@ -136,7 +143,8 @@
 		d.name  AS checkerName,
 		a.create_by as createBy,
 		dd.name AS createName,
-		a.create_time AS createTime
+		a.create_time AS createTime,
+		a.qr_sign as qrSign
 		from scm_inventory_plan a
 		LEFT JOIN cus_facility b ON a.warehouse=b.id
 		LEFT JOIN cus_dictionary c ON a.check_status=c.id
@@ -145,11 +153,11 @@
 		<where>
 			<if test="id != null and id != ''">and a.id = #{id}</if>
 			<if test="checkers != null and checkers != ''">and d.name like  CONCAT('%',#{checkers},'%')</if>
-
 			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(a.plan_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(a.plan_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
-
 			<if test="code != null and code != ''">and a.code like  CONCAT('%',#{code},'%') </if>
+			<if test="qrSign ==1 and qrSign != ''">and (a.check_status= #{checkStatusOne} or a.check_status= #{checkStatusTwo})</if>
+
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -186,7 +194,7 @@
 
 
 
-	<!--根据盘点主表主键获取库存商品信息-->
+	<!--根据盘点主表主键获取盘点方案中商品信息-->
 	<select id="getProMsgByHeadId" resultType="map">
 		select
 			a.id,

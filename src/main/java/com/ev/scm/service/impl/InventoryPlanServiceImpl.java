@@ -16,10 +16,8 @@ import com.ev.scm.service.InventoryPlanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.math.BigDecimal;
+import java.util.*;
 
 
 @Service
@@ -95,19 +93,42 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 	@Override
 	public R getMaterielCount(Long warehouse, String syntheticData){
 
-		//同一商品+同一仓库+同一库位+同一批次 商品数量为总数量 为一行明细
 		Map<String,Object> result = Maps.newHashMap();
 		Map<String,Object> query = Maps.newHashMap();
 		query.put("warehouse",warehouse);
 		query.put("name",syntheticData);
-
 		List<Map<String, Object>> proMsgCount = inventoryPlanItemService.getProMsgCount(query);
-		if(proMsgCount.size()>0){
-			result.put("data",proMsgCount);
-			return R.ok(result);
-		}else{
+		List<Map<String, Object>> materialAll = inventoryPlanItemService.getMaterialAll(query);
+
+		List<Map<String, Object>> retrunList=new ArrayList<>();
+		if (!Objects.equals(0, proMsgCount.size())) {
+			for (Map<String, Object> materialOne : materialAll) {
+				String materialSing = materialOne.get("materielId").toString() + "-" + materialOne.get("warehouseId").toString() + "-" + materialOne.get("warehLocation").toString();
+				String batch = materialOne.get("batch").toString();
+				Map<String, Object> map = new HashMap<>();
+				BigDecimal systemCount = BigDecimal.ZERO;
+				for (Map<String, Object> listMap : proMsgCount) {
+					String listMaterialSing = listMap.get("materielId").toString() + "-" + listMap.get("warehouseId").toString() + "-" + listMap.get("warehLocation").toString();
+					String listBatch = listMap.get("batch").toString();
+					if (Objects.equals(materialSing, listMaterialSing) && Objects.equals(batch, listBatch)) {
+						systemCount = systemCount.add(new BigDecimal(listMap.get("count").toString()));
+						if (Objects.equals(0, map.size())) {
+							map.putAll(listMap);
+							map.put("systemCount", systemCount);
+						}
+					}
+				}
+				if (!Objects.equals(0, map.size())) {
+					map.put("systemCount", systemCount);
+				}
+				retrunList.add(map);
+			}
+		} else {
 			return R.ok(result);
 		}
+		result.put("data",retrunList);
+		return R.ok(result);
+
 	}
 
 	@Override
@@ -217,7 +238,15 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 
 	@Override
 	public R savePlanDetail(InventoryPlanDO checkHeadDO,String checkBodys){
-		//只能修改状态为24，且未生成盈亏单的方案，未生成盈亏的盘点结果。
+
+		//是否扫码入库
+		if(Objects.equals(1,checkHeadDO.getQrSign())){
+
+			//走扫码入库
+			return qrCheck(checkHeadDO,checkBodys);
+		}
+
+		//只能修改状态为24(191执行中)，且未生成盈亏单的方案，未生成盈亏的盘点结果。
 		Long planId =checkHeadDO.getId();
 		InventoryPlanDO checkStatus = inventoryPlanService.get(planId);
 		checkHeadDO.setId(planId);
@@ -423,5 +452,26 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 		}
 	}
 
+
+
+
+	public R qrCheck(InventoryPlanDO checkHeadDO,String checkBodys){
+
+		checkHeadDO.setCheckStatus(ConstantForGYL.EXECUTE_NOW );
+
+		inventoryPlanService.update(checkHeadDO);
+
+		if (null != checkBodys && !"".equals(checkBodys)) {
+			List<InventoryPlanItemDO> lsitBodyDO = JSON.parseArray(checkBodys, InventoryPlanItemDO.class);
+			for (InventoryPlanItemDO body : lsitBodyDO) {
+				body.setHeadId(checkHeadDO.getId());
+				inventoryPlanItemService.update(body);
+			}
+		}
+
+
+
+		return null;
+	}
 
 }

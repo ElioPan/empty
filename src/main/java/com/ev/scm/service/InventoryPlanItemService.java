@@ -36,4 +36,7 @@ public interface InventoryPlanItemService {
 
 	int countOfWinLoss(Map<String, Object> map);
 
+	List<Map<String, Object>> getMaterialAll(Map<String, Object> map);
+
+
 }

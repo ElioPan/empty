@@ -70,4 +70,9 @@ public class InventoryPlanItemServiceImpl implements InventoryPlanItemService {
 		return inventoryPlanItemDao.countOfWinLoss(map);
 	}
 
+	@Override
+	public List<Map<String, Object>> getMaterialAll(Map<String, Object> map) {
+		return inventoryPlanItemDao.getMaterialAll(map);
+	}
+
 }

@@ -38,6 +38,8 @@ public interface InventoryPlanItemDao {
 	//获取盘点商品信息  数量综合
 	List<Map<String,Object>> getProMsgCount(Map<String, Object> map);
 
+	List<Map<String, Object>> getMaterialAll(Map<String, Object> map);
+
     //此次盘点是否产生的盈亏
 	int countOfWinLoss(Map<String, Object> map);
 
