@@ -51,7 +51,25 @@ public class StockInServiceImpl implements StockInService {
 	@Autowired
 	private StockInItemService stockInItemService;
 
+	@Override
+	public Map<String, Object> countForMap(Map<String, Object> map) {
+		return stockInDao.countForMap(map);
+	}
 
+	@Override
+	public List<Map<String, Object>> listForMap(Map<String, Object> map) {
+		return stockInDao.listForMap(map);
+	}
+
+	@Override
+	public Map<String, Object> deatilOfhead(Map<String, Object> map) {
+		return stockInDao.deatilOfhead(map);
+	}
+
+	@Override
+	public int wetherHaveQrSign(Map<String, Object> map) {
+		return stockInDao.wetherHaveQrSign(map);
+	}
 	@Override
 	public R addOtherIn(StockInDO stockInDO , String proInbodyList) {
 		Map<String, Object> query = Maps.newHashMap();
@@ -542,6 +560,16 @@ public class StockInServiceImpl implements StockInService {
 				//判断是否能够反审核：detail表中出现两次stock（出现两次表示已经做了出库）的主键即不能反审核
 
 				int counts = stockDetailService.getStockIdByHeadIds(type, inHeadId);
+
+				//扫码入库的不允许反审核
+				Map<String,Object>  map= new HashMap<>();
+				map.put("id",inHeadId);
+				map.put("storageType",type);
+				int rows=stockInService.wetherHaveQrSign(map);
+				if(rows>0){
+					return R.error(messageSourceHandler.getMessage("scm.stockIn.isQrSign", null));
+				}
+
 				if (counts == 1) {
 					//允许反审核   //将Stock、etail表中数据做物理删除;+将主表中数据做标记为10待审核。
 					String resuls = this.dealProcessCounterAudit(type, inHeadId);
@@ -581,20 +609,7 @@ public class StockInServiceImpl implements StockInService {
 		}
 	}
 
-	@Override
-	public Map<String, Object> countForMap(Map<String, Object> map) {
-		return stockInDao.countForMap(map);
-	}
 
-	@Override
-	public List<Map<String, Object>> listForMap(Map<String, Object> map) {
-		return stockInDao.listForMap(map);
-	}
-
-	@Override
-	public Map<String, Object> deatilOfhead(Map<String, Object> map) {
-		return stockInDao.deatilOfhead(map);
-	}
 
 
 }

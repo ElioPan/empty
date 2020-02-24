@@ -217,6 +217,9 @@
 			<if test="deptId != null and deptId != ''"> and deptId = #{deptId} </if>
 			<if test="applicant != null and applicant != ''"> and applicant = #{applicant} </if>
 			<if test="createBy != null and createBy != ''"> and createBy = #{createBy} </if>
+			<if test="createStartTime != null and createStartTime!= ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
+			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
+
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">

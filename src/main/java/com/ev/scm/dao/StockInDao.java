@@ -38,12 +38,14 @@ public interface StockInDao {
 
 	int canDeletOfCount(Map<String, Object> map);
 
-
 	Map<String, Object> countForMap(Map<String, Object> map);
 
 	List<Map<String, Object>> listForMap(Map<String, Object> map);
 
 	Map<String, Object> deatilOfhead(Map<String, Object> map);
+
+	int wetherHaveQrSign(Map<String, Object> map);
+
 
 
 
