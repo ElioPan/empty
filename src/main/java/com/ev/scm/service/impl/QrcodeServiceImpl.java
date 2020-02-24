@@ -139,4 +139,9 @@ public class QrcodeServiceImpl implements QrcodeService {
 		qrcodeItemService.batchInsert(qrcodeItemDOList);
     }
 
+    @Override
+    public void transferHandler(List<StockDO> stockDOS, List<AllotItemDO> allotItemDOS) {
+        //TODO
+    }
+
 }

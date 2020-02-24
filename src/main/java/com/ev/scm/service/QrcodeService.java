@@ -1,9 +1,6 @@
 package com.ev.scm.service;
 
-import com.ev.scm.domain.QrcodeDO;
-import com.ev.scm.domain.StockDO;
-import com.ev.scm.domain.StockInItemDO;
-import com.ev.scm.domain.StockOutItemDO;
+import com.ev.scm.domain.*;
 
 import java.util.List;
 import java.util.Map;
@@ -51,4 +48,6 @@ public interface QrcodeService {
 	 * @param params 前端扫码参数列表[{......,qrCodeId:1,count:5}{......,qrCodeId:2,count:5}]
 	 */
 	void saveOutQrCode(List<StockOutItemDO> stockOutItems, List<StockOutItemDO> params);
+
+	void transferHandler(List<StockDO> stockDOS, List<AllotItemDO> allotItemDOS);
 }
