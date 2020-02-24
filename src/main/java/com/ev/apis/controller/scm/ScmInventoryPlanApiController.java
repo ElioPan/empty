@@ -5,6 +5,7 @@ import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.R;
 import com.ev.scm.domain.InventoryPlanDO;
 import com.ev.scm.service.InventoryPlanItemService;
@@ -90,7 +91,8 @@ public class ScmInventoryPlanApiController {
             @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
             @ApiParam(value = "单据编号/盘点人") @RequestParam(value = "false", defaultValue = "", required = false) String code,
             @ApiParam(value = "计划时间Start") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
-            @ApiParam(value = "计划时间End") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime) {
+            @ApiParam(value = "计划时间End") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
+            @ApiParam(value = "手机选择盘点方案时必传（1）") @RequestParam(value = "QR", defaultValue = "", required = false) int qR) {
 
         Map<String, Object> resuls = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
@@ -100,6 +102,12 @@ public class ScmInventoryPlanApiController {
         params.put("checkers", code);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
+        params.put("qrSign", qR);
+
+        params.put("checkStatusOne", ConstantForGYL.EXECUTE_NON);
+        params.put("checkStatusTwo", ConstantForGYL.EXECUTE_NOW);
+
+
         int counts = inventoryPlanService.countOfListByDates(params);
         List<Map<String, Object>> dateList = inventoryPlanService.listByDates(params);
 
@@ -126,12 +134,18 @@ public class ScmInventoryPlanApiController {
     }
 
 
+    /**
+     * 扫码盘点提交的时候，qrSign传1，
+     * @param checkHeadDO
+     * @param checkBodys
+     * @return
+     */
     @EvApiByToken(value = "/apis/scm/inventoryPlan/saveChangeResult", method = RequestMethod.POST, apiTitle = "保存盘点结果")
     @ApiOperation("保存盘点结果")
     public R saveEditResuls(
             InventoryPlanDO checkHeadDO,
             @ApiParam(value = "盘点产品明细行：[{" +
-                    "\"id\":1(必传)," +
+                    "\"id\":1(PC盘点必传，扫码主表qrSign必传'1')," +
                     "\"materielId\":2," +
                     "\"stockId\":库存（没有可不填）," +
                     "\"warehouse\":仓库id," +

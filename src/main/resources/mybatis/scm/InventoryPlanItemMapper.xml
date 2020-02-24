@@ -193,7 +193,7 @@
  <!--  根据条件查询要盘点商品信息，数量-->
 	<select id="getProMsgCount" resultType="map">
 		SELECT
-		a.id,
+		<!-- a.id,-->
 		a.materiel_id as materielId,
 		b.name as materielName,
 		b.serial_no as serialno,
@@ -204,7 +204,7 @@
 		c.name  as  warehouseName,
 		a.wareh_location as warehLocation,
 		d.name   as  warehLocationName,
-		sum(a.count) as systemCount,
+		IF(a.count is null,0,a.count)AS count,
 		0 as  checkCount,
 		0  as  profitLos
 		FROM      scm_stock     a
@@ -217,11 +217,27 @@
 
 			<if test="warehouse != null and warehouse != ''"> and a.warehouse = #{warehouse} </if>
 		</where>
-		GROUP BY
-			a.warehouse,
-			a.wareh_location,
-			a.batch
+		<!--GROUP BY
+		a.warehouse,
+		a.wareh_location,
+		a.batch-->
 	</select>
+
+	<select id="getMaterialAll" resultType="map">
+		SELECT
+		DISTINCT
+		a.materiel_id as materielId,
+		a.batch,
+		a.warehouse as warehouseId,
+		a.wareh_location as warehLocation
+		FROM   scm_stock   a
+		<where>
+			<if test="name != null and name != ''"> and  ( ( b.name like  CONCAT('%',#{name},'%')) OR(b.serialno like CONCAT('%',#{name},'%'))  ) </if>
+
+			<if test="warehouse != null and warehouse != ''"> and a.warehouse = #{warehouse} </if>
+		</where>
+	</select>
+
 
 
 	<select id="countOfWinLoss" resultType="int">
