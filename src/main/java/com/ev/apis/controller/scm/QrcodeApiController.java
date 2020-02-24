@@ -94,6 +94,11 @@ public class QrcodeApiController {
         }while(totalCount.compareTo(BigDecimal.ZERO)>0);
         qrcodeService.batchInsert(qrcodeDOS);
         qrcodeDOList = qrcodeService.listForMap(new HashMap<String,Object>(){{put("inspectionId",inspectionId);}});
+        /**
+         * 修改检验单的状态
+         */
+        materialInspectionDO.setIsPrintedQrcode(1);
+        materialInspectionService.update(materialInspectionDO);
         result.put("qrCodeList",qrcodeDOList);
         return R.ok(result);
     }
