@@ -94,7 +94,7 @@ public class DeptApiController extends BaseController {
     @Transactional(rollbackFor = Exception.class)
     @EvApiByToken(value = "/apis/dept/update",method = RequestMethod.POST,apiTitle = "修改部门")
     @ApiOperation("修改部门")
-    public R update(DeptDO sysDept) {
+    public R update(DeptDO sysDept) throws IOException, ParseException {
         DeptDO oldDept = sysDeptService.get(sysDept.getDeptId());
 
         if (Constant.DEMO_ACCOUNT.equals(getUsername())) {

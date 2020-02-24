@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +73,7 @@ public class UserApiController extends BaseController {
 
     @EvApiByToken(value = "/apis/user/add",method = RequestMethod.POST,apiTitle = "添加用户信息")
     @ApiOperation("添加用户信息")
-    public R save(UserDO user) {
+    public R save(UserDO user) throws IOException, ParseException {
         //校验用户名是否重复
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("username",user.getUsername());
@@ -101,7 +103,7 @@ public class UserApiController extends BaseController {
 
     @EvApiByToken(value = "/apis/user/update",method = RequestMethod.POST,apiTitle = "编辑用户信息")
     @ApiOperation("编辑用户信息")
-    R update(UserDO user) {
+    R update(UserDO user) throws IOException, ParseException {
         if (Constant.DEMO_ACCOUNT.equals(getUsername())) {
              return R.error(messageSourceHandler.getMessage("basicInfo.showProject.update",null));
         }

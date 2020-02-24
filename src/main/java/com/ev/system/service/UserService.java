@@ -1,5 +1,7 @@
 package com.ev.system.service;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,9 +26,9 @@ public interface UserService {
 
 	int countForMap(Map<String, Object> map);
 
-	int save(UserDO user);
+	int save(UserDO user) throws IOException, ParseException;
 
-	int update(UserDO user);
+	int update(UserDO user) throws IOException, ParseException;
 
 	int remove(Long userId);
 

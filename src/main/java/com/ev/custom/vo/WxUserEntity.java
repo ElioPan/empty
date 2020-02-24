@@ -2,6 +2,8 @@ package com.ev.custom.vo;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class WxUserEntity {
     private String userid;
@@ -10,7 +12,7 @@ public class WxUserEntity {
 
     private String mobile;
 
-    private Long deptId;
+    private List<Long> department;
 
     private String email;
 

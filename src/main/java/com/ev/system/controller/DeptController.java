@@ -103,7 +103,7 @@ public class DeptController extends BaseController {
 	@ResponseBody
 	@RequestMapping("/update")
 	@RequiresPermissions("system:sysDept:edit")
-	public R update(DeptDO sysDept) {
+	public R update(DeptDO sysDept) throws IOException, ParseException {
 		if (Constant.DEMO_ACCOUNT.equals(getUsername())) {
 			return R.error(1, "演示系统不允许修改,完整体验请部署程序");
 		}

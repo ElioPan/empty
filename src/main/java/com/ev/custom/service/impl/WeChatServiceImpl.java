@@ -22,10 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.Formatter;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class WeChatServiceImpl implements WeChatService {
@@ -150,11 +147,14 @@ public class WeChatServiceImpl implements WeChatService {
         WxUserEntity wxUserEntity = new WxUserEntity();
         wxUserEntity.setUserid(userDO.getUsername());
         wxUserEntity.setName(userDO.getName());
-        wxUserEntity.setDeptId(userDO.getDeptId());
+        List<Long> deptId = new ArrayList<Long>();
+        deptId.add(userDO.getDeptId());
+        wxUserEntity.setDepartment(deptId);
         wxUserEntity.setMobile(userDO.getMobile());
         wxUserEntity.setEmail(userDO.getEmail());
         String url = CREATE_USER_URI.replace("ACCESS_TOKEN", accessToken);
-        String json = HttpClientUtils.sendJsonStr(url, JSON.toJSONString(wxUserEntity));
+        String params = JSON.toJSONString(wxUserEntity);
+        String json = HttpClientUtils.sendJsonStr(url, params);
         return JSONObject.fromObject(json);
 
     }
@@ -173,7 +173,9 @@ public class WeChatServiceImpl implements WeChatService {
         WxUserEntity wxUserEntity = new WxUserEntity();
         wxUserEntity.setUserid(userDO.getUsername());
         wxUserEntity.setName(userDO.getName());
-        wxUserEntity.setDeptId(userDO.getDeptId());
+        List<Long> deptId = new ArrayList<Long>();
+        deptId.add(userDO.getDeptId());
+        wxUserEntity.setDepartment(deptId);
         wxUserEntity.setMobile(userDO.getMobile());
         wxUserEntity.setEmail(userDO.getEmail());
         String url = UPDATE_USER_URI.replace("ACCESS_TOKEN", accessToken);

@@ -52,8 +52,11 @@ public class DeptServiceImpl implements DeptService {
 	}
 
 	@Override
-	public int update(DeptDO sysDept){
-		return sysDeptMapper.update(sysDept);
+	public int update(DeptDO sysDept) throws IOException, ParseException {
+		int count = sysDeptMapper.update(sysDept);
+		//同步企业微信部门信息
+		weChatService.updateDeptment(sysDept);
+		return count;
 	}
 
 	@Override

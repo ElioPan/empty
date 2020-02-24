@@ -22,7 +22,7 @@ public interface DeptService {
 	
 	int save(DeptDO sysDept) throws IOException, ParseException;
 	
-	int update(DeptDO sysDept);
+	int update(DeptDO sysDept) throws IOException, ParseException;
 	
 	int remove(Long deptId);
 	

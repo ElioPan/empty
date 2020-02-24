@@ -2,10 +2,13 @@ package com.ev.system.service.impl;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.*;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.ev.custom.service.WeChatService;
 import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantsConfig;
 import com.ev.common.domain.FileDO;
@@ -50,6 +53,8 @@ public class UserServiceImpl implements UserService {
     UserGroupDao userGroupMapper;
     @Autowired
     RoleService roleService;
+    @Autowired
+    WeChatService weChatService;
 
 
 
@@ -108,7 +113,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public int save(UserDO user) {
+    public int save(UserDO user) throws IOException, ParseException {
         int count = userMapper.save(user);
         Long userId = user.getUserId();
         List<Long> roles = user.getRoleIds();
@@ -144,11 +149,13 @@ public class UserServiceImpl implements UserService {
         }
         user.setGroupstr(groupstr);
         userMapper.update(user);
+        //同步企业微信
+        weChatService.createUser(user);
         return count;
     }
 
     @Override
-    public int update(UserDO user) {
+    public int update(UserDO user) throws IOException, ParseException {
         Long userId = user.getUserId();
         List<Long> roles = user.getRoleIds();
         userRoleMapper.removeByUserId(userId);
@@ -183,6 +190,8 @@ public class UserServiceImpl implements UserService {
         }
         user.setGroupstr(groupstr);
         int r = userMapper.update(user);
+        //同步企业微信
+        weChatService.updateUser(user);
         return r;
     }
 
