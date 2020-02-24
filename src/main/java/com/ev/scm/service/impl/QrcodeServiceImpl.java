@@ -7,6 +7,7 @@ import com.ev.scm.domain.*;
 import com.ev.scm.service.QrcodeItemService;
 import com.ev.scm.service.QrcodeService;
 import com.ev.scm.service.StockOutService;
+import com.ev.scm.service.StockService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,9 @@ public class QrcodeServiceImpl implements QrcodeService {
 
     @Autowired
     private StockOutService stockOutService;
+
+    @Autowired
+    private StockService stockService;
 
     @Autowired
     private QrcodeItemService qrcodeItemService;
@@ -175,7 +179,23 @@ public class QrcodeServiceImpl implements QrcodeService {
 
     @Override
     public void transferHandler(List<StockDO> stockDOS, List<AllotItemDO> allotItemDOS) {
-        //TODO
+        //先将二维码的stockId修改为最新的
+        List<QrcodeDO> qrcodeDOList = new ArrayList<>();
+        for(AllotItemDO allotItemDO : allotItemDOS){
+            QrcodeDO qrcodeDO = qrcodeDao.get(allotItemDO.getQrcodeId());
+            StockDO stockDOTemp = stockService.get(Long.parseLong(allotItemDO.getStockId().split(",")[0]));
+            for(StockDO stockDO : stockDOS){
+                if(Objects.equals(stockDO.getMaterielId(), stockDOTemp) &&
+                        (stockDO.getWarehouse() + "-" + stockDO.getWarehLocation()).equals(allotItemDO.getInFacility() + "-" + allotItemDO.getInLocation()) &&
+                        stockDO.getBatch().equals(stockDOTemp.getBatch())){
+                    qrcodeDO.setStockId(stockDO.getId());
+                    qrcodeDOList.add(qrcodeDO);
+                    break;
+                }
+            }
+        }
+        batchUpdate(qrcodeDOList);
+        //TODO 看需求是否需要保存二维码的变更历史（暂时没什么意义）
 
     }
 
