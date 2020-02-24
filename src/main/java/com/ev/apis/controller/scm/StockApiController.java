@@ -260,8 +260,16 @@ public class StockApiController {
     @Transactional(rollbackFor = Exception.class)
     @EvApiByToken(value = "/apis/stock/start", method = RequestMethod.POST, apiTitle = "设置库存初始时间")
     @ApiOperation("设置库存初始时间")
-    public R save(@ApiParam(value = "启用年度") @RequestParam(value = "year", defaultValue = "", required = false) Integer year,
-                  @ApiParam(value = "启用月份") @RequestParam(value = "month", defaultValue = "", required = false) Integer month) {
+    public R save(@ApiParam(value = "启用年月") @RequestParam(value = "yearAndMonth", defaultValue = "", required = false) String yearAndMonth) {
+        Calendar input = Calendar.getInstance();
+        Date inputDate = DateFormatUtil.getDateByParttern(yearAndMonth);
+        if (inputDate == null) {
+            return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
+        }
+        input.setTime(inputDate);
+        int year = input.get(Calendar.YEAR);
+        int month = input.get(Calendar.MONTH);
+
         Calendar now = Calendar.getInstance();
         if (now.get(Calendar.YEAR) == year && month == now.get(Calendar.MONTH) + 1) {
             Calendar start = Calendar.getInstance();
@@ -297,11 +305,8 @@ public class StockApiController {
         List<StockStartDO> list = stockStartService.list(Maps.newHashMap());
         if (list.size() > 0) {
             StockStartDO stockStartDO = list.get(0);
-            Calendar startTime = Calendar.getInstance();
-            startTime.setTime(stockStartDO.getStartTime());
             Map<String, Object> map = Maps.newHashMap();
-            map.put("year", startTime.get(Calendar.YEAR));
-            map.put("month", startTime.get(Calendar.MONTH) + 1);
+            map.put("yearAndMonth", stockStartDO.getStartTime());
             return R.ok(map);
         }
         return R.ok();
