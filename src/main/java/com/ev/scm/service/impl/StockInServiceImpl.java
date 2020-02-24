@@ -359,7 +359,7 @@ public class StockInServiceImpl implements StockInService {
 				if(qR){
 					for(StockInItemDO stockInItemDo:inbodyCDos ){
 						QrcodeDO qrcodeDo = qrcodeService.get(stockInItemDo.getQrcodeId());
-						if(!Objects.nonNull(qrcodeDo.getStockId())){
+						if(Objects.nonNull(qrcodeDo.getStockId())){
 							String [] args = {stockInItemDo.getMaterielId().toString()};
 							return R.error(messageSourceHandler.getMessage("scm.stockIn.inStockIsOver",args));
 						}
