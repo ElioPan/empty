@@ -57,6 +57,9 @@ public class StockDO implements Serializable {
 	//库位
 	@ApiModelProperty(value = "库位")
 	private Long warehLocation;
+	//二维码ID qrcode_id
+	@ApiModelProperty(value = "二维码ID")
+	private Long qrcodeId;
 	//创建人
 	@ApiModelProperty(value = "创建人")
 	private Long createBy;

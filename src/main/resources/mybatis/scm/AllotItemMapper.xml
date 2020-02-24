@@ -34,7 +34,7 @@
 	</select>
 
     <sql id="sql_column_list">
-		`id`,`allot_id`,`stock_id`,`in_facility`,`in_location`,`count`,`price`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+		`id`,`allot_id`,`stock_id`,`in_facility`,`in_location`,`count`,`price`,`qrcode_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 	</sql>
 
     <sql id="sql_condition">
@@ -46,6 +46,7 @@
                             <if test="inLocation != null and inLocation != ''"> and in_location = #{inLocation} </if>
                             <if test="count != null and count != ''"> and count = #{count} </if>
                             <if test="price != null and price != ''"> and price = #{price} </if>
+            <if test="qrcodeId != null and qrcodeId != ''"> and qrcode_id = #{qrcodeId} </if>
                             <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
                             <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
                             <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
@@ -62,7 +63,8 @@
 			`in_facility`, 
 			`in_location`, 
 			`count`, 
-			`price`, 
+			`price`,
+			`qrcode_id`,
 			`create_by`, 
 			`create_time`, 
 			`update_by`, 
@@ -76,7 +78,8 @@
 			#{inFacility}, 
 			#{inLocation}, 
 			#{count}, 
-			#{price}, 
+			#{price},
+			#{qrcodeId},
 			#{createBy}, 
 			#{createTime}, 
 			#{updateBy}, 
@@ -94,6 +97,7 @@
 			<if test="inLocation != null">`in_location` = #{inLocation}, </if>
 			<if test="count != null">`count` = #{count}, </if>
 			<if test="price != null">`price` = #{price}, </if>
+            <if test="qrcodeId != null">`qrcode_id` = #{qrcodeId}, </if>
 			<if test="createBy != null">`create_by` = #{createBy}, </if>
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
@@ -172,6 +176,7 @@
         `in_location`,
         `count`,
         `price`,
+        `qrcode_id`,
         `create_by`,
         `create_time`,
         `update_by`,
@@ -186,6 +191,7 @@
             #{obj.inLocation},
             #{obj.count},
             #{obj.price},
+            #{obj.qrcodeId},
             #{obj.createBy},
             #{obj.createTime},
             #{obj.updateBy},
@@ -254,6 +260,16 @@
                     </if>
                     <if test="item.price==null">
                         when id=#{item.id} then cus_allot_detail.price
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="qrcode_id =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.qrcodeId!=null">
+                        when id=#{item.id} then #{item.qrcodeId}
+                    </if>
+                    <if test="item.qrcodeId==null">
+                        when id=#{item.id} then cus_allot_detail.qrcode_id
                     </if>
                 </foreach>
             </trim>

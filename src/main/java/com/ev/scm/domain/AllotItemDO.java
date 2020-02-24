@@ -42,6 +42,9 @@ public class AllotItemDO implements Serializable {
 	//产品单价
     @ApiModelProperty(value = "产品单价")
 	private BigDecimal price;
+	//二维码ID qrcode_id
+	@ApiModelProperty(value = "二维码ID")
+	private Long qrcodeId;
 	//创建人
     @ApiModelProperty(value = "创建人")
 	private Long createBy;

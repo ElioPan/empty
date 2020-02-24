@@ -484,21 +484,7 @@
             stock.`entering_time` AS enteringTime,
             SUM(stock.`count`) AS totalCount,
 			SUM(stock.`available_count`) AS availableCount
-			FROM (
-				SELECT
-				`id`,
-				`materiel_id`,
-				`available_count`,
-				`batch`,
-				`count`,
-				`warehouse`,
-				`wareh_location`,
-				`unit_price`,
-				`del_flag`,
-				`entering_time`
-				FROM scm_stock
-				WHERE `available_count` &gt;0
-				)stock
+			FROM scm_stock stock
 			LEFT JOIN cus_materiel materiel ON materiel.id=stock.`materiel_id`
 			LEFT JOIN cus_materiel_type materieltype ON materieltype.`id`=materiel.`type`
 			LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.`unit_uom`
@@ -522,7 +508,9 @@
 					  <if test="batch != null and batch != ''"> and stock.`batch` = #{batch} </if>
 				      <if test="locationId != null and locationId != ''"> and stock.`wareh_location` = #{locationId} </if>
 				      <if test="facilityId != null and facilityId != ''"> and stock.`warehouse` = #{facilityId} </if>
-					  
+					  <if test="isPC == 1"> and stock.`qrcode_id` IS NULL </if>
+				      <if test="isPC == 0"> and stock.`qrcode_id` IS NOT NULL </if>
+					  AND stock.`available_count` &gt;0
 					  
 			 </where>
 		GROUP BY stock.`batch`,stock.`wareh_location`,stock.`materiel_id`,stock.`warehouse`
@@ -545,18 +533,7 @@
 		FROM (
 			SELECT 
 			COUNT(*)
-			FROM (
-				SELECT
-				`id`,
-				`materiel_id`,
-				`available_count`,
-				`batch`,
-				`count`,
-				`warehouse`,
-				`wareh_location`
-				FROM scm_stock
-				WHERE `available_count` &gt;0
-				)stock
+			FROM scm_stock stock
 				LEFT JOIN cus_materiel materiel ON materiel.id=stock.`materiel_id`
 				LEFT JOIN cus_materiel_type materieltype ON materieltype.`id`=materiel.`type`
 				LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.`unit_uom`
@@ -581,13 +558,17 @@
 					  <if test="batch != null and batch != ''"> and stock.`batch` = #{batch} </if>
 				     <if test="locationId != null and locationId != ''"> and stock.`wareh_location` = #{locationId} </if>
 				   	<if test="facilityId != null and facilityId != ''"> and stock.`warehouse` = #{facilityId} </if>
+				   <if test="isPC == 1"> and stock.`qrcode_id` IS NULL </if>
+				   <if test="isPC == 0"> and stock.`qrcode_id` IS NOT NULL </if>
+				   AND stock.`available_count` &gt;0
 			 </where>
 				GROUP BY stock.`batch`,stock.`wareh_location`,stock.`materiel_id`,stock.`warehouse`
 	      )t
 	</select>
 	
 	<select id="stockList" resultType="com.ev.scm.domain.StockDO">
-		SELECT `id`,`count`,`available_count`,`unit_price`
+		SELECT
+		`id`,`entering_time`,`materiel_id`,`code`,`batch`,`available_count`,`count`,`unit_price`,`amount`,`source_company`,`warehouse`,`wareh_location`,`qrcode_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 		FROM scm_stock
 		WHERE `id` in
 		<foreach item="id" collection="list" open="(" separator="," close=")" index="index">

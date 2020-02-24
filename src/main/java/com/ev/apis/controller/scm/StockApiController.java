@@ -101,10 +101,10 @@ public class StockApiController {
         String facilityName;
         if (stockEntityList.size() > 0) {
             for (StockEntity stockEntity : stockEntityList) {
-                facilityLocationName = stockEntity.getFacilityLocationName();
+//                facilityLocationName = stockEntity.getFacilityLocationName();
                 facilityName = stockEntity.getFacilityName();
                 if (StringUtils.isEmpty(stockEntity.getSerialno())
-                        || StringUtils.isEmpty(facilityLocationName)
+//                        || StringUtils.isEmpty(facilityLocationName)
                         || StringUtils.isEmpty(facilityName)
                         || !NumberUtils.isNumber(stockEntity.getTotalCount())
                         || !NumberUtils.isNumber(stockEntity.getAmount())
@@ -235,7 +235,8 @@ public class StockApiController {
             @ApiParam(value = "仓库类型") @RequestParam(value = "facilityTypeId", defaultValue = "", required = false) Long facilityTypeId,
             @ApiParam(value = "库位ID") @RequestParam(value = "locationId", defaultValue = "", required = false) String locationId,
             @ApiParam(value = "产品Id") @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId,
-            @ApiParam(value = "批次") @RequestParam(value = "batch", defaultValue = "", required = false) String batch
+            @ApiParam(value = "批次") @RequestParam(value = "batch", defaultValue = "", required = false) String batch,
+            @ApiParam(value = "是否为PC端") @RequestParam(value = "isPC", defaultValue = "1", required = false) Integer isPC
 
     ) {
         Map<String, Object> results = Maps.newHashMap();
@@ -249,6 +250,7 @@ public class StockApiController {
         params.put("locationId", locationId);
         params.put("materielId", materielId);
         params.put("batch", batch);
+        params.put("isPC", isPC);
         List<Map<String, Object>> data = materielService.stockListForMap(params);
         int total = materielService.stockCountForMap(params);
         if (data.size() > 0) {
