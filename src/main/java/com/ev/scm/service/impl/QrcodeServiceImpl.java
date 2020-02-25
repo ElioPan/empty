@@ -1,5 +1,6 @@
 package com.ev.scm.service.impl;
 
+import com.alibaba.druid.util.StringUtils;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.mes.domain.MaterialInspectionDO;
 import com.ev.scm.dao.QrcodeDao;
@@ -86,17 +87,24 @@ public class QrcodeServiceImpl implements QrcodeService {
     @Override
     public Boolean isMultipleType(Integer inType, MaterialInspectionDO materialInspectionDO) {
         if(inType==0){
-            if(!Objects.equals(materialInspectionDO.getSourceType(), ConstantForGYL.CGHT)){
+            if(!Objects.equals(materialInspectionDO.getInspectionType(),216)){
+                return false;
+            }else if(!StringUtils.isEmpty(materialInspectionDO.getSourceNo()) && !Objects.equals(materialInspectionDO.getSourceType(), ConstantForGYL.CGHT)){
                 return false;
             }
+            //TODO 对于没有源单的来料检验是否要区分（暂无区分办法）
         }else if(inType==1){
             /*if(!Objects.equals(materialInspectionDO.getSourceType(), ConstantForGYL.)){
                 return false;
             }*/
         }else if(inType==2){
-            if(!Objects.equals(materialInspectionDO.getSourceType(), ConstantForGYL.WWHT)){
+            if(!Objects.equals(materialInspectionDO.getInspectionType(),216)){
                 return false;
             }
+            else if(!StringUtils.isEmpty(materialInspectionDO.getSourceNo()) && !Objects.equals(materialInspectionDO.getSourceType(), ConstantForGYL.WWHT)){
+                return false;
+            }
+            //TODO 对于没有源单的来料检验是否要区分（暂无区分办法）
         }else if(inType==3){
             //TODO
         }
