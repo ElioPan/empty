@@ -1,5 +1,6 @@
 package com.ev.apis.controller.scm;
 
+import com.alibaba.druid.util.StringUtils;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.il8n.MessageSourceHandler;
@@ -123,7 +124,7 @@ public class QrcodeApiController {
          * 验证是否是一个供应商
          */
         MaterialInspectionDO materialInspectionDO = materialInspectionService.get(qrcodeDO.getInspectionId());
-        if(!Objects.equals(materialInspectionDO.getSupplierId(),supplierId)){
+        if(supplierId != null && !Objects.equals(materialInspectionDO.getSupplierId(),supplierId)){
             return R.error(messageSourceHandler.getMessage("scm.qrcode.in.oneSupplier",null));
         }
         /**
