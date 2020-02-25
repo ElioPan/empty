@@ -210,7 +210,8 @@
 		b.remarks,
 		b.source_type as  sourceType,
 		m.name as sourceTypeName,
-		b.source_code as sourceCode
+		b.source_code as sourceCode,
+		a.sign
 		from
 		scm_payment_received  a
 		LEFT JOIN scm_payment_received_item b on a.id=b.payment_received_id
@@ -251,7 +252,7 @@
 	<select id="countForMap" resultType="map">
 		SELECT
 		COUNT(*) as `count`,
-		sum(thisAmount) as totalThisAmount,
+		sum(thisAmount) as totalThisAmount
 		FROM
 		(
 		SELECT
@@ -277,7 +278,8 @@
 		b.remarks,
 		b.source_type as  sourceType,
 		m.name as sourceTypeName,
-		b.source_code as sourceCode
+		b.source_code as sourceCode,
+		a.sign
 		from
 		scm_payment_received  a
 		LEFT JOIN scm_payment_received_item b on a.id=b.payment_received_id

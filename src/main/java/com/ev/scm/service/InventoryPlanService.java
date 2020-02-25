@@ -37,7 +37,7 @@ public interface InventoryPlanService {
 
 	int countOfStatus(Map<String, Object> map);
 
-
+	R disposePlanIsOver (Long planId );
 
 	R getMaterielCount(Long warehouse, String syntheticData);
 
@@ -52,4 +52,9 @@ public interface InventoryPlanService {
 	R buildWinStock(Long id );
 
 	R buildLossStock(Long id );
+
+	R disposeCheckByQrId(Long planId,String  qrMsg, Long qrId);
+
+	R disposePhoneCheckResuls(Long planId,String checkBodys);
+
 }

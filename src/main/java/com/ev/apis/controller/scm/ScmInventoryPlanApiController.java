@@ -141,11 +141,11 @@ public class ScmInventoryPlanApiController {
      * @return
      */
     @EvApiByToken(value = "/apis/scm/inventoryPlan/saveChangeResult", method = RequestMethod.POST, apiTitle = "保存盘点结果")
-    @ApiOperation("保存盘点结果")
+    @ApiOperation("PC端保存盘点结果")
     public R saveEditResuls(
             InventoryPlanDO checkHeadDO,
             @ApiParam(value = "盘点产品明细行：[{" +
-                    "\"id\":1(PC盘点必传，扫码主表qrSign必传'1')," +
+                    "\"id\":1(PC盘点必传，)," +
                     "\"materielId\":2," +
                     "\"stockId\":库存（没有可不填）," +
                     "\"warehouse\":仓库id," +
@@ -156,6 +156,47 @@ public class ScmInventoryPlanApiController {
                     "\"profitLoss\":（盈亏数量 （赢+亏-））}" +
                     "]") @RequestParam(value = "checkBodyDO") String checkBodys) {
         return inventoryPlanService.savePlanDetail(checkHeadDO,checkBodys);
+    }
+
+    @EvApiByToken(value = "/apis/scm/inventoryPlan/phoneCheckResuls", method = RequestMethod.POST, apiTitle = "保存手机扫码盘点结果")
+    @ApiOperation("保存手机扫码盘点结果")
+    public R savePhoneCheckResuls(
+            @ApiParam(value = "盘点方案id", required = true) @RequestParam(value = "planId") Long planId,
+            @ApiParam(value = "盘点产品明细行：[{" +
+                    "\"materielId\":2," +
+                    "\"warehouse\":仓库id," +
+                    "\"warehLocation\":库位id," +
+                    "\"batch\":\"20191225001\"," +
+                    "\"checkCount\":盘点数量," +
+                    "\"qrId\":条码id}" +
+                    "]") @RequestParam(value = "checkBodyDO") String checkBodys) {
+        return inventoryPlanService.disposePhoneCheckResuls(planId,checkBodys);
+    }
+
+    @EvApiByToken(value = "/apis/scm/inventoryPlan/wetherCheckByQrId", method = RequestMethod.POST, apiTitle = "验证此条码是否已经盘点/是否在本次方案中")
+    @ApiOperation("验证此条码是否已经盘点/是否在本次方案中")
+    public R checkByQrId(
+            @ApiParam(value = "盘点方案id", required = true) @RequestParam(value = "planId") Long planId,
+            @ApiParam(value = "本次扫描的条码id", required = true) @RequestParam(value = "planId") Long qrId,
+            @ApiParam(value = "本次扫描的条码信息 [\n" +
+                    "{\n" +
+                    "\"materielId\":2,\n" +
+                    "\"warehouse\":仓库id,\n" +
+                    "\"warehLocation\":库位id,\n" +
+                    "\"batch\":\"20191225001\",\n" +
+                    "}\n" +
+                    "]", required = true) @RequestParam(value = "planId") String  qrMsg) {
+
+        return inventoryPlanService.disposeCheckByQrId(planId,qrMsg,qrId);
+    }
+
+
+
+    @EvApiByToken(value = "/apis/scm/inventoryPlan/checkIsOver", method = RequestMethod.POST, apiTitle = "盘点结束")
+    @ApiOperation("盘点结束")
+    public R planIsOver(
+            @ApiParam(value = "盘点方案id", required = true) @RequestParam(value = "planId") Long planId) {
+        return inventoryPlanService.disposePlanIsOver(planId);
     }
 
 
@@ -198,6 +239,8 @@ public class ScmInventoryPlanApiController {
         PoiBaseView.render(modelMap, request, response,
                 TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
     }
+
+
 
 
 
