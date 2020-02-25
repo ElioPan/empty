@@ -94,14 +94,13 @@ public class QrcodeServiceImpl implements QrcodeService {
             }
             //TODO 对于没有源单的来料检验是否要区分（暂无区分办法）
         }else if(inType==1){
-            /*if(!Objects.equals(materialInspectionDO.getSourceType(), ConstantForGYL.)){
+            if(!Objects.equals(materialInspectionDO.getInspectionType(),217)){
                 return false;
-            }*/
+            }
         }else if(inType==2){
             if(!Objects.equals(materialInspectionDO.getInspectionType(),216)){
                 return false;
-            }
-            else if(!StringUtils.isEmpty(materialInspectionDO.getSourceNo()) && !Objects.equals(materialInspectionDO.getSourceType(), ConstantForGYL.WWHT)){
+            }else if(!StringUtils.isEmpty(materialInspectionDO.getSourceNo()) && !Objects.equals(materialInspectionDO.getSourceType(), ConstantForGYL.WWHT)){
                 return false;
             }
             //TODO 对于没有源单的来料检验是否要区分（暂无区分办法）
