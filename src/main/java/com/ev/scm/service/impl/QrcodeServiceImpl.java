@@ -119,7 +119,7 @@ public class QrcodeServiceImpl implements QrcodeService {
      */
     @Override
     public Boolean isMultipleIn(Integer isMultiple, String contractNo, MaterialInspectionDO materialInspectionDO) {
-        if(isMultiple==0 && !Objects.equals(contractNo,materialInspectionDO.getSourceNo())){
+        if(isMultiple==0 && !StringUtils.isEmpty(contractNo) && !Objects.equals(contractNo,materialInspectionDO.getSourceNo())){
             return false;
         }
         return true;
