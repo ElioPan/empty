@@ -89,7 +89,7 @@ public class QrcodeServiceImpl implements QrcodeService {
         if(inType==0){
             if(!Objects.equals(materialInspectionDO.getInspectionType(),216)){
                 return false;
-            }else if(!StringUtils.isEmpty(materialInspectionDO.getSourceNo()) && !Objects.equals(materialInspectionDO.getSourceType(), ConstantForGYL.CGHT)){
+            }else if(!StringUtils.isEmpty(materialInspectionDO.getSourceNo()) && !Objects.equals(Long.parseLong(materialInspectionDO.getSourceType().toString()), ConstantForGYL.CGHT)){
                 return false;
             }
             //TODO 对于没有源单的来料检验是否要区分（暂无区分办法）
@@ -100,7 +100,7 @@ public class QrcodeServiceImpl implements QrcodeService {
         }else if(inType==2){
             if(!Objects.equals(materialInspectionDO.getInspectionType(),216)){
                 return false;
-            }else if(!StringUtils.isEmpty(materialInspectionDO.getSourceNo()) && !Objects.equals(materialInspectionDO.getSourceType(), ConstantForGYL.WWHT)){
+            }else if(!StringUtils.isEmpty(materialInspectionDO.getSourceNo()) && !Objects.equals(Long.parseLong(materialInspectionDO.getSourceType().toString()), ConstantForGYL.WWHT)){
                 return false;
             }
             //TODO 对于没有源单的来料检验是否要区分（暂无区分办法）
