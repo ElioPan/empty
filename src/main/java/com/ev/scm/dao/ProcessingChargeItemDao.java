@@ -38,4 +38,6 @@ public interface ProcessingChargeItemDao {
 	Map<String, Object> countForMap(Map<String, Object> param);
 
 	BigDecimal getCountBySource(Map<String, Object> map);
+
+	List<Map<String,Object>> countForMapGroupBySourceId(Long id);
 }

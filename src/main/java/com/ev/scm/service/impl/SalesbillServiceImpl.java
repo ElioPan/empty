@@ -3,18 +3,23 @@ package com.ev.scm.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
+import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.dao.SalesbillDao;
 import com.ev.scm.dao.SalesbillItemDao;
+import com.ev.scm.dao.SalescontractDao;
+import com.ev.scm.dao.SalescontractItemDao;
 import com.ev.scm.domain.SalesbillDO;
 import com.ev.scm.domain.SalesbillItemDO;
+import com.ev.scm.domain.SalescontractDO;
 import com.ev.scm.service.SalesbillService;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -26,6 +31,12 @@ public class SalesbillServiceImpl implements SalesbillService {
 
 	@Autowired
 	private SalesbillItemDao salesbillItemDao;
+
+    @Autowired
+    private SalescontractDao salescontractDao;
+
+    @Autowired
+    private SalescontractItemDao salescontractItemDao;
 
     @Autowired
     private MessageSourceHandler messageSourceHandler;
@@ -74,8 +85,25 @@ public class SalesbillServiceImpl implements SalesbillService {
         if (Objects.equals(salesbillDO.getAuditSign(), ConstantForGYL.OK_AUDITED)) {
             return R.error(messageSourceHandler.getMessage("common.duplicate.approved", null));
         }
+
+        // 子项目金额的合计
+        // 反写销售合同开票金额
+        List<Map<String, Object>> maps = salesbillItemDao.countForMapGroupBySourceId(id);
+        SalescontractDO salescontractDO;
+        BigDecimal totalTaxAmount;
+        for (Map<String, Object> map : maps) {
+            salescontractDO = salescontractDao.get(salescontractItemDao.get(Long.parseLong(map.get("sourceId").toString())).getSalescontractId());
+            totalTaxAmount = MathUtils.getBigDecimal(map.get("totalTaxAmount"));
+
+            salescontractDO.setInvoicedAmount(salescontractDO.getInvoicedAmount().add(totalTaxAmount));
+            salescontractDO.setUninvoicedAmount(salescontractDO.getUninvoicedAmount().subtract(totalTaxAmount));
+            salescontractDao.update(salescontractDO);
+        }
+
         salesbillDO.setAuditSign(ConstantForGYL.OK_AUDITED);
         salesbillDO.setAuditor(ShiroUtils.getUserId());
+        salesbillDO.setAuditTime(new Date());
+
         return this.update(salesbillDO) > 0 ? R.ok() : R.error();
 	}
 
@@ -85,6 +113,19 @@ public class SalesbillServiceImpl implements SalesbillService {
         if (Objects.equals(salesbillDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("common.massge.faildRollBackAudit", null));
         }
+
+        // 撤回反写的开票金额
+        List<Map<String, Object>> maps = salesbillItemDao.countForMapGroupBySourceId(id);
+        SalescontractDO salescontractDO;
+        BigDecimal totalTaxAmount;
+        for (Map<String, Object> map : maps) {
+            salescontractDO = salescontractDao.get(salescontractItemDao.get(Long.parseLong(map.get("sourceId").toString())).getSalescontractId());
+            totalTaxAmount = MathUtils.getBigDecimal(map.get("totalTaxAmount"));
+            salescontractDO.setInvoicedAmount(salescontractDO.getInvoicedAmount().subtract(totalTaxAmount));
+            salescontractDO.setUninvoicedAmount(salescontractDO.getUninvoicedAmount().add(totalTaxAmount));
+            salescontractDao.update(salescontractDO);
+        }
+
         salesbillDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
         salesbillDO.setAuditor(0L);
         return this.update(salesbillDO) > 0 ? R.ok() : R.error();

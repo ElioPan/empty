@@ -64,6 +64,8 @@ public class SalescontractServiceImpl implements SalescontractService {
             salesContract.setAuditSign(ConstantForGYL.WAIT_AUDIT);
             salesContract.setCloseStatus(0);
             salesContract.setContractCode(this.salesContractCode());
+            salesContract.setUninvoicedAmount(salesContract.getPayAmount());
+            salesContract.setInvoicedAmount(BigDecimal.ZERO);
             salesContractDao.save(salesContract);
             id = salesContract.getId();
         } else {

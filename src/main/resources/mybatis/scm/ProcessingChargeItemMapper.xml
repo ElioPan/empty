@@ -189,6 +189,18 @@
 		<include refid="sql_map_condition"/>
 	</select>
 
+	<select id="countForMapGroupBySourceId" resultType="map">
+		SELECT
+		source_id AS sourceId,
+		SUM(`count`) AS totalCount,
+		SUM(amount) AS totalAmount,
+		SUM(taxes) AS totalTaxes,
+		SUM(tax_amount) AS totalTaxAmount
+		FROM scm_processing_charge_item
+		WHERE charge_id = #{value}
+		GROUP BY source_id
+	</select>
+
     <sql id="sql_map_condition">
 		FROM scm_processing_charge_item item
 		LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
