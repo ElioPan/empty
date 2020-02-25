@@ -61,6 +61,7 @@
 			<!-- 上为列表字段下为查看详情显示字段 -->
 			inspection.source_id AS sourceId,
             inspection.source_no AS sourceNo,
+			inspection.source_type AS sourceType,
 			purchasecontract.`contract_code` AS contractCode,
 			inspection.`batch_no` AS batchNo, 
 			inspection.`inspection_scheme` AS inspectionScheme,

@@ -205,6 +205,18 @@
         </where>
     </sql>
 
+	<select id="countForMapGroupBySourceId" resultType="map">
+		SELECT
+		source_id AS sourceId,
+		SUM(`count`) AS totalCount,
+		SUM(amount) AS totalAmount,
+		SUM(taxes) AS totalTaxes,
+		SUM(tax_amount) AS totalTaxAmount
+		FROM scm_salesbill_item
+		WHERE salesbill_id = #{value}
+		GROUP BY source_id
+	</select>
+
 	<select id="getCountBySource" resultType="java.math.BigDecimal">
 		SELECT
 		SUM(`count`)

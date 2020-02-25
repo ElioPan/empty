@@ -458,7 +458,15 @@ public class StockApiController {
         List<StockAnalysisDO> list = stockAnalysisService.list(params);
         if (list.size() > 0) {
             StockAnalysisDO stockAnalysisDO = list.get(0);
-            result.put("period", stockAnalysisDO.getPeriod());
+            if (stockAnalysisDO.getIsClose()==0 && stockAnalysisDO.getFinalCount() == null){
+                Date period = stockAnalysisDO.getPeriod();
+                Calendar instance = Calendar.getInstance();
+                instance.setTime(period);
+                instance.set(Calendar.MONTH,instance.get(Calendar.MONTH)-1);
+                result.put("period", instance.getTime());
+            }else {
+                result.put("period", stockAnalysisDO.getPeriod());
+            }
         }
         return R.ok(result);
     }

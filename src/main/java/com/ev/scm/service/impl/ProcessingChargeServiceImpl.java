@@ -3,17 +3,17 @@ package com.ev.scm.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
+import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
-import com.ev.scm.dao.ProcessingChargeDao;
-import com.ev.scm.dao.ProcessingChargeItemDao;
-import com.ev.scm.domain.ProcessingChargeDO;
-import com.ev.scm.domain.ProcessingChargeItemDO;
+import com.ev.scm.dao.*;
+import com.ev.scm.domain.*;
 import com.ev.scm.service.ProcessingChargeService;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +26,12 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 	private ProcessingChargeDao processingChargeDao;
 	@Autowired
 	private ProcessingChargeItemDao processingChargeItemDao;
+	@Autowired
+	private OutsourcingContractDao outsourcingContractDao;
+	@Autowired
+	private StockInItemDao stockInItemDao;
+	@Autowired
+	private OutsourcingContractItemDao outsourcingContractItemDao;
 	@Autowired
 	private MessageSourceHandler messageSourceHandler;
 	
@@ -141,6 +147,25 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 		if (Objects.equals(processingChargeDO.getAuditSign(), ConstantForGYL.OK_AUDITED)) {
 			return R.error(messageSourceHandler.getMessage("common.duplicate.approved", null));
 		}
+		// 反写委外合同开票金额
+		List<Map<String, Object>> maps = processingChargeItemDao.countForMapGroupBySourceId(id);
+		OutsourcingContractItemDO outsourcingContractItemDO;
+		OutsourcingContractDO outsourcingContractDO;
+		StockInItemDO stockInItemDO;
+		BigDecimal totalTaxAmount;
+		for (Map<String, Object> map : maps) {
+			stockInItemDO = stockInItemDao.get(Long.parseLong(map.get("sourceId").toString()));
+			outsourcingContractItemDO = outsourcingContractItemDao.get(stockInItemDO.getSourceId());
+
+			outsourcingContractDO = outsourcingContractDao.get(outsourcingContractItemDO.getContractId());
+
+			totalTaxAmount = MathUtils.getBigDecimal(map.get("totalTaxAmount"));
+			outsourcingContractDO.setInvoicedAmount(outsourcingContractDO.getInvoicedAmount().add(totalTaxAmount));
+			outsourcingContractDO.setUninvoicedAmount(outsourcingContractDO.getUninvoicedAmount().subtract(totalTaxAmount));
+			outsourcingContractDao.update(outsourcingContractDO);
+		}
+
+
 		processingChargeDO.setAuditSign(ConstantForGYL.OK_AUDITED);
 		processingChargeDO.setAuditTime(new Date());
 		processingChargeDO.setAuditor(ShiroUtils.getUserId());
@@ -157,6 +182,23 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 //		if (childCount>0) {
 //			return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));
 //		}
+		// 撤回反写的开票金额
+		List<Map<String, Object>> maps = processingChargeItemDao.countForMapGroupBySourceId(id);
+		OutsourcingContractItemDO outsourcingContractItemDO;
+		OutsourcingContractDO outsourcingContractDO;
+		StockInItemDO stockInItemDO;
+		BigDecimal totalTaxAmount;
+		for (Map<String, Object> map : maps) {
+			stockInItemDO = stockInItemDao.get(Long.parseLong(map.get("sourceId").toString()));
+			outsourcingContractItemDO = outsourcingContractItemDao.get(stockInItemDO.getSourceId());
+
+			outsourcingContractDO = outsourcingContractDao.get(outsourcingContractItemDO.getContractId());
+			totalTaxAmount = MathUtils.getBigDecimal(map.get("totalTaxAmount"));
+
+			outsourcingContractDO.setInvoicedAmount(outsourcingContractDO.getInvoicedAmount().subtract(totalTaxAmount));
+			outsourcingContractDO.setUninvoicedAmount(outsourcingContractDO.getUninvoicedAmount().add(totalTaxAmount));
+			outsourcingContractDao.update(outsourcingContractDO);
+		}
 
 
 		processingChargeDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);

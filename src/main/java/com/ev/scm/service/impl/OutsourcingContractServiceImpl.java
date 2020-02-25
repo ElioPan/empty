@@ -100,6 +100,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
             outsourcingContract.setAuditSign(ConstantForGYL.WAIT_AUDIT);
             outsourcingContract.setCloseStatus(0);
             outsourcingContract.setContractCode(this.outsourcingContractCode());
+            outsourcingContract.setInvoicedAmount(BigDecimal.ZERO);
             outsourcingContractDao.save(outsourcingContract);
             id = outsourcingContract.getId();
         } else {
