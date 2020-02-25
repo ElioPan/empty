@@ -151,6 +151,8 @@ public class MaterielApiController {
 
         params.put("materielId", materielId);
         params.put("batch", batch);
+        params.put("isPc",1);
+        // 获取实时库存
         List<Map<String, Object>> data = materielService.stockListForMap(params);
         int total = materielService.stockCountForMap(params);
         if (data.size() > 0) {
