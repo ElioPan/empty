@@ -213,6 +213,8 @@ public class StockApiController {
 
         param.put("materielId", materielId);
         param.put("batch", batch);
+        param.put("isPc",1);
+        // 获取实时库存
         List<Map<String, Object>> data = materielService.stockListForMap(param);
         ClassPathResource classPathResource = new ClassPathResource("poi/stock.xlsx");
         Map<String, Object> map = Maps.newHashMap();

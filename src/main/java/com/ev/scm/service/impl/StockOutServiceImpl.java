@@ -718,6 +718,7 @@ public class StockOutServiceImpl implements StockOutService {
                 params.put("batch",map.get("batch"));
                 params.put("locationId",map.get("locationId"));
                 params.put("facilityId",map.get("facId"));
+                params.put("isPC",1);
                 List<Map<String, Object>> stockListForMap = materielService.stockListForMap(params);
                 if (stockListForMap.size() > 0) {
                     map.put("availableCount",stockListForMap.get(0).get("availableCount"));

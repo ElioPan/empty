@@ -146,8 +146,10 @@ public class ProductionFeedingApiController {
 		DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.SCTLD.intValue());
 		String thisSourceTypeName = dictionaryDO.getName();
 
+		Map<String, Object> param = Maps.newHashMap();
+		param.put("isPc",1);
 		// 获取实时库存
-		List<Map<String, Object>> stockListForMap = materielService.stockListForMap(Maps.newHashMap());
+		List<Map<String, Object>> stockListForMap = materielService.stockListForMap(param);
 		int total = productionFeedingDetailService.countForMap(params);
 		if (data.size() > 0) {
 			// quoteCount  可领数量
