@@ -104,10 +104,10 @@ public class QrcodeApiController {
     @EvApiByToken(value = "/apis/scm/qrcode/inDetail",method = RequestMethod.GET,apiTitle = "获取入库时二维码信息")
     @ApiOperation("获取入库时二维码信息")
     public R inDetail(@ApiParam(value = "二维码主键") @RequestParam(value = "qrCodeId") Long qrCodeId,
-                      @ApiParam(value = "供应商主键") @RequestParam(value = "supplierId") Long supplierId,
+                      @ApiParam(value = "供应商主键") @RequestParam(value = "supplierId",required = false) Long supplierId,
                       @ApiParam(value = "入库类型 0：采购入库，1：生产入库，2：委外入库，3：其他入库") @RequestParam(value = "inType") Integer inType,
                       @ApiParam(value = "是否多单入库 1：是，0：否") @RequestParam(value = "isMultiple") Integer isMultiple,
-                      @ApiParam(value = "合同号") @RequestParam(value = "contractNo") String contractNo){
+                      @ApiParam(value = "合同号") @RequestParam(value = "contractNo",required = false) String contractNo){
         Map<String,Object> result = new HashMap<>();
         /**
          * 先验证是否二维码已经有入库信息
