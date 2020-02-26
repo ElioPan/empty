@@ -34,7 +34,10 @@
 	</select>
 
     <sql id="sql_column_list">
-		`id`,`cus_sup_id`,``sign`,`pr_type`,`pr_code`,`supplier_client_id`,`pr_amount`,`pr_date`,`payee`,`payer`,`audit_sign`,`auditor`,`audit_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+		`id`,`cus_sup_id`,`sign`,`pr_type`,`pr_code`,
+		`supplier_client_id`,`pr_amount`,`pr_date`,
+		`payee`,`payer`,`audit_sign`,`auditor`,`audit_time`,
+		`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 	</sql>
 
     <sql id="sql_condition">
