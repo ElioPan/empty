@@ -79,7 +79,7 @@
 		<include refid="sql_map_condition"/>
 	</select>
 
-    <insert id="save" parameterType="com.ev.mes.domain.ProductionFeedingDetailDO" useGeneratedKeys="true" keyProperty="id">
+	<insert id="save" parameterType="com.ev.mes.domain.ProductionFeedingDetailDO" useGeneratedKeys="true" keyProperty="id">
 		insert into mes_production_feeding_detail
 		(
 			`head_id`,
@@ -182,5 +182,62 @@
         </where>
 	</sql>
 
+	<select id="phoneListForMap" resultType="java.util.Map">
+		SELECT
+		detail.id AS id,
+		plan.`id` AS planId,
+		plan.plan_no AS planNo,
+		dept.dept_id AS deptId,
+		dept.name AS deptName,
+		feeding.`feeding_no` AS feedingNo,
+		detail.`materiel_id` AS materielId,
+		material.serial_no AS materialSerialNo,
+		material.name AS materialName,
+		material.specification AS specification,
+		unituom.id AS unitUomId,
+		unituom.name AS unitUomName,
+		detail.`batch_no` AS batchNo,
+		detail.`plan_feeding` AS planFeedingCount,
+		detail.`out_count` AS outCount,
+		detail.`scrap_count` AS scrapCount,
+		feeding.`id` AS feedingId
+		<include refid="sql_phone_map_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by detail.id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="phoneCountForMap" resultType="java.lang.Integer">
+		SELECT
+		COUNT(*)
+		<include refid="sql_phone_map_condition"/>
+
+	</select>
+
+	<sql id="sql_phone_map_condition">
+		FROM mes_production_feeding_detail detail
+		LEFT JOIN mes_production_feeding feeding ON feeding.id= detail.`head_id`
+		LEFT JOIN mes_production_plan plan ON feeding.production_plan_id= plan.`id`
+		LEFT JOIN sys_dept dept ON feeding.pro_dept= dept.`dept_id`
+		LEFT JOIN cus_materiel material ON material.`id` = detail.`materiel_id`
+		LEFT JOIN cus_dictionary unituom ON unituom.id = material.unit_uom
+		<where>
+			<if test="headId != null and headId != ''"> and detail.head_id = #{headId} </if>
+			<if test="planNo != null and planNo != ''"> and feeding.`feeding_no` LIKE CONCAT('%', #{planNo},'%' )</if>
+			<if test="auditSign != null and auditSign != ''"> and feeding.`status` = #{auditSign} </if>
+			<if test="materialsName != null and materialsName != ''"> and material.name LIKE CONCAT('%', #{materialsName},'%' )</if>
+			<if test="isPhone == 1"> and (detail.`plan_feeding` &gt; detail.`out_count` OR feeding.is_quota = 0) </if>
+			<if test="startTime != null and startTime != ''">  and  DATE_FORMAT(feeding.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(feeding.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		</where>
+	</sql>
 
 </mapper>

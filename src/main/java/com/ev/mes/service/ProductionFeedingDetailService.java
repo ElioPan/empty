@@ -40,4 +40,7 @@ public interface ProductionFeedingDetailService {
 
 	void removeByHeadId(Long id);
 
+	List<Map<String, Object>> phoneListForMap(Map<String, Object> params);
+
+	int phoneCountForMap(Map<String, Object> params);
 }

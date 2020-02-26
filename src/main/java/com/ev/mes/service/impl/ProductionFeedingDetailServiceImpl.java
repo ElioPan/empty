@@ -67,4 +67,14 @@ public class ProductionFeedingDetailServiceImpl implements ProductionFeedingDeta
 		productionFeedingDetailDao.removeByHeadId(id);
 	}
 
+	@Override
+	public List<Map<String, Object>> phoneListForMap(Map<String, Object> params) {
+		return productionFeedingDetailDao.phoneListForMap(params);
+	}
+
+	@Override
+	public int phoneCountForMap(Map<String, Object> params) {
+		return productionFeedingDetailDao.phoneCountForMap(params);
+	}
+
 }
