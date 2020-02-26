@@ -2,6 +2,7 @@ package com.ev.apis.controller.custom;
 
 import com.alibaba.fastjson.JSONObject;
 import com.ev.custom.service.NoticeService;
+import com.ev.custom.service.WeChatService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.config.Constant;
@@ -24,10 +25,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.*;
 
 @RestController
 @Api(value = "/", tags = "日报管理API")
@@ -44,6 +44,9 @@ public class DailyReportApiController {
 
     @Autowired
     private NoticeService noticeService;
+
+    @Autowired
+    private WeChatService weChatService;
 
     @EvApiByToken(value = "/apis/dailyReport/list", method = RequestMethod.POST, apiTitle = "获取日志列表信息")
     @ApiOperation("获取日志列表信息")
@@ -209,11 +212,14 @@ public class DailyReportApiController {
     @ApiOperation("回复日志")
     public R remove(@ApiParam(value = "日志ID", required = true, example = "1") @RequestParam(value = "dailyReportId", defaultValue = "") Long dailyReportId,
                     @ApiParam(value = "回复内容", required = true, example = "哈哈哈") @RequestParam(value = "comment", defaultValue = "") String
-                            comment) {
+                            comment) throws IOException, ParseException {
         dailyReportService.commentDailyReport(dailyReportId, comment);
         JSONObject contentDetail = new JSONObject();
         contentDetail.put("id",dailyReportId);
-        noticeService.saveAndSendSocket("日志回复信息",comment,contentDetail.toString(),282L,ShiroUtils.getUserId(),dailyReportService.get(dailyReportId).getId());
+
+        List<Long> toUsers = new ArrayList<>();
+        toUsers.add(dailyReportService.get(dailyReportId).getCreateBy());
+        noticeService.saveAndSendSocket("日志回复信息",comment,contentDetail.toString(),282L,ShiroUtils.getUserId(),toUsers);
         return R.ok();
     }
 

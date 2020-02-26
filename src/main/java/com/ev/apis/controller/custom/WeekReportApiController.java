@@ -24,10 +24,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.*;
 
 @RestController
 @Api(value = "/",tags = "周报管理API")
@@ -124,11 +123,13 @@ public class WeekReportApiController {
     @EvApiByToken(value = "/apis/weekReport/comment",method = RequestMethod.POST,apiTitle = "回复周报")
     @ApiOperation("回复周报")
     public R comment(@ApiParam(value = "周报ID",required = true, example = "1") @RequestParam(value="weekReportId",defaultValue = "") Long weekReportId,
-                     @ApiParam(value = "回复内容",required = true, example = "哈哈哈") @RequestParam(value="comment",defaultValue = "") String comment){
+                     @ApiParam(value = "回复内容",required = true, example = "哈哈哈") @RequestParam(value="comment",defaultValue = "") String comment) throws IOException, ParseException {
         weekReportService.commentWeekReport(weekReportId,comment);
         JSONObject contentDetail = new JSONObject();
         contentDetail.put("id",weekReportId);
-        noticeService.saveAndSendSocket("周报回复信息",comment,contentDetail.toString(),283L,ShiroUtils.getUserId(),weekReportService.get(weekReportId).getId());
+        List<Long> toUsers = new ArrayList<>();
+        toUsers.add(weekReportService.get(weekReportId).getCreateBy());
+        noticeService.saveAndSendSocket("周报回复信息",comment,contentDetail.toString(),283L,ShiroUtils.getUserId(),toUsers);
         return R.ok();
     }
 

@@ -188,18 +188,18 @@ public class StockInServiceImpl implements StockInService {
 	@Override
 	public R remoceOtherWaitAuite(Long inHeadId) {
 //        //判断是否能够删除：inhead表待审核状态10L 则允许删除
-//        PropurchaseInheadDO proheadDo = this.get(inHeadId);
-//        if (proheadDo != null) {
-//            if (Objects.equals(proheadDo.getAuditSign(),ConstantForGYL.WAIT_AUDIT) ) {    //10  待审核--->178L;
-//                //将主子数据做物理删除
-//            	propurchaseInheadDao.remove(inHeadId);
-//                SstockInItemService.removeByInHeadId(inHeadId);
-//
-//                return R.ok();
-//            } else {
-//                return R.everror("此单已审核不允许删除！！");
-//            }
-//        }
+////        PropurchaseInheadDO proheadDo = this.get(inHeadId);
+////        if (proheadDo != null) {
+////            if (Objects.equals(proheadDo.getAuditSign(),ConstantForGYL.WAIT_AUDIT) ) {    //10  待审核--->178L;
+////                //将主子数据做物理删除
+////            	propurchaseInheadDao.remove(inHeadId);
+////                SstockInItemService.removeByInHeadId(inHeadId);
+////
+////                return R.ok();
+////            } else {
+////                return R.everror("此单已审核不允许删除！！");
+////            }
+////        }
 		return R.error("此主键下数据不存在，请核对！");
 	}
 

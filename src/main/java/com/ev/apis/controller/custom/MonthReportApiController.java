@@ -23,10 +23,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.*;
 
 @RestController
 @Api(value = "/", tags = "月报管理")
@@ -121,11 +120,13 @@ public class MonthReportApiController {
     @EvApiByToken(value = "/apis/monthReport/comment", method = RequestMethod.POST, apiTitle = "回复月报")
     @ApiOperation("回复月报")
     public R remove(@ApiParam(value = "月报ID", required = true, example = "1") @RequestParam(value = "monthReportId", defaultValue = "") Long monthReportId,
-                    @ApiParam(value = "回复内容", required = true, example = "哈哈哈") @RequestParam(value = "comment", defaultValue = "") String comment) {
+                    @ApiParam(value = "回复内容", required = true, example = "哈哈哈") @RequestParam(value = "comment", defaultValue = "") String comment) throws IOException, ParseException {
         monthReportService.commentMonthReport(monthReportId, comment);
         JSONObject contentDetail = new JSONObject();
         contentDetail.put("id",monthReportId);
-        noticeService.saveAndSendSocket("月报回复信息",comment,contentDetail.toString(),284L,ShiroUtils.getUserId(),monthReportService.get(monthReportId).getId());
+        List<Long> toUsers = new ArrayList<>();
+        toUsers.add(monthReportService.get(monthReportId).getCreateBy());
+        noticeService.saveAndSendSocket("月报回复信息",comment,contentDetail.toString(),284L,ShiroUtils.getUserId(),toUsers);
         return R.ok();
     }
 

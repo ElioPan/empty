@@ -3,6 +3,8 @@ package com.ev.custom.service;
 import com.ev.custom.domain.NoticeDO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -33,5 +35,5 @@ public interface NoticeService {
 	
 	int batchRemove(Long[] ids);
 
-	void saveAndSendSocket(String title, String content,String contentDetail, Long type, Long fromUser, Long toUser);
+	void saveAndSendSocket(String title, String content,String contentDetail, Long type, Long fromUser, List<Long> toUsers) throws IOException, ParseException;
 }

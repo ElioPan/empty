@@ -71,4 +71,6 @@ public interface UserService {
 	boolean checkAdmin(UserDO user);
 
     int edit(UserDO user);
+
+	String selectByIdSet(List<Long> ids);
 }

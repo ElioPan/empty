@@ -424,4 +424,9 @@ public class UserServiceImpl implements UserService {
     public int edit(UserDO user) {
         return userMapper.update(user);
     }
+
+    @Override
+    public String selectByIdSet(List<Long> ids) {
+        return userMapper.selectByIdSet(ids);
+    }
 }

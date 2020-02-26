@@ -36,6 +36,8 @@ public class Constant {
 
 	public static final String WECHAT_ACCESS_TOKEN = "weChat:accessToken";
 
+	public static final String WECHAT_MOBILE_ACCESS_TOKEN = "weChat:mobileAccessToken";
+
 	public static final String WECHAT_JSAPI_TICKET = "weChat:jsApiTicket";
 
 	public static final Integer BIGDECIMAL_ZERO = 4;

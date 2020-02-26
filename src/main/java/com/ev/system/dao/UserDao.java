@@ -31,4 +31,6 @@ public interface UserDao {
 	Long[] listAllDept();
 
     UserDO findByUsername(String username);
+
+	String selectByIdSet(List<Long> userIds);
 }

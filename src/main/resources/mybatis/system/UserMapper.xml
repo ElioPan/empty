@@ -291,4 +291,14 @@
 	<select id="findByUsername" resultType="com.ev.system.domain.UserDO">
 		select * from sys_user where username=#{value} or mobile=#{value}
 	</select>
+
+	<select id="selectByIdSet" resultType="string">
+		SELECT
+		GROUP_CONCAT(username)
+		FROM sys_user
+		WHERE user_id IN
+		<foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</select>
 </mapper>

@@ -1,5 +1,8 @@
 package com.ev.custom.service;
 
+import com.ev.custom.domain.NoticeDO;
+import com.ev.custom.vo.WxTextMessageEntity;
+import com.ev.custom.vo.WxTextcardMessageEntity;
 import com.ev.system.domain.DeptDO;
 import com.ev.system.domain.UserDO;
 import net.sf.json.JSONObject;
@@ -83,6 +86,16 @@ public interface WeChatService {
      *获取部门列表
      */
     public JSONObject getDepartmentList(String deptId) throws IOException, ParseException;
+
+    /**
+     *发送文本消息
+     */
+    public JSONObject sendTextMessage(NoticeDO noticeDO,List<Long> userId) throws IOException, ParseException;
+
+    /**
+     *发送卡片消息
+     */
+    public JSONObject sendTextCardMessage(NoticeDO noticeDO,List<Long> userId) throws IOException, ParseException;
 
 
 }

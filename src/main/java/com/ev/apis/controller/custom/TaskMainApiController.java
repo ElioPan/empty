@@ -26,6 +26,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -273,7 +276,7 @@ public class TaskMainApiController {
     @EvApiByToken(value = "/apis/taskMain/replySave",method = RequestMethod.POST,apiTitle = "回复任务单")
     @ApiOperation("回复任务单")
     public R replySave(@ApiParam(value = "回复信息",required = true) TaskReplyDO taskReplyDO,
-                      @ApiParam(value = "抄送人") @RequestParam(value = "ccList",defaultValue = "",required = false) Long[] ccList){
+                      @ApiParam(value = "抄送人") @RequestParam(value = "ccList",defaultValue = "",required = false) Long[] ccList) throws IOException, ParseException {
     	TaskMainDO taskMainDO = taskMainService.get(taskReplyDO.getTaskid());
     	if (taskMainService.isAlreadyCheck(taskMainDO.getStatus())) {
 			return R.error("任务已验收不能回复");
@@ -282,7 +285,9 @@ public class TaskMainApiController {
 		int replySave = taskMainService.replySave(taskReplyDO, ccList);
     	JSONObject contentDetail = new JSONObject();
 		contentDetail.put("id",taskMainDO.getId());
-		noticeService.saveAndSendSocket("任务回复信息",taskReplyDO.getSolution(),contentDetail.toString(),281L,ShiroUtils.getUserId(),taskMainDO.getCreateBy());
+		List<Long> toUsers = new ArrayList<>();
+		toUsers.add(taskMainDO.getCreateBy());
+		noticeService.saveAndSendSocket("任务回复信息",taskReplyDO.getSolution(),contentDetail.toString(),281L,ShiroUtils.getUserId(),toUsers);
 		if (replySave > 0) {
 			return R.ok();
 		}

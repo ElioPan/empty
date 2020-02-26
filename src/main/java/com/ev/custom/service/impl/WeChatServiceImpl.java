@@ -1,8 +1,11 @@
 package com.ev.custom.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.ev.custom.domain.NoticeDO;
 import com.ev.custom.service.WeChatService;
 import com.ev.custom.vo.WxDeptEntity;
+import com.ev.custom.vo.WxTextMessageEntity;
+import com.ev.custom.vo.WxTextcardMessageEntity;
 import com.ev.custom.vo.WxUserEntity;
 import com.ev.framework.config.Constant;
 import com.ev.framework.utils.DateFormatUtil;
@@ -10,6 +13,7 @@ import com.ev.framework.utils.HttpClientUtils;
 import com.ev.framework.utils.WeChatUtil;
 import com.ev.system.domain.DeptDO;
 import com.ev.system.domain.UserDO;
+import com.ev.system.service.UserService;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +36,14 @@ public class WeChatServiceImpl implements WeChatService {
     @Value("${wechat.mobilesecret}")
     private String mobilesecret;
 
+    @Value("${wechat.corpsecret}")
+    private String corpsecret;
+
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private UserService userService;
     
     public static final String EXPIRE_DATE = "expireDate";
 
@@ -58,9 +68,27 @@ public class WeChatServiceImpl implements WeChatService {
     public static final String DELETE_DEPT_URI = "https://qyapi.weixin.qq.com/cgi-bin/department/delete?access_token=ACCESS_TOKEN&id=ID";
 
     public static final String LIST_DEPT_URI = "https://qyapi.weixin.qq.com/cgi-bin/department/list?access_token=ACCESS_TOKEN&id=ID";
+
+    public static final String SEND_MESSAGE = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=ACCESS_TOKEN";
+
     @Override
     public String getMobileAccessToken(Date now) throws IOException, ParseException {
-        return getAccessToken(corpid,mobilesecret,now).optString("access_token");
+        JSONObject jsAccessToken = JSONObject.fromObject(redisTemplate.opsForValue().get(Constant.WECHAT_ACCESS_TOKEN));
+        /**
+         * 首先校验mobileAccessToken是否过期
+         */
+        if(jsAccessToken.size()==0){
+            jsAccessToken = WeChatUtil.getAccessToken(corpid,mobilesecret);
+            jsAccessToken.put(EXPIRE_DATE, com.ev.framework.utils.DateUtils.format(DateUtils.addSeconds(now,4800),DateFormatUtil.DATE_PATTERN));
+            redisTemplate.opsForValue().set(Constant.WECHAT_MOBILE_ACCESS_TOKEN,jsAccessToken.toString());
+        }else{
+            if(DateUtils.parseDate(jsAccessToken.get(EXPIRE_DATE).toString(), DateFormatUtil.DATE_PATTERN).compareTo(now)<0){
+                jsAccessToken = WeChatUtil.getAccessToken(corpid,mobilesecret);
+                jsAccessToken.put(EXPIRE_DATE, com.ev.framework.utils.DateUtils.format(DateUtils.addSeconds(now,4800),DateFormatUtil.DATE_PATTERN));
+                redisTemplate.opsForValue().set(Constant.WECHAT_MOBILE_ACCESS_TOKEN,jsAccessToken.toString());
+            }
+        }
+        return jsAccessToken.optString("access_token");
     }
 
     @Override
@@ -257,6 +285,49 @@ public class WeChatServiceImpl implements WeChatService {
         String accessToken = getMobileAccessToken(new Date());
         String url = LIST_DEPT_URI.replace("ACCESS_TOKEN", accessToken).replace("ID",deptId);
         String json = HttpClientUtils.doGet(url,null);
+        return JSONObject.fromObject(json);
+    }
+
+    @Override
+    public JSONObject sendTextMessage(NoticeDO noticeDO,List<Long> userId) throws IOException, ParseException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("touser",userId);
+        jsonObject.put("msgtype","text");
+        jsonObject.put("agentid",1);
+        JSONObject contentObject = new JSONObject();
+        contentObject.put("content",noticeDO.getContent());
+        jsonObject.put("text",contentObject);
+        jsonObject.put("safe",0);
+        jsonObject.put("enable_id_trans",0);
+        jsonObject.put("enable_duplicate_check",0);
+        String accessToken = getAccessToken(corpid,corpsecret,new Date()).optString("access_token");
+        String url = SEND_MESSAGE.replace("ACCESS_TOKEN", accessToken);
+        String json = HttpClientUtils.sendJsonStr(url,JSON.toJSONString(jsonObject));
+        return JSONObject.fromObject(json);
+    }
+
+    @Override
+    public JSONObject sendTextCardMessage(NoticeDO noticeDO,List<Long> userId) throws IOException, ParseException {
+        String userIds = userService.selectByIdSet(userId);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("touser",userIds);
+        jsonObject.put("msgtype","news");
+        jsonObject.put("agentid",1);
+        /**
+         * 卡片内容封装
+         */
+        JSONObject textcardObject = new JSONObject();
+        textcardObject.put("title",noticeDO.getTitle());
+        textcardObject.put("description",noticeDO.getContent());
+        textcardObject.put("url","");
+        textcardObject.put("btntxt","查看详情");
+        jsonObject.put("textcard",textcardObject);
+        jsonObject.put("safe",0);
+        jsonObject.put("enable_id_trans",0);
+        jsonObject.put("enable_duplicate_check",0);
+        String accessToken = getAccessToken(corpid,corpsecret,new Date()).optString("access_token");
+        String url = SEND_MESSAGE.replace("ACCESS_TOKEN", accessToken);
+        String json = HttpClientUtils.sendJsonStr(url,JSON.toJSONString(jsonObject));
         return JSONObject.fromObject(json);
     }
 
