@@ -37,6 +37,5 @@ public interface PaymentReceivedItemDao {
 
 	int whetherTheReference(Map<String, Object> map);
 
-	List<PaymentReceivedItemDO> listOfBySign(Map<String, Object> map);
 
 }

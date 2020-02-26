@@ -179,7 +179,9 @@
 		`update_time`,
 		`del_flag`
 		)
+		values
 		<foreach collection="list" item="obj" separator=",">
+			(
 			#{obj.stockId},
 			#{obj.inheadId},
 			#{obj.inbodyId},
@@ -193,6 +195,7 @@
 			#{obj.updateBy},
 			#{obj.updateTime},
 			#{obj.delFlag}
+			)
 		</foreach>
 	</insert>
 

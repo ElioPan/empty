@@ -162,9 +162,11 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 			Map<String,Object>  map= new HashMap<>();
 			map.put("paymentReceivedId",id);
 			map.put("sign",sign);
-			List<PaymentReceivedItemDO> list = paymentReceivedItemService.listOfBySign(map);
+
+			List<PaymentReceivedItemDO> list = paymentReceivedItemService.list(map);
 			Map<String,Object>  query= new HashMap<>();
 			Long[] payItemId=new Long[list.size()];
+
 			for (int i=0;i<list.size();i++){
 				PaymentReceivedItemDO  paymentReceivedItemDO=list.get(i);
 				Long sourcePayItemId = paymentReceivedItemDO.getSourcePayItemId();
@@ -297,7 +299,7 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 		Map<String,Object>  map= new HashMap<>();
 		map.put("paymentReceivedId",id);
 		map.put("sign",sign);
-		List<PaymentReceivedItemDO> list = paymentReceivedItemService.listOfBySign(map);
+		List<PaymentReceivedItemDO> list = paymentReceivedItemService.list(map);
 		Map<String,Object>  query= new HashMap<>();
 		Long[] payItemId=new Long[list.size()];
 		for (int i=0;i<list.size();i++){

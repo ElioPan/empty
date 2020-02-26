@@ -484,7 +484,7 @@
 
 	<!-- 批量保存库存明细 -->
 	<insert id="batchSave" parameterType="List" useGeneratedKeys="true" keyProperty="id">
-		insert into scm_stock
+		insert into scm_stock_in_item
 		(
 		`inhead_id`,
 		`materiel_id`,

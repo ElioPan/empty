@@ -36,7 +36,7 @@ public interface PaymentReceivedItemService {
 
 	Boolean whetherTheReference(String sign,Long id,Long[] payItemId);
 
-	List<PaymentReceivedItemDO> listOfBySign(Map<String, Object> map);
+
 
 
 

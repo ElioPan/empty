@@ -83,11 +83,4 @@ public class PaymentReceivedItemServiceImpl implements PaymentReceivedItemServic
 			return false;
 		}
 	}
-
-	@Override
-	public List<PaymentReceivedItemDO> listOfBySign(Map<String, Object> map) {
-		return paymentReceivedItemDao.listOfBySign(map);
-	}
-
-
 }

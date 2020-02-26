@@ -36,7 +36,7 @@ public class PaymentReceivedDO implements Serializable {
     @ApiModelProperty(value = "收付款单号")
 	private String prCode;
 	//客户/供应商
-    @ApiModelProperty(value = "客户/供应商")
+    @ApiModelProperty(value = "客户/供应商",hidden = true)
 	private Long supplierClientId;
 	//申请人
     @ApiModelProperty(value = "申请人")

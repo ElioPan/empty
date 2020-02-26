@@ -335,7 +335,6 @@
 		a.audit_time as auditTime
 		FROM
 		scm_payment_received a
-		LEFT JOIN scm_payment_received_item b on a.id=b.payment_received_id
 		LEFT JOIN cus_client c on a.cus_sup_id=c.id
 		LEFT JOIN cus_supplier d on a.cus_sup_id=d.id
 		LEFT JOIN cus_dictionary e on a.pr_type=e.id

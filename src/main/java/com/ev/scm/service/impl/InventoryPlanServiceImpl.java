@@ -483,13 +483,18 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 					Map<String, Object> masp = (Map<String, Object>) jsonMap;
 					String qrMw = masp.get("materielId").toString() + "-" + masp.get("warehouse").toString() + "-" + masp.get("warehLocation").toString();
 					String qrBatch = masp.get("batch").toString();
-					BigDecimal checkCount = new BigDecimal(masp.get("checkCount").toString());
+					BigDecimal qrCheckCount = new BigDecimal(masp.get("checkCount").toString());
 //					Long qrId =Long.valueOf(masp.get("qrId").toString());
 					String qrId=masp.get("qrId").toString();
-					for (InventoryPlanItemDO itemDos : planItemDos) {
-						String itemMw = itemDos.getMaterielId().toString() + "-" + itemDos.getWarehouse().toString() + "+" + itemDos.getWarehLocation().toString();
-						String itemBatch = itemDos.getBatch().toString();
-						String qrIdCount = itemDos.getQrIdCount();
+
+					for (int i=0;i<planItemDos.size();i++) {
+						String itemMw = planItemDos.get(i).getMaterielId().toString() + "-" + planItemDos.get(i).getWarehouse().toString() + "+" + planItemDos.get(i).getWarehLocation().toString();
+						String itemBatch = planItemDos.get(i).getBatch().toString();
+
+						String qrIdCount = planItemDos.get(i).getQrIdCount();
+						BigDecimal systemCount = planItemDos.get(i).getSystemCount();
+						BigDecimal checkCount = planItemDos.get(i).getCheckCount();
+						BigDecimal profitLoss = planItemDos.get(i).getProfitLoss();
 
 						if (Objects.equals(qrMw, itemMw) && Objects.equals(qrBatch, itemBatch)) {
 
@@ -497,12 +502,18 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 								JSONArray jsonArras = JSON.parseArray(qrIdCount);
 								Map<String, Object> qrIdCountMap = (Map<String, Object>)jsonArras.get(0);
 								if(qrIdCountMap.containsKey("qrId")){
+									//更改数量  先减后加
+									BigDecimal newCheckCount =checkCount.subtract(new BigDecimal(qrIdCountMap.get("qrId").toString())).add(qrCheckCount);
+									planItemDos.get(i).setCheckCount(newCheckCount);
+									planItemDos.get(i).setProfitLoss(systemCount.multiply(newCheckCount));
+//									planItemDos.get(i).setQrIdCount(qrIdCountMap.put("qrId",qrCheckCount));
+
+								}else{
+									//直接添加盘点数量和，并将二维码的id和数量放进qrIdCount
 
 								}
 
 							}
-
-
 
 						} else {
 
