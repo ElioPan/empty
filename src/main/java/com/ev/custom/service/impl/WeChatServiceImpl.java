@@ -293,7 +293,7 @@ public class WeChatServiceImpl implements WeChatService {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("touser",userId);
         jsonObject.put("msgtype","text");
-        jsonObject.put("agentid",1);
+        jsonObject.put("agentid",1000006);
         JSONObject contentObject = new JSONObject();
         contentObject.put("content",noticeDO.getContent());
         jsonObject.put("text",contentObject);
@@ -311,15 +311,15 @@ public class WeChatServiceImpl implements WeChatService {
         String userIds = userService.selectByIdSet(userId);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("touser",userIds);
-        jsonObject.put("msgtype","news");
-        jsonObject.put("agentid",1);
+        jsonObject.put("msgtype","textcard");
+        jsonObject.put("agentid",1000006);
         /**
          * 卡片内容封装
          */
         JSONObject textcardObject = new JSONObject();
         textcardObject.put("title",noticeDO.getTitle());
         textcardObject.put("description",noticeDO.getContent());
-        textcardObject.put("url","");
+        textcardObject.put("url","www.baidu.com");
         textcardObject.put("btntxt","查看详情");
         jsonObject.put("textcard",textcardObject);
         jsonObject.put("safe",0);
