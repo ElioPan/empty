@@ -91,6 +91,7 @@ public class SalescontractServiceImpl implements SalescontractService {
         // 保存销售合同收款条件
         List<SalescontractPayDO> pay = JSON.parseArray(bodyPay, SalescontractPayDO.class);
         for (SalescontractPayDO payData : pay) {
+            payData.setUnpayAmount(payData.getReceivableAmount());
             // 新增
             if (payData.getId() == null) {
                 payData.setSalescontractId(id);
@@ -290,6 +291,11 @@ public class SalescontractServiceImpl implements SalescontractService {
                             payVO.setReceivableAmountBefore(receivableAmountBefore.toPlainString());
                             if (receivableAmountAfter.compareTo(receivableAmountBefore) != 0) {
                                 payVO.setReceivableAmountAfter(receivableAmountAfter.toPlainString());
+                                // 差额
+                                BigDecimal difference = receivableAmountAfter.subtract(receivableAmountBefore);
+                                // 修改未付金额
+                                afterPayDO.setUnpayAmount(afterPayDO.getUnpayAmount().add(difference));
+
                                 if (!isUpdate){
                                     isUpdate = true;
                                     payVO.setType("修改");
