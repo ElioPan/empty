@@ -298,7 +298,7 @@ public class ScmPurchaseContractApiController {
 
 
 
-    @EvApiByToken(value = "/apis/scm/purchaseContractPay/contractPayList",method = RequestMethod.GET,apiTitle = "付款列表—采购合同付款")
+    @EvApiByToken(value = "/apis/scm/purchaseContractPay/contractPayList",method = RequestMethod.POST,apiTitle = "付款列表—采购合同付款")
     @ApiOperation("付款列表—采购合同付款")
     public R contractOfList(
             @ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
