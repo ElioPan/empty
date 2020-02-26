@@ -48,7 +48,11 @@
 		uom.id as uomId,
 		uom.`name` as uomName,
 		supplier.id as supplierId,
-		supplier.`name` as supplierName
+		supplier.`name` as supplierName,
+		facility.id as facilityId,
+		facility.`name` as facilityName,
+		location.id as facilityLocationId,
+		location.`name` as facilityLocationName
 		FROM
 		scm_qrcode qrcode
 		LEFT JOIN scm_stock stock on stock.id = qrcode.stock_id
@@ -56,6 +60,8 @@
 		LEFT JOIN cus_dictionary uom on uom.id = materiel.unit_uom
 		LEFT JOIN mes_material_inspection inspection on inspection.id = qrcode.inspection_id
 		LEFT JOIN cus_supplier supplier on supplier.id = inspection.supplier_id
+		LEFT JOIN cus_facility facility on facility.id = stock.warehouse
+		LEFT JOIN cus_facility_location location on location.id = stock.wareh_location
 		<include refid="sql_condition_map"/>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -78,6 +84,8 @@
 		LEFT JOIN cus_dictionary uom on uom.id = materiel.unit_uom
 		LEFT JOIN mes_material_inspection inspection on inspection.id = qrcode.inspection_id
 		LEFT JOIN cus_supplier supplier on supplier.id = inspection.supplier_id
+		LEFT JOIN cus_facility facility on facility.id = stock.warehouse
+		LEFT JOIN cus_facility_location location on location.id = stock.wareh_location
 		<include refid="sql_condition_map"/>
 	</select>
 
