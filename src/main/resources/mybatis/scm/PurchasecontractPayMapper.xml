@@ -163,6 +163,7 @@
 		b.supplier_id as supplierId,
 		c.name as supplierName,
 		b.create_time as createTime,
+		b.audit_sign AS auditSign,
 		a.id as payId,
 		a.due_date as  dueDate,
 		a.pay_amount  as payAmount,
@@ -177,15 +178,15 @@
 			<if test="supplierName != null and supplierName != ''"> and c.name LIKE CONCAT('%',#{supplierName},'%') </if>
 			<if test="createStartTime != null and createStartTime!= ''"> and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
 			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
-			<if test="closeStatus != null and closeStatus != ''"> and b.close_status =#{closeStatus}= </if>
-			<if test="auditSign != null and auditSign != ''"> and b.audit_sign =#{auditSign}= </if>
+			<if test="closeStatus != null and closeStatus != ''"> and b.close_status =#{closeStatus} </if>
+			<if test="auditSign != null and auditSign != ''"> and b.audit_sign =#{auditSign} </if>
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
 				order by ${sort} ${order}
 			</when>
 			<otherwise>
-				order by id desc
+				order by b.id desc
 			</otherwise>
 		</choose>
 		<if test="offset != null and limit != null">
@@ -207,6 +208,8 @@
 		b.supplier_id as supplierId,
 		c.name as supplierName,
 		b.create_time as createTime,
+		b.close_status as closeStatus,
+		b.audit_sign AS auditSign,
 		a.id as payId,
 		a.due_date as  dueDate,
 		a.pay_amount ,
@@ -219,11 +222,11 @@
 		LEFT JOIN cus_supplier c on b.supplier_id=c.id
 		)aa
 		<where>
-			<if test="supplierName != null and supplierName != ''"> and c.name LIKE CONCAT('%',#{supplierName},'%') </if>
-			<if test="createStartTime != null and createStartTime!= ''"> and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
-			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
-			<if test="closeStatus != null and closeStatus != ''"> and b.close_status =#{closeStatus}= </if>
-			<if test="auditSign != null and auditSign != ''"> and b.audit_sign =#{auditSign}= </if>
+			<if test="supplierName != null and supplierName != ''"> and supplierName LIKE CONCAT('%',#{supplierName},'%') </if>
+			<if test="createStartTime != null and createStartTime!= ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
+			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
+			<if test="closeStatus != null and closeStatus != ''"> and closeStatus =#{closeStatus}=</if>
+			<if test="auditSign != null and auditSign != ''"> and auditSign =#{auditSign} </if>
 		</where>
 	</select>
 
