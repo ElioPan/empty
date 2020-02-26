@@ -170,7 +170,7 @@ public class QrcodeServiceImpl implements QrcodeService {
 		    Long qrCodeId = stockOutItemDO.getQrcodeId();
             QrcodeDO qrcodeDO = qrcodeDao.get(qrCodeId);
 			for(StockOutItemDO stockOutItemDOSaved : stockOutItems){
-                if(Arrays.asList(stockOutItemDOSaved.getStockId().split(",")).contains(qrcodeDO.getStockId())){
+                if(Arrays.asList(stockOutItemDOSaved.getStockId().split(",")).contains(qrcodeDO.getStockId().toString())){
                     qrcodeDO.setRemainCount(qrcodeDO.getRemainCount().subtract(stockOutItemDO.getCount()));
                     qrcodeDOList.add(qrcodeDO);
                     QrcodeItemDO qrcodeItemDO = new QrcodeItemDO(qrCodeId, stockOutDO.getOutboundType(), stockOutItemDOSaved.getOutId(), stockOutItemDOSaved.getId(), stockOutItemDO.getCount());
