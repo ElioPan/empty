@@ -169,17 +169,16 @@
 
 			SELECT
 			b.id,
-			IF(a.sign='SK',d.receivable_date,c.due_date) as accrualDate,
+			IF(a.sign='SK',d.receivable_date,c.due_date) as dueDate,
 			IF(a.sign='SK',d.receivable_amount,c.pay_amount) as receivablePayablesAmount,
-			IF(a.sign='SK',d.received_amount,c.amount_paid) as paid_receivedAmount,
+			IF(a.sign='SK',d.received_amount,c.amount_paid) as paidReceivedAmount,
 			b.this_amount as thisAmount,
 			IF(a.sign='SK',d.unpay_amount,c.unpay_amount) as noReceiptPaymentAmount,
 			b.accrual_date as accrualDate,
+		<!--	b.no_receipt_payment_amount as noReceiptPaymentAmount,
 			b.receivable_payables_amount as receivablePayablesAmount,
 			b.paid_received_amount as paid_receivedAmount,
-			b.this_amount as thisAmount,
-			b.no_receipt_payment_amount as noReceiptPaymentAmount,
-
+-->
 			b.statement_number as statementNumber,
 			b.account_number as accountNumber,
 			j.name as accountNumberName,
@@ -211,38 +210,35 @@
 		from
 		(
 		SELECT
-					b.id,
-					b.payment_received_id AS paymentReceivedId,
-					IF(a.sign='SK',d.receivable_date,c.due_date) as accrualDate,
-					IF(a.sign='SK',d.receivable_amount,c.pay_amount) as receivablePayablesAmount,
-					IF(a.sign='SK',d.received_amount,c.amount_paid) as paidReceivedAmount,
-					b.this_amount as thisAmount,
-					IF(a.sign='SK',d.unpay_amount,c.unpay_amount) as noReceiptPaymentAmount,
-					b.accrual_date as accrualDate,
-					b.receivable_payables_amount as receivablePayablesAmount,
-					b.paid_received_amount as paid_receivedAmount,
-					b.this_amount as thisAmount,
-					b.no_receipt_payment_amount as noReceiptPaymentAmount,
-
-					b.statement_number as statementNumber,
-					b.account_number as accountNumber,
-					j.name as accountNumberName,
-					b.settlement_type as settlementType,
-					k.name as settlementTypeName,
-					b.remarks,
-					b.source_type as  sourceType,
-					m.name as sourceTypeName,
-					b.source_code as sourceCode,
-					b.source_id as sourceId
-					from
-					scm_payment_received_item  b
-					LEFT JOIN scm_purchasecontract_pay c on b.source_pay_item_id=c.id
-					LEFT JOIN scm_salescontract_pay d on b.source_pay_item_id=d.id
-					LEFT JOIN cus_dictionary j on b.account_number=j.id
-					LEFT JOIN cus_dictionary k on b.settlement_type=k.id
-					LEFT JOIN cus_dictionary m on b.source_type=m.id
-					LEFT JOIN scm_payment_received  a on  a.id =b.payment_received_id
-					WHERE
+		b.id,
+		b.payment_received_id as paymentReceivedId,
+		IF(a.sign='SK',d.receivable_date,c.due_date) as dueDate,
+		IF(a.sign='SK',d.receivable_amount,c.pay_amount) as receivablePayablesAmount,
+		IF(a.sign='SK',d.received_amount,c.amount_paid) as paidReceivedAmount,
+		b.this_amount as thisAmount,
+		IF(a.sign='SK',d.unpay_amount,c.unpay_amount) as noReceiptPaymentAmount,
+		b.accrual_date as accrualDate,
+		<!--	b.no_receipt_payment_amount as noReceiptPaymentAmount,
+			b.receivable_payables_amount as receivablePayablesAmount,
+			b.paid_received_amount as paid_receivedAmount,-->
+		b.statement_number as statementNumber,
+		b.account_number as accountNumber,
+		j.name as accountNumberName,
+		b.settlement_type as settlementType,
+		k.name as settlementTypeName,
+		b.remarks,
+		b.source_type as  sourceType,
+		m.name as sourceTypeName,
+		b.source_code as sourceCode,
+		b.source_id as sourceId
+		from
+		scm_payment_received_item  b
+		LEFT JOIN scm_purchasecontract_pay c on b.source_pay_item_id=c.id
+		LEFT JOIN scm_salescontract_pay d on b.source_pay_item_id=d.id
+		LEFT JOIN cus_dictionary j on b.account_number=j.id
+		LEFT JOIN cus_dictionary k on b.settlement_type=k.id
+		LEFT JOIN cus_dictionary m on b.source_type=m.id
+		LEFT JOIN scm_payment_received  a on  a.id =b.payment_received_id
 		)aa
 		WHERE
 		paymentReceivedId=#{id}
