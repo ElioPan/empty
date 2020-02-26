@@ -453,9 +453,6 @@ public class StockInServiceImpl implements StockInService {
 
 	public void diposeQrInStock(List<StockInItemDO> inbodyCdos, StockInDO stockInDO, Long storageType) {
 
-		List<StockInItemDO> newInbodyCdos = new ArrayList<>();
-		List<StockInItemDO> otherInbodyCdos = new ArrayList<>();
-
 		Map<String,Object>  map= new HashMap<>();
 		for(StockInItemDO itemDO:inbodyCdos){
 			String comparisonSign=itemDO.getMaterielId().toString()+"-"+itemDO.getBatch().toString()+"-"+itemDO.getWarehouse().toString()+"-"+itemDO.getWarehLocation().toString();
@@ -475,90 +472,44 @@ public class StockInServiceImpl implements StockInService {
 				stockDo.setWarehLocation(stockInItemDo.getWarehLocation());
 				stockDo.setSourceCompany(stockInDO.getSourceCompany()==null?stockInDO.getClientId():stockInDO.getSourceCompany());
 				stockDo.setEnteringTime(new Date());
-
+			BigDecimal inCount = BigDecimal.ZERO;
 			Long inheadId=stockInDO.getId();
-			for (StockInItemDO stockInItemDO:inbodyCdos) {
+			for (StockInItemDO stockInItemDO : inbodyCdos) {
 				//比对条件
-				String itemSign = stockInItemDO.getMaterielId().toString() + "-" + stockInItemDO.getBatch().toString()+"-"+stockInItemDO.getWarehouse().toString()+"-"+stockInItemDO.getWarehLocation().toString();
-				BigDecimal inCount = BigDecimal.ZERO;
-
-				if(Objects.equals(ss,itemSign)){
-
+				String itemSign = stockInItemDO.getMaterielId().toString() + "-" + stockInItemDO.getBatch().toString() + "-" + stockInItemDO.getWarehouse().toString() + "-" + stockInItemDO.getWarehLocation().toString();
+				if (Objects.equals(ss, itemSign)) {
+					inCount = inCount.add(stockInItemDO.getCount());
 				}
 
-				}
+				stockInItemDO.setInheadId(inheadId);
+				if (Objects.equals(storageType, ConstantForGYL.PURCHASE_INSTOCK)) {stockInItemDO.setExpense(BigDecimal.ZERO);}
+				if (Objects.equals(storageType, ConstantForGYL.OUTSOURCING_INSTOCK)) {stockInItemDO.setMaterialIdCount("0");}
 			}
+			if(!Objects.equals(0,inCount.compareTo(BigDecimal.ZERO))){
+				stockDo.setCount(inCount);
+				stockDo.setAvailableCount(inCount);
+			}
+			stockDos.add(stockDo);
+		}
+		stockService.batchSave(stockDos);
 
+		List<StockItemDO> stockItemDos=new ArrayList<>();
+		for(StockDO stockDO1:stockDos){
+			StockItemDO stockItemDO=new StockItemDO();
+			stockItemDO.setStockId(stockDO1.getId());
+			stockItemDO.setInheadId(stockInDO.getId());
+			stockItemDO.setUnitPrice(stockDO1.getUnitPrice());
+			stockItemDO.setCount(stockDO1.getCount());
+			stockItemDO.setSourceType(storageType);
+			stockItemDos.add(stockItemDO);
+		}
+		stockItemService.batchSave(stockItemDos);
 
+		stockInItemService.batchSave(inbodyCdos);
 
-
+		qrcodeService.saveInQrCode(stockDos,inbodyCdos);
 
 		}
-
-
-//		List <StockDO>  stockDos=new ArrayList<>();
-//		Long inheadId=stockInDO.getId();
-//		for (StockInItemDO outStockInItemDo:inbodyCdos) {
-//			//比对条件
-//			String outSmaterialBatch=outStockInItemDo.getMaterielId().toString()+"-"+outStockInItemDo.getBatch().toString();
-//			Long location=outStockInItemDo.getWarehLocation();
-//			BigDecimal stockInCounts=BigDecimal.ZERO;
-//
-//			StockDO stockDo=new StockDO();
-//				stockDo.setMaterielId(outStockInItemDo.getMaterielId());
-//				stockDo.setBatch(outStockInItemDo.getBatch());
-//				stockDo.setWarehouse(outStockInItemDo.getWarehouse());
-//				stockDo.setWarehLocation(outStockInItemDo.getWarehLocation());
-//				stockDo.setSourceCompany(stockInDO.getSourceCompany()==null?stockInDO.getClientId():stockInDO.getSourceCompany());
-//				stockDo.setUnitPrice(outStockInItemDo.getUnitPrice());
-//				stockDo.setAmount(outStockInItemDo.getAmount());
-//				stockDo.setEnteringTime(new Date());
-//
-//			for (StockInItemDO innerSockInItemDo:otherInbodyCdos) {
-//				for (int i=0;i<otherInbodyCdos.size();i++) {
-//				String innerMaterialBatch=innerSockInItemDo.getMaterielId().toString()+"-"+innerSockInItemDo.getBatch().toString();
-//				if(Objects.equals(outSmaterialBatch,innerMaterialBatch)&&Objects.equals(location,innerSockInItemDo.getWarehLocation())){
-//					stockInCounts=stockInCounts.add(innerSockInItemDo.getCount());
-//					otherInbodyCdos.remove(innerSockInItemDo);
-//				}
-//				innerSockInItemDo.setInheadId(inheadId);
-//				if (Objects.equals(storageType, ConstantForGYL.PURCHASE_INSTOCK)) {innerSockInItemDo.setExpense(BigDecimal.ZERO);}
-//				if (Objects.equals(storageType, ConstantForGYL.OUTSOURCING_INSTOCK)) {innerSockInItemDo.setMaterialIdCount("0");}
-//				newInbodyCdos.add(innerSockInItemDo);
-//				continue;
-////				String innerMaterialBatch=innerSockInItemDo.getMaterielId().toString()+"-"+innerSockInItemDo.getBatch().toString();
-////				if(Objects.equals(outSmaterialBatch,innerMaterialBatch)&&Objects.equals(location,innerSockInItemDo.getWarehLocation())){
-////					stockInCounts=stockInCounts.add(innerSockInItemDo.getCount());
-////					otherInbodyCdos.remove(innerSockInItemDo);
-////				}
-//			}
-//
-//			if(!Objects.equals(0,stockInCounts.compareTo(BigDecimal.ZERO))){
-//				stockDo.setCount(stockInCounts);
-//				stockDo.setAvailableCount(stockInCounts);
-//
-//				stockDos.add(stockDo);
-//			}
-//		}
-//		stockService.batchSave(stockDos);
-//
-//		List<StockItemDO> stockItemDos=new ArrayList<>();
-//		for(StockDO stockDO1:stockDos){
-//			StockItemDO stockItemDO=new StockItemDO();
-//			stockItemDO.setStockId(stockDO1.getId());
-//			stockItemDO.setInheadId(stockInDO.getId());
-//			stockItemDO.setUnitPrice(stockDO1.getUnitPrice());
-//			stockItemDO.setCount(stockDO1.getCount());
-//			stockItemDO.setSourceType(storageType);
-//			stockItemDos.add(stockItemDO);
-//		}
-//		stockItemService.batchSave(stockItemDos);
-//
-//		stockInItemService.batchSave(newInbodyCdos);
-//
-//		qrcodeService.saveInQrCode(stockDos,newInbodyCdos);
-
-
 
 	private String purchaseContractCode(String constant) {
 		String maxNo = DateFormatUtil.getWorkOrderno(constant);
