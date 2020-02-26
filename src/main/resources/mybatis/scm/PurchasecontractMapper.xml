@@ -253,7 +253,11 @@
 				m.name as sourceTypeName,
 				a.create_by as createBy,
 				n.name as createByName,
-				a.create_time as createTime
+				a.create_time as createTime,
+				a.buyer,
+				q.name as buyerName,
+				a.dept_id as deptId,
+				w.name as deptName
 			FROM
 			scm_purchasecontract  a
 			LEFT JOIN   cus_supplier  b on  a.supplier_id=b.id
@@ -264,6 +268,8 @@
 			LEFT JOIN cus_dictionary k ON k.id = j.unit_uom
 			LEFT JOIN cus_dictionary m ON m.id = i.source_type
 			Left JOIN sys_user n on  a.create_by = n.user_id
+			Left JOIN sys_user q on  a.buyer = q.user_id
+			Left JOIN sys_dept w on  a.dept_id = w.dept_id
 		) aa
 		<where>
 			<if test="maxNo != null and maxNo != ''"> and LEFT(contract_code,12) = #{maxNo} </if>
@@ -340,7 +346,11 @@
 		m.name as sourceTypeName,
 		a.create_by as createBy,
 		n.name as createByName,
-		a.create_time as createTime
+		a.create_time as createTime,
+		a.buyer,
+		q.name as buyerName,
+		a.dept_id as deptId,
+		w.name as deptName
 		FROM
 		scm_purchasecontract  a
 		LEFT JOIN   cus_supplier  b on  a.supplier_id=b.id
@@ -351,6 +361,8 @@
 		LEFT JOIN cus_dictionary k ON k.id = j.unit_uom
 		LEFT JOIN cus_dictionary m ON m.id = i.source_type
 		Left JOIN sys_user n on  a.create_by = n.user_id
+		Left JOIN sys_user q on  a.buyer = q.user_id
+		Left JOIN sys_dept w on  a.dept_id = w.dept_id
 		) aa
 		<where>
 			<if test="maxNo != null and maxNo != ''"> and LEFT(contract_code,12) = #{maxNo} </if>

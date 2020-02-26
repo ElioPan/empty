@@ -170,7 +170,10 @@
         dics.`name` AS sourceTypeName,
         item.source_code AS sourceCode,
         outsourcing.`contract_code` AS code,
-        outsourcing.`create_time` AS createTime
+        outsourcing.`create_time` AS createTime,
+        outsourcing.purchase_person AS purchasePerson,
+        purchaseUser.`name` AS purchasePersonName
+
         <include refid="sql_map_condition"/>
         <choose>
             <when test="sort != null and sort.trim() != ''">
@@ -206,6 +209,7 @@
         LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
         LEFT JOIN cus_dictionary dica ON dica.id = outsourcing.audit_sign
         LEFT JOIN cus_dictionary dics ON dics.`id` = item.`source_type`
+        LEFT JOIN sys_user purchaseUser ON purchaseUser.user_id = outsourcing.purchase_person
         <where>
             <if test="id != null and id != ''"> and item.id = #{id} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(outsourcing.contract_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>

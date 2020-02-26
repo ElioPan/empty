@@ -1,11 +1,13 @@
 package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.beust.jcommander.internal.Maps;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
+import com.ev.framework.utils.StringUtils;
 import com.ev.scm.dao.InventoryPlanDao;
 import com.ev.scm.dao.InventoryPlanFitlossDao;
 import com.ev.scm.domain.InventoryPlanDO;
@@ -90,6 +92,58 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 		return inventoryPlanDao.countOfStatus(map);
 	}
 
+
+	@Override
+	public R disposeCheckByQrId(Long planId,String  qrMsg, Long qrId){
+		List<InventoryPlanItemDO> planItemDO = JSON.parseArray(qrMsg, InventoryPlanItemDO.class);
+		Map<String,Object>  map= new HashMap<>();
+		map.put("headId",planId);
+		map.put("materielId",planItemDO.get(0).getMaterielId());
+		map.put("warehouse",planItemDO.get(0).getWarehouse());
+		map.put("warehLocation",planItemDO.get(0).getWarehLocation());
+		map.put("batch",planItemDO.get(0).getBatch());
+		 List<InventoryPlanItemDO> list = inventoryPlanItemService.list(map);
+
+		 if(list.isEmpty()){
+		 	return R.error(messageSourceHandler.getMessage("scm.checkPlan.checkQRCode", null));
+		 }else{
+			 String qrIdCount = list.get(0).getQrIdCount();
+			 if(Objects.nonNull(qrIdCount)&&StringUtils.isNotEmpty(qrIdCount)){
+
+				 JSONArray jsonArray = JSON.parseArray(qrIdCount);
+				 Map<String,Object>  qrIdCounts=(Map<String,Object>)jsonArray.get(0);
+
+				 if(qrIdCounts.containsKey(String.valueOf(qrId))){
+					 String [] args = {qrIdCounts.get(String.valueOf(qrId)).toString()};
+					 return R.error(messageSourceHandler.getMessage("scm.checkPlan.checkQRCodeOK", args));
+				 }else{
+					 return R.error(messageSourceHandler.getMessage("scm.checkPlan.checkQRCodenever", null));
+				 }
+			 }else{
+				 return R.error(messageSourceHandler.getMessage("scm.checkPlan.checkQRCodenever", null));
+			 }
+		 }
+	}
+
+
+	@Override
+	public R disposePlanIsOver (Long planId ){
+		//验证子表中盘点数量和盈亏数量是否为null的。
+		Map<String,Object>  map= new HashMap<>();
+		map.put("checkCount","OVER");
+		map.put("headId", planId);
+		int counts = inventoryPlanItemService.countOfWinLoss(map);
+		if(inventoryPlanItemService.countOfWinLoss(map)>0){
+			return R.error(messageSourceHandler.getMessage("scm.checkPlan.planIsOverError", null));
+		}else{
+			InventoryPlanDO planDO=new InventoryPlanDO();
+			planDO.setCheckStatus(ConstantForGYL.EXECUTE_OVER);
+			planDO.setId(planId);
+			this.update(planDO);
+			return R.ok();
+		}
+	}
+
 	@Override
 	public R getMaterielCount(Long warehouse, String syntheticData){
 
@@ -120,6 +174,8 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				}
 				if (!Objects.equals(0, map.size())) {
 					map.put("systemCount", systemCount);
+//					map.remove("checkCount");
+//					map.remove("profitLos");
 				}
 				retrunList.add(map);
 			}
@@ -239,13 +295,6 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 	@Override
 	public R savePlanDetail(InventoryPlanDO checkHeadDO,String checkBodys){
 
-		//是否扫码入库
-		if(Objects.equals(1,checkHeadDO.getQrSign())){
-
-			//走扫码入库
-			return qrCheck(checkHeadDO,checkBodys);
-		}
-
 		//只能修改状态为24(191执行中)，且未生成盈亏单的方案，未生成盈亏的盘点结果。
 		Long planId =checkHeadDO.getId();
 		InventoryPlanDO checkStatus = inventoryPlanService.get(planId);
@@ -303,89 +352,71 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 		}
 	}
 
+
 	@Override
-	public R buildWinStock(Long planId ){
-		Map<String, Object> result = new HashMap<>();
-		Map<String, Object> params = new HashMap<>();
-		params.put("id", planId);
-		if (inventoryPlanService.count(params)!= 0) {
-			params.remove("id");
+	public R buildWinStock(Long planId) {
+
+		InventoryPlanDO headDO = inventoryPlanService.get(planId);
+		if (headDO != null) {
+			if (!Objects.equals(ConstantForGYL.EXECUTE_OVER, headDO.getCheckers())) {
+				return R.error(messageSourceHandler.getMessage("scm.checkPlan.planIsWinOrLOssError", null));
+			}
+			Map<String, Object> params = new HashMap<>();
 			params.put("headId", planId);
 			params.put("profitLoss", 1);
-			params.put("checkStatus",  ConstantForGYL.EXECUTE_NOW);//24-->191执行中
-			//根据盘点结果组织数据(所查询数据状态为24执行中)；
-			//判断是否能够生成盘赢单：主表checkStatus为25时||profit_loss盈亏数量>0&&盘盈表有盘点方案主键的 不允许再次生成盘盈单
-			int rows = inventoryPlanItemService.countOfWinLoss(params);//是否有盘盈(可以/需要生成盘盈单) （rows>0 是）
-			InventoryPlanDO headDO = inventoryPlanService.get(planId);    //获取状态 是否是24
+			params.put("checkStatus", ConstantForGYL.EXECUTE_OVER);
+
+			int rows = inventoryPlanItemService.countOfWinLoss(params);//是否有盘盈（rows>0 是）
 			List<Map<String, Object>> profitLossMsg = inventoryPlanItemService.getProfitLossMsg(params);//查找出盈数据
 
-			params.put("documentType", ConstantForGYL.PYDJ );  //  32--->198//PYDJ  盘盈单据
+			params.put("documentType", ConstantForGYL.PYDJ);  //  32--->198//PYDJ  盘盈单据
 			int otherInLines = inventoryPlanFitlossService.countOfOtherByPY(params);//是否已经生成其他入库 headId+documentType
 			int linesPL = inventoryPlanFitlossService.count(params);   //是否已经生成盘赢单（lines>0 是）
 
-			if (!(Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_NON))) {  //   23-->190未执行
-				if ( Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_OVER) && rows > 0 && otherInLines == 0) {//  25--->192执行结束
-						//	EXECUTE_NOW
+			if (rows > 0 && otherInLines == 0 && linesPL == 0) {
+				Map<String, Object> result = new HashMap<>();
 
-					//允许返回生成其他入库的数据，但是盈亏单不更新
-					params.put("checkStatus", ConstantForGYL.EXECUTE_OVER);//  25--->192执行结束
-					List<Map<String, Object>> profitLossMsgOer = inventoryPlanItemService.getProfitLossMsg(params);
-					result.put("BodyData", profitLossMsgOer);
-					return R.ok(result);
+				//将盘盈数据保存至盈亏表中,保存后并验证更改方案的状态为25
+				inventoryPlanFitlossService.saveProfitORLoss(profitLossMsg, 32L);
 
-				} else if (Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_OVER) && rows > 0 && otherInLines > 0) {
-					//盘盈数据已生成其他入库，无法再次生成！
-					return R.error(messageSourceHandler.getMessage("apis.check.buildWinStock",null));
+				//返回生成其他入库的数据。
+				params.remove("checkStatus");
+				params.remove("documentType");
+				List<Map<String, Object>> profitLossMsgNow = inventoryPlanItemService.getProfitLossMsg(params);
 
-				} else if (Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_OVER) && rows == 0) {
-					//"此次盘点无盘盈！"
-					return R.ok(messageSourceHandler.getMessage("apis.check.buildWinStockA",null));
+				result.put("BodyData", profitLossMsgNow);
+				return R.ok(result);
 
-				} else if (Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_NOW) && rows > 0 && otherInLines == 0 && linesPL == 0) {//   24-->191执行中
+			} else if (rows > 0 && otherInLines > 0) {
+				//盘盈数据已生成其他入库，无法再次生成！
+				return R.error(messageSourceHandler.getMessage("apis.check.buildWinStock", null));
 
-					//将盘盈数据保存至盈亏表中,保存后并验证更改方案的状态为25
-					Boolean aBoolean = inventoryPlanFitlossService.saveProfitORLoss(profitLossMsg, 32L);
+			} else if (rows == 0) {
+				//"此次盘点无盘盈！"
+				return R.ok(messageSourceHandler.getMessage("apis.check.buildWinStockA", null));
 
-					//返回生成其他入库的数据。
-					params.remove("checkStatus");
-					params.remove("documentType");
-					List<Map<String, Object>> profitLossMsgNow = inventoryPlanItemService.getProfitLossMsg(params);
-
-					result.put("BodyData", profitLossMsgNow);
-					return R.ok(result);
-				} else if (Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_NOW) && rows > 0 && otherInLines == 0 && linesPL > 0) {
-
-					//返回生成其他入库的数据。
-					result.put("BodyData", profitLossMsg);
-					return R.ok(result);
-				} else if (Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_NOW) && rows > 0 && otherInLines > 0) {
-					//盘盈数据已生成其他入库，无法再次生成
-					return R.error(messageSourceHandler.getMessage("apis.check.buildWinStock",null));
-				} else if (Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_NOW) && rows == 0) {
-					//此次盘点无盘盈
-					return R.ok(messageSourceHandler.getMessage("apis.check.buildWinStockA",null));
-				} else {
-
-					return R.error();
-				}
+			} else if (rows > 0 && otherInLines == 0 && linesPL > 0) {
+				Map<String, Object> result = new HashMap<>();
+				//返回生成其他入库的数据。
+				result.put("BodyData", profitLossMsg);
+				return R.ok(result);
 			} else {
-				//盘点结果未保存
-				return R.ok(messageSourceHandler.getMessage("apis.check.buildWinStockC",null));
+				return R.error();
 			}
 		} else {
-			//请传入正确id！！
-			return R.error(messageSourceHandler.getMessage("apis.check.buildWinStockD",null));
+			return R.error(messageSourceHandler.getMessage("apis.check.buildWinStockD", null));
 		}
-
 	}
 
+
 	@Override
-	public R buildLossStock(Long planId ){
-		Map<String, Object> result = new HashMap<>();
-		Map<String, Object> params = new HashMap<>();
-		params.put("id", planId);
-		if (inventoryPlanService.count(params) != 0) {
-			params.remove("id");
+	public R buildLossStock(Long planId) {
+		InventoryPlanDO headDO = inventoryPlanService.get(planId);
+		if (headDO != null) {
+			if (!Objects.equals(ConstantForGYL.EXECUTE_OVER, headDO.getCheckers())) {
+				return R.error(messageSourceHandler.getMessage("scm.checkPlan.planIsWinOrLOssError", null));
+			}
+			Map<String, Object> params = new HashMap<>();
 			params.put("headId", planId);
 			params.put("profitLoss", -1);
 			params.put("checkStatus", ConstantForGYL.EXECUTE_NOW);
@@ -394,8 +425,6 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 			//判断是否能够生成盘赢单：主表checkStatus为25时||profit_loss盈亏数量>0&&盘盈表有盘点方案主键的 不允许再次生成盘盈单
 			//是否有盘盈(可以/需要生成盘盈单) （rows>0 是）
 			int rows = inventoryPlanItemService.countOfWinLoss(params);
-			//获取状态 是否是24
-			InventoryPlanDO headDO = inventoryPlanService.get(planId);
 			List<Map<String, Object>> profitLossMsg = inventoryPlanItemService.getProfitLossMsg(params);//产找出盘亏数据
 
 			params.put("documentType", ConstantForGYL.PKDJ);
@@ -404,74 +433,93 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 			//是否已经生成盘盈单（lines>0 是）
 			int linesPL = inventoryPlanFitlossService.count(params);
 
-			if (!(Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_NON ))) {
-				if (Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_OVER)&& rows > 0 && otherInLines == 0) {
+			if (rows > 0 && otherInLines == 0 && linesPL == 0) {
 
-					//允许返回生成其他入库的数据，但是盈亏单不更新
-					params.put("checkStatus", ConstantForGYL.EXECUTE_OVER);
-					List<Map<String, Object>> profitLossMsgOer = inventoryPlanItemService.getProfitLossMsg(params);
-					result.put("BodyData", profitLossMsgOer);
-					return R.ok(result);
+				Map<String, Object> result = new HashMap<>();
+				//将盘盈数据保存至盈亏表中,保存后并验证更改方案的状态为25
+				Boolean aBoolean = inventoryPlanFitlossService.saveProfitORLoss(profitLossMsg, 28L);
 
-				} else if (Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_OVER) && rows > 0 && otherInLines > 0) {
-					//盘亏数据已生成其他出库，无法再次生成！
-					return R.error(messageSourceHandler.getMessage("apis.check.buildLossStock",null));
+				//允许返回生成其他入库的数据，但是盈亏单不更新
+				params.put("checkStatus", ConstantForGYL.EXECUTE_OVER);
+				List<Map<String, Object>> profitLossMsgOer = inventoryPlanItemService.getProfitLossMsg(params);
+				result.put("BodyData", profitLossMsgOer);
+				return R.ok(result);
 
-				} else if (Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_OVER) && rows == 0) {
-					//此次盘点无盘亏
-					return R.ok(messageSourceHandler.getMessage("apis.check.buildLossStockA",null));
+			} else if (rows > 0 && otherInLines > 0) {
+				//盘亏数据已生成其他出库，无法再次生成！
+				return R.error(messageSourceHandler.getMessage("apis.check.buildLossStock", null));
 
-				} else if (Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_NOW)&& rows > 0 && otherInLines == 0 && linesPL == 0) {
-					//将盘盈数据保存至盈亏表中,保存后并验证更改方案的状态为25
-					Boolean aBoolean = inventoryPlanFitlossService.saveProfitORLoss(profitLossMsg, 28L);
-					//返回生成其他入库的数据。
-					params.remove("checkStatus");
-					params.remove("documentType");
-					List<Map<String, Object>> profitLossMsgNow = inventoryPlanItemService.getProfitLossMsg(params);
+			} else if (rows == 0) {
+				//此次盘点无盘亏
+				return R.ok(messageSourceHandler.getMessage("apis.check.buildLossStockA", null));
 
-					result.put("BodyData", profitLossMsgNow);
-					return R.ok(result);
+			} else if (rows > 0 && otherInLines == 0 && linesPL > 0) {
 
-				} else if (Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_NOW) && rows > 0 && otherInLines == 0 && linesPL > 0) {
-					result.put("BodyData", profitLossMsg);
-					return R.ok(result);
-				} else if (Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_NOW)&& rows > 0 && otherInLines > 0) {
-					//盘亏数据已生成其他出库，无法再次生成
-					return R.error(messageSourceHandler.getMessage("apis.check.buildLossStock",null));
-				} else if (Objects.equals(headDO.getCheckStatus(),ConstantForGYL.EXECUTE_NOW) && rows == 0) {
-					//此次盘点无盘亏
-					return R.ok(messageSourceHandler.getMessage("apis.check.buildLossStockA",null));
-				} else {
-					return R.error();
-				}
+				Map<String, Object> result = new HashMap<>();
+				result.put("BodyData", profitLossMsg);
+				return R.ok(result);
 			} else {
-				return R.ok(messageSourceHandler.getMessage("apis.check.buildWinStockC",null));
+				return R.error();
 			}
 		} else {
-			return R.ok(messageSourceHandler.getMessage("apis.check.buildWinStockD",null));
+			return R.ok(messageSourceHandler.getMessage("apis.check.buildWinStockD", null));
 		}
+
 	}
 
+	@Override
+	public R disposePhoneCheckResuls(Long planId,String checkBodys){
+		Map<String,Object>  map= new HashMap<>();
+		map.put("headId",planId);
+		InventoryPlanDO planDO = this.get(planId);
+		List<InventoryPlanItemDO> planItemDos = inventoryPlanItemService.list(map);
+
+		if(Objects.nonNull(planDO)){
+			if (Objects.equals(planDO.getCheckStatus(), ConstantForGYL.EXECUTE_OVER)) {
+				return R.error(messageSourceHandler.getMessage("apis.check.saveChangeResultT", null));
+			} else {
+				JSONArray jsonArray = JSON.parseArray(checkBodys);
+				for (Object jsonMap : jsonArray) {
+					Map<String, Object> masp = (Map<String, Object>) jsonMap;
+					String qrMw = masp.get("materielId").toString() + "-" + masp.get("warehouse").toString() + "-" + masp.get("warehLocation").toString();
+					String qrBatch = masp.get("batch").toString();
+					BigDecimal checkCount = new BigDecimal(masp.get("checkCount").toString());
+//					Long qrId =Long.valueOf(masp.get("qrId").toString());
+					String qrId=masp.get("qrId").toString();
+					for (InventoryPlanItemDO itemDos : planItemDos) {
+						String itemMw = itemDos.getMaterielId().toString() + "-" + itemDos.getWarehouse().toString() + "+" + itemDos.getWarehLocation().toString();
+						String itemBatch = itemDos.getBatch().toString();
+						String qrIdCount = itemDos.getQrIdCount();
+
+						if (Objects.equals(qrMw, itemMw) && Objects.equals(qrBatch, itemBatch)) {
+
+							if(Objects.nonNull(qrIdCount)&&StringUtils.isNotEmpty(qrIdCount)){
+								JSONArray jsonArras = JSON.parseArray(qrIdCount);
+								Map<String, Object> qrIdCountMap = (Map<String, Object>)jsonArras.get(0);
+								if(qrIdCountMap.containsKey("qrId")){
+
+								}
+
+							}
 
 
 
-	public R qrCheck(InventoryPlanDO checkHeadDO,String checkBodys){
+						} else {
 
-		checkHeadDO.setCheckStatus(ConstantForGYL.EXECUTE_NOW );
-
-		inventoryPlanService.update(checkHeadDO);
-
-		if (null != checkBodys && !"".equals(checkBodys)) {
-			List<InventoryPlanItemDO> lsitBodyDO = JSON.parseArray(checkBodys, InventoryPlanItemDO.class);
-			for (InventoryPlanItemDO body : lsitBodyDO) {
-				body.setHeadId(checkHeadDO.getId());
-				inventoryPlanItemService.update(body);
+						}
+					}
+				}
 			}
+		}else{
+			return  R.error(messageSourceHandler.getMessage("apis.check.buildWinStockD",null));
 		}
-
-
 
 		return null;
 	}
+
+
+
+
+
 
 }

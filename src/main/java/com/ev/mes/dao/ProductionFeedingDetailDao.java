@@ -36,4 +36,7 @@ public interface ProductionFeedingDetailDao {
 
 	int removeByHeadId(Long id);
 
+    List<Map<String, Object>> phoneListForMap(Map<String, Object> params);
+
+	int phoneCountForMap(Map<String, Object> params);
 }

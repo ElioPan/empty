@@ -46,7 +46,7 @@ public class ScmInStockAccountingApiController {
     /*
      * 分配后改变采购入库单的费用字段值，前端刷新列表显示费用有值（初始化为0）
      */
-    @EvApiByToken(value = "/apis/scm/inStockAccounting/purchaseInStockAllocation ", method = RequestMethod.POST, apiTitle = "分配--采购入库核算")
+    @EvApiByToken(value = "/apis/scm/inStockAccounting/purchaseInStockAllocation", method = RequestMethod.POST, apiTitle = "分配--采购入库核算")
     @ApiOperation("分配--采购入库核算")
     @Transactional(rollbackFor = Exception.class)
     public R allocation(

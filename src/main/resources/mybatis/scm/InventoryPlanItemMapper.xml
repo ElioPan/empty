@@ -34,7 +34,8 @@
 	</select>
 
 	<sql id="sql_column_list">
-		`id`,`head_id`,`materiel_id`,`stock_id`,`warehouse`,`wareh_location`,`batch`,`system_count`,`check_count`,`profit_loss`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+		`id`,`head_id`,`materiel_id`,`stock_id`,`warehouse`,`wareh_location`,`batch`,`system_count`,
+		`check_count`,`profit_loss`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`qr_id_count`
 	</sql>
 
 	<sql id="sql_condition">
@@ -54,6 +55,7 @@
 			<if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
 			<if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
 			<if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+			<if test="qrIdCount != null and qrIdCount != ''"> AND qr_id_count = #{qrIdCount} </if>
 		</where>
 	</sql>
 
@@ -73,7 +75,8 @@
 		`create_time`,
 		`update_by`,
 		`update_time`,
-		`del_flag`
+		`del_flag`,
+		`qr_id_count`
 		)
 		VALUES
 		(
@@ -90,7 +93,8 @@
 		#{createTime},
 		#{updateBy},
 		#{updateTime},
-		#{delFlag}
+		#{delFlag},
+		#{qrIdCount}
 		)
 	</insert>
 
@@ -112,6 +116,8 @@
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
 			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
 			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+			<if test="qrIdCount != null"> qr_id_count = #{qrIdCount} </if>
+
 		</set>
 		WHERE id = #{id}
 	</update>
@@ -204,9 +210,9 @@
 		c.name  as  warehouseName,
 		a.wareh_location as warehLocation,
 		d.name   as  warehLocationName,
-		IF(a.count is null,0,a.count)AS count,
-		0 as  checkCount,
-		0  as  profitLos
+		IF(a.count is null,0,a.count)AS count
+        <!-- 0   as  checkCount,
+		0  as  profitLosa.id,-->
 		FROM      scm_stock     a
 		LEFT JOIN cus_materiel   b  ON  a.materiel_id = b.id
 		LEFT JOIN cus_facility  c  ON  a.warehouse = c.id
@@ -248,10 +254,11 @@
 			<if test="profitLoss != null and profitLoss != ''and profitLoss == -1"> and a.profit_loss &lt; 0 </if>
 
 			<if test="profitLoss != null and profitLoss != ''and profitLoss ==1"> and a.profit_loss > 0 </if>
-
+            <if test="checkCount != null and checkCount != ''"> and a.check_count is null } </if>
 			<if test="headId != null and headId != ''"> and a.head_id = #{headId} </if>
 		</where>
 	</select>
+
 
 
 

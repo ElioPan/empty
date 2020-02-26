@@ -126,6 +126,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         // 保存委外合同收款条件
         List<OutsourcingContractPayDO> pay = JSON.parseArray(bodyPay, OutsourcingContractPayDO.class);
         for (OutsourcingContractPayDO payData : pay) {
+            payData.setUnpaidAmount(payData.getPayableAmount());
             // 新增
             if (payData.getId() == null) {
                 payData.setContractId(id);
@@ -292,6 +293,11 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                             payVO.setReceivableAmountBefore(receivableAmountBefore.toPlainString());
                             if (receivableAmountAfter.compareTo(receivableAmountBefore) != 0) {
                                 payVO.setReceivableAmountAfter(receivableAmountAfter.toPlainString());
+                                // 差额
+                                BigDecimal difference = receivableAmountAfter.subtract(receivableAmountBefore);
+                                // 修改未付金额
+                                afterPayDO.setUnpaidAmount(afterPayDO.getUnpaidAmount().add(difference));
+
                                 if (!isUpdate){
                                     isUpdate = true;
                                     payVO.setType("修改");

@@ -66,5 +66,8 @@ public class InventoryPlanItemDO implements Serializable {
 	//删除状态
     @ApiModelProperty(value = "删除状态")
 	private Integer delFlag;
+	@ApiModelProperty(value = "记录扫码条码id及数量")
+	private String qrIdCount;
+
 
 }

@@ -376,6 +376,16 @@ public class SalescontractServiceImpl implements SalescontractService {
     }
 
     @Override
+    public List<Map<String, Object>> payListForMap(Map<String, Object> map) {
+        return salesContractPayDao.payListForMap(map);
+    }
+
+    @Override
+    public Map<String, Object> payCountForMap(Map<String, Object> map) {
+        return salesContractPayDao.payCountForMap(map);
+    }
+
+    @Override
     public R close(Long id) {
         SalescontractDO salescontractDO = this.get(id);
         if (Objects.equals(salescontractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {

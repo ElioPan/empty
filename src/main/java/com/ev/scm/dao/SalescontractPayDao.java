@@ -35,5 +35,9 @@ public interface SalescontractPayDao {
 
     Map<String,Object> countByContract(Map<String, Object> map);
 
+    List<Map<String, Object>> payListForMap(Map<String, Object> map);
+
+	Map<String, Object> payCountForMap(Map<String, Object> map);
+
 //	int removePid(Long pid);
 }

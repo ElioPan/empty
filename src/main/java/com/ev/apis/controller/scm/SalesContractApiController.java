@@ -248,6 +248,48 @@ public class SalesContractApiController {
         }
         return R.ok(result);
     }
+
+    @EvApiByToken(value = "/apis/salesContractApi/payList",method = RequestMethod.POST,apiTitle = "获取销售合同付款条件列表")
+    @ApiOperation("获取销售合同付款条件列表")
+    public R payList(
+            @ApiParam(value = "开始时间") @RequestParam(value = "startTime",defaultValue = "",required = false)  String startTime,
+            @ApiParam(value = "结束时间") @RequestParam(value = "endTime",defaultValue = "",required = false)  String endTime,
+            @ApiParam(value = "客户名称") @RequestParam(value = "clientName",defaultValue = "",required = false)  String clientName,
+            @ApiParam(value = "关闭状态/0未关/1关闭") @RequestParam(value = "closeStatus",defaultValue = "",required = false)  Long closeStatus,
+            @ApiParam(value = "审核状态") @RequestParam(value = "auditSign",required = false) Long auditSign,
+            @ApiParam(value = "是否为dialog") @RequestParam(value = "isDialog",required = false) Long isDialog,
+
+            @ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
+            @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize){
+        Map<String, Object> map = Maps.newHashMap();
+        // 列表查询
+        map.put("startTime", startTime);
+        map.put("endTime", endTime);
+        map.put("closeStatus", closeStatus);
+        map.put("auditSign", auditSign);
+        map.put("isDialog", isDialog);
+        map.put("clientName", StringUtils.sqlLike(clientName));
+
+        map.put("offset",(pageno-1)*pagesize);
+        map.put("limit",pagesize);
+
+
+        List<Map<String, Object>> data = salescontractService.payListForMap(map);
+        Map<String, Object> stringBigDecimalMap = salescontractService.payCountForMap(map);
+        int total = Integer.parseInt(stringBigDecimalMap.getOrDefault("total",0).toString());
+        Map<String, Object> result = Maps.newHashMap();
+        if (data.size() > 0) {
+            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.XSHT.intValue());
+            String thisSourceTypeName = dictionaryDO.getName();
+            for (Map<String, Object> datum : data) {
+                datum.put("thisSourceType", ConstantForGYL.XSHT);
+                datum.put("thisSourceTypeName", thisSourceTypeName);
+            }
+            result.put("data", new DsResultResponse(pageno,pagesize,total,data));
+            result.put("total", stringBigDecimalMap);
+        }
+        return R.ok(result);
+    }
 	
 	@EvApiByToken(value = "/apis/salesContract/audit",method = RequestMethod.POST,apiTitle = "审核接口")
     @ApiOperation("审核接口")

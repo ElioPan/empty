@@ -60,4 +60,8 @@ public interface SalescontractService {
     List<ContractItemVO> getContractItemVOS(String bodyItem, List<SalescontractItemDO> salesContractItemList);
 
     int childCount(Long id);
+
+	List<Map<String, Object>> payListForMap(Map<String, Object> map);
+
+	Map<String, Object> payCountForMap(Map<String, Object> map);
 }

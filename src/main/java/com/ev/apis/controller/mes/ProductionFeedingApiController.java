@@ -187,6 +187,48 @@ public class ProductionFeedingApiController {
 		return R.ok(results);
 	}
 
+
+	/**
+	 * 生产投料列表(生产计划待领列表）
+	 * 手机端
+	 *
+	 * @date 2020-02-26
+	 * @author gumingjie
+	 */
+	@EvApiByToken(value = "/apis/productionFeeding/phoneList", method = RequestMethod.POST, apiTitle = "生产投料列表(生产计划待领列表)")
+	@ApiOperation("生产投料列表(生产计划待领列表)")
+	public R phoneList(
+			@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+			@ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+			@ApiParam(value = "生产投料单号") @RequestParam(value = "planNo", defaultValue = "", required = false) String planNo,
+			@ApiParam(value = "物料名称") @RequestParam(value = "materialsName", defaultValue = "", required = false) String materialsName,
+			@ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
+			@ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
+			@ApiParam(value = "是否为手机端") @RequestParam(value = "isPhone", defaultValue = "", required = false) Integer isPhone,
+			@ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
+			@ApiParam(value = "父项产品ID") @RequestParam(value = "headId", defaultValue = "", required = false) Long headId) {
+		// 查询列表数据
+		Map<String, Object> params = Maps.newHashMap();
+
+		params.put("planNo", planNo);
+		params.put("materialsName", materialsName);
+		params.put("startTime", startTime);
+		params.put("endTime", endTime);
+		params.put("headId", headId);
+		params.put("auditSign", auditSign);
+		params.put("isPhone", isPhone);
+
+		params.put("offset", (pageno - 1) * pagesize);
+		params.put("limit", pagesize);
+		Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
+		List<Map<String, Object>> data = productionFeedingDetailService.phoneListForMap(params);
+		int total = productionFeedingDetailService.phoneCountForMap(params);
+		if (data.size() > 0) {
+			results.put("data", new DsResultResponse(pageno, pagesize, total, data));
+		}
+		return R.ok(results);
+	}
+
 	/**
 	 * 审核生产投料
 	 * 限制条件1.已审核不能重复审核2.不是单据审核人不能审核

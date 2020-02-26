@@ -34,8 +34,10 @@
 	</select>
 
     <sql id="sql_column_list">
-		`id`,`payment_received_id`,`source_type`,`source_code`,`source_id`,`source_pay_item_id`,`accrual_date`,`
-receivable_payables_amount`,`paid_received_amount`,`this_amount`,`no_receipt_payment_amount`,`account_number`,`settlement_type`,`statement_number`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+		`id`,`payment_received_id`,`source_type`,`source_code`,`source_id`,`source_pay_item_id`,`accrual_date`,
+		`receivable_payables_amount`,`paid_received_amount`,`this_amount`,
+		`no_receipt_payment_amount`,`account_number`,`settlement_type`,`statement_number`,
+		`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 	</sql>
 
     <sql id="sql_condition">
@@ -73,8 +75,7 @@ receivable_payables_amount`,`paid_received_amount`,`this_amount`,`no_receipt_pay
 			`source_id`, 
 			`source_pay_item_id`, 
 			`accrual_date`, 
-			`
-receivable_payables_amount`, 
+			`receivable_payables_amount`,
 			`paid_received_amount`, 
 			`this_amount`, 
 			`no_receipt_payment_amount`, 
@@ -96,8 +97,7 @@ receivable_payables_amount`,
 			#{sourceId}, 
 			#{sourcePayItemId}, 
 			#{accrualDate}, 
-			#{
-receivablePayablesAmount}, 
+			#{receivablePayablesAmount},
 			#{paidReceivedAmount}, 
 			#{thisAmount}, 
 			#{noReceiptPaymentAmount}, 
