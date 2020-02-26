@@ -37,4 +37,9 @@ public interface PurchasecontractPayDao {
 
 	List<PurchasecontractPayDO> detailOfPayById(Map<String, Object> map);
 
+	List<Map<String, Object>> listOfPay(Map<String, Object> map);
+
+	Map<String, Object> countListOfPay(Map<String, Object> map);
+
+
 }

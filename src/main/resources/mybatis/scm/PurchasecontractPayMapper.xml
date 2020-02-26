@@ -155,4 +155,80 @@
 	</select>
 
 
+
+	<select id="listOfPay" resultType="map">
+		select
+		b.id,
+		b.contract_code as contractCode,
+		b.supplier_id as supplierId,
+		c.name as supplierName,
+		b.create_time as createTime,
+		a.id as payId,
+		a.due_date as  dueDate,
+		a.pay_amount  as payAmount,
+		a.amount_paid as amountPaid,
+		a.unpay_amount as unpayAmount,
+		a.remarks
+		FROM
+		scm_purchasecontract_pay a
+		LEFT JOIN scm_purchasecontract b on a.purchase_contract_id=b.id
+		LEFT JOIN cus_supplier c on b.supplier_id=c.id
+		<where>
+			<if test="supplierName != null and supplierName != ''"> and c.name LIKE CONCAT('%',#{supplierName},'%') </if>
+			<if test="createStartTime != null and createStartTime!= ''"> and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
+			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
+			<if test="closeStatus != null and closeStatus != ''"> and b.close_status =#{closeStatus}= </if>
+			<if test="auditSign != null and auditSign != ''"> and b.audit_sign =#{auditSign}= </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countListOfPay" resultType="map">
+		select
+		count(id) as `count`,
+		IF( SUM(pay_amount)IS NULL,0,SUM(pay_amount))AS totalPayAmount,
+		IF( SUM(amount_paid)IS NULL,0,SUM(amount_paid))AS totalAmountPaid,
+		IF( SUM(unpay_amount)IS NULL,0,SUM(unpay_amount))AS totalUnpayAmount
+		FROM
+		(
+		select
+		b.id,
+		b.contract_code as contractCode,
+		b.supplier_id as supplierId,
+		c.name as supplierName,
+		b.create_time as createTime,
+		a.id as payId,
+		a.due_date as  dueDate,
+		a.pay_amount ,
+		a.amount_paid ,
+		a.unpay_amount ,
+		a.remarks
+		FROM
+		scm_purchasecontract_pay a
+		LEFT JOIN scm_purchasecontract b on a.purchase_contract_id=b.id
+		LEFT JOIN cus_supplier c on b.supplier_id=c.id
+		)aa
+		<where>
+			<if test="supplierName != null and supplierName != ''"> and c.name LIKE CONCAT('%',#{supplierName},'%') </if>
+			<if test="createStartTime != null and createStartTime!= ''"> and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
+			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
+			<if test="closeStatus != null and closeStatus != ''"> and b.close_status =#{closeStatus}= </if>
+			<if test="auditSign != null and auditSign != ''"> and b.audit_sign =#{auditSign}= </if>
+		</where>
+	</select>
+
+
+
+
+
 </mapper>

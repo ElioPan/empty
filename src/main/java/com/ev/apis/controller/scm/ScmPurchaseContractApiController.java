@@ -10,6 +10,7 @@ import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.domain.PurchasecontractDO;
+import com.ev.scm.service.PurchasecontractPayService;
 import com.ev.scm.service.PurchasecontractService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
@@ -41,7 +42,8 @@ public class ScmPurchaseContractApiController {
 
     @Autowired
     private PurchasecontractService purchasecontractService;
-
+    @Autowired
+    private PurchasecontractPayService purchasecontractPayService;
     @Autowired
     private DictionaryService dictionaryService;
 
@@ -296,6 +298,50 @@ public class ScmPurchaseContractApiController {
 
 
 
+    @EvApiByToken(value = "/apis/scm/purchaseContractPay/contractPayList",method = RequestMethod.GET,apiTitle = "付款列表—采购合同付款")
+    @ApiOperation("付款列表—采购合同付款")
+    public R contractOfList(
+            @ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
+            @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize,
+            @ApiParam(value = "供应商名称") @RequestParam(value = "supplierName",defaultValue = "",required = false)  String supplierName,
+            @ApiParam(value = "审核状态") @RequestParam(value = "auditSign",required = false) Long auditSign,
+            @ApiParam(value = "关闭状态/0未关/1关闭") @RequestParam(value = "closeStatus",defaultValue = "",required = false)  Long closeStatus,
+            @ApiParam(value = "制单起始日期") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String  createStartTime,
+            @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime){
 
+        Map<String, Object> map = Maps.newHashMap();
+        // 列表查询
+        map.put("offset",(pageno-1)*pagesize);
+        map.put("limit",pagesize);
+        map.put("supplierName", supplierName);
+        map.put("createStartTime", createStartTime);
+        map.put("createEndTime", createEndTime);
+        map.put("closeStatus", closeStatus);
+        map.put("auditSign",auditSign);
+
+        List<Map<String, Object>> data = purchasecontractPayService.listOfPay(map);
+        Map<String, Object> totalMap= purchasecontractPayService.countListOfPay(map);
+
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT.intValue());
+        String thisSourceTypeName = dictionaryDO.getName();
+        for (Map<String, Object> datum : data) {
+            datum.put("thisSourceType", ConstantForGYL.CGHT);
+            datum.put("thisSourceTypeName", thisSourceTypeName);
+        }
+        Map<String, Object> result = Maps.newHashMap();
+        if (data.size() > 0) {
+            Map<String,Object>  dsRet= new HashMap<>();
+            dsRet.put("datas",data);
+            dsRet.put("pageno",pageno);
+            dsRet.put("pagesize",pagesize);
+            dsRet.put("totalRows",Integer.parseInt(totalMap.get("count").toString()));
+            dsRet.put("totalPages",((Integer.parseInt(totalMap.get("count").toString()) + pagesize - 1) / pagesize));
+            dsRet.put("totalPayAmount",totalMap.get("totalPayAmount"));
+            dsRet.put("totalAmountPaid",totalMap.get("totalAmountPaid"));
+            dsRet.put("totalUnpayAmount",totalMap.get("totalUnpayAmount"));
+            result.put("data", dsRet);
+        }
+        return R.ok(result);
+    }
 
 }
