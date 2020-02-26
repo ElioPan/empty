@@ -11,11 +11,10 @@ import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.dao.StockInDao;
-import com.ev.scm.dao.StockInItemDao;
 import com.ev.scm.domain.*;
 import com.ev.scm.service.*;
 import com.google.common.collect.Maps;
-import com.sun.org.apache.bcel.internal.generic.NEW;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -455,7 +454,8 @@ public class StockInServiceImpl implements StockInService {
 
 		Map<String,Object>  map= new HashMap<>();
 		for(StockInItemDO itemDO:inbodyCdos){
-			String comparisonSign=itemDO.getMaterielId().toString()+"-"+itemDO.getBatch().toString()+"-"+itemDO.getWarehouse().toString()+"-"+itemDO.getWarehLocation().toString();
+			List<Map<String,Object>> list=new ArrayList<>();
+			String comparisonSign=itemDO.getMaterielId().toString()+"-"+itemDO.getBatch().toString()+"-"+itemDO.getWarehouse().toString();
 			map.put(comparisonSign,itemDO);
 		}
 
@@ -465,22 +465,21 @@ public class StockInServiceImpl implements StockInService {
 		for(String ss :strSign){
 
 			StockDO stockDo=new StockDO();
-			StockInItemDO stockInItemDo=(StockInItemDO)map.get("ss");
+			StockInItemDO stockInItemDo=(StockInItemDO)map.get(ss);
 				stockDo.setMaterielId(stockInItemDo.getMaterielId());
 				stockDo.setBatch(stockInItemDo.getBatch());
 				stockDo.setWarehouse(stockInItemDo.getWarehouse());
-				stockDo.setWarehLocation(stockInItemDo.getWarehLocation());
+				stockDo.setWarehLocation(stockInItemDo.getWarehLocation()==null?null:stockInItemDo.getWarehLocation());
 				stockDo.setSourceCompany(stockInDO.getSourceCompany()==null?stockInDO.getClientId():stockInDO.getSourceCompany());
 				stockDo.setEnteringTime(new Date());
 			BigDecimal inCount = BigDecimal.ZERO;
 			Long inheadId=stockInDO.getId();
 			for (StockInItemDO stockInItemDO : inbodyCdos) {
 				//比对条件
-				String itemSign = stockInItemDO.getMaterielId().toString() + "-" + stockInItemDO.getBatch().toString() + "-" + stockInItemDO.getWarehouse().toString() + "-" + stockInItemDO.getWarehLocation().toString();
+				String itemSign = stockInItemDO.getMaterielId().toString() + "-" + stockInItemDO.getBatch().toString() + "-" + stockInItemDO.getWarehouse().toString();
 				if (Objects.equals(ss, itemSign)) {
 					inCount = inCount.add(stockInItemDO.getCount());
 				}
-
 				stockInItemDO.setInheadId(inheadId);
 				if (Objects.equals(storageType, ConstantForGYL.PURCHASE_INSTOCK)) {stockInItemDO.setExpense(BigDecimal.ZERO);}
 				if (Objects.equals(storageType, ConstantForGYL.OUTSOURCING_INSTOCK)) {stockInItemDO.setMaterialIdCount("0");}

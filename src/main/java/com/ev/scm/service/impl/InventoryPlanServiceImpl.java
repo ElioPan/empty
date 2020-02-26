@@ -157,12 +157,12 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 		List<Map<String, Object>> retrunList=new ArrayList<>();
 		if (!Objects.equals(0, proMsgCount.size())) {
 			for (Map<String, Object> materialOne : materialAll) {
-				String materialSing = materialOne.get("materielId").toString() + "-" + materialOne.get("warehouseId").toString() + "-" + materialOne.get("warehLocation").toString();
+				String materialSing = materialOne.get("materielId").toString() + "-" + materialOne.get("warehouseId").toString();
 				String batch = materialOne.get("batch").toString();
 				Map<String, Object> map = new HashMap<>();
 				BigDecimal systemCount = BigDecimal.ZERO;
 				for (Map<String, Object> listMap : proMsgCount) {
-					String listMaterialSing = listMap.get("materielId").toString() + "-" + listMap.get("warehouseId").toString() + "-" + listMap.get("warehLocation").toString();
+					String listMaterialSing = listMap.get("materielId").toString() + "-" + listMap.get("warehouseId").toString();
 					String listBatch = listMap.get("batch").toString();
 					if (Objects.equals(materialSing, listMaterialSing) && Objects.equals(batch, listBatch)) {
 						systemCount = systemCount.add(new BigDecimal(listMap.get("count").toString()));

@@ -198,6 +198,7 @@
 		m.specification ,
 		m.unit_uom as unit,
 		n.name as unitName,
+		m.is_lot as isLot,
 		aa.batch ,
 		aa.count ,
 		aa.unit_price as unitPrice,
