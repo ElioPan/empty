@@ -275,7 +275,7 @@ public class StockApiController {
         int month = input.get(Calendar.MONTH);
 
         Calendar now = Calendar.getInstance();
-        if (now.get(Calendar.YEAR) == year && month == now.get(Calendar.MONTH) + 1) {
+        if (now.get(Calendar.YEAR) == year && month == now.get(Calendar.MONTH)) {
             Calendar start = Calendar.getInstance();
             start.set(Calendar.YEAR, year);
 
