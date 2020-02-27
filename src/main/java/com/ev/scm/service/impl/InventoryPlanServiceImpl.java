@@ -3,6 +3,8 @@ package com.ev.scm.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.beust.jcommander.internal.Maps;
+import com.ev.custom.domain.DictionaryDO;
+import com.ev.custom.service.DictionaryService;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -37,7 +39,9 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 	private InventoryPlanFitlossService inventoryPlanFitlossService;
 	@Autowired
 	private InventoryPlanFitlossDao inventoryPlanFitlossDao;
-	
+	@Autowired
+	private DictionaryService dictionaryService;
+
 	@Override
 	public InventoryPlanDO get(Long id){
 		return inventoryPlanDao.get(id);
@@ -133,6 +137,10 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 		Map<String,Object>  map= new HashMap<>();
 		map.put("checkCount","OVER");
 		map.put("headId", planId);
+		InventoryPlanDO inventoryPlanDO = inventoryPlanService.get(planId);
+		if(Objects.equals(inventoryPlanDO.getCheckStatus(),ConstantForGYL.EXECUTE_OVER)){
+			return R.error(messageSourceHandler.getMessage("scm.checkPlan.checkStuts", null));
+		}
 		int counts = inventoryPlanItemService.countOfWinLoss(map);
 		if(inventoryPlanItemService.countOfWinLoss(map)>0){
 			return R.error(messageSourceHandler.getMessage("scm.checkPlan.planIsOverError", null));
@@ -359,13 +367,12 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 
 		InventoryPlanDO headDO = inventoryPlanService.get(planId);
 		if (headDO != null) {
-			if (!Objects.equals(ConstantForGYL.EXECUTE_OVER, headDO.getCheckers())) {
+			if (!Objects.equals(ConstantForGYL.EXECUTE_OVER, headDO.getCheckStatus())) {
 				return R.error(messageSourceHandler.getMessage("scm.checkPlan.planIsWinOrLOssError", null));
 			}
 			Map<String, Object> params = new HashMap<>();
 			params.put("headId", planId);
 			params.put("profitLoss", 1);
-			params.put("checkStatus", ConstantForGYL.EXECUTE_OVER);
 
 			int rows = inventoryPlanItemService.countOfWinLoss(params);//是否有盘盈（rows>0 是）
 			List<Map<String, Object>> profitLossMsg = inventoryPlanItemService.getProfitLossMsg(params);//查找出盈数据
@@ -378,12 +385,18 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				Map<String, Object> result = new HashMap<>();
 
 				//将盘盈数据保存至盈亏表中,保存后并验证更改方案的状态为25
-				inventoryPlanFitlossService.saveProfitORLoss(profitLossMsg, 32L);
+				inventoryPlanFitlossService.saveProfitORLoss(profitLossMsg, ConstantForGYL.PYDJ);
 
 				//返回生成其他入库的数据。
-				params.remove("checkStatus");
 				params.remove("documentType");
 				List<Map<String, Object>> profitLossMsgNow = inventoryPlanItemService.getProfitLossMsg(params);
+				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PYDJ.intValue());
+				if(dictionaryDO!=null){
+					for(Map<String, Object> map:profitLossMsg){
+						map.put("documentTypeId",ConstantForGYL.PYDJ);
+						map.put("documentTypeName",dictionaryDO.getName());
+					}
+				}
 
 				result.put("BodyData", profitLossMsgNow);
 				return R.ok(result);
@@ -414,14 +427,12 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 	public R buildLossStock(Long planId) {
 		InventoryPlanDO headDO = inventoryPlanService.get(planId);
 		if (headDO != null) {
-			if (!Objects.equals(ConstantForGYL.EXECUTE_OVER, headDO.getCheckers())) {
+			if (!Objects.equals(ConstantForGYL.EXECUTE_OVER, headDO.getCheckStatus())) {
 				return R.error(messageSourceHandler.getMessage("scm.checkPlan.planIsWinOrLOssError", null));
 			}
 			Map<String, Object> params = new HashMap<>();
 			params.put("headId", planId);
 			params.put("profitLoss", -1);
-			params.put("checkStatus", ConstantForGYL.EXECUTE_NOW);
-
 			//根据盘点结果组织数据(所查询数据状态为24执行中)；
 			//判断是否能够生成盘赢单：主表checkStatus为25时||profit_loss盈亏数量>0&&盘盈表有盘点方案主键的 不允许再次生成盘盈单
 			//是否有盘盈(可以/需要生成盘盈单) （rows>0 是）
@@ -438,11 +449,18 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 
 				Map<String, Object> result = new HashMap<>();
 				//将盘盈数据保存至盈亏表中,保存后并验证更改方案的状态为25
-				Boolean aBoolean = inventoryPlanFitlossService.saveProfitORLoss(profitLossMsg, 28L);
+				Boolean aBoolean = inventoryPlanFitlossService.saveProfitORLoss(profitLossMsg, ConstantForGYL.PKDJ);
 
 				//允许返回生成其他入库的数据，但是盈亏单不更新
-				params.put("checkStatus", ConstantForGYL.EXECUTE_OVER);
+				params.remove("documentType");
 				List<Map<String, Object>> profitLossMsgOer = inventoryPlanItemService.getProfitLossMsg(params);
+				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PYDJ.intValue());
+				if(dictionaryDO!=null){
+					for(Map<String, Object> map:profitLossMsg){
+						map.put("documentTypeId",ConstantForGYL.PYDJ);
+						map.put("documentTypeName",dictionaryDO.getName());
+					}
+				}
 				result.put("BodyData", profitLossMsgOer);
 				return R.ok(result);
 
@@ -457,6 +475,13 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 			} else if (rows > 0 && otherInLines == 0 && linesPL > 0) {
 
 				Map<String, Object> result = new HashMap<>();
+				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PYDJ.intValue());
+				if(dictionaryDO!=null){
+					for(Map<String, Object> map:profitLossMsg){
+						map.put("documentTypeId",ConstantForGYL.PYDJ);
+						map.put("documentTypeName",dictionaryDO.getName());
+					}
+				}
 				result.put("BodyData", profitLossMsg);
 				return R.ok(result);
 			} else {

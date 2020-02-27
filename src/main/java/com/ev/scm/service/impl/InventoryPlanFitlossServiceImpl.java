@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 
 @EnableTransactionManagement
@@ -67,7 +68,7 @@ public class InventoryPlanFitlossServiceImpl implements InventoryPlanFitlossServ
 			Map<String,Object> query = Maps.newHashMap();
 		    Long headId=0L;
 			String code = null;
-			if (documentType == 32L) {
+			if (Objects.equals(documentType,ConstantForGYL.PYDJ)) {
 				code = "PY" + DateFormatUtil.getWorkOrderno();
 			} else {
 				code = "PK" + DateFormatUtil.getWorkOrderno();
@@ -84,7 +85,7 @@ public class InventoryPlanFitlossServiceImpl implements InventoryPlanFitlossServ
 			}
 			if (rows == listMap.size()) {
 				//并验证更改方案的状态为25
-				this.countOfYKCount(headId);
+//				this.countOfYKCount(headId);
 				return true;
 			} else {
 				return false;

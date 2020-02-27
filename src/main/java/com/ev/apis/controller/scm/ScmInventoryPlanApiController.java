@@ -194,6 +194,7 @@ public class ScmInventoryPlanApiController {
 
     @EvApiByToken(value = "/apis/scm/inventoryPlan/checkIsOver", method = RequestMethod.POST, apiTitle = "盘点结束")
     @ApiOperation("盘点结束")
+    @Transactional(rollbackFor = Exception.class)
     public R planIsOver(
             @ApiParam(value = "盘点方案id", required = true) @RequestParam(value = "planId") Long planId) {
         return inventoryPlanService.disposePlanIsOver(planId);
@@ -202,6 +203,7 @@ public class ScmInventoryPlanApiController {
 
     @EvApiByToken(value = "/apis/scm/inventoryPlan/buildWinStock", method = RequestMethod.POST, apiTitle = "生成盘盈单")
     @ApiOperation("生成盘盈单")
+    @Transactional(rollbackFor = Exception.class)
     public R buildInStockByCheck(
             @ApiParam(value = "盘点方案id", required = true) @RequestParam(value = "planId") Long planId) {
         return inventoryPlanService.buildWinStock(planId);
@@ -209,6 +211,7 @@ public class ScmInventoryPlanApiController {
 
     @EvApiByToken(value = "/apis/scm/inventoryPlan/buildLossStock", method = RequestMethod.POST, apiTitle = "生成盘亏单")
     @ApiOperation("生成盘亏单")
+    @Transactional(rollbackFor = Exception.class)
     public R buildLossStockByCheck(
             @ApiParam(value = "盘点方案id", required = true) @RequestParam(value = "planId") Long planId) {
         return inventoryPlanService.buildLossStock( planId );

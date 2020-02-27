@@ -15,6 +15,7 @@ import com.ev.scm.service.InStockAccountingService;
 import com.ev.scm.service.PurchaseExpenseItemService;
 import com.ev.scm.service.StockInItemService;
 import com.ev.scm.service.StockInService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -417,18 +418,20 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 //未进行核算 未分配
                 if(Objects.equals("0",stockInItemDO.getAccountSource())){
                     continue;
+                }else{
+                    JSONArray objects = JSONObject.parseArray(stockInItemDO.getAccountSource());
+
+                    for(int i=0;i<objects.size();i++){
+                        Map<String,Object>  mapOutItrmId=(Map<String,Object>)objects;
+
+                    }
                 }
-            }else{
+            }else if(stockInDO.getSign()==0){
+
+            }else if(stockInDO.getSign()==1){
 
             }
-
-
         }
-
-
-
-
-
         return R.ok();
     }
 

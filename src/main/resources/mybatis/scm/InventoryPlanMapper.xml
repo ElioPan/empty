@@ -144,7 +144,8 @@
 		a.create_by as createBy,
 		dd.name AS createName,
 		a.create_time AS createTime,
-		a.qr_sign as qrSign
+		a.qr_sign as qrSign,
+		a.remarks
 		from scm_inventory_plan a
 		LEFT JOIN cus_facility b ON a.warehouse=b.id
 		LEFT JOIN cus_dictionary c ON a.check_status=c.id
