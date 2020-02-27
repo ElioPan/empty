@@ -191,6 +191,15 @@ public class AllotServiceImpl implements AllotService {
                 stockDO.setAvailableCount(BigDecimal.ZERO);
                 stockDO.setQrcodeId(0L);
             }
+            for (StockDO stockDO : insertNewStockList) {
+                for (AllotItemDO body : bodys) {
+                    if (Objects.equals(Long.parseLong(body.getStockId()),stockDO.getId())) {
+                        stockDO.setWarehLocation(body.getInLocation());
+                        stockDO.setWarehouse(body.getInFacility());
+                        break;
+                    }
+                }
+            }
 
             // 保存调拨后产品的库存数据
             stockService.batchSave(insertNewStockList);

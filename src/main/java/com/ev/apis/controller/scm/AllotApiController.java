@@ -40,6 +40,7 @@ public class AllotApiController {
 
 	@EvApiByToken(value = "/apis/allot/add", method = RequestMethod.POST, apiTitle = "增加调拨单")
 	@ApiOperation("增加调拨单")
+	@Transactional(rollbackFor = Exception.class)
 	public R add(AllotDO allotDO,
                  @ApiParam(value = "调拨产品:" +
                     "[\n" +
