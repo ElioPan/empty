@@ -139,6 +139,7 @@ public class ProductionFeedingApiController {
 		params.put("headId", headId);
 		params.put("auditSign", auditSign);
 
+		params.put("isPlan",1);
 		params.put("offset", (pageno - 1) * pagesize);
 		params.put("limit", pagesize);
 		Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
@@ -218,6 +219,7 @@ public class ProductionFeedingApiController {
 		params.put("auditSign", auditSign);
 		params.put("isPhone", isPhone);
 
+		params.put("isPlan",1);
 		params.put("offset", (pageno - 1) * pagesize);
 		params.put("limit", pagesize);
 		Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);

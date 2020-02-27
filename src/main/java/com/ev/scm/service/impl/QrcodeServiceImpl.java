@@ -192,7 +192,7 @@ public class QrcodeServiceImpl implements QrcodeService {
             QrcodeDO qrcodeDO = qrcodeDao.get(allotItemDO.getQrcodeId());
             StockDO stockDOTemp = stockService.get(Long.parseLong(allotItemDO.getStockId().split(",")[0]));
             for(StockDO stockDO : stockDOS){
-                if(Objects.equals(stockDO.getMaterielId(), stockDOTemp) &&
+                if(Objects.equals(stockDO.getMaterielId(), stockDOTemp.getMaterielId()) &&
                         (stockDO.getWarehouse() + "-" + stockDO.getWarehLocation()).equals(allotItemDO.getInFacility() + "-" + allotItemDO.getInLocation()) &&
                         stockDO.getBatch().equals(stockDOTemp.getBatch())){
                     qrcodeDO.setStockId(stockDO.getId());

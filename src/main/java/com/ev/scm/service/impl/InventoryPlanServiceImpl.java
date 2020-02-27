@@ -15,6 +15,7 @@ import com.ev.scm.domain.InventoryPlanItemDO;
 import com.ev.scm.service.InventoryPlanFitlossService;
 import com.ev.scm.service.InventoryPlanItemService;
 import com.ev.scm.service.InventoryPlanService;
+import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -100,27 +101,27 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 		map.put("headId",planId);
 		map.put("materielId",planItemDO.get(0).getMaterielId());
 		map.put("warehouse",planItemDO.get(0).getWarehouse());
-		map.put("warehLocation",planItemDO.get(0).getWarehLocation());
+//		map.put("warehLocation",planItemDO.get(0).getWarehLocation());
 		map.put("batch",planItemDO.get(0).getBatch());
 		 List<InventoryPlanItemDO> list = inventoryPlanItemService.list(map);
 
 		 if(list.isEmpty()){
 		 	return R.error(messageSourceHandler.getMessage("scm.checkPlan.checkQRCode", null));
 		 }else{
-			 String qrIdCount = list.get(0).getQrIdCount();
+			 String qrIdCount = list.get(0).getQrIdCount()==null?"":list.get(0).getQrIdCount().toString();
 			 if(Objects.nonNull(qrIdCount)&&StringUtils.isNotEmpty(qrIdCount)){
 
-				 JSONArray jsonArray = JSON.parseArray(qrIdCount);
-				 Map<String,Object>  qrIdCounts=(Map<String,Object>)jsonArray.get(0);
+				 JSONObject qrIdCountMap = JSONObject.fromObject(qrIdCount);
+				 Map<String, Object> qrIdCounts = (Map<String, Object>)qrIdCountMap;
 
 				 if(qrIdCounts.containsKey(String.valueOf(qrId))){
 					 String [] args = {qrIdCounts.get(String.valueOf(qrId)).toString()};
-					 return R.error(messageSourceHandler.getMessage("scm.checkPlan.checkQRCodeOK", args));
+					 return R.ok(messageSourceHandler.getMessage("scm.checkPlan.checkQRCodeOK", args));
 				 }else{
-					 return R.error(messageSourceHandler.getMessage("scm.checkPlan.checkQRCodenever", null));
+					 return R.ok(messageSourceHandler.getMessage("scm.checkPlan.checkQRCodenever", null));
 				 }
 			 }else{
-				 return R.error(messageSourceHandler.getMessage("scm.checkPlan.checkQRCodenever", null));
+				 return R.ok(messageSourceHandler.getMessage("scm.checkPlan.checkQRCodenever", null));
 			 }
 		 }
 	}
@@ -481,51 +482,68 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				JSONArray jsonArray = JSON.parseArray(checkBodys);
 				for (Object jsonMap : jsonArray) {
 					Map<String, Object> masp = (Map<String, Object>) jsonMap;
-					String qrMw = masp.get("materielId").toString() + "-" + masp.get("warehouse").toString() + "-" + masp.get("warehLocation").toString();
+					String qrMw = masp.get("materielId").toString() + "-" + masp.get("warehouse").toString();
+						//无批次默认必传 ‘无’
 					String qrBatch = masp.get("batch").toString();
 					BigDecimal qrCheckCount = new BigDecimal(masp.get("checkCount").toString());
 //					Long qrId =Long.valueOf(masp.get("qrId").toString());
 					String qrId=masp.get("qrId").toString();
 
-					for (int i=0;i<planItemDos.size();i++) {
-						String itemMw = planItemDos.get(i).getMaterielId().toString() + "-" + planItemDos.get(i).getWarehouse().toString() + "+" + planItemDos.get(i).getWarehLocation().toString();
-						String itemBatch = planItemDos.get(i).getBatch().toString();
+					for (InventoryPlanItemDO inventoryPlanItemDO:planItemDos) {
+						String itemMw = inventoryPlanItemDO.getMaterielId().toString() + "-" + inventoryPlanItemDO.getWarehouse().toString();
+						String itemBatch = inventoryPlanItemDO.getBatch().toString();
 
-						String qrIdCount = planItemDos.get(i).getQrIdCount();
-						BigDecimal systemCount = planItemDos.get(i).getSystemCount();
-						BigDecimal checkCount = planItemDos.get(i).getCheckCount();
-						BigDecimal profitLoss = planItemDos.get(i).getProfitLoss();
+						String qrIdCount = inventoryPlanItemDO.getQrIdCount()==null?"":inventoryPlanItemDO.getQrIdCount().toString();
+						BigDecimal systemCount = inventoryPlanItemDO.getSystemCount();
+						BigDecimal checkCount = inventoryPlanItemDO.getCheckCount()==null?BigDecimal.ZERO:inventoryPlanItemDO.getCheckCount();
+						BigDecimal profitLoss = inventoryPlanItemDO.getProfitLoss()==null?BigDecimal.ZERO:inventoryPlanItemDO.getProfitLoss();
 
 						if (Objects.equals(qrMw, itemMw) && Objects.equals(qrBatch, itemBatch)) {
 
-							if(Objects.nonNull(qrIdCount)&&StringUtils.isNotEmpty(qrIdCount)){
-								JSONArray jsonArras = JSON.parseArray(qrIdCount);
-								Map<String, Object> qrIdCountMap = (Map<String, Object>)jsonArras.get(0);
+							if(StringUtils.isNotEmpty(qrIdCount)){
+
+								JSONObject qrIdCounts = JSONObject.fromObject(qrIdCount);
+								Map<String, Object> qrIdCountMap = (Map<String, Object>)qrIdCounts;
 								if(qrIdCountMap.containsKey("qrId")){
 									//更改数量  先减后加
-									BigDecimal newCheckCount =checkCount.subtract(new BigDecimal(qrIdCountMap.get("qrId").toString())).add(qrCheckCount);
-									planItemDos.get(i).setCheckCount(newCheckCount);
-									planItemDos.get(i).setProfitLoss(systemCount.multiply(newCheckCount));
-//									planItemDos.get(i).setQrIdCount(qrIdCountMap.put("qrId",qrCheckCount));
-
+									BigDecimal newCheckCount =(checkCount.subtract(new BigDecimal(qrIdCountMap.get("qrId").toString()))).add(qrCheckCount);
+									inventoryPlanItemDO.setCheckCount(newCheckCount);
+									inventoryPlanItemDO.setProfitLoss(systemCount.multiply(newCheckCount));
+									inventoryPlanItemDO.setQrIdCount(qrIdCountMap.put(qrId,qrCheckCount).toString());
 								}else{
 									//直接添加盘点数量和，并将二维码的id和数量放进qrIdCount
-
+									BigDecimal newCheckCount =(checkCount.add(qrCheckCount));
+									inventoryPlanItemDO.setCheckCount(newCheckCount);
+									inventoryPlanItemDO.setProfitLoss(systemCount.multiply(newCheckCount));
+									inventoryPlanItemDO.setQrIdCount(qrIdCountMap.put(qrId,qrCheckCount).toString());
 								}
-
+							}else{
+								//首次盘点
+								Map<String,Object>  qrIdCountMap= new HashMap<>();
+								qrIdCountMap.put(qrId,qrCheckCount);
+								BigDecimal newCheckCount =(checkCount.add(qrCheckCount));
+								inventoryPlanItemDO.setCheckCount(newCheckCount);
+								inventoryPlanItemDO.setProfitLoss(systemCount.multiply(newCheckCount));
+								inventoryPlanItemDO.setQrIdCount(qrIdCountMap.toString());
 							}
-
-						} else {
-
+							break;
 						}
 					}
 				}
+				//批量更新方案
+				inventoryPlanItemService.batchUpdate(planItemDos);
+
+				//将主表qrId做标记
+				InventoryPlanDO inventoryPlanDO=new InventoryPlanDO();
+				inventoryPlanDO.setId(planId);
+				inventoryPlanDO.setQrSign(1);
+				this.update(inventoryPlanDO);
+
+				return R.ok();
 			}
 		}else{
 			return  R.error(messageSourceHandler.getMessage("apis.check.buildWinStockD",null));
 		}
-
-		return null;
 	}
 
 

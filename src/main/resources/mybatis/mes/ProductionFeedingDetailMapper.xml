@@ -179,6 +179,8 @@
             <if test="materialsName != null and materialsName != ''"> and material.name LIKE CONCAT('%', #{materialsName},'%' )</if>
             <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(feeding.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(feeding.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="isPlan == 1"> AND feeding.`production_plan_id` IS NOT NULL </if>
+			<if test="isPlan == 0"> AND feeding.`outsource_contract_item_id` IS NOT NULL </if>
         </where>
 	</sql>
 
@@ -200,7 +202,12 @@
 		detail.`plan_feeding` AS planFeedingCount,
 		detail.`out_count` AS outCount,
 		detail.`scrap_count` AS scrapCount,
-		feeding.`id` AS feedingId
+		feeding.`id` AS feedingId,
+		/*委外投料*/
+		oc.`contract_code` AS contractCode,
+		supplier.name AS supplierName,
+		supplier.`id` AS supplierId
+
 		<include refid="sql_phone_map_condition"/>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -226,6 +233,9 @@
 		FROM mes_production_feeding_detail detail
 		LEFT JOIN mes_production_feeding feeding ON feeding.id= detail.`head_id`
 		LEFT JOIN mes_production_plan plan ON feeding.production_plan_id= plan.`id`
+		LEFT JOIN scm_outsourcing_contract_item oci ON oci.id= feeding.`outsource_contract_item_id`
+		LEFT JOIN scm_outsourcing_contract oc ON oc.id= oci.`contract_id`
+		LEFT JOIN cus_supplier supplier ON supplier.id= oc.`supplier_id`
 		LEFT JOIN sys_dept dept ON feeding.pro_dept= dept.`dept_id`
 		LEFT JOIN cus_materiel material ON material.`id` = detail.`materiel_id`
 		LEFT JOIN cus_dictionary unituom ON unituom.id = material.unit_uom
@@ -237,7 +247,11 @@
 			<if test="isPhone == 1"> and (detail.`plan_feeding` &gt; detail.`out_count` OR feeding.is_quota = 0) </if>
 			<if test="startTime != null and startTime != ''">  and  DATE_FORMAT(feeding.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(feeding.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="isPlan == 1"> AND feeding.`production_plan_id` IS NOT NULL </if>
+			<if test="isPlan == 0"> AND feeding.`outsource_contract_item_id` IS NOT NULL </if>
 		</where>
 	</sql>
+
+
 
 </mapper>
