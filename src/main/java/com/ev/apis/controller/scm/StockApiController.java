@@ -533,8 +533,13 @@ public class StockApiController {
         params.put("auditSign", ConstantForGYL.OK_AUDITED);
         List<Map<String, Object>> stockInList = stockInService.listForMap(params);
         List<StockOutItemDO> stockOutList = stockOutItemService.list(params);
+
+        // 获取本期已存在物料列表
         params.put("period", period);
         List<StockAnalysisDO> stockAnalysisList = stockAnalysisService.list(params);
+
+        // 先将本期入库的新的物料加入分析表中
+        List<StockAnalysisDO> insertStockAnalysisList = Lists.newArrayList();
 
         // 加权平均法出库成本的算法：(月初结存金额+本月入库金额)/（月初结存数量+本月入库数量），算出当月加权平均
         // 分批认定法：物料属性中需要设置批次管理，入库时入库单需要录入批号，出库时出库单的单价以入库时相同批号的单价作为出库单价。
@@ -619,24 +624,6 @@ public class StockApiController {
             }
         }
 
-        // 计算出库成本单价
-        for (StockAnalysisDO analysisDO : stockAnalysisList) {
-            String materielId = analysisDO.getMaterielId().toString();
-            if (materielInCountMap.containsKey(materielId)) {
-                // (月初结存金额+本月入库金额)/（月初结存数量+本月入库数量）
-                BigDecimal inAmount = materielInAmountMap.get(materielId);
-                BigDecimal inCount = materielInCountMap.get(materielId);
-                analysisDO.setInCount(inCount);
-                analysisDO.setInAmount(inAmount);
-                materielInUnitPriceMap.put(materielId
-                        , (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
-                continue;
-            }
-            analysisDO.setInAmount(BigDecimal.ZERO);
-            analysisDO.setInCount(BigDecimal.ZERO);
-        }
-
-
         // 分批认定入库
         if (stockInBatchNonEmpty.size() > 0) {
             // 获取入库列表的总数量
@@ -652,6 +639,57 @@ public class StockApiController {
             }
         }
 
+        // 保存分析表内没有的物料
+        if (materielInCountMap.size() > 0) {
+            StockAnalysisDO stockAnalysisDO;
+            String[] split;
+            int materielId;
+            String batch;
+            for (String s : materielInCountMap.keySet()) {
+                stockAnalysisDO = new StockAnalysisDO();
+                split = s.split("&");
+                materielId = Integer.parseInt(split[0]);
+                if (split.length == 2) {
+                    batch = split[1];
+                }else {
+                    batch = null;
+                }
+                stockAnalysisDO.setMaterielId(materielId);
+                stockAnalysisDO.setBatch(batch);
+                stockAnalysisDO.setInitialCount(BigDecimal.ZERO);
+                stockAnalysisDO.setInitialAmount(BigDecimal.ZERO);
+                stockAnalysisDO.setInCount(materielInCountMap.get(s));
+                stockAnalysisDO.setInAmount(materielInAmountMap.get(s));
+                stockAnalysisDO.setPeriod(DateFormatUtil.getDateByParttern(period));
+                stockAnalysisDO.setIsClose(0);
+                stockAnalysisDO.setDelFlag(0);
+                insertStockAnalysisList.add(stockAnalysisDO);
+            }
+        }
+        if (insertStockAnalysisList.size() > 0) {
+            stockAnalysisList.addAll(insertStockAnalysisList);
+        }
+
+        // 计算出库成本单价
+        for (StockAnalysisDO analysisDO : stockAnalysisList) {
+            String materielId = analysisDO.getMaterielId().toString();
+            if (materielInCountMap.containsKey(materielId)) {
+                // (月初结存金额+本月入库金额)/（月初结存数量+本月入库数量）
+                BigDecimal inAmount = materielInAmountMap.get(materielId);
+                BigDecimal inCount = materielInCountMap.get(materielId);
+                analysisDO.setInCount(inCount);
+                analysisDO.setInAmount(inAmount);
+                materielInUnitPriceMap.put(materielId
+                        , (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
+                materielInCountMap.remove(materielId);
+                continue;
+            }
+            analysisDO.setInAmount(BigDecimal.ZERO);
+            analysisDO.setInCount(BigDecimal.ZERO);
+        }
+
+
+
         // 计算出库成本单价
         for (StockAnalysisDO analysisDO : stockAnalysisList) {
             String materielIdAndBatch = analysisDO.getMaterielId().toString() + "&" + analysisDO.getBatch();
@@ -664,6 +702,7 @@ public class StockApiController {
                 analysisDO.setInAmount(inAmount);
                 materielInUnitPriceMap.put(materielIdAndBatch
                         , (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
+                materielInCountMap.remove(materielIdAndBatch);
                 continue;
             }
             analysisDO.setInAmount(BigDecimal.ZERO);
@@ -774,75 +813,22 @@ public class StockApiController {
                     analysisDO.getInitialAmount()
                             .add(inAmount));
         }
-        stockAnalysisService.batchUpdate(stockAnalysisList);
+        List<StockAnalysisDO> updateList = stockAnalysisList
+                .stream()
+                .filter(stockAnalysisDO -> stockAnalysisDO.getId() != null)
+                .collect(Collectors.toList());
 
-//                List<Map<String, Object>> stockInBatchNonEmpty = stockInList.stream()
-//                        .filter(stringObjectMap -> stringObjectMap.containsKey("batch"))
-//                        .collect(Collectors.toList());
-//                List<StockOutItemDO> stockOutBatchNonEmpty = stockOutList.stream()
-//                        .filter(stockOutItemDO -> stockOutItemDO.getBatch() != null)
-//                        .collect(Collectors.toList());
-//                if (stockOutBatchNonEmpty.size() > 0 && stockInBatchNonEmpty.size() > 0) {
-//                    Map<String, BigDecimal> materielInUnitPriceMap = Maps.newHashMap();
-//                    Map<String, BigDecimal> materielOutCountMap = Maps.newHashMap();
-//                    Map<String, BigDecimal> materielOutAmountMap = Maps.newHashMap();
-//                    for (Map<String, Object> map : stockInBatchNonEmpty) {
-//                        String materielIdAndBatch = map.get("materielId").toString() + "&" + map.get("batch").toString();
-//                        if (materielInUnitPriceMap.containsKey(materielIdAndBatch)) {
-//                            continue;
-//                        }
-//                        materielInUnitPriceMap.put(materielIdAndBatch, MathUtils.getBigDecimal(map.get("unitPrice")));
-//
-//                    }
-//
-//                    Map<String, Object> map = Maps.newHashMap();
-//                    map.put("period", period);
-//                    List<StockAnalysisDO> stockAnalysisBatchNonEmptyDOS = stockAnalysisService.list(map).stream()
-//                            .filter(stockAnalysis -> stockAnalysis.getBatch() != null)
-//                            .collect(Collectors.toList());
-//
-//                    for (StockOutItemDO itemDO : stockOutBatchNonEmpty) {
-//                        String materielIdAndBatch = itemDO.getMaterielId().toString() + "&" + itemDO.getBatch();
-//                        if (materielInUnitPriceMap.containsKey(materielIdAndBatch)) {
-//                            BigDecimal unitPrice = materielInUnitPriceMap.get(materielIdAndBatch);
-//                            BigDecimal count = itemDO.getCount();
-//                            BigDecimal amount = itemDO.getCount().multiply(unitPrice);
-//                            itemDO.setUnitPrice(unitPrice);
-//                            itemDO.setAmount(amount);
-//
-//                            if (materielOutCountMap.containsKey(materielIdAndBatch)) {
-//                                materielOutCountMap.put(materielIdAndBatch, materielOutCountMap.get(materielIdAndBatch).add(count));
-//                                materielOutAmountMap.put(materielIdAndBatch, materielOutAmountMap.get(materielIdAndBatch).add(amount));
-//                                continue;
-//                            }
-//                            materielOutCountMap.put(materielIdAndBatch, count);
-//                            materielOutAmountMap.put(materielIdAndBatch, amount);
-//                        }
-//                    }
-//
-//                    for (StockAnalysisDO stockAnalysisBatchNonEmptyDO : stockAnalysisBatchNonEmptyDOS) {
-//                        String materielIdAndBatch = stockAnalysisBatchNonEmptyDO.getMaterielId().toString() + "&" + stockAnalysisBatchNonEmptyDO.getBatch();
-//                        if (materielOutCountMap.containsKey(materielIdAndBatch)) {
-//                            BigDecimal outCount = materielOutCountMap.get(materielIdAndBatch);
-//                            BigDecimal outAmount = materielOutAmountMap.get(materielIdAndBatch);
-//                            stockAnalysisBatchNonEmptyDO.setOutCount(outCount);
-//                            stockAnalysisBatchNonEmptyDO.setOutAmount(outAmount);
-//                            // 期末结存数量=期初数量+本月入库数量-本月发出数量
-//                            BigDecimal finalCount = stockAnalysisBatchNonEmptyDO.getInitialCount()
-//                                    .add(stockAnalysisBatchNonEmptyDO.getInCount() == null ? BigDecimal.ZERO : stockAnalysisBatchNonEmptyDO.getInCount())
-//                                    .subtract(outCount);
-//                            stockAnalysisBatchNonEmptyDO.setFinalCount(finalCount);
-//                            // 期末结存金额=期初金额+本月入库金额-本月发出金额
-//                            BigDecimal finalAmount = stockAnalysisBatchNonEmptyDO.getFinalAmount()
-//                                    .add(stockAnalysisBatchNonEmptyDO.getInAmount() == null ? BigDecimal.ZERO : stockAnalysisBatchNonEmptyDO.getInAmount())
-//                                    .subtract(outAmount);
-//                            stockAnalysisBatchNonEmptyDO.setFinalAmount(finalAmount);
-//                        }
-//                    }
-//                    stockAnalysisService.batchUpdate(stockAnalysisBatchNonEmptyDOS);
-//                    stockOutItemService.batchInsert(stockOutBatchEmpty);
-//                }
-//
+        List<StockAnalysisDO> insertList = stockAnalysisList
+                .stream()
+                .filter(stockAnalysisDO -> stockAnalysisDO.getId() == null)
+                .collect(Collectors.toList());
+
+        if (updateList.size() > 0) {
+            stockAnalysisService.batchUpdate(updateList);
+        }
+        if (insertList.size() > 0) {
+            stockAnalysisService.batchInsert(insertList);
+        }
         return R.ok();
 
     }
