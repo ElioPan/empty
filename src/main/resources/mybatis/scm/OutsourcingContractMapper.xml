@@ -148,6 +148,7 @@
         dict.`name` AS contractTypeName,
         IF(outsourcing.close_status=0,'未关闭','关闭') AS closeStatusName,
         supplier.`name` AS supplierName,
+        supplier.`id` AS supplierId,
         materiel.`id` AS materielId,
         materiel.`is_lot` AS isLot,
         materiel.serial_no AS materielSerialNo,
