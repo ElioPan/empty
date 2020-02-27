@@ -89,20 +89,20 @@ public class ScmInventoryPlanApiController {
     public R getPlanList(
             @ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
             @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
-            @ApiParam(value = "单据编号/盘点人") @RequestParam(value = "false", defaultValue = "", required = false) String code,
+            @ApiParam(value = "单据编号") @RequestParam(value = "code", defaultValue = "", required = false) String code,
             @ApiParam(value = "计划时间Start") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
             @ApiParam(value = "计划时间End") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
-            @ApiParam(value = "手机选择盘点方案时必传（1）") @RequestParam(value = "QR", defaultValue = "", required = false) int qR) {
+            @ApiParam(value = "手机选择盘点方案时必传（1）") @RequestParam(value = "QR", required = false) Integer QR) {
 
         Map<String, Object> resuls = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
         params.put("offset", (pageno - 1) * pagesize);
         params.put("limit", pagesize);
         params.put("code", code);
-        params.put("checkers", code);
+//        params.put("checkers", code);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
-        params.put("qrSign", qR);
+        params.put("qr", QR);
 
         params.put("checkStatusOne", ConstantForGYL.EXECUTE_NON);
         params.put("checkStatusTwo", ConstantForGYL.EXECUTE_NOW);
@@ -166,7 +166,7 @@ public class ScmInventoryPlanApiController {
                     "\"materielId\":2," +
                     "\"warehouse\":仓库id," +
                     "\"warehLocation\":库位id," +
-                    "\"batch\":\"20191225001\"," +
+                    "\"batch\":\"无批次默认必传 ‘无’\"," +
                     "\"checkCount\":盘点数量," +
                     "\"qrId\":条码id}" +
                     "]") @RequestParam(value = "checkBodyDO") String checkBodys) {
