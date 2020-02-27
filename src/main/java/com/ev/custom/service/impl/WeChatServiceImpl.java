@@ -115,7 +115,7 @@ public class WeChatServiceImpl implements WeChatService {
         if(jsApiTicket.size()==0){
             jsApiTicket = WeChatUtil.getJsapiTicket(accessToken);
             jsApiTicket.put(EXPIRE_DATE, com.ev.framework.utils.DateUtils.format(DateUtils.addSeconds(now,4800),DateFormatUtil.DATE_PATTERN));
-            redisTemplate.opsForValue().set(Constant.WECHAT_JSAPI_TICKET,accessToken.toString());
+            redisTemplate.opsForValue().set(Constant.WECHAT_JSAPI_TICKET,jsApiTicket.toString());
         }else{
             if(DateUtils.parseDate(jsApiTicket.get(EXPIRE_DATE).toString(),DateFormatUtil.DATE_PATTERN).compareTo(now)<0){
                 jsApiTicket = WeChatUtil.getJsapiTicket(accessToken);
