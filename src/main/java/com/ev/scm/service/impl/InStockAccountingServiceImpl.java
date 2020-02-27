@@ -234,7 +234,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
        //根据入库单的产品去找bom里的组件物料明细，并计算本次核销的物料数量
         List<StockInItemDO> stockInItemDos = JSONObject.parseArray(detailAccounting, StockInItemDO.class);
         //更新委外入库费用
-        updateOutSourcingInStockExpense(stockInItemDos);
+//        updateOutSourcingInStockExpense(stockInItemDos);
 
         for (StockInItemDO stockInItemDo:stockInItemDos){
             //产品id
@@ -408,15 +408,16 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         //取出所有明细
         Map<String,Object>  map= new HashMap<>();
         map.put("id",stockInds);
-        List< Map<String,Object>> itemDetailById = stockIntemService.getItemDetailById(map);
+        List<StockInItemDO> itemDetailById = stockIntemService.getItemDetailById(map);
 
-        for( Map<String,Object> detail:itemDetailById){
+        for(StockInItemDO stockInItemDO:itemDetailById){
+            StockInDO stockInDO = stockInService.get(stockInItemDO.getInheadId());
 
-            if(!Objects.nonNull(detail.get("sign"))){
-                //未进行核算
-
-
-
+            if(stockInDO.getSign()==null){
+                //未进行核算 未分配
+                if(Objects.equals("0",stockInItemDO.getAccountSource())){
+                    continue;
+                }
             }else{
 
             }

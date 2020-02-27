@@ -56,6 +56,6 @@ public interface StockInItemDao {
 
 	int batchSave(List<StockInItemDO> stockDOs);
 
-	List<Map<String, Object>> getItemDetailById(Map<String, Object> map);
+	List<StockInItemDO> getItemDetailById(Map<String, Object> map);
 
 }

@@ -544,12 +544,12 @@
 	</insert>
 
 
-	<select id="getItemDetailById" resultType="map">
+	<select id="getItemDetailById" resultType="com.ev.scm.domain.StockInItemDO">
 		SELECT
 		DISTINCT
-		b.id,
-		b.sign,
-		a.id as itemId,
+
+		a.id,
+		a.inhead_id,
 		a.`count`,
 		a.unit_price,
 		a.amount,
