@@ -213,7 +213,7 @@
 	</delete>
 	
 	<sql id="sql_column_list">
-		`id`,`inspection_type`,`source_id`,`source_no`,`source_type`,`supplier_id`,`client_id`,`dept_id`,`inspector`,`materiel_id`,`batch_no`,`inspection_scheme`,`send_count`,`inspection_count`,`qualified_count`,`unqualified_count`,`inspection_no`,`industrial_waste_count`,`scrap_waste_count`,`auditor`,`status`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+		`id`,`inspection_type`,`source_id`,`source_no`,`source_type`,`supplier_id`,`client_id`,`dept_id`,`inspector`,`materiel_id`,`batch_no`,`inspection_scheme`,`send_count`,`inspection_count`,`qualified_count`,`unqualified_count`,`inspection_no`,`industrial_waste_count`,`scrap_waste_count`,`auditor`,`status`,`is_printed_qrcode`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 	</sql>
 	
 	<sql id="sql_condition">
