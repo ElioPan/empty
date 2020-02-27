@@ -224,12 +224,18 @@
 		LEFT JOIN cus_dictionary dic ON dic.`id` = materiel.`unit_uom`
 		LEFT JOIN cus_facility_location fl ON fl.`id` = stock.`wareh_location`
 		LEFT JOIN cus_facility facility ON facility.`id` = fl.`facility_id`
+		<where>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(stock.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		</where>
 	</select>
 	<select id="countForMap" resultType="java.util.Map" parameterType="List">
 		SELECT
 		SUM(stock.`count`) AS totalCount,
 		SUM(stock.`amount`) AS totalAmount
 		FROM scm_stock stock
+		<where>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(stock.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		</where>
 	</select>
 
 	<update id="batchUpdate" parameterType="List">
