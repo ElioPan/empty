@@ -137,8 +137,11 @@
 			#{id}
 		</foreach>
 	</delete>
+    <delete id="batchRemoveById">
+		 DELETE FROM scm_stock_analysis WHERE id &gt; #{value}
+	</delete>
 
-	<!--自定义-->
+    <!--自定义-->
 	<insert id="batchInsert" parameterType="List" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO scm_stock_analysis(
 		`period`,

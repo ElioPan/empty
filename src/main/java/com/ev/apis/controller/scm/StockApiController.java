@@ -109,7 +109,7 @@ public class StockApiController {
                         || !NumberUtils.isNumber(stockEntity.getTotalCount())
                         || !NumberUtils.isNumber(stockEntity.getAmount())
 //                        || StringUtils.isEmpty(stockEntity.getBatch()
-                        ) {
+                ) {
                     return R.error(messageSourceHandler.getMessage("basicInfo.correct.param", null));
                 }
 
@@ -135,7 +135,7 @@ public class StockApiController {
                 facilityName = stockEntity.getFacilityName();
                 facilityLocationName = stockEntity.getFacilityLocationName();
                 for (FacilityDO facilityDO : facilityDOs) {
-                    isFacilityError =true;
+                    isFacilityError = true;
                     if (Objects.equals(facilityDO.getName(), facilityName)) {
                         Integer facilityDOId = facilityDO.getId();
                         // 默认库位
@@ -183,7 +183,7 @@ public class StockApiController {
                 stockDO.setCount(count);
                 BigDecimal amount = BigDecimal.valueOf(Double.parseDouble(stockEntity.getAmount()));
                 stockDO.setAmount(amount);
-                stockDO.setUnitPrice(amount.divide(count,Constant.BIGDECIMAL_ZERO));
+                stockDO.setUnitPrice(amount.divide(count, Constant.BIGDECIMAL_ZERO));
                 stockDO.setDelFlag(0);
                 stockDO.setCreateBy(userId);
                 stockDO.setCreateTime(now);
@@ -213,7 +213,7 @@ public class StockApiController {
 
         param.put("materielId", materielId);
         param.put("batch", batch);
-        param.put("isPc",1);
+        param.put("isPc", 1);
         // 获取实时库存
         List<Map<String, Object>> data = materielService.stockListForMap(param);
         ClassPathResource classPathResource = new ClassPathResource("poi/stock.xlsx");
@@ -368,7 +368,7 @@ public class StockApiController {
                         BigDecimal count = itemDO.getCount();
                         BigDecimal amount = itemDO.getAmount();
                         itemDO.setAvailableCount(count);
-                        itemDO.setUnitPrice(amount.divide(count,Constant.BIGDECIMAL_ZERO));
+                        itemDO.setUnitPrice(amount.divide(count, Constant.BIGDECIMAL_ZERO));
                         itemDO.setEnteringTime(now);
                         itemDO.setCreateTime(now);
                         itemDO.setDelFlag(0);
@@ -414,7 +414,6 @@ public class StockApiController {
         return R.ok(results);
 
     }
-
 
 
     @Transactional(rollbackFor = Exception.class)
@@ -464,304 +463,320 @@ public class StockApiController {
         List<StockAnalysisDO> list = stockAnalysisService.list(params);
         if (list.size() > 0) {
             StockAnalysisDO stockAnalysisDO = list.get(0);
-            if (stockAnalysisDO.getIsClose()==0 && stockAnalysisDO.getFinalCount() == null){
-                Date period = stockAnalysisDO.getPeriod();
-                Calendar instance = Calendar.getInstance();
-                instance.setTime(period);
-                instance.set(Calendar.MONTH,instance.get(Calendar.MONTH)-1);
-                Date instanceTime = instance.getTime();
-                params.put("period",DateFormatUtil.getFormateDate(instanceTime));
-                List<StockAnalysisDO> oldList = stockAnalysisService.list(params);
-                if (oldList.size() > 0) {
-                    result.put("period", instanceTime);
-                }else {
-                    result.put("period", stockAnalysisDO.getPeriod());
-                }
+            Date period = stockAnalysisDO.getPeriod();
+            Calendar instance = Calendar.getInstance();
+            instance.setTime(period);
+            instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) - 1);
+            Date instanceTime = instance.getTime();
+            params.put("period", DateFormatUtil.getFormateDate(instanceTime));
+            List<StockAnalysisDO> oldList = stockAnalysisService.list(params);
+            if (oldList.size() > 0 && oldList.get(0).getIsClose() == 0) {
+                result.put("period", instanceTime);
+            } else {
+                result.put("period", period);
             }
         }
         return R.ok(result);
     }
 
+    public int checkTime(String period) {
+        Date periodTime = DateFormatUtil.getDateByParttern(period, "yyyy-MM-dd");
+        if (periodTime == null) {
+            return 1;
+        }
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("offset", 0);
+        params.put("limit", 1);
+        List<StockAnalysisDO> list = stockAnalysisService.list(params);
+        if (list.size() == 0) {
+            return 2;
+        }
+        StockAnalysisDO stockAnalysisDO = list.get(0);
+        Date oldPeriod = stockAnalysisDO.getPeriod();
+        Calendar instance = Calendar.getInstance();
+        instance.setTime(oldPeriod);
+        instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) - 1);
+        Date instanceTime = instance.getTime();
+        params.put("period", DateFormatUtil.getFormateDate(instanceTime));
+        List<StockAnalysisDO> oldList = stockAnalysisService.list(params);
+        if (oldList.size() > 0 && oldList.get(0).getIsClose() == 0) {
+            oldPeriod = instanceTime;
+        }
+        instance.setTime(periodTime);
+        instance.set(Calendar.DAY_OF_MONTH, 1);
+        long newMillis = instance.getTimeInMillis();
+        instance.setTime(oldPeriod);
+        instance.set(Calendar.DAY_OF_MONTH, 1);
+        long oldMillis = instance.getTimeInMillis();
+        return oldMillis == newMillis ? 0 : 3;
+    }
 
     @Transactional(rollbackFor = Exception.class)
     @EvApiByToken(value = "/apis/stock/stockOutAccounting", method = RequestMethod.POST, apiTitle = "出库核算")
     @ApiOperation("出库核算")
     public R stockOutAccounting(@ApiParam(value = "计算时间", required = true) @RequestParam(value = "period", defaultValue = "") String period) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("offset", 0);
-        params.put("limit", 1);
-        List<StockAnalysisDO> list = stockAnalysisService.list(params);
-        if (list.size() > 0) {
-            StockAnalysisDO stockAnalysisDO = list.get(0);
-            Calendar instance = Calendar.getInstance();
-            Date periodTime = DateFormatUtil.getDateByParttern(period, "yyyy-MM-dd");
-            Date oldPeriod = stockAnalysisDO.getPeriod();
-            if (periodTime == null) {
+        int checkTime = this.checkTime(period);
+        switch (checkTime) {
+            case 1:
                 return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
-            }
-            instance.setTime(periodTime);
-            instance.set(Calendar.DAY_OF_MONTH, 1);
-            long newMillis = instance.getTimeInMillis();
-            instance.setTime(oldPeriod);
-            instance.set(Calendar.DAY_OF_MONTH, 1);
-            long oldMillis = instance.getTimeInMillis();
-
-            instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) - 1);
-            long upOldInMillis = instance.getTimeInMillis();
-
-            if (newMillis == upOldInMillis && stockAnalysisDO.getIsClose() == 0) {
+            case 2:
+                return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
+            case 3:
                 return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
+            default:
+                break;
+        }
+
+        Map<String, Object> params = Maps.newHashMap();
+        Date periodTime = DateFormatUtil.getDateByParttern(period, "yyyy-MM-dd");
+        // 入库单
+        params.put("createStartTime", DatesUtil.getSupportBeginDayOfMonth(periodTime));
+        params.put("createEndTime", DatesUtil.getSupportEndDayOfMonth(periodTime));
+        params.put("auditSign", ConstantForGYL.OK_AUDITED);
+        List<Map<String, Object>> stockInList = stockInService.listForMap(params);
+        List<StockOutItemDO> stockOutList = stockOutItemService.list(params);
+        params.put("period", period);
+        List<StockAnalysisDO> stockAnalysisList = stockAnalysisService.list(params);
+
+        // 加权平均法出库成本的算法：(月初结存金额+本月入库金额)/（月初结存数量+本月入库数量），算出当月加权平均
+        // 分批认定法：物料属性中需要设置批次管理，入库时入库单需要录入批号，出库时出库单的单价以入库时相同批号的单价作为出库单价。
+
+        // 入库的物料
+        List<Object> materielInIdList = stockInList.stream()
+                .map(stringObjectMap -> stringObjectMap.get("materielId"))
+                .collect(Collectors.toList());
+        params.put("materielIdList", materielInIdList);
+        List<MaterielDO> materielDOInList = materielService.list(params);
+
+        // 出库的物料
+        List<Integer> materielOutIdList = stockOutList.stream()
+                .map(StockOutItemDO::getMaterielId)
+                .collect(Collectors.toList());
+        params.put("materielIdList", materielOutIdList);
+        List<MaterielDO> materielDOOutList = materielService.list(params);
+
+        // 加权平均的入库物料
+        List<Integer> weightedAverageIdInList = materielDOInList.stream()
+                .filter(materielDO -> Objects.equals(ConstantForGYL.WEIGHTED_AVERAGE, materielDO.getValuationMethod()))
+                .map(MaterielDO::getId)
+                .collect(Collectors.toList());
+
+        // 加权平均的出库物料
+        List<Integer> weightedAverageIdOutList = materielDOOutList.stream()
+                .filter(materielDO -> Objects.equals(ConstantForGYL.WEIGHTED_AVERAGE, materielDO.getValuationMethod()))
+                .map(MaterielDO::getId)
+                .collect(Collectors.toList());
+
+        // 分批认定的入库物料
+        List<Integer> idAndBatchInList = materielDOInList.stream()
+                .filter(materielDO -> Objects.equals(ConstantForGYL.BATCH_FINDS, materielDO.getValuationMethod()))
+                .map(MaterielDO::getId)
+                .collect(Collectors.toList());
+
+        // 分批认定的出库物料
+        List<Integer> idAndBatchOutList = materielDOOutList.stream()
+                .filter(materielDO -> Objects.equals(ConstantForGYL.BATCH_FINDS, materielDO.getValuationMethod()))
+                .map(MaterielDO::getId)
+                .collect(Collectors.toList());
+
+
+        // 获取本期要计算入库的加权平均物料
+        List<Map<String, Object>> stockInBatchEmpty = stockInList.stream()
+                .filter(stringObjectMap -> weightedAverageIdInList.contains(Integer.parseInt(stringObjectMap.get("materielId").toString())))
+                .collect(Collectors.toList());
+
+        // 获取本期要计算出库的加权平均物料
+        List<StockOutItemDO> stockOutBatchEmpty = stockOutList.stream()
+                .filter(stockOutItemDO -> weightedAverageIdOutList.contains(stockOutItemDO.getMaterielId()))
+                .collect(Collectors.toList());
+
+        // 获取本期要计算入库的分批认定物料 id+&+batch
+        List<Map<String, Object>> stockInBatchNonEmpty = stockInList.stream()
+                .filter(stringObjectMap -> idAndBatchInList.contains(Integer.parseInt(stringObjectMap.get("materielId").toString())))
+                .collect(Collectors.toList());
+
+        // 获取本期要计算出库的分批认定物料 id+&+batch
+        List<StockOutItemDO> stockOutBatchNonEmpty = stockOutList.stream()
+                .filter(stockOutItemDO -> idAndBatchOutList.contains(stockOutItemDO.getMaterielId()))
+                .collect(Collectors.toList());
+
+        Map<String, BigDecimal> materielOutCountMap = Maps.newHashMap();
+        Map<String, BigDecimal> materielOutAmountMap = Maps.newHashMap();
+        Map<String, BigDecimal> materielInCountMap = Maps.newHashMap();
+        Map<String, BigDecimal> materielInAmountMap = Maps.newHashMap();
+        Map<String, BigDecimal> materielInUnitPriceMap = Maps.newHashMap();
+
+        // 加权平均入库
+        if (stockInBatchEmpty.size() > 0) {
+            // 获取入库列表的总数量
+            for (Map<String, Object> stockInBatch : stockInBatchEmpty) {
+                String materielId = stockInBatch.get("materielId").toString();
+                if (materielInCountMap.containsKey(materielId)) {
+                    materielInCountMap.put(materielId, materielInCountMap.get(materielId).add(MathUtils.getBigDecimal(stockInBatch.get("count"))));
+                    materielInAmountMap.put(materielId, materielInAmountMap.get(materielId).add(MathUtils.getBigDecimal(stockInBatch.get("amount"))));
+                    continue;
+                }
+                materielInCountMap.put(materielId, MathUtils.getBigDecimal(stockInBatch.get("count")));
+                materielInAmountMap.put(materielId, MathUtils.getBigDecimal(stockInBatch.get("amount")));
             }
-            if (newMillis == oldMillis) {
-                params.clear();
-                // 入库单
-                params.put("createStartTime", DatesUtil.getSupportBeginDayOfMonth(periodTime));
-                params.put("createEndTime", DatesUtil.getSupportEndDayOfMonth(periodTime));
-                params.put("auditSign", ConstantForGYL.OK_AUDITED);
-                List<Map<String, Object>> stockInList = stockInService.listForMap(params);
-                List<StockOutItemDO> stockOutList = stockOutItemService.list(params);
-                params.put("period", period);
-                List<StockAnalysisDO> stockAnalysisList = stockAnalysisService.list(params);
+        }
 
-                // 加权平均法出库成本的算法：(月初结存金额+本月入库金额)/（月初结存数量+本月入库数量），算出当月加权平均
-                // 分批认定法：物料属性中需要设置批次管理，入库时入库单需要录入批号，出库时出库单的单价以入库时相同批号的单价作为出库单价。
-
-                // 入库的物料
-                List<Object> materielInIdList = stockInList.stream()
-                        .map(stringObjectMap -> stringObjectMap.get("materielId"))
-                        .collect(Collectors.toList());
-                params.put("materielIdList", materielInIdList);
-                List<MaterielDO> materielDOInList = materielService.list(params);
-
-                // 出库的物料
-                List<Integer> materielOutIdList = stockOutList.stream()
-                        .map(StockOutItemDO::getMaterielId)
-                        .collect(Collectors.toList());
-                params.put("materielIdList", materielOutIdList);
-                List<MaterielDO> materielDOOutList = materielService.list(params);
-
-                // 加权平均的入库物料
-                List<Integer> weightedAverageIdInList = materielDOInList.stream()
-                        .filter(materielDO -> Objects.equals(ConstantForGYL.WEIGHTED_AVERAGE, materielDO.getValuationMethod()))
-                        .map(MaterielDO::getId)
-                        .collect(Collectors.toList());
-
-                // 加权平均的出库物料
-                List<Integer> weightedAverageIdOutList = materielDOOutList.stream()
-                        .filter(materielDO -> Objects.equals(ConstantForGYL.WEIGHTED_AVERAGE, materielDO.getValuationMethod()))
-                        .map(MaterielDO::getId)
-                        .collect(Collectors.toList());
-
-                // 分批认定的入库物料
-                List<Integer> idAndBatchInList = materielDOInList.stream()
-                        .filter(materielDO -> Objects.equals(ConstantForGYL.BATCH_FINDS, materielDO.getValuationMethod()))
-                        .map(MaterielDO::getId)
-                        .collect(Collectors.toList());
-
-                // 分批认定的出库物料
-                List<Integer> idAndBatchOutList = materielDOOutList.stream()
-                        .filter(materielDO -> Objects.equals(ConstantForGYL.BATCH_FINDS, materielDO.getValuationMethod()))
-                        .map(MaterielDO::getId)
-                        .collect(Collectors.toList());
+        // 计算出库成本单价
+        for (StockAnalysisDO analysisDO : stockAnalysisList) {
+            String materielId = analysisDO.getMaterielId().toString();
+            if (materielInCountMap.containsKey(materielId)) {
+                // (月初结存金额+本月入库金额)/（月初结存数量+本月入库数量）
+                BigDecimal inAmount = materielInAmountMap.get(materielId);
+                BigDecimal inCount = materielInCountMap.get(materielId);
+                analysisDO.setInCount(inCount);
+                analysisDO.setInAmount(inAmount);
+                materielInUnitPriceMap.put(materielId
+                        , (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
+                continue;
+            }
+            analysisDO.setInAmount(BigDecimal.ZERO);
+            analysisDO.setInCount(BigDecimal.ZERO);
+        }
 
 
-                // 获取本期要计算入库的加权平均物料
-                List<Map<String, Object>> stockInBatchEmpty = stockInList.stream()
-                        .filter(stringObjectMap -> weightedAverageIdInList.contains(Integer.parseInt(stringObjectMap.get("materielId").toString())))
-                        .collect(Collectors.toList());
-
-                // 获取本期要计算出库的加权平均物料
-                List<StockOutItemDO> stockOutBatchEmpty = stockOutList.stream()
-                        .filter(stockOutItemDO -> weightedAverageIdOutList.contains(stockOutItemDO.getMaterielId()))
-                        .collect(Collectors.toList());
-
-                // 获取本期要计算入库的分批认定物料 id+&+batch
-                List<Map<String, Object>> stockInBatchNonEmpty = stockInList.stream()
-                        .filter(stringObjectMap -> idAndBatchInList.contains(Integer.parseInt(stringObjectMap.get("materielId").toString())))
-                        .collect(Collectors.toList());
-
-                // 获取本期要计算出库的分批认定物料 id+&+batch
-                List<StockOutItemDO> stockOutBatchNonEmpty = stockOutList.stream()
-                        .filter(stockOutItemDO -> idAndBatchOutList.contains(stockOutItemDO.getMaterielId()))
-                        .collect(Collectors.toList());
-
-                Map<String, BigDecimal> materielOutCountMap = Maps.newHashMap();
-                Map<String, BigDecimal> materielOutAmountMap = Maps.newHashMap();
-                Map<String, BigDecimal> materielInCountMap = Maps.newHashMap();
-                Map<String, BigDecimal> materielInAmountMap = Maps.newHashMap();
-                Map<String, BigDecimal> materielInUnitPriceMap = Maps.newHashMap();
-
-                // 加权平均入库
-                if (stockInBatchEmpty.size() > 0) {
-                    // 获取入库列表的总数量
-                    for (Map<String, Object> stockInBatch : stockInBatchEmpty) {
-                        String materielId = stockInBatch.get("materielId").toString();
-                        if (materielInCountMap.containsKey(materielId)) {
-                            materielInCountMap.put(materielId, materielInCountMap.get(materielId).add(MathUtils.getBigDecimal(stockInBatch.get("count"))));
-                            materielInAmountMap.put(materielId, materielInAmountMap.get(materielId).add(MathUtils.getBigDecimal(stockInBatch.get("amount"))));
-                            continue;
-                        }
-                        materielInCountMap.put(materielId, MathUtils.getBigDecimal(stockInBatch.get("count")));
-                        materielInAmountMap.put(materielId, MathUtils.getBigDecimal(stockInBatch.get("amount")));
-                    }
+        // 分批认定入库
+        if (stockInBatchNonEmpty.size() > 0) {
+            // 获取入库列表的总数量
+            for (Map<String, Object> stockInBatch : stockInBatchNonEmpty) {
+                String materielIdAndBatch = stockInBatch.get("materielId").toString() + "&" + stockInBatch.get("batch").toString();
+                if (materielInCountMap.containsKey(materielIdAndBatch)) {
+                    materielInCountMap.put(materielIdAndBatch, materielInCountMap.get(materielIdAndBatch).add(MathUtils.getBigDecimal(stockInBatch.get("count"))));
+                    materielInAmountMap.put(materielIdAndBatch, materielInAmountMap.get(materielIdAndBatch).add(MathUtils.getBigDecimal(stockInBatch.get("amount"))));
+                    continue;
                 }
+                materielInCountMap.put(materielIdAndBatch, MathUtils.getBigDecimal(stockInBatch.get("count")));
+                materielInAmountMap.put(materielIdAndBatch, MathUtils.getBigDecimal(stockInBatch.get("amount")));
+            }
+        }
 
-                // 计算出库成本单价
-                for (StockAnalysisDO analysisDO : stockAnalysisList) {
-                    String materielId = analysisDO.getMaterielId().toString();
-                    if (materielInCountMap.containsKey(materielId)) {
-                        // (月初结存金额+本月入库金额)/（月初结存数量+本月入库数量）
-                        BigDecimal inAmount = materielInAmountMap.get(materielId);
-                        BigDecimal inCount = materielInCountMap.get(materielId);
-                        analysisDO.setInCount(inCount);
-                        analysisDO.setInAmount(inAmount);
-                        materielInUnitPriceMap.put(materielId
-                                , (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
-                        continue;
-                    }
-                    analysisDO.setInAmount(BigDecimal.ZERO);
-                    analysisDO.setInCount(BigDecimal.ZERO);
-                }
+        // 计算出库成本单价
+        for (StockAnalysisDO analysisDO : stockAnalysisList) {
+            String materielIdAndBatch = analysisDO.getMaterielId().toString() + "&" + analysisDO.getBatch();
 
+            if (materielInCountMap.containsKey(materielIdAndBatch)) {
+                // (月初结存金额+本月入库金额)/（月初结存数量+本月入库数量）
+                BigDecimal inAmount = materielInAmountMap.get(materielIdAndBatch);
+                BigDecimal inCount = materielInCountMap.get(materielIdAndBatch);
+                analysisDO.setInCount(inCount);
+                analysisDO.setInAmount(inAmount);
+                materielInUnitPriceMap.put(materielIdAndBatch
+                        , (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
+                continue;
+            }
+            analysisDO.setInAmount(BigDecimal.ZERO);
+            analysisDO.setInCount(BigDecimal.ZERO);
+        }
 
-                // 分批认定入库
-                if (stockInBatchNonEmpty.size() > 0) {
-                    // 获取入库列表的总数量
-                    for (Map<String, Object> stockInBatch : stockInBatchNonEmpty) {
-                        String materielIdAndBatch = stockInBatch.get("materielId").toString() + "&" + stockInBatch.get("batch").toString();
-                        if (materielInCountMap.containsKey(materielIdAndBatch)) {
-                            materielInCountMap.put(materielIdAndBatch, materielInCountMap.get(materielIdAndBatch).add(MathUtils.getBigDecimal(stockInBatch.get("count"))));
-                            materielInAmountMap.put(materielIdAndBatch, materielInAmountMap.get(materielIdAndBatch).add(MathUtils.getBigDecimal(stockInBatch.get("amount"))));
-                            continue;
-                        }
-                        materielInCountMap.put(materielIdAndBatch, MathUtils.getBigDecimal(stockInBatch.get("count")));
-                        materielInAmountMap.put(materielIdAndBatch, MathUtils.getBigDecimal(stockInBatch.get("amount")));
-                    }
-                }
+        // 加权平均出库
+        if (stockOutBatchEmpty.size() > 0) {
+            for (StockOutItemDO itemDO : stockOutBatchEmpty) {
+                String materielId = itemDO.getMaterielId().toString();
+                if (materielInUnitPriceMap.containsKey(materielId)) {
+                    // 写入出库成本单价成本金额
+                    BigDecimal unitPrice = materielInUnitPriceMap.get(materielId);
+                    itemDO.setUnitPrice(unitPrice);
+                    BigDecimal count = itemDO.getCount();
+                    BigDecimal amount = count.multiply(unitPrice);
+                    itemDO.setAmount(amount);
 
-                // 计算出库成本单价
-                for (StockAnalysisDO analysisDO : stockAnalysisList) {
-                    String materielIdAndBatch = analysisDO.getMaterielId().toString() + "&" + analysisDO.getBatch();
-
-                    if (materielInCountMap.containsKey(materielIdAndBatch)) {
-                        // (月初结存金额+本月入库金额)/（月初结存数量+本月入库数量）
-                        BigDecimal inAmount = materielInAmountMap.get(materielIdAndBatch);
-                        BigDecimal inCount = materielInCountMap.get(materielIdAndBatch);
-                        analysisDO.setInCount(inCount);
-                        analysisDO.setInAmount(inAmount);
-                        materielInUnitPriceMap.put(materielIdAndBatch
-                                , (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
-                        continue;
-                    }
-                    analysisDO.setInAmount(BigDecimal.ZERO);
-                    analysisDO.setInCount(BigDecimal.ZERO);
-                }
-
-                // 加权平均出库
-                if (stockOutBatchEmpty.size() > 0) {
-                    for (StockOutItemDO itemDO : stockOutBatchEmpty) {
-                        String materielId = itemDO.getMaterielId().toString();
-                        if (materielInUnitPriceMap.containsKey(materielId)) {
-                            // 写入出库成本单价成本金额
-                            BigDecimal unitPrice = materielInUnitPriceMap.get(materielId);
-                            itemDO.setUnitPrice(unitPrice);
-                            BigDecimal count = itemDO.getCount();
-                            BigDecimal amount = count.multiply(unitPrice);
-                            itemDO.setAmount(amount);
-
-                            // 保存出库的总数量
-                            if (materielOutCountMap.containsKey(materielId)) {
-                                materielOutCountMap.put(materielId, materielOutCountMap.get(materielId).add(count));
-                                materielOutAmountMap.put(materielId, materielOutAmountMap.get(materielId).add(amount));
-                                continue;
-                            }
-                            materielOutCountMap.put(materielId, count);
-                            materielOutAmountMap.put(materielId, amount);
-                        }
-                    }
-                    stockOutItemService.batchUpdate(stockOutBatchEmpty);
-                }
-
-                // 分批认定出库
-                if (stockOutBatchNonEmpty.size() > 0) {
-                    for (StockOutItemDO itemDO : stockOutBatchNonEmpty) {
-                        String materielIdAndBatch = itemDO.getMaterielId().toString() + "&" + itemDO.getBatch();
-                        if (materielInUnitPriceMap.containsKey(materielIdAndBatch)) {
-                            // 写入出库成本单价成本金额
-                            BigDecimal unitPrice = materielInUnitPriceMap.get(materielIdAndBatch);
-                            itemDO.setUnitPrice(unitPrice);
-                            BigDecimal count = itemDO.getCount();
-                            BigDecimal amount = count.multiply(unitPrice);
-                            itemDO.setAmount(amount);
-
-                            // 保存出库的总数量
-                            if (materielOutCountMap.containsKey(materielIdAndBatch)) {
-                                materielOutCountMap.put(materielIdAndBatch, materielOutCountMap.get(materielIdAndBatch).add(count));
-                                materielOutAmountMap.put(materielIdAndBatch, materielOutAmountMap.get(materielIdAndBatch).add(amount));
-                                continue;
-                            }
-                            materielOutCountMap.put(materielIdAndBatch, count);
-                            materielOutAmountMap.put(materielIdAndBatch, amount);
-                        }
-                    }
-                    stockOutItemService.batchUpdate(stockOutBatchNonEmpty);
-                }
-
-                // 分析所有物料
-                for (StockAnalysisDO analysisDO : stockAnalysisList) {
-                    String materielId = analysisDO.getMaterielId().toString();
-                    String materielIdAndBatch = analysisDO.getMaterielId().toString() + "&" + analysisDO.getBatch();
-
-                    BigDecimal inCount = analysisDO.getInCount() == null ? BigDecimal.ZERO : analysisDO.getInCount();
-                    BigDecimal inAmount = analysisDO.getInAmount() == null ? BigDecimal.ZERO : analysisDO.getInAmount();
-                    // 加权平均
+                    // 保存出库的总数量
                     if (materielOutCountMap.containsKey(materielId)) {
-                        BigDecimal outCount = materielOutCountMap.get(materielId);
-                        BigDecimal outAmount = materielOutAmountMap.get(materielId);
-                        analysisDO.setOutCount(outCount);
-                        analysisDO.setOutAmount(outAmount);
-                        // 期末结存数量=期初数量+本月入库数量-本月发出数量
-                        BigDecimal finalCount = analysisDO.getInitialCount()
-                                .add(inCount)
-                                .subtract(outCount);
-                        analysisDO.setFinalCount(finalCount);
-                        // 期末结存金额=期初金额+本月入库金额-本月发出金额
-                        BigDecimal finalAmount = analysisDO.getInitialAmount()
-                                .add(inAmount)
-                                .subtract(outAmount);
-                        analysisDO.setFinalAmount(finalAmount);
+                        materielOutCountMap.put(materielId, materielOutCountMap.get(materielId).add(count));
+                        materielOutAmountMap.put(materielId, materielOutAmountMap.get(materielId).add(amount));
                         continue;
                     }
-
-                    // 分批认定
-                    if (materielOutCountMap.containsKey(materielIdAndBatch)) {
-                        BigDecimal outCount = materielOutCountMap.get(materielIdAndBatch);
-                        BigDecimal outAmount = materielOutAmountMap.get(materielIdAndBatch);
-                        analysisDO.setOutCount(outCount);
-                        analysisDO.setOutAmount(outAmount);
-                        // 期末结存数量=期初数量+本月入库数量-本月发出数量
-                        BigDecimal finalCount = analysisDO.getInitialCount()
-                                .add(inCount)
-                                .subtract(outCount);
-                        analysisDO.setFinalCount(finalCount);
-                        // 期末结存金额=期初金额+本月入库金额-本月发出金额
-                        BigDecimal finalAmount = analysisDO.getInitialAmount()
-                                .add(inAmount)
-                                .subtract(outAmount);
-                        analysisDO.setFinalAmount(finalAmount);
-                        continue;
-                    }
-                    analysisDO.setOutCount(BigDecimal.ZERO);
-                    analysisDO.setOutAmount(BigDecimal.ZERO);
-
-                    analysisDO.setFinalCount(
-                            analysisDO.getInitialCount()
-                                    .add(inCount));
-                    analysisDO.setFinalAmount(
-                            analysisDO.getInitialAmount()
-                                    .add(inAmount));
+                    materielOutCountMap.put(materielId, count);
+                    materielOutAmountMap.put(materielId, amount);
                 }
-                stockAnalysisService.batchUpdate(stockAnalysisList);
+            }
+            stockOutItemService.batchUpdate(stockOutBatchEmpty);
+        }
+
+        // 分批认定出库
+        if (stockOutBatchNonEmpty.size() > 0) {
+            for (StockOutItemDO itemDO : stockOutBatchNonEmpty) {
+                String materielIdAndBatch = itemDO.getMaterielId().toString() + "&" + itemDO.getBatch();
+                if (materielInUnitPriceMap.containsKey(materielIdAndBatch)) {
+                    // 写入出库成本单价成本金额
+                    BigDecimal unitPrice = materielInUnitPriceMap.get(materielIdAndBatch);
+                    itemDO.setUnitPrice(unitPrice);
+                    BigDecimal count = itemDO.getCount();
+                    BigDecimal amount = count.multiply(unitPrice);
+                    itemDO.setAmount(amount);
+
+                    // 保存出库的总数量
+                    if (materielOutCountMap.containsKey(materielIdAndBatch)) {
+                        materielOutCountMap.put(materielIdAndBatch, materielOutCountMap.get(materielIdAndBatch).add(count));
+                        materielOutAmountMap.put(materielIdAndBatch, materielOutAmountMap.get(materielIdAndBatch).add(amount));
+                        continue;
+                    }
+                    materielOutCountMap.put(materielIdAndBatch, count);
+                    materielOutAmountMap.put(materielIdAndBatch, amount);
+                }
+            }
+            stockOutItemService.batchUpdate(stockOutBatchNonEmpty);
+        }
+
+        // 分析所有物料
+        for (StockAnalysisDO analysisDO : stockAnalysisList) {
+            String materielId = analysisDO.getMaterielId().toString();
+            String materielIdAndBatch = analysisDO.getMaterielId().toString() + "&" + analysisDO.getBatch();
+
+            BigDecimal inCount = analysisDO.getInCount() == null ? BigDecimal.ZERO : analysisDO.getInCount();
+            BigDecimal inAmount = analysisDO.getInAmount() == null ? BigDecimal.ZERO : analysisDO.getInAmount();
+            // 加权平均
+            if (materielOutCountMap.containsKey(materielId)) {
+                BigDecimal outCount = materielOutCountMap.get(materielId);
+                BigDecimal outAmount = materielOutAmountMap.get(materielId);
+                analysisDO.setOutCount(outCount);
+                analysisDO.setOutAmount(outAmount);
+                // 期末结存数量=期初数量+本月入库数量-本月发出数量
+                BigDecimal finalCount = analysisDO.getInitialCount()
+                        .add(inCount)
+                        .subtract(outCount);
+                analysisDO.setFinalCount(finalCount);
+                // 期末结存金额=期初金额+本月入库金额-本月发出金额
+                BigDecimal finalAmount = analysisDO.getInitialAmount()
+                        .add(inAmount)
+                        .subtract(outAmount);
+                analysisDO.setFinalAmount(finalAmount);
+                continue;
+            }
+
+            // 分批认定
+            if (materielOutCountMap.containsKey(materielIdAndBatch)) {
+                BigDecimal outCount = materielOutCountMap.get(materielIdAndBatch);
+                BigDecimal outAmount = materielOutAmountMap.get(materielIdAndBatch);
+                analysisDO.setOutCount(outCount);
+                analysisDO.setOutAmount(outAmount);
+                // 期末结存数量=期初数量+本月入库数量-本月发出数量
+                BigDecimal finalCount = analysisDO.getInitialCount()
+                        .add(inCount)
+                        .subtract(outCount);
+                analysisDO.setFinalCount(finalCount);
+                // 期末结存金额=期初金额+本月入库金额-本月发出金额
+                BigDecimal finalAmount = analysisDO.getInitialAmount()
+                        .add(inAmount)
+                        .subtract(outAmount);
+                analysisDO.setFinalAmount(finalAmount);
+                continue;
+            }
+            analysisDO.setOutCount(BigDecimal.ZERO);
+            analysisDO.setOutAmount(BigDecimal.ZERO);
+
+            analysisDO.setFinalCount(
+                    analysisDO.getInitialCount()
+                            .add(inCount));
+            analysisDO.setFinalAmount(
+                    analysisDO.getInitialAmount()
+                            .add(inAmount));
+        }
+        stockAnalysisService.batchUpdate(stockAnalysisList);
 
 //                List<Map<String, Object>> stockInBatchNonEmpty = stockInList.stream()
 //                        .filter(stringObjectMap -> stringObjectMap.containsKey("batch"))
@@ -830,237 +845,181 @@ public class StockApiController {
 //                    stockOutItemService.batchInsert(stockOutBatchEmpty);
 //                }
 //
-                return R.ok();
-            }
-            return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
+        return R.ok();
 
-        }
-        return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
     }
 
     @EvApiByToken(value = "/apis/stock/stockOutAccountingCheck", method = RequestMethod.POST, apiTitle = "检验出库核算（检查是否有单价为0的入库单存在）")
     @ApiOperation("检验出库核算（检查是否有单价为0的入库单存在）")
     public R stockOutAccountingCheck(@ApiParam(value = "计算时间", required = true) @RequestParam(value = "period", defaultValue = "") String period) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("offset", 0);
-        params.put("limit", 1);
-        List<StockAnalysisDO> list = stockAnalysisService.list(params);
-        if (list.size() > 0) {
-            StockAnalysisDO stockAnalysisDO = list.get(0);
-            Calendar instance = Calendar.getInstance();
-            Date periodTime = DateFormatUtil.getDateByParttern(period, "yyyy-MM-dd");
-            Date oldPeriod = stockAnalysisDO.getPeriod();
-            if (periodTime == null) {
+        int checkTime = this.checkTime(period);
+        switch (checkTime) {
+            case 1:
                 return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
-            }
-            instance.setTime(periodTime);
-            instance.set(Calendar.DAY_OF_MONTH, 1);
-            long newMillis = instance.getTimeInMillis();
-            instance.setTime(oldPeriod);
-            instance.set(Calendar.DAY_OF_MONTH, 1);
-            long oldMillis = instance.getTimeInMillis();
-            instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) - 1);
-            long upOldInMillis = instance.getTimeInMillis();
-            if (newMillis == upOldInMillis && stockAnalysisDO.getIsClose() == 0) {
+            case 2:
+                return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
+            case 3:
                 return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
-            }
-
-            if (newMillis == oldMillis) {
-                params.clear();
-                // 入库单
-                params.put("createStartTime", DatesUtil.getSupportBeginDayOfMonth(periodTime));
-                params.put("createEndTime", DatesUtil.getSupportEndDayOfMonth(periodTime));
-                params.put("auditSign", ConstantForGYL.OK_AUDITED);
-                List<Map<String, Object>> stockInList = stockInService.listForMap(params);
-                List<String> unitPriceEmpty = stockInList.stream()
-                        .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("unitPrice")).compareTo(BigDecimal.ZERO)==0)
-                        .map(stringObjectMap -> stringObjectMap.get("inheadCode").toString())
-                        .collect(Collectors.toList());
-
-                if (unitPriceEmpty.size() > 0) {
-                    String[] args = {unitPriceEmpty.toString()};
-                    // -1码为查询出有空的单价的错误码
-                    return R.error(-1, messageSourceHandler.getMessage("scm.stockIn.unitPriceEmpty", args));
-                }
-                return R.ok();
-            }
-            return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
-
+            default:
+                break;
         }
-        return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
+
+        Map<String, Object> params = Maps.newHashMap();
+        Date periodTime = DateFormatUtil.getDateByParttern(period, "yyyy-MM-dd");
+        // 入库单
+        params.put("createStartTime", DatesUtil.getSupportBeginDayOfMonth(periodTime));
+        params.put("createEndTime", DatesUtil.getSupportEndDayOfMonth(periodTime));
+        params.put("auditSign", ConstantForGYL.OK_AUDITED);
+        List<Map<String, Object>> stockInList = stockInService.listForMap(params);
+        List<String> unitPriceEmpty = stockInList.stream()
+                .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("unitPrice")).compareTo(BigDecimal.ZERO) == 0)
+                .map(stringObjectMap -> stringObjectMap.get("inheadCode").toString())
+                .collect(Collectors.toList());
+
+        if (unitPriceEmpty.size() > 0) {
+            String[] args = {unitPriceEmpty.toString()};
+            // -1码为查询出有空的单价的错误码
+            return R.error(-1, messageSourceHandler.getMessage("scm.stockIn.unitPriceEmpty", args));
+        }
+        return R.ok();
+
     }
 
     @EvApiByToken(value = "/apis/stock/checkEndingCarryOver", method = RequestMethod.POST, apiTitle = "检验期末结转（检查是否有单价为0的入库单/出库单存在）")
     @ApiOperation("检验期末结转（检查是否有单价为0的入库单/出库单存在）")
     public R checkEndingCarryOver(@ApiParam(value = "计算时间", required = true) @RequestParam(value = "period", defaultValue = "") String period) {
         // 期末结账
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("offset", 0);
-        params.put("limit", 1);
-        List<StockAnalysisDO> list = stockAnalysisService.list(params);
-        if (list.size() > 0) {
-            StockAnalysisDO stockAnalysisDO = list.get(0);
-            Calendar instance = Calendar.getInstance();
-            Date periodTime = DateFormatUtil.getDateByParttern(period, "yyyy-MM-dd");
-            Date oldPeriod = stockAnalysisDO.getPeriod();
-            if (periodTime == null) {
+        int checkTime = this.checkTime(period);
+        switch (checkTime) {
+            case 1:
                 return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
-            }
-            instance.setTime(periodTime);
-            instance.set(Calendar.DAY_OF_MONTH, 1);
-            long newMillis = instance.getTimeInMillis();
-            instance.setTime(oldPeriod);
-            instance.set(Calendar.DAY_OF_MONTH, 1);
-            long oldMillis = instance.getTimeInMillis();
-            instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) - 1);
-            long upOldInMillis = instance.getTimeInMillis();
-            if (newMillis == oldMillis
-                    || (newMillis == upOldInMillis && stockAnalysisDO.getIsClose() == 0)) {
-                params.clear();
-                // 入库单
-                params.put("createStartTime", DatesUtil.getSupportBeginDayOfMonth(periodTime));
-                params.put("createEndTime", DatesUtil.getSupportEndDayOfMonth(periodTime));
-                params.put("auditSign", ConstantForGYL.OK_AUDITED);
-                List<Map<String, Object>> stockInList = stockInService.listForMap(params);
-                List<String> stockInUnitPriceEmpty = stockInList.stream()
-                        .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("unitPrice")).compareTo(BigDecimal.ZERO)==0)
-                        .map(stringObjectMap -> stringObjectMap.get("inheadCode").toString())
-                        .collect(Collectors.toList());
-
-                if (stockInUnitPriceEmpty.size() > 0) {
-                    String[] args = {stockInUnitPriceEmpty.toString()};
-                    // -1码为查询出有空的单价的错误码
-                    return R.error(-1, messageSourceHandler.getMessage("scm.stockIn.unitPriceEmpty", args));
-                }
-                List<StockOutItemDO> stockOutUnitPriceEmpty = stockOutItemService.list(params).stream()
-                        .filter(stockOutItemDO -> stockOutItemDO.getUnitPrice().compareTo(BigDecimal.ZERO) == 0)
-                        .collect(Collectors.toList());
-                if (stockOutUnitPriceEmpty.size() > 0) {
-                    // -1码为查询出有空的单价的错误码
-                    return R.error(-1, messageSourceHandler.getMessage("scm.stockOut.unitPriceEmpty", null));
-                }
-                return R.ok();
-            }
-
-            return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
+            case 2:
+                return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
+            case 3:
+                return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
+            default:
+                break;
         }
-        return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
+        Map<String, Object> params = Maps.newHashMap();
+        Date periodTime = DateFormatUtil.getDateByParttern(period, "yyyy-MM-dd");
+        // 入库单
+        params.put("createStartTime", DatesUtil.getSupportBeginDayOfMonth(periodTime));
+        params.put("createEndTime", DatesUtil.getSupportEndDayOfMonth(periodTime));
+        params.put("auditSign", ConstantForGYL.OK_AUDITED);
+        List<Map<String, Object>> stockInList = stockInService.listForMap(params);
+        List<String> stockInUnitPriceEmpty = stockInList.stream()
+                .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("unitPrice")).compareTo(BigDecimal.ZERO) == 0)
+                .map(stringObjectMap -> stringObjectMap.get("inheadCode").toString())
+                .collect(Collectors.toList());
+
+        if (stockInUnitPriceEmpty.size() > 0) {
+            String[] args = {stockInUnitPriceEmpty.toString()};
+            // -1码为查询出有空的单价的错误码
+            return R.error(-1, messageSourceHandler.getMessage("scm.stockIn.unitPriceEmpty", args));
+        }
+        List<StockOutItemDO> stockOutUnitPriceEmpty = stockOutItemService.list(params).stream()
+                .filter(stockOutItemDO -> stockOutItemDO.getUnitPrice().compareTo(BigDecimal.ZERO) == 0)
+                .collect(Collectors.toList());
+        if (stockOutUnitPriceEmpty.size() > 0) {
+            // -1码为查询出有空的单价的错误码
+            return R.error(-1, messageSourceHandler.getMessage("scm.stockOut.unitPriceEmpty", null));
+        }
+        return R.ok();
+
     }
 
     @Transactional(rollbackFor = Exception.class)
     @EvApiByToken(value = "/apis/stock/endingCarryOver", method = RequestMethod.POST, apiTitle = "期末结转")
     @ApiOperation("期末结转")
     public R endingCarryOver(@ApiParam(value = "计算时间", required = true) @RequestParam(value = "period", defaultValue = "") String period) {
-        // 期末结账
+        Date periodTime = DateFormatUtil.getDateByParttern(period, "yyyy-MM-dd");
+        if (periodTime == null) {
+            return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
+        }
         Map<String, Object> params = Maps.newHashMap();
         params.put("offset", 0);
         params.put("limit", 1);
         List<StockAnalysisDO> list = stockAnalysisService.list(params);
-        if (list.size() > 0) {
-            StockAnalysisDO stockAnalysisDO = list.get(0);
-            Calendar instance = Calendar.getInstance();
-            Date periodTime = DateFormatUtil.getDateByParttern(period, "yyyy-MM-dd");
-            Date oldPeriod = stockAnalysisDO.getPeriod();
-            if (periodTime == null) {
-                return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
-            }
-            instance.setTime(periodTime);
-            instance.set(Calendar.DAY_OF_MONTH, 1);
-            long newMillis = instance.getTimeInMillis();
-            instance.setTime(oldPeriod);
-            instance.set(Calendar.DAY_OF_MONTH, 1);
-            long oldMillis = instance.getTimeInMillis();
-            instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) - 1);
-            long upOldInMillis = instance.getTimeInMillis();
-            instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) + 2);
-            if (newMillis == oldMillis
-                    || (newMillis == upOldInMillis && stockAnalysisDO.getIsClose() == 0)) {
-                params.clear();
-                params.put("period", period);
-                // 上一期的列表
-                List<StockAnalysisDO> lastTerm = stockAnalysisService.list(params);
-                List<StockAnalysisDO> stockAnalysisInsertDOS = Lists.newArrayList();
-                List<StockAnalysisDO> stockAnalysisUpdateDOS = Lists.newArrayList();
-                if (lastTerm.get(0).getIsClose()==1){
-                    return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
-                }
-                if (lastTerm.get(0).getFinalCount()==null){
-                    return R.error(messageSourceHandler.getMessage("scm.stock.outError", null));
-                }
-
-                for (StockAnalysisDO stockAnalysis : lastTerm) {
-
-                    stockAnalysisDO = new StockAnalysisDO();
-                    stockAnalysisDO.setMaterielId(stockAnalysis.getMaterielId());
-                    stockAnalysisDO.setBatch(stockAnalysis.getBatch());
-                    stockAnalysisDO.setInitialCount(stockAnalysis.getFinalCount());
-                    stockAnalysisDO.setInitialAmount(stockAnalysis.getFinalAmount());
-                    if (newMillis == upOldInMillis) {
-                        stockAnalysisUpdateDOS.add(stockAnalysisDO);
-                        continue;
-                    }
-                    stockAnalysisDO.setIsClose(0);
-                    stockAnalysisDO.setDelFlag(0);
-                    stockAnalysisDO.setPeriod(instance.getTime());
-                    stockAnalysisInsertDOS.add(stockAnalysisDO);
-                }
-
-                if (stockAnalysisInsertDOS.size() > 0) {
-                    stockAnalysisService.batchInsert(stockAnalysisInsertDOS);
-                }
-                if (stockAnalysisUpdateDOS.size() > 0) {
-                    stockAnalysisService.batchUpdate(stockAnalysisUpdateDOS);
-                }
-                return R.ok();
-            }
+        if (list.size() == 0) {
+            return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
+        }
+        StockAnalysisDO stockAnalysisDO = list.get(0);
+        Date oldPeriod = stockAnalysisDO.getPeriod();
+        Calendar instance = Calendar.getInstance();
+        instance.setTime(oldPeriod);
+        instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) - 1);
+        Date instanceTime = instance.getTime();
+        params.clear();
+        // 上一期的列表
+        params.put("period", DateFormatUtil.getFormateDate(instanceTime));
+        List<StockAnalysisDO> lastTerm = stockAnalysisService.list(params);
+        if (lastTerm.size() > 0 && lastTerm.get(0).getIsClose() == 0) {
+            oldPeriod = instanceTime;
+        }
+        instance.setTime(periodTime);
+        instance.set(Calendar.DAY_OF_MONTH, 1);
+        long newMillis = instance.getTimeInMillis();
+        instance.setTime(oldPeriod);
+        instance.set(Calendar.DAY_OF_MONTH, 1);
+        long oldMillis = instance.getTimeInMillis();
+        if (oldMillis != newMillis) {
             return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
         }
-        return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
+        params.put("period", DateFormatUtil.getFormateDate(periodTime));
+        List<StockAnalysisDO> thisTerm = stockAnalysisService.list(params);
+        if (thisTerm.size() > 0) {
+            List<StockAnalysisDO> stockAnalysisInsertDOS = Lists.newArrayList();
+            stockAnalysisService.batchRemoveById(thisTerm.get(0).getId());
+            if (thisTerm.get(0).getFinalCount()==null){
+                return R.error(messageSourceHandler.getMessage("scm.stock.outError", null));
+            }
+            StockAnalysisDO analysisDO;
+            instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) + 1);
+            Date lastTermDate = instance.getTime();
+            for (StockAnalysisDO stockAnalysis : thisTerm) {
+                analysisDO = new StockAnalysisDO();
+                analysisDO.setMaterielId(stockAnalysis.getMaterielId());
+                analysisDO.setBatch(stockAnalysis.getBatch());
+                analysisDO.setInitialCount(stockAnalysis.getFinalCount());
+                analysisDO.setInitialAmount(stockAnalysis.getFinalAmount());
+                analysisDO.setIsClose(0);
+                analysisDO.setDelFlag(0);
+                analysisDO.setPeriod(lastTermDate);
+                stockAnalysisInsertDOS.add(analysisDO);
+            }
+            if (stockAnalysisInsertDOS.size() > 0) {
+                stockAnalysisService.batchInsert(stockAnalysisInsertDOS);
+            }
+        }
+        return R.ok();
     }
 
     @Transactional(rollbackFor = Exception.class)
     @EvApiByToken(value = "/apis/stock/endingClose", method = RequestMethod.POST, apiTitle = "期末关账")
     @ApiOperation("期末关账")
     public R endingClose(@ApiParam(value = "计算时间", required = true) @RequestParam(value = "period", defaultValue = "") String period) {
-        // 期末结账
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("offset", 0);
-        params.put("limit", 1);
-        List<StockAnalysisDO> list = stockAnalysisService.list(params);
-        if (list.size() > 0) {
-            StockAnalysisDO stockAnalysisDO = list.get(0);
-            Calendar instance = Calendar.getInstance();
-            Date periodTime = DateFormatUtil.getDateByParttern(period, "yyyy-MM-dd");
-            Date oldPeriod = stockAnalysisDO.getPeriod();
-            if (periodTime == null) {
+        int checkTime = this.checkTime(period);
+        switch (checkTime) {
+            case 1:
                 return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
-            }
-            instance.setTime(periodTime);
-            instance.set(Calendar.DAY_OF_MONTH, 1);
-            long newMillis = instance.getTimeInMillis();
-            instance.setTime(oldPeriod);
-            instance.set(Calendar.DAY_OF_MONTH, 1);
-            instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) - 1);
-            long upOldInMillis = instance.getTimeInMillis();
-
-            if (newMillis == upOldInMillis && stockAnalysisDO.getIsClose() == 0) {
-                params.clear();
-                params.put("period", period);
-                // 上一期的列表
-                List<StockAnalysisDO> lastTerm = stockAnalysisService.list(params);
-                if (lastTerm.get(0).getIsClose()==1){
-                    return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
-                }
-
-                for (StockAnalysisDO stockAnalysis : lastTerm) {
-                    stockAnalysis.setIsClose(1);
-                }
-                stockAnalysisService.batchUpdate(lastTerm);
-                return R.ok();
-            }
-            return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
+            case 2:
+                return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
+            case 3:
+                return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
+            default:
+                break;
         }
-        return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
+        // 期末关账
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("period", period);
+        // 上一期的列表
+        List<StockAnalysisDO> thisTerm = stockAnalysisService.list(params);
+
+        for (StockAnalysisDO stockAnalysis : thisTerm) {
+            stockAnalysis.setIsClose(1);
+        }
+        stockAnalysisService.batchUpdate(thisTerm);
+        return R.ok();
     }
 
     @EvApiByToken(value = "/apis/stock/analysis", method = RequestMethod.POST, apiTitle = "报表分析")
@@ -1076,7 +1035,7 @@ public class StockApiController {
         params.put("offset", (pageno - 1) * pagesize);
         params.put("limit", pagesize);
         params.put("period", period);
-        params.put("isClose",isClose);
+        params.put("isClose", isClose);
         params.put("materielName", StringUtils.sqlLike(materielName));
         List<Map<String, Object>> data = stockAnalysisService.listForMap(params);
         int total = stockAnalysisService.countForMap(params);

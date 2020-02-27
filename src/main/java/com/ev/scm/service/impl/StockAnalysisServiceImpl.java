@@ -72,4 +72,9 @@ public class StockAnalysisServiceImpl implements StockAnalysisService {
 		return stockAnalysisDao.countForMap(params);
 	}
 
+	@Override
+	public void batchRemoveById(Long id) {
+		stockAnalysisDao.batchRemoveById(id);
+	}
+
 }
