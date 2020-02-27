@@ -6,6 +6,7 @@ import java.util.Date;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -84,6 +85,7 @@ public class MaterialInspectionDO implements Serializable {
 	private Integer status;
 	// 是否已打印二维码
 	@ApiModelProperty(value = "是否已打印二维码", hidden = true)
+	@Builder.Default
 	private Integer isPrintedQrcode = 0;
 	// 单位二维码数量
 	@ApiModelProperty(value = "单位二维码数量", hidden = true)

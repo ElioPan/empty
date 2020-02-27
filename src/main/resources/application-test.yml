@@ -82,3 +82,8 @@ ribbon:
 upload:
   config:
     path: C:/java/project/fdfs_client.conf
+wechat:
+  agentid: 1000003
+  corpid: wx6188bd4995b3f83b
+  corpsecret: WqJxg35Q8majBsLJ6DliY9y-EkKw6qrQZAyV4axjGxQ
+  mobilesecret: YGxHqgfLHvTx4FnbCl6ko9t2Wj2phmFJWJyEhqMjeaE

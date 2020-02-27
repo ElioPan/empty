@@ -26,11 +26,11 @@ public interface WeChatService {
      */
     public String getMobileAccessToken(Date now) throws IOException, ParseException;
 
-    public JSONObject getAccessToken(String corpid, String corpsecre, Date now) throws IOException, ParseException;
+    public JSONObject getAccessToken(Date now) throws IOException, ParseException;
 
     public JSONObject getJsapiTicket(String accessToken,Date now) throws IOException, ParseException;
 
-    public JSONObject getSignature(String corpid, String corpsecre,String url,Date now) throws IOException, ParseException;
+    public JSONObject getSignature(String url,Date now) throws IOException, ParseException;
 
     /**
      *创建成员

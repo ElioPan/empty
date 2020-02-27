@@ -4,8 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.ev.custom.domain.NoticeDO;
 import com.ev.custom.service.WeChatService;
 import com.ev.custom.vo.WxDeptEntity;
-import com.ev.custom.vo.WxTextMessageEntity;
-import com.ev.custom.vo.WxTextcardMessageEntity;
 import com.ev.custom.vo.WxUserEntity;
 import com.ev.framework.config.Constant;
 import com.ev.framework.utils.DateFormatUtil;
@@ -92,7 +90,7 @@ public class WeChatServiceImpl implements WeChatService {
     }
 
     @Override
-    public JSONObject getAccessToken(String corpid, String corpsecret,Date now) throws IOException, ParseException {
+    public JSONObject getAccessToken(Date now) throws IOException, ParseException {
         JSONObject jsAccessToken = JSONObject.fromObject(redisTemplate.opsForValue().get(Constant.WECHAT_ACCESS_TOKEN));
         /**
          * 首先校验accessToken是否过期
@@ -129,11 +127,11 @@ public class WeChatServiceImpl implements WeChatService {
     }
 
     @Override
-    public JSONObject getSignature(String corpid, String corpsecre,String url,Date now) throws IOException, ParseException {
+    public JSONObject getSignature(String url,Date now) throws IOException, ParseException {
         /**
          * 判断JSAPITICKET是否过期
          */
-        String jsAccessTokenStr = getAccessToken(corpid,corpsecre,now).optString("access_token");
+        String jsAccessTokenStr = getAccessToken(now).optString("access_token");
         JSONObject jsApiTicket = getJsapiTicket(jsAccessTokenStr,now);
         /**
          * 生成签名
@@ -300,7 +298,7 @@ public class WeChatServiceImpl implements WeChatService {
         jsonObject.put("safe",0);
         jsonObject.put("enable_id_trans",0);
         jsonObject.put("enable_duplicate_check",0);
-        String accessToken = getAccessToken(corpid,corpsecret,new Date()).optString("access_token");
+        String accessToken = getAccessToken(new Date()).optString("access_token");
         String url = SEND_MESSAGE.replace("ACCESS_TOKEN", accessToken);
         String json = HttpClientUtils.sendJsonStr(url,JSON.toJSONString(jsonObject));
         return JSONObject.fromObject(json);
@@ -325,7 +323,7 @@ public class WeChatServiceImpl implements WeChatService {
         jsonObject.put("safe",0);
         jsonObject.put("enable_id_trans",0);
         jsonObject.put("enable_duplicate_check",0);
-        String accessToken = getAccessToken(corpid,corpsecret,new Date()).optString("access_token");
+        String accessToken = getAccessToken(new Date()).optString("access_token");
         String url = SEND_MESSAGE.replace("ACCESS_TOKEN", accessToken);
         String json = HttpClientUtils.sendJsonStr(url,JSON.toJSONString(jsonObject));
         return JSONObject.fromObject(json);
