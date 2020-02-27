@@ -177,7 +177,7 @@ public class ScmInventoryPlanApiController {
     @ApiOperation("验证此条码是否已经盘点/是否在本次方案中")
     public R checkByQrId(
             @ApiParam(value = "盘点方案id", required = true) @RequestParam(value = "planId") Long planId,
-            @ApiParam(value = "本次扫描的条码id", required = true) @RequestParam(value = "planId") Long qrId,
+            @ApiParam(value = "本次扫描的条码id", required = true) @RequestParam(value = "qrId") Long qrId,
             @ApiParam(value = "本次扫描的条码信息 [\n" +
                     "{\n" +
                     "\"materielId\":2,\n" +
@@ -185,7 +185,7 @@ public class ScmInventoryPlanApiController {
                     "\"warehLocation\":库位id,\n" +
                     "\"batch\":\"20191225001\",\n" +
                     "}\n" +
-                    "]", required = true) @RequestParam(value = "planId") String  qrMsg) {
+                    "]", required = true) @RequestParam(value = "qrMsg") String  qrMsg) {
 
         return inventoryPlanService.disposeCheckByQrId(planId,qrMsg,qrId);
     }
