@@ -219,7 +219,7 @@ public class DailyReportApiController {
 
         List<Long> toUsers = new ArrayList<>();
         toUsers.add(dailyReportService.get(dailyReportId).getCreateBy());
-        noticeService.saveAndSendSocket("日志回复信息",comment,contentDetail.toString(),282L,ShiroUtils.getUserId(),toUsers);
+        noticeService.saveAndSendSocket("日志回复信息",comment,contentDetail.toString(),281L,ShiroUtils.getUserId(),toUsers);
         return R.ok();
     }
 

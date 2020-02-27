@@ -77,7 +77,7 @@ data:
       key:
         name: gyhl.data.device.routing.key
 wechat:
-  agentid: 10006
+  agentid: 1000006
   corpid: wx6188bd4995b3f83b
   corpsecret: QVo-E3biUXZPznQYP-Z4jAlx0LsLqwU5mc6S07ac5OA
   mobilesecret: YGxHqgfLHvTx4FnbCl6ko9t2Wj2phmFJWJyEhqMjeaE

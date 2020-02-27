@@ -31,6 +31,9 @@ public class WeChatServiceImpl implements WeChatService {
     @Value("${wechat.corpid}")
     private String corpid;
 
+    @Value("${wechat.agentid}")
+    private String agentid;
+
     @Value("${wechat.mobilesecret}")
     private String mobilesecret;
 
@@ -291,7 +294,7 @@ public class WeChatServiceImpl implements WeChatService {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("touser",userId);
         jsonObject.put("msgtype","text");
-        jsonObject.put("agentid",1000006);
+        jsonObject.put("agentid",agentid);
         JSONObject contentObject = new JSONObject();
         contentObject.put("content",noticeDO.getContent());
         jsonObject.put("text",contentObject);
@@ -310,14 +313,14 @@ public class WeChatServiceImpl implements WeChatService {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("touser",userIds);
         jsonObject.put("msgtype","textcard");
-        jsonObject.put("agentid",1000006);
+        jsonObject.put("agentid",agentid);
         /**
          * 卡片内容封装
          */
         JSONObject textcardObject = new JSONObject();
         textcardObject.put("title",noticeDO.getTitle());
         textcardObject.put("description",noticeDO.getContent());
-        textcardObject.put("url","www.baidu.com");
+        textcardObject.put("url","http://120.132.17.220:18090/gyhl-app/#/pages/daily/dailyDetail?id=136&num=2");
         textcardObject.put("btntxt","查看详情");
         jsonObject.put("textcard",textcardObject);
         jsonObject.put("safe",0);
