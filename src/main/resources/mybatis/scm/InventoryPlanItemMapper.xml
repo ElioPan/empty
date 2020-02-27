@@ -254,7 +254,7 @@
 			<if test="profitLoss != null and profitLoss != ''and profitLoss == -1"> and a.profit_loss &lt; 0 </if>
 
 			<if test="profitLoss != null and profitLoss != ''and profitLoss ==1"> and a.profit_loss > 0 </if>
-            <if test="checkCount != null and checkCount != ''"> and a.check_count is null } </if>
+            <if test="checkCount != null and checkCount != ''"> and a.check_count is null </if>
 			<if test="headId != null and headId != ''"> and a.head_id = #{headId} </if>
 		</where>
 	</select>
