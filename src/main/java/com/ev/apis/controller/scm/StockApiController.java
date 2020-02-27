@@ -401,9 +401,7 @@ public class StockApiController {
             StockStartDO stockStartDO = list.get(0);
             startStatus = stockStartDO.getStatus();
             if (startStatus == 1) {
-                Date updateTime = stockStartDO.getUpdateTime();
-                String endTime = DateFormatUtil.getFormateDate(updateTime);
-                param.put("endTime", endTime);
+                param.put("endTime", DateFormatUtil.getFormateDate(stockStartDO.getUpdateTime()));
             }
             List<Map<String, Object>> data = stockService.listForMap(param);
             Map<String, Object> countForMap = stockService.countForMap(param);
