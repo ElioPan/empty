@@ -275,7 +275,7 @@ public class StockApiController {
         int month = input.get(Calendar.MONTH);
 
         Calendar now = Calendar.getInstance();
-        if (now.get(Calendar.YEAR) == year && month == now.get(Calendar.MONTH) + 1) {
+        if (now.get(Calendar.YEAR) == year && month == now.get(Calendar.MONTH)) {
             Calendar start = Calendar.getInstance();
             start.set(Calendar.YEAR, year);
 
@@ -372,6 +372,7 @@ public class StockApiController {
                         itemDO.setAvailableCount(count);
                         itemDO.setUnitPrice(amount.divide(count,Constant.BIGDECIMAL_ZERO));
                         itemDO.setEnteringTime(now);
+                        itemDO.setCreateTime(now);
                         itemDO.setDelFlag(0);
                         break;
                     }
@@ -394,19 +395,26 @@ public class StockApiController {
     @EvApiByToken(value = "/apis/stock/startList", method = RequestMethod.POST, apiTitle = "期初库存列表")
     @ApiOperation("期初库存列表")
     public R startList() {
-
         Map<String, Object> results = Maps.newHashMap();
-        List<Map<String, Object>> data = stockService.listForMap(results);
-        Map<String, Object> countForMap = stockService.countForMap(results);
-        results.put("data",data);
-        results.put("total",countForMap);
-        int startStatus=0;
-        if (data.size() > 0) {
-            List<StockStartDO> list = stockStartService.list(Maps.newHashMap());
-            startStatus=list.get(0).getStatus();
+        List<StockStartDO> list = stockStartService.list(results);
+        int startStatus = 0;
+        if (list.size() > 0) {
+            Map<String, Object> param = Maps.newHashMap();
+            StockStartDO stockStartDO = list.get(0);
+            startStatus = stockStartDO.getStatus();
+            if (startStatus == 1) {
+                Date updateTime = stockStartDO.getUpdateTime();
+                String endTime = DateFormatUtil.getFormateDate(updateTime);
+                param.put("endTime", endTime);
+            }
+            List<Map<String, Object>> data = stockService.listForMap(param);
+            Map<String, Object> countForMap = stockService.countForMap(param);
+            results.put("data", data);
+            results.put("total", countForMap);
         }
-        results.put("startStatus",startStatus);
+        results.put("startStatus", startStatus);
         return R.ok(results);
+
     }
 
 
