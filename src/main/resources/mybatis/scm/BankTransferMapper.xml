@@ -34,8 +34,7 @@
 	</select>
 
     <sql id="sql_column_list">
-		`id`,`transfer_code`,`transfer_date`,`
-transactor_id`,`audit_sign`,`auditor`,`audit_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+		`id`,`transfer_code`,`transfer_date`,transactor_id,`audit_sign`,`auditor`,`audit_time`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 	</sql>
 
     <sql id="sql_condition">
