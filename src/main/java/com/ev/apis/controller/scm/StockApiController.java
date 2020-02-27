@@ -277,10 +277,8 @@ public class StockApiController {
         Calendar now = Calendar.getInstance();
         if (now.get(Calendar.YEAR) == year && month == now.get(Calendar.MONTH)) {
             Calendar start = Calendar.getInstance();
-            start.set(Calendar.YEAR, year);
 
-            start.set(Calendar.MONTH, month - 1);
-            start.set(Calendar.DAY_OF_MONTH, 1);
+            input.set(Calendar.DAY_OF_MONTH, 1);
             // 是否为修改
             List<StockStartDO> list = stockStartService.list(Maps.newHashMap());
             if (list.size() > 0) {
@@ -294,7 +292,7 @@ public class StockApiController {
             }
             // 为新增
             StockStartDO stockStartDO = new StockStartDO();
-            stockStartDO.setStartTime(start.getTime());
+            stockStartDO.setStartTime(input.getTime());
             stockStartDO.setStatus(0);
             stockStartService.save(stockStartDO);
             return R.ok();
