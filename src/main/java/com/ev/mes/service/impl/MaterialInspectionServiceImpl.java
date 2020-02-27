@@ -77,8 +77,7 @@ public class MaterialInspectionServiceImpl implements MaterialInspectionService 
 
 	@Override
 	public int audit(Long id) {
-		MaterialInspectionDO materialInspectionDO = new MaterialInspectionDO();
-		materialInspectionDO.setId(id);
+		MaterialInspectionDO materialInspectionDO = get(id);
 		materialInspectionDO.setAuditor(ShiroUtils.getUserId());
 		materialInspectionDO.setStatus(ConstantForMES.OK_AUDITED);
 		return this.update(materialInspectionDO);
@@ -86,8 +85,7 @@ public class MaterialInspectionServiceImpl implements MaterialInspectionService 
 
 	@Override
 	public int reverseAudit(Long id) {
-		MaterialInspectionDO materialInspectionDO = new MaterialInspectionDO();
-		materialInspectionDO.setId(id);
+		MaterialInspectionDO materialInspectionDO = get(id);
 		materialInspectionDO.setStatus(ConstantForMES.WAIT_AUDIT);
 		return this.update(materialInspectionDO);
 	}
