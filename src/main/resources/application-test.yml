@@ -43,7 +43,7 @@ spring:
     #useGlobalDataSourceStat: true
   redis:
     host: localhost
-    port: 6380
+    port: 6379
     password: 1q2w3e4r!@#$
     # 连接超时时间（毫秒）
     timeout: 10000
