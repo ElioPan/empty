@@ -391,7 +391,10 @@ public class StockInServiceImpl implements StockInService {
 						for (StockInItemDO propuinbody : inbodyCDos) {
 							propuinbody.setInheadId(stockInDO.getId());
 							if(Objects.equals(storageType,ConstantForGYL.PURCHASE_INSTOCK)){propuinbody.setExpense(BigDecimal.ZERO);}
-							if(Objects.equals(storageType,ConstantForGYL.OUTSOURCING_INSTOCK)){propuinbody.setMaterialIdCount("0");}
+							if(Objects.equals(storageType,ConstantForGYL.OUTSOURCING_INSTOCK)){
+								propuinbody.setMaterialIdCount("0");
+								propuinbody.setAccountSource("0");
+							}
 							SstockInItemService.save(propuinbody);
 						}
 						query.put("msg", "保存成功");
@@ -482,7 +485,7 @@ public class StockInServiceImpl implements StockInService {
 				}
 				stockInItemDO.setInheadId(inheadId);
 				if (Objects.equals(storageType, ConstantForGYL.PURCHASE_INSTOCK)) {stockInItemDO.setExpense(BigDecimal.ZERO);}
-				if (Objects.equals(storageType, ConstantForGYL.OUTSOURCING_INSTOCK)) {stockInItemDO.setMaterialIdCount("0");}
+				if (Objects.equals(storageType, ConstantForGYL.OUTSOURCING_INSTOCK)) {stockInItemDO.setMaterialIdCount("0");stockInItemDO.setAccountSource("0");}
 			}
 			if(!Objects.equals(0,inCount.compareTo(BigDecimal.ZERO))){
 				stockDo.setCount(inCount);

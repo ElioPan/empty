@@ -43,4 +43,6 @@ public interface InventoryPlanItemDao {
     //此次盘点是否产生的盈亏
 	int countOfWinLoss(Map<String, Object> map);
 
+	int batchUpdate(List<InventoryPlanItemDO> qrcodeDOList);
+
 }

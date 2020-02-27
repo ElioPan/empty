@@ -156,7 +156,7 @@
 			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(a.plan_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(a.plan_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
 			<if test="code != null and code != ''">and a.code like  CONCAT('%',#{code},'%') </if>
-			<if test="qrSign ==1 and qrSign != ''">and (a.check_status= #{checkStatusOne} or a.check_status= #{checkStatusTwo})</if>
+			<if test="qr ==1 and qr != ''">and (a.check_status= #{checkStatusOne} or a.check_status= #{checkStatusTwo})</if>
 
 		</where>
 		<choose>

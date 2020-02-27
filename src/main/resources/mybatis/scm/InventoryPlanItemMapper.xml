@@ -260,7 +260,113 @@
 	</select>
 
 
-
+	<update id="batchUpdate">
+		UPDATE scm_inventory_plan_item
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="head_id=case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.headId!=null">
+						when id=#{item.id} then #{item.headId}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="materiel_id =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.materielId!=null">
+						when id=#{item.id} then #{item.materielId}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="warehouse =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.warehouse!=null">
+						when id=#{item.id} then #{item.warehouse}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="wareh_location =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.warehLocation!=null">
+						when id=#{item.id} then #{item.warehLocation}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="batch =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.batch!=null">
+						when id=#{item.id} then #{item.batch}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="system_count =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.systemCount!=null">
+						when id=#{item.id} then #{item.systemCount}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="check_count =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.checkCount!=null">
+						when id=#{item.id} then #{item.checkCount}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="profit_loss =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.profitLoss!=null">
+						when id=#{item.id} then #{item.profitLoss}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="create_by =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.createBy!=null">
+						when id=#{item.id} then #{item.createBy}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="create_time =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.createTime!=null">
+						when id=#{item.id} then #{item.createTime}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="update_by =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.updateBy!=null">
+						when id=#{item.id} then #{item.updateBy}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="update_time =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.updateTime!=null">
+						when id=#{item.id} then #{item.updateTime}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="del_flag =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.delFlag!=null">
+						when id=#{item.id} then #{item.delFlag}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="qr_id_count =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.qrIdCount!=null">
+						when id=#{item.id} then #{item.qrIdCount}
+					</if>
+				</foreach>
+			</trim>
+		</trim>
+		WHERE id IN
+		<foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+			#{item.id}
+		</foreach>
+	</update>
 
 
 </mapper>

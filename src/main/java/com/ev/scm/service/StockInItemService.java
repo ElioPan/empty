@@ -60,5 +60,7 @@ public interface StockInItemService {
 
 	int batchSave(List<StockInItemDO> stockDOs);
 
+	List<Map<String, Object>> getItemDetailById(Map<String, Object> map);
+
 
 }

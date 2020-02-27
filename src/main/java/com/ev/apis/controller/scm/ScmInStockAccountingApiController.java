@@ -69,7 +69,7 @@ public class ScmInStockAccountingApiController {
     public R autoAccountingSubcontractInStock(
             @ApiParam(value = "列表明细：[\n" +
                     "{\n" +
-                    "\"id\":\"列表行中的stockInItemId字段（必传）\",\n" +
+                    "\"id\":\"列表行中的stockInItemId字段\",\n" +
                     "\"inheadId\":\"入库主键（列表行中的id字段）\",\n" +
                     "\"sourceId\":\"源单主键\",\n" +
                     "\"materielId\":\"物料主键\",\n" +
@@ -78,6 +78,18 @@ public class ScmInStockAccountingApiController {
                     "]") @RequestParam(value = "detailAccounting") String detailAccounting) {
         return inStockAccountingService.disposeAutoAccounting(detailAccounting);
     }
+
+    @EvApiByToken(value = "/apis/scm/inStockAccounting/rollbackSubcontractInStock", method = RequestMethod.POST, apiTitle = "自动核销--委外入库核算")
+    @ApiOperation("返核销--委外入库核算")
+    @Transactional(rollbackFor = Exception.class)
+    public R rollbackAccccountingSubcontract(
+            @ApiParam(value = "入库主键（列表行中的id字段）") @RequestParam(value = "stockInItemIds") Long[] stockInIds) {
+        return inStockAccountingService.disposerollbackAccccounting(stockInIds);
+    }
+
+
+
+
 
 
 

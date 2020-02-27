@@ -55,7 +55,8 @@
 		`update_time`,
 		`del_flag`,
 		`materialId_count`,
-		`qrcode_id`
+		`qrcode_id`,
+		`account_source`
 	</sql>
 
 	<sql id="sql_condition">
@@ -82,7 +83,7 @@
 			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
 			<if test="materialIdCount != null and materialIdCount != ''"> and materialId_count = #{materialIdCount} </if>
 			<if test="qrcodeId != null and qrcodeId != ''"> and qrcode_id = #{qrcodeId} </if>
-
+			<if test="accountSource != null and accountSource != ''"> and account_source = #{accountSource} </if>
 		</where>
 	</sql>
 
@@ -109,7 +110,8 @@
 		`update_time`,
 		`del_flag`,
 		`materialId_count`,
-		`qrcode_id`
+		`qrcode_id`,
+		`account_source`
 		)
 		values
 		(
@@ -133,7 +135,8 @@
 		#{updateTime},
 		#{delFlag},
 		#{materialIdCount},
-		#{qrcodeId}
+		#{qrcodeId},
+		#{accountSource}
 		)
 	</insert>
 
@@ -161,6 +164,7 @@
 			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
 			<if test="materialIdCount != null">`materialId_count` = #{materialIdCount}</if>
 			<if test="qrcodeId != null">`qrcode_id` = #{qrcodeId}</if>
+			<if test="accountSource != null">`account_source` = #{accountSource}</if>
 		</set>
 		where id = #{id}
 	</update>
@@ -507,7 +511,8 @@
 		`update_time`,
 		`del_flag`,
 		`materialId_count`,
-		`qrcode_id`
+		`qrcode_id`,
+		`account_source`
 		)
 		values
 		<foreach collection="list" item="obj" separator=",">
@@ -532,10 +537,36 @@
 			#{obj.updateTime},
 			#{obj.delFlag},
 			#{obj.materialIdCount},
-			#{obj.qrcodeId}
+			#{obj.qrcodeId},
+			#{accountSource}
 			)
 		</foreach>
 	</insert>
+
+
+	<select id="getItemDetailById" resultType="map">
+		SELECT
+		DISTINCT
+		b.id,
+		b.sign,
+		a.id as itemId,
+		a.`count`,
+		a.unit_price,
+		a.amount,
+		a.expense,
+		a.cost,
+		a.materialId_count,
+		a.account_source
+		FROM
+		scm_stock_in_item a
+		LEFT JOIN scm_stock_in b on a.inhead_id=b.id
+		WHERE
+		b.id in
+		<foreach item="id" collection="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+
 
 
 </mapper>

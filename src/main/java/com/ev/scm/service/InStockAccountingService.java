@@ -30,7 +30,7 @@ public  interface InStockAccountingService  {
 
     Map<String, Object> getTotalTaxAmountCount(Long stockInItemId);
 
-
+    R disposerollbackAccccounting(Long[] stockInItemIds);
 
 
 }
