@@ -743,11 +743,11 @@ public class StockApiController {
                 .map(MaterielDO::getId)
                 .collect(Collectors.toList());
 
-        Map<String, BigDecimal> materielOutCountMap = Maps.newHashMap();
-        Map<String, BigDecimal> materielOutAmountMap = Maps.newHashMap();
-        Map<String, BigDecimal> materielInCountMap = Maps.newHashMap();
-        Map<String, BigDecimal> materielInAmountMap = Maps.newHashMap();
-        Map<String, BigDecimal> materielInUnitPriceMap = Maps.newHashMap();
+        HashMap<String, BigDecimal> materielOutCountMap = Maps.newHashMap();
+        HashMap<String, BigDecimal> materielOutAmountMap = Maps.newHashMap();
+        HashMap<String, BigDecimal> materielInCountMap = Maps.newHashMap();
+        HashMap<String, BigDecimal> materielInAmountMap = Maps.newHashMap();
+        HashMap<String, BigDecimal> materielInUnitPriceMap = Maps.newHashMap();
 
         // 加权平均入库
         if (stockInBatchEmpty.size() > 0) {
@@ -781,42 +781,46 @@ public class StockApiController {
 
         // 保存分析表内没有的物料
         if (materielInCountMap.size() > 0) {
-            StockAnalysisDO stockAnalysisDO;
-            String[] split;
-            int materielId;
-            String batch;
-            for (String s : materielInCountMap.keySet()) {
-                stockAnalysisDO = new StockAnalysisDO();
-                split = s.split("&");
-                materielId = Integer.parseInt(split[0]);
-                if (split.length == 2) {
-                    batch = split[1];
-                    if (idAndBatchList.contains(materielId)) {
-                        continue;
+            HashMap<String,BigDecimal> materielInCountMapCopy = Maps.newHashMap();
+            materielInCountMapCopy.putAll(materielInCountMap);
+            for (StockAnalysisDO analysisDO : stockAnalysisList) {
+                String materielId = analysisDO.getMaterielId().toString();
+                String materielIdAndBatch = analysisDO.getMaterielId().toString() + "&" + analysisDO.getBatch();
+                materielInCountMapCopy.remove(materielId);
+                materielInCountMapCopy.remove(materielIdAndBatch);
+            }
+            if (materielInCountMapCopy.size() > 0) {
+                StockAnalysisDO stockAnalysisDO;
+                String[] split;
+                int materielId;
+                String batch;
+                for (String s : materielInCountMapCopy.keySet()) {
+                    stockAnalysisDO = new StockAnalysisDO();
+                    split = s.split("&");
+                    materielId = Integer.parseInt(split[0]);
+                    if (split.length == 2) {
+                        batch = split[1];
+                    }else {
+                        batch = null;
                     }
-                }else {
-                    if (weightedAverageIdList.contains(materielId)) {
-                        continue;
-                    }
-                    batch = null;
+                    stockAnalysisDO.setMaterielId(materielId);
+                    stockAnalysisDO.setBatch(batch);
+                    stockAnalysisDO.setInitialCount(BigDecimal.ZERO);
+                    stockAnalysisDO.setInitialAmount(BigDecimal.ZERO);
+                    stockAnalysisDO.setInCount(materielInCountMapCopy.get(s));
+                    stockAnalysisDO.setInAmount(materielInCountMapCopy.get(s));
+                    stockAnalysisDO.setPeriod(DateFormatUtil.getDateByParttern(period));
+                    stockAnalysisDO.setIsClose(0);
+                    stockAnalysisDO.setDelFlag(0);
+                    insertStockAnalysisList.add(stockAnalysisDO);
                 }
-                stockAnalysisDO.setMaterielId(materielId);
-                stockAnalysisDO.setBatch(batch);
-                stockAnalysisDO.setInitialCount(BigDecimal.ZERO);
-                stockAnalysisDO.setInitialAmount(BigDecimal.ZERO);
-                stockAnalysisDO.setInCount(materielInCountMap.get(s));
-                stockAnalysisDO.setInAmount(materielInAmountMap.get(s));
-                stockAnalysisDO.setPeriod(DateFormatUtil.getDateByParttern(period));
-                stockAnalysisDO.setIsClose(0);
-                stockAnalysisDO.setDelFlag(0);
-                insertStockAnalysisList.add(stockAnalysisDO);
+            }
+            if (insertStockAnalysisList.size() > 0) {
+                stockAnalysisList.addAll(insertStockAnalysisList);
             }
         }
-        if (insertStockAnalysisList.size() > 0) {
-            stockAnalysisList.addAll(insertStockAnalysisList);
-        }
 
-        // 计算出库成本单价
+        // 计算加权平均出库新入物料成本单价
         for (StockAnalysisDO analysisDO : stockAnalysisList) {
             String materielId = analysisDO.getMaterielId().toString();
             if (materielInCountMap.containsKey(materielId)) {
@@ -827,16 +831,15 @@ public class StockApiController {
                 analysisDO.setInAmount(inAmount);
                 materielInUnitPriceMap.put(materielId
                         , (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
-                materielInCountMap.remove(materielId);
                 continue;
             }
+            materielInUnitPriceMap.put(materielId,analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(), Constant.BIGDECIMAL_ZERO));
             analysisDO.setInAmount(BigDecimal.ZERO);
             analysisDO.setInCount(BigDecimal.ZERO);
         }
 
 
-
-        // 计算出库成本单价
+        // 计算批次管理出库新入物料成本单价
         for (StockAnalysisDO analysisDO : stockAnalysisList) {
             String materielIdAndBatch = analysisDO.getMaterielId().toString() + "&" + analysisDO.getBatch();
 
@@ -848,7 +851,6 @@ public class StockApiController {
                 analysisDO.setInAmount(inAmount);
                 materielInUnitPriceMap.put(materielIdAndBatch
                         , (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
-                materielInCountMap.remove(materielIdAndBatch);
                 continue;
             }
             analysisDO.setInAmount(BigDecimal.ZERO);
