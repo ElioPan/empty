@@ -287,7 +287,8 @@ public class TaskMainApiController {
 		contentDetail.put("id",taskMainDO.getId());
 		List<Long> toUsers = new ArrayList<>();
 		toUsers.add(taskMainDO.getCreateBy());
-		noticeService.saveAndSendSocket("任务回复信息",taskReplyDO.getSolution(),contentDetail.toString(),281L,ShiroUtils.getUserId(),toUsers);
+		String content = "原因分析："+taskReplyDO.getReason()+"\r\n解决方案："+taskReplyDO.getSolution();
+		noticeService.saveAndSendSocket("任务回复信息",content,contentDetail.toString(),281L,ShiroUtils.getUserId(),toUsers);
 		if (replySave > 0) {
 			return R.ok();
 		}
