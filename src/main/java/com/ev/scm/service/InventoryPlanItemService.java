@@ -38,5 +38,6 @@ public interface InventoryPlanItemService {
 
 	List<Map<String, Object>> getMaterialAll(Map<String, Object> map);
 
+	int batchUpdate(List<InventoryPlanItemDO> qrcodeDOList);
 
 }

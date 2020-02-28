@@ -18,6 +18,7 @@ import com.ev.mes.service.ProductionFeedingDetailService;
 import com.ev.mes.service.ProductionFeedingService;
 import com.ev.scm.domain.StockOutDO;
 import com.ev.scm.domain.StockOutItemDO;
+import com.ev.scm.service.StockInItemService;
 import com.ev.scm.service.StockOutItemService;
 import com.ev.scm.service.StockOutService;
 import com.google.common.collect.Maps;
@@ -52,6 +53,9 @@ public class OutsourcingStockOutApiController {
 
 	@Autowired
     private StockOutService stockOutService;
+
+    @Autowired
+    private StockInItemService stockInItemService;
 
     @Autowired
     private StockOutItemService stockOutItemService;
@@ -325,7 +329,8 @@ public class OutsourcingStockOutApiController {
             @ApiParam(value = "出库员Id") @RequestParam(value = "operator", defaultValue = "", required = false) Long operator,
             @ApiParam(value = "制单人") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
             @ApiParam(value = "制单人Id") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
-            @ApiParam(value = "制单日期") @RequestParam(value = "createTime", defaultValue = "", required = false) String createTime
+            @ApiParam(value = "制单日期") @RequestParam(value = "createTime", defaultValue = "", required = false) String createTime,
+            @ApiParam(value = "委外入库单明细ID") @RequestParam(value = "stockInItemId", defaultValue = "", required = false) Long stockInItemId
 
 			) {
         Map<String, Object> params = Maps.newHashMap();
@@ -347,6 +352,17 @@ public class OutsourcingStockOutApiController {
         params.put("operator", operator);
         params.put("createBy", createBy);
         params.put("createTime", createTime);
+        if (stockInItemId != null) {
+            Long outsourcingContractItemId = stockInItemService.get(stockInItemId).getSourceId();
+            Map<String,Object> map = Maps.newHashMap();
+            map.put("outsourceContractItemId",outsourcingContractItemId);
+            Long feedingId = productionFeedingService.list(map).get(0).getId();
+            map.put("headId",feedingId);
+            List<Long> feedingDetailIds = feedingDetailService.list(map).stream()
+                    .map(ProductionFeedingDetailDO::getId)
+                    .collect(Collectors.toList());
+            params.put("sourceIds", feedingDetailIds);
+        }
 
         params.put("outboundType", Objects.isNull(outboundType)?ConstantForGYL.WWCK:outboundType);
 		Map<String, Object> results = Maps.newHashMap();

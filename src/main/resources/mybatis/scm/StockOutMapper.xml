@@ -313,6 +313,13 @@
             <if test="fuzzyInquire != null and fuzzyInquire != ''"> and CONCAT(materiel.`name`,materiel.`serial_no`,stockOut.`out_code`,client.`name`) LIKE #{fuzzyInquire} </if>
             <!-- 出库类型 -->
             <if test="outboundType != null and outboundType != ''"> and stockOut.outbound_type = #{outboundType} </if>
+            <if test="sourceIds != null and sourceIds.size()>0"> and item.source_id IN
+                <foreach item="item" collection="sourceIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
         </where>
     </sql>
 

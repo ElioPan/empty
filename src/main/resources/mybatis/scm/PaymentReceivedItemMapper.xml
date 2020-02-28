@@ -179,6 +179,7 @@
 			b.receivable_payables_amount as receivablePayablesAmount,
 			b.paid_received_amount as paid_receivedAmount,
 -->
+			IF(a.sign='SK',d.create_time,c.create_time) as SourceCreateTime,
 			b.statement_number as statementNumber,
 			b.account_number as accountNumber,
 			j.name as accountNumberName,

@@ -144,7 +144,8 @@
 		a.create_by as createBy,
 		dd.name AS createName,
 		a.create_time AS createTime,
-		a.qr_sign as qrSign
+		a.qr_sign as qrSign,
+		a.remarks
 		from scm_inventory_plan a
 		LEFT JOIN cus_facility b ON a.warehouse=b.id
 		LEFT JOIN cus_dictionary c ON a.check_status=c.id
@@ -156,7 +157,7 @@
 			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(a.plan_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(a.plan_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
 			<if test="code != null and code != ''">and a.code like  CONCAT('%',#{code},'%') </if>
-			<if test="qrSign ==1 and qrSign != ''">and (a.check_status= #{checkStatusOne} or a.check_status= #{checkStatusTwo})</if>
+			<if test="qr ==1 and qr != ''">and (a.check_status= #{checkStatusOne} or a.check_status= #{checkStatusTwo})</if>
 
 		</where>
 		<choose>

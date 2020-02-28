@@ -159,9 +159,9 @@
 		case when a.profit_loss &lt; 0 then -(a.profit_loss)
 				when  a.profit_loss &gt; 0 then a.profit_loss
 				end profitLoss,
-		f.code,
+		<!--f.code,
 		f.document_type as documentTypeId,
-		g.name as documentTypeName,
+		g.name as documentTypeName,-->
 		a.warehouse,
 		j.name as warehouseName,
 		a.wareh_location as warehLocation,
@@ -172,20 +172,18 @@
 		LEFT JOIN cus_materiel     c   ON a.materiel_id=c.id
 		LEFT JOIN cus_dictionary  d  ON b.unit_uom=d.id
 		LEFT JOIN scm_inventory_plan  e  ON a.head_id=e.id
-		LEFT JOIN scm_inventory_plan_fitloss  f  ON a.head_id=f.head_id
-		LEFT JOIN cus_dictionary  g  ON f.document_type=g.id
+		<!--LEFT JOIN scm_inventory_plan_fitloss  f  ON a.head_id=f.head_id
+		LEFT JOIN cus_dictionary  g  ON f.document_type=g.id-->
 		LEFT JOIN cus_facility  j  ON  a.warehouse = j.id
 		LEFT JOIN cus_facility_location  k  ON  a.wareh_location = k.id
 		<where>
 			<if test="profitLoss != null and profitLoss != ''and profitLoss == -1"> and a.profit_loss &lt; 0 </if>
 
-			<if test="profitLoss != null and profitLoss != ''and profitLoss ==1"> and a.profit_loss > 0 </if>
+			<if test="profitLoss != null and profitLoss != ''and profitLoss ==1"> and a.profit_loss &gt; 0 </if>
 
 			<if test="checkStatus != null and checkStatus != ''"> and e.check_status = #{checkStatus} </if>
 
 			<if test="headId != null and headId != ''"> and e.id = #{headId} </if>
-
-			<if test="documentType != null and documentType != ''"> and  f.document_type = #{documentType} </if>
 		</where>
 		<!--&#45;&#45; 			c.price  as pro_price,-->
 		<!--&#45;&#45;  			case when a.profit_loss < 0 then -(a.profit_loss*c.price)-->
@@ -254,13 +252,119 @@
 			<if test="profitLoss != null and profitLoss != ''and profitLoss == -1"> and a.profit_loss &lt; 0 </if>
 
 			<if test="profitLoss != null and profitLoss != ''and profitLoss ==1"> and a.profit_loss > 0 </if>
-            <if test="checkCount != null and checkCount != ''"> and a.check_count is null } </if>
+            <if test="checkCount != null and checkCount != ''"> and a.check_count is null </if>
 			<if test="headId != null and headId != ''"> and a.head_id = #{headId} </if>
 		</where>
 	</select>
 
 
-
+	<update id="batchUpdate">
+		UPDATE scm_inventory_plan_item
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="head_id=case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.headId!=null">
+						when id=#{item.id} then #{item.headId}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="materiel_id =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.materielId!=null">
+						when id=#{item.id} then #{item.materielId}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="warehouse =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.warehouse!=null">
+						when id=#{item.id} then #{item.warehouse}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="wareh_location =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.warehLocation!=null">
+						when id=#{item.id} then #{item.warehLocation}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="batch =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.batch!=null">
+						when id=#{item.id} then #{item.batch}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="system_count =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.systemCount!=null">
+						when id=#{item.id} then #{item.systemCount}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="check_count =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.checkCount!=null">
+						when id=#{item.id} then #{item.checkCount}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="profit_loss =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.profitLoss!=null">
+						when id=#{item.id} then #{item.profitLoss}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="create_by =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.createBy!=null">
+						when id=#{item.id} then #{item.createBy}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="create_time =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.createTime!=null">
+						when id=#{item.id} then #{item.createTime}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="update_by =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.updateBy!=null">
+						when id=#{item.id} then #{item.updateBy}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="update_time =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.updateTime!=null">
+						when id=#{item.id} then #{item.updateTime}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="del_flag =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.delFlag!=null">
+						when id=#{item.id} then #{item.delFlag}
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="qr_id_count =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.qrIdCount!=null">
+						when id=#{item.id} then #{item.qrIdCount}
+					</if>
+				</foreach>
+			</trim>
+		</trim>
+		WHERE id IN
+		<foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+			#{item.id}
+		</foreach>
+	</update>
 
 
 </mapper>

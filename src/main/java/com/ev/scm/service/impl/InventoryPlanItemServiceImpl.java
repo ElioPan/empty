@@ -2,6 +2,7 @@ package com.ev.scm.service.impl;
 
 import com.ev.scm.dao.InventoryPlanItemDao;
 import com.ev.scm.domain.InventoryPlanItemDO;
+import com.ev.scm.domain.QrcodeDO;
 import com.ev.scm.service.InventoryPlanItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -73,6 +74,11 @@ public class InventoryPlanItemServiceImpl implements InventoryPlanItemService {
 	@Override
 	public List<Map<String, Object>> getMaterialAll(Map<String, Object> map) {
 		return inventoryPlanItemDao.getMaterialAll(map);
+	}
+
+	@Override
+	public int batchUpdate(List<InventoryPlanItemDO> qrcodeDOList) {
+		return inventoryPlanItemDao.batchUpdate(qrcodeDOList);
 	}
 
 }
