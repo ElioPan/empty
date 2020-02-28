@@ -163,7 +163,7 @@ public class StockApiController {
                 for (MaterielDO materielDO : materielDOs) {
                     if (Objects.equals(materielDO.getSerialNo(), serialNo)) {
                         isLot = materielDO.getIsLot();
-                        if (isLot == 1 && StringUtils.isEmpty(batch)) {
+                        if ((isLot == 1 && StringUtils.isEmpty(batch)) || (isLot == 0 && StringUtils.isNoneEmpty(batch))) {
                             String[] args = {materielDO.getName()};
                             return R.error(messageSourceHandler.getMessage("basicInfo.materiel.isLotError", args));
                         }
@@ -235,6 +235,7 @@ public class StockApiController {
             @ApiParam(value = "产品类型") @RequestParam(value = "productTypeId", defaultValue = "", required = false) Long productTypeId,
             @ApiParam(value = "产品编号或名称或型号查询") @RequestParam(value = "fuzzySearch", defaultValue = "", required = false) String fuzzySearch,
             @ApiParam(value = "仓库类型") @RequestParam(value = "facilityTypeId", defaultValue = "", required = false) Long facilityTypeId,
+            @ApiParam(value = "仓库ID") @RequestParam(value = "facilityId", defaultValue = "", required = false) String facilityId,
             @ApiParam(value = "库位ID") @RequestParam(value = "locationId", defaultValue = "", required = false) String locationId,
             @ApiParam(value = "产品Id") @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId,
             @ApiParam(value = "批次") @RequestParam(value = "batch", defaultValue = "", required = false) String batch,
@@ -248,6 +249,7 @@ public class StockApiController {
         params.put("productTypeId", productTypeId);
         params.put("fuzzySearch", fuzzySearch);
         params.put("facilityTypeId", facilityTypeId);
+        params.put("facilityId", facilityId);
 
         params.put("locationId", locationId);
         params.put("materielId", materielId);
@@ -428,26 +430,83 @@ public class StockApiController {
         }
 
         List<StockDO> stockDOList = stockService.list(emptyMap);
-        StockAnalysisDO stockAnalysisDO;
         StockStartDO stockStartDO = list.get(0);
         Date period = stockStartDO.getStartTime();
         List<StockAnalysisDO> stockAnalysisDOS = Lists.newArrayList();
+        List<Long> materielIds = stockDOList
+                .stream()
+                .map(StockDO::getMaterielId)
+                .collect(Collectors.toList());
+        Map<String,Object> params = Maps.newHashMap();
+        params.put("materielIdList", materielIds);
+        List<MaterielDO> materielDOInList = materielService.list(params);
+        // 非批次管理的入库物料
+        List<Integer> weightedAverageIdList = materielDOInList.stream()
+                .filter(materielDO -> materielDO.getIsLot()!=1)
+                .map(MaterielDO::getId)
+                .collect(Collectors.toList());
+        // 批次管理的入库物料
+        List<Integer> idAndBatchList =  materielDOInList.stream()
+                .filter(materielDO -> materielDO.getIsLot()==1)
+                .map(MaterielDO::getId)
+                .collect(Collectors.toList());
+
+        Map<String, BigDecimal> materielCountMap = Maps.newHashMap();
+        Map<String, BigDecimal> materielAmountMap = Maps.newHashMap();
         for (StockDO stockDO : stockDOList) {
-            stockAnalysisDO = new StockAnalysisDO();
-            stockAnalysisDO.setMaterielId(stockDO.getMaterielId().intValue());
-            stockAnalysisDO.setBatch(stockDO.getBatch());
-            stockAnalysisDO.setInitialCount(stockDO.getCount());
-            stockAnalysisDO.setInitialAmount(stockDO.getAmount());
-            stockAnalysisDO.setPeriod(period);
-            stockAnalysisDO.setIsClose(0);
-            stockAnalysisDO.setDelFlag(0);
-            stockAnalysisDOS.add(stockAnalysisDO);
+            int materielId = stockDO.getMaterielId().intValue();
+            // 无批次管理的物料
+            if (weightedAverageIdList.contains(materielId)) {
+                String materielIdToString = String.valueOf(materielId);
+                if (materielCountMap.containsKey(materielIdToString)) {
+                    materielCountMap.put(materielIdToString, materielCountMap.get(materielIdToString).add(stockDO.getCount()));
+                    materielAmountMap.put(materielIdToString, materielCountMap.get(materielIdToString).add(stockDO.getAmount()));
+                    continue;
+                }
+                materielCountMap.put(materielIdToString, MathUtils.getBigDecimal(stockDO.getCount()));
+                materielAmountMap.put(materielIdToString, MathUtils.getBigDecimal(stockDO.getAmount()));
+            }
+            // 有批次管理的物料
+            if (idAndBatchList.contains(materielId)) {
+                String materielIdAndBatchToString = materielId + "&" + stockDO.getBatch();
+                if (materielCountMap.containsKey(materielIdAndBatchToString)) {
+                    materielCountMap.put(materielIdAndBatchToString, materielCountMap.get(materielIdAndBatchToString).add(stockDO.getCount()));
+                    materielAmountMap.put(materielIdAndBatchToString, materielCountMap.get(materielIdAndBatchToString).add(stockDO.getAmount()));
+                    continue;
+                }
+                materielCountMap.put(materielIdAndBatchToString, MathUtils.getBigDecimal(stockDO.getCount()));
+                materielAmountMap.put(materielIdAndBatchToString, MathUtils.getBigDecimal(stockDO.getAmount()));
+            }
+        }
+        if (materielCountMap.size() > 0) {
+            Date now = new Date();
+            StockAnalysisDO stockAnalysis;
+            String[] split;
+            int materielId;
+            String batch;
+            for (String s : materielCountMap.keySet()) {
+                stockAnalysis = new StockAnalysisDO();
+                split = s.split("&");
+                materielId = Integer.parseInt(split[0]);
+                if (split.length == 2) {
+                    batch = split[1];
+                }else {
+                    batch = null;
+                }
+                stockAnalysis.setMaterielId(materielId);
+                stockAnalysis.setBatch(batch);
+                stockAnalysis.setInitialCount(materielCountMap.get(s));
+                stockAnalysis.setInitialAmount(materielAmountMap.get(s));
+                stockAnalysis.setPeriod(period);
+                stockAnalysis.setIsClose(0);
+                stockAnalysis.setDelFlag(0);
+                stockAnalysis.setCreateTime(now);
+                stockAnalysisDOS.add(stockAnalysis);
+            }
         }
         stockAnalysisService.batchInsert(stockAnalysisDOS);
-
         stockStartDO.setStatus(1);
         stockStartService.update(stockStartDO);
-
         return R.ok();
     }
 
@@ -558,6 +617,13 @@ public class StockApiController {
         params.put("materielIdList", materielOutIdList);
         List<MaterielDO> materielDOOutList = materielService.list(params);
 
+        // 分析表中现有的物料
+        List<Integer> materielIdList = stockAnalysisList.stream()
+                .map(StockAnalysisDO::getMaterielId)
+                .collect(Collectors.toList());
+        params.put("materielIdList", materielIdList);
+        List<MaterielDO> materielDOList = materielService.list(params);
+
         // 加权平均的入库物料
         List<Integer> weightedAverageIdInList = materielDOInList.stream()
                 .filter(materielDO -> Objects.equals(ConstantForGYL.WEIGHTED_AVERAGE, materielDO.getValuationMethod()))
@@ -570,6 +636,12 @@ public class StockApiController {
                 .map(MaterielDO::getId)
                 .collect(Collectors.toList());
 
+        // 加权平均的分析表中现有物料
+        List<Integer> weightedAverageIdList = materielDOList.stream()
+                .filter(materielDO -> Objects.equals(ConstantForGYL.WEIGHTED_AVERAGE, materielDO.getValuationMethod()))
+                .map(MaterielDO::getId)
+                .collect(Collectors.toList());
+
         // 分批认定的入库物料
         List<Integer> idAndBatchInList = materielDOInList.stream()
                 .filter(materielDO -> Objects.equals(ConstantForGYL.BATCH_FINDS, materielDO.getValuationMethod()))
@@ -578,6 +650,12 @@ public class StockApiController {
 
         // 分批认定的出库物料
         List<Integer> idAndBatchOutList = materielDOOutList.stream()
+                .filter(materielDO -> Objects.equals(ConstantForGYL.BATCH_FINDS, materielDO.getValuationMethod()))
+                .map(MaterielDO::getId)
+                .collect(Collectors.toList());
+
+        // 分批认定的分析表中现有物料
+        List<Integer> idAndBatchList = materielDOList.stream()
                 .filter(materielDO -> Objects.equals(ConstantForGYL.BATCH_FINDS, materielDO.getValuationMethod()))
                 .map(MaterielDO::getId)
                 .collect(Collectors.toList());
@@ -651,7 +729,13 @@ public class StockApiController {
                 materielId = Integer.parseInt(split[0]);
                 if (split.length == 2) {
                     batch = split[1];
+                    if (idAndBatchList.contains(materielId)) {
+                        continue;
+                    }
                 }else {
+                    if (weightedAverageIdList.contains(materielId)) {
+                        continue;
+                    }
                     batch = null;
                 }
                 stockAnalysisDO.setMaterielId(materielId);
