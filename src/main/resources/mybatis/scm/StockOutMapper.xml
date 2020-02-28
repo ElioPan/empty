@@ -221,6 +221,7 @@
         materiel.specification AS specification,
         unitUom.name AS unitUomName,
         item.`count` AS count,
+        item.charge_off_count AS chargeOffCount,
         item.`sell_unit_price` AS sellUnitPrice,
         item.`sell_amount` AS sellAmount,
         item.`unit_price` AS unitPrice,
@@ -319,6 +320,7 @@
                         #{item}
                     </if>
                 </foreach>
+                AND IFNULL(item.`count`,0) &gt; IFNULL(item.charge_off_count,0)
             </if>
         </where>
     </sql>
