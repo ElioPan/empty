@@ -102,6 +102,9 @@ public class SaleStockOutApiController {
         Map<Long, BigDecimal> count = Maps.newHashMap();
         for (StockOutItemDO itemDO : itemDOs) {
             Long sourceId = itemDO.getSourceId();
+            if (sourceId == null) {
+                continue;
+            }
             if (count.containsKey(sourceId)) {
                 count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
                 continue;

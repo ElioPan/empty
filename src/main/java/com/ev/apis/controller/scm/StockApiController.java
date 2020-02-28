@@ -651,6 +651,8 @@ public class StockApiController {
         // 加权平均法出库成本的算法：(月初结存金额+本月入库金额)/（月初结存数量+本月入库数量），算出当月加权平均
         // 分批认定法：物料属性中需要设置批次管理，入库时入库单需要录入批号，出库时出库单的单价以入库时相同批号的单价作为出库单价。
 
+        List<Integer> weightedAverageIdList = Lists.newArrayList();
+
         // 入库的物料
         List<Object> materielInIdList = stockInList.stream()
                 .map(stringObjectMap -> stringObjectMap.get("materielId"))
@@ -685,7 +687,11 @@ public class StockApiController {
             stockInBatchNonEmpty = stockInList.stream()
                     .filter(stringObjectMap -> idAndBatchInList.contains(Integer.parseInt(stringObjectMap.get("materielId").toString())))
                     .collect(Collectors.toList());
+            if (weightedAverageIdInList.size() > 0) {
+                weightedAverageIdList.addAll(weightedAverageIdInList);
+            }
         }
+
 
         // 出库的物料
         List<Integer> materielOutIdList = stockOutList.stream()
@@ -722,6 +728,10 @@ public class StockApiController {
                     .filter(stockOutItemDO -> idAndBatchOutList.contains(stockOutItemDO.getMaterielId()))
                     .collect(Collectors.toList());
 
+            if (weightedAverageIdOutList.size() > 0) {
+                weightedAverageIdList.addAll(weightedAverageIdOutList);
+            }
+
         }
 
         // 分析表中现有的物料
@@ -730,24 +740,27 @@ public class StockApiController {
                 .collect(Collectors.toList());
         params.put("materielIdList", materielIdList);
         List<MaterielDO> materielDOList = materielService.list(params);
-
         // 加权平均的分析表中现有物料
-        List<Integer> weightedAverageIdList = materielDOList.stream()
+        List<Integer> weightedAverageExistingIdList = materielDOList.stream()
                 .filter(materielDO -> Objects.equals(ConstantForGYL.WEIGHTED_AVERAGE, materielDO.getValuationMethod()))
                 .map(MaterielDO::getId)
                 .collect(Collectors.toList());
 
         // 分批认定的分析表中现有物料
-        List<Integer> idAndBatchList = materielDOList.stream()
-                .filter(materielDO -> Objects.equals(ConstantForGYL.BATCH_FINDS, materielDO.getValuationMethod()))
-                .map(MaterielDO::getId)
-                .collect(Collectors.toList());
+//        List<Integer> idAndBatchExistingList = materielDOList.stream()
+//                .filter(materielDO -> Objects.equals(ConstantForGYL.BATCH_FINDS, materielDO.getValuationMethod()))
+//                .map(MaterielDO::getId)
+//                .collect(Collectors.toList());
 
-        Map<String, BigDecimal> materielOutCountMap = Maps.newHashMap();
-        Map<String, BigDecimal> materielOutAmountMap = Maps.newHashMap();
-        Map<String, BigDecimal> materielInCountMap = Maps.newHashMap();
-        Map<String, BigDecimal> materielInAmountMap = Maps.newHashMap();
-        Map<String, BigDecimal> materielInUnitPriceMap = Maps.newHashMap();
+        if (weightedAverageExistingIdList.size() > 0) {
+            weightedAverageIdList.addAll(weightedAverageExistingIdList);
+        }
+
+        HashMap<String, BigDecimal> materielOutCountMap = Maps.newHashMap();
+        HashMap<String, BigDecimal> materielOutAmountMap = Maps.newHashMap();
+        HashMap<String, BigDecimal> materielInCountMap = Maps.newHashMap();
+        HashMap<String, BigDecimal> materielInAmountMap = Maps.newHashMap();
+        HashMap<String, BigDecimal> materielInUnitPriceMap = Maps.newHashMap();
 
         // 加权平均入库
         if (stockInBatchEmpty.size() > 0) {
@@ -781,45 +794,53 @@ public class StockApiController {
 
         // 保存分析表内没有的物料
         if (materielInCountMap.size() > 0) {
-            StockAnalysisDO stockAnalysisDO;
-            String[] split;
-            int materielId;
-            String batch;
-            for (String s : materielInCountMap.keySet()) {
-                stockAnalysisDO = new StockAnalysisDO();
-                split = s.split("&");
-                materielId = Integer.parseInt(split[0]);
-                if (split.length == 2) {
-                    batch = split[1];
-                    if (idAndBatchList.contains(materielId)) {
-                        continue;
+            HashMap<String,BigDecimal> materielInCountMapCopy = Maps.newHashMap();
+            materielInCountMapCopy.putAll(materielInCountMap);
+            for (StockAnalysisDO analysisDO : stockAnalysisList) {
+                String materielId = analysisDO.getMaterielId().toString();
+                String materielIdAndBatch = analysisDO.getMaterielId().toString() + "&" + analysisDO.getBatch();
+                materielInCountMapCopy.remove(materielId);
+                materielInCountMapCopy.remove(materielIdAndBatch);
+            }
+            if (materielInCountMapCopy.size() > 0) {
+                StockAnalysisDO stockAnalysisDO;
+                String[] split;
+                int materielId;
+                String batch;
+                for (String s : materielInCountMapCopy.keySet()) {
+                    stockAnalysisDO = new StockAnalysisDO();
+                    split = s.split("&");
+                    materielId = Integer.parseInt(split[0]);
+                    if (split.length == 2) {
+                        batch = split[1];
+                    }else {
+                        batch = null;
                     }
-                }else {
-                    if (weightedAverageIdList.contains(materielId)) {
-                        continue;
-                    }
-                    batch = null;
+                    stockAnalysisDO.setMaterielId(materielId);
+                    stockAnalysisDO.setBatch(batch);
+                    stockAnalysisDO.setInitialCount(BigDecimal.ZERO);
+                    stockAnalysisDO.setInitialAmount(BigDecimal.ZERO);
+                    stockAnalysisDO.setInCount(materielInCountMapCopy.get(s));
+                    stockAnalysisDO.setInAmount(materielInCountMapCopy.get(s));
+                    stockAnalysisDO.setPeriod(DateFormatUtil.getDateByParttern(period));
+                    stockAnalysisDO.setIsClose(0);
+                    stockAnalysisDO.setDelFlag(0);
+                    insertStockAnalysisList.add(stockAnalysisDO);
                 }
-                stockAnalysisDO.setMaterielId(materielId);
-                stockAnalysisDO.setBatch(batch);
-                stockAnalysisDO.setInitialCount(BigDecimal.ZERO);
-                stockAnalysisDO.setInitialAmount(BigDecimal.ZERO);
-                stockAnalysisDO.setInCount(materielInCountMap.get(s));
-                stockAnalysisDO.setInAmount(materielInAmountMap.get(s));
-                stockAnalysisDO.setPeriod(DateFormatUtil.getDateByParttern(period));
-                stockAnalysisDO.setIsClose(0);
-                stockAnalysisDO.setDelFlag(0);
-                insertStockAnalysisList.add(stockAnalysisDO);
+            }
+            if (insertStockAnalysisList.size() > 0) {
+                stockAnalysisList.addAll(insertStockAnalysisList);
             }
         }
-        if (insertStockAnalysisList.size() > 0) {
-            stockAnalysisList.addAll(insertStockAnalysisList);
-        }
 
-        // 计算出库成本单价
+        // 计算出库成本
         for (StockAnalysisDO analysisDO : stockAnalysisList) {
             String materielId = analysisDO.getMaterielId().toString();
-            if (materielInCountMap.containsKey(materielId)) {
+            String materielIdAndBatch = analysisDO.getMaterielId().toString() + "&" + analysisDO.getBatch();
+
+            // 本月已入库的物料
+            // 计算加权平均出库新入物料成本单价
+            if (materielInCountMap.containsKey(materielId) && weightedAverageIdList.contains(Integer.parseInt(materielId))) {
                 // (月初结存金额+本月入库金额)/（月初结存数量+本月入库数量）
                 BigDecimal inAmount = materielInAmountMap.get(materielId);
                 BigDecimal inCount = materielInCountMap.get(materielId);
@@ -827,20 +848,10 @@ public class StockApiController {
                 analysisDO.setInAmount(inAmount);
                 materielInUnitPriceMap.put(materielId
                         , (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
-                materielInCountMap.remove(materielId);
                 continue;
             }
-            analysisDO.setInAmount(BigDecimal.ZERO);
-            analysisDO.setInCount(BigDecimal.ZERO);
-        }
-
-
-
-        // 计算出库成本单价
-        for (StockAnalysisDO analysisDO : stockAnalysisList) {
-            String materielIdAndBatch = analysisDO.getMaterielId().toString() + "&" + analysisDO.getBatch();
-
-            if (materielInCountMap.containsKey(materielIdAndBatch)) {
+            // 计算批次管理出库新入物料成本单价
+            if (materielInCountMap.containsKey(materielIdAndBatch) && !weightedAverageIdList.contains(Integer.parseInt(materielId))) {
                 // (月初结存金额+本月入库金额)/（月初结存数量+本月入库数量）
                 BigDecimal inAmount = materielInAmountMap.get(materielIdAndBatch);
                 BigDecimal inCount = materielInCountMap.get(materielIdAndBatch);
@@ -848,12 +859,21 @@ public class StockApiController {
                 analysisDO.setInAmount(inAmount);
                 materielInUnitPriceMap.put(materielIdAndBatch
                         , (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
-                materielInCountMap.remove(materielIdAndBatch);
                 continue;
+            }
+
+            // 本月未入库，存在上个月的库存
+            if (weightedAverageIdList.contains(Integer.parseInt(materielId))) {
+                materielInUnitPriceMap.put(materielId
+                        , analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(), Constant.BIGDECIMAL_ZERO));
+            }else {
+                materielInUnitPriceMap.put(materielIdAndBatch
+                        , analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(), Constant.BIGDECIMAL_ZERO));
             }
             analysisDO.setInAmount(BigDecimal.ZERO);
             analysisDO.setInCount(BigDecimal.ZERO);
         }
+
 
         // 加权平均出库
         if (stockOutBatchEmpty.size() > 0) {
@@ -913,7 +933,7 @@ public class StockApiController {
             BigDecimal inCount = analysisDO.getInCount() == null ? BigDecimal.ZERO : analysisDO.getInCount();
             BigDecimal inAmount = analysisDO.getInAmount() == null ? BigDecimal.ZERO : analysisDO.getInAmount();
             // 加权平均
-            if (materielOutCountMap.containsKey(materielId)) {
+            if (materielOutCountMap.containsKey(materielId) && weightedAverageIdList.contains(Integer.parseInt(materielId))) {
                 BigDecimal outCount = materielOutCountMap.get(materielId);
                 BigDecimal outAmount = materielOutAmountMap.get(materielId);
                 analysisDO.setOutCount(outCount);
@@ -932,7 +952,7 @@ public class StockApiController {
             }
 
             // 分批认定
-            if (materielOutCountMap.containsKey(materielIdAndBatch)) {
+            if (materielOutCountMap.containsKey(materielIdAndBatch)&& !weightedAverageIdList.contains(Integer.parseInt(materielId))) {
                 BigDecimal outCount = materielOutCountMap.get(materielIdAndBatch);
                 BigDecimal outAmount = materielOutAmountMap.get(materielIdAndBatch);
                 analysisDO.setOutCount(outCount);

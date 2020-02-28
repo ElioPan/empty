@@ -333,6 +333,7 @@ public class OutsourcingStockOutApiController {
             @ApiParam(value = "委外入库单明细ID") @RequestParam(value = "stockInItemId", defaultValue = "", required = false) Long stockInItemId
 
 			) {
+        Map<String, Object> results = Maps.newHashMap();
         Map<String, Object> params = Maps.newHashMap();
         params.put("offset", (pageno - 1) * pagesize);
         params.put("limit", pagesize);
@@ -352,20 +353,35 @@ public class OutsourcingStockOutApiController {
         params.put("operator", operator);
         params.put("createBy", createBy);
         params.put("createTime", createTime);
+        params.put("outboundType", Objects.isNull(outboundType)?ConstantForGYL.WWCK:outboundType);
         if (stockInItemId != null) {
             Long outsourcingContractItemId = stockInItemService.get(stockInItemId).getSourceId();
-            Map<String,Object> map = Maps.newHashMap();
-            map.put("outsourceContractItemId",outsourcingContractItemId);
-            Long feedingId = productionFeedingService.list(map).get(0).getId();
-            map.put("headId",feedingId);
-            List<Long> feedingDetailIds = feedingDetailService.list(map).stream()
-                    .map(ProductionFeedingDetailDO::getId)
-                    .collect(Collectors.toList());
-            params.put("sourceIds", feedingDetailIds);
+            if (outsourcingContractItemId != null) {
+                Map<String,Object> map = Maps.newHashMap();
+                map.put("outsourceContractItemId",outsourcingContractItemId);
+                List<ProductionFeedingDO> list = productionFeedingService.list(map);
+                if (list.size() > 0) {
+                    Long feedingId = list.get(0).getId();
+                    map.put("headId",feedingId);
+                    List<Long> feedingDetailIds = feedingDetailService.list(map).stream()
+                            .map(ProductionFeedingDetailDO::getId)
+                            .collect(Collectors.toList());
+                    if (feedingDetailIds.size() > 0) {
+                        params.put("sourceIds", feedingDetailIds);
+                        List<Map<String, Object>> data = this.stockOutService.listApi(params);
+                        Map<String, Object> maps = this.stockOutService.countTotal(params);
+                        int total = Integer.parseInt(map.getOrDefault("total",0).toString());
+                        if ( data.size() > 0) {
+                            results.put("data", new DsResultResponse(pageno,pagesize,total,data));
+                            results.put("total",maps);
+                        }
+                        return R.ok(results);
+                    }
+                }
+            }
+            return R.ok(results);
         }
 
-        params.put("outboundType", Objects.isNull(outboundType)?ConstantForGYL.WWCK:outboundType);
-		Map<String, Object> results = Maps.newHashMap();
 		List<Map<String, Object>> data = this.stockOutService.listApi(params);
         Map<String, Object> map = this.stockOutService.countTotal(params);
         int total = Integer.parseInt(map.getOrDefault("total",0).toString());
