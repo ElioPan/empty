@@ -263,6 +263,54 @@ public class StockApiController {
         return R.ok(results);
     }
 
+    @EvApiByToken(value = "/apis/stock/stockGatherList", method = RequestMethod.POST, apiTitle = "库存汇总查询")
+    @ApiOperation("库存汇总查询")
+    public R stockGatherList(
+            @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+            @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+            @ApiParam(value = "产品类型") @RequestParam(value = "productTypeId", defaultValue = "", required = false) Long productTypeId,
+            @ApiParam(value = "产品编号或名称或型号查询") @RequestParam(value = "fuzzySearch", defaultValue = "", required = false) String fuzzySearch,
+            @ApiParam(value = "仓库类型") @RequestParam(value = "facilityTypeId", defaultValue = "", required = false) Long facilityTypeId,
+            @ApiParam(value = "仓库ID") @RequestParam(value = "facilityId", defaultValue = "", required = false) String facilityId,
+            @ApiParam(value = "库位ID") @RequestParam(value = "locationId", defaultValue = "", required = false) String locationId,
+            @ApiParam(value = "产品Id") @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId,
+            @ApiParam(value = "批次") @RequestParam(value = "batch", defaultValue = "", required = false) String batch,
+            @ApiParam(value = "是否为PC端") @RequestParam(value = "isPC", defaultValue = "1", required = false) Integer isPC
+
+    ) {
+        Map<String, Object> results = Maps.newHashMap();
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("productTypeId", productTypeId);
+        params.put("fuzzySearch", fuzzySearch);
+        params.put("facilityTypeId", facilityTypeId);
+        params.put("facilityId", facilityId);
+
+        params.put("locationId", locationId);
+        params.put("materielId", materielId);
+        params.put("batch", batch);
+        params.put("isPC", isPC);
+        List<Map<String, Object>> data = materielService.stockListForMap(params);
+//        int total = materielService.stockCountForMap(params);
+        if (data.size() > 0) {
+            Map<Long,Map<String, Object>>  materielForStock = Maps.newHashMap();
+            Map<String, Object> map;
+            for (Map<String, Object> datum : data) {
+                long materielIdForStock = Long.parseLong(datum.get("materielId").toString());
+                if (materielForStock.containsKey(materielIdForStock)) {
+                    map = materielForStock.get(materielIdForStock);
+                    map.put("availableCount",MathUtils.getBigDecimal(map.get("availableCount")).add(MathUtils.getBigDecimal(datum.get("availableCount")))) ;
+                    continue;
+                }
+                materielForStock.put(materielIdForStock,datum);
+            }
+            List<Map<String, Object>> stockList = Lists.newArrayList();
+            stockList.addAll(materielForStock.values());
+            List<Map<String, Object>> stockLists = PageUtils.startPage(stockList, pageno, pagesize);
+            results.put("data", new DsResultResponse(pageno, pagesize, materielForStock.size(), stockLists));
+        }
+        return R.ok(results);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @EvApiByToken(value = "/apis/stock/start", method = RequestMethod.POST, apiTitle = "设置库存初始时间")
     @ApiOperation("设置库存初始时间")
@@ -607,15 +655,74 @@ public class StockApiController {
         List<Object> materielInIdList = stockInList.stream()
                 .map(stringObjectMap -> stringObjectMap.get("materielId"))
                 .collect(Collectors.toList());
-        params.put("materielIdList", materielInIdList);
-        List<MaterielDO> materielDOInList = materielService.list(params);
+        List<MaterielDO> materielDOInList;
+        List<Integer> weightedAverageIdInList;
+        List<Integer> idAndBatchInList;
+        List<Map<String, Object>> stockInBatchEmpty = Lists.newArrayList();
+        List<Map<String, Object>> stockInBatchNonEmpty = Lists.newArrayList();
+        if (materielInIdList.size() > 0) {
+            params.put("materielIdList", materielInIdList);
+            materielDOInList = materielService.list(params);
+
+            // 加权平均的入库物料
+            weightedAverageIdInList = materielDOInList.stream()
+                    .filter(materielDO -> Objects.equals(ConstantForGYL.WEIGHTED_AVERAGE, materielDO.getValuationMethod()))
+                    .map(MaterielDO::getId)
+                    .collect(Collectors.toList());
+
+            // 分批认定的入库物料
+            idAndBatchInList = materielDOInList.stream()
+                    .filter(materielDO -> Objects.equals(ConstantForGYL.BATCH_FINDS, materielDO.getValuationMethod()))
+                    .map(MaterielDO::getId)
+                    .collect(Collectors.toList());
+
+            // 获取本期要计算入库的加权平均物料
+            stockInBatchEmpty = stockInList.stream()
+                    .filter(stringObjectMap -> weightedAverageIdInList.contains(Integer.parseInt(stringObjectMap.get("materielId").toString())))
+                    .collect(Collectors.toList());
+
+            // 获取本期要计算入库的分批认定物料 id+&+batch
+            stockInBatchNonEmpty = stockInList.stream()
+                    .filter(stringObjectMap -> idAndBatchInList.contains(Integer.parseInt(stringObjectMap.get("materielId").toString())))
+                    .collect(Collectors.toList());
+        }
 
         // 出库的物料
         List<Integer> materielOutIdList = stockOutList.stream()
                 .map(StockOutItemDO::getMaterielId)
                 .collect(Collectors.toList());
-        params.put("materielIdList", materielOutIdList);
-        List<MaterielDO> materielDOOutList = materielService.list(params);
+        List<MaterielDO> materielDOOutList;
+        List<Integer> weightedAverageIdOutList;
+        List<Integer> idAndBatchOutList;
+        List<StockOutItemDO> stockOutBatchEmpty = Lists.newArrayList();
+        List<StockOutItemDO> stockOutBatchNonEmpty = Lists.newArrayList();
+        if (materielOutIdList.size() > 0) {
+            params.put("materielIdList",materielOutIdList);
+            materielDOOutList = materielService.list(params);
+
+            // 加权平均的出库物料
+            weightedAverageIdOutList = materielDOOutList.stream()
+                    .filter(materielDO -> Objects.equals(ConstantForGYL.WEIGHTED_AVERAGE, materielDO.getValuationMethod()))
+                    .map(MaterielDO::getId)
+                    .collect(Collectors.toList());
+
+            // 分批认定的出库物料
+            idAndBatchOutList = materielDOOutList.stream()
+                    .filter(materielDO -> Objects.equals(ConstantForGYL.BATCH_FINDS, materielDO.getValuationMethod()))
+                    .map(MaterielDO::getId)
+                    .collect(Collectors.toList());
+
+            // 获取本期要计算出库的加权平均物料
+            stockOutBatchEmpty = stockOutList.stream()
+                    .filter(stockOutItemDO -> weightedAverageIdOutList.contains(stockOutItemDO.getMaterielId()))
+                    .collect(Collectors.toList());
+
+            // 获取本期要计算出库的分批认定物料 id+&+batch
+            stockOutBatchNonEmpty = stockOutList.stream()
+                    .filter(stockOutItemDO -> idAndBatchOutList.contains(stockOutItemDO.getMaterielId()))
+                    .collect(Collectors.toList());
+
+        }
 
         // 分析表中现有的物料
         List<Integer> materielIdList = stockAnalysisList.stream()
@@ -624,33 +731,9 @@ public class StockApiController {
         params.put("materielIdList", materielIdList);
         List<MaterielDO> materielDOList = materielService.list(params);
 
-        // 加权平均的入库物料
-        List<Integer> weightedAverageIdInList = materielDOInList.stream()
-                .filter(materielDO -> Objects.equals(ConstantForGYL.WEIGHTED_AVERAGE, materielDO.getValuationMethod()))
-                .map(MaterielDO::getId)
-                .collect(Collectors.toList());
-
-        // 加权平均的出库物料
-        List<Integer> weightedAverageIdOutList = materielDOOutList.stream()
-                .filter(materielDO -> Objects.equals(ConstantForGYL.WEIGHTED_AVERAGE, materielDO.getValuationMethod()))
-                .map(MaterielDO::getId)
-                .collect(Collectors.toList());
-
         // 加权平均的分析表中现有物料
         List<Integer> weightedAverageIdList = materielDOList.stream()
                 .filter(materielDO -> Objects.equals(ConstantForGYL.WEIGHTED_AVERAGE, materielDO.getValuationMethod()))
-                .map(MaterielDO::getId)
-                .collect(Collectors.toList());
-
-        // 分批认定的入库物料
-        List<Integer> idAndBatchInList = materielDOInList.stream()
-                .filter(materielDO -> Objects.equals(ConstantForGYL.BATCH_FINDS, materielDO.getValuationMethod()))
-                .map(MaterielDO::getId)
-                .collect(Collectors.toList());
-
-        // 分批认定的出库物料
-        List<Integer> idAndBatchOutList = materielDOOutList.stream()
-                .filter(materielDO -> Objects.equals(ConstantForGYL.BATCH_FINDS, materielDO.getValuationMethod()))
                 .map(MaterielDO::getId)
                 .collect(Collectors.toList());
 
@@ -658,27 +741,6 @@ public class StockApiController {
         List<Integer> idAndBatchList = materielDOList.stream()
                 .filter(materielDO -> Objects.equals(ConstantForGYL.BATCH_FINDS, materielDO.getValuationMethod()))
                 .map(MaterielDO::getId)
-                .collect(Collectors.toList());
-
-
-        // 获取本期要计算入库的加权平均物料
-        List<Map<String, Object>> stockInBatchEmpty = stockInList.stream()
-                .filter(stringObjectMap -> weightedAverageIdInList.contains(Integer.parseInt(stringObjectMap.get("materielId").toString())))
-                .collect(Collectors.toList());
-
-        // 获取本期要计算出库的加权平均物料
-        List<StockOutItemDO> stockOutBatchEmpty = stockOutList.stream()
-                .filter(stockOutItemDO -> weightedAverageIdOutList.contains(stockOutItemDO.getMaterielId()))
-                .collect(Collectors.toList());
-
-        // 获取本期要计算入库的分批认定物料 id+&+batch
-        List<Map<String, Object>> stockInBatchNonEmpty = stockInList.stream()
-                .filter(stringObjectMap -> idAndBatchInList.contains(Integer.parseInt(stringObjectMap.get("materielId").toString())))
-                .collect(Collectors.toList());
-
-        // 获取本期要计算出库的分批认定物料 id+&+batch
-        List<StockOutItemDO> stockOutBatchNonEmpty = stockOutList.stream()
-                .filter(stockOutItemDO -> idAndBatchOutList.contains(stockOutItemDO.getMaterielId()))
                 .collect(Collectors.toList());
 
         Map<String, BigDecimal> materielOutCountMap = Maps.newHashMap();
