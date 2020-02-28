@@ -100,7 +100,7 @@
 		<where>
 			<if test="id != null and id != ''"> AND notice.id = #{id} </if>
 			<if test="type != null and type != ''"> AND notice.type = #{type} </if>
-			<if test="title != null and title != ''"> AND notice.title = #{title} </if>
+			<if test="title != null and title != ''"> AND notice.title like CONCAT('%',#{title},'%') </if>
 			<if test="fromUserId != null and fromUserId != ''"> AND notice.from_user_id = #{fromUserId} </if>
 			<if test="toUserId != null and toUserId != ''"> AND notice.to_user_id = #{toUserId} </if>
 			<if test="signStatus != null and signStatus != ''"> AND notice.sign_status = #{signStatus} </if>

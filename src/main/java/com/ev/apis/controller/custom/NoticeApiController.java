@@ -29,10 +29,12 @@ public class NoticeApiController {
     public R list(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
                   @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
                   @ApiParam(value = "标题") @RequestParam(value = "title", defaultValue = "", required = false) String title,
-                  @ApiParam(value = "类型") @RequestParam(value = "type", defaultValue = "", required = false) Integer type) {
+                  @ApiParam(value = "类型") @RequestParam(value = "type", defaultValue = "", required = false) Integer type,
+                  @ApiParam(value = "接收人") @RequestParam(value = "toUserId", defaultValue = "", required = false) Long toUserId) {
         Map<String, Object> params = Maps.newHashMapWithExpectedSize(4);
         params.put("title", title);
         params.put("type", type);
+        params.put("toUserId", toUserId);
         params.put("offset", (pageno - 1) * pagesize);
         params.put("limit", pagesize);
         Map<String, Object> results = Maps.newHashMap();
@@ -47,6 +49,17 @@ public class NoticeApiController {
             dsRet.setTotalPages((int) (total + pagesize - 1) / pagesize);
             results.put("data", dsRet);
         }
+        return R.ok(results);
+    }
+
+    @EvApiByToken(value = "/apis/notice/countNotRead", method = RequestMethod.GET, apiTitle = "获取未读消息数量")
+    @ApiOperation("获取未读消息数量")
+    public R countNotRead() {
+        Map<String, Object> params = Maps.newHashMapWithExpectedSize(4);
+        params.put("signStatus", "0");
+        int count = noticeService.countForMap(params);
+        Map<String, Object> results = Maps.newHashMap();
+        results.put("notReadCount",count);
         return R.ok(results);
     }
 

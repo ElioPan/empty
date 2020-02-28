@@ -5,6 +5,7 @@ import java.util.Date;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -45,9 +46,10 @@ public class NoticeDO implements Serializable {
 	//过期时间
     @ApiModelProperty(value = "过期时间")
 	private Date expireDate;
-	//1:已读；2:未读
-    @ApiModelProperty(value = "1:已读；2:未读")
-	private Integer signStatus;
+	//0:未读；1:已读；
+	@Builder.Default
+    @ApiModelProperty(value = "0:未读；1:已读；")
+	private Integer signStatus = 0;
 	//创建人
     @ApiModelProperty(value = "创建人")
 	private Long createBy;
