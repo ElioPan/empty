@@ -8,14 +8,13 @@ import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.scm.dao.InStockAccountingDao;
+import com.ev.scm.domain.OutsourcingContractItemDO;
 import com.ev.scm.domain.StockInDO;
 import com.ev.scm.domain.StockInItemDO;
 import com.ev.scm.domain.StockOutItemDO;
-import com.ev.scm.service.InStockAccountingService;
-import com.ev.scm.service.PurchaseExpenseItemService;
-import com.ev.scm.service.StockInItemService;
-import com.ev.scm.service.StockInService;
+import com.ev.scm.service.*;
 
+import org.apache.velocity.runtime.directive.Foreach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,16 +31,27 @@ import java.util.*;
 public class InStockAccountingServiceImpl implements InStockAccountingService {
     @Autowired
     private MessageSourceHandler messageSourceHandler;
-
+    @Autowired
+    private OutsourcingContractItemService outsourcingContractItemService;
     @Autowired
     private StockInItemService stockIntemService;
-
+    @Autowired
+    private StockOutItemService stockOutItemService;
     @Autowired
     private StockInService stockInService;
     @Autowired
     private PurchaseExpenseItemService purchaseExpenseItemService;
     @Autowired
     private InStockAccountingDao  inStockAccountingDao;
+
+    @Override
+    public int getCountOfSignIsO(Map<String, Object> map) {
+        return inStockAccountingDao.getCountOfSignIsO(map);
+    }
+    @Override
+    public List<Map<String, Object>> getUnitPrice(Long stockInItemId) {
+        return inStockAccountingDao.getUnitPrice(stockInItemId);
+    }
 
 
     @Override
@@ -84,6 +94,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         for (int i = 0; i < stockInIds.length; i++) {
             nowList.add(stockInIds[i]);
         }
+
         nowList=new ArrayList(new HashSet(nowList));
 
         Long[] stockInheadIds=new Long[nowList.size()];
@@ -158,7 +169,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
             }
     }
 
-    public void restoreCountAmount(Long stockInId,List<StockInItemDO> listSotockInItem){
+    private void restoreCountAmount(Long stockInId,List<StockInItemDO> listSotockInItem){
         StockInDO stockInDo = stockInService.get(stockInId);
         if(Objects.equals(1,stockInDo.getSign())){
 
@@ -217,7 +228,6 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 if(!newStockInItemDos.isEmpty()){
                     stockIntemService.batchUpdate(newStockInItemDos);
                 }
-
                 //主表改为分配
                 StockInDO newStockInDo=new StockInDO();
                 newStockInDo.setSign(1);
@@ -328,7 +338,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                             //出库单中可以再核销的数量
                             BigDecimal canChargeOffCount = stockOutItemDO.getCount().subtract(chargeOffCount);
 
-                            if(standardCount.compareTo(canChargeOffCount)>0){
+                            if(standardCount.compareTo(canChargeOffCount)==1){
                                 stockOutItemDO.setChargeOffCount(chargeOffCount.add(chargeOffCount));
                                 standardCount=standardCount.subtract(canChargeOffCount);
                                 newStockOutItemDoList.add(stockOutItemDO);
@@ -344,7 +354,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                                 countOnce=canChargeOffCount;
                                 totailCost=totailCost.add(stockOutItemDO.getSellUnitPrice().multiply(canChargeOffCount));
 
-                            }else if(standardCount.compareTo(canChargeOffCount)<0){
+                            }else if(standardCount.compareTo(canChargeOffCount)==-1){
                                 stockOutItemDO.setChargeOffCount(canChargeOffCount.add(standardCount));
                                 standardCount=standardCount.subtract(standardCount);
                                 newStockOutItemDoList.add(stockOutItemDO);
@@ -401,8 +411,6 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         stockIntemService.batchUpdate(newStockInItemDo);
     }
 
-
-
     @Override
     public R disposerollbackAccccounting(Long[] stockInds){
 
@@ -410,31 +418,103 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         Map<String,Object>  map= new HashMap<>();
         map.put("id",stockInds);
         List<StockInItemDO> itemDetailById = stockIntemService.getItemDetailById(map);
+        List<StockOutItemDO> LisTStockOutItemDo=new ArrayList<>();
 
-        for(StockInItemDO stockInItemDO:itemDetailById){
+        for (StockInItemDO stockInItemDO : itemDetailById) {
             StockInDO stockInDO = stockInService.get(stockInItemDO.getInheadId());
 
-            if(stockInDO.getSign()==null){
-                //未进行核算 未分配
-                if(Objects.equals("0",stockInItemDO.getAccountSource())){
-                    continue;
-                }else{
-                    JSONArray objects = JSONObject.parseArray(stockInItemDO.getAccountSource());
-
-                    for(int i=0;i<objects.size();i++){
-                        Map<String,Object>  mapOutItrmId=(Map<String,Object>)objects;
-
-                    }
-                }
-            }else if(stockInDO.getSign()==0){
-
-            }else if(stockInDO.getSign()==1){
-
+            if (stockInDO.getSign() == 1) {
+                //将金额和单价还原，并将成本和费用更新为0.
+               BigDecimal totailAmout = stockInItemDO.getAmount().subtract(stockInItemDO.getCost().add(stockInItemDO.getExpense()));
+               BigDecimal unitPrice = totailAmout.divide(stockInItemDO.getCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+                stockInItemDO.setAmount(totailAmout);
+                stockInItemDO.setUnitPrice(unitPrice);
+                stockInItemDO.setExpense(BigDecimal.ZERO);
             }
+            if (Objects.equals("0", stockInItemDO.getAccountSource())) {
+                continue;
+            } else {
+                JSONArray objects = JSONObject.parseArray(stockInItemDO.getAccountSource());
+                for (int i = 0; i < objects.size(); i++) {
+                    Map<String, Object> mapOutItrmId = (Map<String, Object>)objects;
+                    Long outItemId = Long.parseLong(mapOutItrmId.get("outItemID").toString());
+                    BigDecimal standCount = new BigDecimal(mapOutItrmId.get("countOnce").toString());
+                    StockOutItemDO stockOutItemDO = new StockOutItemDO();
+                    StockOutItemDO stockOutItemDo = stockOutItemService.get(outItemId);
+                    stockOutItemDO.setChargeOffCount(stockOutItemDo.getChargeOffCount().subtract(standCount));
+                    LisTStockOutItemDo.add(stockOutItemDO);
+                }
+            }
+            stockInItemDO.setCost(BigDecimal.ZERO);
+            stockInItemDO.setAccountSource("0");
+            stockInDO.setSign(2);
+            stockInService.update(stockInDO);
         }
+        //批量更新 入库子表
+            stockIntemService.batchUpdate(itemDetailById);
+            stockOutItemService.batchUpdate(LisTStockOutItemDo);
         return R.ok();
     }
 
+    @Override
+    public R disposeallocationOutIn(Long[] stockInIds){
+
+        for(Long stockInId:stockInIds){
+            Map<String,Object>  map= new HashMap<>();
+            map.put("inheadId",stockInId);
+            List<StockInItemDO> inItemDos = stockIntemService.list(map);
+            for(StockInItemDO inItemDo:inItemDos){
+
+                List<Map<String, Object>> unitPriceMap = this.getUnitPrice(inItemDo.getId());
+                BigDecimal unitPrice;
+                if(unitPriceMap.isEmpty()){
+                    //取合同单价
+                    OutsourcingContractItemDO outsourcingContractItemDO = outsourcingContractItemService.get(inItemDo.getSourceId());
+                    unitPrice=outsourcingContractItemDO.getUnitPrice();
+                }else{
+                    //取加工费用单价
+                    unitPrice=new BigDecimal(unitPriceMap.get(0).get("unitPrice").toString());
+                }
+                inItemDo.setExpense(inItemDo.getCount().multiply(unitPrice));
+            }
+            stockIntemService.batchUpdate(inItemDos);
+
+            StockInDO stockInDO=new StockInDO();
+            stockInDO.setSign(0);
+            stockInDO.setId(stockInId);
+            stockInService.update(stockInDO);
+        }
+        return null;
+    }
+
+    @Override
+    public R disposeaccountingPrice(Long[] stockInIds) {
+        Map<String,Object>  map= new HashMap<>();
+        map.put("id",stockInIds);
+        if(this.getCountOfSignIsO(map)>0){
+            return  R.error(messageSourceHandler.getMessage("scm.accounting.bussenissAccounting", null));
+        }
+        map.clear();
+        for(Long id:stockInIds) {
+
+            map.put("inheadId",id);
+            List<StockInItemDO> inItemDos = stockIntemService.list(map);
+
+            for(StockInItemDO inItemDo:inItemDos){
+
+                BigDecimal totailAmout = inItemDo.getAmount().add(inItemDo.getCost().add(inItemDo.getExpense()));
+                BigDecimal unitPrice = totailAmout.divide(inItemDo.getCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+                inItemDo.setUnitPrice(unitPrice);
+                inItemDo.setAmount(totailAmout);
+            }
+            stockIntemService.batchUpdate(inItemDos);
+            StockInDO stockInDO=new StockInDO();
+            stockInDO.setSign(1);
+            stockInDO.setId(id);
+            stockInService.update(stockInDO);
+        }
+            return null;
+    }
 
 
 

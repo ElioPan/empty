@@ -17,6 +17,11 @@ public interface InStockAccountingDao {
 
     Map<String, Object> getTotalTaxAmountCount(Long stockInItemId);
 
+    List<Map<String, Object>> getUnitPrice(Long stockInItemId);
+
+
+    int getCountOfSignIsO(Map<String, Object> map);
+
 
 
 }

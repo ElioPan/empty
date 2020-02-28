@@ -32,5 +32,13 @@ public  interface InStockAccountingService  {
 
     R disposerollbackAccccounting(Long[] stockInItemIds);
 
+    R disposeallocationOutIn(Long[] stockInIds);
+
+    List<Map<String, Object>> getUnitPrice(Long stockInItemId);
+
+    R disposeaccountingPrice(Long[] stockInIds);
+
+    int getCountOfSignIsO(Map<String, Object> map);
+
 
 }

@@ -369,6 +369,7 @@ public class StockInServiceImpl implements StockInService {
 				stockInDO.setAuditSign(ConstantForGYL.WAIT_AUDIT );
 				stockInDO.setStorageType(storageType);
 				if(Objects.equals(storageType,ConstantForGYL.PURCHASE_INSTOCK)){stockInDO.setSign(0);}
+				if(Objects.equals(storageType,ConstantForGYL.OUTSOURCING_INSTOCK)){stockInDO.setSign(2);}
 				if(qR){
 					stockInDO.setQrSign(1);
 					stockInDO.setAuditor(ShiroUtils.getUserId());

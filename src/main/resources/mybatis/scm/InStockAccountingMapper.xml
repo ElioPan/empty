@@ -75,6 +75,31 @@
               b.id=#{value}
     </select>
 
+    <select id="getUnitPrice" resultType="map">
+        select
+          a.unit_price as unitPrice
+        FROM
+        scm_processing_charge_item a
+        LEFT JOIN scm_stock_in_item b on b.id=a.source_id
+        WHERE
+        b.id=#{value}
+    </select>
+
+
+    <select id="getCountOfSignIsO" resultType="int">
+        select
+        count( a.id)
+        FROM
+        scm_stock_in a
+        WHERE
+        sign=2
+        and
+        a.id in
+        <foreach item="id" collection="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
 
 
 </mapper>

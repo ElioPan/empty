@@ -87,10 +87,21 @@ public class ScmInStockAccountingApiController {
         return inStockAccountingService.disposerollbackAccccounting(stockInIds);
     }
 
+    @EvApiByToken(value = "/apis/scm/inStockAccounting/allocationCost", method = RequestMethod.POST, apiTitle = "分配--委外入库核算")
+    @ApiOperation("分配--委外入库核算")
+    @Transactional(rollbackFor = Exception.class)
+    public R allocationOutIn(
+            @ApiParam(value = "入库主键（列表行中的id字段）") @RequestParam(value = "stockInItemIds") Long[] stockInIds) {
+        return inStockAccountingService.disposeallocationOutIn(stockInIds);
+    }
 
-
-
-
+    @EvApiByToken(value = "/apis/scm/inStockAccounting/accountingPrice", method = RequestMethod.POST, apiTitle = "核算--委外入库核算")
+    @ApiOperation("核算--委外入库核算")
+    @Transactional(rollbackFor = Exception.class)
+    public R businessAccountingOutStock(
+            @ApiParam(value = "入库主键（列表行中的id字段）") @RequestParam(value = "stockInItemIds") Long[] stockInIds) {
+        return inStockAccountingService.disposeaccountingPrice(stockInIds);
+    }
 
 
 
