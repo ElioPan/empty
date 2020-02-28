@@ -63,28 +63,48 @@ public class ScmInStockAccountingApiController {
         return inStockAccountingService.disposeBusinessAccounting(stockInIds);
     }
 
+
     @EvApiByToken(value = "/apis/scm/inStockAccounting/subcontractInStock", method = RequestMethod.POST, apiTitle = "自动核销--委外入库核算")
     @ApiOperation("自动核销--委外入库核算")
     @Transactional(rollbackFor = Exception.class)
     public R autoAccountingSubcontractInStock(
+            @ApiParam(value = "入库列表行中的stockInItemId字段)") @RequestParam(value = "stockInItemId") Long stockInItemId ,
             @ApiParam(value = "列表明细：[\n" +
                     "{\n" +
-                    "\"id\":\"列表行中的stockInItemId字段\",\n" +
-                    "\"inheadId\":\"入库主键（列表行中的id字段）\",\n" +
-                    "\"sourceId\":\"源单主键\",\n" +
-                    "\"materielId\":\"物料主键\",\n" +
-                    "\"count\":\"数量\",\n" +
+                    "\"id\":\"出库列表id\",\n" +
+                    "\"materielId\":\"物料id\",\n" +
+                    "\"count\":\"发出数量\",\n" +
+                    "\"chargeOffCount\":\"已核销数量\",\n" +
                     "}\n" +
                     "]") @RequestParam(value = "detailAccounting") String detailAccounting) {
-        return inStockAccountingService.disposeAutoAccounting(detailAccounting);
+
+        return inStockAccountingService.disposeAutoAccounting(stockInItemId,detailAccounting);
     }
+
+    @EvApiByToken(value = "/apis/scm/inStockAccounting/affirmAndGoBack", method = RequestMethod.POST, apiTitle = "确认并返回--委外入库核算")
+    @ApiOperation("确认并返回--委外入库核算")
+    @Transactional(rollbackFor = Exception.class)
+    public R makeSureAndBack(
+            @ApiParam(value = "入库列表行中的stockInItemId字段)") @RequestParam(value = "stockInItemId") Long stockInItemId ,
+            @ApiParam(value = "列表明细：[\n" +
+                    "{\n" +
+                    "\"id\":\"出库列表id\",\n" +
+                    "\"unitPrice\":\"单价\",\n" +
+                    "\"chargeOffCount\":\"已核销数量\",\n" +
+                    "\"thisTimeCount\":\"本次核销数量(没有传0)\",\n" +
+                    "}\n" +
+                    "]") @RequestParam(value = "detailAccounting") String detailAccounting) {
+
+        return inStockAccountingService.disposeAffirmAndBack(stockInItemId,detailAccounting);
+    }
+
 
     @EvApiByToken(value = "/apis/scm/inStockAccounting/rollbackSubcontractInStock", method = RequestMethod.POST, apiTitle = "自动核销--委外入库核算")
     @ApiOperation("返核销--委外入库核算")
     @Transactional(rollbackFor = Exception.class)
     public R rollbackAccccountingSubcontract(
             @ApiParam(value = "入库主键（列表行中的id字段）") @RequestParam(value = "stockInItemIds") Long[] stockInIds) {
-        return inStockAccountingService.disposerollbackAccccounting(stockInIds);
+        return inStockAccountingService.disposeRollbackAccccounting(stockInIds);
     }
 
     @EvApiByToken(value = "/apis/scm/inStockAccounting/allocationCost", method = RequestMethod.POST, apiTitle = "分配--委外入库核算")

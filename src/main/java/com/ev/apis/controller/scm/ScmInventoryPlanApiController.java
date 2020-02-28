@@ -166,8 +166,8 @@ public class ScmInventoryPlanApiController {
                     "\"materielId\":2," +
                     "\"warehouse\":仓库id," +
                     "\"warehLocation\":库位id," +
-                    "\"batch\":\"无批次默认必传 ‘无’\"," +
-                    "\"checkCount\":盘点数量," +
+                    "\"batch\":\"无批次不传\"," +
+                    "\"checbatchkCount\":盘点数量," +
                     "\"qrId\":条码id}" +
                     "]") @RequestParam(value = "checkBodyDO") String checkBodys) {
         return inventoryPlanService.disposePhoneCheckResuls(planId,checkBodys);

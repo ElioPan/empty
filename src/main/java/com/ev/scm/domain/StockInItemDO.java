@@ -88,5 +88,4 @@ public class StockInItemDO implements Serializable {
 	@ApiModelProperty(value = "记录已被核销的出库id及核销数量")
 	private String accountSource;
 
-
 }

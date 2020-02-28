@@ -20,8 +20,6 @@ public  interface InStockAccountingService  {
 
     R disposeBusinessAccounting(Long[] stockInIds);
 
-    R disposeAutoAccounting(String detailAccounting);
-
     List<Map<String, Object>> getBomItem(Long ContractItemId);
 
     List<StockOutItemDO> getStockOutDetail(Long ContractItemId);
@@ -30,7 +28,7 @@ public  interface InStockAccountingService  {
 
     Map<String, Object> getTotalTaxAmountCount(Long stockInItemId);
 
-    R disposerollbackAccccounting(Long[] stockInItemIds);
+    R disposeRollbackAccccounting(Long[] stockInItemIds);
 
     R disposeallocationOutIn(Long[] stockInIds);
 
@@ -39,6 +37,11 @@ public  interface InStockAccountingService  {
     R disposeaccountingPrice(Long[] stockInIds);
 
     int getCountOfSignIsO(Map<String, Object> map);
+
+    R disposeAutoAccounting(Long stockInItemId,String detailAccounting);
+
+
+    R disposeAffirmAndBack(Long stockInItemId,String detailAccounting);
 
 
 }

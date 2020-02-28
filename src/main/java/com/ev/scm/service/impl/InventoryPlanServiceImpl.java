@@ -17,6 +17,8 @@ import com.ev.scm.domain.InventoryPlanItemDO;
 import com.ev.scm.service.InventoryPlanFitlossService;
 import com.ev.scm.service.InventoryPlanItemService;
 import com.ev.scm.service.InventoryPlanService;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -116,6 +118,11 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 			 if(Objects.nonNull(qrIdCount)&&StringUtils.isNotEmpty(qrIdCount)){
 
 				 JSONObject qrIdCountMap = JSONObject.fromObject(qrIdCount);
+
+//				 Map<String,Object>  mapGson= new HashMap<>();
+//				 Gson gson=new Gson();
+//				 mapGson=gson.fromJson(qrIdCount, new TypeToken<Map<String, Object>>() {}.getType());
+
 				 Map<String, Object> qrIdCounts = (Map<String, Object>)qrIdCountMap;
 
 				 if(qrIdCounts.containsKey(String.valueOf(qrId))){

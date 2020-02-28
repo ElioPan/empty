@@ -32,7 +32,7 @@ public class InventoryPlanItemDO implements Serializable {
 	private Long materielId;
 	//库存id 
     @ApiModelProperty(value = "库存id ")
-	private Long stockId;
+	private String stockId;
 	//所在仓库id
     @ApiModelProperty(value = "所在仓库id")
 	private Long warehouse;
