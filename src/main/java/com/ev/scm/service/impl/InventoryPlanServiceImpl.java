@@ -20,6 +20,7 @@ import com.ev.scm.service.InventoryPlanService;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import net.sf.json.JSONObject;
+import org.apache.ibatis.jdbc.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -515,16 +516,16 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				for (Object jsonMap : jsonArray) {
 					Map<String, Object> masp = (Map<String, Object>) jsonMap;
 					String qrMw = masp.get("materielId").toString() + "-" + masp.get("warehouse").toString();
-						//无批次默认必传 ‘无’
-					String qrBatch = masp.get("batch").toString();
-					BigDecimal qrCheckCount = new BigDecimal(masp.get("checkCount").toString());
+						//无批次默认不传
+                    String qrBatch=masp.containsKey("batch")?masp.get("batch").toString():"";
+
+					BigDecimal qrCheckCount = new BigDecimal(masp.get("checbatchkCount").toString());
 //					Long qrId =Long.valueOf(masp.get("qrId").toString());
 					String qrId=masp.get("qrId").toString();
 
 					for (InventoryPlanItemDO inventoryPlanItemDO:planItemDos) {
 						String itemMw = inventoryPlanItemDO.getMaterielId().toString() + "-" + inventoryPlanItemDO.getWarehouse().toString();
-						String itemBatch = inventoryPlanItemDO.getBatch().toString();
-
+                        String itemBatch =inventoryPlanItemDO.getBatch()==null?"":inventoryPlanItemDO.getBatch().toLowerCase();
 						String qrIdCount = inventoryPlanItemDO.getQrIdCount()==null?"":inventoryPlanItemDO.getQrIdCount().toString();
 						BigDecimal systemCount = inventoryPlanItemDO.getSystemCount();
 						BigDecimal checkCount = inventoryPlanItemDO.getCheckCount()==null?BigDecimal.ZERO:inventoryPlanItemDO.getCheckCount();
@@ -536,26 +537,28 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 
 								JSONObject qrIdCounts = JSONObject.fromObject(qrIdCount);
 								Map<String, Object> qrIdCountMap = (Map<String, Object>)qrIdCounts;
-								if(qrIdCountMap.containsKey("qrId")){
+								if(qrIdCountMap.containsKey(qrId)){
 									//更改数量  先减后加
-									BigDecimal newCheckCount =(checkCount.subtract(new BigDecimal(qrIdCountMap.get("qrId").toString()))).add(qrCheckCount);
+									BigDecimal newCheckCount =(checkCount.subtract(new BigDecimal(qrIdCountMap.get(qrId).toString()))).add(qrCheckCount);
 									inventoryPlanItemDO.setCheckCount(newCheckCount);
-									inventoryPlanItemDO.setProfitLoss(systemCount.multiply(newCheckCount));
-									inventoryPlanItemDO.setQrIdCount(qrIdCountMap.put(qrId,qrCheckCount).toString());
+									inventoryPlanItemDO.setProfitLoss(systemCount.subtract(newCheckCount));
+                                    qrIdCountMap.put(qrId,qrCheckCount);
+									inventoryPlanItemDO.setQrIdCount(qrIdCountMap.toString());
 								}else{
-									//直接添加盘点数量和，并将二维码的id和数量放进qrIdCount
-									BigDecimal newCheckCount =(checkCount.add(qrCheckCount));
-									inventoryPlanItemDO.setCheckCount(newCheckCount);
-									inventoryPlanItemDO.setProfitLoss(systemCount.multiply(newCheckCount));
-									inventoryPlanItemDO.setQrIdCount(qrIdCountMap.put(qrId,qrCheckCount).toString());
-								}
+                                    //直接添加盘点数量和，并将二维码的id和数量放进qrIdCount
+                                    BigDecimal newCheckCount =(checkCount.add(qrCheckCount));
+                                    inventoryPlanItemDO.setCheckCount(newCheckCount);
+                                    inventoryPlanItemDO.setProfitLoss(systemCount.subtract(newCheckCount));
+                                    qrIdCountMap.put(qrId,qrCheckCount);
+                                    inventoryPlanItemDO.setQrIdCount(qrIdCountMap.toString());
+                                }
 							}else{
 								//首次盘点
 								Map<String,Object>  qrIdCountMap= new HashMap<>();
 								qrIdCountMap.put(qrId,qrCheckCount);
 								BigDecimal newCheckCount =(checkCount.add(qrCheckCount));
 								inventoryPlanItemDO.setCheckCount(newCheckCount);
-								inventoryPlanItemDO.setProfitLoss(systemCount.multiply(newCheckCount));
+								inventoryPlanItemDO.setProfitLoss(systemCount.subtract(newCheckCount));
 								inventoryPlanItemDO.setQrIdCount(qrIdCountMap.toString());
 							}
 							break;

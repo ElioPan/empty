@@ -183,7 +183,7 @@ public class ScmInventoryPlanApiController {
                     "\"materielId\":2,\n" +
                     "\"warehouse\":仓库id,\n" +
                     "\"warehLocation\":库位id,\n" +
-                    "\"batch\":\"20191225001\",\n" +
+                    "\"batch\":\"20191225001\"\n" +
                     "}\n" +
                     "]", required = true) @RequestParam(value = "qrMsg") String  qrMsg) {
 
