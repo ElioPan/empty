@@ -538,7 +538,7 @@
 			#{obj.delFlag},
 			#{obj.materialIdCount},
 			#{obj.qrcodeId},
-			#{accountSource}
+			#{obj.accountSource}
 			)
 		</foreach>
 	</insert>
