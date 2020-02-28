@@ -490,12 +490,12 @@ public class StockApiController {
         List<MaterielDO> materielDOInList = materielService.list(params);
         // 非批次管理的入库物料
         List<Integer> weightedAverageIdList = materielDOInList.stream()
-                .filter(materielDO -> materielDO.getIsLot()!=1)
+                .filter(materielDO -> Objects.equals(ConstantForGYL.WEIGHTED_AVERAGE, materielDO.getValuationMethod()))
                 .map(MaterielDO::getId)
                 .collect(Collectors.toList());
         // 批次管理的入库物料
         List<Integer> idAndBatchList =  materielDOInList.stream()
-                .filter(materielDO -> materielDO.getIsLot()==1)
+                .filter(materielDO -> Objects.equals(ConstantForGYL.BATCH_FINDS, materielDO.getValuationMethod()))
                 .map(MaterielDO::getId)
                 .collect(Collectors.toList());
 
@@ -660,11 +660,20 @@ public class StockApiController {
         List<MaterielDO> materielDOInList;
         List<Integer> weightedAverageIdInList;
         List<Integer> idAndBatchInList;
+//        List<Integer> lotIdInList;
+//        List<Map<String, Object>> stockInLot;
+//        List<Map<String, Object>> stockInNonLot;
         List<Map<String, Object>> stockInBatchEmpty = Lists.newArrayList();
         List<Map<String, Object>> stockInBatchNonEmpty = Lists.newArrayList();
         if (materielInIdList.size() > 0) {
             params.put("materielIdList", materielInIdList);
             materielDOInList = materielService.list(params);
+
+            // 批次管理的入库物料
+//            lotIdInList = materielDOInList.stream()
+//                    .filter(materielDO -> materielDO.getIsLot()==1)
+//                    .map(MaterielDO::getId)
+//                    .collect(Collectors.toList());
 
             // 加权平均的入库物料
             weightedAverageIdInList = materielDOInList.stream()
@@ -687,6 +696,16 @@ public class StockApiController {
             stockInBatchNonEmpty = stockInList.stream()
                     .filter(stringObjectMap -> idAndBatchInList.contains(Integer.parseInt(stringObjectMap.get("materielId").toString())))
                     .collect(Collectors.toList());
+
+            // 获取本期要计算入库的批次管理物料
+//            stockInLot = stockInList.stream()
+//                    .filter(stringObjectMap -> lotIdInList.contains(Integer.parseInt(stringObjectMap.get("materielId").toString())))
+//                    .collect(Collectors.toList());
+
+            // 获取本期要计算入库的非批次管理物料 id+&+batch
+//            stockInNonLot = stockInList.stream()
+//                    .filter(stringObjectMap -> !lotIdInList.contains(Integer.parseInt(stringObjectMap.get("materielId").toString())))
+//                    .collect(Collectors.toList());
             if (weightedAverageIdInList.size() > 0) {
                 weightedAverageIdList.addAll(weightedAverageIdInList);
             }
