@@ -253,7 +253,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         //入库成品数量
         BigDecimal count = stockInItemDo.getCount();
         //委外合同子表id
-        Long contrackItemId=stockInItemDo.getId();
+        Long contrackItemId=stockInItemDo.getSourceId();
 
         List<Map<String, Object>> bomItems=new ArrayList<>();
         List<Map<String, Object>> bomItem=this.getBomItem(contrackItemId);
@@ -314,7 +314,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 if(!Objects.equals(BigDecimal.ZERO,countOnce)){
                     Map<String,Object>  map= new HashMap<>();
                     map.put("thisTimeCount",countOnce);
-                    map.put("id",countOnce);
+                    map.put("id",stockOutItemDos.get(i).getId());
                     results.add(map);
                 }
             }

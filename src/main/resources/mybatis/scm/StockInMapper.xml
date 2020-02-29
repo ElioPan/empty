@@ -360,10 +360,10 @@
 			q.name as sourceTypeName,
 			aa.source_code	 as  sourceCode,
 			aa.source_id     as  sourceId,
-			<!--aa.cost,
-			aa.expense,-->
-			IF(aa.cost is null,0,aa.cost)as cost,
-			IF(aa.expense is null,0,aa.expense)as expense
+			aa.cost,
+			aa.expense
+			<!--IF(aa.cost is null,0,aa.cost)as cost,
+			IF(aa.expense is null,0,aa.expense)as expense-->
 			from
 				scm_stock_in  a
 			LEFT JOIN  cus_dictionary b  ON a.storage_type=b.id
@@ -474,10 +474,10 @@
 		q.name as sourceTypeName,
 		aa.source_code	 as  sourceCode,
 		aa.source_id     as  sourceId,
-		<!--aa.cost,
-			aa.expense,-->
-		IF(aa.cost is null,0,aa.cost)as cost,
-		IF(aa.expense is null,0,aa.expense)as expense
+		aa.cost,
+		aa.expense
+		<!--IF(aa.cost is null,0,aa.cost)as cost,
+        IF(aa.expense is null,0,aa.expense)as expense-->
 		from
 		scm_stock_in  a
 		LEFT JOIN  cus_dictionary b  ON a.storage_type=b.id
