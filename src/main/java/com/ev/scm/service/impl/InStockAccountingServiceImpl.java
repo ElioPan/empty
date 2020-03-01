@@ -581,8 +581,13 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 stockInItemDO.setUnitPrice(unitPrice);
                 stockInItemDO.setExpense(BigDecimal.ZERO);
             }
-//             List<Map<String, Object>> objectss = JSONArray.parseObject(stockInItemDO.getAccountSource().toString(), List.class);
-            List<Object> objects = JSON.parseArray(stockInItemDO.getAccountSource().toString());
+
+            //[{count=240.00000000, materialId=45}]
+            String str="=";
+            String accountSource=stockInItemDO.getAccountSource().toString();
+            accountSource=accountSource.replaceAll(str,":");
+//          List<Map<String, Object>> objectss = JSONArray.parseObject(stockInItemDO.getAccountSource().toString(), List.class);
+            List<Object> objects = JSON.parseArray(accountSource);
 
             for (int i = 0; i < objects.size(); i++) {
                 Map<String, Object> mapOutItrmId = (Map<String, Object>)objects.get(i);
