@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(WorkWxException.class)
     public R handleGlobalExceptio(WorkWxException e) {
         logger.error(e.getMsg(), e);
-        return R.error(e.getMsg());
+        return R.error(e.getCode(), e.getMsg());
     }
 
     @ExceptionHandler(ACException.class)

@@ -1,31 +1,24 @@
 package com.ev.framework.exception;
 
+import com.alibaba.fastjson.JSONObject;
+
+/**
+ * @author xy
+ */
 public class WorkWxException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     private String msg;
+
     private int code = 500;
 
-    public WorkWxException(String msg) {
-        super(msg);
-        this.msg = msg;
-    }
-
-    public WorkWxException(String msg, Throwable e) {
-        super(msg, e);
-        this.msg = msg;
-    }
-
-    public WorkWxException(String msg, int code) {
-        super(msg);
-        this.msg = msg;
+    public WorkWxException(String msgStr) {
+        super(msgStr);
+        JSONObject jsonObject = JSONObject.parseObject(msgStr);
+        String message = jsonObject.get("errmsg").toString();
+        Integer code = Integer.parseInt(jsonObject.get("errcode").toString());
         this.code = code;
-    }
-
-    public WorkWxException(String msg, int code, Throwable e) {
-        super(msg, e);
-        this.msg = msg;
-        this.code = code;
+        this.msg = message;
     }
 
     public String getMsg() {
