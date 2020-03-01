@@ -6,6 +6,7 @@ import com.ev.custom.service.WeChatService;
 import com.ev.custom.vo.WxDeptEntity;
 import com.ev.custom.vo.WxUserEntity;
 import com.ev.framework.config.Constant;
+import com.ev.framework.exception.WorkWxException;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.HttpClientUtils;
 import com.ev.framework.utils.WeChatUtil;
@@ -71,6 +72,10 @@ public class WeChatServiceImpl implements WeChatService {
     public static final String LIST_DEPT_URI = "https://qyapi.weixin.qq.com/cgi-bin/department/list?access_token=ACCESS_TOKEN&id=ID";
 
     public static final String SEND_MESSAGE = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=ACCESS_TOKEN";
+
+    public static final String OK_CODE = "0";
+
+    public static final String KEY_ERROR_CODE = "errcode";
 
     @Override
     public String getMobileAccessToken(Date now) throws IOException, ParseException {
@@ -184,6 +189,9 @@ public class WeChatServiceImpl implements WeChatService {
         String url = CREATE_USER_URI.replace("ACCESS_TOKEN", accessToken);
         String params = JSON.toJSONString(wxUserEntity);
         String json = HttpClientUtils.sendJsonStr(url, params);
+        if(!OK_CODE.equals(JSONObject.fromObject(json).get(KEY_ERROR_CODE).toString())){
+            throw new WorkWxException(json);
+        }
         return JSONObject.fromObject(json);
 
     }
@@ -193,6 +201,9 @@ public class WeChatServiceImpl implements WeChatService {
         String accessToken = getMobileAccessToken(new Date());
         String url = GET_USER_URI.replace("ACCESS_TOKEN", accessToken).replace("USERID",userId);
         String json = HttpClientUtils.doGet(url,null);
+        if(!OK_CODE.equals(JSONObject.fromObject(json).get(KEY_ERROR_CODE).toString())){
+            throw new WorkWxException(json);
+        }
         return JSONObject.fromObject(json);
     }
 
@@ -209,6 +220,9 @@ public class WeChatServiceImpl implements WeChatService {
         wxUserEntity.setEmail(userDO.getEmail());
         String url = UPDATE_USER_URI.replace("ACCESS_TOKEN", accessToken);
         String json = HttpClientUtils.sendJsonStr(url, JSON.toJSONString(wxUserEntity));
+        if(!OK_CODE.equals(JSONObject.fromObject(json).get(KEY_ERROR_CODE).toString())){
+            throw new WorkWxException(json);
+        }
         return JSONObject.fromObject(json);
     }
 
@@ -217,6 +231,9 @@ public class WeChatServiceImpl implements WeChatService {
         String accessToken = getMobileAccessToken(new Date());
         String url = DELETE_USER_URI.replace("ACCESS_TOKEN", accessToken).replace("USERID",userId);
         String json = HttpClientUtils.doGet(url,null);
+        if(!OK_CODE.equals(JSONObject.fromObject(json).get(KEY_ERROR_CODE).toString())){
+            throw new WorkWxException(json);
+        }
         return JSONObject.fromObject(json);
     }
 
@@ -227,6 +244,9 @@ public class WeChatServiceImpl implements WeChatService {
         JSONObject params = new JSONObject();
         params.put("useridlist",userIds);
         String json = HttpClientUtils.sendJsonStr(url, JSON.toJSONString(params));
+        if(!OK_CODE.equals(JSONObject.fromObject(json).get(KEY_ERROR_CODE).toString())){
+            throw new WorkWxException(json);
+        }
         return JSONObject.fromObject(json);
     }
 
@@ -235,6 +255,9 @@ public class WeChatServiceImpl implements WeChatService {
         String accessToken = getMobileAccessToken(new Date());
         String url = SIMPLE_LIST_USER_URI.replace("ACCESS_TOKEN", accessToken).replace("DEPARTMENT_ID",deptId).replace("FETCH_CHILD",fetchChild.toString());
         String json = HttpClientUtils.doGet(url,null);
+        if(!OK_CODE.equals(JSONObject.fromObject(json).get(KEY_ERROR_CODE).toString())){
+            throw new WorkWxException(json);
+        }
         return JSONObject.fromObject(json);
     }
 
@@ -243,6 +266,9 @@ public class WeChatServiceImpl implements WeChatService {
         String accessToken = getMobileAccessToken(new Date());
         String url = LIST_USER_URI.replace("ACCESS_TOKEN", accessToken).replace("DEPARTMENT_ID",deptId).replace("FETCH_CHILD",fetchChild.toString());
         String json = HttpClientUtils.doGet(url,null);
+        if(!OK_CODE.equals(JSONObject.fromObject(json).get(KEY_ERROR_CODE).toString())){
+            throw new WorkWxException(json);
+        }
         return JSONObject.fromObject(json);
     }
 
@@ -257,6 +283,9 @@ public class WeChatServiceImpl implements WeChatService {
         String url = CREATE_DEPT_URI.replace("ACCESS_TOKEN", accessToken);
         String params = JSON.toJSONString(wxDeptEntity);
         String json = HttpClientUtils.sendJsonStr(url, params);
+        if(!OK_CODE.equals(JSONObject.fromObject(json).get(KEY_ERROR_CODE).toString())){
+            throw new WorkWxException(json);
+        }
         return JSONObject.fromObject(json);
     }
 
@@ -270,6 +299,9 @@ public class WeChatServiceImpl implements WeChatService {
         wxDeptEntity.setOrder(deptDO.getOrderNum());
         String url = UPDATE_DEPT_URI.replace("ACCESS_TOKEN", accessToken);
         String json = HttpClientUtils.sendJsonStr(url, JSON.toJSONString(wxDeptEntity));
+        if(!OK_CODE.equals(JSONObject.fromObject(json).get(KEY_ERROR_CODE).toString())){
+            throw new WorkWxException(json);
+        }
         return JSONObject.fromObject(json);
     }
 
@@ -278,6 +310,9 @@ public class WeChatServiceImpl implements WeChatService {
         String accessToken = getMobileAccessToken(new Date());
         String url = DELETE_DEPT_URI.replace("ACCESS_TOKEN", accessToken).replace("ID",deptId);
         String json = HttpClientUtils.doGet(url,null);
+        if(!OK_CODE.equals(JSONObject.fromObject(json).get(KEY_ERROR_CODE).toString())){
+            throw new WorkWxException(json);
+        }
         return JSONObject.fromObject(json);
     }
 
@@ -286,6 +321,9 @@ public class WeChatServiceImpl implements WeChatService {
         String accessToken = getMobileAccessToken(new Date());
         String url = LIST_DEPT_URI.replace("ACCESS_TOKEN", accessToken).replace("ID",deptId);
         String json = HttpClientUtils.doGet(url,null);
+        if(!OK_CODE.equals(JSONObject.fromObject(json).get(KEY_ERROR_CODE).toString())){
+            throw new WorkWxException(json);
+        }
         return JSONObject.fromObject(json);
     }
 
@@ -304,6 +342,9 @@ public class WeChatServiceImpl implements WeChatService {
         String accessToken = getAccessToken(new Date()).optString("access_token");
         String url = SEND_MESSAGE.replace("ACCESS_TOKEN", accessToken);
         String json = HttpClientUtils.sendJsonStr(url,JSON.toJSONString(jsonObject));
+        if(!OK_CODE.equals(JSONObject.fromObject(json).get(KEY_ERROR_CODE).toString())){
+            throw new WorkWxException(json);
+        }
         return JSONObject.fromObject(json);
     }
 
@@ -329,6 +370,9 @@ public class WeChatServiceImpl implements WeChatService {
         String accessToken = getAccessToken(new Date()).optString("access_token");
         String url = SEND_MESSAGE.replace("ACCESS_TOKEN", accessToken);
         String json = HttpClientUtils.sendJsonStr(url,JSON.toJSONString(jsonObject));
+        if(!OK_CODE.equals(JSONObject.fromObject(json).get(KEY_ERROR_CODE).toString())){
+            throw new WorkWxException(json);
+        }
         return JSONObject.fromObject(json);
     }
 

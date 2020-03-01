@@ -1,6 +1,7 @@
 package com.ev.framework.utils;
 
 import com.ev.framework.config.Constant;
+import com.ev.framework.exception.WorkWxException;
 import net.sf.json.JSONObject;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -22,6 +23,10 @@ public class WeChatUtil {
 	public static String GETACCESSTOKEN = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=CORPID&corpsecret=SECRET";
 
 	public static String GETJSAPITICKET = "https://qyapi.weixin.qq.com/cgi-bin/get_jsapi_ticket?access_token=ACCESS_TOKEN";
+
+	public static final String OK_CODE = "0";
+
+	public static final String KEY_ERROR_CODE = "errcode";
 
 	/**
 	通过code获取用户openid
@@ -51,6 +56,9 @@ public class WeChatUtil {
 		inputStream = null;
 		httpUrlConn.disconnect();
 		jsonObject = JSONObject.fromObject(buffer.toString());
+		if(!OK_CODE.equals(jsonObject.get(KEY_ERROR_CODE).toString())){
+			throw new WorkWxException(jsonObject.toString());
+		}
 		return jsonObject;
 	}
 
@@ -121,6 +129,9 @@ public class WeChatUtil {
 		inputStream = null;
 		httpUrlConn.disconnect();
 		jsonObject = JSONObject.fromObject(buffer.toString());
+		if(!OK_CODE.equals(jsonObject.get(KEY_ERROR_CODE).toString())){
+			throw new WorkWxException(jsonObject.toString());
+		}
 		return jsonObject;
 	}
 
@@ -155,6 +166,9 @@ public class WeChatUtil {
 		inputStream = null;
 		httpUrlConn.disconnect();
 		jsonObject = JSONObject.fromObject(buffer.toString());
+		if(!OK_CODE.equals(jsonObject.get(KEY_ERROR_CODE).toString())){
+			throw new WorkWxException(jsonObject.toString());
+		}
 		return jsonObject;
 	}
 }
