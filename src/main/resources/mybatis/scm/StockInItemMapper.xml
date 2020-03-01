@@ -161,9 +161,9 @@
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
 			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
-			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
-			<if test="materialIdCount != null">`materialId_count` = #{materialIdCount}</if>
-			<if test="qrcodeId != null">`qrcode_id` = #{qrcodeId}</if>
+			<if test="delFlag != null">`del_flag` = #{delFlag},</if>
+			<if test="materialIdCount != null">`materialId_count` = #{materialIdCount},</if>
+			<if test="qrcodeId != null">`qrcode_id` = #{qrcodeId},</if>
 			<if test="accountSource != null">`account_source` = #{accountSource}</if>
 		</set>
 		where id = #{id}
@@ -476,7 +476,36 @@
 					</if>
 				</foreach>
 			</trim>
-
+			<trim prefix="cost =case" suffix="end,">
+			<foreach collection="list" item="item" index="index">
+				<if test="item.cost!=null">
+					when id=#{item.id} then #{item.cost}
+				</if>
+				<if test="item.cost==null">
+					when id=#{item.id} then scm_stock_in_item.cost
+				</if>
+			</foreach>
+		   </trim>
+			<trim prefix="account_source =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.accountSource!=null">
+						when id=#{item.id} then #{item.accountSource}
+					</if>
+					<if test="item.cost==null">
+						when id=#{item.id} then scm_stock_in_item.account_source
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="materialId_count =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.materialIdCount!=null">
+						when id=#{item.id} then #{item.materialIdCount}
+					</if>
+					<if test="item.cost==null">
+						when id=#{item.id} then scm_stock_in_item.materialId_count
+					</if>
+				</foreach>
+			</trim>
 		</trim>
 		WHERE id IN
 		<foreach collection="list" index="index" item="item" separator="," open="(" close=")">
@@ -547,7 +576,6 @@
 	<select id="getItemDetailById" resultType="com.ev.scm.domain.StockInItemDO">
 		SELECT
 		DISTINCT
-
 		a.id,
 		a.inhead_id,
 		a.`count`,

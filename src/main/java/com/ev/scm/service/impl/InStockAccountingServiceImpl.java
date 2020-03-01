@@ -345,7 +345,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
         List<Map<String,Object>> list = JSONArray.parseObject(detailAccounting, List.class);
 
-        List<Map<String,Object>> materialIdCounts=new ArrayList<>();
+        List<Map<String,Object>> accoutSources=new ArrayList<>();
 
         List<StockOutItemDO> outItemDOS = new ArrayList<>();
         BigDecimal cost=BigDecimal.ZERO;
@@ -363,10 +363,10 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
             cost=cost.add(thisTimeCount.multiply(unitPrice));
 
-            Map<String,Object>  materialIdCountMap= new HashMap<>();
-            materialIdCountMap.put("outItemID",id);
-            materialIdCountMap.put("countOnce",thisTimeCount);
-            materialIdCounts.add(materialIdCountMap);
+            Map<String,Object>  accoutSource= new HashMap<>();
+            accoutSource.put("outItemID",id);
+            accoutSource.put("countOnce",thisTimeCount);
+            accoutSources.add(accoutSource);
 
             StockOutItemDO stockOutItemDO=new StockOutItemDO();
             stockOutItemDO.setId(id);
@@ -379,7 +379,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         StockInItemDO stockInItemDo = new StockInItemDO();
         stockInItemDo.setId(stockInItemId);
         stockInItemDo.setCost(cost);
-        stockInItemDo.setMaterialIdCount(materialIdCounts.toString());
+        stockInItemDo.setAccountSource(accoutSources.toString());
         stockIntemService.update(stockInItemDo);
 
         return R.ok();
@@ -559,17 +559,20 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
     }
 
     @Override
-    public R disposeRollbackAccccounting(Long[] stockInds){
+    public R disposeRollbackAccccounting(Long[] stockInIds){
 
         //取出所有明细
         Map<String,Object>  map= new HashMap<>();
-        map.put("id",stockInds);
+        map.put("id",stockInIds);
         List<StockInItemDO> itemDetailById = stockIntemService.getItemDetailById(map);
         List<StockOutItemDO> LisTStockOutItemDo=new ArrayList<>();
-
+        List<StockInItemDO> newLitemDetailById=new ArrayList<>();
         for (StockInItemDO stockInItemDO : itemDetailById) {
             StockInDO stockInDO = stockInService.get(stockInItemDO.getInheadId());
 
+            if (Objects.equals("0", stockInItemDO.getAccountSource())||Objects.equals("2", stockInDO.getSign())) {
+                continue;
+            }
             if (stockInDO.getSign() == 1) {
                 //将金额和单价还原，并将成本和费用更新为0.
                BigDecimal totailAmout = stockInItemDO.getAmount().subtract(stockInItemDO.getCost().add(stockInItemDO.getExpense()));
@@ -578,30 +581,31 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 stockInItemDO.setUnitPrice(unitPrice);
                 stockInItemDO.setExpense(BigDecimal.ZERO);
             }
-            if (Objects.equals("0", stockInItemDO.getAccountSource())) {
-                continue;
-            } else {
+//             List<Map<String, Object>> objectss = JSONArray.parseObject(stockInItemDO.getAccountSource().toString(), List.class);
+            List<Object> objects = JSON.parseArray(stockInItemDO.getAccountSource().toString());
 
-                List<Map<String,Object>> objects = JSONArray.parseObject(stockInItemDO.getAccountSource().toString(), List.class);
-
-                for (int i = 0; i < objects.size(); i++) {
-                    Map<String, Object> mapOutItrmId = (Map<String, Object>)objects.get(i);
-                    Long outItemId = Long.parseLong(mapOutItrmId.get("outItemID").toString());
-                    BigDecimal standCount = new BigDecimal(mapOutItrmId.get("countOnce").toString());
-                    StockOutItemDO stockOutItemDO = new StockOutItemDO();
-                    StockOutItemDO stockOutItemDo = stockOutItemService.get(outItemId);
-                    stockOutItemDO.setChargeOffCount(stockOutItemDo.getChargeOffCount().subtract(standCount));
-                    LisTStockOutItemDo.add(stockOutItemDO);
-                }
+            for (int i = 0; i < objects.size(); i++) {
+                Map<String, Object> mapOutItrmId = (Map<String, Object>)objects.get(i);
+                Long outItemId = Long.parseLong(mapOutItrmId.get("outItemID").toString());
+                BigDecimal standCount = new BigDecimal(mapOutItrmId.get("countOnce").toString());
+                StockOutItemDO outItemDo = stockOutItemService.get(outItemId);
+                outItemDo.setChargeOffCount(outItemDo.getChargeOffCount().subtract(standCount));
+                LisTStockOutItemDo.add(outItemDo);
             }
+
             stockInItemDO.setCost(BigDecimal.ZERO);
             stockInItemDO.setAccountSource("0");
+            stockInItemDO.setMaterialIdCount("0");
+            newLitemDetailById.add(stockInItemDO);
             stockInDO.setSign(2);
             stockInService.update(stockInDO);
         }
         //批量更新 入库子表
-            stockIntemService.batchUpdate(itemDetailById);
+        if(itemDetailById!=null&&LisTStockOutItemDo!=null){
+            stockIntemService.batchUpdate(newLitemDetailById);
             stockOutItemService.batchUpdate(LisTStockOutItemDo);
+        }
+
         return R.ok();
     }
 
@@ -612,6 +616,9 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
             Map<String,Object>  map= new HashMap<>();
             map.put("inheadId",stockInId);
             List<StockInItemDO> inItemDos = stockIntemService.list(map);
+            if(inItemDos==null){
+                continue;
+            }
             for(StockInItemDO inItemDo:inItemDos){
 
                 List<Map<String, Object>> unitPriceMap = this.getUnitPrice(inItemDo.getId());
@@ -637,7 +644,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
             stockInDO.setId(stockInId);
             stockInService.update(stockInDO);
         }
-        return null;
+        return R.ok();
     }
 
     @Override
@@ -674,8 +681,6 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
     @Override
     public R disposeAutoAccounting(Long stockInItemId,String detailAccounting) {
-
-//        List<StockOutItemDO> stockOutItemDos = JSONObject.parseArray(detailAccounting, StockOutItemDO.class);
 
         JSONArray stockOutItemDos = JSON.parseArray(detailAccounting);
 
@@ -772,7 +777,6 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 stockInItemDO.setId(stockInItemId);
                 stockIntemService.update(stockInItemDO);
             }
-
             Map<String, Object> result = new HashMap<>();
             result.put("data", results);
             return R.ok(result);
