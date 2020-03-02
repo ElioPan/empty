@@ -38,7 +38,7 @@ public class BuildTree {
 		}
 
 		Tree<T> root = new Tree<T>();
-		if (topNodes.size() == 1) {
+		/*if (topNodes.size() == 1) {
 			root = topNodes.get(0);
 		} else {
 			root.setId("-1");
@@ -51,7 +51,17 @@ public class BuildTree {
 			Map<String, Object> state = new HashMap<>(16);
 			state.put("opened", true);
 			root.setState(state);
-		}
+		}*/
+		root.setId("-1");
+		root.setParentId("");
+		root.setHasParent(false);
+		root.setChildren(true);
+		root.setChecked(true);
+		root.setChildren(topNodes);
+		root.setText("顶级节点");
+		Map<String, Object> state = new HashMap<>(16);
+		state.put("opened", true);
+		root.setState(state);
 
 		return root;
 	}
