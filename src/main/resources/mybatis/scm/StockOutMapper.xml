@@ -277,7 +277,7 @@
         LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
         LEFT JOIN scm_stock stock ON stock.`id` = item.`stock_id`
         LEFT JOIN cus_facility_location location ON location.id=stock.`wareh_location`
-        LEFT JOIN cus_facility fac ON fac.id=location.`facility_id`
+        LEFT JOIN cus_facility fac ON fac.id=stock.`warehouse`
         LEFT JOIN sys_user operson ON operson.`user_id`=stockOut.`operator`
         LEFT JOIN sys_user creater ON creater.`user_id`=stockOut.`create_by`
         LEFT JOIN cus_dictionary dica ON dica.`id` = stockOut.`audit_sign`
