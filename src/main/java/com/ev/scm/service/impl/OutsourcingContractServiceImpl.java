@@ -223,7 +223,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         for (OutsourcingContractPayDO outsourcingContractPayDO : outsourcingContractPayList) {
             outsourcingContractPayDO.setContractId(outsourcingContractId);
         }
-        List<ContractPayVO> payList = this.getContractPayVOS(bodyPay, payIds, outsourcingContractPayList);
+        List<ContractPayVO> payList = this.getContractPayVOS(outsourcingContractId, bodyPay, payIds, outsourcingContractPayList);
         alterationContent.put("payArray", payList);
 
         if (itemList.size() > 0 || payList.size() > 0) {
@@ -238,7 +238,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
     }
 
     @Override
-    public List<ContractPayVO> getContractPayVOS(String bodyPay, Long[] payIds, List<OutsourcingContractPayDO> outsourcingContractPayList) {
+    public List<ContractPayVO> getContractPayVOS(Long outsourcingContractId,String bodyPay, Long[] payIds, List<OutsourcingContractPayDO> outsourcingContractPayList) {
         List<ContractPayVO> payList = Lists.newArrayList();
         ContractPayVO payVO;
         if (outsourcingContractPayList.size() > 0) {
@@ -315,6 +315,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                 }
                 // 若是新增数据
                 // 保存进合同收款条件子表
+                afterPayDO.setContractId(outsourcingContractId);
                 outsourcingContractPayDao.save(afterPayDO);
                 // 保存入变更记录表
                 payVO.setId(afterPayDO.getId());
