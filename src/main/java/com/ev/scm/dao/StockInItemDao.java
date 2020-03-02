@@ -58,4 +58,6 @@ public interface StockInItemDao {
 
 	List<StockInItemDO> getItemDetailById(Map<String, Object> map);
 
+	List<Map<String, Object>>  getItemDate(Map<String, Object> map);
+
 }

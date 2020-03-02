@@ -301,6 +301,7 @@
 		d.name as proName,
 		d.specification as model,
 		d.unit_uom as unit,
+		d.tax_percent as taxRate,
 		e.name as unitName,
 		a.pro_count as proCount,
 		a.pro_price as proPrice,
@@ -595,6 +596,18 @@
 		</foreach>
 	</select>
 
-
+	<select id="getItemDate" resultType="map">
+		SELECT
+		DISTINCT
+		-- a.id,
+		DATE_FORMAT(a.create_time,'%Y-%m') as createTime
+		FROM
+		scm_stock_in_item a
+		WHERE
+		a.id in
+		<foreach item="id" collection="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
 
 </mapper>

@@ -344,6 +344,7 @@
 			m.name as materielName,
 			m.specification ,
 			m.unit_uom as unitNom,
+			m.tax_percent as taxRate,
 			n.name as unitName,
 			m.is_lot as isLot,
 			aa.id as stockInItemId,
@@ -579,5 +580,19 @@
 		</foreach>
 	</select>
 
+
+	<select id="getStockInDate" resultType="map">
+		SELECT
+		DISTINCT
+		-- a.id,
+		DATE_FORMAT(a.create_time,'%Y-%m') as createTime
+		FROM
+		scm_stock_in a
+		WHERE
+		a.id in
+		<foreach item="id" collection="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
 
 </mapper>
