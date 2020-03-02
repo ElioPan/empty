@@ -60,4 +60,6 @@ public interface StockInItemDao {
 
 	List<Map<String, Object>>  getItemDate(Map<String, Object> map);
 
+	int getInCountOfContract(Map<String, Object> map);
+
 }

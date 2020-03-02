@@ -13,6 +13,7 @@ import java.util.Map;
  * @email 286600136@qq.com
  * @date 2019-09-10 13:37:59
  */
+
 public interface StockInItemService {
 
 	StockInItemDO get(Long id);
@@ -65,6 +66,6 @@ public interface StockInItemService {
 
 	List<Map<String, Object>>  getItemDate(Map<String, Object> map);
 
-
+	int getInCountOfContract(Map<String, Object> map);
 
 }

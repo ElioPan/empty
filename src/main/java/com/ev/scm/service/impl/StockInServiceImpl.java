@@ -51,6 +51,9 @@ public class StockInServiceImpl implements StockInService {
 	@Autowired
 	private StockInItemService stockInItemService;
 
+	@Autowired
+	private  PurchasecontractItemService purchasecontractItemService;
+
 	@Override
 	public Map<String, Object> countForMap(Map<String, Object> map) {
 		return stockInDao.countForMap(map);
@@ -357,10 +360,13 @@ public class StockInServiceImpl implements StockInService {
 			return R.error(messageSourceHandler.getMessage("common.massge.haveNoData",null));
 		}
 
+		//验证入库源单数量足够入库
+
 		Long headId = stockInDO.getId();
 		if(Objects.isNull(headId)){
 			if(StringUtils.isNotEmpty(bodyDetail)){
 				List<StockInItemDO> inbodyCDos = JSON.parseArray(bodyDetail, StockInItemDO.class);
+
 				Boolean qR=Objects.nonNull(inbodyCDos.get(0).getQrcodeId());
 				if(qR){
 					for(StockInItemDO stockInItemDo:inbodyCDos ){
@@ -630,6 +636,48 @@ public class StockInServiceImpl implements StockInService {
 			return R.error(messageSourceHandler.getMessage("apis.mes.scrapt.auditOk", null));
 		}
 	}
+
+
+	/**
+	 * 采购入库验证源单数量
+	 *
+	 * @return
+	 */
+	@Override
+	public String checkSourceCounts(String stockInitemDos, Long storageType) {
+		List<StockInItemDO> itemDos = new ArrayList<>();
+		if (StringUtils.isNotEmpty(stockInitemDos)) {
+			itemDos = JSON.parseArray(stockInitemDos, StockInItemDO.class);
+		}else{
+			return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
+		}
+		//验证采购合同
+		for (StockInItemDO itemDo : itemDos) {
+			if (Objects.nonNull(itemDo.getSourceId())) {
+				Long sourceId = itemDo.getSourceId();
+
+				BigDecimal thisCount = itemDo.getCount();
+				PurchasecontractItemDO contractItemDO = purchasecontractItemService.get(sourceId);
+				if (contractItemDO != null) {
+					Map<String, Object> map = new HashMap<>();
+					map.put("sourceId", sourceId);
+					map.put("storageType", storageType);
+					int inCountOfContract = stockInItemService.getInCountOfContract(map);
+
+					int boo = (contractItemDO.getCount().subtract(new BigDecimal(inCountOfContract))).compareTo(thisCount);
+					if (Objects.equals(-1, boo)) {
+						String[] args = {thisCount.toPlainString(), contractItemDO.getCount().subtract(new BigDecimal(inCountOfContract)).toPlainString(), itemDo.getSourceType().toString()};
+						messageSourceHandler.getMessage("stock.number.checkError", args);
+					}
+				} else {
+					return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+				}
+			}
+		}
+		return "ok";
+	}
+
+
 
 
 
