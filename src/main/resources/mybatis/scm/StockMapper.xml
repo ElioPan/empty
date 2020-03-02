@@ -223,7 +223,7 @@
 		LEFT JOIN cus_materiel materiel ON materiel.id = stock.`materiel_id`
 		LEFT JOIN cus_dictionary dic ON dic.`id` = materiel.`unit_uom`
 		LEFT JOIN cus_facility_location fl ON fl.`id` = stock.`wareh_location`
-		LEFT JOIN cus_facility facility ON facility.`id` = fl.`facility_id`
+		LEFT JOIN cus_facility facility ON facility.`id` = stock.`warehouse`
 		<where>
 			<if test="endTime != null and endTime != ''">  and stock.create_time &lt; #{endTime}</if>
 		</where>
