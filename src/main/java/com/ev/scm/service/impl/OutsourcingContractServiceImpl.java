@@ -479,13 +479,21 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
 
         // 删除对应委外投料单，如果委外投料单已审核则不能反审核。
         if (itemIdList.size() > 0) {
+            List<Long> feedingId = Lists.newArrayList();
             for (Long itemId : itemIdList) {
-                ProductionFeedingDO feedingDO = feedingService.getByOutsourcingContractItemId(itemId);
-                if (Objects.equals(feedingDO.getStatus(), ConstantForMES.OK_AUDITED)) {
-                    return R.error(messageSourceHandler.getMessage("plan.feedingPlan.isAudit", null));
+                List<ProductionFeedingDO> byOutsourcingContractItemId = feedingService.getByOutsourcingContractItemId(itemId);
+                if (byOutsourcingContractItemId.size() > 0) {
+                    feedingId = byOutsourcingContractItemId.stream().map(ProductionFeedingDO::getId).collect(Collectors.toList());
+                    ProductionFeedingDO feedingDO = byOutsourcingContractItemId.get(0);
+                    if (Objects.equals(feedingDO.getStatus(), ConstantForMES.OK_AUDITED)) {
+                        return R.error(messageSourceHandler.getMessage("plan.feedingPlan.isAudit", null));
+                    }
                 }
+
             }
-            feedingService.batchRemoveHeadAndBody(itemIdList.toArray(new Long[0]));
+            if (feedingId.size() > 0) {
+                feedingService.batchRemoveHeadAndBody(feedingId.toArray(new Long[0]));
+            }
         }
 
         // 修改单据状态

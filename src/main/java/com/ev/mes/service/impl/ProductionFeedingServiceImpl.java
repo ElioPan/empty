@@ -143,7 +143,7 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 	}
 
 	@Override
-	public ProductionFeedingDO getByOutsourcingContractItemId(Long id) {
+	public List<ProductionFeedingDO> getByOutsourcingContractItemId(Long id) {
 		return productionFeedingDao.getByOutsourcingContractItemId(id);
 	}
 
