@@ -3,6 +3,7 @@ package com.ev.scm.service;
 import com.ev.scm.domain.StockInDO;
 import com.ev.scm.domain.StockInItemDO;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -66,6 +67,6 @@ public interface StockInItemService {
 
 	List<Map<String, Object>>  getItemDate(Map<String, Object> map);
 
-	int getInCountOfContract(Map<String, Object> map);
+	BigDecimal getInCountOfContract(Map<String, Object> map);
 
 }

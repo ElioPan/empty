@@ -612,9 +612,9 @@
 
 
 
-	<select id="getInCountOfContract" resultType="int">
+	<select id="getInCountOfContract" resultType="java.math.BigDecimal">
 		SELECT
-			sum(count)
+			  sum(`count`)
 		FROM
 			scm_stock_in_item a
 		LEFT JOIN scm_stock_in b on a.inhead_id=b.id

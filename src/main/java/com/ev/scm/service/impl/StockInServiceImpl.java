@@ -662,11 +662,12 @@ public class StockInServiceImpl implements StockInService {
 					Map<String, Object> map = new HashMap<>();
 					map.put("sourceId", sourceId);
 					map.put("storageType", storageType);
-					int inCountOfContract = stockInItemService.getInCountOfContract(map);
+					BigDecimal  inCounts=stockInItemService.getInCountOfContract(map);
+					BigDecimal inCountOfContract = (inCounts==null)?BigDecimal.ZERO:inCounts;
 
-					int boo = (contractItemDO.getCount().subtract(new BigDecimal(inCountOfContract))).compareTo(thisCount);
+					int boo = (contractItemDO.getCount().subtract(inCountOfContract)).compareTo(thisCount);
 					if (Objects.equals(-1, boo)) {
-						String[] args = {thisCount.toPlainString(), contractItemDO.getCount().subtract(new BigDecimal(inCountOfContract)).toPlainString(), itemDo.getSourceType().toString()};
+						String[] args = {thisCount.toPlainString(), contractItemDO.getCount().subtract(inCountOfContract).toPlainString(), itemDo.getSourceType().toString()};
 						messageSourceHandler.getMessage("stock.number.checkError", args);
 					}
 				} else {

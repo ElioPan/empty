@@ -113,7 +113,7 @@ public class StockInItemServiceImpl implements StockInItemService {
 	}
 
 	@Override
-	public int getInCountOfContract(Map<String, Object> map) {
+	public BigDecimal getInCountOfContract(Map<String, Object> map) {
 		return stockInItemDao.getInCountOfContract(map);
 	}
 
