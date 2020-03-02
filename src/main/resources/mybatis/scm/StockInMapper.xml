@@ -574,7 +574,7 @@
 		and
 		qr_sign is not null
 		and
-		stock_id in
+		id in
 		<foreach item="item" collection="id" open="(" separator="," close=")">
 			#{item}
 		</foreach>
