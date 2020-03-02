@@ -169,4 +169,17 @@
 	</select>
 
 
+	<select id="getInCountOfPurchase" resultType="java.math.BigDecimal">
+		SELECT
+		sum(`count`)
+		FROM
+		scm_purchase_item a
+		WHERE
+		a.source_id =#{sourceId}
+		and
+		a.source_type = #{sourceType}
+	</select>
+
+
+
 </mapper>
