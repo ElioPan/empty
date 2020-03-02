@@ -1,6 +1,5 @@
 package com.ev.apis.controller.custom;
 
-import com.ev.custom.domain.MaterielDO;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.domain.FacilityDO;
@@ -103,6 +102,10 @@ public class FacilityApiController {
     @EvApiByToken(value = "/apis/facility/remove",method = RequestMethod.POST,apiTitle = "删除仓库信息")
     @ApiOperation("删除仓库信息")
     public R remove(@ApiParam(value = "仓库主键",required = true) @RequestParam(value="id",defaultValue = "") Integer id){
+        FacilityDO facilityDO = facilityService.get(id);
+        if (Objects.equals(facilityDO.getAuditSign(), ConstantForMES.OK_AUDITED)) {
+            return R.error(messageSourceHandler.getMessage("common.approved.delete.disabled",null));
+        }
         if(facilityService.logicRemove(id)>0){
             return R.ok();
         }
@@ -113,6 +116,12 @@ public class FacilityApiController {
     @EvApiByToken(value = "/apis/facility/batchRemove",method = RequestMethod.POST,apiTitle = "批量删除仓库信息")
     @ApiOperation("批量删除仓库信息")
     public R remove(@ApiParam(value = "仓库主键数组",required = true, example = "[1,2,3,4]") @RequestParam(value="ids",defaultValue = "") Integer[] ids){
+        for (Integer id : ids) {
+            FacilityDO facilityDO = facilityService.get(id);
+            if (Objects.equals(facilityDO.getAuditSign(), ConstantForMES.OK_AUDITED)) {
+                return R.error(messageSourceHandler.getMessage("common.approved.delete.disabled",null));
+            }
+        }
         facilityService.logicBatchRemove(ids);
         return R.ok();
     }
