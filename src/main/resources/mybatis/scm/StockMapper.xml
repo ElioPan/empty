@@ -208,6 +208,7 @@
 			materiel.`name` AS materielName,
 			materiel.`specification` AS specification,
 			materiel.`serial_no` AS serialNo,
+			materiel.`is_lot` AS isLot,
 			dic.`id` AS unitUom,
 			dic.`name` AS unitUomName,
 			stock.`batch` AS batch,
