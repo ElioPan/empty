@@ -10,9 +10,9 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://120.132.17.220:3306/xinsoft-gyhl?useUnicode=true&characterEncoding=utf8
-    username: xinsoft
-    password: xinsoft411
+    url: jdbc:mysql://localhost:3306/xinsoft-gyhl?useUnicode=true&characterEncoding=utf8
+    username: root
+    password: 123456
     initialSize: 1
     minIdle: 3
     maxActive: 20
