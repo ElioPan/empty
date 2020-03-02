@@ -79,7 +79,7 @@ public class WeChatServiceImpl implements WeChatService {
 
     @Override
     public String getMobileAccessToken(Date now) throws IOException, ParseException {
-        JSONObject jsAccessToken = JSONObject.fromObject(redisTemplate.opsForValue().get(Constant.WECHAT_ACCESS_TOKEN));
+        JSONObject jsAccessToken = JSONObject.fromObject(redisTemplate.opsForValue().get(Constant.WECHAT_MOBILE_ACCESS_TOKEN));
         /**
          * 首先校验mobileAccessToken是否过期
          */
