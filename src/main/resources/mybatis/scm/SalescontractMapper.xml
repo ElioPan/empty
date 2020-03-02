@@ -168,7 +168,7 @@
         client.`name` AS clientName,
         salesUser.`name` AS salesPersonName,
         salesUserDept.name AS salesPersonDeptName,
-        IF(item.is_check=0,'是','否') AS isCheck,
+        IF(item.is_check=1,'是','否') AS isCheck,
         materiel.`id` AS materielId,
         materiel.serial_no AS materielSerialNo,
         materiel.name AS materielName,

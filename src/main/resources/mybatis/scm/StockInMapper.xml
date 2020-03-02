@@ -152,8 +152,8 @@
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
 			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
-			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
-			<if test="sign != null">`sign` = #{sign}</if>
+			<if test="delFlag != null">`del_flag` = #{delFlag},</if>
+			<if test="sign != null">`sign` = #{sign},</if>
 			<if test="qrSign != null">`qr_sign` = #{qrcodeId}</if>
 		</set>
 		where id = #{id}

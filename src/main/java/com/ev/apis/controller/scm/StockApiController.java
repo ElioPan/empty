@@ -487,44 +487,41 @@ public class StockApiController {
                 .collect(Collectors.toList());
         Map<String,Object> params = Maps.newHashMap();
         params.put("materielIdList", materielIds);
-        List<MaterielDO> materielDOInList = materielService.list(params);
-        // 非批次管理的入库物料
-        List<Integer> weightedAverageIdList = materielDOInList.stream()
-                .filter(materielDO -> Objects.equals(ConstantForGYL.WEIGHTED_AVERAGE, materielDO.getValuationMethod()))
-                .map(MaterielDO::getId)
-                .collect(Collectors.toList());
-        // 批次管理的入库物料
-        List<Integer> idAndBatchList =  materielDOInList.stream()
-                .filter(materielDO -> Objects.equals(ConstantForGYL.BATCH_FINDS, materielDO.getValuationMethod()))
-                .map(MaterielDO::getId)
-                .collect(Collectors.toList());
+        List<MaterielDO> materielDOList = materielService.list(params);
+        List<Integer> idList = Lists.newArrayList();
+        if (materielDOList.size() > 0) {
+            // 非批次管理的入库物料
+            idList = materielDOList.stream()
+                    .filter(materielDO -> materielDO.getIsLot()!=1)
+                    .map(MaterielDO::getId)
+                    .collect(Collectors.toList());
+        }
 
         Map<String, BigDecimal> materielCountMap = Maps.newHashMap();
         Map<String, BigDecimal> materielAmountMap = Maps.newHashMap();
         for (StockDO stockDO : stockDOList) {
             int materielId = stockDO.getMaterielId().intValue();
             // 无批次管理的物料
-            if (weightedAverageIdList.contains(materielId)) {
+            if (idList.contains(materielId)) {
                 String materielIdToString = String.valueOf(materielId);
                 if (materielCountMap.containsKey(materielIdToString)) {
                     materielCountMap.put(materielIdToString, materielCountMap.get(materielIdToString).add(stockDO.getCount()));
                     materielAmountMap.put(materielIdToString, materielCountMap.get(materielIdToString).add(stockDO.getAmount()));
                     continue;
                 }
-                materielCountMap.put(materielIdToString, MathUtils.getBigDecimal(stockDO.getCount()));
-                materielAmountMap.put(materielIdToString, MathUtils.getBigDecimal(stockDO.getAmount()));
+                materielCountMap.put(materielIdToString, stockDO.getCount());
+                materielAmountMap.put(materielIdToString, stockDO.getAmount());
+                continue;
             }
             // 有批次管理的物料
-            if (idAndBatchList.contains(materielId)) {
-                String materielIdAndBatchToString = materielId + "&" + stockDO.getBatch();
-                if (materielCountMap.containsKey(materielIdAndBatchToString)) {
-                    materielCountMap.put(materielIdAndBatchToString, materielCountMap.get(materielIdAndBatchToString).add(stockDO.getCount()));
-                    materielAmountMap.put(materielIdAndBatchToString, materielCountMap.get(materielIdAndBatchToString).add(stockDO.getAmount()));
-                    continue;
-                }
-                materielCountMap.put(materielIdAndBatchToString, MathUtils.getBigDecimal(stockDO.getCount()));
-                materielAmountMap.put(materielIdAndBatchToString, MathUtils.getBigDecimal(stockDO.getAmount()));
+            String materielIdAndBatchToString = materielId + "&" + stockDO.getBatch();
+            if (materielCountMap.containsKey(materielIdAndBatchToString)) {
+                materielCountMap.put(materielIdAndBatchToString, materielCountMap.get(materielIdAndBatchToString).add(stockDO.getCount()));
+                materielAmountMap.put(materielIdAndBatchToString, materielCountMap.get(materielIdAndBatchToString).add(stockDO.getAmount()));
+                continue;
             }
+            materielCountMap.put(materielIdAndBatchToString, stockDO.getCount());
+            materielAmountMap.put(materielIdAndBatchToString, stockDO.getAmount());
         }
         if (materielCountMap.size() > 0) {
             Date now = new Date();
@@ -545,6 +542,10 @@ public class StockApiController {
                 stockAnalysis.setBatch(batch);
                 stockAnalysis.setInitialCount(materielCountMap.get(s));
                 stockAnalysis.setInitialAmount(materielAmountMap.get(s));
+                stockAnalysis.setInCount(BigDecimal.ZERO);
+                stockAnalysis.setInAmount(BigDecimal.ZERO);
+                stockAnalysis.setOutAmount(BigDecimal.ZERO);
+                stockAnalysis.setOutCount(BigDecimal.ZERO);
                 stockAnalysis.setPeriod(period);
                 stockAnalysis.setIsClose(0);
                 stockAnalysis.setDelFlag(0);
@@ -945,75 +946,75 @@ public class StockApiController {
         }
 
         // 分析所有物料
-        for (StockAnalysisDO analysisDO : stockAnalysisList) {
-            String materielId = analysisDO.getMaterielId().toString();
-            String materielIdAndBatch = analysisDO.getMaterielId().toString() + "&" + analysisDO.getBatch();
-
-            BigDecimal inCount = analysisDO.getInCount() == null ? BigDecimal.ZERO : analysisDO.getInCount();
-            BigDecimal inAmount = analysisDO.getInAmount() == null ? BigDecimal.ZERO : analysisDO.getInAmount();
+//        for (StockAnalysisDO analysisDO : stockAnalysisList) {
+//            String materielId = analysisDO.getMaterielId().toString();
+//            String materielIdAndBatch = analysisDO.getMaterielId().toString() + "&" + analysisDO.getBatch();
+//
+//            BigDecimal inCount = analysisDO.getInCount() == null ? BigDecimal.ZERO : analysisDO.getInCount();
+//            BigDecimal inAmount = analysisDO.getInAmount() == null ? BigDecimal.ZERO : analysisDO.getInAmount();
             // 加权平均
-            if (materielOutCountMap.containsKey(materielId) && weightedAverageIdList.contains(Integer.parseInt(materielId))) {
-                BigDecimal outCount = materielOutCountMap.get(materielId);
-                BigDecimal outAmount = materielOutAmountMap.get(materielId);
-                analysisDO.setOutCount(outCount);
-                analysisDO.setOutAmount(outAmount);
-                // 期末结存数量=期初数量+本月入库数量-本月发出数量
-                BigDecimal finalCount = analysisDO.getInitialCount()
-                        .add(inCount)
-                        .subtract(outCount);
-                analysisDO.setFinalCount(finalCount);
-                // 期末结存金额=期初金额+本月入库金额-本月发出金额
-                BigDecimal finalAmount = analysisDO.getInitialAmount()
-                        .add(inAmount)
-                        .subtract(outAmount);
-                analysisDO.setFinalAmount(finalAmount);
-                continue;
-            }
+//            if (materielOutCountMap.containsKey(materielId) && weightedAverageIdList.contains(Integer.parseInt(materielId))) {
+//                BigDecimal outCount = materielOutCountMap.get(materielId);
+//                BigDecimal outAmount = materielOutAmountMap.get(materielId);
+//                analysisDO.setOutCount(outCount);
+//                analysisDO.setOutAmount(outAmount);
+//                // 期末结存数量=期初数量+本月入库数量-本月发出数量
+//                BigDecimal finalCount = analysisDO.getInitialCount()
+//                        .add(inCount)
+//                        .subtract(outCount);
+//                analysisDO.setFinalCount(finalCount);
+//                // 期末结存金额=期初金额+本月入库金额-本月发出金额
+//                BigDecimal finalAmount = analysisDO.getInitialAmount()
+//                        .add(inAmount)
+//                        .subtract(outAmount);
+//                analysisDO.setFinalAmount(finalAmount);
+//                continue;
+//            }
 
             // 分批认定
-            if (materielOutCountMap.containsKey(materielIdAndBatch)&& !weightedAverageIdList.contains(Integer.parseInt(materielId))) {
-                BigDecimal outCount = materielOutCountMap.get(materielIdAndBatch);
-                BigDecimal outAmount = materielOutAmountMap.get(materielIdAndBatch);
-                analysisDO.setOutCount(outCount);
-                analysisDO.setOutAmount(outAmount);
-                // 期末结存数量=期初数量+本月入库数量-本月发出数量
-                BigDecimal finalCount = analysisDO.getInitialCount()
-                        .add(inCount)
-                        .subtract(outCount);
-                analysisDO.setFinalCount(finalCount);
-                // 期末结存金额=期初金额+本月入库金额-本月发出金额
-                BigDecimal finalAmount = analysisDO.getInitialAmount()
-                        .add(inAmount)
-                        .subtract(outAmount);
-                analysisDO.setFinalAmount(finalAmount);
-                continue;
-            }
-            analysisDO.setOutCount(BigDecimal.ZERO);
-            analysisDO.setOutAmount(BigDecimal.ZERO);
+//            if (materielOutCountMap.containsKey(materielIdAndBatch)&& !weightedAverageIdList.contains(Integer.parseInt(materielId))) {
+//                BigDecimal outCount = materielOutCountMap.get(materielIdAndBatch);
+//                BigDecimal outAmount = materielOutAmountMap.get(materielIdAndBatch);
+//                analysisDO.setOutCount(outCount);
+//                analysisDO.setOutAmount(outAmount);
+//                // 期末结存数量=期初数量+本月入库数量-本月发出数量
+//                BigDecimal finalCount = analysisDO.getInitialCount()
+//                        .add(inCount)
+//                        .subtract(outCount);
+//                analysisDO.setFinalCount(finalCount);
+//                // 期末结存金额=期初金额+本月入库金额-本月发出金额
+//                BigDecimal finalAmount = analysisDO.getInitialAmount()
+//                        .add(inAmount)
+//                        .subtract(outAmount);
+//                analysisDO.setFinalAmount(finalAmount);
+//                continue;
+//            }
+//            analysisDO.setOutCount(BigDecimal.ZERO);
+//            analysisDO.setOutAmount(BigDecimal.ZERO);
+//
+//            analysisDO.setFinalCount(
+//                    analysisDO.getInitialCount()
+//                            .add(inCount));
+//            analysisDO.setFinalAmount(
+//                    analysisDO.getInitialAmount()
+//                            .add(inAmount));
+//        }
+//        List<StockAnalysisDO> updateList = stockAnalysisList
+//                .stream()
+//                .filter(stockAnalysisDO -> stockAnalysisDO.getId() != null)
+//                .collect(Collectors.toList());
+//
+//        List<StockAnalysisDO> insertList = stockAnalysisList
+//                .stream()
+//                .filter(stockAnalysisDO -> stockAnalysisDO.getId() == null)
+//                .collect(Collectors.toList());
 
-            analysisDO.setFinalCount(
-                    analysisDO.getInitialCount()
-                            .add(inCount));
-            analysisDO.setFinalAmount(
-                    analysisDO.getInitialAmount()
-                            .add(inAmount));
-        }
-        List<StockAnalysisDO> updateList = stockAnalysisList
-                .stream()
-                .filter(stockAnalysisDO -> stockAnalysisDO.getId() != null)
-                .collect(Collectors.toList());
-
-        List<StockAnalysisDO> insertList = stockAnalysisList
-                .stream()
-                .filter(stockAnalysisDO -> stockAnalysisDO.getId() == null)
-                .collect(Collectors.toList());
-
-        if (updateList.size() > 0) {
-            stockAnalysisService.batchUpdate(updateList);
-        }
-        if (insertList.size() > 0) {
-            stockAnalysisService.batchInsert(insertList);
-        }
+//        if (updateList.size() > 0) {
+//            stockAnalysisService.batchUpdate(updateList);
+//        }
+//        if (insertList.size() > 0) {
+//            stockAnalysisService.batchInsert(insertList);
+//        }
         return R.ok();
 
     }
@@ -1134,6 +1135,184 @@ public class StockApiController {
         if (oldMillis != newMillis) {
             return R.error(messageSourceHandler.getMessage("scm.stock.carryOver", null));
         }
+        // 期末结转
+        params.put("createStartTime", DatesUtil.getSupportBeginDayOfMonth(periodTime));
+        params.put("createEndTime", DatesUtil.getSupportEndDayOfMonth(periodTime));
+        params.put("auditSign", ConstantForGYL.OK_AUDITED);
+        // 入库单
+        List<Map<String, Object>> stockInList = stockInService.listForMap(params);
+        // 出库单
+        List<StockOutItemDO> stockOutList = stockOutItemService.list(params);
+        // 获取上期结存数据
+        params.put("period", period);
+        List<StockAnalysisDO> stockAnalysisList = stockAnalysisService.list(params);
+
+        List<Integer> materielIdList = Lists.newArrayList();
+        // 入库的物料
+        List<Integer> materielInIdList = stockInList.stream()
+                .map(stringObjectMap -> Integer.parseInt(stringObjectMap.get("materielId").toString()))
+                .collect(Collectors.toList());
+        if (materielInIdList.size() > 0) {
+            materielIdList.addAll(materielInIdList);
+        }
+        // 出库的物料
+        List<Integer> materielOutIdList = stockOutList.stream()
+                .map(StockOutItemDO::getMaterielId)
+                .collect(Collectors.toList());
+        if (materielOutIdList.size() > 0) {
+            materielIdList.addAll(materielOutIdList);
+        }
+        // 分析表中现有的物料
+        List<Integer> materielNowIdList = stockAnalysisList.stream()
+                .map(StockAnalysisDO::getMaterielId)
+                .collect(Collectors.toList());
+        if (materielNowIdList.size() > 0) {
+            materielIdList.addAll(materielNowIdList);
+        }
+        // 获取要统计的所有物料
+        List<MaterielDO> materielDOList = Lists.newArrayList();
+        if (materielIdList.size() > 0) {
+            params.clear();
+            params.put("materielIdList", materielInIdList);
+            materielDOList = materielService.list(params);
+        }
+        List<Integer> idList = Lists.newArrayList();
+        if (materielDOList.size() > 0) {
+            // 非批次管理的入库物料
+            idList = materielDOList.stream()
+                    .filter(materielDO -> materielDO.getIsLot()!=1)
+                    .map(MaterielDO::getId)
+                    .collect(Collectors.toList());
+        }
+
+        // 将没有批次管理的物料加入统计表中
+        StockAnalysisDO newAnalysisDO;
+        for (Map<String, Object> map : stockInList) {
+            String materielIdToString = map.get("materielId").toString();
+            Integer materielId = Integer.parseInt(materielIdToString);
+            // 非批次管理
+            if (idList.contains(materielId)) {
+                // 若已存在这个物料及累加
+                if (materielNowIdList.contains(materielId)) {
+                    for (StockAnalysisDO analysisDO : stockAnalysisList) {
+                        if (Objects.equals(analysisDO.getMaterielId(),materielId)){
+                            analysisDO.setInCount(analysisDO.getInCount().add(MathUtils.getBigDecimal(map.get("count"))));
+                            analysisDO.setInAmount(analysisDO.getInAmount().add(MathUtils.getBigDecimal(map.get("amount"))));
+                            break;
+                        }
+                    }
+                    continue;
+                }
+                // 若不存则添加
+                newAnalysisDO = new StockAnalysisDO();
+                newAnalysisDO.setMaterielId(materielId);
+                newAnalysisDO.setInCount(MathUtils.getBigDecimal(map.get("count")));
+                newAnalysisDO.setInAmount(MathUtils.getBigDecimal(map.get("amount")));
+                newAnalysisDO.setIsClose(0);
+                newAnalysisDO.setDelFlag(0);
+                newAnalysisDO.setPeriod(periodTime);
+                stockAnalysisList.add(newAnalysisDO);
+                continue;
+            }
+            // 批次管理
+            String materielIdAndBatch = materielIdToString + "&" + map.get("batch").toString();
+            // 若已存在这个物料及累加
+            if (materielNowIdList.contains(materielId)) {
+                for (StockAnalysisDO analysisDO : stockAnalysisList) {
+                    String materielIdAndBatchNow = analysisDO.getMaterielId().toString() + "&" + analysisDO.getBatch();
+                    if (Objects.equals(materielIdAndBatchNow,materielIdAndBatch)){
+                        analysisDO.setInCount(analysisDO.getInCount().add(MathUtils.getBigDecimal(map.get("count"))));
+                        analysisDO.setInAmount(analysisDO.getInAmount().add(MathUtils.getBigDecimal(map.get("amount"))));
+                        break;
+                    }
+                }
+                continue;
+            }
+            // 若不存则添加
+            newAnalysisDO = new StockAnalysisDO();
+            newAnalysisDO.setMaterielId(materielId);
+            stockAnalysisDO.setBatch(map.get("batch").toString());
+            newAnalysisDO.setInCount(MathUtils.getBigDecimal(map.get("count")));
+            newAnalysisDO.setInAmount(MathUtils.getBigDecimal(map.get("amount")));
+            newAnalysisDO.setIsClose(0);
+            newAnalysisDO.setDelFlag(0);
+            newAnalysisDO.setPeriod(periodTime);
+            stockAnalysisList.add(newAnalysisDO);
+        }
+
+        // 统计出库物料
+        for (StockOutItemDO itemDO : stockOutList) {
+            Integer materielId = itemDO.getMaterielId();
+            String materielIdToString = materielId.toString();
+            // 非批次管理
+            if (idList.contains(materielId)) {
+                // 若已存在这个物料及累加
+                if (materielNowIdList.contains(materielId)) {
+                    for (StockAnalysisDO analysisDO : stockAnalysisList) {
+                        if (Objects.equals(analysisDO.getMaterielId(),materielId)){
+                            BigDecimal outCount = itemDO.getCount().add(analysisDO.getOutCount());
+                            BigDecimal outAmount = itemDO.getAmount().add(analysisDO.getOutAmount());
+                            analysisDO.setOutCount(outCount);
+                            analysisDO.setOutAmount(itemDO.getAmount().add(outAmount));
+                            // 期末结存数量=期初数量+本月入库数量-本月发出数量
+                            BigDecimal finalCount = analysisDO.getInitialCount()
+                                    .add(analysisDO.getInCount())
+                                    .subtract(outCount);
+                            analysisDO.setFinalCount(finalCount);
+                            // 期末结存金额=期初金额+本月入库金额-本月发出金额
+                            BigDecimal finalAmount = analysisDO.getInitialAmount()
+                                    .add(analysisDO.getInAmount())
+                                    .subtract(outAmount);
+                            analysisDO.setFinalAmount(finalAmount);
+                            break;
+                        }
+                    }
+                }
+                continue;
+            }
+            // 批次管理
+            String materielIdAndBatch = materielIdToString + "&" + itemDO.getBatch();
+            // 若已存在这个物料及累加
+            if (materielNowIdList.contains(materielId)) {
+                for (StockAnalysisDO analysisDO : stockAnalysisList) {
+                    String materielIdAndBatchNow = analysisDO.getMaterielId().toString() + "&" + analysisDO.getBatch();
+                    if (Objects.equals(materielIdAndBatchNow,materielIdAndBatch)){
+                        BigDecimal outCount = itemDO.getCount().add(analysisDO.getOutCount());
+                        BigDecimal outAmount = itemDO.getAmount().add(analysisDO.getOutAmount());
+                        analysisDO.setOutCount(outCount);
+                        analysisDO.setOutAmount(itemDO.getAmount().add(outAmount));
+                        // 期末结存数量=期初数量+本月入库数量-本月发出数量
+                        BigDecimal finalCount = analysisDO.getInitialCount()
+                                .add(analysisDO.getInCount())
+                                .subtract(outCount);
+                        analysisDO.setFinalCount(finalCount);
+                        // 期末结存金额=期初金额+本月入库金额-本月发出金额
+                        BigDecimal finalAmount = analysisDO.getInitialAmount()
+                                .add(analysisDO.getInAmount())
+                                .subtract(outAmount);
+                        analysisDO.setFinalAmount(finalAmount);
+                        break;
+                    }
+                }
+            }
+        }
+        List<StockAnalysisDO> updateList = stockAnalysisList
+                .stream()
+                .filter(analysisDO -> analysisDO.getId() != null)
+                .collect(Collectors.toList());
+
+        List<StockAnalysisDO> insertList = stockAnalysisList
+                .stream()
+                .filter(analysisDO -> analysisDO.getId() == null)
+                .collect(Collectors.toList());
+
+        if (updateList.size() > 0) {
+            stockAnalysisService.batchUpdate(updateList);
+        }
+        if (insertList.size() > 0) {
+            stockAnalysisService.batchInsert(insertList);
+        }
+
         params.put("period", DateFormatUtil.getFormateDate(periodTime));
         List<StockAnalysisDO> thisTerm = stockAnalysisService.list(params);
         if (thisTerm.size() > 0) {
