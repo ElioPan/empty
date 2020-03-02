@@ -1206,8 +1206,12 @@ public class StockApiController {
                 // 若不存则添加
                 newAnalysisDO = new StockAnalysisDO();
                 newAnalysisDO.setMaterielId(materielId);
+                newAnalysisDO.setInitialCount(BigDecimal.ZERO);
+                newAnalysisDO.setInitialAmount(BigDecimal.ZERO);
                 newAnalysisDO.setInCount(MathUtils.getBigDecimal(map.get("count")));
                 newAnalysisDO.setInAmount(MathUtils.getBigDecimal(map.get("amount")));
+                newAnalysisDO.setOutCount(BigDecimal.ZERO);
+                newAnalysisDO.setOutAmount(BigDecimal.ZERO);
                 newAnalysisDO.setIsClose(0);
                 newAnalysisDO.setDelFlag(0);
                 newAnalysisDO.setPeriod(periodTime);
@@ -1231,13 +1235,19 @@ public class StockApiController {
             // 若不存则添加
             newAnalysisDO = new StockAnalysisDO();
             newAnalysisDO.setMaterielId(materielId);
-            stockAnalysisDO.setBatch(map.get("batch").toString());
+            newAnalysisDO.setBatch(map.get("batch").toString());
+            newAnalysisDO.setInitialCount(BigDecimal.ZERO);
+            newAnalysisDO.setInitialAmount(BigDecimal.ZERO);
+            newAnalysisDO.setInAmount(MathUtils.getBigDecimal(map.get("amount")));
             newAnalysisDO.setInCount(MathUtils.getBigDecimal(map.get("count")));
             newAnalysisDO.setInAmount(MathUtils.getBigDecimal(map.get("amount")));
+            newAnalysisDO.setOutCount(BigDecimal.ZERO);
+            newAnalysisDO.setOutAmount(BigDecimal.ZERO);
             newAnalysisDO.setIsClose(0);
             newAnalysisDO.setDelFlag(0);
             newAnalysisDO.setPeriod(periodTime);
             stockAnalysisList.add(newAnalysisDO);
+            materielNowIdList.add(materielId);
         }
 
         // 统计出库物料
@@ -1253,7 +1263,7 @@ public class StockApiController {
                             BigDecimal outCount = itemDO.getCount().add(analysisDO.getOutCount());
                             BigDecimal outAmount = itemDO.getAmount().add(analysisDO.getOutAmount());
                             analysisDO.setOutCount(outCount);
-                            analysisDO.setOutAmount(itemDO.getAmount().add(outAmount));
+                            analysisDO.setOutAmount(outAmount);
                             // 期末结存数量=期初数量+本月入库数量-本月发出数量
                             BigDecimal finalCount = analysisDO.getInitialCount()
                                     .add(analysisDO.getInCount())
@@ -1280,7 +1290,7 @@ public class StockApiController {
                         BigDecimal outCount = itemDO.getCount().add(analysisDO.getOutCount());
                         BigDecimal outAmount = itemDO.getAmount().add(analysisDO.getOutAmount());
                         analysisDO.setOutCount(outCount);
-                        analysisDO.setOutAmount(itemDO.getAmount().add(outAmount));
+                        analysisDO.setOutAmount(outAmount);
                         // 期末结存数量=期初数量+本月入库数量-本月发出数量
                         BigDecimal finalCount = analysisDO.getInitialCount()
                                 .add(analysisDO.getInCount())
@@ -1294,6 +1304,20 @@ public class StockApiController {
                         break;
                     }
                 }
+            }
+        }
+        for (StockAnalysisDO analysisDO : stockAnalysisList) {
+            if (analysisDO.getFinalCount() == null) {
+                // 期末结存数量=期初数量+本月入库数量-本月发出数量
+                BigDecimal finalCount = analysisDO.getInitialCount()
+                        .add(analysisDO.getInCount())
+                        .subtract(analysisDO.getOutCount());
+                analysisDO.setFinalCount(finalCount);
+                // 期末结存金额=期初金额+本月入库金额-本月发出金额
+                BigDecimal finalAmount = analysisDO.getInitialAmount()
+                        .add(analysisDO.getInAmount())
+                        .subtract(analysisDO.getOutAmount());
+                analysisDO.setFinalAmount(finalAmount);
             }
         }
         List<StockAnalysisDO> updateList = stockAnalysisList
@@ -1314,30 +1338,42 @@ public class StockApiController {
         }
 
         params.put("period", DateFormatUtil.getFormateDate(periodTime));
-        List<StockAnalysisDO> thisTerm = stockAnalysisService.list(params);
-        if (thisTerm.size() > 0) {
+        List<StockAnalysisDO> thisTermOld = stockAnalysisService.list(params);
+
+        if (thisTermOld.size() > 0) {
+            List<StockAnalysisDO> thisTerm = thisTermOld.stream()
+                    .filter(stockAnalysis -> stockAnalysis.getFinalCount()
+                            .compareTo(BigDecimal.ZERO) > 0)
+                    .collect(Collectors.toList());
             List<StockAnalysisDO> stockAnalysisInsertDOS = Lists.newArrayList();
-            stockAnalysisService.batchRemoveById(thisTerm.get(0).getId());
-            if (thisTerm.get(0).getFinalCount()==null){
-                return R.error(messageSourceHandler.getMessage("scm.stock.outError", null));
+            stockAnalysisService.batchRemoveById(thisTermOld.get(0).getId());
+            if (thisTerm.size() > 0) {
+                if (thisTerm.get(0).getFinalCount()==null){
+                    return R.error(messageSourceHandler.getMessage("scm.stock.outError", null));
+                }
+                StockAnalysisDO analysisDO;
+                instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) + 1);
+                Date lastTermDate = instance.getTime();
+                for (StockAnalysisDO stockAnalysis : thisTerm) {
+                    analysisDO = new StockAnalysisDO();
+                    analysisDO.setMaterielId(stockAnalysis.getMaterielId());
+                    analysisDO.setBatch(stockAnalysis.getBatch());
+                    analysisDO.setInitialCount(stockAnalysis.getFinalCount());
+                    analysisDO.setInitialAmount(stockAnalysis.getFinalAmount());
+                    analysisDO.setInAmount(BigDecimal.ZERO);
+                    analysisDO.setInCount(BigDecimal.ZERO);
+                    analysisDO.setOutAmount(BigDecimal.ZERO);
+                    analysisDO.setOutCount(BigDecimal.ZERO);
+                    analysisDO.setIsClose(0);
+                    analysisDO.setDelFlag(0);
+                    analysisDO.setPeriod(lastTermDate);
+                    stockAnalysisInsertDOS.add(analysisDO);
+                }
+                if (stockAnalysisInsertDOS.size() > 0) {
+                    stockAnalysisService.batchInsert(stockAnalysisInsertDOS);
+                }
             }
-            StockAnalysisDO analysisDO;
-            instance.set(Calendar.MONTH, instance.get(Calendar.MONTH) + 1);
-            Date lastTermDate = instance.getTime();
-            for (StockAnalysisDO stockAnalysis : thisTerm) {
-                analysisDO = new StockAnalysisDO();
-                analysisDO.setMaterielId(stockAnalysis.getMaterielId());
-                analysisDO.setBatch(stockAnalysis.getBatch());
-                analysisDO.setInitialCount(stockAnalysis.getFinalCount());
-                analysisDO.setInitialAmount(stockAnalysis.getFinalAmount());
-                analysisDO.setIsClose(0);
-                analysisDO.setDelFlag(0);
-                analysisDO.setPeriod(lastTermDate);
-                stockAnalysisInsertDOS.add(analysisDO);
-            }
-            if (stockAnalysisInsertDOS.size() > 0) {
-                stockAnalysisService.batchInsert(stockAnalysisInsertDOS);
-            }
+
         }
         return R.ok();
     }
