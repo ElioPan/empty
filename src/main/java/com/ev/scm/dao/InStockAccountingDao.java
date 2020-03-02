@@ -22,6 +22,6 @@ public interface InStockAccountingDao {
 
     int getCountOfSignIsO(Map<String, Object> map);
 
-
+    int  getAnalysisDate(Map<String, Object> map);
 
 }

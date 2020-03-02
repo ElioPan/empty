@@ -37,7 +37,8 @@ public class StockInServiceImpl implements StockInService {
 
 	@Autowired
 	private StockItemService stockDetailService;
-
+	@Autowired
+	private StockStartService stockStartService;
 	@Autowired
 	private MessageSourceHandler messageSourceHandler;
 
@@ -69,6 +70,12 @@ public class StockInServiceImpl implements StockInService {
 	public int wetherHaveQrSign(Map<String, Object> map) {
 		return stockInDao.wetherHaveQrSign(map);
 	}
+
+	@Override
+	public List<Map<String, Object>> getStockInDate(Map<String, Object> map) {
+		return stockInDao.getStockInDate(map);
+	}
+
 	@Override
 	public R addOtherIn(StockInDO stockInDO , String proInbodyList) {
 		Map<String, Object> query = Maps.newHashMap();
@@ -382,7 +389,7 @@ public class StockInServiceImpl implements StockInService {
 				Map<String, Object> query = Maps.newHashMap();
 					if(qR){
 						//走扫码非审核直接入库
-						diposeQrInStock(inbodyCDos,stockInDO,storageType);
+						this.diposeQrInStock(inbodyCDos,stockInDO,storageType);
 						//将主表主键返回前端，审核使用。
 						query.put("msg", "保存成功");
 						query.put("inHeadId", stockInDO.getId());
@@ -478,11 +485,13 @@ public class StockInServiceImpl implements StockInService {
 				stockDo.setEnteringTime(new Date());
 			BigDecimal inCount = BigDecimal.ZERO;
 			Long inheadId=stockInDO.getId();
+			Long qrcodeId=null;
 			for (StockInItemDO stockInItemDO : inbodyCdos) {
 				//比对条件
 				String itemSign = stockInItemDO.getMaterielId().toString() + "-" + stockInItemDO.getBatch().toString() + "-" + stockInItemDO.getWarehouse().toString();
 				if (Objects.equals(ss, itemSign)) {
 					inCount = inCount.add(stockInItemDO.getCount());
+					qrcodeId=stockInItemDO.getQrcodeId();
 				}
 				stockInItemDO.setInheadId(inheadId);
 				if (Objects.equals(storageType, ConstantForGYL.PURCHASE_INSTOCK)) {stockInItemDO.setExpense(BigDecimal.ZERO);}
@@ -494,6 +503,7 @@ public class StockInServiceImpl implements StockInService {
 			if(!Objects.equals(0,inCount.compareTo(BigDecimal.ZERO))){
 				stockDo.setCount(inCount);
 				stockDo.setAvailableCount(inCount);
+				stockDo.setQrcodeId(qrcodeId);
 			}
 			stockDos.add(stockDo);
 		}
@@ -533,6 +543,13 @@ public class StockInServiceImpl implements StockInService {
 
 	@Override
 	public R auditAllTypeInStock(Long Id,Long auditor,Long storageTypeId ){
+
+		Map<String,Object>  map= new HashMap<>();
+		map.put("id","");
+		List<StockStartDO> listStars = stockStartService.list(map);
+		if(!Objects.equals(1,listStars.get(0).getStatus())){
+			return R.error(messageSourceHandler.getMessage("scm.stock.nonUse",null));
+		}
 
 		//更改主表审核状态为11已审核-->179已审核  178待审核；
 		StockInDO pInheadDO = stockInDao.get(Id);

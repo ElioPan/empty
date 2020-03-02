@@ -74,8 +74,22 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
     }
 
     @Override
+    public int getAnalysisDate(Map<String, Object> map) {
+        return inStockAccountingDao.getAnalysisDate(map);
+    }
+
+    @Override
     public R saveAccounting(String detailAccounting) {
         List<StockInItemDO> stockInItemDOs = JSONObject.parseArray(detailAccounting, StockInItemDO.class);
+        Long[] itemIds=new  Long[stockInItemDOs.size()];
+        for (int i=0;i<stockInItemDOs.size();i++){
+            itemIds[i]=stockInItemDOs.get(i).getId();
+        }
+        boolean b = this.disposeIsClose(itemIds,true);
+        if (!b){
+            return R.ok(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+        }
+
         if(stockInItemDOs.isEmpty()){
             return R.error();
         }else{
@@ -88,6 +102,11 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
     @Override
     public R allocationAmount(Long distributionType,Long[] stockInIds) {
+
+        boolean b = this.disposeIsClose(stockInIds,false);
+        if (!b){
+            return R.ok(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+        }
 
         List nowList=new ArrayList();
         for (int i = 0; i < stockInIds.length; i++) {
@@ -198,6 +217,11 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
     @Override
    public R disposeBusinessAccounting(Long[] stockInIds){
+
+        boolean b = this.disposeIsClose(stockInIds,false);
+        if (!b){
+            return R.ok(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+        }
 
         //判断主表sign是否为1,就略去；为0就计算金额单价回写，并更新主表sign为1
         for(int j=0;j<stockInIds.length;j++){
@@ -343,6 +367,12 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
     @Override
     public R disposeAffirmAndBack(Long stockInItemId, String detailAccounting) {
 
+        Long[] ids={stockInItemId};
+        boolean b = this.disposeIsClose(ids,true);
+        if (!b){
+            return R.ok(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+        }
+
         List<Map<String,Object>> list = JSONArray.parseObject(detailAccounting, List.class);
 
         List<Map<String,Object>> accoutSources=new ArrayList<>();
@@ -384,6 +414,8 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
         return R.ok();
     }
+
+
 
 
 //    @Override
@@ -561,6 +593,11 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
     @Override
     public R disposeRollbackAccccounting(Long[] stockInIds){
 
+        boolean b = this.disposeIsClose(stockInIds,false);
+        if (!b){
+            return R.ok(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+        }
+
         //取出所有明细
         Map<String,Object>  map= new HashMap<>();
         map.put("id",stockInIds);
@@ -617,6 +654,11 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
     @Override
     public R disposeallocationOutIn(Long[] stockInIds){
 
+        boolean b = this.disposeIsClose(stockInIds,false);
+        if (!b){
+            return R.ok(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+        }
+
         for(Long stockInId:stockInIds){
             Map<String,Object>  map= new HashMap<>();
             map.put("inheadId",stockInId);
@@ -654,6 +696,12 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
     @Override
     public R disposeaccountingPrice(Long[] stockInIds) {
+
+        boolean b = this.disposeIsClose(stockInIds,false);
+        if (!b){
+            return R.ok(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+        }
+
         Map<String,Object>  map= new HashMap<>();
         map.put("id",stockInIds);
         if(this.getCountOfSignIsO(map)>0){
@@ -682,10 +730,14 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
     }
 
 
-
-
     @Override
     public R disposeAutoAccounting(Long stockInItemId,String detailAccounting) {
+
+        Long[] ids={stockInItemId};
+        boolean b = this.disposeIsClose(ids,true);
+        if (!b){
+            return R.ok(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+        }
 
         JSONArray stockOutItemDos = JSON.parseArray(detailAccounting);
 
@@ -786,6 +838,51 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
             result.put("data", results);
             return R.ok(result);
         }
+
+
+    /**
+     *关账验证
+     * @return
+     */
+    public boolean disposeIsClose(Long[] itemOrHaedIds,Boolean sign) {
+        //  子表id去重
+        List nowList = new ArrayList();
+        for (int i = 0; i < itemOrHaedIds.length; i++) {
+            nowList.add(itemOrHaedIds[i]);
+        }
+        nowList = new ArrayList(new HashSet(nowList));
+
+        Long[] stockItemOrHaedIds = new Long[nowList.size()];
+        for (int i = 0; i < nowList.size(); i++) {
+            stockItemOrHaedIds[i] = Long.valueOf(String.valueOf(nowList.get(i)));
+        }
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", stockItemOrHaedIds);
+        List<Map<String, Object>> createTimeMap=new ArrayList<>();
+
+        if(sign){
+            createTimeMap= stockIntemService.getItemDate(map);
+        }else{
+            createTimeMap= stockInService.getStockInDate(map);
+        }
+
+        if (createTimeMap.isEmpty()) {
+            return false;
+        } else {
+            for (Map<String, Object> maps : createTimeMap) {
+                Map<String, Object> peramy = new HashMap<>();
+                peramy.put("period", maps.get("createTime"));
+                int counts = this.getAnalysisDate(peramy);
+                if (counts > 0) {
+                    return true;
+                } else if(counts==0){
+                    return false;
+                }
+            }
+            return false;
+        }
+    }
 
 
 

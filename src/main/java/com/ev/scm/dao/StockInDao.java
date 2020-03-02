@@ -47,6 +47,8 @@ public interface StockInDao {
 	int wetherHaveQrSign(Map<String, Object> map);
 
 
+	List<Map<String, Object>>  getStockInDate(Map<String, Object> map);
+
 
 
 }

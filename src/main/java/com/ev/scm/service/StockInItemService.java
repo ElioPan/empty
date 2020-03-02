@@ -63,4 +63,8 @@ public interface StockInItemService {
 	List<StockInItemDO> getItemDetailById(Map<String, Object> map);
 
 
+	List<Map<String, Object>>  getItemDate(Map<String, Object> map);
+
+
+
 }

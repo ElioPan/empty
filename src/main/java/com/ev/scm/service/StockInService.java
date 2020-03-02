@@ -89,6 +89,10 @@ public interface StockInService {
 	int wetherHaveQrSign(Map<String, Object> map);
 
 
+	List<Map<String, Object>>  getStockInDate(Map<String, Object> map);
+
+
+
 
 
 }

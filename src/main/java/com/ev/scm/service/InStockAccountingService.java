@@ -40,8 +40,10 @@ public  interface InStockAccountingService  {
 
     R disposeAutoAccounting(Long stockInItemId,String detailAccounting);
 
-
     R disposeAffirmAndBack(Long stockInItemId,String detailAccounting);
+
+    int  getAnalysisDate(Map<String, Object> map);
+
 
 
 }
