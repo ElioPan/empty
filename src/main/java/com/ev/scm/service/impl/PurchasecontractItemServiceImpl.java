@@ -6,6 +6,7 @@ import com.ev.scm.service.PurchasecontractItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -64,6 +65,11 @@ public class PurchasecontractItemServiceImpl implements PurchasecontractItemServ
 	@Override
 	public Map<String, Object> totalOfItem(Map<String, Object> map) {
 		return purchasecontractItemDao.totalOfItem(map);
+	}
+
+	@Override
+	public BigDecimal getInCountOfPurchaseContract(Map<String, Object> map) {
+		return purchasecontractItemDao.getInCountOfPurchaseContract(map);
 	}
 
 }

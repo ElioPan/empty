@@ -6,6 +6,7 @@ import com.ev.scm.service.PurchaseInvoiceItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -74,6 +75,11 @@ public class PurchaseInvoiceItemServiceImpl implements PurchaseInvoiceItemServic
 	@Override
 	public Map<String, Object> getTotalTaxAmount(Map<String, Object> map) {
 		return purchaseInvoiceItemDao.getTotalTaxAmount(map);
+	}
+
+	@Override
+	public BigDecimal getInCountOfInvoiceItem(Map<String, Object> map) {
+		return purchaseInvoiceItemDao.getInCountOfInvoiceItem(map);
 	}
 
 }

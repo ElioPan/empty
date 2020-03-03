@@ -6,15 +6,20 @@ import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
+import com.ev.framework.utils.StringUtils;
+import com.ev.mes.domain.ProductionFeedingDetailDO;
+import com.ev.mes.service.ProductionFeedingDetailService;
 import com.ev.scm.dao.PurchaseDao;
-import com.ev.scm.domain.PurchaseDO;
-import com.ev.scm.domain.PurchaseItemDO;
+import com.ev.scm.domain.*;
 import com.ev.scm.service.PurchaseItemService;
 import com.ev.scm.service.PurchaseService;
+import com.ev.scm.service.SalescontractItemService;
+import com.ev.scm.service.SalescontractService;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 
@@ -26,12 +31,17 @@ public class PurchaseServiceImpl implements PurchaseService {
     private PurchaseDao purchaseDao;
     @Autowired
     private PurchaseItemService purchaseItemService;
+    @Autowired
+    private SalescontractItemService salescontractItemService;
+    @Autowired
+    public ProductionFeedingDetailService productionFeedingDetailService;
+
+
 
     @Override
     public PurchaseDO get(Long id) {
         return purchaseDao.get(id);
     }
-
     @Override
     public List<PurchaseDO> list(Map<String, Object> map) {
         return purchaseDao.list(map);
@@ -208,4 +218,77 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
 
+    @Override
+    public String checkSourceCounts(String purchaseItemDos, Long storageType) {
+        List<PurchaseItemDO> itemDos = new ArrayList<>();
+        if (StringUtils.isNotEmpty(purchaseItemDos)) {
+            itemDos = JSON.parseArray(purchaseItemDos, PurchaseItemDO.class);
+        } else {
+            return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
+        }
+        //验证 销售合同 生产投料单
+        for (PurchaseItemDO itemDo : itemDos) {
+            if (Objects.nonNull(itemDo.getSourceId())) {
+                Long sourceId = itemDo.getSourceId();
+                Long soueseType = itemDo.getSourceType();
+
+                BigDecimal thisCount = itemDo.getCount();
+                if (Objects.nonNull(soueseType)) {
+                    if (Objects.equals(soueseType, ConstantForGYL.XSHT)) {
+                        //销售合同
+                        SalescontractItemDO salescontractItemDO = salescontractItemService.get(sourceId);
+                        if (salescontractItemDO != null) {
+                            Map<String, Object> map = new HashMap<>();
+                            map.put("sourceId", sourceId);
+                            map.put("sourceType", soueseType);
+                            //查出采购申请中已关联引入的数量
+                            BigDecimal inCounts = purchaseItemService.getInCountOfPurchase(map);
+
+                            BigDecimal inCountOfpurchase = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+                            int boo = (salescontractItemDO.getCount().subtract(inCountOfpurchase)).compareTo(thisCount);
+                            if (Objects.equals(-1, boo)) {
+                                String[] args = {thisCount.toPlainString(), salescontractItemDO.getCount().subtract(inCountOfpurchase).toPlainString(), itemDo.getSourceCode().toString()};
+                                return messageSourceHandler.getMessage("stock.number.checkError", args);
+                            }
+                        } else {
+                            return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+                        }
+                    } else if (Objects.equals(soueseType, ConstantForGYL.SCTLD)) {
+                        //生产投料单
+                        ProductionFeedingDetailDO productionFeedingDetailDO = productionFeedingDetailService.get(sourceId);
+                        if (productionFeedingDetailDO != null) {
+                            Map<String, Object> map = new HashMap<>();
+                            map.put("sourceId", sourceId);
+                            map.put("storageType", soueseType);
+                            BigDecimal inCounts = purchaseItemService.getInCountOfPurchase(map);
+
+                            BigDecimal inCountOfpurchase = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+                            int boo = (productionFeedingDetailDO.getOutCount().subtract(inCountOfpurchase)).compareTo(thisCount);
+                            if (Objects.equals(-1, boo)) {
+                                String[] args = {thisCount.toPlainString(), productionFeedingDetailDO.getOutCount().subtract(inCountOfpurchase).toPlainString(), itemDo.getSourceType().toString()};
+                                return messageSourceHandler.getMessage("stock.number.checkError", args);
+                            }
+                        } else {
+                            return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+                        }
+
+                    } else {
+                        return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+                    }
+                }else{
+                    return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
+                }
+            }
+        }
+        return "ok";
+    }
+
+
+
+
+
 }
+
+
+
+

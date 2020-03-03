@@ -113,6 +113,11 @@ public class StockInItemServiceImpl implements StockInItemService {
 	}
 
 	@Override
+	public BigDecimal getInCountOfContract(Map<String, Object> map) {
+		return stockInItemDao.getInCountOfContract(map);
+	}
+
+	@Override
 	public String getProByHeadId(Long id , String code) {
 
 		List<Map<String, Object>> inProList = stockInItemDao.getProByHeadId(id);

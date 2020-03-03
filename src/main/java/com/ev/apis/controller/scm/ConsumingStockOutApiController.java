@@ -301,7 +301,7 @@ public class ConsumingStockOutApiController {
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
             /*高级查询*/
             @ApiParam(value = "规格型号") @RequestParam(value = "specification", defaultValue = "", required = false) String specification,
-            @ApiParam(value = "批次") @RequestParam(value = "materielName", defaultValue = "", required = false) String batch,
+            @ApiParam(value = "批次") @RequestParam(value = "batch", defaultValue = "", required = false) String batch,
             @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
             @ApiParam(value = "领料人") @RequestParam(value = "operatorName", defaultValue = "", required = false) String operatorName,
             @ApiParam(value = "领料人Id") @RequestParam(value = "operator", defaultValue = "", required = false) Long operator,

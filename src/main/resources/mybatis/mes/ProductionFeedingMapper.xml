@@ -171,6 +171,7 @@
 		feeding.`auditor` AS audituserId,
 		audituser.`name` AS audituserName,
 		feeding.`status` AS  statusId,
+		supplier.name AS supplierName,
 		dicts.`name` AS status
 		<include refid="sql_map_condition"/>
 		<choose>
@@ -205,6 +206,7 @@
 		<!-- 委外合同 -->
 		LEFT JOIN scm_outsourcing_contract_item contractItem ON contractItem.`id` = feeding.`outsource_contract_item_id`
 		LEFT JOIN scm_outsourcing_contract contract ON contract.`id` = contractItem.`contract_id`
+		LEFT JOIN cus_supplier supplier ON supplier.`id` = contract.`supplier_id`
 		<where>  
 		  		 	<if test="id != null and id != ''"> and feeding.id = #{id} </if>
 		  		 	<if test="startTime != null and startTime != ''">  and  DATE_FORMAT(feeding.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>

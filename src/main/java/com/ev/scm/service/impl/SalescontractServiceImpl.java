@@ -220,7 +220,7 @@ public class SalescontractServiceImpl implements SalescontractService {
         for (SalescontractPayDO salescontractPayDO : salesContractPayList) {
             salescontractPayDO.setSalescontractId(salesContractId);
         }
-        List<ContractPayVO> payList = this.getContractPayVOS(bodyPay, payIds, salesContractPayList);
+        List<ContractPayVO> payList = this.getContractPayVOS(salesContractId,bodyPay, payIds, salesContractPayList);
         alterationContent.put("payArray", payList);
 
         if (itemList.size() > 0 || payList.size() > 0) {
@@ -235,7 +235,7 @@ public class SalescontractServiceImpl implements SalescontractService {
     }
 
     @Override
-    public List<ContractPayVO> getContractPayVOS(String bodyPay, Long[] payIds, List<SalescontractPayDO> salesContractPayList) {
+    public List<ContractPayVO> getContractPayVOS(Long salesContractId, String bodyPay, Long[] payIds, List<SalescontractPayDO> salesContractPayList) {
         List<ContractPayVO> payList = Lists.newArrayList();
         ContractPayVO payVO;
         if (salesContractPayList.size() > 0) {
@@ -313,6 +313,7 @@ public class SalescontractServiceImpl implements SalescontractService {
                 }
                 // 若是新增数据
                 // 保存进合同收款条件子表
+                afterPayDO.setSalescontractId(salesContractId);
                 salesContractPayDao.save(afterPayDO);
                 // 保存入变更记录表
                 payVO.setId(afterPayDO.getId());
@@ -355,7 +356,7 @@ public class SalescontractServiceImpl implements SalescontractService {
                         }
 
                         if (salesContractItemTaxAmount.compareTo(newSalesContractItemTaxAmount) != 0) {
-                            contractItemVO.setTaxAmountAfter(newSalesContractItemCount.toPlainString());
+                            contractItemVO.setTaxAmountAfter(newSalesContractItemTaxAmount.toPlainString());
                             isUpdate = true;
                         }
 

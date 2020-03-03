@@ -538,7 +538,7 @@
 				LEFT JOIN cus_materiel_type materieltype ON materieltype.`id`=materiel.`type`
 				LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.`unit_uom`
 				LEFT JOIN cus_facility_location fl ON fl.`id`=stock.`wareh_location`
-				LEFT JOIN cus_facility facility ON facility.`id`=fl.`facility_id`
+				LEFT JOIN cus_facility facility ON facility.`id`=stock.`warehouse`
 				LEFT JOIN cus_dictionary dicf ON dicf.`id`=facility.`facility_type`
 		       <where>  
 			  		  <if test="fuzzySearch != null and fuzzySearch != ''"> and CONCAT(CONCAT(materiel.`serial_no`,materiel.`name`),materiel.`specification`) LIKE CONCAT(CONCAT('%',#{fuzzySearch}),'%') </if>

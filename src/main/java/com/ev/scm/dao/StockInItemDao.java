@@ -4,6 +4,7 @@ package com.ev.scm.dao;
 import com.ev.scm.domain.StockInItemDO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -59,5 +60,7 @@ public interface StockInItemDao {
 	List<StockInItemDO> getItemDetailById(Map<String, Object> map);
 
 	List<Map<String, Object>>  getItemDate(Map<String, Object> map);
+
+	BigDecimal getInCountOfContract(Map<String, Object> map);
 
 }

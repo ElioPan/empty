@@ -64,9 +64,12 @@ public class ScmProduceInStockApiController {
                               "]", required = true) @RequestParam(value = "bodyDetail", defaultValue = "") String bodyDetail,
                       @ApiParam(value = "删除的明细id") @RequestParam(value = "itemIds", required = false) Long[] itemIds) {
 
-
-        return stockInService.addAndChangeInStockType(stockInDO,ConstantForGYL.YDGOODS_WAREHOUSE,bodyDetail,itemIds);
-
+        String result = stockInService.checkSourceCountsOfProduce(bodyDetail);
+        if(Objects.equals("ok",result)){
+            return stockInService.addAndChangeInStockType(stockInDO,ConstantForGYL.YDGOODS_WAREHOUSE,bodyDetail,itemIds);
+        }else{
+            return R.error(result);
+        }
     }
 
     @EvApiByToken(value = "/apis/scm/produceInStock/auditStatusChange", method = RequestMethod.POST, apiTitle = "审核--生产入库")

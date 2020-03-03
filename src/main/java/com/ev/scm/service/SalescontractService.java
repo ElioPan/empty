@@ -55,7 +55,7 @@ public interface SalescontractService {
 
     Map<String, Object> countForMap(Map<String, Object> map);
 
-    List<ContractPayVO> getContractPayVOS(String bodyPay, Long[] payIds, List<SalescontractPayDO> salesContractPayList);
+    List<ContractPayVO> getContractPayVOS(Long salesContractId, String bodyPay, Long[] payIds, List<SalescontractPayDO> salesContractPayList);
 
     List<ContractItemVO> getContractItemVOS(String bodyItem, List<SalescontractItemDO> salesContractItemList);
 

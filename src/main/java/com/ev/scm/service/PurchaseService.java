@@ -42,4 +42,6 @@ public interface PurchaseService {
 	int countForMap(Map<String, Object> map);
 
 	R getdetail(Long id);
+
+	String checkSourceCounts(String itemDos, Long storageType);
 }

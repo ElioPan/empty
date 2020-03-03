@@ -55,4 +55,6 @@ public interface PurchasecontractService {
 
 	int wetherChangeContract(Map<String, Object> map);
 
+	String checkSourceCounts(String bodyItem);
+
 }

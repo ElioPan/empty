@@ -280,7 +280,7 @@
     FROM
     (
     SELECT
-    outi.id
+    soci.id
     FROM
     scm_outsourcing_contract_item soci
     LEFT JOIN scm_stock_in_item ini ON ini.source_id = soci.id

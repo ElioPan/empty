@@ -105,7 +105,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
         boolean b = this.disposeIsClose(stockInIds,false);
         if (!b){
-            return R.ok(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
         }
 
         List nowList=new ArrayList();
@@ -125,7 +125,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         int totailTaxAmount = purchaseExpenseItemService.getTotailTaxAmount(map);
 
         if(Objects.equals(0,totailTaxAmount)) {
-            return R.ok(messageSourceHandler.getMessage("scm.ocation.contractExpenceIsNull", null));
+            return R.error(messageSourceHandler.getMessage("scm.ocation.contractExpenceIsNull", null));
 
         }else{
                 if(Objects.equals(distributionType, ConstantForGYL.COUNT_DISTRIBUTION)){
@@ -220,7 +220,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
         boolean b = this.disposeIsClose(stockInIds,false);
         if (!b){
-            return R.ok(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
         }
 
         //判断主表sign是否为1,就略去；为0就计算金额单价回写，并更新主表sign为1
@@ -370,7 +370,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         Long[] ids={stockInItemId};
         boolean b = this.disposeIsClose(ids,true);
         if (!b){
-            return R.ok(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
         }
 
         List<Map<String,Object>> list = JSONArray.parseObject(detailAccounting, List.class);
@@ -595,7 +595,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
         boolean b = this.disposeIsClose(stockInIds,false);
         if (!b){
-            return R.ok(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
         }
 
         //取出所有明细
@@ -656,7 +656,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
         boolean b = this.disposeIsClose(stockInIds,false);
         if (!b){
-            return R.ok(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
         }
 
         for(Long stockInId:stockInIds){
@@ -699,7 +699,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
         boolean b = this.disposeIsClose(stockInIds,false);
         if (!b){
-            return R.ok(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
         }
 
         Map<String,Object>  map= new HashMap<>();
@@ -736,7 +736,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         Long[] ids={stockInItemId};
         boolean b = this.disposeIsClose(ids,true);
         if (!b){
-            return R.ok(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
         }
 
         JSONArray stockOutItemDos = JSON.parseArray(detailAccounting);

@@ -11,12 +11,10 @@ import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.framework.utils.StringUtils;
+import com.ev.mes.domain.ProductionFeedingDetailDO;
 import com.ev.scm.dao.ContractAlterationDao;
 import com.ev.scm.dao.PurchasecontractDao;
-import com.ev.scm.domain.ContractAlterationDO;
-import com.ev.scm.domain.PurchasecontractDO;
-import com.ev.scm.domain.PurchasecontractItemDO;
-import com.ev.scm.domain.PurchasecontractPayDO;
+import com.ev.scm.domain.*;
 import com.ev.scm.service.*;
 import com.ev.scm.vo.ContractItemVO;
 import com.ev.scm.vo.ContractPayVO;
@@ -36,6 +34,9 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 	private PurchasecontractDao purchasecontractDao;
 	@Autowired
 	private MessageSourceHandler messageSourceHandler;
+
+	@Autowired
+	private  PurchaseItemService purchaseItemService;
 
 	@Autowired
 	private PurchasecontractPayService purchasecontractPayService;
@@ -521,6 +522,53 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 		return payList;
 	}
 
+
+	@Override
+	public String checkSourceCounts(String itemDOs) {
+
+		List<PurchasecontractItemDO> itemDos = new ArrayList<>();
+		if (StringUtils.isNotEmpty(itemDOs)) {
+			itemDos = JSON.parseArray(itemDOs, PurchasecontractItemDO.class);
+		} else {
+			return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
+		}
+		//验证 采购申请
+		for (PurchasecontractItemDO itemDo : itemDos) {
+			if (Objects.nonNull(itemDo.getSourceId())) {
+				Long sourceId = itemDo.getSourceId();
+				Long soueseType = itemDo.getSourceType();
+				BigDecimal thisCount = itemDo.getCount();
+
+				if (Objects.nonNull(soueseType)) {
+					if (Objects.equals(soueseType, ConstantForGYL.PURCHASE)) {
+						//采购申请数量
+						PurchaseItemDO purchaseItemDO = purchaseItemService.get(sourceId);
+						if (purchaseItemDO != null) {
+							Map<String, Object> map = new HashMap<>();
+							map.put("sourceId", sourceId);
+							map.put("sourceType", soueseType);
+							//查出采购合同中已关联引入的数量
+							BigDecimal inCounts = purchasecontractItemService.getInCountOfPurchaseContract(map);
+
+							BigDecimal inCountOfpurchase = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+							int boo = (purchaseItemDO.getCount().subtract(inCountOfpurchase)).compareTo(thisCount);
+							if (Objects.equals(-1, boo)) {
+								String[] args = {thisCount.toPlainString(), purchaseItemDO.getCount().subtract(inCountOfpurchase).toPlainString(), itemDo.getSourceCode().toString()};
+								return messageSourceHandler.getMessage("stock.number.checkError", args);
+							}
+						} else {
+							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+						}
+					}  else {
+						return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+					}
+				}else{
+					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
+				}
+			}
+		}
+		return "ok";
+	}
 
 
 }

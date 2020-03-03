@@ -211,5 +211,20 @@
 		WHERE
 		h.source_code=#{sourceCode}
 	</select>
+
+
+
+	<select id="getInCountOfInvoiceItem" resultType="java.math.BigDecimal">
+		SELECT
+		sum(`count`)
+		FROM
+		scm_purchase_invoice_item a
+		WHERE
+		a.source_id =#{sourceId}
+		and
+		a.source_type = #{sourceType}
+	</select>
+
+
 	
 </mapper>

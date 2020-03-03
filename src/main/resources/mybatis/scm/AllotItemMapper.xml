@@ -144,9 +144,9 @@
         LEFT JOIN cus_materiel materiel ON materiel.`id` = stock.`materiel_id`
         LEFT JOIN cus_dictionary dicu ON dicu.`id` = materiel.`unit_uom`
         LEFT JOIN cus_facility_location outlo ON outlo.`id` = stock.`wareh_location`
-        LEFT JOIN cus_facility outfac ON outfac.`id` = outlo.`facility_id`
+        LEFT JOIN cus_facility outfac ON outfac.`id` = stock.`warehouse`
         LEFT JOIN cus_facility_location inlo ON inlo.`id` = item.`in_location`
-        LEFT JOIN cus_facility infac ON infac.`id` = inlo.`facility_id`
+        LEFT JOIN cus_facility infac ON infac.`id` = item.`in_facility`
         WHERE
             item.allot_id = #{value}
     </select>

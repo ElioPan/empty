@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @Author Kuzi
@@ -86,7 +87,14 @@ public class ScmPurchaseContractApiController {
                                  required = true) @RequestParam(value = "bodyPay", defaultValue = "") String bodyPay,
                          @ApiParam(value = "删除的合同明细ID") @RequestParam(value = "itemIds", required = false) Long[] itemIds,
                          @ApiParam(value = "删除的合同付款条件ID") @RequestParam(value = "payIds", required = false) Long[] payIds){
-        return purchasecontractService.addOrChangePurchasecontract(purchasecontractDO, bodyItem, bodyPay,itemIds,payIds);
+
+        String result = purchasecontractService.checkSourceCounts(bodyItem);
+        if(Objects.equals("ok",result)){
+            return purchasecontractService.addOrChangePurchasecontract(purchasecontractDO, bodyItem, bodyPay,itemIds,payIds);
+        }else{
+            return R.error(result);
+        }
+
     }
 
 

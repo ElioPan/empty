@@ -1,16 +1,13 @@
 package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.ev.framework.utils.ListUtils;
+import com.ev.framework.utils.*;
 import com.ev.scm.domain.*;
 import com.ev.custom.service.MaterielService;
 import com.ev.scm.service.StockItemService;
 import com.ev.scm.service.StockService;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
-import com.ev.framework.utils.DateFormatUtil;
-import com.ev.framework.utils.R;
-import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.dao.AllotDao;
 import com.ev.scm.dao.StockOutDao;
 import com.ev.scm.service.AllotItemService;
@@ -408,7 +405,7 @@ public class AllotServiceImpl implements AllotService {
                 params.put("isPC",1);
                 List<Map<String, Object>> stockListForMap = materielService.stockListForMap(params);
                 if (stockListForMap.size() > 0) {
-                    map.put("availableCount",stockListForMap.get(0).get("availableCount"));
+                    map.put("availableCount", MathUtils.getBigDecimal(map.get("count")).add(MathUtils.getBigDecimal(stockListForMap.get(0).get("availableCount"))));
                 }
             }
         }

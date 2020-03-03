@@ -88,8 +88,11 @@ public interface StockInService {
 
 	int wetherHaveQrSign(Map<String, Object> map);
 
-
 	List<Map<String, Object>>  getStockInDate(Map<String, Object> map);
+
+	String checkSourceCounts(String stockInitemDos, Long storageType);
+
+	String checkSourceCountsOfProduce(String bodyDetail);
 
 
 

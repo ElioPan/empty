@@ -2,6 +2,7 @@ package com.ev.scm.service;
 
 import com.ev.scm.domain.PurchaseInvoiceItemDO;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -37,5 +38,8 @@ public interface PurchaseInvoiceItemService {
 	List<PurchaseInvoiceItemDO> getSourceCode(Map<String, Object> map);
 
 	Map<String, Object> getTotalTaxAmount(Map<String, Object> map);
+
+	BigDecimal getInCountOfInvoiceItem(Map<String, Object> map);
+
 
 }

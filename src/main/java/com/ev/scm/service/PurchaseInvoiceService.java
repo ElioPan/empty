@@ -43,6 +43,8 @@ public interface PurchaseInvoiceService {
 
 	R getDetail(Long id );
 
+	String checkSourceCounts(String bodyDetail);
+
 
 
 }

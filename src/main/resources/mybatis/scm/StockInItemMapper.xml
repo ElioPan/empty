@@ -599,8 +599,7 @@
 	<select id="getItemDate" resultType="map">
 		SELECT
 		DISTINCT
-		-- a.id,
-		DATE_FORMAT(a.create_time,'%Y-%m') as createTime
+		a.create_time AS createTime
 		FROM
 		scm_stock_in_item a
 		WHERE
@@ -608,6 +607,20 @@
 		<foreach item="id" collection="id" open="(" separator="," close=")">
 			#{id}
 		</foreach>
+	</select>
+
+
+
+	<select id="getInCountOfContract" resultType="java.math.BigDecimal">
+		SELECT
+			  sum(`count`)
+		FROM
+			scm_stock_in_item a
+
+		WHERE
+			a.source_id =#{sourceId}
+		and
+			a.source_type = #{sourceType}
 	</select>
 
 </mapper>

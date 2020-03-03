@@ -40,7 +40,7 @@ public interface OutsourcingContractService {
 
     R editOutsourcingContract(Long outsourcingContractId, String bodyItem, String bodyPay, Long[] payIds);
 
-    List<ContractPayVO> getContractPayVOS(String bodyPay, Long[] payIds, List<OutsourcingContractPayDO> outsourcingContractPayList);
+    List<ContractPayVO> getContractPayVOS(Long outsourcingContractId,String bodyPay, Long[] payIds, List<OutsourcingContractPayDO> outsourcingContractPayList);
 
     List<ContractItemVO> getContractItemVOS(String bodyItem, List<OutsourcingContractItemDO> outsourcingContractItemList);
 

@@ -223,7 +223,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         for (OutsourcingContractPayDO outsourcingContractPayDO : outsourcingContractPayList) {
             outsourcingContractPayDO.setContractId(outsourcingContractId);
         }
-        List<ContractPayVO> payList = this.getContractPayVOS(bodyPay, payIds, outsourcingContractPayList);
+        List<ContractPayVO> payList = this.getContractPayVOS(outsourcingContractId, bodyPay, payIds, outsourcingContractPayList);
         alterationContent.put("payArray", payList);
 
         if (itemList.size() > 0 || payList.size() > 0) {
@@ -238,7 +238,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
     }
 
     @Override
-    public List<ContractPayVO> getContractPayVOS(String bodyPay, Long[] payIds, List<OutsourcingContractPayDO> outsourcingContractPayList) {
+    public List<ContractPayVO> getContractPayVOS(Long outsourcingContractId,String bodyPay, Long[] payIds, List<OutsourcingContractPayDO> outsourcingContractPayList) {
         List<ContractPayVO> payList = Lists.newArrayList();
         ContractPayVO payVO;
         if (outsourcingContractPayList.size() > 0) {
@@ -315,6 +315,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                 }
                 // 若是新增数据
                 // 保存进合同收款条件子表
+                afterPayDO.setContractId(outsourcingContractId);
                 outsourcingContractPayDao.save(afterPayDO);
                 // 保存入变更记录表
                 payVO.setId(afterPayDO.getId());
@@ -479,13 +480,21 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
 
         // 删除对应委外投料单，如果委外投料单已审核则不能反审核。
         if (itemIdList.size() > 0) {
+            List<Long> feedingId = Lists.newArrayList();
             for (Long itemId : itemIdList) {
-                ProductionFeedingDO feedingDO = feedingService.getByOutsourcingContractItemId(itemId);
-                if (Objects.equals(feedingDO.getStatus(), ConstantForMES.OK_AUDITED)) {
-                    return R.error(messageSourceHandler.getMessage("plan.feedingPlan.isAudit", null));
+                List<ProductionFeedingDO> byOutsourcingContractItemId = feedingService.getByOutsourcingContractItemId(itemId);
+                if (byOutsourcingContractItemId.size() > 0) {
+                    feedingId = byOutsourcingContractItemId.stream().map(ProductionFeedingDO::getId).collect(Collectors.toList());
+                    ProductionFeedingDO feedingDO = byOutsourcingContractItemId.get(0);
+                    if (Objects.equals(feedingDO.getStatus(), ConstantForMES.OK_AUDITED)) {
+                        return R.error(messageSourceHandler.getMessage("plan.feedingPlan.isAudit", null));
+                    }
                 }
+
             }
-            feedingService.batchRemoveHeadAndBody(itemIdList.toArray(new Long[0]));
+            if (feedingId.size() > 0) {
+                feedingService.batchRemoveHeadAndBody(feedingId.toArray(new Long[0]));
+            }
         }
 
         // 修改单据状态
