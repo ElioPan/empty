@@ -52,9 +52,27 @@ public class UserApiController extends BaseController {
                   @ApiParam(value = "手机号码") @RequestParam(value = "mobile",defaultValue = "",required = false)  String mobile,
                   @ApiParam(value = "是否显示禁用") @RequestParam(value = "status",defaultValue = "",required = false)  String status,
                   @ApiParam(value = "部门ID") @RequestParam(value = "deptId",defaultValue = "",required = false)  String deptId){
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("createBy",userId);
+        params.put("status",status);
+        params.put("query",query);
+        params.put("username",userName);
+        params.put("mobile",mobile);
+        params.put("deptId",deptId);
+        params.put("offset",(pageno-1)*pagesize);
+        params.put("limit",pagesize);
         Map<String,Object> results = Maps.newHashMap();
-        List<UserDO> data= userMapper.selectList(null);
-        results.put("datas",data);
+        List<Map<String,Object>> data= this.userService.listForMap(params);
+        int total = this.userService.countForMap(params);
+        if(data!=null && data.size()>0){
+            DsResultResponse dsRet = new DsResultResponse();
+            dsRet.setDatas(data);
+            dsRet.setPageno(pageno);
+            dsRet.setPagesize(pagesize);
+            dsRet.setTotalRows(total);
+            dsRet.setTotalPages((int) (total  +  pagesize  - 1) / pagesize);
+            results.put("data",dsRet);
+        }
         return  R.ok(results);
     }
 

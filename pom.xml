@@ -266,11 +266,11 @@
         </dependency>
         <!--MybatisPlus 多租户架构-->
         <!--mybatisplus,加入该jar后，就不再需要mybatis-xxx.jar,mybatis-spring-xxx.jar了，它们会以依赖包的形式被自动维护-->
-        <dependency>
+<!--        <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
             <version>3.0.5</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus</artifactId>
