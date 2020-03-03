@@ -34,4 +34,6 @@ public interface SalesbillDao {
     int countForMap(Map<String, Object> map);
 
     Map<String,Object> getDetail(Long id);
+
+    Map<String, Object> countTotal(Map<String, Object> map);
 }

@@ -332,7 +332,8 @@ public class ConsumingStockOutApiController {
         params.put("outboundType", ConstantForGYL.LYCK);
 		Map<String, Object> results = Maps.newHashMap();
 		List<Map<String, Object>> data = this.stockOutService.listApi(params);
-		int total = this.stockOutService.countApi(params);
+        Map<String, Object> maps = this.stockOutService.countTotal(params);
+        int total = Integer.parseInt(maps.getOrDefault("total",0).toString());
 		if ( data.size() > 0) {
             DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.LYCK.intValue());
             String thisSourceTypeName = dictionaryDO.getName();
@@ -340,6 +341,7 @@ public class ConsumingStockOutApiController {
                 datum.put("thisSourceType", ConstantForGYL.LYCK);
                 datum.put("thisSourceTypeName", thisSourceTypeName);
             }
+            results.put("total",maps);
             results.put("data", new DsResultResponse(pageno,pagesize,total,data));
 		}
 		return R.ok(results);

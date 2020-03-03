@@ -181,6 +181,11 @@ public class SalesbillServiceImpl implements SalesbillService {
     }
 
     @Override
+    public Map<String, Object> countTotal(Map<String, Object> map) {
+        return salesbillDao.countTotal(map);
+    }
+
+    @Override
 	public SalesbillDO get(Long id){
 		return salesbillDao.get(id);
 	}

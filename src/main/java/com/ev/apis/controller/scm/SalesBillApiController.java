@@ -169,10 +169,12 @@ public class SalesBillApiController {
         map.put("offset",(pageno-1)*pagesize);
         map.put("limit",pagesize);
         List<Map<String, Object>> data = salesbillService.listForMap(map);
-        int total = salesbillService.countForMap(map);
+        Map<String, Object> maps = salesbillService.countTotal(map);
+        int total = Integer.parseInt(maps.getOrDefault("total",0).toString());
         Map<String, Object> results = Maps.newHashMap();
         if (data.size() > 0) {
             results.put("data", new DsResultResponse(pageno,pagesize,total,data));
+            results.put("total",maps);
         }
         return R.ok(results);
 	}

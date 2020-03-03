@@ -189,8 +189,9 @@ public class OtherStockOutApiController {
 
         params.put("outboundType", Objects.isNull(outboundType)?ConstantForGYL.QTCK:outboundType);
 		Map<String, Object> results = Maps.newHashMap();
-		List<Map<String, Object>> data = this.stockOutService.listApi(params);
-		int total = this.stockOutService.countApi(params);
+		List<Map<String, Object>> data = stockOutService.listApi(params);
+        Map<String, Object> maps = stockOutService.countTotal(params);
+        int total = Integer.parseInt(maps.getOrDefault("total",0).toString());
 		if ( data.size() > 0) {
             DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.QTCK.intValue());
             String thisSourceTypeName = dictionaryDO.getName();
@@ -198,6 +199,7 @@ public class OtherStockOutApiController {
                 datum.put("thisSourceType", ConstantForGYL.QTCK);
                 datum.put("thisSourceTypeName", thisSourceTypeName);
             }
+            results.put("total",maps);
             results.put("data", new DsResultResponse(pageno,pagesize,total,data));
 		}
 		return R.ok(results);
