@@ -127,7 +127,7 @@ public class MonthReportApiController {
         contentDetail.put("url","/month/monthDetail?id="+monthReportId);
         List<Long> toUsers = new ArrayList<>();
         toUsers.add(monthReportService.get(monthReportId).getCreateBy());
-        noticeService.saveAndSendSocket("月报回复信息",comment,contentDetail.toString(),283L,ShiroUtils.getUserId(),toUsers);
+        noticeService.saveAndSendSocket("月报回复信息",comment,contentDetail.toString(),284L,ShiroUtils.getUserId(),toUsers);
         return R.ok();
     }
 

@@ -130,7 +130,7 @@ public class WeekReportApiController {
         contentDetail.put("url","/week/weekDetail?id="+weekReportId);
         List<Long> toUsers = new ArrayList<>();
         toUsers.add(weekReportService.get(weekReportId).getCreateBy());
-        noticeService.saveAndSendSocket("周报回复信息",comment,contentDetail.toString(),284L,ShiroUtils.getUserId(),toUsers);
+        noticeService.saveAndSendSocket("周报回复信息",comment,contentDetail.toString(),283L,ShiroUtils.getUserId(),toUsers);
         return R.ok();
     }
 
