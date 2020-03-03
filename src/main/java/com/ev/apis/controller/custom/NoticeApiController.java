@@ -79,7 +79,7 @@ public class NoticeApiController {
     public R audit(@ApiParam(value = "消息id数组", required = true)  @RequestParam(value = "ids", defaultValue = "", required = false) Long[] ids) {
         for(int i=0; i< ids.length;i++){
             NoticeDO noticeDO = noticeService.get(ids[i]);
-            if(noticeDO.getSignStatus()==null){
+            if(noticeDO.getSignStatus()==null || noticeDO.getSignStatus()==0){
                 noticeDO.setSignStatus(1);
                 noticeService.update(noticeDO);
             }
