@@ -427,7 +427,7 @@
 		select
 		count(id) as `count`,
 		IF(SUM(`count`) IS null,0,SUM(`count`)) as toatalCount,
-		IF(SUM(amount) IS null,0,SUM(count)) as toatalAmount
+		IF(SUM(amount) IS null,0,SUM(amount)) as toatalAmount
 		from
 		(
 		select

@@ -94,7 +94,9 @@ public interface StockInService {
 
 	String checkSourceCountsOfProduce(String bodyDetail);
 
+	String checkSourceCountsOfOutSourcing(String bodyDetail);
 
+	String checkSourceCountsOfReturnMateriel(String bodyDetail);
 
 
 

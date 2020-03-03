@@ -58,7 +58,10 @@ public class StockInServiceImpl implements StockInService {
 	private  PurchasecontractItemService purchasecontractItemService;
 	@Autowired
 	private ProductionPlanService productionPlanService;
-
+	@Autowired
+	private OutsourcingContractItemService outsourcingContractItemService;
+	@Autowired
+	private StockOutItemService stockOutItemService;
 
 	@Override
 	public Map<String, Object> countForMap(Map<String, Object> map) {
@@ -750,6 +753,129 @@ public class StockInServiceImpl implements StockInService {
 		return "ok";
 	}
 
+
+	@Override
+	public String  checkSourceCountsOfOutSourcing(String bodyDetail) {
+		//委外合同
+		List<StockInItemDO> itemDos = new ArrayList<>();
+		if (StringUtils.isNotEmpty(bodyDetail)) {
+			itemDos = JSON.parseArray(bodyDetail, StockInItemDO.class);
+		} else {
+			return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
+		}
+		//验证
+		for (StockInItemDO itemDo : itemDos) {
+
+			if (Objects.nonNull(itemDo.getSourceId())) {
+
+				Long sourceId = itemDo.getSourceId();
+				BigDecimal thisCount = itemDo.getCount();
+				Long sourceType = itemDo.getSourceType();
+
+				if (Objects.nonNull(sourceType)) {
+					if(Objects.equals(sourceType, ConstantForGYL.WWHT)){
+						//获取委外合同子表数量
+						OutsourcingContractItemDO outsourgContractItemDO = outsourcingContractItemService.get(sourceId);
+						if (outsourgContractItemDO != null) {
+							Map<String, Object> map = new HashMap<>();
+							map.put("sourceId", sourceId);
+							map.put("sourceType", sourceType);
+							//已引入的入库数量
+							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
+							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+							//合同数量
+							BigDecimal outsourgCount=outsourgContractItemDO.getCount()==null?BigDecimal.ZERO : outsourgContractItemDO.getCount();
+							int boo = (outsourgCount.subtract(inCountOfContract)).compareTo(thisCount);
+							if (Objects.equals(-1, boo)) {
+								String[] args = {thisCount.toPlainString(),(outsourgCount.subtract(inCountOfContract)).toPlainString(), itemDo.getSourceCode().toString()};
+								return messageSourceHandler.getMessage("stock.number.checkError", args);
+							}
+						} else {
+							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+						}
+					}else{
+						//引入的源单类型非生产计划单
+						return messageSourceHandler.getMessage("scm.checkCount.EroorSourceTypeOfOutCourcing", null);
+					}
+				} else {
+					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
+				}
+			}
+		}
+		return "ok";
+	}
+
+	@Override
+	public String checkSourceCountsOfReturnMateriel(String bodyDetail) {
+
+		//领用出库++委外出库
+		List<StockInItemDO> itemDos = new ArrayList<>();
+		if (StringUtils.isNotEmpty(bodyDetail)) {
+			itemDos = JSON.parseArray(bodyDetail, StockInItemDO.class);
+		} else {
+			return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
+		}
+		//验证委外入库单
+		for (StockInItemDO itemDo : itemDos) {
+
+			if (Objects.nonNull(itemDo.getSourceId())) {
+
+				Long sourceId = itemDo.getSourceId();
+				BigDecimal thisCount = itemDo.getCount();
+				Long sourceType = itemDo.getSourceType();
+
+				if (Objects.nonNull(sourceType)) {
+					if(Objects.equals(sourceType, ConstantForGYL.LYCK)){
+						//获取领用出库子表数量
+						StockOutItemDO stockOutItemDO = stockOutItemService.get(sourceId);
+						if (stockOutItemDO != null) {
+							Map<String, Object> map = new HashMap<>();
+							map.put("sourceId", sourceId);
+							map.put("sourceType", sourceType);
+							//已引入的入库数量
+							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
+							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+							//领用出库数量
+							BigDecimal outsourgCount=stockOutItemDO.getCount()==null?BigDecimal.ZERO : stockOutItemDO.getCount();
+							int boo = (outsourgCount.subtract(inCountOfContract)).compareTo(thisCount);
+							if (Objects.equals(-1, boo)) {
+								String[] args = {thisCount.toPlainString(),(outsourgCount.subtract(inCountOfContract)).toPlainString(), itemDo.getSourceCode().toString()};
+								return messageSourceHandler.getMessage("stock.number.checkError", args);
+							}
+						} else {
+							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+						}
+					}else if(Objects.equals(sourceType, ConstantForGYL.WWCK)){
+						//委外出库
+						StockOutItemDO stockOutItemDO = stockOutItemService.get(sourceId);
+						if (stockOutItemDO != null) {
+							Map<String, Object> map = new HashMap<>();
+							map.put("sourceId", sourceId);
+							map.put("sourceType", sourceType);
+							//已引入的入库数量
+							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
+							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+							//委外出库数量
+							BigDecimal outsourgCount=stockOutItemDO.getCount()==null?BigDecimal.ZERO : stockOutItemDO.getCount();
+							int boo = (outsourgCount.subtract(inCountOfContract)).compareTo(thisCount);
+							if (Objects.equals(-1, boo)) {
+								String[] args = {thisCount.toPlainString(),(outsourgCount.subtract(inCountOfContract)).toPlainString(), itemDo.getSourceCode().toString()};
+								return messageSourceHandler.getMessage("stock.number.checkError", args);
+							}
+						} else {
+							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+						}
+
+					}else{
+						return messageSourceHandler.getMessage("scm.checkCount.EroorSourceTypeOfIntroduce", null);
+					}
+				} else {
+					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
+				}
+			}
+		}
+		return "ok";
+	}
 
 
 

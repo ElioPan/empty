@@ -45,7 +45,6 @@ public class ScmReturnMaterieInStockApiController {
 	private StockInItemService stockInItemService;
 
 
-
     @EvApiByToken(value = "/apis/scm/returnMaterielnStock/saveAndChange", method = RequestMethod.POST, apiTitle = "新增/修改—生产退料入库")
     @ApiOperation("新增/修改—生产退料入库")
     @Transactional(rollbackFor = Exception.class)
@@ -66,7 +65,12 @@ public class ScmReturnMaterieInStockApiController {
                               "]", required = true) @RequestParam(value = "bodyDetail", defaultValue = "") String bodyDetail,
                       @ApiParam(value = "删除的明细id") @RequestParam(value = "itemIds", required = false) Long[] itemIds) {
 
-        return stockInService.addAndChangeInStockType(stockInDO,ConstantForGYL.TLRK,bodyDetail,itemIds);
+        String result = stockInService.checkSourceCountsOfReturnMateriel(bodyDetail);
+        if(Objects.equals("ok",result)){
+            return stockInService.addAndChangeInStockType(stockInDO,ConstantForGYL.TLRK,bodyDetail,itemIds);
+        }else{
+            return R.error(result);
+        }
     }
 
 
