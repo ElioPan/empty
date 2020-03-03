@@ -591,7 +591,8 @@ public class StockInServiceImpl implements StockInService {
 
 				//扫码入库的不允许反审核
 				Map<String,Object>  map= new HashMap<>();
-				map.put("id",inHeadId);
+				Long[] ids={inHeadId};
+				map.put("id",ids);
 				map.put("storageType",type);
 				int rows=stockInService.wetherHaveQrSign(map);
 				if(rows>0){
