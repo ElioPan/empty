@@ -38,10 +38,6 @@ public class UserApiController extends BaseController {
     @Autowired
     private MessageSourceHandler messageSourceHandler;
 
-
-    @Autowired
-    private UserMapper userMapper;
-
     @EvApiByToken(value = "/apis/user/list",method = RequestMethod.GET,apiTitle = "获取用户列表信息")
     @ApiOperation("获取用户列表信息")
     public R list(@ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
