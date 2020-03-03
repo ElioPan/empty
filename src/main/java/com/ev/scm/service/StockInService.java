@@ -92,6 +92,8 @@ public interface StockInService {
 
 	String checkSourceCounts(String stockInitemDos, Long storageType);
 
+	String checkSourceCountsOfProduce(String bodyDetail);
+
 
 
 

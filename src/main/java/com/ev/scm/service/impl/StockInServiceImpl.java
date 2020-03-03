@@ -5,11 +5,14 @@ import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.config.ConstantForGYL;
+import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.framework.utils.StringUtils;
+import com.ev.mes.domain.ProductionPlanDO;
+import com.ev.mes.service.ProductionPlanService;
 import com.ev.scm.dao.StockInDao;
 import com.ev.scm.domain.*;
 import com.ev.scm.service.*;
@@ -53,6 +56,9 @@ public class StockInServiceImpl implements StockInService {
 
 	@Autowired
 	private  PurchasecontractItemService purchasecontractItemService;
+	@Autowired
+	private ProductionPlanService productionPlanService;
+
 
 	@Override
 	public Map<String, Object> countForMap(Map<String, Object> map) {
@@ -666,7 +672,7 @@ public class StockInServiceImpl implements StockInService {
 						if (contractItemDO != null) {
 							Map<String, Object> map = new HashMap<>();
 							map.put("sourceId", sourceId);
-							map.put("sourceType", itemDo.getSourceType());
+							map.put("sourceType", sourceType);
 							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
 							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
 
@@ -682,6 +688,59 @@ public class StockInServiceImpl implements StockInService {
 					}else{
 						//引入的源单类型非采购合同
 						return messageSourceHandler.getMessage("scm.checkCount.EroorOfSourceType", null);
+					}
+				} else {
+					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
+				}
+			}
+		}
+		return "ok";
+	}
+
+
+	@Override
+	public String checkSourceCountsOfProduce(String bodyDetail){
+
+		List<StockInItemDO> itemDos = new ArrayList<>();
+		if (StringUtils.isNotEmpty(bodyDetail)) {
+			itemDos = JSON.parseArray(bodyDetail, StockInItemDO.class);
+		} else {
+			return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
+		}
+		//验证生产计划单
+		for (StockInItemDO itemDo : itemDos) {
+
+			if (Objects.nonNull(itemDo.getSourceId())) {
+
+				Long sourceId = itemDo.getSourceId();
+				BigDecimal thisCount = itemDo.getCount();
+				Long sourceType = itemDo.getSourceType();
+
+				if (Objects.nonNull(sourceType)) {
+					if(Objects.equals(sourceType, ConstantForMES.SCJH)){
+						//获取采购合同子表数量
+						ProductionPlanDO productionPlanDO = productionPlanService.get(sourceId);
+						if (productionPlanDO != null) {
+							Map<String, Object> map = new HashMap<>();
+							map.put("sourceId", sourceId);
+							map.put("sourceType", sourceType);
+							//已引入的入库数量
+							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
+							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+							//上线数量
+							BigDecimal completionMax=productionPlanDO.getCompletionMax()==null?BigDecimal.ZERO : productionPlanDO.getCompletionMax();
+							int boo = ((productionPlanDO.getPlanCount().add(completionMax)).subtract(inCountOfContract)).compareTo(thisCount);
+							if (Objects.equals(-1, boo)) {
+								String[] args = {thisCount.toPlainString(), ((productionPlanDO.getPlanCount().add(completionMax)).subtract(inCountOfContract)).toPlainString(), itemDo.getSourceCode().toString()};
+								return messageSourceHandler.getMessage("stock.number.exceededQuantity", args);
+							}
+
+						} else {
+							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+						}
+					}else{
+						//引入的源单类型非生产计划单
+						return messageSourceHandler.getMessage("scm.checkCount.EroorSourceTypeOfproduce", null);
 					}
 				} else {
 					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
