@@ -599,8 +599,7 @@
 	<select id="getItemDate" resultType="map">
 		SELECT
 		DISTINCT
-		-- a.id,
-		DATE_FORMAT(a.create_time,'%Y-%m') as createTime
+		a.create_time AS createTime
 		FROM
 		scm_stock_in_item a
 		WHERE
