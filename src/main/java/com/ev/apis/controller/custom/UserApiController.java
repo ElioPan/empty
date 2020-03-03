@@ -7,8 +7,6 @@ import com.ev.framework.config.Constant;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.MD5Utils;
 import com.ev.framework.utils.R;
-import com.ev.framework.utils.StringUtils;
-import com.ev.system.dao.UserMapper;
 import com.ev.system.domain.UserDO;
 import com.ev.system.service.RoleService;
 import com.ev.system.service.UserService;
