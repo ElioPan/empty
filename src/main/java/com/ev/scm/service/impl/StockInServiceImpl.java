@@ -720,7 +720,7 @@ public class StockInServiceImpl implements StockInService {
 				Long sourceType = itemDo.getSourceType();
 
 				if (Objects.nonNull(sourceType)) {
-					if(Objects.equals(sourceType, ConstantForMES.SCJH)){
+					if(Objects.equals(sourceType,(ConstantForMES.SCJH).longValue())){
 						//获取采购合同子表数量
 						ProductionPlanDO productionPlanDO = productionPlanService.get(sourceId);
 						if (productionPlanDO != null) {
