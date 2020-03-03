@@ -370,7 +370,7 @@ public class OutsourcingStockOutApiController {
                         params.put("sourceIds", feedingDetailIds);
                         List<Map<String, Object>> data = this.stockOutService.listApi(params);
                         Map<String, Object> maps = this.stockOutService.countTotal(params);
-                        int total = Integer.parseInt(map.getOrDefault("total",0).toString());
+                        int total = Integer.parseInt(maps.getOrDefault("total",0).toString());
                         if ( data.size() > 0) {
                             results.put("data", new DsResultResponse(pageno,pagesize,total,data));
                             results.put("total",maps);

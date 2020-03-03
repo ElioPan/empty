@@ -194,6 +194,7 @@
         COUNT(*) AS total,
         SUM(item.`count`) AS totalCount,
         SUM(item.`amount`) AS totalAmount,
+        SUM(item.`taxes`) AS totalTaxes,
         SUM(item.`tax_amount`) AS totalTaxAmount
         <include refid="sql_map_condition"/>
     </select>

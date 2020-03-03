@@ -291,7 +291,8 @@ public class SaleStockOutApiController {
         params.put("outboundType", ConstantForGYL.XSCK);
 		Map<String, Object> results = Maps.newHashMap();
 		List<Map<String, Object>> data = this.stockOutService.listApi(params);
-		int total = this.stockOutService.countApi(params);
+        Map<String, Object> maps = this.stockOutService.countTotal(params);
+        int total = Integer.parseInt(maps.getOrDefault("total",0).toString());
 		if ( data.size() > 0) {
             DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.XSCK.intValue());
             String thisSourceTypeName = dictionaryDO.getName();
@@ -299,6 +300,7 @@ public class SaleStockOutApiController {
                 datum.put("thisSourceType", ConstantForGYL.XSCK);
                 datum.put("thisSourceTypeName", thisSourceTypeName);
             }
+            results.put("total",maps);
             results.put("data", new DsResultResponse(pageno,pagesize,total,data));
 		}
 		return R.ok(results);

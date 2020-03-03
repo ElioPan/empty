@@ -45,4 +45,6 @@ public interface SalesbillService {
     int countForMap(Map<String, Object> map);
 
     BigDecimal getCountBySource(Map<String, Object> map);
+
+    Map<String, Object> countTotal(Map<String, Object> map);
 }

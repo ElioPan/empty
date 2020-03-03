@@ -266,9 +266,11 @@ public class PurchaseStockOutApiController {
         params.put("outboundType", ConstantForGYL.CGTH);
 		Map<String, Object> results = Maps.newHashMap();
 		List<Map<String, Object>> data = this.stockOutService.listApi(params);
-		int total = this.stockOutService.countApi(params);
+        Map<String, Object> maps = this.stockOutService.countTotal(params);
+        int total = Integer.parseInt(maps.getOrDefault("total",0).toString());
 		if ( data.size() > 0) {
             results.put("data", new DsResultResponse(pageno,pagesize,total,data));
+            results.put("total",maps);
 		}
 		return R.ok(results);
 	}
