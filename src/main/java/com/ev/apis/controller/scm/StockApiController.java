@@ -417,6 +417,9 @@ public class StockApiController {
                         }
                         BigDecimal count = itemDO.getCount();
                         BigDecimal amount = itemDO.getAmount();
+                        if (StringUtils.isEmpty(itemDO.getBatch())){
+                            itemDO.setBatch(null);
+                        }
                         itemDO.setAvailableCount(count);
                         itemDO.setUnitPrice(amount.divide(count, Constant.BIGDECIMAL_ZERO));
                         itemDO.setEnteringTime(now);
