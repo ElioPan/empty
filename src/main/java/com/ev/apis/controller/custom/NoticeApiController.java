@@ -5,6 +5,7 @@ import com.ev.custom.domain.NoticeDO;
 import com.ev.custom.service.NoticeService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.utils.R;
+import com.ev.framework.utils.ShiroUtils;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -57,6 +58,7 @@ public class NoticeApiController {
     public R countNotRead() {
         Map<String, Object> params = Maps.newHashMapWithExpectedSize(4);
         params.put("signStatus", "0");
+        params.put("toUserId", ShiroUtils.getUserId());
         int count = noticeService.countForMap(params);
         Map<String, Object> results = Maps.newHashMap();
         results.put("notReadCount",count);
