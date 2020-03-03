@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @Author Kuzi
@@ -61,7 +62,12 @@ public class ScmPurchaseInvoiceController {
                                           "]\n", required = true)
                                   @RequestParam(value = "bodyItem", defaultValue = "") String bodyItem,
                                 @ApiParam(value = "被删除的明细ID") @RequestParam(value = "itemIds", required = false) Long[] itemIds){
-        return purchaseInvoiceService.addAndChange(purchaseInvoiceDO, bodyItem, itemIds);
+        String result = purchaseInvoiceService.checkSourceCounts(bodyItem);
+        if(Objects.equals("ok",result)){
+            return purchaseInvoiceService.addAndChange(purchaseInvoiceDO, bodyItem, itemIds);
+        }else{
+            return R.error(result);
+        }
     }
 
     @EvApiByToken(value = "/apis/scm/Invoice/audit",method = RequestMethod.POST,apiTitle = "审核—采购发票")

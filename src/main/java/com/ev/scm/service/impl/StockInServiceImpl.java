@@ -647,30 +647,44 @@ public class StockInServiceImpl implements StockInService {
 		List<StockInItemDO> itemDos = new ArrayList<>();
 		if (StringUtils.isNotEmpty(stockInitemDos)) {
 			itemDos = JSON.parseArray(stockInitemDos, StockInItemDO.class);
-		}else{
+		} else {
 			return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
 		}
 		//验证采购合同
 		for (StockInItemDO itemDo : itemDos) {
+
 			if (Objects.nonNull(itemDo.getSourceId())) {
+
 				Long sourceId = itemDo.getSourceId();
-
 				BigDecimal thisCount = itemDo.getCount();
-				PurchasecontractItemDO contractItemDO = purchasecontractItemService.get(sourceId);
-				if (contractItemDO != null) {
-					Map<String, Object> map = new HashMap<>();
-					map.put("sourceId", sourceId);
-					map.put("storageType", itemDo.getSourceType());
-					BigDecimal  inCounts=stockInItemService.getInCountOfContract(map);
-					BigDecimal inCountOfContract = (inCounts==null)?BigDecimal.ZERO:inCounts;
+				Long sourceType = itemDo.getSourceType();
 
-					int boo = (contractItemDO.getCount().subtract(inCountOfContract)).compareTo(thisCount);
-					if (Objects.equals(-1, boo)) {
-						String[] args = {thisCount.toPlainString(), contractItemDO.getCount().subtract(inCountOfContract).toPlainString(), itemDo.getSourceCode().toString()};
-						messageSourceHandler.getMessage("stock.number.checkError", args);
+				if (Objects.nonNull(sourceType)) {
+					if(Objects.equals(sourceType,ConstantForGYL.CGHT)){
+						//获取采购合同子表数量
+						PurchasecontractItemDO contractItemDO = purchasecontractItemService.get(sourceId);
+						if (contractItemDO != null) {
+							Map<String, Object> map = new HashMap<>();
+							map.put("sourceId", sourceId);
+							map.put("sourceType", itemDo.getSourceType());
+							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
+							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+
+							int boo = (contractItemDO.getCount().subtract(inCountOfContract)).compareTo(thisCount);
+							if (Objects.equals(-1, boo)) {
+								String[] args = {thisCount.toPlainString(), contractItemDO.getCount().subtract(inCountOfContract).toPlainString(), itemDo.getSourceCode().toString()};
+								return messageSourceHandler.getMessage("stock.number.checkError", args);
+							}
+
+						} else {
+							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+						}
+					}else{
+						//引入的源单类型非采购合同
+						return messageSourceHandler.getMessage("scm.checkCount.EroorOfSourceType", null);
 					}
 				} else {
-					return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
 				}
 			}
 		}

@@ -617,11 +617,11 @@
 			  sum(`count`)
 		FROM
 			scm_stock_in_item a
-		LEFT JOIN scm_stock_in b on a.inhead_id=b.id
+
 		WHERE
 			a.source_id =#{sourceId}
 		and
-			b.storage_type = #{storageType}
+			a.source_type = #{sourceType}
 	</select>
 
 </mapper>
