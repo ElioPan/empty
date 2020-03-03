@@ -87,3 +87,4 @@ wechat:
   corpid: wx6188bd4995b3f83b
   corpsecret: WqJxg35Q8majBsLJ6DliY9y-EkKw6qrQZAyV4axjGxQ
   mobilesecret: YGxHqgfLHvTx4FnbCl6ko9t2Wj2phmFJWJyEhqMjeaE
+  appurl: http://120.132.17.220:18090/gyhl-app/#/pages

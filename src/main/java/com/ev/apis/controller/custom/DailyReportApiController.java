@@ -216,6 +216,7 @@ public class DailyReportApiController {
         dailyReportService.commentDailyReport(dailyReportId, comment);
         JSONObject contentDetail = new JSONObject();
         contentDetail.put("id",dailyReportId);
+        contentDetail.put("url","/daily/dailyDetail?id="+dailyReportId);
 
         List<Long> toUsers = new ArrayList<>();
         toUsers.add(dailyReportService.get(dailyReportId).getCreateBy());

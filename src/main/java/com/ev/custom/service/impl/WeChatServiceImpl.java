@@ -41,6 +41,9 @@ public class WeChatServiceImpl implements WeChatService {
     @Value("${wechat.corpsecret}")
     private String corpsecret;
 
+    @Value("${wechat.appurl}")
+    private String appurl;
+
     @Autowired
     private StringRedisTemplate redisTemplate;
 
@@ -361,7 +364,7 @@ public class WeChatServiceImpl implements WeChatService {
         JSONObject textcardObject = new JSONObject();
         textcardObject.put("title",noticeDO.getTitle());
         textcardObject.put("description",noticeDO.getContent());
-        textcardObject.put("url","http://120.132.17.220:18090/gyhl-app/#/pages/daily/dailyDetail?id=136&num=2");
+        textcardObject.put("url",appurl+JSONObject.fromObject(noticeDO.getContentDetail()).get("url"));
         textcardObject.put("btntxt","查看详情");
         jsonObject.put("textcard",textcardObject);
         jsonObject.put("safe",0);

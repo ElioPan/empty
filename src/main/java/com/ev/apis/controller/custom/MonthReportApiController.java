@@ -124,6 +124,7 @@ public class MonthReportApiController {
         monthReportService.commentMonthReport(monthReportId, comment);
         JSONObject contentDetail = new JSONObject();
         contentDetail.put("id",monthReportId);
+        contentDetail.put("url","/month/monthDetail?id="+monthReportId);
         List<Long> toUsers = new ArrayList<>();
         toUsers.add(monthReportService.get(monthReportId).getCreateBy());
         noticeService.saveAndSendSocket("月报回复信息",comment,contentDetail.toString(),283L,ShiroUtils.getUserId(),toUsers);

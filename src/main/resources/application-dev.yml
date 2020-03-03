@@ -76,3 +76,9 @@ ribbon:
 upload:
   config:
     path: D:/Program Files/jenkins/workspace/gyhl-local-zd/target/classes/fdfs_client.conf
+wechat:
+  agentid: 1000002
+  corpid: wwd5b516fea1402b36
+  corpsecret: vkYNZGHLSccDUTm5pD1GJD04PwmXcS_TfluwmT8i8aY
+  mobilesecret: UdsiLfdVT3OVmuo94IbTqZv8BVGkJ2iuyQZCDAi3ELI
+  appurl: http://120.132.17.220:18090/gyhl-app/#/pages

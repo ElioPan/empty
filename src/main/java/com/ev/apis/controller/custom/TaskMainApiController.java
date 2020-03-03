@@ -285,6 +285,7 @@ public class TaskMainApiController {
 		int replySave = taskMainService.replySave(taskReplyDO, ccList);
     	JSONObject contentDetail = new JSONObject();
 		contentDetail.put("id",taskMainDO.getId());
+		contentDetail.put("url","/task/taskDetail?id="+taskMainDO.getId());
 		List<Long> toUsers = new ArrayList<>();
 		toUsers.add(taskMainDO.getCreateBy());
 		String content = "原因分析："+taskReplyDO.getReason()+"\r\n解决方案："+taskReplyDO.getSolution();

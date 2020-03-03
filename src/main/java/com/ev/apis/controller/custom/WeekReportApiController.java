@@ -127,6 +127,7 @@ public class WeekReportApiController {
         weekReportService.commentWeekReport(weekReportId,comment);
         JSONObject contentDetail = new JSONObject();
         contentDetail.put("id",weekReportId);
+        contentDetail.put("url","/week/weekDetail?id="+weekReportId);
         List<Long> toUsers = new ArrayList<>();
         toUsers.add(weekReportService.get(weekReportId).getCreateBy());
         noticeService.saveAndSendSocket("周报回复信息",comment,contentDetail.toString(),284L,ShiroUtils.getUserId(),toUsers);
