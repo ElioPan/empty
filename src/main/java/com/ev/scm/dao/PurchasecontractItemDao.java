@@ -3,6 +3,7 @@ package com.ev.scm.dao;
 import com.ev.scm.domain.PurchasecontractItemDO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +35,9 @@ public interface PurchasecontractItemDao {
 	List<Map<String, Object>> detailOfItem (Map<String, Object> map);
 
 	Map<String, Object> totalOfItem (Map<String, Object> map);
+
+	BigDecimal getInCountOfPurchaseContract(Map<String, Object> map);
+
 
 
 }

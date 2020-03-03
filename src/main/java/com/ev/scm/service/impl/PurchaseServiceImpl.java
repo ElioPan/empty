@@ -247,7 +247,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                             BigDecimal inCountOfpurchase = (inCounts == null) ? BigDecimal.ZERO : inCounts;
                             int boo = (salescontractItemDO.getCount().subtract(inCountOfpurchase)).compareTo(thisCount);
                             if (Objects.equals(-1, boo)) {
-                                String[] args = {thisCount.toPlainString(), salescontractItemDO.getCount().subtract(inCountOfpurchase).toPlainString(), itemDo.getSourceType().toString()};
+                                String[] args = {thisCount.toPlainString(), salescontractItemDO.getCount().subtract(inCountOfpurchase).toPlainString(), itemDo.getSourceCode().toString()};
                                 return messageSourceHandler.getMessage("stock.number.checkError", args);
                             }
                         } else {

@@ -2,6 +2,7 @@ package com.ev.scm.service;
 
 import com.ev.scm.domain.PurchasecontractItemDO;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +35,7 @@ public interface PurchasecontractItemService {
 
 	Map<String, Object> totalOfItem (Map<String, Object> map);
 
+	BigDecimal getInCountOfPurchaseContract(Map<String, Object> map);
 
 
 }

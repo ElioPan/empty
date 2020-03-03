@@ -216,6 +216,16 @@
 	</select>
 
 
+	<select id="getInCountOfPurchaseContract" resultType="java.math.BigDecimal">
+		SELECT
+		sum(`count`)
+		FROM
+		scm_purchasecontract_item a
+		WHERE
+		a.source_id =#{sourceId}
+		and
+		a.source_type = #{sourceType}
+	</select>
 
 
 

@@ -36,6 +36,9 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 	private MessageSourceHandler messageSourceHandler;
 
 	@Autowired
+	private  PurchaseItemService purchaseItemService;
+
+	@Autowired
 	private PurchasecontractPayService purchasecontractPayService;
 	@Autowired
 	private PurchasecontractItemService purchasecontractItemService;
@@ -523,8 +526,6 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 	@Override
 	public String checkSourceCounts(String itemDOs) {
 
-//		List<PurchasecontractItemDO> item = JSON.parseArray(itemDos, PurchasecontractItemDO.class);
-
 		List<PurchasecontractItemDO> itemDos = new ArrayList<>();
 		if (StringUtils.isNotEmpty(itemDOs)) {
 			itemDos = JSON.parseArray(itemDOs, PurchasecontractItemDO.class);
@@ -532,40 +533,40 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 			return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
 		}
 		//验证 采购申请
-//		for (PurchasecontractItemDO itemDo : itemDos) {
-//			if (Objects.nonNull(itemDo.getSourceId())) {
-//				Long sourceId = itemDo.getSourceId();
-//				Long soueseType = itemDo.getSourceType();
-//
-//				BigDecimal thisCount = itemDo.getCount();
-//				if (Objects.nonNull(soueseType)) {
-//					if (Objects.equals(soueseType, ConstantForGYL.XSHT)) {
-//						//采购合同
-//						PurchasecontractItemDO purchasecontractItemDO = purchasecontractItemService.get(sourceId);
-//						if (purchasecontractItemDO != null) {
-//							Map<String, Object> map = new HashMap<>();
-//							map.put("sourceId", sourceId);
-//							map.put("sourceType", soueseType);
-//							//查出采购申请中已关联引入的数量
-//							BigDecimal inCounts = purchaseItemService.getInCountOfPurchase(map);
-//
-//							BigDecimal inCountOfpurchase = (inCounts == null) ? BigDecimal.ZERO : inCounts;
-//							int boo = (salescontractItemDO.getCount().subtract(inCountOfpurchase)).compareTo(thisCount);
-//							if (Objects.equals(-1, boo)) {
-//								String[] args = {thisCount.toPlainString(), salescontractItemDO.getCount().subtract(inCountOfpurchase).toPlainString(), itemDo.getSourceType().toString()};
-//								return messageSourceHandler.getMessage("stock.number.checkError", args);
-//							}
-//						} else {
-//							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
-//						}
-//					}  else {
-//						return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
-//					}
-//				}else{
-//					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
-//				}
-//			}
-//		}
+		for (PurchasecontractItemDO itemDo : itemDos) {
+			if (Objects.nonNull(itemDo.getSourceId())) {
+				Long sourceId = itemDo.getSourceId();
+				Long soueseType = itemDo.getSourceType();
+				BigDecimal thisCount = itemDo.getCount();
+
+				if (Objects.nonNull(soueseType)) {
+					if (Objects.equals(soueseType, ConstantForGYL.PURCHASE)) {
+						//采购申请数量
+						PurchaseItemDO purchaseItemDO = purchaseItemService.get(sourceId);
+						if (purchaseItemDO != null) {
+							Map<String, Object> map = new HashMap<>();
+							map.put("sourceId", sourceId);
+							map.put("sourceType", soueseType);
+							//查出采购合同中已关联引入的数量
+							BigDecimal inCounts = purchasecontractItemService.getInCountOfPurchaseContract(map);
+
+							BigDecimal inCountOfpurchase = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+							int boo = (purchaseItemDO.getCount().subtract(inCountOfpurchase)).compareTo(thisCount);
+							if (Objects.equals(-1, boo)) {
+								String[] args = {thisCount.toPlainString(), purchaseItemDO.getCount().subtract(inCountOfpurchase).toPlainString(), itemDo.getSourceCode().toString()};
+								return messageSourceHandler.getMessage("stock.number.checkError", args);
+							}
+						} else {
+							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+						}
+					}  else {
+						return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+					}
+				}else{
+					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
+				}
+			}
+		}
 		return "ok";
 	}
 

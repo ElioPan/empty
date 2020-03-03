@@ -614,12 +614,10 @@ public class StockInServiceImpl implements StockInService {
 					return R.error(messageSourceHandler.getMessage("common.massge.faildAudit", null));
 				}
 			} else {
-				return R.error(messageSourceHandler.getMessage("common.massge.faildRollBackAudit", null));
+				return R.error(messageSourceHandler.getMessage("common.massge.okWaitAudit", null));
 			}
 		}
 		return R.error(messageSourceHandler.getMessage("common.massge.haveNoId", null));
-
-
 	}
 
 	@Override
@@ -668,7 +666,7 @@ public class StockInServiceImpl implements StockInService {
 
 					int boo = (contractItemDO.getCount().subtract(inCountOfContract)).compareTo(thisCount);
 					if (Objects.equals(-1, boo)) {
-						String[] args = {thisCount.toPlainString(), contractItemDO.getCount().subtract(inCountOfContract).toPlainString(), itemDo.getSourceType().toString()};
+						String[] args = {thisCount.toPlainString(), contractItemDO.getCount().subtract(inCountOfContract).toPlainString(), itemDo.getSourceCode().toString()};
 						messageSourceHandler.getMessage("stock.number.checkError", args);
 					}
 				} else {
