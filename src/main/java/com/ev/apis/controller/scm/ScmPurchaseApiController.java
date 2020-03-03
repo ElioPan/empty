@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @Author Kuzi
@@ -60,14 +61,12 @@ public class ScmPurchaseApiController {
                                         "]", required = true) @RequestParam(value = "item", defaultValue = "") String item,
                                 @ApiParam(value = "删除的明细行id:") @RequestParam(value = "itemIds", required = false) Long[] deleItemIds) {
 
-//        String resutlt = purchaseService.checkSourceCounts(item, ConstantForGYL.PURCHASE);
-//        if(Objects.equals("ok",resutlt)){
-//            return purchaseService.addPurchase(purchaseDO, item, deleItemIds);
-//        }else{
-//            return R.error(resutlt);
-//        }
-
-        return purchaseService.addPurchase(purchaseDO, item, deleItemIds);
+        String resutlt = purchaseService.checkSourceCounts(item, ConstantForGYL.PURCHASE);
+        if(Objects.equals("ok",resutlt)){
+            return purchaseService.addPurchase(purchaseDO, item, deleItemIds);
+        }else{
+            return R.error(resutlt);
+        }
     }
 
 

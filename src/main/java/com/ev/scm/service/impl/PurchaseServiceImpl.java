@@ -240,7 +240,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                         if (salescontractItemDO != null) {
                             Map<String, Object> map = new HashMap<>();
                             map.put("sourceId", sourceId);
-                            map.put("sourceType", storageType);
+                            map.put("sourceType", soueseType);
                             //查出采购申请中已关联引入的数量
                             BigDecimal inCounts = purchaseItemService.getInCountOfPurchase(map);
 
@@ -248,7 +248,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                             int boo = (salescontractItemDO.getCount().subtract(inCountOfpurchase)).compareTo(thisCount);
                             if (Objects.equals(-1, boo)) {
                                 String[] args = {thisCount.toPlainString(), salescontractItemDO.getCount().subtract(inCountOfpurchase).toPlainString(), itemDo.getSourceType().toString()};
-                                messageSourceHandler.getMessage("stock.number.checkError", args);
+                                return messageSourceHandler.getMessage("stock.number.checkError", args);
                             }
                         } else {
                             return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
@@ -259,23 +259,36 @@ public class PurchaseServiceImpl implements PurchaseService {
                         if (productionFeedingDetailDO != null) {
                             Map<String, Object> map = new HashMap<>();
                             map.put("sourceId", sourceId);
-                            map.put("storageType", storageType);
+                            map.put("storageType", soueseType);
+                            BigDecimal inCounts = purchaseItemService.getInCountOfPurchase(map);
 
-
+                            BigDecimal inCountOfpurchase = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+                            int boo = (productionFeedingDetailDO.getOutCount().subtract(inCountOfpurchase)).compareTo(thisCount);
+                            if (Objects.equals(-1, boo)) {
+                                String[] args = {thisCount.toPlainString(), productionFeedingDetailDO.getOutCount().subtract(inCountOfpurchase).toPlainString(), itemDo.getSourceType().toString()};
+                                return messageSourceHandler.getMessage("stock.number.checkError", args);
+                            }
                         } else {
                             return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
                         }
+
+                    } else {
+                        return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
                     }
-
-                } else {
-                    //返回 验证  子表信息不全，
+                }else{
+                    return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
                 }
-
             }
-
         }
-        return "";
+        return "ok";
     }
 
 
+
+
+
 }
+
+
+
+

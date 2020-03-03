@@ -661,7 +661,7 @@ public class StockInServiceImpl implements StockInService {
 				if (contractItemDO != null) {
 					Map<String, Object> map = new HashMap<>();
 					map.put("sourceId", sourceId);
-					map.put("storageType", storageType);
+					map.put("storageType", itemDo.getSourceType());
 					BigDecimal  inCounts=stockInItemService.getInCountOfContract(map);
 					BigDecimal inCountOfContract = (inCounts==null)?BigDecimal.ZERO:inCounts;
 
