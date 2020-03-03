@@ -218,6 +218,7 @@
         materiel.`id` AS materielId,
         materiel.serial_no AS materielSerialNo,
         materiel.name AS materielName,
+        materiel.`is_lot` AS isLot,
         materiel.specification AS specification,
         unitUom.name AS unitUomName,
         item.`count` AS count,
