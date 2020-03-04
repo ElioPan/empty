@@ -159,6 +159,7 @@ public class ScmOutsourcingInStockApiController {
     public R otherHeadList(@ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
                                  @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
                                  @ApiParam(value = "物料名（模糊）") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
+                                 @ApiParam(value = "供应商id") @RequestParam(value = "supplierId", defaultValue = "", required = false) Long supplierId,
                                  @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
                                  @ApiParam(value = "制单起始日期") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String  createStartTime,
                                  @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime) {
@@ -171,6 +172,8 @@ public class ScmOutsourcingInStockApiController {
         params.put("limit", pagesize);
         params.put("createStartTime", createStartTime);
         params.put("createEndTime", createEndTime);
+        params.put("supplierId", supplierId);
+
 
         int count = stockInService.countForHead(params);
         List<Map<String, Object>> detailList = stockInService.listForHead(params);
