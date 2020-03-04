@@ -227,7 +227,7 @@
 
 	<select id="getTotailCountAmount" resultType="int">
 		SELECT
-		IF(SUM(taxAmount)is null,0,SUM(taxAmount)) AS totailTaxAmount,
+		IF(SUM(taxAmount)is null,0,SUM(taxAmount)) AS totailTaxAmount
 		FROM
 		(
 		SELECT
