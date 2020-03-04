@@ -125,6 +125,7 @@ public class ScmPurchaseInvoiceController {
             dsRet.put("totalTaxAmount",countForMaps.get("totalTaxAmount"));
             dsRet.put("totalCount",countForMaps.get("totalCount"));
             dsRet.put("totalTaxes",countForMaps.get("totalTaxes"));
+            dsRet.put("totalAmount",countForMaps.get("totalAmount"));
             dsRet.put("datas",list);
             results.put("data", dsRet);
         }

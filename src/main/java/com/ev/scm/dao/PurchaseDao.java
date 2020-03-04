@@ -33,7 +33,7 @@ public interface PurchaseDao {
 
 	List<Map<String, Object>> listForMap(Map<String, Object> map);
 
-	int countForMap(Map<String, Object> map);
+	Map<String, Object> countForMap(Map<String, Object> map);
 
 	Map<String, Object> detailOfPurchase(Map<String, Object> map);
 

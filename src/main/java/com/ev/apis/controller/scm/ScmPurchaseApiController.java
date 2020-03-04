@@ -3,7 +3,6 @@ package com.ev.apis.controller.scm;
 import cn.afterturn.easypoi.entity.vo.TemplateExcelConstants;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
-import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
@@ -26,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -139,7 +139,7 @@ public class ScmPurchaseApiController {
         params.put("createEndTime", createEndTime);
 
         List<Map<String, Object>> list = purchaseService.listForMap(params);
-        int count = purchaseService.countForMap(params);
+        Map<String, Object> countForMaps = purchaseService.countForMap(params);
 
         DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PURCHASE.intValue());
         String thisSourceTypeName = dictionaryDO.getName();
@@ -149,15 +149,17 @@ public class ScmPurchaseApiController {
         }
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(2);
         if (!list.isEmpty()) {
-            DsResultResponse dsRet = new DsResultResponse();
-            dsRet.setDatas(list);
-            dsRet.setPageno(pageno);
-            dsRet.setPagesize(pagesize);
-            dsRet.setTotalRows(count);
-            dsRet.setTotalPages( (count + pagesize - 1) / pagesize);
+            Map<String,Object> dsRet= new HashMap<>();
+            dsRet.put("pageno",pageno);
+            dsRet.put("pagesize",pagesize);
+            dsRet.put("totalPages",(Integer.parseInt(countForMaps.get("count").toString()) + pagesize - 1) / pagesize);
+            dsRet.put("totalCount",countForMaps.get("totalCount"));
+            dsRet.put("totalAmount",countForMaps.get("totalAmount"));
+            dsRet.put("datas",list);
             results.put("data", dsRet);
         }
         return R.ok(results);
+
     }
 
     @ResponseBody

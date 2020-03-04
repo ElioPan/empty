@@ -194,7 +194,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     @Override
-    public int countForMap(Map<String, Object> map) {
+    public Map<String, Object> countForMap(Map<String, Object> map) {
         return purchaseDao.countForMap(map);
     }
 

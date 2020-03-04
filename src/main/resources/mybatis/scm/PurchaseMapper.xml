@@ -235,9 +235,11 @@
 	</select>
 
 
-	<select id="countForMap" resultType="int">
+	<select id="countForMap" resultType="map">
 		select
-		count(*)
+		count(*) as `count`,
+		if(sum(`count`) is null,0,sum(`count`)) as totalCount,
+		if(sum(amount) is null,0,sum(amount)) as totalAmount
 		from
 		(
 		SELECT

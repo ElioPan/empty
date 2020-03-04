@@ -306,7 +306,7 @@
 		count(*) as count,
 		IF(SUM(amount) IS NULL,0,SUM(amount))as totalAmount,
 		IF(SUM(taxAmount) IS NULL,0,SUM(taxAmount))as totalTaxAmount,
-		IF(SUM(taxRate) IS NULL,0,SUM(taxRate))as totalTaxexRate
+		IF(SUM(taxes) IS NULL,0,SUM(taxes))as totalTaxes
 		from
 		(
 		SELECT

@@ -163,7 +163,7 @@ public class ScmPurchaseContractApiController {
             dsRet.put("totalPages",((Integer.parseInt(totalMap.get("count").toString()) + pagesize - 1) / pagesize));
             dsRet.put("totalAmount",totalMap.get("totalAmount"));
             dsRet.put("totalTaxAmount",totalMap.get("totalTaxAmount"));
-            dsRet.put("totalTaxRate",totalMap.get("totalTaxexRate"));
+            dsRet.put("totalTaxes",totalMap.get("totalTaxes"));
             result.put("data", dsRet);
     }
         return R.ok(result);
