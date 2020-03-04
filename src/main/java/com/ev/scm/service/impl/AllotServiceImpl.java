@@ -405,7 +405,7 @@ public class AllotServiceImpl implements AllotService {
                 params.put("isPC",1);
                 List<Map<String, Object>> stockListForMap = materielService.stockListForMap(params);
                 if (stockListForMap.size() > 0) {
-                    map.put("availableCount", MathUtils.getBigDecimal(map.get("count")).add(MathUtils.getBigDecimal(stockListForMap.get(0).get("availableCount"))));
+                    map.put("availableCount", MathUtils.getBigDecimal(map.get("availableCount")).add(MathUtils.getBigDecimal(stockListForMap.get(0).get("availableCount"))));
                 }
             }
         }
