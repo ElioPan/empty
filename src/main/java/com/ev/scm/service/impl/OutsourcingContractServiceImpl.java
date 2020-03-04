@@ -27,6 +27,8 @@ import com.ev.scm.domain.OutsourcingContractPayDO;
 import com.ev.scm.service.OutsourcingContractService;
 import com.ev.scm.vo.ContractItemVO;
 import com.ev.scm.vo.ContractPayVO;
+import com.ev.system.domain.UserDO;
+import com.ev.system.service.UserService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +55,8 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
     private BomDetailService bomDetailService;
     @Autowired
     private MaterielService materielService;
+    @Autowired
+    private UserService userService;
     @Autowired
     private MessageSourceHandler messageSourceHandler;
 
@@ -425,6 +429,9 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
      */
     private ProductionFeedingDO getFeedingDO(OutsourcingContractItemDO outsourcingContractItemDO,OutsourcingContractDO outsourcingContractDO) {
         ProductionFeedingDO feedingDO = new ProductionFeedingDO();
+        Long purchasePerson = outsourcingContractDO.getPurchasePerson();
+        UserDO userDO = userService.get(purchasePerson);
+        feedingDO.setProDept(userDO.getDeptId());
         feedingDO.setOutsourceContractItemId(outsourcingContractItemDO.getId());
         feedingDO.setMaterielId(outsourcingContractItemDO.getMaterielId());
         feedingDO.setPlanCount(outsourcingContractItemDO.getCount());

@@ -229,6 +229,8 @@
 	<select id="listForMapToOutsourcingContract" resultType="map">
 		SELECT
 		feeding.`id` AS id,
+		supplier.`id` AS supplierId,
+		supplier.`name` AS supplierName,
 		feeding.`outsource_contract_item_id` AS outsourceContractItemId,
 		contract.`contract_code` AS contractCode,
 		feeding.`feeding_no` AS feedingNo,
@@ -270,6 +272,7 @@
 		FROM mes_production_feeding feeding
 		LEFT JOIN scm_outsourcing_contract_item contractItem ON contractItem.`id` = feeding.`outsource_contract_item_id`
 		LEFT JOIN scm_outsourcing_contract contract ON contract.`id` = contractItem.`contract_id`
+		LEFT JOIN cus_supplier supplier ON supplier.`id` = feeding.`supplier_id`
 		LEFT JOIN cus_materiel materiel ON materiel.`id` = feeding.`materiel_id`
 		LEFT JOIN cus_dictionary unituom ON unituom.id = materiel.`unit_uom`
 		LEFT JOIN cus_dictionary dicu ON dicu.id = feeding.`status`
