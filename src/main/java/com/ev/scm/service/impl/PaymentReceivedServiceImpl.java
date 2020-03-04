@@ -16,6 +16,7 @@ import com.ev.scm.service.PaymentReceivedService;
 import com.ev.scm.service.PurchasecontractPayService;
 import com.ev.scm.service.SalescontractPayService;
 import com.google.common.collect.Maps;
+import org.apache.poi.ss.formula.ptg.MemAreaPtg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +38,16 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 	@Autowired
     private SalescontractPayService salescontractPayService;
 
-	
+	@Override
+	public Map<String, Object> detailOfPurchaseContrat(Long[] ids) {
+		return paymentReceivedDao.detailOfPurchaseContrat(ids);
+	}
+
+	@Override
+	public Map<String, Object> detailOfSaleContrat(Long[] ids) {
+		return paymentReceivedDao.detailOfSaleContrat(ids);
+	}
+
 	@Override
 	public PaymentReceivedDO get(Long id){
 		return paymentReceivedDao.get(id);
@@ -384,24 +394,64 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 	}
 
 	@Override
-	public R getdetail(Long id) {
+	public R getdetail(Long id,String sign) {
 		Map<String,Object>  map= new HashMap<>();
 		map.put("id",id);
 		Map<String,Object> receivedDetail = this.detailOfReceived(map);
 		List<Map<String, Object>> detailOfItem = paymentReceivedItemService.detailOfitem(map);
 		Map<String, Object> totallAmount = paymentReceivedItemService.totallAmount(map);
+
+		Map<String, Object> stringObjectMap=new HashMap<>();
+		if(!detailOfItem.isEmpty()) {
+			stringObjectMap = this.totaAmountOfStatistics(detailOfItem, sign);
+		}
+
 		Map<String,Object>  result= new HashMap<>();
 		map.clear();
 		if(Objects.nonNull(receivedDetail)) {
+
 			map.put("receivedDetail",receivedDetail);
 			map.put("detailOfItem",detailOfItem);
 			//子表总金额
 			map.put("totallAmount",totallAmount);
+			map.put("allReceivablePayablesAmount",stringObjectMap.containsKey("receivablePayablesAmount")?stringObjectMap.get("receivablePayablesAmount"):0);
+			map.put("allPaidReceivedAmount",stringObjectMap.containsKey("paidReceivedAmount")?stringObjectMap.get("paidReceivedAmount"):0);
+			map.put("allNoReceiptPaymentAmount",stringObjectMap.containsKey("noReceiptPaymentAmount")?stringObjectMap.get("noReceiptPaymentAmount"):0);
 			result.put("data",map);
 		}
 		return R.ok(result);
 	}
 
+
+	/**
+	 * 查询合同时时金额统计
+	 * @return
+	 */
+	public Map<String,Object> totaAmountOfStatistics(List<Map<String, Object>> list,String sign){
+
+		Map<String,Object>  map= new HashMap<>();
+		List nowList=new ArrayList();
+		for (int i = 0; i < list.size(); i++) {
+			if(list.get(i).containsKey("sourceId")){
+				nowList.add(list.get(i).get("sourceId"));
+			}
+		}
+		nowList=new ArrayList(new HashSet(nowList));
+		Long[] stockInheadIds=new Long[nowList.size()];
+		for (int i = 0; i < nowList.size(); i++) {
+			stockInheadIds[i]=Long.valueOf(String.valueOf(nowList.get(i)));
+		}
+
+		if(Objects.equals(ConstantForGYL.PAYMENT_ORDER,sign)){
+			//统计采购合同
+			map= this.detailOfPurchaseContrat(stockInheadIds);
+		}else if(Objects.equals(ConstantForGYL.ALL_BILL,sign)){
+			//销售合同
+			map = this.detailOfSaleContrat(stockInheadIds);
+		}
+
+		return map;
+	}
 
 
 

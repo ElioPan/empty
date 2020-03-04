@@ -94,16 +94,13 @@ public class ScmPurchaseContractApiController {
         }else{
             return R.error(result);
         }
-
     }
-
 
     @EvApiByToken(value = "/apis/scm/purchaseContract/detail",method = RequestMethod.GET,apiTitle = "详情——采购合同")
     @ApiOperation("详情——采购合同")
     public R getDetail(@ApiParam(value = "合同主键ID",required = true) @RequestParam(value = "id",defaultValue = "")  Long id) {
         return  purchasecontractService.getDetailOfContract(id);
     }
-
 
     @EvApiByToken(value = "/apis/scm/purchaseContract/contractList",method = RequestMethod.GET,apiTitle = "列表—采购合同")
     @ApiOperation("列表—采购合同")

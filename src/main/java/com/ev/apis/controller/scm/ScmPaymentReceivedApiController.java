@@ -65,7 +65,7 @@ public class ScmPaymentReceivedApiController {
     @EvApiByToken(value = "/apis/scm/paymentReceived/detailOfReceived", method = RequestMethod.POST, apiTitle = "详情—收款单")
     @ApiOperation("详情—收款单")
     public R detail(@ApiParam(value = "收款单id:", required = true) @RequestParam(value = "id") Long id) {
-        return paymentReceivedService.getdetail(id);
+        return paymentReceivedService.getdetail(id,ConstantForGYL.ALL_BILL);
     }
 
     @EvApiByToken(value = "/apis/scm/paymentReceived/audit", method = RequestMethod.POST, apiTitle = "审核—收款单")

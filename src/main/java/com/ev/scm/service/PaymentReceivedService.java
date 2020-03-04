@@ -42,7 +42,7 @@ public interface PaymentReceivedService {
 
 	int canDeletOfCount(Map<String, Object> map);
 
-	R getdetail(Long id);
+	R getdetail(Long id,String sign);
 
 	List<Map<String, Object>> listForMap(Map<String, Object> map);
 
@@ -52,7 +52,9 @@ public interface PaymentReceivedService {
 
 	List<SalescontractPayDO> detailOfSalePayById(Map<String, Object> map);
 
+	Map<String, Object> detailOfPurchaseContrat(Long[] ids);
 
+	Map<String, Object> detailOfSaleContrat(Long[] ids);
 
 
 }

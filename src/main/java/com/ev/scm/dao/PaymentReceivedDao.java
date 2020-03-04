@@ -42,5 +42,9 @@ public interface PaymentReceivedDao {
 
 	List<SalescontractPayDO> detailOfSalePayById(Map<String, Object> map);
 
+	Map<String, Object> detailOfPurchaseContrat(Long[] ids);
+
+	Map<String, Object> detailOfSaleContrat(Long[] ids);
+
 
 }

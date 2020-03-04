@@ -65,7 +65,7 @@ public class ScmPaymentOrderApiController {
     @EvApiByToken(value = "/apis/scm/paymentOrder/detailOfReceived", method = RequestMethod.POST, apiTitle = "详情—付款单")
     @ApiOperation("详情—付款单")
     public R detail(@ApiParam(value = "付款单id:", required = true) @RequestParam(value = "id") Long id) {
-        return paymentReceivedService.getdetail(id);
+        return paymentReceivedService.getdetail(id,ConstantForGYL.PAYMENT_ORDER);
     }
 
     @EvApiByToken(value = "/apis/scm/paymentOrder/audit", method = RequestMethod.POST, apiTitle = "审核—付款单")
@@ -114,6 +114,7 @@ public class ScmPaymentOrderApiController {
         params.put("auditSign", auditSign);
 
         List<Map<String, Object>> list = paymentReceivedService.listForMap(params);
+
         Map<String, Object> totalMap = paymentReceivedService.countForMap(params);
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(2);
         if (!list.isEmpty()) {

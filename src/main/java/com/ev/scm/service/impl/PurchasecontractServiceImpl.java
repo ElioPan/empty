@@ -37,7 +37,8 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 
 	@Autowired
 	private  PurchaseItemService purchaseItemService;
-
+	@Autowired
+	private StockInItemService stockInItemService;
 	@Autowired
 	private PurchasecontractPayService purchasecontractPayService;
 	@Autowired
@@ -182,6 +183,13 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 	@Override
 	public R disAudit(Long id) {
 		PurchasecontractDO purchasecontractDO = this.get(id);
+		//验证是否被采购入库引用
+		Map<String,Object>  map= new HashMap<>();
+		map.put("sourceCode",purchasecontractDO.getContractCode());
+		List<StockInItemDO> stockInItemList = stockInItemService.list(map);
+		if(stockInItemList.size()>0){
+			return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));
+		}
 		if (Objects.equals(purchasecontractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
 			return R.error(messageSourceHandler.getMessage("common.massge.faildRollBackAudit", null));
 		}

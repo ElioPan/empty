@@ -211,10 +211,11 @@
 		k.name as settlementTypeName,
 		b.this_amount as thisAmount,
 		b.remarks,
-		b.source_type as  sourceType,
+		b.source_id as  sourceId,
 		m.name as sourceTypeName,
 		b.source_code as sourceCode,
-		a.sign
+		a.sign,
+		b.id as itemId
 		from
 		scm_payment_received  a
 		LEFT JOIN scm_payment_received_item b on a.id=b.payment_received_id
@@ -255,7 +256,7 @@
 	<select id="countForMap" resultType="map">
 		SELECT
 		COUNT(*) as `count`,
-		sum(thisAmount) as totalThisAmount
+		IF(sum(thisAmount)is null,0,sum(thisAmount)) as totalThisAmount
 		FROM
 		(
 		SELECT
@@ -279,10 +280,11 @@
 		k.name as settlementTypeName,
 		b.this_amount as thisAmount,
 		b.remarks,
-		b.source_type as  sourceType,
+		b.source_id as  sourceId,
 		m.name as sourceTypeName,
 		b.source_code as sourceCode,
-		a.sign
+		a.sign,
+		b.id as itemId
 		from
 		scm_payment_received  a
 		LEFT JOIN scm_payment_received_item b on a.id=b.payment_received_id
@@ -362,6 +364,43 @@
 		</foreach>
 	</select>
 
+	<select id="detailOfPurchaseContrat" resultType="map">
+		select
+		if(sum(pay_amount) is null,0,sum(pay_amount)) as receivablePayablesAmount,
+		if(sum(amount_paid) is null,0,sum(amount_paid)) as paidReceivedAmount,
+		if(sum(unpay_amount) is null,0,sum(unpay_amount)) as noReceiptPaymentAmount
+		from
+		(
+			SELECT
+			a.pay_amount ,
+			a.amount_paid,
+			a.unpay_amount
+			FROM
+			scm_purchasecontract_pay  a
+				WHERE  a.id in
+			<foreach item="id" collection="array" open="(" separator="," close=")">
+				#{id}
+			</foreach>
+		) aa
+	</select>
 
-
+	<select id="detailOfSaleContrat" resultType="map">
+			select
+				if(sum(receivable_amount) is null,0,sum(receivable_amount)) as receivablePayablesAmount,
+				if(sum(received_amount) is null,0,sum(received_amount)) as paidReceivedAmount,
+				if(sum(unpay_amount) is null,0,sum(unpay_amount)) as noReceiptPaymentAmount
+			from
+			(
+				SELECT
+				a.receivable_amount ,
+				a.received_amount,
+				a.unpay_amount
+				FROM
+				scm_salescontract_pay  a
+				WHERE  a.id in
+				<foreach item="id" collection="array" open="(" separator="," close=")">
+					#{id}
+				</foreach>
+			) aa
+	</select>
 </mapper>
