@@ -147,6 +147,7 @@ public class SalesBillApiController {
     @ApiOperation("获取销售票据列表/高级搜索")
     public R list(
             @ApiParam(value = "票据编号") @RequestParam(value = "billCode",required = false) String billCode,
+            @ApiParam(value = "客户ID") @RequestParam(value = "clientId",defaultValue = "",required = false)  Long clientId,
             @ApiParam(value = "客户名称") @RequestParam(value = "clientName",defaultValue = "",required = false)  String clientName,
             @ApiParam(value = "产品名称") @RequestParam(value = "materielName",required = false) String materielName,
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime",defaultValue = "",required = false)  String startTime,
@@ -161,6 +162,7 @@ public class SalesBillApiController {
 			@ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize){
 		Map<String,Object> map = Maps.newHashMap();
         map.put("billCode",billCode);
+        map.put("clientId",clientId);
         map.put("clientName",StringUtils.sqlLike(clientName));
         map.put("materielName",StringUtils.sqlLike(materielName));
         map.put("startTime", startTime);

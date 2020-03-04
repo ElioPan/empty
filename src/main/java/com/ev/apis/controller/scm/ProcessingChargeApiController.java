@@ -148,6 +148,8 @@ public class ProcessingChargeApiController {
     @ApiOperation("获取加工费用列表/高级搜索")
     public R list(
             @ApiParam(value = "发票号码") @RequestParam(value = "billCode",required = false) String billCode,
+            @ApiParam(value = "供应商ID") @RequestParam(value = "supplierId",defaultValue = "",required = false)  Long supplierId,
+
             @ApiParam(value = "供应商名称") @RequestParam(value = "supplierName",defaultValue = "",required = false)  String supplierName,
             @ApiParam(value = "产品名称") @RequestParam(value = "materielName",required = false) String materielName,
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime",defaultValue = "",required = false)  String startTime,
@@ -156,6 +158,7 @@ public class ProcessingChargeApiController {
 			@ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize){
 		Map<String,Object> map = Maps.newHashMap();
         map.put("billCode",billCode);
+        map.put("supplierId", supplierId);
         map.put("supplierName",StringUtils.sqlLike(supplierName));
         map.put("materielName",StringUtils.sqlLike(materielName));
         map.put("startTime", startTime);

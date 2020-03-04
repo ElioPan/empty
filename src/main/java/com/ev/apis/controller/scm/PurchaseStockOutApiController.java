@@ -237,6 +237,7 @@ public class PurchaseStockOutApiController {
 			@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
 			@ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
             @ApiParam(value = "退货单号") @RequestParam(value = "outCode", defaultValue = "", required = false) String outCode,
+            @ApiParam(value = "供应商ID") @RequestParam(value = "supplierId",defaultValue = "",required = false)  Long supplierId,
             @ApiParam(value = "供应商") @RequestParam(value = "supplierName", defaultValue = "", required = false) String supplierName,
             @ApiParam(value = "物料名称") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
@@ -253,6 +254,7 @@ public class PurchaseStockOutApiController {
         params.put("limit", pagesize);
 
         params.put("outCode", outCode);
+        params.put("supplierId", supplierId);
         params.put("supplierName", StringUtils.sqlLike(supplierName));
         params.put("materielName", StringUtils.sqlLike(materielName));
         params.put("startTime", startTime);

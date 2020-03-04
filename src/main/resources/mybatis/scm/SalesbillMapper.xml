@@ -189,6 +189,7 @@
         <where>
             <if test="billCode != null and billCode != ''"> and bill.bill_code = #{billCode} </if>
             <if test="clientName != null and clientName != ''"> and client.name LIKE #{clientName} </if>
+            <if test="clientId != null and clientId != ''"> and client.id = #{clientId} </if>
             <if test="materielName != null and materielName != ''"> and materiel.name LIKE #{materielName} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(item.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(item.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
