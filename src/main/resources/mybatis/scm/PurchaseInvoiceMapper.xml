@@ -223,7 +223,7 @@
 		case when  SUM(taxAmount) is null then 0
 			  when SUM(taxAmount) is not null then SUM(taxAmount)
 			  end totalTaxAmount,
-		IF(SUM(amount) is null,0,UM(amount)) AS totalAmount
+		IF(SUM(amount) is null,0,SUM(amount)) AS totalAmount
 		from
 		(
 		SELECT
