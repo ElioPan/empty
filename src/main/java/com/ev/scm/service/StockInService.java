@@ -98,6 +98,10 @@ public interface StockInService {
 
 	String checkSourceCountsOfReturnMateriel(String bodyDetail);
 
+	List<Map<String, Object>> listForHead(Map<String, Object> map);
+
+	int countForHead(Map<String, Object> map);
+
 
 
 }

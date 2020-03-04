@@ -598,4 +598,105 @@
 		</foreach>
 	</select>
 
+
+
+	<select id="listForHead" resultType="map">
+		select
+		*
+		from
+		(
+		select
+		a.id,
+		a.inhead_code   as inheadCode,
+		a.storage_type  as  storageType,
+		b.name as storageTypeName,
+		a.source_company as sourceCompany,
+		c.name as sourceCompanyName,
+		a.client_id	   as clientId,
+		d.name as clientName,
+		a.in_out_time  as inOutTime,
+		a.audit_sign as  auditSign,
+		i.name as auditSignName,
+		a.in_time	as   inTime,
+		a.create_time as createTime,
+		m.name as materielName
+		from
+		scm_stock_in  a
+		LEFT JOIN  cus_dictionary b  ON a.storage_type=b.id
+		LEFT JOIN  cus_supplier c    ON a.source_company=c.id
+		LEFT JOIN  cus_client d  ON a.client_id=d.id
+		LEFT JOIN  cus_dictionary i  ON a.audit_sign=i.id
+		LEFT JOIN  scm_stock_in_item  aa ON a.id=aa.inhead_id
+		LEFT JOIN  cus_materiel m  ON aa.materiel_id=m.id
+		)aa
+		<where>
+			<if test="sourceCompany != null and sourceCompany != ''"> and sourceCompany = #{sourceCompany} </if>
+			<if test="sourceCompanyName != null and sourceCompanyName != ''"> AND sourceCompanyName like  CONCAT('%',#{sourceCompanyName},'%')  </if>
+			<if test="clientId != null and clientId != ''"> and clientId = #{clientId} </if>
+			<if test="clientName != null and clientName != ''"> AND clientName like  CONCAT('%',#{clientName},'%')  </if>
+			<if test="createTime != null and createTime != ''"> and createTime = #{createTime} </if>
+			<if test="auditSign != null and auditSign != ''"> and auditSign = #{auditSign} </if>
+			 <if test="createStartTime != null and createStartTime!= ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
+			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
+			<if test="supplierId != null and supplierId != ''"> and sourceCompany = #{supplierId} </if>
+			<if test="supplierName != null and supplierName != ''"> AND sourceCompanyName like  CONCAT('%',#{supplierName},'%')  </if>
+			<if test="materielName != null and materielName != ''"> and materielName  like  CONCAT('%', #{materielName},'%') </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countForHead" resultType="int">
+	select
+		count(id)
+	from
+	(
+		select
+		a.id,
+		a.inhead_code   as inheadCode,
+		a.storage_type  as  storageType,
+		b.name as storageTypeName,
+		a.source_company as sourceCompany,
+		c.name as sourceCompanyName,
+		a.client_id	   as clientId,
+		d.name as clientName,
+		a.in_out_time  as inOutTime,
+		a.audit_sign as  auditSign,
+		i.name as auditSignName,
+		a.in_time	as   inTime,
+		a.create_time as createTime,
+		m.name as materielName
+		from
+		scm_stock_in  a
+		LEFT JOIN  cus_dictionary b  ON a.storage_type=b.id
+		LEFT JOIN  cus_supplier c    ON a.source_company=c.id
+		LEFT JOIN  cus_client d  ON a.client_id=d.id
+		LEFT JOIN  cus_dictionary i  ON a.audit_sign=i.id
+		LEFT JOIN  scm_stock_in_item  aa ON a.id=aa.inhead_id
+		LEFT JOIN  cus_materiel m  ON aa.materiel_id=m.id
+		)aa
+		<where>
+			<if test="sourceCompany != null and sourceCompany != ''"> and sourceCompany = #{sourceCompany} </if>
+			<if test="sourceCompanyName != null and sourceCompanyName != ''"> AND sourceCompanyName like  CONCAT('%',#{sourceCompanyName},'%')  </if>
+			<if test="clientId != null and clientId != ''"> and clientId = #{clientId} </if>
+			<if test="clientName != null and clientName != ''"> AND clientName like  CONCAT('%',#{clientName},'%')  </if>
+			<if test="createTime != null and createTime != ''"> and createTime = #{createTime} </if>
+			<if test="auditSign != null and auditSign != ''"> and auditSign = #{auditSign} </if>
+			<if test="createStartTime != null and createStartTime!= ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
+			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
+			<if test="supplierId != null and supplierId != ''"> and sourceCompany = #{supplierId} </if>
+			<if test="supplierName != null and supplierName != ''"> AND sourceCompanyName like  CONCAT('%',#{supplierName},'%')  </if>
+			<if test="materielName != null and materielName != ''"> and materielName  like  CONCAT('%', #{materielName},'%') </if>
+		</where>
+	</select>
+
 </mapper>

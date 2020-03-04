@@ -64,6 +64,15 @@ public class StockInServiceImpl implements StockInService {
 	private StockOutItemService stockOutItemService;
 
 	@Override
+	public List<Map<String, Object>> listForHead(Map<String, Object> map) {
+		return stockInDao.listForHead(map);
+	}
+
+	@Override
+	public int countForHead(Map<String, Object> map) {
+		return stockInDao.countForHead(map);
+	}
+	@Override
 	public Map<String, Object> countForMap(Map<String, Object> map) {
 		return stockInDao.countForMap(map);
 	}
@@ -876,7 +885,6 @@ public class StockInServiceImpl implements StockInService {
 		}
 		return "ok";
 	}
-
 
 
 

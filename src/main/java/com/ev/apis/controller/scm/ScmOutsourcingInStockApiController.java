@@ -100,7 +100,7 @@ public class ScmOutsourcingInStockApiController {
         return  stockInService.deleBatch(inHeadIds);
     }
 
-    @EvApiByToken(value = "/apis/scm/outsourcingInStock/list", method = RequestMethod.POST, apiTitle = "生产入库列表/查询/高级查询")
+    @EvApiByToken(value = "/apis/scm/outsourcingInStock/list", method = RequestMethod.POST, apiTitle = "委外入库列表/查询/高级查询")
     @ApiOperation("委外入库列表/查询/高级查询")
     public R otherHeadDetailList(@ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
                                  @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
@@ -147,6 +147,40 @@ public class ScmOutsourcingInStockApiController {
 
             dsRet.put("toatalCount",totalForMap.get("toatalCount"));
             dsRet.put("toatalAmount",totalForMap.get("toatalAmount"));
+            dsRet.put("datas",detailList);
+            resulst.put("data", dsRet);
+        }
+        return R.ok(resulst);
+    }
+
+
+    @EvApiByToken(value = "/apis/scm/outsourcingInStock/listOfHead", method = RequestMethod.POST, apiTitle = "委外入库主信息列表")
+    @ApiOperation("委外入库主信息列表")
+    public R otherHeadList(@ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
+                                 @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
+                                 @ApiParam(value = "物料名（模糊）") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
+                                 @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
+                                 @ApiParam(value = "制单起始日期") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String  createStartTime,
+                                 @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime) {
+        Map<String, Object> resulst = new HashMap<>();
+        Map<String, Object> params = new HashMap<>();
+        params.put("materielName", materielName);
+        params.put("auditSign", auditSign);
+        params.put("storageType", ConstantForGYL.OUTSOURCING_INSTOCK);
+        params.put("offset", (pageno - 1) * pagesize);
+        params.put("limit", pagesize);
+        params.put("createStartTime", createStartTime);
+        params.put("createEndTime", createEndTime);
+
+        int count = stockInService.countForHead(params);
+        List<Map<String, Object>> detailList = stockInService.listForHead(params);
+
+        if (!detailList.isEmpty()) {
+            Map<String, Object> dsRet = new HashMap<>();
+            dsRet.put("pageno",pageno);
+            dsRet.put("pagesize",pagesize);
+            dsRet.put("totalPages",(count + pagesize - 1) / pagesize);
+            dsRet.put("totalRows",count);
             dsRet.put("datas",detailList);
             resulst.put("data", dsRet);
         }
