@@ -197,7 +197,8 @@ public class SalescontractServiceImpl implements SalescontractService {
     }
 
     @Override
-    public R editSalesContract(Long salesContractId, String bodyItem, String bodyPay, Long[] payIds) {
+    public R editSalesContract(SalescontractDO salesContract, String bodyItem, String bodyPay, Long[] payIds) {
+        Long salesContractId = salesContract.getId();
         SalescontractDO salescontractDO = this.get(salesContractId);
         if (Objects.equals(salescontractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("scm.contract.isUpdate.notAlteration", null));
@@ -231,6 +232,7 @@ public class SalescontractServiceImpl implements SalescontractService {
             alterationDO.setContractType(ConstantForGYL.XSHT);
             contractAlterationDao.save(alterationDO);
         }
+        this.update(salesContract);
         return R.ok();
     }
 

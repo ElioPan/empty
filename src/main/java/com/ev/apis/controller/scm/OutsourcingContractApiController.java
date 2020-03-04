@@ -190,7 +190,7 @@ public class OutsourcingContractApiController {
     @ApiOperation("变更委外合同")
 	@Transactional(rollbackFor = Exception.class)
 	public R editOutsourcingContract(
-            @ApiParam(value = "委外合同id",required = true) @RequestParam(value = "id",defaultValue = "") Long outsourcingContractId,
+            OutsourcingContractDO outsourcingContract,
             @ApiParam(value = "委外合同明细:详情回传过去的JSONArray",
                     required = true) @RequestParam(value = "bodyItem", defaultValue = "") String bodyItem,
             @ApiParam(value = "添加/修改委外合同付款条件:" +
@@ -252,7 +252,7 @@ public class OutsourcingContractApiController {
                 }
             }
         }
-		return  outsourcingContractService.editOutsourcingContract(outsourcingContractId, bodyItem, bodyPay,payIds);
+		return  outsourcingContractService.editOutsourcingContract(outsourcingContract, bodyItem, bodyPay,payIds);
 	}
 	
 	@EvApiByToken(value = "/apis/outsourcingContract/outsourcingContractList",method = RequestMethod.GET,apiTitle = "获取委外合同列表")

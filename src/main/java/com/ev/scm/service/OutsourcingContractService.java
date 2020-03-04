@@ -38,7 +38,7 @@ public interface OutsourcingContractService {
 
     R removeOutsourcingContract(Long[] outsourcingContractIds);
 
-    R editOutsourcingContract(Long outsourcingContractId, String bodyItem, String bodyPay, Long[] payIds);
+    R editOutsourcingContract( OutsourcingContractDO outsourcingContract, String bodyItem, String bodyPay, Long[] payIds);
 
     List<ContractPayVO> getContractPayVOS(Long outsourcingContractId,String bodyPay, Long[] payIds, List<OutsourcingContractPayDO> outsourcingContractPayList);
 

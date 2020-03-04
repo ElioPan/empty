@@ -43,7 +43,7 @@ public interface SalescontractService {
 	
 	R getDetail(Long salesContractId);
 
-    R editSalesContract(Long salesContractId, String bodyItem, String bodyPay, Long[] payIds);
+    R editSalesContract(SalescontractDO salesContract, String bodyItem, String bodyPay, Long[] payIds);
 
     R close(Long id);
 

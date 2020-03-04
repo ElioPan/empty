@@ -180,7 +180,8 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
     }
 
     @Override
-    public R editOutsourcingContract(Long outsourcingContractId, String bodyItem, String bodyPay, Long[] payIds) {
+    public R editOutsourcingContract(OutsourcingContractDO outsourcingContract, String bodyItem, String bodyPay, Long[] payIds) {
+        Long outsourcingContractId = outsourcingContract.getId();
         OutsourcingContractDO outsourcingContractDO = this.get(outsourcingContractId);
         if (Objects.equals(outsourcingContractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("scm.contract.isUpdate.notAlteration", null));
@@ -234,6 +235,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
             alterationDO.setContractType(ConstantForGYL.WWHT);
             contractAlterationDao.save(alterationDO);
         }
+        this.update(outsourcingContract);
         return R.ok();
     }
 

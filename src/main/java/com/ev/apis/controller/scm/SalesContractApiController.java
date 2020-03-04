@@ -116,7 +116,7 @@ public class SalesContractApiController {
     @ApiOperation("变更销售合同")
 	@Transactional(rollbackFor = Exception.class)
 	public R editSalesContract(
-            @ApiParam(value = "销售合同id",required = true) @RequestParam(value = "id",defaultValue = "") Long salesContractId,
+            SalescontractDO salesContract,
             @ApiParam(value = "销售合同明细:详情回传过去的JSONArray",
                     required = true) @RequestParam(value = "bodyItem", defaultValue = "") String bodyItem,
             @ApiParam(value = "添加/修改销售合同收款条件:" +
@@ -141,7 +141,7 @@ public class SalesContractApiController {
                     required = true) @RequestParam(value = "bodyPay", defaultValue = "") String bodyPay,
             @ApiParam(value = "被删除的销售合同条件ID") @RequestParam(value = "payIds", defaultValue = "", required = false) Long[] payIds
     ){
-		return salescontractService.editSalesContract(salesContractId, bodyItem, bodyPay,payIds);
+		return salescontractService.editSalesContract(salesContract, bodyItem, bodyPay,payIds);
 	}
 	
 	@EvApiByToken(value = "/apis/salesContractApi/salesContractList",method = RequestMethod.GET,apiTitle = "获取销售合同列表")
