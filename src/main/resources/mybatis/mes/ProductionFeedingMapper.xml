@@ -59,7 +59,8 @@
 			`create_time`, 
 			`update_by`, 
 			`update_time`, 
-			`del_flag`
+			`del_flag`,
+			`supplier_id`
 		)
 		values
 		(
@@ -77,7 +78,8 @@
 			#{createTime}, 
 			#{updateBy}, 
 			#{updateTime}, 
-			#{delFlag}
+			#{delFlag},
+			#{supplierId}
 		)
 	</insert>
 	 
@@ -98,6 +100,7 @@
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
 			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="supplierId != null">`supplier_id` = #{supplierId}, </if>
 			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
 		</set>
 		where id = #{id}
@@ -115,7 +118,8 @@
 	</delete>
 	
 	<sql id="sql_column_list">
-		`id`,`production_plan_id`,`outsource_contract_item_id`,`type`,`feeding_no`,`status`,`materiel_id`,`pro_dept`,`plan_count`,`is_quota`,`auditor`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+		`id`,`production_plan_id`,`outsource_contract_item_id`,`type`,`feeding_no`,`status`,`materiel_id`,`pro_dept`,`plan_count`,`is_quota`,`auditor`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`supplier_id`
+
 	</sql>
 	
 	<sql id="sql_condition">
@@ -136,6 +140,7 @@
 		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
 		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
 		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+			<if test="supplierId != null and delFlag != ''"> and supplier_id = #{supplierId} </if>
 		  		</where>
 	</sql>
 

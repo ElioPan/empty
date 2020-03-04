@@ -409,7 +409,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                 .collect(Collectors.toList());
         if (itemDOList.size() > 0) {
             for (OutsourcingContractItemDO outsourcingContractItemDO : itemDOList) {
-                feedingService.add(this.getFeedingDO(outsourcingContractItemDO), this.getFeedingChildArray(outsourcingContractItemDO));
+                feedingService.add(this.getFeedingDO(outsourcingContractItemDO,outsourcingContractDO), this.getFeedingChildArray(outsourcingContractItemDO));
             }
         }
         // 修改单据状态
@@ -423,12 +423,13 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
     /**
      * 通过委外合同子表信息创建一个生产投料单头部信息
      */
-    private ProductionFeedingDO getFeedingDO(OutsourcingContractItemDO outsourcingContractItemDO) {
+    private ProductionFeedingDO getFeedingDO(OutsourcingContractItemDO outsourcingContractItemDO,OutsourcingContractDO outsourcingContractDO) {
         ProductionFeedingDO feedingDO = new ProductionFeedingDO();
         feedingDO.setOutsourceContractItemId(outsourcingContractItemDO.getId());
         feedingDO.setMaterielId(outsourcingContractItemDO.getMaterielId());
         feedingDO.setPlanCount(outsourcingContractItemDO.getCount());
         feedingDO.setIsQuota(outsourcingContractItemDO.getIsQuota());
+        feedingDO.setSupplierId(outsourcingContractDO.getSupplierId());
         return feedingDO;
     }
 

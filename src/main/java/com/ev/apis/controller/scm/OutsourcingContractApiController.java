@@ -383,6 +383,8 @@ public class OutsourcingContractApiController {
     public R childList(
             @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
             @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+            @ApiParam(value = "供应商名") @RequestParam(value = "supplierName", defaultValue = "", required = false) String supplierName,
+            @ApiParam(value = "供应商Id") @RequestParam(value = "supplierId", defaultValue = "", required = false) Long supplierId,
             @ApiParam(value = "投料单号") @RequestParam(value = "planNo", defaultValue = "", required = false) String planNo,
             @ApiParam(value = "物料名称") @RequestParam(value = "materialsName", defaultValue = "", required = false) String materialsName,
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
@@ -391,7 +393,8 @@ public class OutsourcingContractApiController {
             @ApiParam(value = "父项产品ID") @RequestParam(value = "headId", defaultValue = "", required = false) Long headId) {
         // 查询列表数据
         Map<String, Object> params = Maps.newHashMap();
-
+        params.put("supplierName", StringUtils.sqlLike(supplierName));
+        params.put("supplierId", supplierId);
         params.put("planNo", planNo);
         params.put("materialsName", materialsName);
         params.put("startTime", startTime);

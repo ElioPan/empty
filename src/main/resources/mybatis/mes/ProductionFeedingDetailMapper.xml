@@ -167,6 +167,7 @@
 	<sql id="sql_map_condition">
 		FROM mes_production_feeding_detail detail
         LEFT JOIN mes_production_feeding feeding ON feeding.id= detail.`head_id`
+		LEFT JOIN cus_supplier supplier ON supplier.id= feeding.supplier_id
         LEFT JOIN cus_materiel headmaterial ON headmaterial.`id` = feeding.`materiel_id`
 		LEFT JOIN cus_materiel material ON material.`id` = detail.`materiel_id`
 		LEFT JOIN cus_dictionary unituom ON unituom.id = material.unit_uom
@@ -174,6 +175,8 @@
 		LEFT JOIN cus_facility_location location ON location.id = material.default_location
 		<where>  
             <if test="headId != null and headId != ''"> and detail.head_id = #{headId} </if>
+			<if test="supplierName != null and supplierName != ''"> and supplier.name LIKE #{supplierName} </if>
+			<if test="supplierId != null and supplierId != ''"> and feeding.supplier_id = #{supplierId} </if>
             <if test="planNo != null and planNo != ''"> and feeding.`feeding_no` LIKE CONCAT('%', #{planNo},'%' )</if>
 			<if test="auditSign != null and auditSign != ''"> and feeding.`status` = #{auditSign} </if>
             <if test="materialsName != null and materialsName != ''"> and material.name LIKE CONCAT('%', #{materialsName},'%' )</if>

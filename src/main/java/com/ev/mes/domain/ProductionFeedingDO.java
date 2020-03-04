@@ -42,6 +42,9 @@ public class ProductionFeedingDO implements Serializable {
 	//产品ID
     @ApiModelProperty(value = "产品ID")
 	private Integer materielId;
+	//供应商ID
+	@ApiModelProperty(value = "供应商ID")
+	private Long supplierId;
 	//生产部门
     @ApiModelProperty(value = "生产部门")
 	private Long proDept;
