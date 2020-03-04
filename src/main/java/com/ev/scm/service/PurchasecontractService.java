@@ -43,7 +43,7 @@ public interface PurchasecontractService {
 
 	R getDetailOfContract(Long id);
 
-	R editPurchaseContract(Long purchaseContractId, String bodyItem, String bodyPay, Long[] payIds);
+	R editPurchaseContract(Long purchaseContractId,String uninvoicedAmount, String bodyItem, String bodyPay, Long[] payIds);
 
 	List<Map<String, Object>> listForMap(Map<String, Object> map);
 

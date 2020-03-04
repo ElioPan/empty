@@ -174,6 +174,7 @@ public class ScmPurchaseContractApiController {
     @Transactional(rollbackFor = Exception.class)
     public R editSalesContract(
             @ApiParam(value = "采购合同id",required = true) @RequestParam(value = "id",defaultValue = "") Long id,
+            @ApiParam(value = "未开票金额",required = true) @RequestParam(value = "uninvoicedAmount")  String uninvoicedAmount,
             @ApiParam(value = "采购合同明细:详情回传过去的JSONArray",required = true) @RequestParam(value = "bodyItem", defaultValue = "") String bodyItem,
             @ApiParam(value = "添加/修改采购合同收款条件:[\n" +
                     "{\n" +
@@ -187,7 +188,7 @@ public class ScmPurchaseContractApiController {
                     "]", required = true) @RequestParam(value = "bodyPay", defaultValue = "") String bodyPay,
             @ApiParam(value = "被删除的付款条件ID") @RequestParam(value = "payIds", required = false) Long[] payIds
     ){
-        return purchasecontractService.editPurchaseContract(id, bodyItem, bodyPay,payIds);
+        return purchasecontractService.editPurchaseContract(id,uninvoicedAmount, bodyItem, bodyPay,payIds);
     }
 
 

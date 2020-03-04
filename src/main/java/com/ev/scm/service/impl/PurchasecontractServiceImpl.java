@@ -264,7 +264,7 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 
 
 	@Override
-	public R editPurchaseContract(Long purchaseContractId, String bodyItem, String bodyPay, Long[] deletPayIds) {
+	public R editPurchaseContract(Long purchaseContractId, String uninvoicedAmount,String bodyItem, String bodyPay, Long[] deletPayIds) {
 
 		if(Objects.nonNull(deletPayIds)&&deletPayIds.length>0){
 			Boolean aBoolean = paymentReceivedItemService.whetherTheReference(ConstantForGYL.PAYMENT_ORDER, purchaseContractId, deletPayIds);
@@ -288,6 +288,14 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 		List<PurchasecontractItemDO> oldDetailOfBody = purchasecontractItemService.list(paramyId);
 		List<PurchasecontractPayDO> oldDetailOfPay = purchasecontractPayService.detailOfPay(params);
 		JSONObject alterationContent = new JSONObject();
+
+		//更新未开票金额
+		if(StringUtils.isNotEmpty(uninvoicedAmount)){
+			PurchasecontractDO purchasecontractDO1=new PurchasecontractDO();
+			purchasecontractDO1.setId(purchaseContractId);
+			purchasecontractDO1.setUninvoicedAmount(new BigDecimal(uninvoicedAmount));
+			this.purchasecontractDao.update(purchasecontractDO1);
+		}
 
 		//处理明细
 		List<ContractItemVO> itemList = this.getContractItemVOS(bodyItem, oldDetailOfBody);
