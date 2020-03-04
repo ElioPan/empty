@@ -720,8 +720,11 @@ public class StockOutServiceImpl implements StockOutService {
                 params.put("facilityId",map.get("facId"));
                 params.put("isPC",1);
                 List<Map<String, Object>> stockListForMap = materielService.stockListForMap(params);
+                BigDecimal count = MathUtils.getBigDecimal(map.get("count"));
                 if (stockListForMap.size() > 0) {
-                    map.put("availableCount",MathUtils.getBigDecimal(map.get("availableCount")).add(MathUtils.getBigDecimal(stockListForMap.get(0).get("availableCount"))));
+                    map.put("availableCount", count.add(MathUtils.getBigDecimal(stockListForMap.get(0).get("availableCount"))));
+                }else {
+                    map.put("availableCount",count);
                 }
             }
         }
