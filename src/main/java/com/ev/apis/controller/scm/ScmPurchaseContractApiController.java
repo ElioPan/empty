@@ -265,6 +265,7 @@ public class ScmPurchaseContractApiController {
             @ApiParam(value = "合同编号") @RequestParam(value = "contractCode",required = false) String contractCode,
             @ApiParam(value = "供应商名称/物料名称 模糊查询") @RequestParam(value = "fuzzyQuery",required = false) String fuzzyQuery,
             @ApiParam(value = "合同类型") @RequestParam(value = "contractType",required = false) Long contractType,
+            @ApiParam(value = "供应商ID") @RequestParam(value = "supplierId",defaultValue = "",required = false)  Long supplierId,
             @ApiParam(value = "供应商名称") @RequestParam(value = "supplierName",defaultValue = "",required = false)  String supplierName,
             @ApiParam(value = "物料名称") @RequestParam(value = "materielName",defaultValue = "",required = false)  String materielName,
             @ApiParam(value = "规格型号") @RequestParam(value = "specification",required = false) String specification,
@@ -288,6 +289,9 @@ public class ScmPurchaseContractApiController {
         map.put("createBy", createBy);
         map.put("createTime", createTime);
         map.put("closeStatus", closeStatus);
+         map.put("supplierId", supplierId);
+
+
 
         List<Map<String, Object>> data = purchasecontractService.listForMap(map);
 

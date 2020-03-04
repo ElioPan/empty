@@ -109,6 +109,7 @@ public class ScmPurchaseInStockController {
                                  @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
                                  @ApiParam(value = "入库单号") @RequestParam(value = "inheadCode", defaultValue = "", required = false) String inheadCode,
                                  @ApiParam(value = "供应商（模糊）") @RequestParam(value = "supplierName", defaultValue = "", required = false) String supplierName,
+                                 @ApiParam(value = "供应商ID") @RequestParam(value = "supplierId",defaultValue = "",required = false)  Long supplierId,
                                  @ApiParam(value = "物料名（模糊）") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
                                  @ApiParam(value = "入库起始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
                                  @ApiParam(value = "入库截止时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
@@ -135,6 +136,7 @@ public class ScmPurchaseInStockController {
         params.put("createByName", createByName);
         params.put("createStartTime", createStartTime);
         params.put("createEndTime", createEndTime);
+        params.put("supplierId", supplierId);
         params.put("storageType", ConstantForGYL.PURCHASE_INSTOCK);
 
 
