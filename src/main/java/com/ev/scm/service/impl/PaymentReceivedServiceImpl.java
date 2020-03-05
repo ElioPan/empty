@@ -20,6 +20,7 @@ import org.apache.poi.ss.formula.ptg.MemAreaPtg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 
@@ -181,11 +182,12 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 				PaymentReceivedItemDO  paymentReceivedItemDO=list.get(i);
 				Long sourcePayItemId = paymentReceivedItemDO.getSourcePayItemId();
 				if(Objects.nonNull(sourcePayItemId)){
-					payItemId[0]=sourcePayItemId;
+					payItemId[i]=sourcePayItemId;
 				}
 			}
 			query.put("payItemId",payItemId);
 
+		//验证合同金额
         int checkResukt = this.checkContractAmoutn(sign, list, payItemId);
         if(Objects.equals(1,checkResukt)){
             return R.error(messageSourceHandler.getMessage("scm.canDelet.contractPayItemDelet",null));
@@ -197,14 +199,14 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 
 		if(Objects.nonNull(paymentReceivedDO)){
 			if(Objects.equals(paymentReceivedDO.getAuditSign(),ConstantForGYL.WAIT_AUDIT)){
-				PaymentReceivedDO payDo =payDo = new PaymentReceivedDO();
+				PaymentReceivedDO payDo = new PaymentReceivedDO();
 				payDo.setAuditSign(ConstantForGYL.OK_AUDITED);
 				payDo.setAuditor(ShiroUtils.getUserId());
 				payDo.setAuditTime(new Date());
 				payDo.setId(id);
 				payDo.setSign(sign);
-				this.updateAuditSign(paymentReceivedDO);
-				//回写
+				int i = this.updateAuditSign(payDo);
+				//回写金额
                 changeContractAmoutn(sign,list, payItemId);
 				return R.ok();
 			}else{
@@ -240,13 +242,16 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
             List<SalescontractPayDO> salescontractPayDOS = this.detailOfSalePayById(query);
 
             for(PaymentReceivedItemDO pyReceivedItemDo:list){
+
                 Long pyItemId=pyReceivedItemDo.getSourcePayItemId();
+
                 for(SalescontractPayDO salecontractPayDo:salescontractPayDOS){
+
                     if(Objects.equals(pyItemId,salecontractPayDo.getId())){
                         salecontractPayDo.setReceivedAmount(pyReceivedItemDo.getThisAmount().add(salecontractPayDo.getReceivedAmount()));
                         salecontractPayDo.setUnpayAmount(salecontractPayDo.getUnpayAmount().subtract(pyReceivedItemDo.getThisAmount()));
                         salescontractPayService.update(salecontractPayDo);
-                        break;
+//                        break;
                     }
                 }
             }
