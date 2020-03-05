@@ -631,72 +631,74 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                 .stream()
                 .filter(outsourcingContractItemDO -> outsourcingContractItemDO.getSourceId()!=null)
                 .collect(Collectors.toList());
-        Map<Long, BigDecimal> count = Maps.newHashMap();
-        Map<Long, Long> sourceIdAndItemId = Maps.newHashMap();
-        Long sourceType = itemDOs.get(0).getSourceType();
-        for (OutsourcingContractItemDO itemDO : itemDOs) {
-            Long sourceId = itemDO.getSourceId();
-            if (count.containsKey(sourceId)) {
-                count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
-                continue;
-            }
-            sourceIdAndItemId.put(sourceId,itemDO.getId());
-            count.put(itemDO.getSourceId(), itemDO.getCount());
-        }
-
-        if (count.size() > 0) {
-            Map<String,Object> map;
-            // 销售合同源单
-            if (Objects.equals(sourceType,ConstantForGYL.XSHT)) {
-                SalescontractItemDO detailDO;
-                BigDecimal contractCount;
-                for (Long sourceId : count.keySet()) {
-                    detailDO = salescontractItemService.get(sourceId);
-                    contractCount = detailDO.getCount();
-                    // 查询源单已被选择数量
-                    map = Maps.newHashMap();
-                    map.put("id",sourceIdAndItemId.get(sourceId));
-                    map.put("sourceId",sourceId);
-                    map.put("sourceType",ConstantForGYL.XSHT);
-                    BigDecimal bySource = this.getCountBySource(map);
-                    BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
-                    if (contractCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
-                        List<OutsourcingContractItemDO> collect = itemDOs.stream()
-                                .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
-                                .collect(Collectors.toList());
-                        String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
-                        return R.error(messageSourceHandler.getMessage("stock.number.error", args));
-                    }
+        if(itemDOs.size()>0){
+            Map<Long, BigDecimal> count = Maps.newHashMap();
+            Map<Long, Long> sourceIdAndItemId = Maps.newHashMap();
+            Long sourceType = itemDOs.get(0).getSourceType();
+            for (OutsourcingContractItemDO itemDO : itemDOs) {
+                Long sourceId = itemDO.getSourceId();
+                if (count.containsKey(sourceId)) {
+                    count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
+                    continue;
                 }
-            }
-            // 生产投料单源单
-            if(Objects.equals(sourceType,ConstantForGYL.SCTLD)){
-                ProductionFeedingDetailDO detailDO;
-                BigDecimal planFeeding;
-                for (Long sourceId : count.keySet()) {
-                    detailDO = productionFeedingDetailService.get(sourceId);
-                    ProductionFeedingDO productionFeedingDO = productionFeedingService.get(detailDO.getHeadId());
-                    if (productionFeedingDO.getIsQuota()==0 || productionFeedingDO.getIsQuota()==null) {
-                        continue;
-                    }
-                    planFeeding = detailDO.getPlanFeeding();
-                    // 查询源单已被选择数量
-                    map = Maps.newHashMap();
-                    map.put("id",sourceIdAndItemId.get(sourceId));
-                    map.put("sourceId",sourceId);
-                    map.put("sourceType",ConstantForGYL.WWTLD);
-                    BigDecimal bySource = this.getCountBySource(map);
-                    BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
-                    if (planFeeding.compareTo(count.get(sourceId).add(countByOutSource))<0){
-                        List<OutsourcingContractItemDO> collect = itemDOs.stream()
-                                .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
-                                .collect(Collectors.toList());
-                        String [] args = {count.get(sourceId).toPlainString(),planFeeding.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
-                        return R.error(messageSourceHandler.getMessage("stock.number.error", args));
-                    }
-                }
+                sourceIdAndItemId.put(sourceId,itemDO.getId());
+                count.put(itemDO.getSourceId(), itemDO.getCount());
             }
 
+            if (count.size() > 0) {
+                Map<String,Object> map;
+                // 销售合同源单
+                if (Objects.equals(sourceType,ConstantForGYL.XSHT)) {
+                    SalescontractItemDO detailDO;
+                    BigDecimal contractCount;
+                    for (Long sourceId : count.keySet()) {
+                        detailDO = salescontractItemService.get(sourceId);
+                        contractCount = detailDO.getCount();
+                        // 查询源单已被选择数量
+                        map = Maps.newHashMap();
+                        map.put("id",sourceIdAndItemId.get(sourceId));
+                        map.put("sourceId",sourceId);
+                        map.put("sourceType",ConstantForGYL.XSHT);
+                        BigDecimal bySource = this.getCountBySource(map);
+                        BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
+                        if (contractCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
+                            List<OutsourcingContractItemDO> collect = itemDOs.stream()
+                                    .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
+                                    .collect(Collectors.toList());
+                            String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
+                            return R.error(messageSourceHandler.getMessage("stock.number.error", args));
+                        }
+                    }
+                }
+                // 生产投料单源单
+                if(Objects.equals(sourceType,ConstantForGYL.SCTLD)){
+                    ProductionFeedingDetailDO detailDO;
+                    BigDecimal planFeeding;
+                    for (Long sourceId : count.keySet()) {
+                        detailDO = productionFeedingDetailService.get(sourceId);
+                        ProductionFeedingDO productionFeedingDO = productionFeedingService.get(detailDO.getHeadId());
+                        if (productionFeedingDO.getIsQuota()==0 || productionFeedingDO.getIsQuota()==null) {
+                            continue;
+                        }
+                        planFeeding = detailDO.getPlanFeeding();
+                        // 查询源单已被选择数量
+                        map = Maps.newHashMap();
+                        map.put("id",sourceIdAndItemId.get(sourceId));
+                        map.put("sourceId",sourceId);
+                        map.put("sourceType",ConstantForGYL.WWTLD);
+                        BigDecimal bySource = this.getCountBySource(map);
+                        BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
+                        if (planFeeding.compareTo(count.get(sourceId).add(countByOutSource))<0){
+                            List<OutsourcingContractItemDO> collect = itemDOs.stream()
+                                    .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
+                                    .collect(Collectors.toList());
+                            String [] args = {count.get(sourceId).toPlainString(),planFeeding.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
+                            return R.error(messageSourceHandler.getMessage("stock.number.error", args));
+                        }
+                    }
+                }
+
+            }
         }
         return null;
     }
