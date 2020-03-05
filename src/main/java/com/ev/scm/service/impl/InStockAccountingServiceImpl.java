@@ -163,26 +163,29 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                     //某个采购单关联的子表totailAmount,totailCount
                     Map<String, Object> totailCountAmount = stockIntemService.getTotailCountAmount(stockInheadIds[j]);
 
-                    int pointCount=Constant.BIGDECIMAL_ZERO.intValue()+2;
+
                     BigDecimal meanValue;
                     if(sign){
                         BigDecimal totailCount= new BigDecimal(String.valueOf(totailCountAmount.get("totailCount")));
-                        meanValue=totailExprnseAmountBig.divide(totailCount, pointCount,BigDecimal.ROUND_HALF_UP);
+                        meanValue=totailExprnseAmountBig.divide(totailCount, Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
                     }else{
                         BigDecimal totailAmount= new BigDecimal(String.valueOf(totailCountAmount.get("totailAmount")));
-                        meanValue=totailExprnseAmountBig.divide(totailAmount,pointCount,BigDecimal.ROUND_HALF_UP);
+                        meanValue=totailExprnseAmountBig.divide(totailAmount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
                     }
+                    map.clear();
+                    List<StockInItemDO> listItemDo=new ArrayList<>();
                     for (StockInItemDO stockInItemDO:listSotockInItem){
-                        map.clear();
+
                         if(sign){
-                            map.put("expence",meanValue.multiply(stockInItemDO.getCount()));
+                            stockInItemDO.setExpense(meanValue.multiply(stockInItemDO.getCount()));
                         }else{
-                            map.put("expence",meanValue.multiply(stockInItemDO.getAmount()));
+                            stockInItemDO.setExpense(meanValue.multiply(stockInItemDO.getAmount()));
                         }
-                        map.put("expence",meanValue);
-                        map.put("stockInId",stockInheadIds[j]);
-                        stockIntemService.updateExpense(map);
+                        stockInItemDO.setId(stockInItemDO.getId());
+                        listItemDo.add(stockInItemDO);
+//                        stockIntemService.update(stockIntemDO);
                     }
+                    stockIntemService.batchUpdate(listItemDo);
                 }
             }
     }

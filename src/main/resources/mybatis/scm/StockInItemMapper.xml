@@ -403,8 +403,8 @@
 			scm_stock_in_item a
 		set
 		    a.expense=#{expense}
-		WHERE
-			a.inhead_id =#{stockInId}
+		where
+			a.id = #{id}
 	</update>
 
 	<select id="getListBystockInId" resultType="map">
