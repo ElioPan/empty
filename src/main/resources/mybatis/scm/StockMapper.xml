@@ -144,16 +144,6 @@
 
 
 
-	<select id="getProCountForMap" resultType="com.ev.scm.domain.StockDO">
-		select `id`,`count`,`unit_price` from scm_stock
-		<where>
-			<if test="proId != null and proId != ''"> and materiel_id = #{proId} </if>
-			<if test="batch != null and batch != ''"> and batch = #{batch} </if>
-			<if test="warehLocation != null and warehLocation != ''"> and wareh_location = #{warehLocation} </if>
-			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
-			and `count`>0
-		</where>
-	</select>
 
 	<!-- 批量保存库存明细 -->
     <insert id="batchSave" parameterType="List" useGeneratedKeys="true" keyProperty="id">

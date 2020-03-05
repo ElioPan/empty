@@ -29,8 +29,6 @@ public interface StockDao {
 	
 	int batchRemove(Long[] ids);
 	
-	List<StockDO> getProCountForMap(Map<String, Object> map);
-
     int batchSave(List<StockDO> stockDOs);
 
     List<Map<String, Object>> listForMap(Map<String, Object> results);
