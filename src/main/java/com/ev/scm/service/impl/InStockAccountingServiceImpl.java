@@ -597,14 +597,15 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
     @Override
     public R disposeaccountingPrice(Long[] stockInIds) {
 
-        boolean b = this.disposeIsClose(stockInIds,false);
-        if (!b){
-            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
-        }
+//        boolean b = this.disposeIsClose(stockInIds,false);
+//        if (!b){
+//            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+//        }
 
         Map<String,Object>  map= new HashMap<>();
         map.put("id",stockInIds);
         if(this.getCountOfSignIsO(map)>0){
+            //未经分配的 sign==2，初始2
             return  R.error(messageSourceHandler.getMessage("scm.accounting.bussenissAccounting", null));
         }
         map.clear();
@@ -615,7 +616,10 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
             for(StockInItemDO inItemDo:inItemDos){
 
-                BigDecimal totailAmout = inItemDo.getAmount().add(inItemDo.getCost().add(inItemDo.getExpense()));
+                BigDecimal cost=inItemDo.getCost()==null?BigDecimal.ZERO:inItemDo.getCost();
+                BigDecimal expense=inItemDo.getExpense()==null?BigDecimal.ZERO:inItemDo.getExpense();
+
+                BigDecimal totailAmout = inItemDo.getAmount().add(cost.add(expense));
                 BigDecimal unitPrice = totailAmout.divide(inItemDo.getCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
                 inItemDo.setUnitPrice(unitPrice);
                 inItemDo.setAmount(totailAmout);
@@ -626,7 +630,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
             stockInDO.setId(id);
             stockInService.update(stockInDO);
         }
-            return null;
+            return R.ok();
     }
 
 
