@@ -54,4 +54,6 @@ public interface AllotService {
     R reverseAudit(Long id, Long db);
 
     boolean isQrcode(Long id);
+
+    R batchRemoveByIds(Long[] ids);
 }

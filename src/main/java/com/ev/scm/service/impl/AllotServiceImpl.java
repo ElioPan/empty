@@ -290,6 +290,20 @@ public class AllotServiceImpl implements AllotService {
     }
 
     @Override
+    public R batchRemoveByIds(Long[] ids) {
+        for (Long id : ids) {
+            if (this.get(id).getAuditSign().equals(ConstantForGYL.OK_AUDITED)) {
+                return R.error(messageSourceHandler.getMessage("common.approved.delete.disabled",null));
+            }
+        }
+        if (this.batchRemove(ids) == ids.length) {
+            allotItemService.batchRemoveByAllotId(ids);
+            return R.ok();
+        }
+        return R.error();
+    }
+
+    @Override
     public R reverseAudit(Long id, Long storageType) {
         if (this.isQrcode(id)) {
             return R.error(messageSourceHandler.getMessage("scm.stock.code.operateError", null));

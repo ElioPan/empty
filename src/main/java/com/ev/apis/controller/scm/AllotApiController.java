@@ -33,10 +33,6 @@ import java.util.Map;
 public class AllotApiController {
 	@Autowired
 	private AllotService allotService;
-	@Autowired
-	private AllotItemService allotItemService;
-	@Autowired
-	private MessageSourceHandler messageSourceHandler;
 
 	@EvApiByToken(value = "/apis/allot/add", method = RequestMethod.POST, apiTitle = "增加调拨单")
 	@ApiOperation("增加调拨单")
@@ -165,16 +161,7 @@ public class AllotApiController {
 	@ApiOperation("批量删除调拨单")
 	public R batchRemove(
 			@ApiParam(value = "调拨单ID数组", required = true) @RequestParam(value = "ids", defaultValue = "") Long[] ids) {
-		for (Long id : ids) {
-			if (allotService.get(id).getAuditSign().equals(ConstantForGYL.OK_AUDITED)) {
-				return R.error(messageSourceHandler.getMessage("common.approved.delete.disabled",null));
-			}
-		}
-		if (allotService.batchRemove(ids) == ids.length) {
-			allotItemService.batchRemoveByAllotId(ids);
-			return R.ok();
-		}
-		return R.error();
+		return allotService.batchRemoveByIds(ids);
 	}
 
 
