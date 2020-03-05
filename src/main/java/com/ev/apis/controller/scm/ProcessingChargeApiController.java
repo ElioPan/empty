@@ -3,19 +3,12 @@ package com.ev.apis.controller.scm;
 import cn.afterturn.easypoi.entity.vo.TemplateExcelConstants;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
-import com.alibaba.fastjson.JSON;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
-import com.ev.framework.config.ConstantForGYL;
-import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.domain.ProcessingChargeDO;
-import com.ev.scm.domain.ProcessingChargeItemDO;
-import com.ev.scm.domain.StockInItemDO;
-import com.ev.scm.service.ProcessingChargeItemService;
 import com.ev.scm.service.ProcessingChargeService;
-import com.ev.scm.service.StockInItemService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -31,11 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 加工费用控制器层
@@ -48,15 +38,6 @@ public class ProcessingChargeApiController {
 
 	@Autowired
 	private ProcessingChargeService processingChargeService;
-
-    @Autowired
-    private StockInItemService stockInItemService;
-
-    @Autowired
-    private ProcessingChargeItemService processingChargeItemService;
-
-    @Autowired
-    private MessageSourceHandler messageSourceHandler;
 
 
 	@EvApiByToken(value = "/apis/processingCharge/addOrUpdate",method = RequestMethod.POST,apiTitle = "添加加工费用")
@@ -97,42 +78,6 @@ public class ProcessingChargeApiController {
                     , required = true)
             @RequestParam(value = "bodyItem", defaultValue = "") String bodyItem,
             @ApiParam(value = "被删除的销售合同明细ID") @RequestParam(value = "itemIds", defaultValue = "", required = false) Long[] itemIds){
-        // 与源单数量对比
-        List<ProcessingChargeItemDO> itemDOs = JSON.parseArray(bodyItem, ProcessingChargeItemDO.class);
-        Map<Long, BigDecimal> count = Maps.newHashMap();
-        Map<Long, Long> sourceIdAndItemId = Maps.newHashMap();
-        for (ProcessingChargeItemDO itemDO : itemDOs) {
-            Long sourceId = itemDO.getSourceId();
-            if (count.containsKey(sourceId)) {
-                count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
-                continue;
-            }
-            sourceIdAndItemId.put(sourceId,itemDO.getId());
-            count.put(itemDO.getSourceId(), itemDO.getCount());
-        }
-        StockInItemDO detailDO;
-        BigDecimal contractCount;
-        if (count.size() > 0) {
-            for (Long sourceId : count.keySet()) {
-                detailDO = stockInItemService.get(sourceId);
-                contractCount = detailDO.getCount();
-                // 查询源单已被选择数量
-                Map<String,Object> map = Maps.newHashMap();
-                map.put("id",sourceIdAndItemId.get(sourceId));
-                map.put("sourceId",sourceId);
-                map.put("sourceType", ConstantForGYL.OUTSOURCING_INSTOCK);
-                BigDecimal bySource = processingChargeItemService.getCountBySource(map);
-                BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
-                if (contractCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
-                    List<ProcessingChargeItemDO> collect = itemDOs.stream()
-                            .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
-                            .collect(Collectors.toList());
-                    String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
-                    return R.error(messageSourceHandler.getMessage("stock.number.error", args));
-                }
-            }
-        }
-
 		return processingChargeService.addOrUpdateProcessingCharge(processingChargeDO, bodyItem, itemIds);
 	}
 	

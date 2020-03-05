@@ -9,6 +9,7 @@ import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.dao.*;
 import com.ev.scm.domain.*;
 import com.ev.scm.service.ProcessingChargeService;
+import com.ev.scm.service.StockInItemService;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -32,6 +34,10 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 	private StockInItemDao stockInItemDao;
 	@Autowired
 	private OutsourcingContractItemDao outsourcingContractItemDao;
+
+	@Autowired
+	private StockInItemService stockInItemService;
+
 	@Autowired
 	private MessageSourceHandler messageSourceHandler;
 	
@@ -72,6 +78,11 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 
 	@Override
 	public R addOrUpdateProcessingCharge(ProcessingChargeDO processingChargeDO, String bodyItem, Long[] itemIds) {
+		R r = this.checkSourceNumber(bodyItem);
+		if (r != null) {
+			return r;
+		}
+
 		Long id = processingChargeDO.getId();
 		// 新增
 		List<ProcessingChargeItemDO> itemDOS = JSON.parseArray(bodyItem, ProcessingChargeItemDO.class);
@@ -221,6 +232,46 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 		result.put("itemList",itemList);
 		result.put("itemTotalCount",itemTotalCount);
 		return R.ok(result);
+	}
+
+	@Override
+	public R checkSourceNumber(String bodyItem) {
+		// 与源单数量对比
+		List<ProcessingChargeItemDO> itemDOs = JSON.parseArray(bodyItem, ProcessingChargeItemDO.class);
+		Map<Long, BigDecimal> count = Maps.newHashMap();
+		Map<Long, Long> sourceIdAndItemId = Maps.newHashMap();
+		for (ProcessingChargeItemDO itemDO : itemDOs) {
+			Long sourceId = itemDO.getSourceId();
+			if (count.containsKey(sourceId)) {
+				count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
+				continue;
+			}
+			sourceIdAndItemId.put(sourceId,itemDO.getId());
+			count.put(itemDO.getSourceId(), itemDO.getCount());
+		}
+		StockInItemDO detailDO;
+		BigDecimal contractCount;
+		if (count.size() > 0) {
+			for (Long sourceId : count.keySet()) {
+				detailDO = stockInItemService.get(sourceId);
+				contractCount = detailDO.getCount();
+				// 查询源单已被选择数量
+				Map<String,Object> map = Maps.newHashMap();
+				map.put("id",sourceIdAndItemId.get(sourceId));
+				map.put("sourceId",sourceId);
+				map.put("sourceType", ConstantForGYL.OUTSOURCING_INSTOCK);
+				BigDecimal bySource = processingChargeItemDao.getCountBySource(map);
+				BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
+				if (contractCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
+					List<ProcessingChargeItemDO> collect = itemDOs.stream()
+							.filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
+							.collect(Collectors.toList());
+					String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
+					return R.error(messageSourceHandler.getMessage("stock.number.error", args));
+				}
+			}
+		}
+		return null;
 	}
 
 }

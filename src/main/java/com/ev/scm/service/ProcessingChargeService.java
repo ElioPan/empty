@@ -42,4 +42,6 @@ public interface ProcessingChargeService {
 	R reverseAudit(Long id);
 
 	R getDetail(Long id);
+
+    R checkSourceNumber(String bodyItem);
 }
