@@ -86,7 +86,8 @@ public class OtherStockOutApiController {
 	public R audit(
 			@ApiParam(value = "出库单Id", required = true) @RequestParam(value = "id", defaultValue = "") Long id
     ) {
-		return stockOutService.audit(id, ConstantForGYL.QTCK);
+        R audit = stockOutService.audit(id, ConstantForGYL.QTCK);
+        return audit==null?R.ok():audit;
 	}
 
     @EvApiByToken(value = "/apis/otherStockOut/reverseAudit", method = RequestMethod.POST, apiTitle = "反审核其他出库")
@@ -95,7 +96,8 @@ public class OtherStockOutApiController {
     public R reverseAudit(
             @ApiParam(value = "出库单Id", required = true) @RequestParam(value = "id", defaultValue = "") Long id
     ) {
-        return stockOutService.reverseAuditForR(id, ConstantForGYL.QTCK);
+        R audit = stockOutService.reverseAuditForR(id, ConstantForGYL.QTCK);
+        return audit==null?R.ok():audit;
     }
 	
 	@EvApiByToken(value = "/apis/otherStockOut/batchRemove", method = RequestMethod.POST, apiTitle = "删除其他出库")

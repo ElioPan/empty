@@ -3,21 +3,15 @@ package com.ev.apis.controller.scm;
 import cn.afterturn.easypoi.entity.vo.TemplateExcelConstants;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
-import com.alibaba.fastjson.JSON;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
-import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
-import com.ev.scm.domain.SalescontractItemDO;
 import com.ev.scm.domain.StockOutDO;
-import com.ev.scm.domain.StockOutItemDO;
-import com.ev.scm.service.SalescontractItemService;
-import com.ev.scm.service.StockOutItemService;
-import com.ev.scm.service.StockOutService;
+import com.ev.scm.service.SaleStockOutService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -33,11 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 
@@ -48,17 +39,8 @@ import java.util.stream.Collectors;
 @Api(value = "/",tags = "销售出库API")
 public class SaleStockOutApiController {
 
-	@Autowired
-    private StockOutService stockOutService;
-
     @Autowired
-    private StockOutItemService stockOutItemService;
-
-    @Autowired
-    private SalescontractItemService salescontractItemService;
-
-    @Autowired
-    private MessageSourceHandler messageSourceHandler;
+    private SaleStockOutService saleStockOutService;
 
 	@Autowired
 	private DictionaryService dictionaryService;
@@ -97,45 +79,9 @@ public class SaleStockOutApiController {
                          "    }\n" +
                          "]"
                     , required = true)@RequestParam(value = "item",defaultValue = "") String item) {
-        // 与源单数量对比
-        List<StockOutItemDO> itemDOs = JSON.parseArray(item, StockOutItemDO.class);
-        Map<Long, BigDecimal> count = Maps.newHashMap();
-        for (StockOutItemDO itemDO : itemDOs) {
-            Long sourceId = itemDO.getSourceId();
-            if (sourceId == null) {
-                continue;
-            }
-            if (count.containsKey(sourceId)) {
-                count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
-                continue;
-            }
-            count.put(itemDO.getSourceId(), itemDO.getCount());
-        }
-        SalescontractItemDO detailDO;
-        BigDecimal contractCount;
-        if (count.size() > 0) {
-            for (Long sourceId : count.keySet()) {
-                detailDO = salescontractItemService.get(sourceId);
-                contractCount = detailDO.getCount();
-                // 查询源单已被选择数量
-                Map<String,Object> map = Maps.newHashMap();
-                map.put("sourceId",sourceId);
-                map.put("sourceType",ConstantForGYL.XSHT);
-                BigDecimal bySource = stockOutItemService.getCountBySource(map);
-                BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
-                if (contractCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
-                    List<StockOutItemDO> collect = itemDOs.stream()
-                            .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
-                            .collect(Collectors.toList());
-                    String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
-                    return R.error(messageSourceHandler.getMessage("stock.number.error", args));
-                }
-            }
-        }
-
-
-		DictionaryDO storageType = dictionaryService.get(ConstantForGYL.XSCK.intValue());
-        return stockOutService.add(stockOutDO, item, storageType);
+        R r = saleStockOutService.checkSourceNumber(item);
+        DictionaryDO storageType = dictionaryService.get(ConstantForGYL.XSCK.intValue());
+        return r==null?saleStockOutService.add(stockOutDO, item, storageType):r;
 	}
 	
 	@EvApiByToken(value = "/apis/salesOutStock/audit", method = RequestMethod.POST, apiTitle = "审核销售出库")
@@ -144,7 +90,7 @@ public class SaleStockOutApiController {
 	public R audit(
 			@ApiParam(value = "出库单Id", required = true) @RequestParam(value = "id", defaultValue = "") Long id
     ) {
-		return stockOutService.audit(id, ConstantForGYL.XSCK);
+		return saleStockOutService.audit(id, ConstantForGYL.XSCK);
 	}
 
     @EvApiByToken(value = "/apis/salesOutStock/reverseAudit", method = RequestMethod.POST, apiTitle = "反审核销售出库")
@@ -153,10 +99,7 @@ public class SaleStockOutApiController {
     public R reverseAudit(
             @ApiParam(value = "出库单Id", required = true) @RequestParam(value = "id", defaultValue = "") Long id
     ) {
-        if (stockOutService.childCount(id) >0 ) {
-            return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));
-        }
-        return stockOutService.reverseAuditForR(id, ConstantForGYL.XSCK);
+        return saleStockOutService.reverseAuditSaleStockOut(id);
     }
 	
 	@EvApiByToken(value = "/apis/salesOutStock/batchRemove", method = RequestMethod.POST, apiTitle = "删除销售出库")
@@ -165,7 +108,7 @@ public class SaleStockOutApiController {
 	public R delete(
 			@ApiParam(value = "销售出库ID组", required = true) @RequestParam(value = "ids", defaultValue = "") Long[] ids
     ) {
-		return stockOutService.batchDelete(ids,ConstantForGYL.XSCK);
+		return saleStockOutService.batchDelete(ids,ConstantForGYL.XSCK);
 	}
 	
 	@EvApiByToken(value = "/apis/salesOutStock/edit", method = RequestMethod.POST, apiTitle = "修改销售出库")
@@ -205,44 +148,8 @@ public class SaleStockOutApiController {
                     "]"
                     , required = true) @RequestParam(value = "item", defaultValue = "") String item,
                   @ApiParam(value = "明细数组") @RequestParam(value = "itemIds", defaultValue = "", required = false) Long[] itemIds) {
-        // 与源单数量对比
-        // 与源单数量对比
-        List<StockOutItemDO> itemDOs = JSON.parseArray(item, StockOutItemDO.class);
-        Map<Long, BigDecimal> count = Maps.newHashMap();
-        Map<Long, Long> sourceIdAndItemId = Maps.newHashMap();
-        for (StockOutItemDO itemDO : itemDOs) {
-            Long sourceId = itemDO.getSourceId();
-            if (count.containsKey(sourceId)) {
-                count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
-                continue;
-            }
-            sourceIdAndItemId.put(sourceId,itemDO.getId());
-            count.put(itemDO.getSourceId(), itemDO.getCount());
-        }
-        SalescontractItemDO detailDO;
-        BigDecimal contractCount;
-        if (count.size() > 0) {
-            for (Long sourceId : count.keySet()) {
-                detailDO = salescontractItemService.get(sourceId);
-                contractCount = detailDO.getCount();
-                // 查询源单已被选择数量
-                Map<String,Object> map = Maps.newHashMap();
-                map.put("id",sourceIdAndItemId.get(sourceId));
-                map.put("sourceId",sourceId);
-                map.put("sourceType",ConstantForGYL.XSHT);
-                BigDecimal bySource = stockOutItemService.getCountBySource(map);
-                BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
-                if (contractCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
-                    List<StockOutItemDO> collect = itemDOs.stream()
-                            .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
-                            .collect(Collectors.toList());
-                    String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
-                    return R.error(messageSourceHandler.getMessage("stock.number.error", args));
-                }
-            }
-        }
-
-		return stockOutService.edit(stockOutDO, item, ConstantForGYL.XSCK , itemIds);
+        R r = saleStockOutService.checkSourceNumber(item);
+		return r==null?saleStockOutService.edit(stockOutDO, item, ConstantForGYL.XSCK , itemIds):r;
 	}
 	
 	@EvApiByToken(value = "/apis/salesOutStock/advancedQuery", method = RequestMethod.POST, apiTitle = "获取销售出库列表/高级查询")
@@ -290,8 +197,8 @@ public class SaleStockOutApiController {
         // 出库类型
         params.put("outboundType", ConstantForGYL.XSCK);
 		Map<String, Object> results = Maps.newHashMap();
-		List<Map<String, Object>> data = this.stockOutService.listApi(params);
-        Map<String, Object> maps = this.stockOutService.countTotal(params);
+		List<Map<String, Object>> data = this.saleStockOutService.listApi(params);
+        Map<String, Object> maps = this.saleStockOutService.countTotal(params);
         int total = Integer.parseInt(maps.getOrDefault("total",0).toString());
 		if ( data.size() > 0) {
             DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.XSCK.intValue());
@@ -310,7 +217,7 @@ public class SaleStockOutApiController {
     @ApiOperation("获取销售出库单详情")
     public R getDetail(
             @ApiParam(value = "销售出库ID", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
-        return R.ok(this.stockOutService.getDetail(id));
+        return R.ok(this.saleStockOutService.getDetail(id));
     }
 
     @ResponseBody
@@ -347,7 +254,7 @@ public class SaleStockOutApiController {
         param.put("createByName", StringUtils.sqlLike(createByName));
 
         param.put("outboundType", ConstantForGYL.XSCK);
-        List<Map<String, Object>> data = this.stockOutService.listApi(param);
+        List<Map<String, Object>> data = this.saleStockOutService.listApi(param);
         ClassPathResource classPathResource = new ClassPathResource("poi/sales_out_stock.xlsx");
         Map<String,Object> map = Maps.newHashMap();
         map.put("list", data);

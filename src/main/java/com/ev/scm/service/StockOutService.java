@@ -87,4 +87,9 @@ public interface StockOutService {
 
     boolean isQrcode(Long id);
 
+    /**
+     * 验证源单数量
+     */
+    R checkSourceNumber(String item);
+
 }

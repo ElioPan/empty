@@ -6,10 +6,6 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 public interface ConsumingStockOutService extends StockOutService{
-    /**
-     * 验证源单数量
-     */
-    R checkSourceNumber(String item);
 
     /**
      * 获取投料单数量

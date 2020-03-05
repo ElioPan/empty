@@ -348,7 +348,7 @@ public class StockOutServiceImpl implements StockOutService {
             // 操作库存数据
             this.reverseAudit(id, outType);
         }
-        return count > 0 ? R.ok() : R.error(messageSourceHandler.getMessage("common.massge.faildRollBackAudit", null));
+        return count > 0 ? null : R.error(messageSourceHandler.getMessage("common.massge.faildRollBackAudit", null));
     }
 
     @Override
@@ -370,6 +370,11 @@ public class StockOutServiceImpl implements StockOutService {
             return list.get(0).getQrcodeId() != null;
         }
         return true;
+    }
+
+    @Override
+    public R checkSourceNumber(String item) {
+        return null;
     }
 
     @Override
