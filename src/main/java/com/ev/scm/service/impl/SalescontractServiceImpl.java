@@ -403,10 +403,10 @@ public class SalescontractServiceImpl implements SalescontractService {
         ContractVO contractVO = new ContractVO();
         BigDecimal afterDiscountRate = newSalesContract.getDiscountRate();
         BigDecimal beforeDiscountRate = oldSalesContract.getDiscountRate();
-        contractVO.setDiscountRateBefore(beforeDiscountRate.toPlainString());
+        contractVO.setDiscountRateBefore(beforeDiscountRate.stripTrailingZeros().toPlainString());
         if (beforeDiscountRate.compareTo(afterDiscountRate)!=0){
             contractVO.setType("已修改");
-            contractVO.setDiscountRateAfter(afterDiscountRate.toPlainString());
+            contractVO.setDiscountRateAfter(afterDiscountRate.stripTrailingZeros().toPlainString());
         }else {
             contractVO.setType("未修改");
         }
