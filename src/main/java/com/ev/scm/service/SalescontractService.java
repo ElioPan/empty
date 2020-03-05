@@ -6,6 +6,7 @@ import com.ev.scm.domain.SalescontractItemDO;
 import com.ev.scm.domain.SalescontractPayDO;
 import com.ev.scm.vo.ContractItemVO;
 import com.ev.scm.vo.ContractPayVO;
+import com.ev.scm.vo.ContractVO;
 
 import java.util.List;
 import java.util.Map;
@@ -64,4 +65,6 @@ public interface SalescontractService {
 	List<Map<String, Object>> payListForMap(Map<String, Object> map);
 
 	Map<String, Object> payCountForMap(Map<String, Object> map);
+
+	ContractVO getContractHeadVOS(SalescontractDO newSalesContract,SalescontractDO oldSalesContract);
 }

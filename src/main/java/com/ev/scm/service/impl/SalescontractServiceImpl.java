@@ -21,6 +21,7 @@ import com.ev.scm.domain.SalescontractPayDO;
 import com.ev.scm.service.SalescontractService;
 import com.ev.scm.vo.ContractItemVO;
 import com.ev.scm.vo.ContractPayVO;
+import com.ev.scm.vo.ContractVO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -224,6 +225,9 @@ public class SalescontractServiceImpl implements SalescontractService {
         List<ContractPayVO> payList = this.getContractPayVOS(salesContractId,bodyPay, payIds, salesContractPayList);
         alterationContent.put("payArray", payList);
 
+        ContractVO head = this.getContractHeadVOS(salesContract,salescontractDO);
+        alterationContent.put("head", head);
+
         if (itemList.size() > 0 || payList.size() > 0) {
             ContractAlterationDO alterationDO = new ContractAlterationDO();
             alterationDO.setAlterationContent(alterationContent.toJSONString());
@@ -395,6 +399,21 @@ public class SalescontractServiceImpl implements SalescontractService {
     }
 
     @Override
+    public ContractVO getContractHeadVOS(SalescontractDO newSalesContract,SalescontractDO oldSalesContract) {
+        ContractVO contractVO = new ContractVO();
+        BigDecimal afterDiscountRate = newSalesContract.getDiscountRate();
+        BigDecimal beforeDiscountRate = oldSalesContract.getDiscountRate();
+        contractVO.setDiscountRateBefore(beforeDiscountRate.toPlainString());
+        if (beforeDiscountRate.compareTo(afterDiscountRate)!=0){
+            contractVO.setType("已修改");
+            contractVO.setDiscountRateAfter(afterDiscountRate.toPlainString());
+        }else {
+            contractVO.setType("未修改");
+        }
+        return contractVO;
+    }
+
+    @Override
     public R close(Long id) {
         SalescontractDO salescontractDO = this.get(id);
         if (Objects.equals(salescontractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
@@ -438,7 +457,9 @@ public class SalescontractServiceImpl implements SalescontractService {
             JSONObject alterationContentJSON = JSON.parseObject(alterationContent);
             JSONArray itemArray = alterationContentJSON.getJSONArray("itemArray");
             JSONArray payArray = alterationContentJSON.getJSONArray("payArray");
+            JSONObject head = alterationContentJSON.getJSONObject("head");
             result.put("payArray", payArray);
+            result.put("head",head);
             if (itemArray.size() > 0) {
                 Map<String, Object> param;
                 Map<String, Object> materiel;
