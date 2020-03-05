@@ -61,4 +61,6 @@ public interface OutsourcingContractService {
     R getAlterationDetail(Long id);
 
     BigDecimal getCountBySource(Map<String, Object> map);
+
+    R checkSourceNumber(String bodyItem);
 }
