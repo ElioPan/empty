@@ -418,6 +418,14 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				return R.ok(messageSourceHandler.getMessage("apis.check.buildWinStockA", null));
 
 			} else if (rows > 0 && otherInLines == 0 && linesPL > 0) {
+
+				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PYDJ.intValue());
+				if(dictionaryDO!=null){
+					for(Map<String, Object> map:profitLossMsg){
+						map.put("documentTypeId",ConstantForGYL.PYDJ);
+						map.put("documentTypeName",dictionaryDO.getName());
+					}
+				}
 				Map<String, Object> result = new HashMap<>();
 				//返回生成其他入库的数据。
 				result.put("BodyData", profitLossMsg);
@@ -483,10 +491,10 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 			} else if (rows > 0 && otherInLines == 0 && linesPL > 0) {
 
 				Map<String, Object> result = new HashMap<>();
-				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PYDJ.intValue());
+				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PKDJ.intValue());
 				if(dictionaryDO!=null){
 					for(Map<String, Object> map:profitLossMsg){
-						map.put("documentTypeId",ConstantForGYL.PYDJ);
+						map.put("documentTypeId",ConstantForGYL.PKDJ);
 						map.put("documentTypeName",dictionaryDO.getName());
 					}
 				}
