@@ -21,6 +21,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -31,6 +32,7 @@ import java.util.Map;
 
 
 @Service
+@Primary
 public class StockOutServiceImpl implements StockOutService {
     @Autowired
     private StockOutDao stockOutDao;
@@ -446,7 +448,7 @@ public class StockOutServiceImpl implements StockOutService {
             // 保存库存明细
             this.insertStockInfo(id, outType);
         }
-        return count > 0 ? R.ok() : R.error(messageSourceHandler.getMessage("common.duplicate.approved", null));
+        return count > 0 ? null : R.error(messageSourceHandler.getMessage("common.duplicate.approved", null));
     }
 
     @Override
