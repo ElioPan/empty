@@ -197,7 +197,9 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
             //还原金额和单件     批量还原金额单价
             List<StockInItemDO> oldStockInItemDos=new ArrayList<>();
             for(StockInItemDO stockInItemDo:listSotockInItem){
-                BigDecimal expense=stockInItemDo.getExpense();
+
+                BigDecimal expense=stockInItemDo.getExpense()==null?BigDecimal.ZERO:stockInItemDo.getExpense();
+
                 if(!Objects.equals(0,expense.compareTo(BigDecimal.ZERO) )){
                     BigDecimal oldAmount=stockInItemDo.getAmount().multiply(expense);
                     stockInItemDo.setAmount(oldAmount);
