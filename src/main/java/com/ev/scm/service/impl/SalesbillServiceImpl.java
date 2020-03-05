@@ -13,6 +13,7 @@ import com.ev.scm.dao.SalescontractItemDao;
 import com.ev.scm.domain.SalesbillDO;
 import com.ev.scm.domain.SalesbillItemDO;
 import com.ev.scm.domain.SalescontractDO;
+import com.ev.scm.domain.SalescontractItemDO;
 import com.ev.scm.service.SalesbillService;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class SalesbillServiceImpl implements SalesbillService {
@@ -44,7 +46,12 @@ public class SalesbillServiceImpl implements SalesbillService {
 	
 	@Override
 	public R addOrUpdateSalesBill(SalesbillDO salesBillDO, String bodyItem, Long[] itemIds) {
-        Long id = salesBillDO.getId();
+        R r = this.checkSourceNumber(bodyItem);
+        if (r != null) {
+            return r;
+        }
+
+	    Long id = salesBillDO.getId();
         // 新增
         List<SalesbillItemDO> itemDOS = JSON.parseArray(bodyItem, SalesbillItemDO.class);
         if (id == null) {
@@ -233,4 +240,43 @@ public class SalesbillServiceImpl implements SalesbillService {
 //		}
 //		return DateFormatUtil.getWorkOrderno(maxNo, taskNo);
 //	}
+    @Override
+    public R checkSourceNumber(String bodyItem) {
+        // 与源单数量对比
+        List<SalesbillItemDO> itemDOs = JSON.parseArray(bodyItem, SalesbillItemDO.class);
+        Map<Long, BigDecimal> count = Maps.newHashMap();
+        Map<Long, Long> sourceIdAndItemId = Maps.newHashMap();
+        for (SalesbillItemDO itemDO : itemDOs) {
+            Long sourceId = itemDO.getSourceId();
+            if (count.containsKey(sourceId)) {
+                count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
+                continue;
+            }
+            sourceIdAndItemId.put(sourceId, itemDO.getId());
+            count.put(itemDO.getSourceId(), itemDO.getCount());
+        }
+        SalescontractItemDO detailDO;
+        BigDecimal contractCount;
+        if (count.size() > 0) {
+            for (Long sourceId : count.keySet()) {
+                detailDO = salescontractItemDao.get(sourceId);
+                contractCount = detailDO.getCount();
+                // 查询源单已被选择数量
+                Map<String, Object> map = Maps.newHashMap();
+                map.put("id", sourceIdAndItemId.get(sourceId));
+                map.put("sourceId", sourceId);
+                map.put("sourceType", ConstantForGYL.XSHT);
+                BigDecimal bySource = this.getCountBySource(map);
+                BigDecimal countByOutSource = bySource == null ? BigDecimal.ZERO : bySource;
+                if (contractCount.compareTo(count.get(sourceId).add(countByOutSource)) < 0) {
+                    List<SalesbillItemDO> collect = itemDOs.stream()
+                            .filter(itemDO -> Objects.equals(itemDO.getSourceId(), sourceId))
+                            .collect(Collectors.toList());
+                    String[] args = {count.get(sourceId).toPlainString(), contractCount.subtract(countByOutSource).toPlainString(), collect.get(0).getSourceCode()};
+                    return R.error(messageSourceHandler.getMessage("stock.number.error", args));
+                }
+            }
+        }
+        return null;
+    }
 }

@@ -47,4 +47,6 @@ public interface SalesbillService {
     BigDecimal getCountBySource(Map<String, Object> map);
 
     Map<String, Object> countTotal(Map<String, Object> map);
+
+	R checkSourceNumber(String bodyItem);
 }

@@ -3,20 +3,12 @@ package com.ev.apis.controller.scm;
 import cn.afterturn.easypoi.entity.vo.TemplateExcelConstants;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
-import com.alibaba.fastjson.JSON;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
-import com.ev.framework.config.ConstantForGYL;
-import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.domain.SalesbillDO;
-import com.ev.scm.domain.SalesbillItemDO;
-import com.ev.scm.domain.SalescontractItemDO;
 import com.ev.scm.service.SalesbillService;
-import com.ev.scm.service.SalescontractItemService;
-import com.ev.scm.service.SalescontractService;
-import com.ev.scm.service.StockOutService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,11 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 销售票据控制器层
@@ -49,15 +38,7 @@ public class SalesBillApiController {
 
 	@Autowired
 	private SalesbillService salesbillService;
-    @Autowired
-    private SalescontractService salescontractService;
-    @Autowired
-    private SalescontractItemService salescontractItemService;
-    @Autowired
-    private MessageSourceHandler messageSourceHandler;
-    @Autowired
-    private StockOutService stockOutService;
-	
+
 	@EvApiByToken(value = "/apis/salesBill/addOrUpdate",method = RequestMethod.POST,apiTitle = "添加销售票据")
     @ApiOperation("添加/修改销售票据（修改传入id）")
 	@Transactional(rollbackFor = Exception.class)
@@ -96,42 +77,6 @@ public class SalesBillApiController {
                     , required = true)
             @RequestParam(value = "bodyItem", defaultValue = "") String bodyItem,
             @ApiParam(value = "被删除的销售合同明细ID") @RequestParam(value = "itemIds", defaultValue = "", required = false) Long[] itemIds){
-        // 与源单数量对比
-        List<SalesbillItemDO> itemDOs = JSON.parseArray(bodyItem, SalesbillItemDO.class);
-        Map<Long, BigDecimal> count = Maps.newHashMap();
-        Map<Long, Long> sourceIdAndItemId = Maps.newHashMap();
-        for (SalesbillItemDO itemDO : itemDOs) {
-            Long sourceId = itemDO.getSourceId();
-            if (count.containsKey(sourceId)) {
-                count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
-                continue;
-            }
-            sourceIdAndItemId.put(sourceId,itemDO.getId());
-            count.put(itemDO.getSourceId(), itemDO.getCount());
-        }
-        SalescontractItemDO detailDO;
-        BigDecimal contractCount;
-        if (count.size() > 0) {
-            for (Long sourceId : count.keySet()) {
-                detailDO = salescontractItemService.get(sourceId);
-                contractCount = detailDO.getCount();
-                // 查询源单已被选择数量
-                Map<String,Object> map = Maps.newHashMap();
-                map.put("id",sourceIdAndItemId.get(sourceId));
-                map.put("sourceId",sourceId);
-                map.put("sourceType",ConstantForGYL.XSHT);
-                BigDecimal bySource = salesbillService.getCountBySource(map);
-                BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
-                if (contractCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
-                    List<SalesbillItemDO> collect = itemDOs.stream()
-                            .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
-                            .collect(Collectors.toList());
-                    String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
-                    return R.error(messageSourceHandler.getMessage("stock.number.error", args));
-                }
-            }
-        }
-
 		return salesbillService.addOrUpdateSalesBill(salesBillDO, bodyItem, itemIds);
 	}
 	
@@ -201,54 +146,54 @@ public class SalesBillApiController {
 	    return  salesbillService.getDetail(id);
     }
 
-    @EvApiByToken(value = "/apis/salesBill/importList",method = RequestMethod.GET,apiTitle = "销售发票的导入关联单据查询")
-    @ApiOperation("销售发票的导入关联单据查询")
-    public R importList(
-            @ApiParam(value = "源单类型") @RequestParam(value = "sourceType",required = false) Long sourceType,
-            @ApiParam(value = "开始时间") @RequestParam(value = "startTime",defaultValue = "",required = false)  String startTime,
-            @ApiParam(value = "结束时间") @RequestParam(value = "endTime",defaultValue = "",required = false)  String endTime,
-            @ApiParam(value = "产品编号/产品名称/合同编号/客户名称 模糊查询") @RequestParam(value = "fuzzyInquire",required = false) String fuzzyInquire,
-            @ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
-            @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize){
-        Map<String,Object> map = Maps.newHashMap();
-
-        map.put("fuzzyInquire", fuzzyInquire);
-        map.put("startTime", startTime);
-        map.put("endTime",endTime);
-
-        map.put("offset",(pageno-1)*pagesize);
-        map.put("limit",pagesize);
-        if (Objects.equals(sourceType,ConstantForGYL.XSCK)) {
-            // 销售出库
-            // 出库类型
-            map.put("outboundType", ConstantForGYL.XSCK);
-            Map<String, Object> results = Maps.newHashMap();
-            List<Map<String, Object>> data = this.stockOutService.listApi(map);
-            for (Map<String, Object> datum : data) {
-                datum.put("thisSourceType",ConstantForGYL.XSCK);
-                datum.put("thisSourceTypeName","销售出库");
-            }
-            int total = this.stockOutService.countApi(map);
-            if (data.size() > 0) {
-                results.put("data", new DsResultResponse(pageno,pagesize,total,data));
-            }
-            return R.ok(results);
-        }
-        // 销售合同
-        List<Map<String, Object>> data = salescontractService.listForMap(map);
-        for (Map<String, Object> datum : data) {
-            datum.put("thisSourceType",ConstantForGYL.XSHT);
-            datum.put("thisSourceTypeName","销售合同");
-        }
-        Map<String, Object> stringBigDecimalMap = salescontractService.countForMap(map);
-        int total = Integer.parseInt(stringBigDecimalMap.getOrDefault("total",0).toString());
-        Map<String, Object> result = Maps.newHashMap();
-        if (data.size() > 0) {
-            result.put("data", new DsResultResponse(pageno,pagesize,total,data));
-            result.put("total", stringBigDecimalMap);
-        }
-        return R.ok(result);
-    }
+//    @EvApiByToken(value = "/apis/salesBill/importList",method = RequestMethod.GET,apiTitle = "销售发票的导入关联单据查询")
+//    @ApiOperation("销售发票的导入关联单据查询")
+//    public R importList(
+//            @ApiParam(value = "源单类型") @RequestParam(value = "sourceType",required = false) Long sourceType,
+//            @ApiParam(value = "开始时间") @RequestParam(value = "startTime",defaultValue = "",required = false)  String startTime,
+//            @ApiParam(value = "结束时间") @RequestParam(value = "endTime",defaultValue = "",required = false)  String endTime,
+//            @ApiParam(value = "产品编号/产品名称/合同编号/客户名称 模糊查询") @RequestParam(value = "fuzzyInquire",required = false) String fuzzyInquire,
+//            @ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
+//            @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize){
+//        Map<String,Object> map = Maps.newHashMap();
+//
+//        map.put("fuzzyInquire", fuzzyInquire);
+//        map.put("startTime", startTime);
+//        map.put("endTime",endTime);
+//
+//        map.put("offset",(pageno-1)*pagesize);
+//        map.put("limit",pagesize);
+//        if (Objects.equals(sourceType,ConstantForGYL.XSCK)) {
+//            // 销售出库
+//            // 出库类型
+//            map.put("outboundType", ConstantForGYL.XSCK);
+//            Map<String, Object> results = Maps.newHashMap();
+//            List<Map<String, Object>> data = this.stockOutService.listApi(map);
+//            for (Map<String, Object> datum : data) {
+//                datum.put("thisSourceType",ConstantForGYL.XSCK);
+//                datum.put("thisSourceTypeName","销售出库");
+//            }
+//            int total = this.stockOutService.countApi(map);
+//            if (data.size() > 0) {
+//                results.put("data", new DsResultResponse(pageno,pagesize,total,data));
+//            }
+//            return R.ok(results);
+//        }
+//        // 销售合同
+//        List<Map<String, Object>> data = salescontractService.listForMap(map);
+//        for (Map<String, Object> datum : data) {
+//            datum.put("thisSourceType",ConstantForGYL.XSHT);
+//            datum.put("thisSourceTypeName","销售合同");
+//        }
+//        Map<String, Object> stringBigDecimalMap = salescontractService.countForMap(map);
+//        int total = Integer.parseInt(stringBigDecimalMap.getOrDefault("total",0).toString());
+//        Map<String, Object> result = Maps.newHashMap();
+//        if (data.size() > 0) {
+//            result.put("data", new DsResultResponse(pageno,pagesize,total,data));
+//            result.put("total", stringBigDecimalMap);
+//        }
+//        return R.ok(result);
+//    }
 
     @ResponseBody
     @EvApiByToken(value = "/apis/exportExcel/salesBill", method = RequestMethod.GET, apiTitle = "导出销售票据")
