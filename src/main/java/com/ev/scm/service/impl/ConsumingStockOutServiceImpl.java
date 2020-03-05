@@ -40,6 +40,9 @@ public class ConsumingStockOutServiceImpl extends StockOutServiceImpl implements
         Map<Long, Long> sourceIdAndItemId = Maps.newHashMap();
         for (StockOutItemDO itemDO : itemDOs) {
             Long sourceId = itemDO.getSourceId();
+            if (sourceId == null) {
+                continue;
+            }
             if (count.containsKey(sourceId)) {
                 count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
                 continue;
