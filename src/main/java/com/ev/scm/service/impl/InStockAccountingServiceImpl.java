@@ -239,15 +239,14 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 List<StockInItemDO> newStockInItemDos=new ArrayList<>();
 
                 for(StockInItemDO stockInItemDo:listSotockInItem){
+                    BigDecimal expense=stockInItemDo.getExpense()==null?BigDecimal.ZERO:stockInItemDo.getExpense();
 
-                    BigDecimal expense=stockInItemDo.getExpense();
                     if(!Objects.equals(0,expense.compareTo(BigDecimal.ZERO) )){
 
-                        int pointCount=Constant.BIGDECIMAL_ZERO+2;
                         BigDecimal newAmount=stockInItemDo.getAmount().add(expense);
 
                         stockInItemDo.setAmount(newAmount);
-                        stockInItemDo.setUnitPrice(newAmount.divide(stockInItemDo.getCount(),pointCount,BigDecimal.ROUND_HALF_UP));
+                        stockInItemDo.setUnitPrice(newAmount.divide(stockInItemDo.getCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
                         newStockInItemDos.add(stockInItemDo);
                     }
                 }
