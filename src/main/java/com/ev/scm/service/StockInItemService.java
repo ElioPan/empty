@@ -69,4 +69,7 @@ public interface StockInItemService {
 
 	BigDecimal getInCountOfContract(Map<String, Object> map);
 
+	List<Map<String, Object>> getInOutTime(Map<String, Object> map);
+
+
 }

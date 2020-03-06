@@ -191,7 +191,7 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 			return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));
 		}
 		if (Objects.equals(purchasecontractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
-			return R.error(messageSourceHandler.getMessage("common.massge.faildRollBackAudit", null));
+			return R.error(messageSourceHandler.getMessage("common.massge.okWaitAudit", null));
 		}
 		if (purchasecontractDO.getCloseStatus() == 1) {
 			return R.error(messageSourceHandler.getMessage("common.contract.isCloseStatus", null));
@@ -576,7 +576,7 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
 						}
 					}  else {
-						return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+						return messageSourceHandler.getMessage("scm.checkCount.EroorSourceTypeOfpurchase", null);
 					}
 				}else{
 					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);

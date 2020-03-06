@@ -34,7 +34,8 @@ public class StockInServiceImpl implements StockInService {
 	private StockItemService  stockItemService;
 	@Autowired
 	private StockInService  stockInService;
-
+	@Autowired
+	private InStockAccountingService inStockAccountingService;
 	@Autowired
 	private StockInItemService SstockInItemService;
 
@@ -566,7 +567,7 @@ public class StockInServiceImpl implements StockInService {
 	}
 
 	@Override
-	public R auditAllTypeInStock(Long Id,Long auditor,Long storageTypeId ){
+	public R auditAllTypeInStock(Long id,Long auditor,Long storageTypeId ){
 
 		Map<String,Object>  map= new HashMap<>();
 		map.put("id","");
@@ -575,19 +576,25 @@ public class StockInServiceImpl implements StockInService {
 			return R.error(messageSourceHandler.getMessage("scm.stock.nonUse",null));
 		}
 
+		Long[] stockInId={id};
+		boolean b = inStockAccountingService.disposeIsClose(stockInId, false);
+		if(!b){
+			return R.error(messageSourceHandler.getMessage("scm.checkCount.isCloce", null));
+		}
+
 		//更改主表审核状态为11已审核-->179已审核  178待审核；
-		StockInDO pInheadDO = stockInDao.get(Id);
+		StockInDO pInheadDO = stockInDao.get(id);
 		if (Objects.nonNull(pInheadDO)) {
 			if (!(Objects.equals(pInheadDO.getAuditSign(),ConstantForGYL.OK_AUDITED))) {
 				StockInDO stockInDO=new StockInDO();
 				stockInDO.setAuditor(auditor);
 				stockInDO.setAuditTime(new Date());
-				stockInDO.setId(Id);
+				stockInDO.setId(id);
 				stockInDO.setAuditSign(ConstantForGYL.OK_AUDITED); //179已审核
 				stockInDao.update(stockInDO);
 
 				//入库操作
-				SstockInItemService.addAllTypeInStock(Id,storageTypeId);
+				SstockInItemService.addAllTypeInStock(id,storageTypeId);
 				return R.ok();
 			} else {
 				return R.error(messageSourceHandler.getMessage("common.duplicate.approved",null));
@@ -600,13 +607,21 @@ public class StockInServiceImpl implements StockInService {
 
 	@Override
 	public R disAuditInStock(Long inHeadId,Long type){
+
+
 		StockInDO inheadDO = stockInDao.get(inHeadId);
 		if (inheadDO != null) {
-			if (Objects.equals(inheadDO.getAuditSign(), ConstantForGYL.OK_AUDITED)) {   //179已审核
+
+			Long[] stockInId={inHeadId};
+			boolean b = inStockAccountingService.disposeIsClose(stockInId, false);
+			if(!b){
+				return R.error(messageSourceHandler.getMessage("scm.checkCount.isCloce", null));
+			}
+
+
+			if (Objects.equals(inheadDO.getAuditSign(), ConstantForGYL.OK_AUDITED)) {
 				//判断是否能够反审核：detail表中出现两次stock（出现两次表示已经做了出库）的主键即不能反审核
-
 				int counts = stockDetailService.getStockIdByHeadIds(type, inHeadId);
-
 				//扫码入库的不允许反审核
 				Map<String,Object>  map= new HashMap<>();
 				Long[] ids={inHeadId};

@@ -118,6 +118,11 @@ public class StockInItemServiceImpl implements StockInItemService {
 	}
 
 	@Override
+	public List<Map<String, Object>> getInOutTime(Map<String, Object> map) {
+		return stockInItemDao.getInOutTime(map);
+	}
+
+	@Override
 	public String getProByHeadId(Long id , String code) {
 
 		List<Map<String, Object>> inProList = stockInItemDao.getProByHeadId(id);

@@ -772,6 +772,28 @@
 		</foreach>
 	</select>
 
+	<select id="getInOutTime" resultType="map">
+		SELECT
+		DISTINCT
+		<!--a.id,   -->
+		a.in_out_time AS inOutTime
+		FROM
+		scm_stock_in a
+		LEFT JOIN scm_stock_in_item b on a.id=b.inhead_id
+		<where>
+			<if test="stockInId != null and stockInId != ''"> and a.id in
+				<foreach item="id" collection="stockInId" open="(" separator="," close=")">
+				      #{id}
+			    </foreach>
+			</if>
+			<if test="inItemId != null and inItemId != ''"> and b.id in
+				<foreach item="id" collection="inItemId" open="(" separator="," close=")">
+					#{id}
+				</foreach>
+			</if>
+		</where>
+	</select>
+
 
 
 	<select id="getInCountOfContract" resultType="java.math.BigDecimal">

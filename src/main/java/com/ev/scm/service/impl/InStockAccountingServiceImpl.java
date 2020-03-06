@@ -600,43 +600,39 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
      *关账验证
      *
      */
+    @Override
     public boolean disposeIsClose(Long[] itemOrHaedIds,Boolean sign) {
-        //  子表id去重
+        //  表id去重
         List nowList = new ArrayList();
         for (int i = 0; i < itemOrHaedIds.length; i++) {
             nowList.add(itemOrHaedIds[i]);
         }
         nowList = new ArrayList(new HashSet(nowList));
-
         Long[] stockItemOrHaedIds = new Long[nowList.size()];
         for (int i = 0; i < nowList.size(); i++) {
             stockItemOrHaedIds[i] = Long.valueOf(String.valueOf(nowList.get(i)));
         }
-
         Map<String, Object> map = new HashMap<>();
-        map.put("id", stockItemOrHaedIds);
-        List<Map<String, Object>> createTimeMap=new ArrayList<>();
 
         if(sign){
-            createTimeMap= stockIntemService.getItemDate(map);
+            map.put("inItemId", stockItemOrHaedIds);
         }else{
-            createTimeMap= stockInService.getStockInDate(map);
+            map.put("stockInId", stockItemOrHaedIds);
         }
+        List<Map<String, Object>> inOutTimeMap= stockIntemService.getInOutTime(map);
 
-        if (createTimeMap.isEmpty()) {
+        if (inOutTimeMap.isEmpty()) {
             return false;
         } else {
-            for (Map<String, Object> maps : createTimeMap) {
+            for (Map<String, Object> maps : inOutTimeMap) {
                 Map<String, Object> peramy = new HashMap<>();
-                peramy.put("period", maps.get("createTime"));
+                peramy.put("period", maps.get("inOutTime"));
                 int counts = this.getAnalysisDate(peramy);
-                if (counts > 0) {
-                    return true;
-                } else if(counts==0){
+                if(counts==0){
                     return false;
                 }
             }
-            return false;
+            return true;
         }
     }
 

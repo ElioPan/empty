@@ -45,5 +45,7 @@ public  interface InStockAccountingService  {
     int  getAnalysisDate(Map<String, Object> map);
 
 
+    boolean disposeIsClose(Long[] itemOrHaedIds,Boolean sign);
+
 
 }
