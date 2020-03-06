@@ -447,66 +447,229 @@
 	<update id="batchUpdate" parameterType="List">
 		UPDATE scm_stock_in_item
 		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="inhead_id=case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.inheadId!=null">
+						when id=#{item.id} then #{item.inheadId}
+					</if>
+					<if test="item.inheadId==null">
+						when id=#{item.id} then scm_stock.inhead_id
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="materiel_id=case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.materielId!=null">
+						when id=#{item.id} then #{item.materielId}
+					</if>
+					<if test="item.materielId==null">
+						when id=#{item.id} then scm_stock.materiel_id
+					</if>
+				</foreach>
+			</trim>
+
+			<trim prefix="batch=case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.batch!=null">
+						when id=#{item.id} then #{item.batch}
+					</if>
+					<if test="item.batch==null">
+						when id=#{item.id} then scm_stock.batch
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="count=case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.count!=null">
+						when id=#{item.id} then #{item.count}
+					</if>
+					<if test="item.count==null">
+						when id=#{item.id} then scm_stock.count
+					</if>
+				</foreach>
+			</trim>
 			<trim prefix="unit_price=case" suffix="end,">
 				<foreach collection="list" item="item" index="index">
 					<if test="item.unitPrice!=null">
 						when id=#{item.id} then #{item.unitPrice}
 					</if>
 					<if test="item.unitPrice==null">
-						when id=#{item.id} then scm_stock_in_item.unit_price
+						when id=#{item.id} then scm_stock.unit_price
 					</if>
 				</foreach>
 			</trim>
-			<trim prefix="amount =case" suffix="end,">
+			<trim prefix="amount=case" suffix="end,">
 				<foreach collection="list" item="item" index="index">
 					<if test="item.amount!=null">
 						when id=#{item.id} then #{item.amount}
 					</if>
 					<if test="item.amount==null">
-						when id=#{item.id} then scm_stock_in_item.amount
+						when id=#{item.id} then scm_stock.amount
 					</if>
 				</foreach>
 			</trim>
-			<trim prefix="expense =case" suffix="end,">
+			<trim prefix="warehouse=case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.warehouse!=null">
+						when id=#{item.id} then #{item.warehouse}
+					</if>
+					<if test="item.warehouse==null">
+						when id=#{item.id} then scm_stock.warehouse
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="wareh_location=case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.warehLocation!=null">
+						when id=#{item.id} then #{item.warehLocation}
+					</if>
+					<if test="item.warehLocation==null">
+						when id=#{item.id} then scm_stock.wareh_location
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="return_reason=case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.returnReason!=null">
+						when id=#{item.id} then #{item.returnReason}
+					</if>
+					<if test="item.returnReason==null">
+						when id=#{item.id} then scm_stock.return_reason
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="source_type=case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.sourceType!=null">
+						when id=#{item.id} then #{item.sourceType}
+					</if>
+					<if test="item.sourceType==null">
+						when id=#{item.id} then scm_stock.source_type
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="source_code=case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.sourceCode!=null">
+						when id=#{item.id} then #{item.sourceCode}
+					</if>
+					<if test="item.sourceCode==null">
+						when id=#{item.id} then scm_stock.source_code
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="source_id=case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.sourceId!=null">
+						when id=#{item.id} then #{item.sourceId}
+					</if>
+					<if test="item.sourceId==null">
+						when id=#{item.id} then scm_stock.source_id
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="expense=case" suffix="end,">
 				<foreach collection="list" item="item" index="index">
 					<if test="item.expense!=null">
 						when id=#{item.id} then #{item.expense}
 					</if>
 					<if test="item.expense==null">
-						when id=#{item.id} then scm_stock_in_item.expense
+						when id=#{item.id} then scm_stock.expense
 					</if>
 				</foreach>
 			</trim>
-			<trim prefix="cost =case" suffix="end,">
-			<foreach collection="list" item="item" index="index">
-				<if test="item.cost!=null">
-					when id=#{item.id} then #{item.cost}
-				</if>
-				<if test="item.cost==null">
-					when id=#{item.id} then scm_stock_in_item.cost
-				</if>
-			</foreach>
-		   </trim>
-			<trim prefix="account_source =case" suffix="end,">
+			<trim prefix="cost=case" suffix="end,">
 				<foreach collection="list" item="item" index="index">
-					<if test="item.accountSource!=null">
-						when id=#{item.id} then #{item.accountSource}
+					<if test="item.cost!=null">
+						when id=#{item.id} then #{item.cost}
 					</if>
 					<if test="item.cost==null">
-						when id=#{item.id} then scm_stock_in_item.account_source
+						when id=#{item.id} then scm_stock.cost
 					</if>
 				</foreach>
 			</trim>
-			<trim prefix="materialId_count =case" suffix="end,">
+			<trim prefix="create_by =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.createBy!=null">
+						when id=#{item.id} then #{item.createBy}
+					</if>
+					<if test="item.createBy==null">
+						when id=#{item.id} then scm_stock.create_by
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="create_time =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.createTime!=null">
+						when id=#{item.id} then #{item.createTime}
+					</if>
+					<if test="item.createTime==null">
+						when id=#{item.id} then scm_stock.create_time
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="update_by =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.updateBy!=null">
+						when id=#{item.id} then #{item.updateBy}
+					</if>
+					<if test="item.updateBy==null">
+						when id=#{item.id} then scm_stock.update_by
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="update_time =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.updateTime!=null">
+						when id=#{item.id} then #{item.updateTime}
+					</if>
+					<if test="item.updateTime==null">
+						when id=#{item.id} then scm_stock.update_time
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="del_flag =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.delFlag!=null">
+						when id=#{item.id} then #{item.delFlag}
+					</if>
+					<if test="item.delFlag==null">
+						when id=#{item.id} then scm_stock.del_flag
+					</if>
+				</foreach>
+			</trim>
+			<trim prefix="materialId_count=case" suffix="end,">
 				<foreach collection="list" item="item" index="index">
 					<if test="item.materialIdCount!=null">
 						when id=#{item.id} then #{item.materialIdCount}
 					</if>
-					<if test="item.cost==null">
-						when id=#{item.id} then scm_stock_in_item.materialId_count
+					<if test="item.materialIdCount==null">
+						when id=#{item.id} then scm_stock.materialId_count
 					</if>
 				</foreach>
 			</trim>
+			<trim prefix="qrcode_id=case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.qrcodeId!=null">
+						when id=#{item.id} then #{item.qrcodeId}
+					</if>
+					<if test="item.qrcodeId==null">
+						when id=#{item.id} then scm_stock.qrcode_id
+					</if>
+				</foreach>
+			</trim>
+
+			<trim prefix="account_source=case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					<if test="item.accountSource!=null">
+						when id=#{item.id} then #{item.accountSource}
+					</if>
+					<if test="item.accountSource==null">
+						when id=#{item.id} then scm_stock.account_source
+					</if>
+				</foreach>
+			</trim>
+
 		</trim>
 		WHERE id IN
 		<foreach collection="list" index="index" item="item" separator="," open="(" close=")">

@@ -316,166 +316,6 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
     }
 
 
-
-
-//    @Override
-//    public R disposeAutoAccounting(String detailAccounting){
-//
-//       //根据入库单的产品去找bom里的组件物料明细，并计算本次核销的物料数量
-//        List<StockInItemDO> stockInItemDos = JSONObject.parseArray(detailAccounting, StockInItemDO.class);
-//        //更新委外入库费用
-////        updateOutSourcingInStockExpense(stockInItemDos);
-//
-//        for (StockInItemDO stockInItemDo:stockInItemDos){
-//            //产品id
-//            Long inStockMaterialId=stockInItemDo.getMaterielId();
-//            //委外入库子表id
-//            Long stockInItemId=stockInItemDo.getId();
-//            //入库产品数量
-//            BigDecimal count = stockInItemDo.getCount();
-//            //委外合同子表id
-//            Long contrackItemId=stockInItemDo.getId();
-//
-//            List<Map<String, Object>> newMaterialCountList=new ArrayList<>();
-//
-//            List<Map<String,Object>> accountSourceList;
-//            //初始化为"0"
-//            String accountSource=stockInItemDo.getAccountSource().toString();
-//            if(Objects.equals("0",accountSource)){
-//                accountSourceList=new ArrayList<>();
-//            }else{
-//                accountSourceList = JSONArray.parseObject(stockInItemDo.getAccountSource().toString(),List.class);
-//            }
-//
-//            //此行产品所有组件物料核销后的成本，每个组件物料核销数乘委外出库单价的累加
-//            BigDecimal totailCost=new BigDecimal(BigInteger.ZERO);
-//
-//            //获取入库单子表信息验证是否已经核算完毕,
-//            StockInItemDO checkStockInItemDO = stockIntemService.get(stockInItemId);
-//            if (Objects.equals("1",checkStockInItemDO.getMaterialIdCount())) {
-//                //跳出本次循环  1核算完毕
-//                continue;
-//            }
-//
-//            //计算出本次要核销的组件物料的数量
-//            List<Map<String, Object>> bomItems=new ArrayList<>();
-//            if(Objects.equals("0",checkStockInItemDO.getMaterialIdCount())){
-//                //初次核算使用bom清单的物料id   //需要核销的物料和基本数量
-//                List<Map<String, Object>> bomItem=this.getBomItem(contrackItemId);
-//                if(bomItem.isEmpty()){
-//                    //跳出本次循环
-//                    continue;
-//                }else{
-//                    for(int i=0;i<bomItem.size();i++){
-//                        //本次需要核销的数量
-//                        Map<String,Object>  map=bomItem.get(i);
-//                        BigDecimal standardCount=new BigDecimal(map.get("standardCount").toString());
-//                        map.put("standardCount", standardCount.multiply(count));
-//                        bomItems.add(map);
-//                    }
-//                }
-//            }else{
-//                //使用上次未核算完的materialIdCount字段下值进行核算
-//                JSONObject materialIdCountJSON = JSON.parseObject(checkStockInItemDO.getMaterialIdCount().toString());
-//                JSONArray itemArray = materialIdCountJSON.getJSONArray("materialIdCount");
-//               for(int j=0;j<itemArray.size();j++){
-//                   Map<String,Object>  map= (Map<String,Object>)itemArray.get(j);
-//                   bomItems.add(map);
-//               }
-//            }
-//
-//            //委外合同子表id 下发出数量大于已核销数量明细（发出数量都已被核销掉完毕筛选出）
-//            List<StockOutItemDO> stockOutDetails = this.getStockOutDetail(contrackItemId);
-//            if(stockOutDetails.isEmpty()){
-//                //跳出本次循环
-//                continue;
-//            }else{
-//                //核销的物料和出库明细的物料相同，即可计算核销。
-//
-//                for(int k=0;k<bomItems.size();k++){
-//                    List<StockOutItemDO> newStockOutItemDoList=new ArrayList<>();
-//                    Map<String,Object>  oneNewMaterialCounts= new HashMap<>();
-//                    //需要某一组件物料需要核销的数量
-//                    BigDecimal standardCount=new BigDecimal(bomItems.get(k).get("standardCount").toString());
-//                    //需要核销的物料
-//                    Integer materielId=Integer.parseInt(String.valueOf(bomItems.get(k).get("materielId").toString()));
-//
-//                    //所有id下发出数量大于已核销数量明细
-//                    List<StockOutItemDO> stockOutDetail = this.getStockOutDetail(contrackItemId);
-//
-//                    for(StockOutItemDO stockOutItemDO:stockOutDetail){
-//
-//                        if(Objects.equals(0,standardCount.compareTo(BigDecimal.ZERO))){
-//                            //需要核销的某物料已被核销完毕，跳出循环，进入下个组建物料的分配
-//                            break;
-//                        }
-//                        BigDecimal  countOnce=BigDecimal.ZERO;
-//
-//                        if(Objects.equals(materielId,stockOutItemDO.getMaterielId())){
-//                            //已核销数量
-//                            BigDecimal chargeOffCount=stockOutItemDO.getChargeOffCount().compareTo(BigDecimal.ZERO)==0?BigDecimal.ZERO:stockOutItemDO.getChargeOffCount();
-//                            //出库单中可以再核销的数量
-//                            BigDecimal canChargeOffCount = stockOutItemDO.getCount().subtract(chargeOffCount);
-//
-//                                if(standardCount.compareTo(canChargeOffCount)==1){
-//                                    stockOutItemDO.setChargeOffCount(chargeOffCount.add(chargeOffCount));
-//                                    standardCount=standardCount.subtract(canChargeOffCount);
-//                                    newStockOutItemDoList.add(stockOutItemDO);
-//
-//                                    countOnce=canChargeOffCount;
-//                                    totailCost=totailCost.add(stockOutItemDO.getSellUnitPrice().multiply(canChargeOffCount));
-//
-//                                }else if(standardCount.compareTo(canChargeOffCount)==0){
-//                                    stockOutItemDO.setChargeOffCount(chargeOffCount.add(canChargeOffCount));
-//                                    standardCount=standardCount.subtract(standardCount);
-//                                    newStockOutItemDoList.add(stockOutItemDO);
-//
-//                                    countOnce=canChargeOffCount;
-//                                    totailCost=totailCost.add(stockOutItemDO.getSellUnitPrice().multiply(canChargeOffCount));
-//
-//                                }else if(standardCount.compareTo(canChargeOffCount)==-1){
-//                                    stockOutItemDO.setChargeOffCount(canChargeOffCount.add(standardCount));
-//                                    standardCount=standardCount.subtract(standardCount);
-//                                    newStockOutItemDoList.add(stockOutItemDO);
-//
-//                                    countOnce=standardCount;
-//                                totailCost=totailCost.add(stockOutItemDO.getSellUnitPrice().multiply(standardCount));
-//                            }
-//                        }
-//                        if(!Objects.equals(0,countOnce.compareTo(BigDecimal.ZERO))){
-//                            Map<String,Object>  map= new HashMap<>();
-//                            map.put("outItemID",stockOutItemDO.getId());
-//                            map.put("countOnce",countOnce);
-//                            accountSourceList.add(map);
-//                        }
-//                    }
-//                    //批量更新委外出库的核销数量
-//                    this.batchUpdateStockOutItem(newStockOutItemDoList);
-//
-//                    //如果bom中的某个物料的数量没有在本次核销完毕，则记录在入库单的字段中（需要添加字段）下次根据未核销的物料来核销
-//                    if(standardCount.compareTo(BigDecimal.ZERO)>0){
-//                        //记录此物料
-//                        oneNewMaterialCounts.put("standardCount",standardCount);
-//                        oneNewMaterialCounts.put("materielId",materielId);
-//                        newMaterialCountList.add(oneNewMaterialCounts);
-//                    }
-//                }
-//            }
-//            if(newMaterialCountList.size()>0){
-//                checkStockInItemDO.setMaterialIdCount(newMaterialCountList.toString());
-//
-//            }else{
-//                checkStockInItemDO.setMaterialIdCount("1");
-//            }
-//            checkStockInItemDO.setCost(totailCost);
-//            checkStockInItemDO.setAccountSource(accountSourceList.toString());
-//            stockIntemService.update(checkStockInItemDO);
-//        }
-//       return R.ok();
-//    }
-
-
-
     public void updateOutSourcingInStockExpense( List<StockInItemDO> stockInItemDos){
         List<StockInItemDO> newStockInItemDo=new ArrayList<>();
         for (StockInItemDO stockInItemDo:stockInItemDos){
@@ -508,8 +348,15 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
             StockInDO stockInDO = stockInService.get(stockInItemDO.getInheadId());
 
             if (Objects.equals("0", stockInItemDO.getAccountSource())||Objects.equals("2", stockInDO.getSign())) {
+
                 continue;
             }
+
+            if(Objects.equals("0", stockInItemDO.getAccountSource())||!Objects.nonNull(stockInItemDO.getAccountSource())){
+                //未核销
+                continue;
+            }
+
             if (stockInDO.getSign() == 1) {
                 //将金额和单价还原，并将成本和费用更新为0.
                BigDecimal totailAmout = stockInItemDO.getAmount().subtract(stockInItemDO.getCost().add(stockInItemDO.getExpense()));
@@ -519,32 +366,38 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 stockInItemDO.setExpense(BigDecimal.ZERO);
             }
 
-            //[{count=240.00000000, materialId=45}]
-            String str="=";
-            String accountSource=stockInItemDO.getAccountSource().toString();
-            accountSource=accountSource.replaceAll(str,":");
-//          List<Map<String, Object>> objectss = JSONArray.parseObject(stockInItemDO.getAccountSource().toString(), List.class);
-            List<Object> objects = JSON.parseArray(accountSource);
+             //[{count=240.00000000, materialId=45}]
+            if(stockInItemDO.getAccountSource()!=null&&!Objects.equals("0", stockInItemDO.getAccountSource())){
+                String str="=";
+                String accountSource=stockInItemDO.getAccountSource();
+                accountSource=accountSource.replaceAll(str,":");
+    //          List<Map<String, Object>> objectss = JSONArray.parseObject(stockInItemDO.getAccountSource().toString(), List.class);
+                List<Object> objects = JSON.parseArray(accountSource);
 
-            for (int i = 0; i < objects.size(); i++) {
-                Map<String, Object> mapOutItrmId = (Map<String, Object>)objects.get(i);
-                Long outItemId = Long.parseLong(mapOutItrmId.get("outItemID").toString());
-                BigDecimal standCount = new BigDecimal(mapOutItrmId.get("countOnce").toString());
-                StockOutItemDO outItemDo = stockOutItemService.get(outItemId);
-                outItemDo.setChargeOffCount(outItemDo.getChargeOffCount().subtract(standCount));
-                LisTStockOutItemDo.add(outItemDo);
+                for (int i = 0; i < objects.size(); i++) {
+                    Map<String, Object> mapOutItemId = (Map<String, Object>)objects.get(i);
+                    Long outItemId = Long.parseLong(mapOutItemId.get("outItemID").toString());
+                    BigDecimal standCount = new BigDecimal(mapOutItemId.get("countOnce").toString());
+                    StockOutItemDO outItemDo = stockOutItemService.get(outItemId);
+                    outItemDo.setChargeOffCount(outItemDo.getChargeOffCount().subtract(standCount));
+                    LisTStockOutItemDo.add(outItemDo);
+                }
+            }else{
+                continue;
             }
-
             stockInItemDO.setCost(BigDecimal.ZERO);
             stockInItemDO.setAccountSource("0");
             stockInItemDO.setMaterialIdCount("0");
             newLitemDetailById.add(stockInItemDO);
+
             stockInDO.setSign(2);
             stockInService.update(stockInDO);
         }
         //批量更新 入库子表
-        if(itemDetailById!=null&&LisTStockOutItemDo!=null){
+        if(newLitemDetailById.size()>0){
             stockIntemService.batchUpdate(newLitemDetailById);
+        }
+        if(LisTStockOutItemDo.size()>0){
             stockOutItemService.batchUpdate(LisTStockOutItemDo);
         }
 
@@ -597,10 +450,10 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
     @Override
     public R disposeaccountingPrice(Long[] stockInIds) {
 
-//        boolean b = this.disposeIsClose(stockInIds,false);
-//        if (!b){
-//            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
-//        }
+        boolean b = this.disposeIsClose(stockInIds,false);
+        if (!b){
+            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+        }
 
         Map<String,Object>  map= new HashMap<>();
         map.put("id",stockInIds);
@@ -608,6 +461,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
             //未经分配的 sign==2，初始2
             return  R.error(messageSourceHandler.getMessage("scm.accounting.bussenissAccounting", null));
         }
+
         map.clear();
         for(Long id:stockInIds) {
 
