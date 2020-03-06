@@ -887,6 +887,57 @@ public class StockInServiceImpl implements StockInService {
 	}
 
 
+	@Override
+	public String  checkSourceCountsOfSaleReturn(String bodyDetail) {
+
+		//销售出库
+		List<StockInItemDO> itemDos = new ArrayList<>();
+		if (StringUtils.isNotEmpty(bodyDetail)) {
+			itemDos = JSON.parseArray(bodyDetail, StockInItemDO.class);
+		} else {
+			return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
+		}
+		//验证
+		for (StockInItemDO itemDo : itemDos) {
+
+			if (Objects.nonNull(itemDo.getSourceId())) {
+
+				Long sourceId = itemDo.getSourceId();
+				BigDecimal thisCount = itemDo.getCount();
+				Long sourceType = itemDo.getSourceType();
+
+				if (Objects.nonNull(sourceType)) {
+					if(Objects.equals(sourceType, ConstantForGYL.XSCK)){
+						//获取委外合同子表数量
+						StockOutItemDO stockOutItemDO = stockOutItemService.get(sourceId);
+						if (stockOutItemDO != null) {
+							Map<String, Object> map = new HashMap<>();
+							map.put("sourceId", sourceId);
+							map.put("sourceType", sourceType);
+							//已引入的入库数量
+							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
+							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+							//销售出库数量
+							BigDecimal outsourgCount=stockOutItemDO.getCount()==null?BigDecimal.ZERO : stockOutItemDO.getCount();
+							int boo = (outsourgCount.subtract(inCountOfContract)).compareTo(thisCount);
+							if (Objects.equals(-1, boo)) {
+								String[] args = {thisCount.toPlainString(),(outsourgCount.subtract(inCountOfContract)).toPlainString(), itemDo.getSourceCode().toString()};
+								return messageSourceHandler.getMessage("stock.number.checkError", args);
+							}
+						} else {
+							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+						}
+					}else{
+						//引入的源单类型非销售出库
+						return messageSourceHandler.getMessage("scm.checkCount.EroorSourceTypeOfSaleReturn", null);
+					}
+				} else {
+					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
+				}
+			}
+		}
+		return "ok";
+	}
 
 
 }
