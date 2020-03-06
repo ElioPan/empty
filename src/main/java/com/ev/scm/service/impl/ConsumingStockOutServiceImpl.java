@@ -87,6 +87,9 @@ public class ConsumingStockOutServiceImpl extends StockOutServiceImpl implements
         Map<Long, BigDecimal> count = Maps.newHashMap();
         for (StockOutItemDO itemDO : list) {
             Long sourceId = itemDO.getSourceId();
+            if (sourceId == null) {
+                continue;
+            }
             if (count.containsKey(sourceId)) {
                 count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
                 continue;
@@ -119,17 +122,20 @@ public class ConsumingStockOutServiceImpl extends StockOutServiceImpl implements
     @Override
     public void writeFeedingCount(Long id,boolean isAudit) {
         Map<Long, BigDecimal> count = this.getFeedingCountMap(id);
-        ProductionFeedingDetailDO detailDO;
-        BigDecimal outCount;
-        for (Long sourceId : count.keySet()) {
-            detailDO = productionFeedingDetailService.get(sourceId);
-            outCount = detailDO.getOutCount()==null?BigDecimal.ZERO:detailDO.getOutCount();
-            if (isAudit) {
-                detailDO.setOutCount(outCount.add(count.get(sourceId)));
-            }else {
-                detailDO.setOutCount(outCount.subtract(count.get(sourceId)));
+        if (count.size() > 0) {
+            ProductionFeedingDetailDO detailDO;
+            BigDecimal outCount;
+            for (Long sourceId : count.keySet()) {
+                detailDO = productionFeedingDetailService.get(sourceId);
+                outCount = detailDO.getOutCount()==null?BigDecimal.ZERO:detailDO.getOutCount();
+                if (isAudit) {
+                    detailDO.setOutCount(outCount.add(count.get(sourceId)));
+                }else {
+                    detailDO.setOutCount(outCount.subtract(count.get(sourceId)));
+                }
+                productionFeedingDetailService.update(detailDO);
             }
-            productionFeedingDetailService.update(detailDO);
         }
+
     }
 }
