@@ -335,6 +335,11 @@ public class StockOutServiceImpl implements StockOutService {
         if (this.isQrcode(id)) {
             return R.error(messageSourceHandler.getMessage("scm.stock.code.operateError", null));
         }
+        Date periodTime = stockService.getPeriodTime();
+        if (stockOutDO.getOutTime().before(periodTime)) {
+            String[] args = {DateFormatUtil.getFormateDate(periodTime)};
+            return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", args));
+        }
         
         Long auditSignId = stockOutDO.getAuditSign();
         int count = 0;
@@ -440,6 +445,12 @@ public class StockOutServiceImpl implements StockOutService {
     @Override
     public R audit(Long id, Long outType) {
         StockOutDO stockOutDO = get(id);
+        Date periodTime = stockService.getPeriodTime();
+        if (stockOutDO.getOutTime().before(periodTime)) {
+            String[] args = {DateFormatUtil.getFormateDate(periodTime)};
+            return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", args));
+        }
+
         Long auditSignId = stockOutDO.getAuditSign();
         int count = 0;
         // 若是待审核状态设置审核状态为已审核

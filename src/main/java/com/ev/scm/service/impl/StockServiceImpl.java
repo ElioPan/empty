@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,6 +51,8 @@ public class StockServiceImpl implements StockService {
 	private MessageSourceHandler messageSourceHandler;
 	@Autowired
 	private StockInService stockInService;
+	@Autowired
+	private StringRedisTemplate stringRedisTemplate;
 	@Autowired
 	private StockOutItemService stockOutItemService;
 	
@@ -267,15 +270,21 @@ public class StockServiceImpl implements StockService {
 
 	@Override
 	public R getStartTime() {
-		// 是否为修改
-		List<StockStartDO> list = stockStartService.list(Maps.newHashMap());
-		if (list.size() > 0) {
-			StockStartDO stockStartDO = list.get(0);
-			Map<String, Object> map = Maps.newHashMap();
-			map.put("yearAndMonth", stockStartDO.getStartTime());
-			return R.ok(map);
+		String stockStartTime = stringRedisTemplate.opsForValue().get("stockStartTime");
+		Map<String, Object> map = Maps.newHashMap();
+		if (StringUtils.isEmpty(stockStartTime)) {
+			// 是否为修改
+			List<StockStartDO> list = stockStartService.list(Maps.newHashMap());
+			if (list.size() > 0) {
+				Date startTime = list.get(0).getStartTime();
+				// 将库存启用时间写入redis中
+				stringRedisTemplate.opsForValue().set("stockStartTime", DateFormatUtil.getFormateDate(startTime));
+				map.put("yearAndMonth", startTime);
+				return R.ok(map);
+			}
 		}
-		return R.ok();
+		map.put("yearAndMonth", stockStartTime);
+		return R.ok(map);
 	}
 
 	@Override
@@ -450,12 +459,29 @@ public class StockServiceImpl implements StockService {
 		stockAnalysisService.batchInsert(stockAnalysisDOS);
 		stockStartDO.setStatus(1);
 		stockStartService.update(stockStartDO);
+		// 将库存启用时间写入redis中
+		stringRedisTemplate.opsForValue().set("stockStartTime", DateFormatUtil.getFormateDate(stockStartDO.getStartTime()));
+		// 将本期时间写入redis中
+		stringRedisTemplate.opsForValue().set("period", DateFormatUtil.getFormateDate(period));
+
 		return R.ok();
 	}
 
 	@Override
 	public R stockOutAccountingTime() {
 		Map<String, Object> result = Maps.newHashMap();
+		result.put("period", this.getPeriodTime());
+		return R.ok(result);
+	}
+
+	@Override
+	public Date getPeriodTime(){
+		// 获取本次期间
+		String periodTime = stringRedisTemplate.opsForValue().get("period");
+		if (periodTime != null) {
+			return DateFormatUtil.getDateByParttern(periodTime);
+		}
+
 		Map<String, Object> params = Maps.newHashMap();
 		params.put("offset", 0);
 		params.put("limit", 1);
@@ -470,16 +496,23 @@ public class StockServiceImpl implements StockService {
 			params.put("period", DateFormatUtil.getFormateDate(instanceTime));
 			List<StockAnalysisDO> oldList = stockAnalysisService.list(params);
 			if (oldList.size() > 0 && oldList.get(0).getIsClose() == 0) {
-				result.put("period", instanceTime);
+				stringRedisTemplate.opsForValue().set("period", DateFormatUtil.getFormateDate(instanceTime));
+				return instanceTime;
 			} else {
-				result.put("period", period);
+				stringRedisTemplate.opsForValue().set("period", DateFormatUtil.getFormateDate(period));
+				return period;
 			}
 		}
-		return R.ok(result);
+		return null;
 	}
 
 	@Override
 	public R checkTime(String period) {
+		String periodTimeForRedis = stringRedisTemplate.opsForValue().get("period");
+		if (StringUtils.isNoneEmpty(periodTimeForRedis) && periodTimeForRedis.equals(period)) {
+			return null;
+		}
+
 		Date periodTime = DateFormatUtil.getDateByParttern(period, "yyyy-MM-dd");
 		if (periodTime == null) {
 			return R.error(messageSourceHandler.getMessage("scm.stock.timeIsStart", null));
@@ -1266,7 +1299,6 @@ public class StockServiceImpl implements StockService {
 					stockAnalysisService.batchInsert(stockAnalysisInsertDOS);
 				}
 			}
-
 		}
 		return R.ok();
 	}
@@ -1285,9 +1317,12 @@ public class StockServiceImpl implements StockService {
 			instance.set(Calendar.DAY_OF_MONTH,1);
 			instance.set(Calendar.MONTH, instance.get(Calendar.MONTH)+1);
 			Date now = new Date();
-			if(now.before(instance.getTime())){
+			Date lastTerm = instance.getTime();
+			if(now.before(lastTerm)){
 				return R.error(messageSourceHandler.getMessage("scm.stock.time", null));
 			}
+			// 将本期时间写入redis中
+			stringRedisTemplate.opsForValue().set("period", DateFormatUtil.getFormateDate(lastTerm));
 		}
 
 		// 期末关账

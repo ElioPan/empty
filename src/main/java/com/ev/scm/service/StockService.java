@@ -4,6 +4,7 @@ import com.ev.framework.utils.R;
 import com.ev.scm.domain.StockDO;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -63,4 +64,6 @@ public interface StockService {
     R endingCarryOver(String period);
 
     R endingClose(String period);
+
+    Date getPeriodTime();
 }
