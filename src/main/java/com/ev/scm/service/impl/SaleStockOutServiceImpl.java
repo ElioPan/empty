@@ -76,6 +76,7 @@ public class SaleStockOutServiceImpl extends StockOutServiceImpl implements Sale
         if (this.childCount(id) >0 ) {
             return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));
         }
-        return this.reverseAuditForR(id, ConstantForGYL.XSCK);
+        R audit = this.reverseAuditForR(id, ConstantForGYL.XSCK);
+        return audit==null?R.ok():audit;
     }
 }

@@ -89,6 +89,7 @@ public class ConsumingStockOutServiceImpl extends StockOutServiceImpl implements
             Long sourceId = itemDO.getSourceId();
             if (count.containsKey(sourceId)) {
                 count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
+                continue;
             }
             count.put(itemDO.getSourceId(), itemDO.getCount());
         }

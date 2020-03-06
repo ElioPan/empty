@@ -90,7 +90,8 @@ public class SaleStockOutApiController {
 	public R audit(
 			@ApiParam(value = "出库单Id", required = true) @RequestParam(value = "id", defaultValue = "") Long id
     ) {
-		return saleStockOutService.audit(id, ConstantForGYL.XSCK);
+        R audit = saleStockOutService.audit(id, ConstantForGYL.XSCK);
+        return audit==null?R.ok():audit;
 	}
 
     @EvApiByToken(value = "/apis/salesOutStock/reverseAudit", method = RequestMethod.POST, apiTitle = "反审核销售出库")
