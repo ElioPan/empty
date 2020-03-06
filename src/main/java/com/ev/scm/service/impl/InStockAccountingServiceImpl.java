@@ -81,6 +81,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
     @Override
     public R saveAccounting(String detailAccounting) {
+
         List<StockInItemDO> stockInItemDOs = JSONObject.parseArray(detailAccounting, StockInItemDO.class);
         Long[] itemIds=new  Long[stockInItemDOs.size()];
         for (int i=0;i<stockInItemDOs.size();i++){
@@ -88,7 +89,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         }
         boolean b = this.disposeIsClose(itemIds,true);
         if (!b){
-            return R.ok(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
         }
 
         if(stockInItemDOs.isEmpty()){

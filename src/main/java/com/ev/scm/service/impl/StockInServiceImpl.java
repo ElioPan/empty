@@ -685,6 +685,7 @@ public class StockInServiceImpl implements StockInService {
 							Map<String, Object> map = new HashMap<>();
 							map.put("sourceId", sourceId);
 							map.put("sourceType", sourceType);
+							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
 							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
 							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
 
@@ -736,6 +737,7 @@ public class StockInServiceImpl implements StockInService {
 							Map<String, Object> map = new HashMap<>();
 							map.put("sourceId", sourceId);
 							map.put("sourceType", sourceType);
+							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
 							//已引入的入库数量
 							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
 							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
@@ -789,6 +791,8 @@ public class StockInServiceImpl implements StockInService {
 							Map<String, Object> map = new HashMap<>();
 							map.put("sourceId", sourceId);
 							map.put("sourceType", sourceType);
+							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
+
 							//已引入的入库数量
 							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
 							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
@@ -841,6 +845,8 @@ public class StockInServiceImpl implements StockInService {
 							Map<String, Object> map = new HashMap<>();
 							map.put("sourceId", sourceId);
 							map.put("sourceType", sourceType);
+							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
+
 							//已引入的入库数量
 							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
 							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
@@ -861,6 +867,8 @@ public class StockInServiceImpl implements StockInService {
 							Map<String, Object> map = new HashMap<>();
 							map.put("sourceId", sourceId);
 							map.put("sourceType", sourceType);
+							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
+
 							//已引入的入库数量
 							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
 							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
@@ -914,6 +922,7 @@ public class StockInServiceImpl implements StockInService {
 							Map<String, Object> map = new HashMap<>();
 							map.put("sourceId", sourceId);
 							map.put("sourceType", sourceType);
+							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
 							//已引入的入库数量
 							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
 							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;

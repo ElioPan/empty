@@ -11,10 +11,7 @@ import com.ev.mes.domain.ProductionFeedingDetailDO;
 import com.ev.mes.service.ProductionFeedingDetailService;
 import com.ev.scm.dao.PurchaseDao;
 import com.ev.scm.domain.*;
-import com.ev.scm.service.PurchaseItemService;
-import com.ev.scm.service.PurchaseService;
-import com.ev.scm.service.SalescontractItemService;
-import com.ev.scm.service.SalescontractService;
+import com.ev.scm.service.*;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,7 +32,8 @@ public class PurchaseServiceImpl implements PurchaseService {
     private SalescontractItemService salescontractItemService;
     @Autowired
     public ProductionFeedingDetailService productionFeedingDetailService;
-
+    @Autowired
+    public PurchasecontractItemService purchasecontractItemService;
 
 
     @Override
@@ -154,9 +152,16 @@ public class PurchaseServiceImpl implements PurchaseService {
     public R rollBackAudit(Long id) {
         PurchaseDO purchaseDO = purchaseDao.get(id);
 
-        //此处需要验证是否被采购合同引用了（目前采购必走合同流程）
-        //TODO
+        //需要验证是否被 采购合同 引用了（目前采购必走合同流程）
         if(Objects.nonNull(purchaseDO)){
+
+            Map<String,Object>  map= new HashMap<>();
+            map.put("sourceCode",purchaseDO.getPurchaseCode());
+            List<PurchasecontractItemDO> list = purchasecontractItemService.list(map);
+            if(list.size()>0){
+                return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit",null));
+            }
+
             if(Objects.equals(purchaseDO.getAuditSign(),ConstantForGYL.OK_AUDITED)){
                 PurchaseDO pDo=new PurchaseDO();
                 pDo.setAuditSign(ConstantForGYL.WAIT_AUDIT);
@@ -219,7 +224,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
 
     @Override
-    public String checkSourceCounts(String purchaseItemDos, Long storageType) {
+    public String checkSourceCounts(String purchaseItemDos, Long storageType ) {
         List<PurchaseItemDO> itemDos = new ArrayList<>();
         if (StringUtils.isNotEmpty(purchaseItemDos)) {
             itemDos = JSON.parseArray(purchaseItemDos, PurchaseItemDO.class);
@@ -241,6 +246,8 @@ public class PurchaseServiceImpl implements PurchaseService {
                             Map<String, Object> map = new HashMap<>();
                             map.put("sourceId", sourceId);
                             map.put("sourceType", soueseType);
+                            if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
+
                             //查出采购申请中已关联引入的数量
                             BigDecimal inCounts = purchaseItemService.getInCountOfPurchase(map);
 
@@ -260,6 +267,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                             Map<String, Object> map = new HashMap<>();
                             map.put("sourceId", sourceId);
                             map.put("storageType", soueseType);
+                            if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
                             BigDecimal inCounts = purchaseItemService.getInCountOfPurchase(map);
 
                             BigDecimal inCountOfpurchase = (inCounts == null) ? BigDecimal.ZERO : inCounts;

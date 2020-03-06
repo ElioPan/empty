@@ -119,8 +119,8 @@ public class ScmInStockAccountingApiController {
     @ApiOperation("核算--委外入库核算")
     @Transactional(rollbackFor = Exception.class)
     public R businessAccountingOutStock(
-            @ApiParam(value = "入库主键（列表行中的id字段）") @RequestParam(value = "stockInItemIds") Long[] stockInIds) {
-        return inStockAccountingService.disposeaccountingPrice(stockInIds);
+            @ApiParam(value = "入库主键（列表行中的id字段）") @RequestParam(value = "stockInItemIds") Long[] stockInItemIds) {
+        return inStockAccountingService.disposeaccountingPrice(stockInItemIds);
     }
 
 

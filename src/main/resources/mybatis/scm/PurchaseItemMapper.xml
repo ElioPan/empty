@@ -174,10 +174,11 @@
 		sum(`count`)
 		FROM
 		scm_purchase_item a
-		WHERE
-		a.source_id =#{sourceId}
-		and
-		a.source_type = #{sourceType}
+		<where>
+			<if test="id != null and id != ''"> and a.id<![CDATA[<>]]> #{id} </if>
+			<if test="sourceId != null and sourceId != ''"> and a.source_id =#{sourceId} </if>
+			<if test="sourceType != null and sourceType != ''"> and a.source_type = #{sourceType} </if>
+		</where>
 	</select>
 
 
