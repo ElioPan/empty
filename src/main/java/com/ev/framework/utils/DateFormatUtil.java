@@ -3,11 +3,14 @@ package com.ev.framework.utils;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class DateFormatUtil {
     public static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    public final static String FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
+    public final static String[] REPLACE_STRING = new String[]{"GMT+0800", "GMT+08:00"};
+    public final static String SPLIT_STRING = "(中国标准时间)";
 
     public static String getFormateDate(Date date) {
         SimpleDateFormat dateFormat = setFormat(DATE_PATTERN);
@@ -350,5 +353,23 @@ public class DateFormatUtil {
             }
         }
         return stringBuilder.toString();
+    }
+
+    public static Date getDateByPatternForChina(String dateString) {
+        try {
+            dateString = dateString.split(Pattern.quote(SPLIT_STRING))[0].replace(REPLACE_STRING[0], REPLACE_STRING[1]);
+            SimpleDateFormat sf1 = new SimpleDateFormat("E MMM dd yyyy HH:mm:ss z", Locale.US);
+            return sf1.parse(dateString);
+        } catch (Exception e) {
+            throw new RuntimeException("时间转化格式错误" + "[dateString=" + dateString + "]" + "[FORMAT_STRING=" + FORMAT_STRING + "]");
+        }
+    }
+
+    public static String getFormatDateForChina(String dateString) {
+      return getFormateDate(getDateByPatternForChina(dateString));
+    }
+
+    public static String getFormatDateForChina(String dateString,String pattern) {
+        return getFormateDate(getDateByPatternForChina(dateString),pattern);
     }
 }
