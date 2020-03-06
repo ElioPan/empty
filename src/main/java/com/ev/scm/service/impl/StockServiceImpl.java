@@ -1277,6 +1277,18 @@ public class StockServiceImpl implements StockService {
 		if (r != null) {
 			return r;
 		}
+		// 获取可以操作的时间(数据库内本期时间的下个月第一个天)
+		Date periodTime = DateFormatUtil.getDateByParttern(period, "yyyy-MM-dd");
+		if (periodTime != null) {
+			Calendar instance = Calendar.getInstance();
+			instance.setTime(periodTime);
+			instance.set(Calendar.DAY_OF_MONTH,1);
+			instance.set(Calendar.MONTH, instance.get(Calendar.MONTH)+1);
+			Date now = new Date();
+			if(now.before(instance.getTime())){
+				return R.error(messageSourceHandler.getMessage("scm.stock.time", null));
+			}
+		}
 
 		// 期末关账
 		Map<String, Object> params = Maps.newHashMap();
