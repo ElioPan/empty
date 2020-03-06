@@ -264,7 +264,8 @@
         SELECT
         COUNT(*) AS total,
         SUM(item.`count`) AS totalCount,
-        SUM(item.`amount`) AS totalAmount
+        SUM(item.`amount`) AS totalAmount,
+        SUM(item.`sell_amount`) AS totalSellAmount
         <include refid="sql_api_condition"/>
     </select>
     <sql id="sql_api_condition">
