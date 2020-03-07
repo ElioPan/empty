@@ -306,6 +306,10 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         }
 
         stockOutItemService.batchUpdate(outItemDOS);
+        StockInDO stockInDO = stockInService.get(stockIntemService.get(stockInItemId).getInheadId());
+        //已核销
+        stockInDO.setSign(1);
+        stockInService.update(stockInDO);
 
         StockInItemDO stockInItemDo = new StockInItemDO();
         stockInItemDo.setId(stockInItemId);
@@ -345,21 +349,21 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         List<StockInItemDO> itemDetailById = stockIntemService.getItemDetailById(map);
         List<StockOutItemDO> LisTStockOutItemDo=new ArrayList<>();
         List<StockInItemDO> newLitemDetailById=new ArrayList<>();
+
         for (StockInItemDO stockInItemDO : itemDetailById) {
+
             StockInDO stockInDO = stockInService.get(stockInItemDO.getInheadId());
-
-            if (Objects.equals("0", stockInItemDO.getAccountSource())||Objects.equals("2", stockInDO.getSign())) {
-
+            if (Objects.equals(0,stockInDO.getSign())) {
+                //nulll 未核销，未核算状态
+                continue;
+            }
+            if(Objects.equals(2,stockInDO.getSign())&& Objects.equals("0",stockInItemDO.getAccountSource())){
+                //分配未核销
                 continue;
             }
 
-            if(Objects.equals("0", stockInItemDO.getAccountSource())||!Objects.nonNull(stockInItemDO.getAccountSource())){
-                //未核销
-                continue;
-            }
-
-            if (stockInDO.getSign() == 1) {
-                //将金额和单价还原，并将成本和费用更新为0.
+            if (stockInDO.getSign() == 3) {
+                //已核算  将金额和单价还原，并将成本和费用更新为0.
                BigDecimal totailAmout = stockInItemDO.getAmount().subtract(stockInItemDO.getCost().add(stockInItemDO.getExpense()));
                BigDecimal unitPrice = totailAmout.divide(stockInItemDO.getCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
                 stockInItemDO.setAmount(totailAmout);
@@ -391,7 +395,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
             stockInItemDO.setMaterialIdCount("0");
             newLitemDetailById.add(stockInItemDO);
 
-            stockInDO.setSign(2);
+            stockInDO.setSign(0);
             stockInService.update(stockInDO);
         }
         //批量更新 入库子表
@@ -441,7 +445,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
             stockIntemService.batchUpdate(inItemDos);
 
             StockInDO stockInDO=new StockInDO();
-            stockInDO.setSign(0);
+            stockInDO.setSign(2);
             stockInDO.setId(stockInId);
             stockInService.update(stockInDO);
         }
@@ -459,7 +463,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         Map<String,Object>  map= new HashMap<>();
         map.put("id",stockInIds);
         if(this.getCountOfSignIsO(map)>0){
-            //未经分配的 sign==2，初始2
+            //未经分配的 sign==0，初始0
             return  R.error(messageSourceHandler.getMessage("scm.accounting.bussenissAccounting", null));
         }
 
@@ -481,7 +485,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
             }
             stockIntemService.batchUpdate(inItemDos);
             StockInDO stockInDO=new StockInDO();
-            stockInDO.setSign(1);
+            stockInDO.setSign(3);
             stockInDO.setId(id);
             stockInService.update(stockInDO);
         }
@@ -501,18 +505,21 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         if(StringUtils.isNotEmpty(detailAccounting)){
             stockOutItemDos = JSON.parseArray(detailAccounting);
         }else{
-            R.error(messageSourceHandler.getMessage("common.massge.haveNoMassge", null));
+            return R.error(messageSourceHandler.getMessage("common.massge.haveNoMassge", null));
         }
 
             StockInItemDO stockInItemDo = stockIntemService.get(stockInItemId);
-            //初始化为"0"
-            String accountSource = stockInItemDo.getAccountSource().toString();
-            if (!Objects.equals("0", accountSource) || !Objects.nonNull(stockInItemDo.getCost())) {
-                R.error(messageSourceHandler.getMessage("scm.accounting.inStockIsAccountingOver", null));
+        StockInDO stockInDO = stockInService.get(stockInItemDo.getInheadId());
+        //sign初始化为"0
+            if (Objects.equals(stockInDO.getSign(), 1) ) {
+                return   R.error(messageSourceHandler.getMessage("scm.accounting.inStockIsAccountingOver", null));
+            }else if(Objects.equals(stockInDO.getSign(), 3)){
+                return   R.error(messageSourceHandler.getMessage("scm.checkCount.accotingOver", null));
+            }else if(Objects.equals(stockInDO.getSign(), 2)&&!Objects.equals(stockInItemDo.getAccountSource(),"0")){
+                return   R.error(messageSourceHandler.getMessage("scm.accounting.inStockIsAccountingOver", null));
             }
-            //产品id
-            Long inStockMaterialId = stockInItemDo.getMaterielId();
-            //入库成品数量
+
+           //入库成品数量
             BigDecimal count = stockInItemDo.getCount();
             //委外合同子表id
             Long contrackItemId = stockInItemDo.getSourceId();
@@ -526,7 +533,8 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                     //本次需要核销的数量
                     Map<String, Object> map = bomItem.get(i);
                     BigDecimal standardCount = new BigDecimal(map.get("standardCount").toString());
-                    map.put("standardCount", standardCount.multiply(count));
+                    BigDecimal needAccountCount= standardCount.multiply(count);
+                    map.put("standardCount",needAccountCount);
                     bomItems.add(map);
                 }
             }
@@ -557,17 +565,14 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                         BigDecimal canChargeOffCount = (new BigDecimal(stockOutItemDO.get("count").toString())).subtract(chargeOffCount);
 
                         if (standardCount.compareTo(canChargeOffCount) == 1) {
-
+                            countOnce = canChargeOffCount;
                             standardCount = standardCount.subtract(canChargeOffCount);
-                            countOnce = canChargeOffCount;
                         } else if (standardCount.compareTo(canChargeOffCount) == 0) {
-
-                            standardCount = standardCount.subtract(standardCount);
                             countOnce = canChargeOffCount;
-                        } else if (standardCount.compareTo(canChargeOffCount) == -1) {
-
                             standardCount = standardCount.subtract(standardCount);
+                        } else if (standardCount.compareTo(canChargeOffCount) == -1) {
                             countOnce = standardCount;
+                            standardCount = standardCount.subtract(standardCount);
                         }
                     }
                     if (!Objects.equals(BigDecimal.ZERO, countOnce)) {

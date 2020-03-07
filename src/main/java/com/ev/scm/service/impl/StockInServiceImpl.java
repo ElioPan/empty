@@ -379,8 +379,6 @@ public class StockInServiceImpl implements StockInService {
 			return R.error(messageSourceHandler.getMessage("common.massge.haveNoData",null));
 		}
 
-		//验证入库源单数量足够入库
-
 		Long headId = stockInDO.getId();
 		if(Objects.isNull(headId)){
 			if(StringUtils.isNotEmpty(bodyDetail)){
@@ -401,7 +399,7 @@ public class StockInServiceImpl implements StockInService {
 				stockInDO.setAuditSign(ConstantForGYL.WAIT_AUDIT );
 				stockInDO.setStorageType(storageType);
 				if(Objects.equals(storageType,ConstantForGYL.PURCHASE_INSTOCK)){stockInDO.setSign(0);}
-				if(Objects.equals(storageType,ConstantForGYL.OUTSOURCING_INSTOCK)){stockInDO.setSign(2);}
+				if(Objects.equals(storageType,ConstantForGYL.OUTSOURCING_INSTOCK)){stockInDO.setSign(0);}
 				if(qR){
 					stockInDO.setQrSign(1);
 					stockInDO.setAuditor(ShiroUtils.getUserId());

@@ -453,7 +453,7 @@
 						when id=#{item.id} then #{item.inheadId}
 					</if>
 					<if test="item.inheadId==null">
-						when id=#{item.id} then scm_stock.inhead_id
+						when id=#{item.id} then scm_stock_in_item.inhead_id
 					</if>
 				</foreach>
 			</trim>
@@ -463,7 +463,7 @@
 						when id=#{item.id} then #{item.materielId}
 					</if>
 					<if test="item.materielId==null">
-						when id=#{item.id} then scm_stock.materiel_id
+						when id=#{item.id} then scm_stock_in_item.materiel_id
 					</if>
 				</foreach>
 			</trim>
@@ -474,7 +474,7 @@
 						when id=#{item.id} then #{item.batch}
 					</if>
 					<if test="item.batch==null">
-						when id=#{item.id} then scm_stock.batch
+						when id=#{item.id} then scm_stock_in_item.batch
 					</if>
 				</foreach>
 			</trim>
@@ -484,7 +484,7 @@
 						when id=#{item.id} then #{item.count}
 					</if>
 					<if test="item.count==null">
-						when id=#{item.id} then scm_stock.count
+						when id=#{item.id} then scm_stock_in_item.count
 					</if>
 				</foreach>
 			</trim>
@@ -494,7 +494,7 @@
 						when id=#{item.id} then #{item.unitPrice}
 					</if>
 					<if test="item.unitPrice==null">
-						when id=#{item.id} then scm_stock.unit_price
+						when id=#{item.id} then scm_stock_in_item.unit_price
 					</if>
 				</foreach>
 			</trim>
@@ -504,7 +504,7 @@
 						when id=#{item.id} then #{item.amount}
 					</if>
 					<if test="item.amount==null">
-						when id=#{item.id} then scm_stock.amount
+						when id=#{item.id} then scm_stock_in_item.amount
 					</if>
 				</foreach>
 			</trim>
@@ -514,7 +514,7 @@
 						when id=#{item.id} then #{item.warehouse}
 					</if>
 					<if test="item.warehouse==null">
-						when id=#{item.id} then scm_stock.warehouse
+						when id=#{item.id} then scm_stock_in_item.warehouse
 					</if>
 				</foreach>
 			</trim>
@@ -524,7 +524,7 @@
 						when id=#{item.id} then #{item.warehLocation}
 					</if>
 					<if test="item.warehLocation==null">
-						when id=#{item.id} then scm_stock.wareh_location
+						when id=#{item.id} then scm_stock_in_item.wareh_location
 					</if>
 				</foreach>
 			</trim>
@@ -534,7 +534,7 @@
 						when id=#{item.id} then #{item.returnReason}
 					</if>
 					<if test="item.returnReason==null">
-						when id=#{item.id} then scm_stock.return_reason
+						when id=#{item.id} then scm_stock_in_item.return_reason
 					</if>
 				</foreach>
 			</trim>
@@ -544,7 +544,7 @@
 						when id=#{item.id} then #{item.sourceType}
 					</if>
 					<if test="item.sourceType==null">
-						when id=#{item.id} then scm_stock.source_type
+						when id=#{item.id} then scm_stock_in_item.source_type
 					</if>
 				</foreach>
 			</trim>
@@ -554,7 +554,7 @@
 						when id=#{item.id} then #{item.sourceCode}
 					</if>
 					<if test="item.sourceCode==null">
-						when id=#{item.id} then scm_stock.source_code
+						when id=#{item.id} then scm_stock_in_item.source_code
 					</if>
 				</foreach>
 			</trim>
@@ -564,7 +564,7 @@
 						when id=#{item.id} then #{item.sourceId}
 					</if>
 					<if test="item.sourceId==null">
-						when id=#{item.id} then scm_stock.source_id
+						when id=#{item.id} then scm_stock_in_item.source_id
 					</if>
 				</foreach>
 			</trim>
@@ -574,7 +574,7 @@
 						when id=#{item.id} then #{item.expense}
 					</if>
 					<if test="item.expense==null">
-						when id=#{item.id} then scm_stock.expense
+						when id=#{item.id} then scm_stock_in_item.expense
 					</if>
 				</foreach>
 			</trim>
@@ -584,7 +584,7 @@
 						when id=#{item.id} then #{item.cost}
 					</if>
 					<if test="item.cost==null">
-						when id=#{item.id} then scm_stock.cost
+						when id=#{item.id} then scm_stock_in_item.cost
 					</if>
 				</foreach>
 			</trim>
@@ -594,7 +594,7 @@
 						when id=#{item.id} then #{item.createBy}
 					</if>
 					<if test="item.createBy==null">
-						when id=#{item.id} then scm_stock.create_by
+						when id=#{item.id} then scm_stock_in_item.create_by
 					</if>
 				</foreach>
 			</trim>
@@ -604,7 +604,7 @@
 						when id=#{item.id} then #{item.createTime}
 					</if>
 					<if test="item.createTime==null">
-						when id=#{item.id} then scm_stock.create_time
+						when id=#{item.id} then scm_stock_in_item.create_time
 					</if>
 				</foreach>
 			</trim>
@@ -614,7 +614,7 @@
 						when id=#{item.id} then #{item.updateBy}
 					</if>
 					<if test="item.updateBy==null">
-						when id=#{item.id} then scm_stock.update_by
+						when id=#{item.id} then scm_stock_in_item.update_by
 					</if>
 				</foreach>
 			</trim>
@@ -624,7 +624,7 @@
 						when id=#{item.id} then #{item.updateTime}
 					</if>
 					<if test="item.updateTime==null">
-						when id=#{item.id} then scm_stock.update_time
+						when id=#{item.id} then scm_stock_in_item.update_time
 					</if>
 				</foreach>
 			</trim>
@@ -634,7 +634,7 @@
 						when id=#{item.id} then #{item.delFlag}
 					</if>
 					<if test="item.delFlag==null">
-						when id=#{item.id} then scm_stock.del_flag
+						when id=#{item.id} then scm_stock_in_item.del_flag
 					</if>
 				</foreach>
 			</trim>
@@ -644,7 +644,7 @@
 						when id=#{item.id} then #{item.materialIdCount}
 					</if>
 					<if test="item.materialIdCount==null">
-						when id=#{item.id} then scm_stock.materialId_count
+						when id=#{item.id} then scm_stock_in_item.materialId_count
 					</if>
 				</foreach>
 			</trim>
@@ -654,7 +654,7 @@
 						when id=#{item.id} then #{item.qrcodeId}
 					</if>
 					<if test="item.qrcodeId==null">
-						when id=#{item.id} then scm_stock.qrcode_id
+						when id=#{item.id} then scm_stock_in_item.qrcode_id
 					</if>
 				</foreach>
 			</trim>
@@ -665,7 +665,7 @@
 						when id=#{item.id} then #{item.accountSource}
 					</if>
 					<if test="item.accountSource==null">
-						when id=#{item.id} then scm_stock.account_source
+						when id=#{item.id} then scm_stock_in_item.account_source
 					</if>
 				</foreach>
 			</trim>
