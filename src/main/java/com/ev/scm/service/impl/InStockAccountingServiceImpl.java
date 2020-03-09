@@ -274,6 +274,15 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
             return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
         }
 
+        StockInItemDO itemDO=stockIntemService.get(stockInItemId);
+        if(itemDO!=null){
+            if(!Objects.equals(itemDO.getAccountSource(),"0")){
+                return R.error(messageSourceHandler.getMessage("scm.accounting.inStockIsAccountingOver", null));
+            }
+        }else{
+            return R.error(messageSourceHandler.getMessage("common.massge.haveNoId", null));
+        }
+
         List<Map<String,Object>> list = JSONArray.parseObject(detailAccounting, List.class);
 
         List<Map<String,Object>> accoutSources=new ArrayList<>();
@@ -306,8 +315,8 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         }
 
         stockOutItemService.batchUpdate(outItemDOS);
-        StockInDO stockInDO = stockInService.get(stockIntemService.get(stockInItemId).getInheadId());
         //已核销
+        StockInDO stockInDO = stockInService.get(itemDO.getInheadId());
         stockInDO.setSign(1);
         stockInService.update(stockInDO);
 

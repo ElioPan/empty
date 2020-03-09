@@ -91,12 +91,14 @@
         count( a.id)
         FROM
         scm_stock_in a
+        LEFT JOIN scm_stock_in_item b on a.id=b.inhead_id
         WHERE
           a.id in
         <foreach item="id" collection="id" open="(" separator="," close=")">
             #{id}
         </foreach>
-        and  ((cost is null) OR cost=0 OR (expense is null) OR expense=0)
+        <!--and  ((b.cost is null) OR b.cost=0 OR (b.expense is null) OR b.expense=0)-->
+        and  (a.sign=0 or ( a.sign=2 and b.account_source='0'))
     </select>
 
 

@@ -534,7 +534,11 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 					for (InventoryPlanItemDO inventoryPlanItemDO:planItemDos) {
 						String itemMw = inventoryPlanItemDO.getMaterielId().toString() + "-" + inventoryPlanItemDO.getWarehouse().toString();
                         String itemBatch =inventoryPlanItemDO.getBatch()==null?"":inventoryPlanItemDO.getBatch().toLowerCase();
+
 						String qrIdCount = inventoryPlanItemDO.getQrIdCount()==null?"":inventoryPlanItemDO.getQrIdCount().toString();
+						String str="=";
+						qrIdCount=qrIdCount.replaceAll(str,":");
+
 						BigDecimal systemCount = inventoryPlanItemDO.getSystemCount();
 						BigDecimal checkCount = inventoryPlanItemDO.getCheckCount()==null?BigDecimal.ZERO:inventoryPlanItemDO.getCheckCount();
 						BigDecimal profitLoss = inventoryPlanItemDO.getProfitLoss()==null?BigDecimal.ZERO:inventoryPlanItemDO.getProfitLoss();
@@ -544,6 +548,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 							if(StringUtils.isNotEmpty(qrIdCount)){
 
 								JSONObject qrIdCounts = JSONObject.fromObject(qrIdCount);
+
 								Map<String, Object> qrIdCountMap = (Map<String, Object>)qrIdCounts;
 								if(qrIdCountMap.containsKey(qrId)){
 									//更改数量  先减后加
