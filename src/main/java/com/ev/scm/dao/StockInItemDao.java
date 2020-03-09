@@ -65,4 +65,8 @@ public interface StockInItemDao {
 
 	List<Map<String, Object>> getInOutTime(Map<String, Object> map);
 
+	BigDecimal countOfIntroducedContract(Map<String, Object> map);
+
+
+
 }

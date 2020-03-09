@@ -216,7 +216,7 @@
 		from
 		(
 			SELECT
-				i.id ascontractItemId,
+				i.id as contractItemId,
 				a.id,
 				a.contract_date as contractDate,
 				a.contract_code as contractCode,
@@ -396,6 +396,8 @@
 			#{item}
 		</foreach>
 	</select>
+
+
 
 
 </mapper>

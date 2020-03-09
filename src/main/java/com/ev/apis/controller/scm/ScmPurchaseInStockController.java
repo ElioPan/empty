@@ -7,9 +7,11 @@ import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
+import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.domain.StockInDO;
+import com.ev.scm.service.PurchaseInvoiceItemService;
 import com.ev.scm.service.StockInItemService;
 import com.ev.scm.service.StockInService;
 import com.google.common.collect.Maps;
@@ -27,10 +29,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Author Kuzi
@@ -44,7 +48,8 @@ public class ScmPurchaseInStockController {
     private StockInService stockInService;
     @Autowired
     private StockInItemService stockInItemService;
-
+    @Autowired
+    private PurchaseInvoiceItemService purchaseInvoiceItemService;
     @Autowired
     private DictionaryService dictionaryService;
 
@@ -228,6 +233,80 @@ public class ScmPurchaseInStockController {
                 TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
     }
 
+    @EvApiByToken(value = "/apis/scm/purchaseInStock/listIntroduce", method = RequestMethod.POST, apiTitle = "导入列表--采购入库")
+    @ApiOperation("导入列表--采购入库")
+    public R listIntroduce(@ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
+                                 @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
+                                 @ApiParam(value = "供应商（模糊）") @RequestParam(value = "supplierName", defaultValue = "", required = false) String supplierName,
+                                 @ApiParam(value = "供应商ID") @RequestParam(value = "supplierId",defaultValue = "",required = false)  Long supplierId,
+                                 @ApiParam(value = "入库起始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
+                                 @ApiParam(value = "入库截止时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
+                                 @ApiParam(value = "制单起始日期") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String  createStartTime,
+                                 @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime) {
+        Map<String, Object> resulst = new HashMap<>();
+        Map<String, Object> params = new HashMap<>();
+        params.put("offset", (pageno - 1) * pagesize);
+        params.put("limit", pagesize);
+        params.put("supplierName", supplierName);
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+        params.put("auditSign",ConstantForGYL.OK_AUDITED);
+        params.put("createStartTime", createStartTime);
+        params.put("createEndTime", createEndTime);
+        params.put("supplierId", supplierId);
+        params.put("storageType", ConstantForGYL.PURCHASE_INSTOCK);
+
+
+        Map<String, Object> totalForMap = stockInService.countForMap(params);
+        List<Map<String, Object>> detailList = stockInService.listForMap(params);
+
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PURCHASE_INSTOCK.intValue());
+        String thisSourceTypeName = dictionaryDO.getName();
+//        for (Map<String, Object> datum : detailList) {
+//            datum.put("thisSourceType", ConstantForGYL.PURCHASE_INSTOCK);
+//            datum.put("thisSourceTypeName", thisSourceTypeName);
+//        }
+
+        if (!detailList.isEmpty()) {
+
+            Map<String,Object>  maps= new HashMap<>();
+            maps.put("sourceType",ConstantForGYL.PURCHASE_INSTOCK);
+
+            for(int i=0;i<detailList.size();i++){
+
+                Map<String,Object>mapDo= detailList.get(i);
+                maps.put("sourceId",mapDo.get("stockInItemId"));
+                //采购费用
+                BigDecimal inCountOfContract= purchaseInvoiceItemService.getInCountOfInvoiceItem(maps);
+                BigDecimal countByOutSource = inCountOfContract == null ? BigDecimal.ZERO : inCountOfContract;
+
+                BigDecimal count = MathUtils.getBigDecimal(mapDo.get("count")).subtract(countByOutSource);
+
+                if (count.compareTo(BigDecimal.ZERO) <= 0) {
+                    mapDo.put("quoteCount",0);
+                }else{
+                    mapDo.put("quoteCount",count);
+                }
+                mapDo.put("thisSourceType", ConstantForGYL.PURCHASE_INSTOCK);
+                mapDo.put("thisSourceTypeName", thisSourceTypeName);
+            }
+            List<Map<String, Object>> quoteList = detailList
+                    .stream()
+                    .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO)>0)
+                    .collect(Collectors.toList());
+
+            Map<String, Object> dsRet = new HashMap<>();
+            dsRet.put("pageno",pageno);
+            dsRet.put("pagesize",pagesize);
+            dsRet.put("totalPages",(Integer.parseInt(totalForMap.get("count").toString()) + pagesize - 1) / pagesize);
+            dsRet.put("totalRows",Integer.parseInt(totalForMap.get("count").toString()));
+            dsRet.put("toatalCount",totalForMap.get("toatalCount"));
+            dsRet.put("toatalAmount",totalForMap.get("toatalAmount"));
+            dsRet.put("datas",quoteList);
+            resulst.put("data", dsRet);
+        }
+        return R.ok(resulst);
+    }
 
 
 }

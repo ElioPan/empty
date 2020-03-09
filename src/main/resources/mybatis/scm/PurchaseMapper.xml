@@ -343,12 +343,11 @@
 		from
 		scm_purchasecontract_item a
 		LEFT JOIN scm_purchasecontract b on a.purchase_contract_id=b.id
-		WHERE
-		a.source_id=#{purchaseItemId}
-		and
-		a.source_type =#{sourceType}
-		and
-		b.id <![CDATA[<>]]>#{contractId}
+		<where>
+			<if test="purchaseItemId != null and purchaseItemId != ''"> and a.source_id=#{purchaseItemId}</if>
+			<if test="sourceType != null and sourceType != ''"> and a.source_type = #{sourceType} </if>
+			<if test="contractId != null and contractId != ''"> and b.id <![CDATA[<>]]>#{contractId} </if>
+		</where>
 		)   as `count`
 		from
 		scm_purchase_item  c

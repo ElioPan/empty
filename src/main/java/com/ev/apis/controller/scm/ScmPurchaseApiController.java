@@ -7,6 +7,7 @@ import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
+import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.R;
 import com.ev.scm.domain.PurchaseDO;
 import com.ev.scm.service.PurchaseService;
@@ -30,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Author Kuzi
@@ -220,8 +222,9 @@ public class ScmPurchaseApiController {
                             @ApiParam(value = "供应商") @RequestParam(value = "supplierId", defaultValue = "", required = false) Long supplierId,
                             @ApiParam(value = "供应商名字模糊") @RequestParam(value = "supplierId", defaultValue = "", required = false) String supplierName,
                             @ApiParam(value = "制单起始日期") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String  createStartTime,
-                            @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime,
-                            @ApiParam(value = "采购合同主键id") @RequestParam(value = "createEndTime", defaultValue = "", required = false) Long purchaseContractId ) {
+                            @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime
+//                            @ApiParam(value = "采购合同主键id") @RequestParam(value = "purchaseContractId",required = false) Long purchaseContractId
+    ) {
 
         Map<String, Object> params = Maps.newHashMap();
         params.put("offset", (pageno - 1) * pagesize);
@@ -244,10 +247,12 @@ public class ScmPurchaseApiController {
             datum.put("thisSourceTypeName", thisSourceTypeName);
         }
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(2);
+
         if (!list.isEmpty()) {
+
             Map<String,Object>  map= new HashMap<>();
             map.put("sourceType",ConstantForGYL.PURCHASE);
-            map.put("contractId",purchaseContractId);
+//            map.put("contractId",purchaseContractId);
             for(int i=0;i<list.size();i++){
                 Map<String, Object> mapDo =list.get(i);
                 map.put("purchaseItemId",mapDo.get("purchaseItemId"));
@@ -261,6 +266,11 @@ public class ScmPurchaseApiController {
                     mapDo.put("quoteCount",count);
                 }
             }
+            List<Map<String, Object>> quoteList = list
+                    .stream()
+                    .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO)>0)
+                    .collect(Collectors.toList());
+
             Map<String,Object> dsRet= new HashMap<>();
             dsRet.put("pageno",pageno);
             dsRet.put("pagesize",pagesize);
@@ -268,7 +278,7 @@ public class ScmPurchaseApiController {
             dsRet.put("totalPages",(Integer.parseInt(countForMaps.get("count").toString()) + pagesize - 1) / pagesize);
             dsRet.put("totalCount",countForMaps.get("totalCount"));
             dsRet.put("totalAmount",countForMaps.get("totalAmount"));
-            dsRet.put("datas",list);
+            dsRet.put("datas",quoteList);
             results.put("data", dsRet);
         }
         return R.ok(results);

@@ -808,4 +808,20 @@
 		</where>
 	</select>
 
+	<select id="countOfIntroducedContract" resultType="java.math.BigDecimal">
+		SELECT
+		IF(sum(`count`) is null,0,sum(`count`))
+		FROM
+		scm_stock_in_item a
+		LEFT JOIN scm_stock_in b on a.inhead_id=b.id
+		<where>
+			<if test="id != null and id != ''"> and b.id<![CDATA[<>]]> #{id} </if>
+			<if test="sourceId != null and sourceId != ''"> and a.source_id =#{sourceId} </if>
+			<if test="sourceType != null and sourceType != ''"> and a.source_type = #{sourceType} </if>
+		</where>
+	</select>
+
+
+
+
 </mapper>

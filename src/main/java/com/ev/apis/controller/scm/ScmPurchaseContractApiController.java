@@ -7,11 +7,14 @@ import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
+import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.domain.PurchasecontractDO;
+import com.ev.scm.service.PurchaseInvoiceItemService;
 import com.ev.scm.service.PurchasecontractPayService;
 import com.ev.scm.service.PurchasecontractService;
+import com.ev.scm.service.StockInItemService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,10 +30,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Author Kuzi
@@ -47,6 +52,10 @@ public class ScmPurchaseContractApiController {
     private PurchasecontractPayService purchasecontractPayService;
     @Autowired
     private DictionaryService dictionaryService;
+    @Autowired
+    private StockInItemService stockInItemService;
+    @Autowired
+    private PurchaseInvoiceItemService purchaseInvoiceItemService;
 
     @EvApiByToken(value = "/apis/scm/purchaseContract/addOrUpdate",method = RequestMethod.POST,apiTitle = "添加/修改—采购合同")
     @ApiOperation("添加/修改—采购合同")
@@ -351,6 +360,89 @@ public class ScmPurchaseContractApiController {
             dsRet.put("totalPayAmount",totalMap.get("totalPayAmount"));
             dsRet.put("totalAmountPaid",totalMap.get("totalAmountPaid"));
             dsRet.put("totalUnpayAmount",totalMap.get("totalUnpayAmount"));
+            result.put("data", dsRet);
+        }
+        return R.ok(result);
+    }
+
+    @EvApiByToken(value = "/apis/scm/purchaseContract/listIntroduce",method = RequestMethod.GET,apiTitle = "导入列表—采购合同")
+    @ApiOperation("导入列表—采购合同")
+    public R listIntroduce(
+            @ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
+            @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize,
+            @ApiParam(value = "开始时间") @RequestParam(value = "startTime",defaultValue = "",required = false)  String startTime,
+            @ApiParam(value = "结束时间") @RequestParam(value = "endTime",defaultValue = "",required = false)  String endTime,
+            @ApiParam(value = "供应商名称模糊查询") @RequestParam(value = "fuzzyQuery",required = false) String fuzzyQuery,
+            @ApiParam(value = "供应商id") @RequestParam(value = "supplierId",defaultValue = "",required = false)  Long supplierId,
+            @ApiParam(value = "制单起始日期") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String  createStartTime,
+            @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime,
+            @ApiParam(value = "dialog类型：采购入库传0，采购发票传1",required = true) @RequestParam(value = "dialogType",defaultValue = "")  Integer dialogType
+            ){
+
+        Map<String, Object> map = Maps.newHashMap();
+        // 列表查询
+        map.put("offset",(pageno-1)*pagesize);
+        map.put("limit",pagesize);
+        map.put("startTime", startTime);
+        map.put("endTime", endTime);
+        map.put("fuzzyQuery", StringUtils.sqlLike(fuzzyQuery));
+        // 高级查询
+        map.put("auditSign", ConstantForGYL.OK_AUDITED);
+        map.put("closeStatus",0);
+        map.put("createStartTime", createStartTime);
+        map.put("createEndTime", createEndTime);
+        map.put("supplierId",supplierId);
+
+        List<Map<String, Object>> data = purchasecontractService.listForMap(map);
+        Map<String, Object> totalMap = purchasecontractService.countForMap(map);
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT.intValue());
+        String thisSourceTypeName = dictionaryDO.getName();
+        for (Map<String, Object> datum : data) {
+            datum.put("thisSourceType", ConstantForGYL.CGHT);
+            datum.put("thisSourceTypeName", thisSourceTypeName);
+        }
+        Map<String, Object> result = Maps.newHashMap();
+
+        if (data.size() > 0) {
+
+            Map<String,Object>  maps= new HashMap<>();
+            maps.put("sourceType",ConstantForGYL.CGHT);
+
+            for(int i=0;i<data.size();i++){
+                Map<String,Object>mapDo= data.get(i);
+                maps.put("sourceId",mapDo.get("contractItemId"));
+                BigDecimal inCountOfContract;
+                if(dialogType==0){
+                    inCountOfContract= stockInItemService.getInCountOfContract(maps);
+                }else if(dialogType==1){
+                    inCountOfContract=  purchaseInvoiceItemService.getInCountOfInvoiceItem(maps);
+                }else{
+                    inCountOfContract=BigDecimal.ZERO;
+                }
+                BigDecimal countByOutSource = inCountOfContract == null ? BigDecimal.ZERO : inCountOfContract;
+
+                BigDecimal count = MathUtils.getBigDecimal(mapDo.get("count")).subtract(countByOutSource);
+
+                if (count.compareTo(BigDecimal.ZERO) <= 0) {
+                    mapDo.put("quoteCount",0);
+                }else{
+                    mapDo.put("quoteCount",count);
+                }
+            }
+            List<Map<String, Object>> quoteList = data
+                    .stream()
+                    .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO)>0)
+                    .collect(Collectors.toList());
+
+            Map<String,Object>  dsRet= new HashMap<>();
+            dsRet.put("datas",quoteList);
+            dsRet.put("pageno",pageno);
+            dsRet.put("pagesize",pagesize);
+            dsRet.put("totalRows",Integer.parseInt(totalMap.get("count").toString()));
+            dsRet.put("totalPages",((Integer.parseInt(totalMap.get("count").toString()) + pagesize - 1) / pagesize));
+            dsRet.put("totalAmount",totalMap.get("totalAmount"));
+            dsRet.put("totalTaxAmount",totalMap.get("totalTaxAmount"));
+            dsRet.put("totalTaxes",totalMap.get("totalTaxes"));
             result.put("data", dsRet);
         }
         return R.ok(result);
