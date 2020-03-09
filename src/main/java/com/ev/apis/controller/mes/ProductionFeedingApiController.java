@@ -237,8 +237,6 @@ public class ProductionFeedingApiController {
 			Map<String,Object> sourceParam;
 			// quoteCount  可领数量
 			for (Map<String, Object> map : data) {
-				map.put("thisSourceType", ConstantForGYL.SCTLD);
-				map.put("thisSourceTypeName", thisSourceTypeName);
 				// 不限额领料
 				map.put("quoteCount", null);
 				// 限额领料
@@ -260,6 +258,8 @@ public class ProductionFeedingApiController {
 			List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
 
 			for (Map<String, Object> map : quoteList) {
+				map.put("thisSourceType", ConstantForGYL.SCTLD);
+				map.put("thisSourceTypeName", thisSourceTypeName);
 				if (stockListForMap.size() > 0) {
 					double availableCount = 0.0d;
 					for (Map<String, Object> stockList : stockListForMap) {
