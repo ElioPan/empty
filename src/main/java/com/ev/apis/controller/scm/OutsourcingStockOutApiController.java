@@ -165,11 +165,50 @@ public class OutsourcingStockOutApiController {
 		return r==null?outsourcingStockOutService.edit(stockOutDO, item, ConstantForGYL.WWCK , itemIds):r;
 	}
 	
-	@EvApiByToken(value = "/apis/outsourcingStockOut/advancedQuery", method = RequestMethod.POST, apiTitle = "获取委外出库单列表/高级查询")
-	@ApiOperation("获取委外出库单列表/高级查询")
-	public R advancedQuery(
+	@EvApiByToken(value = "/apis/outsourcingStockOut/dialog/writeOff", method = RequestMethod.POST, apiTitle = "获取委外出库核销列表")
+	@ApiOperation("获取委外出库核销列表")
+	public R writeOffList(
 			@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
 			@ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+            @ApiParam(value = "委外入库单明细ID", required = true) @RequestParam(value = "stockInItemId", defaultValue = "") Long stockInItemId
+			) {
+        Map<String, Object> results = Maps.newHashMap();
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("offset", (pageno - 1) * pagesize);
+        params.put("limit", pagesize);
+        params.put("outboundType", ConstantForGYL.WWCK);
+        // 核销导入列表
+        Long outsourcingContractItemId = stockInItemService.get(stockInItemId).getSourceId();
+        if (outsourcingContractItemId != null) {
+            Map<String, Object> map = Maps.newHashMap();
+            map.put("outsourceContractItemId", outsourcingContractItemId);
+            List<ProductionFeedingDO> list = productionFeedingService.list(map);
+            if (list.size() > 0) {
+                Long feedingId = list.get(0).getId();
+                map.put("headId", feedingId);
+                List<Long> feedingDetailIds = feedingDetailService.list(map).stream()
+                        .map(ProductionFeedingDetailDO::getId)
+                        .collect(Collectors.toList());
+                if (feedingDetailIds.size() > 0) {
+                    params.put("sourceIds", feedingDetailIds);
+                    List<Map<String, Object>> data = this.outsourcingStockOutService.listApi(params);
+                    Map<String, Object> maps = this.outsourcingStockOutService.countTotal(params);
+                    int total = Integer.parseInt(maps.getOrDefault("total", 0).toString());
+                    if (data.size() > 0) {
+                        results.put("data", new DsResultResponse(pageno, pagesize, total, data));
+                        results.put("total", maps);
+                    }
+                }
+            }
+        }
+        return R.ok(results);
+	}
+
+    @EvApiByToken(value = "/apis/outsourcingStockOut/advancedQuery", method = RequestMethod.POST, apiTitle = "获取委外出库单列表/高级查询")
+    @ApiOperation("获取委外出库单列表/高级查询")
+    public R advancedQuery(
+            @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+            @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
             @ApiParam(value = "单据编号") @RequestParam(value = "outCode", defaultValue = "", required = false) String outCode,
             @ApiParam(value = "客户名称") @RequestParam(value = "clientName", defaultValue = "", required = false) String clientName,
             @ApiParam(value = "客户Id") @RequestParam(value = "clientId", defaultValue = "", required = false) Long clientId,
@@ -186,10 +225,9 @@ public class OutsourcingStockOutApiController {
             @ApiParam(value = "出库员Id") @RequestParam(value = "operator", defaultValue = "", required = false) Long operator,
             @ApiParam(value = "制单人") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
             @ApiParam(value = "制单人Id") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
-            @ApiParam(value = "制单日期") @RequestParam(value = "createTime", defaultValue = "", required = false) String createTime,
-            @ApiParam(value = "委外入库单明细ID") @RequestParam(value = "stockInItemId", defaultValue = "", required = false) Long stockInItemId
+            @ApiParam(value = "制单日期") @RequestParam(value = "createTime", defaultValue = "", required = false) String createTime
 
-			) {
+    ) {
         Map<String, Object> results = Maps.newHashMap();
         Map<String, Object> params = Maps.newHashMap();
         params.put("offset", (pageno - 1) * pagesize);
@@ -212,43 +250,16 @@ public class OutsourcingStockOutApiController {
         params.put("createBy", createBy);
         params.put("createTime", createTime);
         params.put("outboundType", Objects.isNull(outboundType)?ConstantForGYL.WWCK:outboundType);
-        if (stockInItemId != null) {
-            Long outsourcingContractItemId = stockInItemService.get(stockInItemId).getSourceId();
-            if (outsourcingContractItemId != null) {
-                Map<String,Object> map = Maps.newHashMap();
-                map.put("outsourceContractItemId",outsourcingContractItemId);
-                List<ProductionFeedingDO> list = productionFeedingService.list(map);
-                if (list.size() > 0) {
-                    Long feedingId = list.get(0).getId();
-                    map.put("headId",feedingId);
-                    List<Long> feedingDetailIds = feedingDetailService.list(map).stream()
-                            .map(ProductionFeedingDetailDO::getId)
-                            .collect(Collectors.toList());
-                    if (feedingDetailIds.size() > 0) {
-                        params.put("sourceIds", feedingDetailIds);
-                        List<Map<String, Object>> data = this.outsourcingStockOutService.listApi(params);
-                        Map<String, Object> maps = this.outsourcingStockOutService.countTotal(params);
-                        int total = Integer.parseInt(maps.getOrDefault("total",0).toString());
-                        if ( data.size() > 0) {
-                            results.put("data", new DsResultResponse(pageno,pagesize,total,data));
-                            results.put("total",maps);
-                        }
-                        return R.ok(results);
-                    }
-                }
-            }
-            return R.ok(results);
-        }
 
-		List<Map<String, Object>> data = this.outsourcingStockOutService.listApi(params);
+        List<Map<String, Object>> data = this.outsourcingStockOutService.listApi(params);
         Map<String, Object> map = this.outsourcingStockOutService.countTotal(params);
         int total = Integer.parseInt(map.getOrDefault("total",0).toString());
-		if ( data.size() > 0) {
+        if ( data.size() > 0) {
             results.put("data", new DsResultResponse(pageno,pagesize,total,data));
             results.put("total",map);
-		}
-		return R.ok(results);
-	}
+        }
+        return R.ok(results);
+    }
 
     @EvApiByToken(value = "/apis/outsourcingStockOut/getDetail", method = RequestMethod.POST)
     @ApiOperation("获取委外出库单单详情")
