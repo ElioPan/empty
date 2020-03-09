@@ -285,9 +285,9 @@ public class OutsourcingContractApiController {
                 BigDecimal countByOutSource = bySource == null ? BigDecimal.ZERO : bySource;
                 BigDecimal count = MathUtils.getBigDecimal(datum.get("count")).subtract(countByOutSource);
                 if (count.compareTo(BigDecimal.ZERO) <= 0) {
-                    map.put("quoteCount", -1);
+                    datum.put("quoteCount", -1);
                 } else {
-                    map.put("quoteCount", count);
+                    datum.put("quoteCount", count);
                 }
             }
 

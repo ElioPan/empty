@@ -8,10 +8,13 @@ import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
+import com.ev.framework.utils.MathUtils;
+import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.domain.StockOutDO;
 import com.ev.scm.service.SaleStockOutService;
+import com.ev.scm.service.StockInItemService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,8 +30,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 
@@ -41,6 +46,9 @@ public class SaleStockOutApiController {
 
     @Autowired
     private SaleStockOutService saleStockOutService;
+
+    @Autowired
+    private StockInItemService stockInItemService;
 
 	@Autowired
 	private DictionaryService dictionaryService;
@@ -213,6 +221,83 @@ public class SaleStockOutApiController {
 		}
 		return R.ok(results);
 	}
+
+    @EvApiByToken(value = "/apis/salesOutStock/dialog", method = RequestMethod.POST, apiTitle = "获取销售出库dialog列表")
+    @ApiOperation("获取销售出库dialog列表")
+    public R dialog(
+            @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+            @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "5") int pagesize,
+            @ApiParam(value = "出库单号") @RequestParam(value = "outCode", defaultValue = "", required = false) String outCode,
+            @ApiParam(value = "客户名称") @RequestParam(value = "clientName", defaultValue = "", required = false) String clientName,
+            @ApiParam(value = "客户Id") @RequestParam(value = "clientId", defaultValue = "", required = false) Long clientId,
+            @ApiParam(value = "物料名称") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
+            @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
+            @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
+            // 高级查询
+            @ApiParam(value = "销售方式(0现销/1赊销)") @RequestParam(value = "salesType", defaultValue = "", required = false) Integer salesType,
+            @ApiParam(value = "规格型号") @RequestParam(value = "specification", defaultValue = "", required = false) String specification,
+            @ApiParam(value = "销售部门") @RequestParam(value = "materielName", defaultValue = "", required = false) String deptName,
+            @ApiParam(value = "销售员") @RequestParam(value = "salesUserName", defaultValue = "", required = false) String salesUserName,
+            @ApiParam(value = "制单人") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
+            // 销售出库导入关联单据
+            @ApiParam(value = "单据开始时间") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String createStartTime,
+            @ApiParam(value = "单据结束时间") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String createEndTime
+    ) {
+        Map<String, Object> params = Maps.newHashMap();
+
+        params.put("outCode", outCode);
+        params.put("clientName", StringUtils.sqlLike(clientName));
+        params.put("clientId", clientId);
+        params.put("materielName", StringUtils.sqlLike(materielName));
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+        // 高级查询
+        params.put("salesType", salesType);
+        params.put("specification", StringUtils.sqlLike(specification));
+        params.put("deptName", StringUtils.sqlLike(deptName));
+        params.put("salesUserName", StringUtils.sqlLike(salesUserName));
+        params.put("createByName", StringUtils.sqlLike(createByName));
+        // 销售出库导入关联单据
+        params.put("createStartTime", createStartTime);
+        params.put("createEndTime", createEndTime);
+        // 出库类型
+        params.put("auditSign", ConstantForGYL.OK_AUDITED);
+        params.put("outboundType", ConstantForGYL.XSCK);
+        Map<String, Object> results = Maps.newHashMap();
+        List<Map<String, Object>> data = this.saleStockOutService.listApi(params);
+        if (data.size() > 0) {
+            Map<String, Object> sourceParam;
+            BigDecimal bySource;
+            for (Map<String, Object> datum : data) {
+                sourceParam = Maps.newHashMap();
+                sourceParam.put("sourceId", datum.get("id"));
+                sourceParam.put("sourceType", ConstantForGYL.XSCK);
+                bySource = stockInItemService.getInCountOfContract(sourceParam);
+
+                BigDecimal countByOutSource = bySource == null ? BigDecimal.ZERO : bySource;
+                BigDecimal count = MathUtils.getBigDecimal(datum.get("count")).subtract(countByOutSource);
+                if (count.compareTo(BigDecimal.ZERO) <= 0) {
+                    datum.put("quoteCount", -1);
+                } else {
+                    datum.put("quoteCount", count);
+                }
+            }
+
+            List<Map<String, Object>> quoteLists = data.stream().filter(stringObjectMap -> Integer.parseInt(stringObjectMap.get("quoteCount").toString()) != -1).collect(Collectors.toList());
+
+            if (quoteLists.size() > 0) {
+                DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.XSCK.intValue());
+                String thisSourceTypeName = dictionaryDO.getName();
+                List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
+                for (Map<String, Object> stringObjectMap : quoteList) {
+                    stringObjectMap.put("thisSourceType", ConstantForGYL.XSCK);
+                    stringObjectMap.put("thisSourceTypeName", thisSourceTypeName);
+                }
+                results.put("data", new DsResultResponse(pageno, pagesize, quoteLists.size(), quoteList));
+            }
+        }
+        return R.ok(results);
+    }
 
     @EvApiByToken(value = "/apis/salesOutStock/getDetail", method = RequestMethod.POST)
     @ApiOperation("获取销售出库单详情")

@@ -278,7 +278,6 @@ public class SalesContractApiController {
 
         if (data.size() > 0) {
             Map<String, Object> sourceParam;
-            // 委外合同引用
             BigDecimal bySource = null;
             for (Map<String, Object> datum : data) {
                 sourceParam = Maps.newHashMap();
@@ -286,12 +285,15 @@ public class SalesContractApiController {
                 sourceParam.put("sourceType", ConstantForGYL.XSHT);
                 switch (dialogType) {
                     case 0:
+                        // 委外合同引用
                         bySource = outsourcingContractService.getCountBySource(sourceParam);
                         break;
                     case 1:
+                        // 销售发票引用
                         bySource = salesbillService.getCountBySource(sourceParam);
                         break;
                     case 2:
+                        // 销售出库引用
                          bySource = stockOutItemService.getCountBySource(map);
                         break;
                     default:
@@ -300,9 +302,9 @@ public class SalesContractApiController {
                 BigDecimal countByOutSource = bySource == null ? BigDecimal.ZERO : bySource;
                 BigDecimal count = MathUtils.getBigDecimal(datum.get("count")).subtract(countByOutSource);
                 if (count.compareTo(BigDecimal.ZERO) <= 0) {
-                    map.put("quoteCount", -1);
+                    datum.put("quoteCount", -1);
                 } else {
-                    map.put("quoteCount", count);
+                    datum.put("quoteCount", count);
                 }
             }
 
