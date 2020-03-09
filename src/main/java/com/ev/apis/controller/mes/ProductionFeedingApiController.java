@@ -4,12 +4,12 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.config.ConstantForGYL;
-import com.ev.framework.utils.MathUtils;
-import com.ev.framework.utils.StringUtils;
+import com.ev.framework.utils.*;
 import com.ev.scm.service.StockOutItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
-import com.ev.framework.utils.R;
 import com.ev.custom.service.MaterielService;
 import com.ev.mes.domain.ProductionFeedingDO;
 import com.ev.mes.service.ProductionFeedingDetailService;
@@ -223,8 +222,7 @@ public class ProductionFeedingApiController {
 
 		params.put("auditSign", ConstantForGYL.OK_AUDITED);
 		params.put("isPlan",1);
-		params.put("offset", (pageno - 1) * pagesize);
-		params.put("limit", pagesize);
+
 		Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
 		List<Map<String, Object>> data = productionFeedingDetailService.listForMap(params);
 		DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.SCTLD.intValue());
@@ -233,8 +231,8 @@ public class ProductionFeedingApiController {
 		Map<String, Object> param = Maps.newHashMap();
 		param.put("isPc",1);
 		// 获取实时库存
+		// 优化（将需要查询的物料提取出来）
 		List<Map<String, Object>> stockListForMap = materielService.stockListForMap(param);
-		int total = productionFeedingDetailService.countForMap(params);
 		if (data.size() > 0) {
 			Map<String,Object> sourceParam;
 			// quoteCount  可领数量
@@ -250,9 +248,18 @@ public class ProductionFeedingApiController {
 					sourceParam.put("sourceType", ConstantForGYL.SCTLD);
 					BigDecimal bySource = stockOutItemService.getCountBySource(sourceParam);
 					BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
-					map.put("quoteCount", MathUtils.getBigDecimal(map.get("planFeedingCount")).subtract(countByOutSource));
+					BigDecimal planFeedingCount = MathUtils.getBigDecimal(map.get("planFeedingCount")).subtract(countByOutSource);
+					if (planFeedingCount.compareTo(BigDecimal.ZERO) == 0) {
+						map.put("quoteCount", -1);
+					}else {
+						map.put("quoteCount", planFeedingCount);
+					}
 				}
+			}
+			List<Map<String, Object>> quoteLists = data.stream().filter(stringObjectMap -> Integer.parseInt(stringObjectMap.get("quoteCount").toString()) != -1).collect(Collectors.toList());
+			List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
 
+			for (Map<String, Object> map : quoteList) {
 				if (stockListForMap.size() > 0) {
 					double availableCount = 0.0d;
 					for (Map<String, Object> stockList : stockListForMap) {
@@ -272,7 +279,8 @@ public class ProductionFeedingApiController {
 					map.put("availableCount", availableCount);
 				}
 			}
-			results.put("data", new DsResultResponse(pageno,pagesize,total,data));
+
+			results.put("data", new DsResultResponse(pageno,pagesize,quoteLists.size(),quoteList));
 		}
 		return R.ok(results);
 	}
