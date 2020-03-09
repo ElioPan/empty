@@ -278,8 +278,6 @@ public class SalesContractApiController {
 
         if (data.size() > 0) {
             Map<String, Object> sourceParam;
-            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.XSHT.intValue());
-            String thisSourceTypeName = dictionaryDO.getName();
             // 委外合同引用
             BigDecimal bySource = null;
             for (Map<String, Object> datum : data) {
@@ -309,14 +307,17 @@ public class SalesContractApiController {
             }
 
             List<Map<String, Object>> quoteLists = data.stream().filter(stringObjectMap -> Integer.parseInt(stringObjectMap.get("quoteCount").toString()) != -1).collect(Collectors.toList());
-            List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
-
-            for (Map<String, Object> stringObjectMap : quoteList) {
-                stringObjectMap.put("thisSourceType", ConstantForGYL.XSHT);
-                stringObjectMap.put("thisSourceTypeName", thisSourceTypeName);
+            if (quoteLists.size() > 0) {
+                DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.XSHT.intValue());
+                String thisSourceTypeName = dictionaryDO.getName();
+                List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
+                for (Map<String, Object> stringObjectMap : quoteList) {
+                    stringObjectMap.put("thisSourceType", ConstantForGYL.XSHT);
+                    stringObjectMap.put("thisSourceTypeName", thisSourceTypeName);
+                }
+                result.put("data", new DsResultResponse(pageno, pagesize, quoteLists.size(), quoteList));
             }
 
-            result.put("data", new DsResultResponse(pageno, pagesize, quoteLists.size(), quoteList));
         }
         return R.ok(result);
     }

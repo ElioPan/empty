@@ -244,31 +244,32 @@ public class ProductionFeedingApiController {
 				}
 			}
 			List<Map<String, Object>> quoteLists = data.stream().filter(stringObjectMap -> Integer.parseInt(stringObjectMap.get("quoteCount").toString()) != -1).collect(Collectors.toList());
-			List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
+			if (quoteLists.size() > 0) {
+				List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
+				for (Map<String, Object> map : quoteList) {
+					map.put("thisSourceType", ConstantForGYL.SCTLD);
+					map.put("thisSourceTypeName", thisSourceTypeName);
+					if (stockListForMap.size() > 0) {
+						double availableCount = 0.0d;
+						for (Map<String, Object> stockList : stockListForMap) {
+							if (Objects.equals(stockList.get("materielId").toString(), map.get("materielId").toString())) {
+								// 如果没有批次要求则查出所有该商品的可用数量累计
+								if (!map.containsKey("batchNo")) {
+									availableCount += Double.parseDouble(stockList.get("availableCount").toString());
+									continue;
+								}
+								// 若制定了批次则将这一批次的可用数量查出记为实时数量
+								if (Objects.equals(stockList.get("batch").toString(), map.get("batchNo").toString())) {
+									availableCount += Double.parseDouble(stockList.get("availableCount").toString());
+								}
 
-			for (Map<String, Object> map : quoteList) {
-				map.put("thisSourceType", ConstantForGYL.SCTLD);
-				map.put("thisSourceTypeName", thisSourceTypeName);
-				if (stockListForMap.size() > 0) {
-					double availableCount = 0.0d;
-					for (Map<String, Object> stockList : stockListForMap) {
-						if (Objects.equals(stockList.get("materielId").toString(), map.get("materielId").toString())) {
-							// 如果没有批次要求则查出所有该商品的可用数量累计
-							if (!map.containsKey("batchNo")) {
-								availableCount += Double.parseDouble(stockList.get("availableCount").toString());
-								continue;
 							}
-							// 若制定了批次则将这一批次的可用数量查出记为实时数量
-							if (Objects.equals(stockList.get("batch").toString(), map.get("batchNo").toString())) {
-								availableCount += Double.parseDouble(stockList.get("availableCount").toString());
-							}
-
 						}
+						map.put("availableCount", availableCount);
 					}
-					map.put("availableCount", availableCount);
 				}
+				results.put("data", new DsResultResponse(pageno,pagesize,quoteLists.size(),quoteList));
 			}
-			results.put("data", new DsResultResponse(pageno,pagesize,quoteLists.size(),quoteList));
 		}
 		return R.ok(results);
 	}

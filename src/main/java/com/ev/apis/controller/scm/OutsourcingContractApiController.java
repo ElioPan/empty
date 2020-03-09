@@ -18,6 +18,7 @@ import com.ev.mes.service.ProductionFeedingService;
 import com.ev.scm.domain.OutsourcingContractDO;
 import com.ev.scm.service.ContractAlterationService;
 import com.ev.scm.service.OutsourcingContractService;
+import com.ev.scm.service.StockInItemService;
 import com.ev.scm.service.StockOutItemService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
@@ -59,6 +60,8 @@ public class OutsourcingContractApiController {
     private ProductionFeedingService productionFeedingService;
     @Autowired
     private StockOutItemService stockOutItemService;
+    @Autowired
+    private StockInItemService stockInItemService;
     @Autowired
     private DictionaryService dictionaryService;
     @Autowired
@@ -221,17 +224,88 @@ public class OutsourcingContractApiController {
         int total = Integer.parseInt(stringBigDecimalMap.getOrDefault("total",0).toString());
         Map<String, Object> result = Maps.newHashMap();
         if (data.size() > 0) {
-            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.WWHT.intValue());
-            String thisSourceTypeName = dictionaryDO.getName();
-            for (Map<String, Object> datum : data) {
-                datum.put("thisSourceType", ConstantForGYL.WWHT);
-                datum.put("thisSourceTypeName", thisSourceTypeName);
-            }
             result.put("data", new DsResultResponse(pageno,pagesize,total,data));
             result.put("total", stringBigDecimalMap);
         }
         return R.ok(result);
 	}
+
+    @EvApiByToken(value = "/apis/outsourcingContract/dialog",method = RequestMethod.GET,apiTitle = "获取委外合同dialog列表")
+    @ApiOperation("获取委外合同dialog列表")
+    public R outsourcingContractListDialog(
+            @ApiParam(value = "开始时间") @RequestParam(value = "startTime",defaultValue = "",required = false)  String startTime,
+            @ApiParam(value = "结束时间") @RequestParam(value = "endTime",defaultValue = "",required = false)  String endTime,
+            @ApiParam(value = "合同编号") @RequestParam(value = "contractCode",required = false) String contractCode,
+            @ApiParam(value = "供应商名称") @RequestParam(value = "supplierName",defaultValue = "",required = false)  String supplierName,
+            @ApiParam(value = "物料名称") @RequestParam(value = "materielName",defaultValue = "",required = false)  String materielName,
+            // 高级查询
+            @ApiParam(value = "合同类型") @RequestParam(value = "contractType",required = false) Long contractType,
+            @ApiParam(value = "规格型号") @RequestParam(value = "specification",required = false) String specification,
+            @ApiParam(value = "审核状态") @RequestParam(value = "auditSign",required = false) Long auditSign,
+            @ApiParam(value = "制单人") @RequestParam(value = "createByName",defaultValue = "",required = false)  String createByName,
+            // 导入关联单据列表
+            @ApiParam(value = "物料编号/物料规格型号/物料名称/合同编号/客户名称 模糊查询") @RequestParam(value = "fuzzyInquire",required = false) String fuzzyInquire,
+            @ApiParam(value = "单据开始时间") @RequestParam(value = "createStartTime",defaultValue = "",required = false)  String createStartTime,
+            @ApiParam(value = "单据结束时间") @RequestParam(value = "createEndTime",defaultValue = "",required = false)  String createEndTime,
+
+            @ApiParam(value = "关闭状态/0未关/1关闭") @RequestParam(value = "closeStatus",defaultValue = "",required = false)  Long closeStatus,
+            @ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
+            @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "5") int pagesize){
+        Map<String, Object> map = Maps.newHashMap();
+        // 列表查询
+        map.put("startTime", startTime);
+        map.put("endTime", endTime);
+        map.put("contractCode", contractCode);
+        map.put("supplierName", StringUtils.sqlLike(supplierName));
+        map.put("materielName", StringUtils.sqlLike(materielName));
+        // 高级查询
+        map.put("contractType", contractType);
+        map.put("specification",StringUtils.sqlLike(specification));
+        map.put("auditSign", auditSign);
+        map.put("createByName", StringUtils.sqlLike(createByName));
+        // 导入关联单据列表
+        map.put("fuzzyInquire",  StringUtils.sqlLike(fuzzyInquire));
+        map.put("createStartTime", createStartTime);
+        map.put("createEndTime", createEndTime);
+
+        map.put("closeStatus",closeStatus);
+
+        List<Map<String, Object>> data =  outsourcingContractService.listForMap(map);
+        Map<String, Object> result = Maps.newHashMap();
+        if (data.size() > 0) {
+            Map<String, Object> sourceParam;
+            // 委外合同引用
+            BigDecimal bySource;
+            for (Map<String, Object> datum : data) {
+                sourceParam = Maps.newHashMap();
+                sourceParam.put("sourceId", datum.get("id"));
+                sourceParam.put("sourceType", ConstantForGYL.WWHT);
+                bySource = stockInItemService.getInCountOfContract(sourceParam);
+
+                BigDecimal countByOutSource = bySource == null ? BigDecimal.ZERO : bySource;
+                BigDecimal count = MathUtils.getBigDecimal(datum.get("count")).subtract(countByOutSource);
+                if (count.compareTo(BigDecimal.ZERO) <= 0) {
+                    map.put("quoteCount", -1);
+                } else {
+                    map.put("quoteCount", count);
+                }
+            }
+
+            List<Map<String, Object>> quoteLists = data.stream().filter(stringObjectMap -> Integer.parseInt(stringObjectMap.get("quoteCount").toString()) != -1).collect(Collectors.toList());
+            if (quoteLists.size() > 0) {
+                DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.WWHT.intValue());
+                String thisSourceTypeName = dictionaryDO.getName();
+                List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
+                for (Map<String, Object> stringObjectMap : quoteList) {
+                    stringObjectMap.put("thisSourceType", ConstantForGYL.WWHT);
+                    stringObjectMap.put("thisSourceTypeName", thisSourceTypeName);
+                }
+                result.put("data", new DsResultResponse(pageno, pagesize, quoteLists.size(), quoteList));
+            }
+        }
+        return R.ok(result);
+    }
+
 
     @EvApiByToken(value = "/apis/outsourcingContract/alterationList",method = RequestMethod.GET,apiTitle = "获取委外合同变更列表")
     @ApiOperation("获取委外合同变更列表")
@@ -414,31 +488,32 @@ public class OutsourcingContractApiController {
                 }
             }
             List<Map<String, Object>> quoteLists = data.stream().filter(stringObjectMap -> Integer.parseInt(stringObjectMap.get("quoteCount").toString()) != -1).collect(Collectors.toList());
-            List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
+            if (quoteLists.size() > 0) {
+                List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
+                for (Map<String, Object> map : quoteList) {
+                    map.put("thisSourceType", ConstantForGYL.WWTLD);
+                    map.put("thisSourceTypeName", thisSourceTypeName);
+                    double availableCount = 0.0d;
+                    if (stockListForMap.size() > 0) {
+                        for (Map<String, Object> stockList : stockListForMap) {
+                            if (Objects.equals(stockList.get("materielId").toString(), map.get("materielId").toString())) {
+                                // 如果没有批次要求则查出所有该商品的可用数量累计
+                                if (!map.containsKey("batchNo")) {
+                                    availableCount += Double.parseDouble(stockList.get("availableCount").toString());
+                                    continue;
+                                }
+                                // 若制定了批次则将这一批次的可用数量查出记为实时数量
+                                if (Objects.equals(stockList.get("batch").toString(), map.get("batchNo").toString())) {
+                                    availableCount += Double.parseDouble(stockList.get("availableCount").toString());
+                                }
 
-            for (Map<String, Object> map : quoteList) {
-                map.put("thisSourceType", ConstantForGYL.WWTLD);
-                map.put("thisSourceTypeName", thisSourceTypeName);
-                double availableCount = 0.0d;
-                if (stockListForMap.size() > 0) {
-                    for (Map<String, Object> stockList : stockListForMap) {
-                        if (Objects.equals(stockList.get("materielId").toString(), map.get("materielId").toString())) {
-                            // 如果没有批次要求则查出所有该商品的可用数量累计
-                            if (!map.containsKey("batchNo")) {
-                                availableCount += Double.parseDouble(stockList.get("availableCount").toString());
-                                continue;
                             }
-                            // 若制定了批次则将这一批次的可用数量查出记为实时数量
-                            if (Objects.equals(stockList.get("batch").toString(), map.get("batchNo").toString())) {
-                                availableCount += Double.parseDouble(stockList.get("availableCount").toString());
-                            }
-
                         }
+                        map.put("availableCount", availableCount);
                     }
-                    map.put("availableCount", availableCount);
                 }
+                results.put("data", new DsResultResponse(pageno,pagesize,quoteLists.size(),quoteList));
             }
-            results.put("data", new DsResultResponse(pageno,pagesize,quoteLists.size(),quoteList));
         }
         return R.ok(results);
     }
