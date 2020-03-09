@@ -201,7 +201,7 @@ public class ProductionFeedingApiController {
 	 * @author gumingjie
 	 *
 	 */
-	@EvApiByToken(value = "/apis/productionFeeding/childList/dialog", method = RequestMethod.POST, apiTitle = "生产投料子项目列表")
+	@EvApiByToken(value = "/apis/productionFeeding/dialog", method = RequestMethod.POST, apiTitle = "生产投料子项目列表")
 	@ApiOperation("生产投料子项目列表")
 	public R childListDialog(
 			@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,

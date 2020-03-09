@@ -218,7 +218,7 @@ public class SalesContractApiController {
         return R.ok(result);
 	}
 
-    @EvApiByToken(value = "/apis/salesContractApi/salesContractList/dialog",method = RequestMethod.GET,apiTitle = "获取销售合同列表")
+    @EvApiByToken(value = "/apis/salesContractApi/dialog",method = RequestMethod.GET,apiTitle = "获取销售合同列表")
     @ApiOperation("获取销售合同列表")
     public R salesContractListDialog(
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime",defaultValue = "",required = false)  String startTime,
