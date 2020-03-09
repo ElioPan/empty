@@ -8,6 +8,7 @@ import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.MathUtils;
+import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.domain.PurchasecontractDO;
@@ -381,8 +382,6 @@ public class ScmPurchaseContractApiController {
 
         Map<String, Object> map = Maps.newHashMap();
         // 列表查询
-        map.put("offset",(pageno-1)*pagesize);
-        map.put("limit",pagesize);
         map.put("startTime", startTime);
         map.put("endTime", endTime);
         map.put("fuzzyQuery", StringUtils.sqlLike(fuzzyQuery));
@@ -397,10 +396,10 @@ public class ScmPurchaseContractApiController {
         Map<String, Object> totalMap = purchasecontractService.countForMap(map);
         DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT.intValue());
         String thisSourceTypeName = dictionaryDO.getName();
-        for (Map<String, Object> datum : data) {
-            datum.put("thisSourceType", ConstantForGYL.CGHT);
-            datum.put("thisSourceTypeName", thisSourceTypeName);
-        }
+//        for (Map<String, Object> datum : data) {
+//            datum.put("thisSourceType", ConstantForGYL.CGHT);
+//            datum.put("thisSourceTypeName", thisSourceTypeName);
+//        }
         Map<String, Object> result = Maps.newHashMap();
 
         if (data.size() > 0) {
@@ -428,17 +427,22 @@ public class ScmPurchaseContractApiController {
                 }else{
                     mapDo.put("quoteCount",count);
                 }
+
+                mapDo.put("thisSourceType", ConstantForGYL.CGHT);
+                mapDo.put("thisSourceTypeName", thisSourceTypeName);
             }
             List<Map<String, Object>> quoteList = data
                     .stream()
                     .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO)>0)
                     .collect(Collectors.toList());
 
+            List<Map<String, Object>>quoteLists = PageUtils.startPage(quoteList, pageno, pagesize);
+
             Map<String,Object>  dsRet= new HashMap<>();
             dsRet.put("datas",quoteList);
             dsRet.put("pageno",pageno);
             dsRet.put("pagesize",pagesize);
-            dsRet.put("totalRows",Integer.parseInt(totalMap.get("count").toString()));
+            dsRet.put("totalRows",quoteLists.size());
             dsRet.put("totalPages",((Integer.parseInt(totalMap.get("count").toString()) + pagesize - 1) / pagesize));
             dsRet.put("totalAmount",totalMap.get("totalAmount"));
             dsRet.put("totalTaxAmount",totalMap.get("totalTaxAmount"));

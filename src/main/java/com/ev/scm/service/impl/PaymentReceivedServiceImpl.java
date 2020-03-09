@@ -6,17 +6,14 @@ import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
+import com.ev.framework.utils.StringUtils;
 import com.ev.scm.dao.PaymentReceivedDao;
-import com.ev.scm.domain.PaymentReceivedDO;
-import com.ev.scm.domain.PaymentReceivedItemDO;
-import com.ev.scm.domain.PurchasecontractPayDO;
-import com.ev.scm.domain.SalescontractPayDO;
+import com.ev.scm.domain.*;
 import com.ev.scm.service.PaymentReceivedItemService;
 import com.ev.scm.service.PaymentReceivedService;
 import com.ev.scm.service.PurchasecontractPayService;
 import com.ev.scm.service.SalescontractPayService;
 import com.google.common.collect.Maps;
-import org.apache.poi.ss.formula.ptg.MemAreaPtg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -458,6 +455,86 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 		return map;
 	}
 
+
+	@Override
+	public String checkSourseCount(String paymentBodys,String sign ){
+
+//		List<PaymentReceivedItemDO> bodys = JSON.parseArray(paymentBodys, PaymentReceivedItemDO.class);
+//		for (PaymentReceivedItemDO bPdata : bodys) {
+//
+//		}
+//		//领用出库++委外出库
+//		List<StockInItemDO> itemDos = new ArrayList<>();
+//		if (StringUtils.isNotEmpty(bodyDetail)) {
+//			itemDos = JSON.parseArray(bodyDetail, StockInItemDO.class);
+//		} else {
+//			return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
+//		}
+//		//验证委外入库单
+//		for (StockInItemDO itemDo : itemDos) {
+//
+//			if (Objects.nonNull(itemDo.getSourceId())) {
+//
+//				Long sourceId = itemDo.getSourceId();
+//				BigDecimal thisCount = itemDo.getCount();
+//				Long sourceType = itemDo.getSourceType();
+//
+//				if (Objects.nonNull(sourceType)) {
+//					if(Objects.equals(sourceType, ConstantForGYL.LYCK)){
+//						//获取领用出库子表数量
+//						StockOutItemDO stockOutItemDO = stockOutItemService.get(sourceId);
+//						if (stockOutItemDO != null) {
+//							Map<String, Object> map = new HashMap<>();
+//							map.put("sourceId", sourceId);
+//							map.put("sourceType", sourceType);
+//							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
+//
+//							//已引入的入库数量
+//							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
+//							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+//							//领用出库数量
+//							BigDecimal outsourgCount=stockOutItemDO.getCount()==null?BigDecimal.ZERO : stockOutItemDO.getCount();
+//							int boo = (outsourgCount.subtract(inCountOfContract)).compareTo(thisCount);
+//							if (Objects.equals(-1, boo)) {
+//								String[] args = {thisCount.toPlainString(),(outsourgCount.subtract(inCountOfContract)).toPlainString(), itemDo.getSourceCode().toString()};
+//								return messageSourceHandler.getMessage("stock.number.checkError", args);
+//							}
+//						} else {
+//							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+//						}
+//					}else if(Objects.equals(sourceType, ConstantForGYL.WWCK)){
+//						//委外出库
+//						StockOutItemDO stockOutItemDO = stockOutItemService.get(sourceId);
+//						if (stockOutItemDO != null) {
+//							Map<String, Object> map = new HashMap<>();
+//							map.put("sourceId", sourceId);
+//							map.put("sourceType", sourceType);
+//							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
+//
+//							//已引入的入库数量
+//							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
+//							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+//							//委外出库数量
+//							BigDecimal outsourgCount=stockOutItemDO.getCount()==null?BigDecimal.ZERO : stockOutItemDO.getCount();
+//							int boo = (outsourgCount.subtract(inCountOfContract)).compareTo(thisCount);
+//							if (Objects.equals(-1, boo)) {
+//								String[] args = {thisCount.toPlainString(),(outsourgCount.subtract(inCountOfContract)).toPlainString(), itemDo.getSourceCode().toString()};
+//								return messageSourceHandler.getMessage("stock.number.checkError", args);
+//							}
+//						} else {
+//							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+//						}
+//
+//					}else{
+//						return messageSourceHandler.getMessage("scm.checkCount.EroorSourceTypeOfIntroduce", null);
+//					}
+//				} else {
+//					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
+//				}
+//			}
+//		}
+		return "ok";
+	}
 
 
 
