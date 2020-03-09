@@ -226,8 +226,6 @@ public class ProductionFeedingApiController {
 			Map<String,Object> sourceParam;
 			// quoteCount  可领数量
 			for (Map<String, Object> map : data) {
-				// 不限额领料
-				map.put("quoteCount", null);
 				// 限额领料
 				if(Integer.parseInt(map.get("isQuota").toString())!=0){
 					sourceParam = Maps.newHashMap();
@@ -245,7 +243,7 @@ public class ProductionFeedingApiController {
 			}
 			List<Map<String, Object>> quoteLists = data
 					.stream()
-					.filter(stringObjectMap -> stringObjectMap.get("quoteCount")==null||MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO)>0)
+					.filter(stringObjectMap -> !stringObjectMap.containsKey("quoteCount")||MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO)>0)
 					.collect(Collectors.toList());
 			if (quoteLists.size() > 0) {
 				List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
