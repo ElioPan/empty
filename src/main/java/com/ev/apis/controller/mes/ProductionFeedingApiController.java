@@ -1,5 +1,6 @@
 package com.ev.apis.controller.mes;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -7,7 +8,9 @@ import java.util.Objects;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.config.ConstantForGYL;
+import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.StringUtils;
+import com.ev.scm.service.StockOutItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -44,6 +47,8 @@ public class ProductionFeedingApiController {
 	private ProductionFeedingDetailService productionFeedingDetailService;
 	@Autowired
 	private DictionaryService dictionaryService;
+	@Autowired
+	private StockOutItemService stockOutItemService;
 	@Autowired
 	private MaterielService materielService;
 
@@ -162,7 +167,7 @@ public class ProductionFeedingApiController {
 					for (Map<String, Object> stockList : stockListForMap) {
 						if (Objects.equals(stockList.get("materielId").toString(), map.get("materielId").toString())) {
 							// 如果没有批次要求则查出所有该商品的可用数量累计
-							if (!map.containsKey("batch")) {
+							if (!map.containsKey("batchNo")) {
 								availableCount += Double.parseDouble(stockList.get("availableCount").toString());
 								continue;
 							}
@@ -184,6 +189,90 @@ public class ProductionFeedingApiController {
 			dsRet.setTotalRows(total);
 			dsRet.setTotalPages((total + pagesize - 1) / pagesize);
 			results.put("data", dsRet);
+		}
+		return R.ok(results);
+	}
+
+	/**
+	 * 获取生产投料子项dialog列表
+	 * 说明：
+	 * 本表数据由生产计划单关联对应的生产投料单、生产领料单、生产报废单、即时库存、源单剩余数量等数据生成。
+	 *
+	 * @date 2020-03-09
+	 * @author gumingjie
+	 *
+	 */
+	@EvApiByToken(value = "/apis/productionFeeding/childList/dialog", method = RequestMethod.POST, apiTitle = "生产投料子项目列表")
+	@ApiOperation("生产投料子项目列表")
+	public R childListDialog(
+			@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+			@ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "5") int pagesize,
+			@ApiParam(value = "生产投料单号") @RequestParam(value = "planNo", defaultValue = "", required = false) String planNo,
+			@ApiParam(value = "物料名称") @RequestParam(value = "materialsName", defaultValue = "", required = false) String materialsName,
+			@ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
+			@ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
+			@ApiParam(value = "父项产品ID") @RequestParam(value = "headId", defaultValue = "", required = false) Long headId) {
+		// 查询列表数据
+		Map<String, Object> params = Maps.newHashMap();
+
+		params.put("planNo", planNo);
+		params.put("materialsName", materialsName);
+		params.put("startTime", startTime);
+		params.put("endTime", endTime);
+		params.put("headId", headId);
+
+		params.put("auditSign", ConstantForGYL.OK_AUDITED);
+		params.put("isPlan",1);
+		params.put("offset", (pageno - 1) * pagesize);
+		params.put("limit", pagesize);
+		Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
+		List<Map<String, Object>> data = productionFeedingDetailService.listForMap(params);
+		DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.SCTLD.intValue());
+		String thisSourceTypeName = dictionaryDO.getName();
+
+		Map<String, Object> param = Maps.newHashMap();
+		param.put("isPc",1);
+		// 获取实时库存
+		List<Map<String, Object>> stockListForMap = materielService.stockListForMap(param);
+		int total = productionFeedingDetailService.countForMap(params);
+		if (data.size() > 0) {
+			Map<String,Object> sourceParam;
+			// quoteCount  可领数量
+			for (Map<String, Object> map : data) {
+				map.put("thisSourceType", ConstantForGYL.SCTLD);
+				map.put("thisSourceTypeName", thisSourceTypeName);
+				// 不限额领料
+				map.put("quoteCount", null);
+				// 限额领料
+				if(Integer.parseInt(map.get("isQuota").toString())!=0){
+					sourceParam = Maps.newHashMap();
+					sourceParam.put("sourceId",map.get("id"));
+					sourceParam.put("sourceType", ConstantForGYL.SCTLD);
+					BigDecimal bySource = stockOutItemService.getCountBySource(sourceParam);
+					BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
+					map.put("quoteCount", MathUtils.getBigDecimal(map.get("planFeedingCount")).subtract(countByOutSource));
+				}
+
+				if (stockListForMap.size() > 0) {
+					double availableCount = 0.0d;
+					for (Map<String, Object> stockList : stockListForMap) {
+						if (Objects.equals(stockList.get("materielId").toString(), map.get("materielId").toString())) {
+							// 如果没有批次要求则查出所有该商品的可用数量累计
+							if (!map.containsKey("batchNo")) {
+								availableCount += Double.parseDouble(stockList.get("availableCount").toString());
+								continue;
+							}
+							// 若制定了批次则将这一批次的可用数量查出记为实时数量
+							if (Objects.equals(stockList.get("batch").toString(), map.get("batchNo").toString())) {
+								availableCount += Double.parseDouble(stockList.get("availableCount").toString());
+							}
+
+						}
+					}
+					map.put("availableCount", availableCount);
+				}
+			}
+			results.put("data", new DsResultResponse(pageno,pagesize,total,data));
 		}
 		return R.ok(results);
 	}

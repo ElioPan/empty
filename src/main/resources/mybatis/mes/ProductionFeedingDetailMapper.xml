@@ -50,6 +50,7 @@
 		feeding.`feeding_no` AS feedingNo,
         feeding.`id` AS feedingId,
         headmaterial.`name` AS productName,
+        IFNULL(feeding.`is_quota`,0) AS isQuota,
         headmaterial.specification AS productSpecification,
         feeding.`feeding_no` AS feedingNo,
         feeding.`create_time` AS createTime
