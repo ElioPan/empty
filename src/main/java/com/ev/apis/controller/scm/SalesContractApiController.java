@@ -15,6 +15,7 @@ import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.utils.R;
 import com.ev.scm.service.ContractAlterationService;
 import com.ev.scm.service.OutsourcingContractService;
+import com.ev.scm.service.SalesbillService;
 import com.ev.scm.service.SalescontractService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
@@ -51,6 +52,8 @@ public class SalesContractApiController {
     private DictionaryService dictionaryService;
     @Autowired
     private OutsourcingContractService outsourcingContractService;
+    @Autowired
+    private SalesbillService salesbillService;
     @Autowired
     private ContractAlterationService contractAlterationService;
 	
@@ -242,8 +245,9 @@ public class SalesContractApiController {
             @ApiParam(value = "单据结束时间") @RequestParam(value = "createEndTime",defaultValue = "",required = false)  String createEndTime,
 
             @ApiParam(value = "客户Id") @RequestParam(value = "clientId",defaultValue = "",required = false)  Long clientId,
+            @ApiParam(value = "dialog类型：委外合同0，销售票据1",required = true) @RequestParam(value = "dialogType",defaultValue = "")  Integer dialogType,
             @ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
-            @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize){
+            @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize) {
         Map<String, Object> map = Maps.newHashMap();
         // 列表查询
         map.put("startTime", startTime);
@@ -257,41 +261,51 @@ public class SalesContractApiController {
         map.put("clientName", StringUtils.sqlLike(clientName));
         map.put("clientId", clientId);
         map.put("materielName", StringUtils.sqlLike(materielName));
-        map.put("specification",StringUtils.sqlLike(specification));
+        map.put("specification", StringUtils.sqlLike(specification));
         map.put("salesPersonDept", salesPersonDept);
         map.put("salesPerson", salesPerson);
         map.put("createBy", createBy);
         map.put("createTime", createTime);
         // 导入关联单据列表
-        map.put("fuzzyInquire",  StringUtils.sqlLike(fuzzyInquire));
+        map.put("fuzzyInquire", StringUtils.sqlLike(fuzzyInquire));
         map.put("createStartTime", createStartTime);
         map.put("createEndTime", createEndTime);
 
         map.put("auditSign", ConstantForGYL.OK_AUDITED);
-        map.put("closeStatus",0);
+        map.put("closeStatus", 0);
 
         List<Map<String, Object>> data = salescontractService.listForMap(map);
         Map<String, Object> result = Maps.newHashMap();
 
         if (data.size() > 0) {
-            Map<String,Object> sourceParam;
+            Map<String, Object> sourceParam;
             DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.XSHT.intValue());
             String thisSourceTypeName = dictionaryDO.getName();
-
             // 委外合同引用
+            BigDecimal bySource = null;
             for (Map<String, Object> datum : data) {
                 sourceParam = Maps.newHashMap();
-                sourceParam.put("sourceId",datum.get("id"));
+                sourceParam.put("sourceId", datum.get("id"));
                 sourceParam.put("sourceType", ConstantForGYL.XSHT);
-                BigDecimal bySource = outsourcingContractService.getCountBySource(sourceParam);
-                BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
+                switch (dialogType) {
+                    case 0:
+                        bySource = outsourcingContractService.getCountBySource(sourceParam);
+                        break;
+                    case 1:
+                        bySource = salesbillService.getCountBySource(sourceParam);
+                        break;
+                    default:
+                        break;
+                }
+                BigDecimal countByOutSource = bySource == null ? BigDecimal.ZERO : bySource;
                 BigDecimal count = MathUtils.getBigDecimal(datum.get("count")).subtract(countByOutSource);
                 if (count.compareTo(BigDecimal.ZERO) <= 0) {
                     map.put("quoteCount", -1);
-                }else {
+                } else {
                     map.put("quoteCount", count);
                 }
             }
+
             List<Map<String, Object>> quoteLists = data.stream().filter(stringObjectMap -> Integer.parseInt(stringObjectMap.get("quoteCount").toString()) != -1).collect(Collectors.toList());
             List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
 
@@ -300,7 +314,7 @@ public class SalesContractApiController {
                 stringObjectMap.put("thisSourceTypeName", thisSourceTypeName);
             }
 
-            result.put("data", new DsResultResponse(pageno,pagesize,quoteLists.size(),quoteList));
+            result.put("data", new DsResultResponse(pageno, pagesize, quoteLists.size(), quoteList));
         }
         return R.ok(result);
     }
