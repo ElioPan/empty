@@ -148,8 +148,6 @@ public class ProductionFeedingApiController {
 		params.put("limit", pagesize);
 		Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
 		List<Map<String, Object>> data = productionFeedingDetailService.listForMap(params);
-		DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.SCTLD.intValue());
-		String thisSourceTypeName = dictionaryDO.getName();
 
 		Map<String, Object> param = Maps.newHashMap();
 		param.put("isPc",1);
@@ -159,8 +157,6 @@ public class ProductionFeedingApiController {
 		if (data.size() > 0) {
 			// quoteCount  可领数量
 			for (Map<String, Object> map : data) {
-				map.put("thisSourceType", ConstantForGYL.SCTLD);
-				map.put("thisSourceTypeName", thisSourceTypeName);
 				if (stockListForMap.size() > 0) {
 					double availableCount = 0.0d;
 					for (Map<String, Object> stockList : stockListForMap) {
@@ -180,14 +176,7 @@ public class ProductionFeedingApiController {
 					map.put("availableCount", availableCount);
 				}
 			}
-
-			DsResultResponse dsRet = new DsResultResponse();
-			dsRet.setDatas(data);
-			dsRet.setPageno(pageno);
-			dsRet.setPagesize(pagesize);
-			dsRet.setTotalRows(total);
-			dsRet.setTotalPages((total + pagesize - 1) / pagesize);
-			results.put("data", dsRet);
+			results.put("data", new DsResultResponse(pageno,pagesize,total,data));
 		}
 		return R.ok(results);
 	}
@@ -279,7 +268,6 @@ public class ProductionFeedingApiController {
 					map.put("availableCount", availableCount);
 				}
 			}
-
 			results.put("data", new DsResultResponse(pageno,pagesize,quoteLists.size(),quoteList));
 		}
 		return R.ok(results);
