@@ -10,6 +10,7 @@ import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.*;
+import com.ev.scm.service.PurchaseItemService;
 import com.ev.scm.service.StockOutItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,6 +49,8 @@ public class ProductionFeedingApiController {
 	private DictionaryService dictionaryService;
 	@Autowired
 	private StockOutItemService stockOutItemService;
+	@Autowired
+	private PurchaseItemService purchaseItemService;
 	@Autowired
 	private MaterielService materielService;
 
@@ -199,6 +202,7 @@ public class ProductionFeedingApiController {
 			@ApiParam(value = "物料名称") @RequestParam(value = "materialsName", defaultValue = "", required = false) String materialsName,
 			@ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
 			@ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
+			@ApiParam(value = "dialog类型：生产领用0，采购申请1",required = true) @RequestParam(value = "dialogType",defaultValue = "")  Integer dialogType,
 			@ApiParam(value = "父项产品ID") @RequestParam(value = "headId", defaultValue = "", required = false) Long headId) {
 		// 查询列表数据
 		Map<String, Object> params = Maps.newHashMap();
@@ -224,6 +228,7 @@ public class ProductionFeedingApiController {
 		List<Map<String, Object>> stockListForMap = materielService.stockListForMap(param);
 		if (data.size() > 0) {
 			Map<String,Object> sourceParam;
+			BigDecimal bySource =null;
 			// quoteCount  可领数量
 			for (Map<String, Object> map : data) {
 				// 限额领料
@@ -231,7 +236,16 @@ public class ProductionFeedingApiController {
 					sourceParam = Maps.newHashMap();
 					sourceParam.put("sourceId",map.get("id"));
 					sourceParam.put("sourceType", ConstantForGYL.SCTLD);
-					BigDecimal bySource = stockOutItemService.getCountBySource(sourceParam);
+					switch (dialogType){
+						case 0:
+							bySource = stockOutItemService.getCountBySource(sourceParam);
+							break;
+						case 1:
+							bySource = purchaseItemService.getInCountOfPurchase(map);
+							break;
+						default:
+							break;
+					}
 					BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
 					BigDecimal planFeedingCount = MathUtils.getBigDecimal(map.get("planFeedingCount")).subtract(countByOutSource);
 					if (planFeedingCount.compareTo(BigDecimal.ZERO) <= 0) {
