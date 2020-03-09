@@ -247,7 +247,7 @@ public class ProductionFeedingApiController {
 					BigDecimal bySource = stockOutItemService.getCountBySource(sourceParam);
 					BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
 					BigDecimal planFeedingCount = MathUtils.getBigDecimal(map.get("planFeedingCount")).subtract(countByOutSource);
-					if (planFeedingCount.compareTo(BigDecimal.ZERO) == 0) {
+					if (planFeedingCount.compareTo(BigDecimal.ZERO) <= 0) {
 						map.put("quoteCount", -1);
 					}else {
 						map.put("quoteCount", planFeedingCount);

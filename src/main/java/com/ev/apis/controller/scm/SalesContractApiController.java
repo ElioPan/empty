@@ -7,11 +7,14 @@ import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.config.ConstantForGYL;
+import com.ev.framework.utils.MathUtils;
+import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.domain.SalescontractDO;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.utils.R;
 import com.ev.scm.service.ContractAlterationService;
+import com.ev.scm.service.OutsourcingContractService;
 import com.ev.scm.service.SalescontractService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
@@ -28,8 +31,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 销售合同控制器层
@@ -44,6 +49,8 @@ public class SalesContractApiController {
 	private SalescontractService salescontractService;
     @Autowired
     private DictionaryService dictionaryService;
+    @Autowired
+    private OutsourcingContractService outsourcingContractService;
     @Autowired
     private ContractAlterationService contractAlterationService;
 	
@@ -205,17 +212,98 @@ public class SalesContractApiController {
         Map<String, Object> result = Maps.newHashMap();
 
         if (data.size() > 0) {
-            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.XSHT.intValue());
-            String thisSourceTypeName = dictionaryDO.getName();
-            for (Map<String, Object> datum : data) {
-                datum.put("thisSourceType", ConstantForGYL.XSHT);
-                datum.put("thisSourceTypeName", thisSourceTypeName);
-            }
             result.put("data", new DsResultResponse(pageno,pagesize,total,data));
             result.put("total", stringBigDecimalMap);
         }
         return R.ok(result);
 	}
+
+    @EvApiByToken(value = "/apis/salesContractApi/salesContractList/dialog",method = RequestMethod.GET,apiTitle = "获取销售合同列表")
+    @ApiOperation("获取销售合同列表")
+    public R salesContractListDialog(
+            @ApiParam(value = "开始时间") @RequestParam(value = "startTime",defaultValue = "",required = false)  String startTime,
+            @ApiParam(value = "结束时间") @RequestParam(value = "endTime",defaultValue = "",required = false)  String endTime,
+            @ApiParam(value = "合同编号") @RequestParam(value = "contractCode",required = false) String contractCode,
+            @ApiParam(value = "产品名称/客户名称 模糊查询") @RequestParam(value = "fuzzyQuery",required = false) String fuzzyQuery,
+            // 高级查询
+            @ApiParam(value = "合同类型") @RequestParam(value = "contractType",required = false) Long contractType,
+            @ApiParam(value = "合同开始时间") @RequestParam(value = "contractStartTime",defaultValue = "",required = false)  String contractStartTime,
+            @ApiParam(value = "合同结束时间") @RequestParam(value = "contractEndTime",defaultValue = "",required = false)  String contractEndTime,
+            @ApiParam(value = "客户名称") @RequestParam(value = "clientName",defaultValue = "",required = false)  String clientName,
+            @ApiParam(value = "产品名称") @RequestParam(value = "materielName",defaultValue = "",required = false)  String materielName,
+            @ApiParam(value = "规格型号") @RequestParam(value = "specification",required = false) String specification,
+            @ApiParam(value = "销售部门") @RequestParam(value = "salesPersonDept",defaultValue = "",required = false)  Long salesPersonDept,
+            @ApiParam(value = "销售员") @RequestParam(value = "salesPerson",defaultValue = "",required = false)  Long salesPerson,
+            @ApiParam(value = "制单人") @RequestParam(value = "createBy",defaultValue = "",required = false)  Long createBy,
+            @ApiParam(value = "制单日期") @RequestParam(value = "createTime",defaultValue = "",required = false)  String createTime,
+
+            @ApiParam(value = "产品编号/产品名称/合同编号/客户名称 模糊查询") @RequestParam(value = "fuzzyInquire",required = false) String fuzzyInquire,
+            @ApiParam(value = "单据开始时间") @RequestParam(value = "createStartTime",defaultValue = "",required = false)  String createStartTime,
+            @ApiParam(value = "单据结束时间") @RequestParam(value = "createEndTime",defaultValue = "",required = false)  String createEndTime,
+
+            @ApiParam(value = "客户Id") @RequestParam(value = "clientId",defaultValue = "",required = false)  Long clientId,
+            @ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
+            @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize){
+        Map<String, Object> map = Maps.newHashMap();
+        // 列表查询
+        map.put("startTime", startTime);
+        map.put("endTime", endTime);
+        map.put("contractCode", contractCode);
+        map.put("fuzzyQuery", StringUtils.sqlLike(fuzzyQuery));
+        // 高级查询
+        map.put("contractType", contractType);
+        map.put("contractStartTime", contractStartTime);
+        map.put("contractEndTime", contractEndTime);
+        map.put("clientName", StringUtils.sqlLike(clientName));
+        map.put("clientId", clientId);
+        map.put("materielName", StringUtils.sqlLike(materielName));
+        map.put("specification",StringUtils.sqlLike(specification));
+        map.put("salesPersonDept", salesPersonDept);
+        map.put("salesPerson", salesPerson);
+        map.put("createBy", createBy);
+        map.put("createTime", createTime);
+        // 导入关联单据列表
+        map.put("fuzzyInquire",  StringUtils.sqlLike(fuzzyInquire));
+        map.put("createStartTime", createStartTime);
+        map.put("createEndTime", createEndTime);
+
+        map.put("auditSign", ConstantForGYL.OK_AUDITED);
+        map.put("closeStatus",0);
+
+        List<Map<String, Object>> data = salescontractService.listForMap(map);
+        Map<String, Object> result = Maps.newHashMap();
+
+        if (data.size() > 0) {
+            Map<String,Object> sourceParam;
+            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.XSHT.intValue());
+            String thisSourceTypeName = dictionaryDO.getName();
+
+            // 委外合同引用
+            for (Map<String, Object> datum : data) {
+                sourceParam = Maps.newHashMap();
+                sourceParam.put("sourceId",datum.get("id"));
+                sourceParam.put("sourceType", ConstantForGYL.XSHT);
+                BigDecimal bySource = outsourcingContractService.getCountBySource(sourceParam);
+                BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
+                BigDecimal count = MathUtils.getBigDecimal(datum.get("count")).subtract(countByOutSource);
+                if (count.compareTo(BigDecimal.ZERO) <= 0) {
+                    map.put("quoteCount", -1);
+                }else {
+                    map.put("quoteCount", count);
+                }
+            }
+            List<Map<String, Object>> quoteLists = data.stream().filter(stringObjectMap -> Integer.parseInt(stringObjectMap.get("quoteCount").toString()) != -1).collect(Collectors.toList());
+            List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
+
+            for (Map<String, Object> stringObjectMap : quoteList) {
+                stringObjectMap.put("thisSourceType", ConstantForGYL.XSHT);
+                stringObjectMap.put("thisSourceTypeName", thisSourceTypeName);
+            }
+
+            result.put("data", new DsResultResponse(pageno,pagesize,quoteLists.size(),quoteList));
+        }
+        return R.ok(result);
+    }
 
     @EvApiByToken(value = "/apis/salesContractApi/alterationList",method = RequestMethod.GET,apiTitle = "获取销售合同变更列表")
     @ApiOperation("获取销售合同变更列表")
