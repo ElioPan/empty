@@ -289,6 +289,7 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 							Map<String, Object> map = new HashMap<>();
 							map.put("sourceId", sourceId);
 							map.put("sourceType", sourceType);
+							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
 							//获取采购发票已引入数量
 							BigDecimal inCounts = purchaseInvoiceItemService.getInCountOfInvoiceItem(map);
 							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;

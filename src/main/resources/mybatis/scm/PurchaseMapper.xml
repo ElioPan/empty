@@ -190,7 +190,8 @@
 			h.name as sourceTypeName,
 			a.create_by as createBy,
 			a.create_time as createTime,
-			d.source_code as sourceCode
+			d.source_code as sourceCode,
+			d.id as  purchaseItemId
 		FROM
 		scm_purchase  a
 		LEFT JOIN  sys_user b on a.applicant=b.user_id
@@ -219,7 +220,6 @@
 			<if test="createBy != null and createBy != ''"> and createBy = #{createBy} </if>
 			<if test="createStartTime != null and createStartTime!= ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
 			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
-
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -268,7 +268,8 @@
 			h.name as sourceTypeName,
 			a.create_by as createBy,
 			a.create_time as createTime,
-			d.source_code as sourceCode
+			d.source_code as sourceCode,
+			d.id as  purchaseItemId
 		FROM
 		scm_purchase  a
 		LEFT JOIN  sys_user b on a.applicant=b.user_id
@@ -281,7 +282,8 @@
 		LEFT JOIN  sys_dept j on b.dept_id=j.dept_id
 		) aa
 		<where>
-			<if test="general != null and general != ''"> and CONCAT(purchaseCode,materielName,specification) LIKE CONCAT('%',#{general},'%') </if>
+			<if test="general != null and general != ''"> and CONCAT(materielName,specification,supplierName) LIKE CONCAT('%',#{general},'%') </if>
+			<if test="purchaseCode != null and purchaseCode != ''"> and purchaseCode = #{purchaseCode} </if>
 			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(applicantTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(applicantTime,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
 			<if test="createTime != null and createTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') =  DATE_FORMAT(#{createTime},'%Y-%m-%d')</if>
@@ -294,6 +296,8 @@
 			<if test="deptId != null and deptId != ''"> and deptId = #{deptId} </if>
 			<if test="applicant != null and applicant != ''"> and applicant = #{applicant} </if>
 			<if test="createBy != null and createBy != ''"> and createBy = #{createBy} </if>
+			<if test="createStartTime != null and createStartTime!= ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
+			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
 		</where>
 	</select>
 
@@ -331,9 +335,26 @@
 		 a.id = #{purchaseId}
 	</select>
 
-
-
-
+	<select id="vailableQuantity" resultType="map">
+		SELECT
+		c.id,
+		c.count - (SELECT
+		IF(sum(a.count)is null,0,sum(a.count)) as countractCount
+		from
+		scm_purchasecontract_item a
+		LEFT JOIN scm_purchasecontract b on a.purchase_contract_id=b.id
+		WHERE
+		a.source_id=#{purchaseItemId}
+		and
+		a.source_type =#{sourceType}
+		and
+		b.id <![CDATA[<>]]>#{contractId}
+		)   as `count`
+		from
+		scm_purchase_item  c
+		where
+		c.id=#{purchaseItemId}
+	</select>
 
 
 

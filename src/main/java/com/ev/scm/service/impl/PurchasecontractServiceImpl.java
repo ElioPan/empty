@@ -563,6 +563,7 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 							Map<String, Object> map = new HashMap<>();
 							map.put("sourceId", sourceId);
 							map.put("sourceType", soueseType);
+							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
 							//查出采购合同中已关联引入的数量
 							BigDecimal inCounts = purchasecontractItemService.getInCountOfPurchaseContract(map);
 

@@ -70,6 +70,10 @@ public class PurchaseServiceImpl implements PurchaseService {
         return purchaseDao.batchRemove(ids);
     }
 
+    @Override
+    public Map<String, Object> vailableQuantity(Map<String, Object> map) {
+        return purchaseDao.vailableQuantity(map);
+    }
 
     @Override
     public R addPurchase(PurchaseDO purchaseDO, String body,Long[] itemIds) {
@@ -290,7 +294,6 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
         return "ok";
     }
-
 
 
 

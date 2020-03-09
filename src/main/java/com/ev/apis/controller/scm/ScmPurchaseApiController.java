@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -152,6 +153,7 @@ public class ScmPurchaseApiController {
             Map<String,Object> dsRet= new HashMap<>();
             dsRet.put("pageno",pageno);
             dsRet.put("pagesize",pagesize);
+            dsRet.put("totalRows",countForMaps.get("count"));
             dsRet.put("totalPages",(Integer.parseInt(countForMaps.get("count").toString()) + pagesize - 1) / pagesize);
             dsRet.put("totalCount",countForMaps.get("totalCount"));
             dsRet.put("totalAmount",countForMaps.get("totalAmount"));
@@ -209,6 +211,68 @@ public class ScmPurchaseApiController {
     }
 
 
+    @EvApiByToken(value = "/apis/scm/purchase/PurchaseIntroduce", method = RequestMethod.POST, apiTitle = "导入列表—采购申请单")
+    @ApiOperation("导入列表—采购申请单")
+    public R purchaseOflistForIntroduce(@ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+                            @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+                            @ApiParam(value = "开始日期(申请时间)") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
+                            @ApiParam(value = "截止日期(申请时间)") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
+                            @ApiParam(value = "供应商") @RequestParam(value = "supplierId", defaultValue = "", required = false) Long supplierId,
+                            @ApiParam(value = "供应商名字模糊") @RequestParam(value = "supplierId", defaultValue = "", required = false) String supplierName,
+                            @ApiParam(value = "制单起始日期") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String  createStartTime,
+                            @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime,
+                            @ApiParam(value = "采购合同主键id") @RequestParam(value = "createEndTime", defaultValue = "", required = false) Long purchaseContractId ) {
+
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("offset", (pageno - 1) * pagesize);
+        params.put("limit", pagesize);
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+        params.put("supplierId", supplierId);
+        params.put("general", supplierName);
+        params.put("createStartTime", createStartTime);
+        params.put("createEndTime", createEndTime);
+        params.put("auditSign", ConstantForGYL.OK_AUDITED);
+
+        List<Map<String, Object>> list = purchaseService.listForMap(params);
+        Map<String, Object> countForMaps = purchaseService.countForMap(params);
+
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PURCHASE.intValue());
+        String thisSourceTypeName = dictionaryDO.getName();
+        for (Map<String, Object> datum : list) {
+            datum.put("thisSourceType", ConstantForGYL.PURCHASE);
+            datum.put("thisSourceTypeName", thisSourceTypeName);
+        }
+        Map<String, Object> results = Maps.newHashMapWithExpectedSize(2);
+        if (!list.isEmpty()) {
+            Map<String,Object>  map= new HashMap<>();
+            map.put("sourceType",ConstantForGYL.PURCHASE);
+            map.put("contractId",purchaseContractId);
+            for(int i=0;i<list.size();i++){
+                Map<String, Object> mapDo =list.get(i);
+                map.put("purchaseItemId",mapDo.get("purchaseItemId"));
+
+                Map<String, Object> stringObjectMap = purchaseService.vailableQuantity(map);
+                BigDecimal count=new BigDecimal(mapDo.get("count").toString());
+                if(stringObjectMap==null){
+                    BigDecimal countOfVail=new BigDecimal(stringObjectMap.containsKey("count")?stringObjectMap.get("count").toString():"0");
+                    mapDo.put("quoteCount",countOfVail);
+                }else{
+                    mapDo.put("quoteCount",count);
+                }
+            }
+            Map<String,Object> dsRet= new HashMap<>();
+            dsRet.put("pageno",pageno);
+            dsRet.put("pagesize",pagesize);
+            dsRet.put("totalRows",countForMaps.get("count"));
+            dsRet.put("totalPages",(Integer.parseInt(countForMaps.get("count").toString()) + pagesize - 1) / pagesize);
+            dsRet.put("totalCount",countForMaps.get("totalCount"));
+            dsRet.put("totalAmount",countForMaps.get("totalAmount"));
+            dsRet.put("datas",list);
+            results.put("data", dsRet);
+        }
+        return R.ok(results);
+    }
 
 
 

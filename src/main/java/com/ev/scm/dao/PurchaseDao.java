@@ -37,5 +37,8 @@ public interface PurchaseDao {
 
 	Map<String, Object> detailOfPurchase(Map<String, Object> map);
 
+	Map<String, Object> vailableQuantity(Map<String, Object> map);
+
+
 
 }
