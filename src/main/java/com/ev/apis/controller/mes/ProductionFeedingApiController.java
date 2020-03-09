@@ -237,13 +237,16 @@ public class ProductionFeedingApiController {
 					BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
 					BigDecimal planFeedingCount = MathUtils.getBigDecimal(map.get("planFeedingCount")).subtract(countByOutSource);
 					if (planFeedingCount.compareTo(BigDecimal.ZERO) <= 0) {
-						map.put("quoteCount", -1);
+						map.put("quoteCount", 0);
 					}else {
 						map.put("quoteCount", planFeedingCount);
 					}
 				}
 			}
-			List<Map<String, Object>> quoteLists = data.stream().filter(stringObjectMap -> Integer.parseInt(stringObjectMap.get("quoteCount").toString()) != -1).collect(Collectors.toList());
+			List<Map<String, Object>> quoteLists = data
+					.stream()
+					.filter(stringObjectMap -> stringObjectMap.get("quoteCount")==null||MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO)>0)
+					.collect(Collectors.toList());
 			if (quoteLists.size() > 0) {
 				List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
 				for (Map<String, Object> map : quoteList) {

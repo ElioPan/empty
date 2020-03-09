@@ -302,13 +302,16 @@ public class SalesContractApiController {
                 BigDecimal countByOutSource = bySource == null ? BigDecimal.ZERO : bySource;
                 BigDecimal count = MathUtils.getBigDecimal(datum.get("count")).subtract(countByOutSource);
                 if (count.compareTo(BigDecimal.ZERO) <= 0) {
-                    datum.put("quoteCount", -1);
+                    datum.put("quoteCount", 0);
                 } else {
                     datum.put("quoteCount", count);
                 }
             }
 
-            List<Map<String, Object>> quoteLists = data.stream().filter(stringObjectMap -> Integer.parseInt(stringObjectMap.get("quoteCount").toString()) != -1).collect(Collectors.toList());
+            List<Map<String, Object>> quoteLists = data
+                    .stream()
+                    .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO)>0)
+                    .collect(Collectors.toList());
             if (quoteLists.size() > 0) {
                 DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.XSHT.intValue());
                 String thisSourceTypeName = dictionaryDO.getName();

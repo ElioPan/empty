@@ -285,13 +285,16 @@ public class OutsourcingContractApiController {
                 BigDecimal countByOutSource = bySource == null ? BigDecimal.ZERO : bySource;
                 BigDecimal count = MathUtils.getBigDecimal(datum.get("count")).subtract(countByOutSource);
                 if (count.compareTo(BigDecimal.ZERO) <= 0) {
-                    datum.put("quoteCount", -1);
+                    datum.put("quoteCount", 0);
                 } else {
                     datum.put("quoteCount", count);
                 }
             }
 
-            List<Map<String, Object>> quoteLists = data.stream().filter(stringObjectMap -> Integer.parseInt(stringObjectMap.get("quoteCount").toString()) != -1).collect(Collectors.toList());
+            List<Map<String, Object>> quoteLists = data
+                    .stream()
+                    .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO)>0)
+                    .collect(Collectors.toList());
             if (quoteLists.size() > 0) {
                 DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.WWHT.intValue());
                 String thisSourceTypeName = dictionaryDO.getName();
@@ -481,13 +484,16 @@ public class OutsourcingContractApiController {
                     BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
                     BigDecimal planFeedingCount = MathUtils.getBigDecimal(map.get("planFeedingCount")).subtract(countByOutSource);
                     if (planFeedingCount.compareTo(BigDecimal.ZERO) <= 0) {
-                        map.put("quoteCount", -1);
+                        map.put("quoteCount", 0);
                     }else {
                         map.put("quoteCount", planFeedingCount);
                     }
                 }
             }
-            List<Map<String, Object>> quoteLists = data.stream().filter(stringObjectMap -> Integer.parseInt(stringObjectMap.get("quoteCount").toString()) != -1).collect(Collectors.toList());
+            List<Map<String, Object>> quoteLists = data
+                    .stream()
+                    .filter(stringObjectMap -> stringObjectMap.get("quoteCount")==null||MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO)>0)
+                    .collect(Collectors.toList());
             if (quoteLists.size() > 0) {
                 List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
                 for (Map<String, Object> map : quoteList) {
