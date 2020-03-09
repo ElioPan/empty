@@ -13,10 +13,7 @@ import com.ev.framework.utils.StringUtils;
 import com.ev.scm.domain.SalescontractDO;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.utils.R;
-import com.ev.scm.service.ContractAlterationService;
-import com.ev.scm.service.OutsourcingContractService;
-import com.ev.scm.service.SalesbillService;
-import com.ev.scm.service.SalescontractService;
+import com.ev.scm.service.*;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -52,6 +49,8 @@ public class SalesContractApiController {
     private DictionaryService dictionaryService;
     @Autowired
     private OutsourcingContractService outsourcingContractService;
+    @Autowired
+    private StockOutItemService stockOutItemService;
     @Autowired
     private SalesbillService salesbillService;
     @Autowired
@@ -245,7 +244,7 @@ public class SalesContractApiController {
             @ApiParam(value = "单据结束时间") @RequestParam(value = "createEndTime",defaultValue = "",required = false)  String createEndTime,
 
             @ApiParam(value = "客户Id") @RequestParam(value = "clientId",defaultValue = "",required = false)  Long clientId,
-            @ApiParam(value = "dialog类型：委外合同0，销售票据1",required = true) @RequestParam(value = "dialogType",defaultValue = "")  Integer dialogType,
+            @ApiParam(value = "dialog类型：委外合同0，销售票据1，销售出库2",required = true) @RequestParam(value = "dialogType",defaultValue = "")  Integer dialogType,
             @ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
             @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize) {
         Map<String, Object> map = Maps.newHashMap();
@@ -293,6 +292,9 @@ public class SalesContractApiController {
                         break;
                     case 1:
                         bySource = salesbillService.getCountBySource(sourceParam);
+                        break;
+                    case 2:
+                         bySource = stockOutItemService.getCountBySource(map);
                         break;
                     default:
                         break;
