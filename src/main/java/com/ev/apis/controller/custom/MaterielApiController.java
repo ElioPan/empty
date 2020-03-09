@@ -186,7 +186,7 @@ public class MaterielApiController {
             }
             return R.error();
         }
-        return R.error(messageSourceHandler.getMessage("common.duplicate.serialNo", null));
+        return R.error(messageSourceHandler.getMessage("common.duplicate.serialNoOrName", null));
     }
 
     /**
@@ -259,14 +259,7 @@ public class MaterielApiController {
     @EvApiByToken(value = "/apis/materiel/update", method = RequestMethod.POST)
     @ApiOperation("修改物料")
     public R update(MaterielDO materiel) {
-        if (materiel.getSerialNo().equals(materielService.get(materiel.getId()).getSerialNo())) {
-            int update = materielService.update(materiel);
-            if (update > 0) {
-                return R.ok();
-            }
-            return R.error();
-        }
-        //  编号不能重复
+        //  编号不能重复和不能重复名称+规格型号的物料
         if (materielService.checkSave(materiel) == 0) {
             int update = materielService.update(materiel);
             if (update > 0) {
@@ -274,7 +267,7 @@ public class MaterielApiController {
             }
             return R.error();
         }
-        return R.error(messageSourceHandler.getMessage("common.duplicate.serialNo", null));
+        return R.error(messageSourceHandler.getMessage("common.duplicate.serialNoOrName", null));
     }
 
     @EvApiByToken(value = "/apis/materiel/updateType", method = RequestMethod.POST)

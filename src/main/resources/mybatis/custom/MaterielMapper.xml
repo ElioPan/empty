@@ -459,9 +459,14 @@
 		select count(*)
 		FROM
 		cus_materiel
-		<where>  
-		  	<if test="serialNo != null and serialNo != ''"> and serial_no = #{serialNo} </if>
-		 </where>
+		<where>
+			(serial_no = #{serialNo}
+			OR (`name` = #{name}
+			<if test="specification != null and specification != ''">and specification = #{specification}</if>
+			))
+			<if test="id != null and id != ''">and id <![CDATA[<>]]> #{id}</if>
+		</where>
+
 	</select>
 	
 	<select id="stockListForMap" resultType="map">
