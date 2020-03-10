@@ -209,7 +209,7 @@
                         when id=#{item.id} then #{item.allotId}
                     </if>
                     <if test="item.allotId==null">
-                        when id=#{item.id} then cus_allot_detail.allot_id
+                        when id=#{item.id} then scm_allot_item.allot_id
                     </if>
                 </foreach>
             </trim>
@@ -219,7 +219,7 @@
                         when id=#{item.id} then #{item.stockId}
                     </if>
                     <if test="item.stockId==null">
-                        when id=#{item.id} then cus_allot_detail.stock_id
+                        when id=#{item.id} then scm_allot_item.stock_id
                     </if>
                 </foreach>
             </trim>
@@ -229,7 +229,7 @@
                         when id=#{item.id} then #{item.inFacility}
                     </if>
                     <if test="item.inFacility==null">
-                        when id=#{item.id} then cus_allot_detail.in_facility
+                        when id=#{item.id} then scm_allot_item.in_facility
                     </if>
                 </foreach>
             </trim>
@@ -239,7 +239,7 @@
                         when id=#{item.id} then #{item.inLocation}
                     </if>
                     <if test="item.inLocation==null">
-                        when id=#{item.id} then cus_allot_detail.in_location
+                        when id=#{item.id} then scm_allot_item.in_location
                     </if>
                 </foreach>
             </trim>
@@ -249,7 +249,7 @@
                         when id=#{item.id} then #{item.count}
                     </if>
                     <if test="item.count==null">
-                        when id=#{item.id} then cus_allot_detail.`count`
+                        when id=#{item.id} then scm_allot_item.`count`
                     </if>
                 </foreach>
             </trim>
@@ -259,7 +259,7 @@
                         when id=#{item.id} then #{item.price}
                     </if>
                     <if test="item.price==null">
-                        when id=#{item.id} then cus_allot_detail.price
+                        when id=#{item.id} then scm_allot_item.price
                     </if>
                 </foreach>
             </trim>
@@ -269,7 +269,7 @@
                         when id=#{item.id} then #{item.qrcodeId}
                     </if>
                     <if test="item.qrcodeId==null">
-                        when id=#{item.id} then cus_allot_detail.qrcode_id
+                        when id=#{item.id} then scm_allot_item.qrcode_id
                     </if>
                 </foreach>
             </trim>
@@ -279,7 +279,7 @@
                         when id=#{item.id} then #{item.createBy}
                     </if>
                     <if test="item.createBy==null">
-                        when id=#{item.id} then cus_allot_detail.create_by
+                        when id=#{item.id} then scm_allot_item.create_by
                     </if>
                 </foreach>
             </trim>
@@ -289,7 +289,7 @@
                         when id=#{item.id} then #{item.createTime}
                     </if>
                     <if test="item.createTime==null">
-                        when id=#{item.id} then cus_allot_detail.create_time
+                        when id=#{item.id} then scm_allot_item.create_time
                     </if>
                 </foreach>
             </trim>
@@ -299,7 +299,7 @@
                         when id=#{item.id} then #{item.updateBy}
                     </if>
                     <if test="item.updateBy==null">
-                        when id=#{item.id} then cus_allot_detail.update_by
+                        when id=#{item.id} then scm_allot_item.update_by
                     </if>
                 </foreach>
             </trim>
@@ -309,7 +309,7 @@
                         when id=#{item.id} then #{item.updateTime}
                     </if>
                     <if test="item.updateTime==null">
-                        when id=#{item.id} then cus_allot_detail.update_time
+                        when id=#{item.id} then scm_allot_item.update_time
                     </if>
                 </foreach>
             </trim>
@@ -319,7 +319,7 @@
                         when id=#{item.id} then #{item.delFlag}
                     </if>
                     <if test="item.delFlag==null">
-                        when id=#{item.id} then cus_allot_detail.del_flag
+                        when id=#{item.id} then scm_allot_item.del_flag
                     </if>
                 </foreach>
             </trim>-->
