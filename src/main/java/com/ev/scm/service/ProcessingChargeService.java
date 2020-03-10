@@ -43,5 +43,5 @@ public interface ProcessingChargeService {
 
 	R getDetail(Long id);
 
-    R checkSourceNumber(String bodyItem);
+    R checkSourceNumber(String bodyItem,Long id);
 }

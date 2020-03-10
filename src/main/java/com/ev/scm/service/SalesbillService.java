@@ -48,5 +48,5 @@ public interface SalesbillService {
 
     Map<String, Object> countTotal(Map<String, Object> map);
 
-	R checkSourceNumber(String bodyItem);
+	R checkSourceNumber(String bodyItem,Long id);
 }
