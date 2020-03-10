@@ -99,7 +99,7 @@ public class OutsourcingStockOutApiController {
                          "    }\n" +
                          "]"
                     , required = true)@RequestParam(value = "item",defaultValue = "") String item) {
-        R r = outsourcingStockOutService.checkSourceNumber(item);
+        R r = outsourcingStockOutService.checkSourceNumber(item,stockOutDO.getId());
         DictionaryDO storageType = dictionaryService.get(ConstantForGYL.WWCK.intValue());
         return r==null?outsourcingStockOutService.add(stockOutDO, item, storageType):r;
 	}
@@ -165,7 +165,7 @@ public class OutsourcingStockOutApiController {
                     , required = true) @RequestParam(value = "item", defaultValue = "") String item,
                   @ApiParam(value = "明细数组") @RequestParam(value = "itemIds", defaultValue = "", required = false) Long[] itemIds
     ) {
-        R r = outsourcingStockOutService.checkSourceNumber(item);
+        R r = outsourcingStockOutService.checkSourceNumber(item,stockOutDO.getId());
 		return r==null?outsourcingStockOutService.edit(stockOutDO, item, ConstantForGYL.WWCK , itemIds):r;
 	}
 	

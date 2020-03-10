@@ -90,6 +90,6 @@ public interface StockOutService {
     /**
      * 验证源单数量
      */
-    R checkSourceNumber(String item);
+    R checkSourceNumber(String item,Long id);
 
 }

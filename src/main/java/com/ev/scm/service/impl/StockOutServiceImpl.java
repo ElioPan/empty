@@ -378,7 +378,7 @@ public class StockOutServiceImpl implements StockOutService {
     }
 
     @Override
-    public R checkSourceNumber(String item) {
+    public R checkSourceNumber(String item,Long id) {
         return null;
     }
 

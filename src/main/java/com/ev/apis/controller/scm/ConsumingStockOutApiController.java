@@ -86,7 +86,7 @@ public class ConsumingStockOutApiController {
                          "    }\n" +
                          "]"
                     , required = true)@RequestParam(value = "item",defaultValue = "") String item) {
-        R r = consumingStockOutService.checkSourceNumber(item);
+        R r = consumingStockOutService.checkSourceNumber(item,stockOutDO.getId());
         DictionaryDO storageType = dictionaryService.get(ConstantForGYL.LYCK.intValue());
         return r==null?consumingStockOutService.add(stockOutDO, item, storageType):r;
 	}
@@ -151,7 +151,7 @@ public class ConsumingStockOutApiController {
                     "]"
                     , required = true) @RequestParam(value = "item", defaultValue = "") String item,
                   @ApiParam(value = "明细数组") @RequestParam(value = "itemIds", defaultValue = "", required = false) Long[] itemIds) {
-        R r = consumingStockOutService.checkSourceNumber(item);
+        R r = consumingStockOutService.checkSourceNumber(item,stockOutDO.getId());
 	    return r==null?consumingStockOutService.edit(stockOutDO, item, ConstantForGYL.LYCK , itemIds):r;
 	}
 	

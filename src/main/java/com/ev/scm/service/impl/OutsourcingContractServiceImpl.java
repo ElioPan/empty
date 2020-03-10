@@ -688,34 +688,34 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                     }
                 }
                 // 生产投料单源单
-                if(Objects.equals(sourceType,ConstantForGYL.SCTLD)){
-                    ProductionFeedingDetailDO detailDO;
-                    BigDecimal planFeeding;
-                    for (Long sourceId : count.keySet()) {
-                        detailDO = productionFeedingDetailService.get(sourceId);
-                        ProductionFeedingDO productionFeedingDO = productionFeedingService.get(detailDO.getHeadId());
-                        if (productionFeedingDO.getIsQuota()==0 || productionFeedingDO.getIsQuota()==null) {
-                            continue;
-                        }
-                        planFeeding = detailDO.getPlanFeeding();
-                        // 查询源单已被选择数量
-                        map = Maps.newHashMap();
-                        map.put("id",sourceIdAndItemId.get(sourceId));
-                        map.put("sourceId",sourceId);
-                        map.put("sourceType",ConstantForGYL.WWTLD);
-                        BigDecimal bySource = this.getCountBySource(map);
-                        BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
-                        if (planFeeding.compareTo(count.get(sourceId).add(countByOutSource))<0){
-                            List<OutsourcingContractItemDO> collect = itemDOs.stream()
-                                    .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
-                                    .collect(Collectors.toList());
-                            String [] args = {count.get(sourceId).toPlainString(),planFeeding.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
-                            Map<String,Object> result = Maps.newHashMap();
-                            result.put("sourceId",sourceId);
-                            return R.error(500,messageSourceHandler.getMessage("stock.number.error", args),result);
-                        }
-                    }
-                }
+//                if(Objects.equals(sourceType,ConstantForGYL.SCTLD)){
+//                    ProductionFeedingDetailDO detailDO;
+//                    BigDecimal planFeeding;
+//                    for (Long sourceId : count.keySet()) {
+//                        detailDO = productionFeedingDetailService.get(sourceId);
+//                        ProductionFeedingDO productionFeedingDO = productionFeedingService.get(detailDO.getHeadId());
+//                        if (productionFeedingDO.getIsQuota()==0 || productionFeedingDO.getIsQuota()==null) {
+//                            continue;
+//                        }
+//                        planFeeding = detailDO.getPlanFeeding();
+//                        // 查询源单已被选择数量
+//                        map = Maps.newHashMap();
+//                        map.put("id",sourceIdAndItemId.get(sourceId));
+//                        map.put("sourceId",sourceId);
+//                        map.put("sourceType",ConstantForGYL.WWTLD);
+//                        BigDecimal bySource = this.getCountBySource(map);
+//                        BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
+//                        if (planFeeding.compareTo(count.get(sourceId).add(countByOutSource))<0){
+//                            List<OutsourcingContractItemDO> collect = itemDOs.stream()
+//                                    .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
+//                                    .collect(Collectors.toList());
+//                            String [] args = {count.get(sourceId).toPlainString(),planFeeding.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
+//                            Map<String,Object> result = Maps.newHashMap();
+//                            result.put("sourceId",sourceId);
+//                            return R.error(500,messageSourceHandler.getMessage("stock.number.error", args),result);
+//                        }
+//                    }
+//                }
 
             }
         }

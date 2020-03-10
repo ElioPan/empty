@@ -36,19 +36,30 @@ public class OutsourcingStockOutServiceImpl extends StockOutServiceImpl implemen
     private ConsumingStockOutService consumingStockOutService;
 
     @Override
-    public R checkSourceNumber(String item) {
+    public R checkSourceNumber(String item,Long id) {
         // 与源单数量对比
         List<StockOutItemDO> itemDOs = JSON.parseArray(item, StockOutItemDO.class);
         Map<Long, BigDecimal> count = Maps.newHashMap();
-        Map<Long, Long> sourceIdAndItemId = Maps.newHashMap();
         for (StockOutItemDO itemDO : itemDOs) {
             Long sourceId = itemDO.getSourceId();
             if (count.containsKey(sourceId)) {
                 count.put(sourceId, itemDO.getId() == null ? BigDecimal.ZERO : count.get(sourceId).add(itemDO.getCount()));
             }
-            sourceIdAndItemId.put(sourceId, itemDO.getId());
             count.put(itemDO.getSourceId(), itemDO.getCount());
         }
+
+        // 获取原先单据的数量
+        Map<Long, BigDecimal> oldCounts = Maps.newHashMap();
+        if (id != null) {
+            Map<String,Object> map = Maps.newHashMap();
+            map.put("outId",id);
+            List<StockOutItemDO> list = stockOutItemService.list(map);
+            if (list.size() > 0) {
+                oldCounts = list.stream()
+                        .collect(Collectors.toMap(StockOutItemDO::getSourceId, StockOutItemDO::getCount, BigDecimal::add));
+            }
+        }
+
         ProductionFeedingDetailDO detailDO;
         BigDecimal planFeeding;
         Map<String, Object> map;
@@ -61,17 +72,23 @@ public class OutsourcingStockOutServiceImpl extends StockOutServiceImpl implemen
             planFeeding = detailDO.getPlanFeeding();
             // 查询源单已被选择数量
             map = Maps.newHashMap();
-            map.put("id", sourceIdAndItemId.get(sourceId));
             map.put("sourceId", sourceId);
             map.put("sourceType", ConstantForGYL.WWTLD);
             BigDecimal bySource = stockOutItemService.getCountBySource(map);
-            BigDecimal countByOutSource = bySource == null ? BigDecimal.ZERO : bySource;
+
+            BigDecimal oldCount = oldCounts.getOrDefault(sourceId,BigDecimal.ZERO);
+
+            BigDecimal countByOutSource = bySource == null ? BigDecimal.ZERO : bySource.subtract(oldCount);
             if (planFeeding.compareTo(count.get(sourceId).add(countByOutSource)) < 0) {
                 List<StockOutItemDO> collect = itemDOs.stream()
                         .filter(itemDO -> Objects.equals(itemDO.getSourceId(), sourceId))
                         .collect(Collectors.toList());
-                String[] args = {count.get(sourceId).toPlainString(), planFeeding.subtract(countByOutSource).toPlainString(), collect.get(0).getSourceCode()};
-                return R.error(messageSourceHandler.getMessage("stock.number.error", args));
+                String sourceCount = planFeeding.subtract(countByOutSource).toPlainString();
+                String[] args = {count.get(sourceId).toPlainString(), sourceCount, collect.get(0).getSourceCode()};
+                Map<String,Object> result = Maps.newHashMap();
+                result.put("sourceId",sourceId);
+                result.put("sourceCount",sourceCount);
+                return R.error(500,messageSourceHandler.getMessage("stock.number.error", args),result);
             }
         }
         return null;
