@@ -82,11 +82,11 @@
 	<update id="updateAll" parameterType="${package}.domain.${className}DO">
 		UPDATE ${tableName}
 		SET
-	#foreach($column in $columns)
-	#if($column.columnName != $pk.columnName)`$column.columnName` = #{$column.attrname}#if($velocityCount != $columns.size()), #end
+#foreach($column in $columns)
+#if($column.columnName != $pk.columnName)			`$column.columnName` = #{$column.attrname}#if($velocityCount != $columns.size()), #end
 
-	#end
-	#end
+#end
+#end
 		WHERE ${pk.columnName} = #{${pk.attrname}}
 	</update>
 
