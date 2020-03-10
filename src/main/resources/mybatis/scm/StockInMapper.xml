@@ -616,12 +616,15 @@
 		a.audit_sign as  auditSign,
 		i.name as auditSignName,
 		a.in_time	as   inTime,
-		a.create_time as createTime
+		a.create_time as createTime,
+		j.id as stockInItemId,
+		j.count
 		from
 		scm_stock_in  a
 		LEFT JOIN  cus_dictionary b  ON a.storage_type=b.id
 		LEFT JOIN  cus_supplier c    ON a.source_company=c.id
 		LEFT JOIN  cus_dictionary i  ON a.audit_sign=i.id
+		LEFT JOIN  scm_stock_in_item j  ON a.id=j.inhead_id
 		)aa
 		<where>
 			<if test="sourceCompany != null and sourceCompany != ''"> and sourceCompany = #{sourceCompany} </if>

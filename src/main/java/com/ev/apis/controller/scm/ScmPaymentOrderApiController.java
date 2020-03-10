@@ -60,7 +60,7 @@ public class ScmPaymentOrderApiController {
                     "]") @RequestParam(value = "paymentBodys", defaultValue = "", required = false) String paymentBodys,
             @ApiParam(value = "删除的明细行IDs") @RequestParam(value = "deleItemIds", required = false) Long[] deleItemIds) {
 
-        String result = paymentReceivedService.checkSourseCount(paymentBodys, ConstantForGYL.PAYMENT_ORDER);
+        String result = paymentReceivedService.checkSourseCount(paymentBodys);
         if(Objects.equals("ok",result)){
             return paymentReceivedService.addReceived(paymentReceivedDO, paymentBodys, deleItemIds, ConstantForGYL.PAYMENT_ORDER);
 

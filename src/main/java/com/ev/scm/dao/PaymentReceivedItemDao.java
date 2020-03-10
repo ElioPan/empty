@@ -3,6 +3,7 @@ package com.ev.scm.dao;
 import com.ev.scm.domain.PaymentReceivedItemDO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +37,8 @@ public interface PaymentReceivedItemDao {
 	Map<String, Object> totallAmount(Map<String, Object> map);
 
 	int whetherTheReference(Map<String, Object> map);
+
+	BigDecimal getInCountOfPayment(Map<String, Object> map);
 
 
 }

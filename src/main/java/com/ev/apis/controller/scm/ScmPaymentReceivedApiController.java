@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @Author Kuzi
@@ -59,7 +60,13 @@ public class ScmPaymentReceivedApiController {
                     "]") @RequestParam(value = "paymentBodys", defaultValue = "", required = false) String paymentBodys,
             @ApiParam(value = "删除的明细行IDs") @RequestParam(value = "deleItemIds", required = false) Long[] deleItemIds) {
 
-        return paymentReceivedService.addReceived(paymentReceivedDO, paymentBodys, deleItemIds, ConstantForGYL.ALL_BILL);
+        String result = paymentReceivedService.checkSourseCount(paymentBodys);
+        if(Objects.equals("ok",result)){
+            return paymentReceivedService.addReceived(paymentReceivedDO, paymentBodys, deleItemIds, ConstantForGYL.ALL_BILL);
+        }else{
+            return R.error(result);
+        }
+
     }
 
     @EvApiByToken(value = "/apis/scm/paymentReceived/detailOfReceived", method = RequestMethod.POST, apiTitle = "详情—收款单")

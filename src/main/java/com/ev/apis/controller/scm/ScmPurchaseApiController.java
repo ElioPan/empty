@@ -277,10 +277,10 @@ public class ScmPurchaseApiController {
             dsRet.put("pageno",pageno);
             dsRet.put("pagesize",pagesize);
             dsRet.put("totalRows",quoteLists.size());
-            dsRet.put("totalPages",(Integer.parseInt(countForMaps.get("count").toString()) + pagesize - 1) / pagesize);
+            dsRet.put("totalPages",(quoteLists.size() + pagesize - 1) / pagesize);
             dsRet.put("totalCount",countForMaps.get("totalCount"));
             dsRet.put("totalAmount",countForMaps.get("totalAmount"));
-            dsRet.put("datas",quoteList);
+            dsRet.put("datas",quoteLists);
             results.put("data", dsRet);
         }
         return R.ok(results);

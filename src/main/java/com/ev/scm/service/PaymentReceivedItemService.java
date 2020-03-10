@@ -2,6 +2,7 @@ package com.ev.scm.service;
 
 import com.ev.scm.domain.PaymentReceivedItemDO;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +37,7 @@ public interface PaymentReceivedItemService {
 
 	Boolean whetherTheReference(String sign,Long id,Long[] payItemId);
 
-
+	BigDecimal getInCountOfPayment(Map<String, Object> map);
 
 
 

@@ -393,7 +393,6 @@ public class ScmPurchaseContractApiController {
         map.put("supplierId",supplierId);
 
         List<Map<String, Object>> data = purchasecontractService.listForMap(map);
-        Map<String, Object> totalMap = purchasecontractService.countForMap(map);
         DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT.intValue());
         String thisSourceTypeName = dictionaryDO.getName();
 //        for (Map<String, Object> datum : data) {
@@ -439,17 +438,16 @@ public class ScmPurchaseContractApiController {
             List<Map<String, Object>>quoteLists = PageUtils.startPage(quoteList, pageno, pagesize);
 
             Map<String,Object>  dsRet= new HashMap<>();
-            dsRet.put("datas",quoteList);
+            dsRet.put("datas",quoteLists);
             dsRet.put("pageno",pageno);
             dsRet.put("pagesize",pagesize);
             dsRet.put("totalRows",quoteLists.size());
-            dsRet.put("totalPages",((Integer.parseInt(totalMap.get("count").toString()) + pagesize - 1) / pagesize));
-            dsRet.put("totalAmount",totalMap.get("totalAmount"));
-            dsRet.put("totalTaxAmount",totalMap.get("totalTaxAmount"));
-            dsRet.put("totalTaxes",totalMap.get("totalTaxes"));
+            dsRet.put("totalPages",(quoteLists.size() + pagesize - 1) / pagesize);
             result.put("data", dsRet);
         }
         return R.ok(result);
     }
+
+
 
 }

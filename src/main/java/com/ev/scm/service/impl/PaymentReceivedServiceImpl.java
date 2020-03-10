@@ -9,10 +9,7 @@ import com.ev.framework.utils.ShiroUtils;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.dao.PaymentReceivedDao;
 import com.ev.scm.domain.*;
-import com.ev.scm.service.PaymentReceivedItemService;
-import com.ev.scm.service.PaymentReceivedService;
-import com.ev.scm.service.PurchasecontractPayService;
-import com.ev.scm.service.SalescontractPayService;
+import com.ev.scm.service.*;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,10 +33,14 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 	@Autowired
     private SalescontractPayService salescontractPayService;
 
+
+
 	@Override
 	public Map<String, Object> detailOfPurchaseContrat(Long[] ids) {
 		return paymentReceivedDao.detailOfPurchaseContrat(ids);
 	}
+
+
 
 	@Override
 	public Map<String, Object> detailOfSaleContrat(Long[] ids) {
@@ -457,82 +458,84 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 
 
 	@Override
-	public String checkSourseCount(String paymentBodys,String sign ){
+	public String checkSourseCount(String paymentBodys){
 
-//		List<PaymentReceivedItemDO> bodys = JSON.parseArray(paymentBodys, PaymentReceivedItemDO.class);
-//		for (PaymentReceivedItemDO bPdata : bodys) {
-//
-//		}
-//		//领用出库++委外出库
-//		List<StockInItemDO> itemDos = new ArrayList<>();
-//		if (StringUtils.isNotEmpty(bodyDetail)) {
-//			itemDos = JSON.parseArray(bodyDetail, StockInItemDO.class);
-//		} else {
-//			return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
-//		}
-//		//验证委外入库单
-//		for (StockInItemDO itemDo : itemDos) {
-//
-//			if (Objects.nonNull(itemDo.getSourceId())) {
-//
-//				Long sourceId = itemDo.getSourceId();
-//				BigDecimal thisCount = itemDo.getCount();
-//				Long sourceType = itemDo.getSourceType();
-//
-//				if (Objects.nonNull(sourceType)) {
-//					if(Objects.equals(sourceType, ConstantForGYL.LYCK)){
-//						//获取领用出库子表数量
-//						StockOutItemDO stockOutItemDO = stockOutItemService.get(sourceId);
-//						if (stockOutItemDO != null) {
-//							Map<String, Object> map = new HashMap<>();
-//							map.put("sourceId", sourceId);
-//							map.put("sourceType", sourceType);
-//							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
-//
-//							//已引入的入库数量
-//							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
-//							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
-//							//领用出库数量
-//							BigDecimal outsourgCount=stockOutItemDO.getCount()==null?BigDecimal.ZERO : stockOutItemDO.getCount();
-//							int boo = (outsourgCount.subtract(inCountOfContract)).compareTo(thisCount);
-//							if (Objects.equals(-1, boo)) {
-//								String[] args = {thisCount.toPlainString(),(outsourgCount.subtract(inCountOfContract)).toPlainString(), itemDo.getSourceCode().toString()};
-//								return messageSourceHandler.getMessage("stock.number.checkError", args);
-//							}
-//						} else {
-//							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
-//						}
-//					}else if(Objects.equals(sourceType, ConstantForGYL.WWCK)){
-//						//委外出库
-//						StockOutItemDO stockOutItemDO = stockOutItemService.get(sourceId);
-//						if (stockOutItemDO != null) {
-//							Map<String, Object> map = new HashMap<>();
-//							map.put("sourceId", sourceId);
-//							map.put("sourceType", sourceType);
-//							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
-//
-//							//已引入的入库数量
-//							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
-//							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
-//							//委外出库数量
-//							BigDecimal outsourgCount=stockOutItemDO.getCount()==null?BigDecimal.ZERO : stockOutItemDO.getCount();
-//							int boo = (outsourgCount.subtract(inCountOfContract)).compareTo(thisCount);
-//							if (Objects.equals(-1, boo)) {
-//								String[] args = {thisCount.toPlainString(),(outsourgCount.subtract(inCountOfContract)).toPlainString(), itemDo.getSourceCode().toString()};
-//								return messageSourceHandler.getMessage("stock.number.checkError", args);
-//							}
-//						} else {
-//							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
-//						}
-//
-//					}else{
-//						return messageSourceHandler.getMessage("scm.checkCount.EroorSourceTypeOfIntroduce", null);
-//					}
-//				} else {
-//					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
-//				}
-//			}
-//		}
+		List<PaymentReceivedItemDO> bodys = JSON.parseArray(paymentBodys, PaymentReceivedItemDO.class);
+		for (PaymentReceivedItemDO bPdata : bodys) {
+
+		}
+		//领用出库++委外出库
+		List<PaymentReceivedItemDO> itemDos = new ArrayList<>();
+		if (StringUtils.isNotEmpty(paymentBodys)) {
+			itemDos =JSON.parseArray(paymentBodys, PaymentReceivedItemDO.class);
+		} else {
+			return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
+		}
+		//
+		for (PaymentReceivedItemDO itemDo : itemDos) {
+
+			if (Objects.nonNull(itemDo.getSourceId())) {
+
+				Long sourceId = itemDo.getSourceId();
+				//本次收款、付款金额
+				BigDecimal thisAmount = itemDo.getThisAmount();
+				Long sourceType = itemDo.getSourceType();
+
+				if (Objects.nonNull(sourceType)) {
+					if(Objects.equals(sourceType, ConstantForGYL.CGHT)){
+						//获取采购合同付款条件明细数量
+						PurchasecontractPayDO purchasecontractPayDO = purchasecontractPayService.get(sourceId);
+						if (purchasecontractPayDO != null) {
+							Map<String, Object> map = new HashMap<>();
+							map.put("sourceId", sourceId);
+							map.put("sourceType", sourceType);
+							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
+
+							//已付款的引入总和
+							BigDecimal toailThisAmounts = paymentReceivedItemService.getInCountOfPayment(map);
+
+							BigDecimal thisAmounts = (toailThisAmounts == null) ? BigDecimal.ZERO : toailThisAmounts;
+							//采购合同未付款金额
+							BigDecimal unpayAmount=purchasecontractPayDO.getUnpayAmount()==null?BigDecimal.ZERO : purchasecontractPayDO.getUnpayAmount();
+							int boo = (unpayAmount.subtract(thisAmounts)).compareTo(thisAmount);
+							if (Objects.equals(-1, boo)) {
+								String[] args = {thisAmount.toPlainString(),(unpayAmount.subtract(thisAmounts)).toPlainString(), itemDo.getSourceCode().toString()};
+								return messageSourceHandler.getMessage("stock.payRecived.checkErrorPurchase", args);
+							}
+						} else {
+							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+						}
+					}else if(Objects.equals(sourceType, ConstantForGYL.XSHT)){
+						//销售合同
+						SalescontractPayDO salescontractPayDo = salescontractPayService.get(sourceId);
+						if (salescontractPayDo != null) {
+							Map<String, Object> map = new HashMap<>();
+							map.put("sourceId", sourceId);
+							map.put("sourceType", sourceType);
+							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
+
+							//已引入的收款金额
+							BigDecimal toailThisAmounts = paymentReceivedItemService.getInCountOfPayment(map);
+							BigDecimal thisAmounts = (toailThisAmounts == null) ? BigDecimal.ZERO : toailThisAmounts;
+							//销售合同未收款
+							BigDecimal unpayAmount=salescontractPayDo.getUnpayAmount()==null?BigDecimal.ZERO : salescontractPayDo.getUnpayAmount();
+							int boo = (unpayAmount.subtract(thisAmounts)).compareTo(thisAmount);
+							if (Objects.equals(-1, boo)) {
+								String[] args = {thisAmount.toPlainString(),(unpayAmount.subtract(thisAmounts)).toPlainString(), itemDo.getSourceCode().toString()};
+								return messageSourceHandler.getMessage("stock.payRecived.checkErrorSales", args);
+							}
+						} else {
+							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+						}
+
+					}else{
+						return messageSourceHandler.getMessage("scm.payRecived.EroorSourceTypeOfIntroduce", null);
+					}
+				} else {
+					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
+				}
+			}
+		}
 		return "ok";
 	}
 

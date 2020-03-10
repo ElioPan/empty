@@ -300,11 +300,11 @@ public class ScmPurchaseInStockController {
             Map<String, Object> dsRet = new HashMap<>();
             dsRet.put("pageno",pageno);
             dsRet.put("pagesize",pagesize);
-            dsRet.put("totalPages",(Integer.parseInt(totalForMap.get("count").toString()) + pagesize - 1) / pagesize);
+            dsRet.put("totalPages",(quoteLists.size() + pagesize - 1) / pagesize);
             dsRet.put("totalRows",quoteLists.size());
             dsRet.put("toatalCount",totalForMap.get("toatalCount"));
             dsRet.put("toatalAmount",totalForMap.get("toatalAmount"));
-            dsRet.put("datas",quoteList);
+            dsRet.put("datas",quoteLists);
             resulst.put("data", dsRet);
         }
         return R.ok(resulst);

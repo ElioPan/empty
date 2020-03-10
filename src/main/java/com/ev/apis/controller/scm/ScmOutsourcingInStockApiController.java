@@ -5,9 +5,12 @@ import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
+import com.ev.framework.utils.MathUtils;
+import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.domain.StockInDO;
+import com.ev.scm.service.ProcessingChargeItemService;
 import com.ev.scm.service.StockInItemService;
 import com.ev.scm.service.StockInService;
 import com.google.common.collect.Maps;
@@ -25,10 +28,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Author Kuzi
@@ -38,7 +43,8 @@ import java.util.Objects;
 @RestController
 public class ScmOutsourcingInStockApiController {
 
-
+    @Autowired
+    private ProcessingChargeItemService processingChargeItemService;
     @Autowired
     private StockInService stockInService;
     @Autowired
@@ -168,8 +174,6 @@ public class ScmOutsourcingInStockApiController {
         params.put("materielName", materielName);
         params.put("auditSign", auditSign);
         params.put("storageType", ConstantForGYL.OUTSOURCING_INSTOCK);
-        params.put("offset", (pageno - 1) * pagesize);
-        params.put("limit", pagesize);
         params.put("createStartTime", createStartTime);
         params.put("createEndTime", createEndTime);
         params.put("supplierId", supplierId);
@@ -179,12 +183,35 @@ public class ScmOutsourcingInStockApiController {
         List<Map<String, Object>> detailList = stockInService.listForHead(params);
 
         if (!detailList.isEmpty()) {
+            Map<String,Object>  maps= new HashMap<>();
+            maps.put("sourceType",ConstantForGYL.OUTSOURCING_INSTOCK);
+
+            for(int i=0;i<detailList.size();i++){
+                Map<String,Object>mapDo= detailList.get(i);
+                maps.put("sourceId",mapDo.get("stockInItemId"));
+                //采购退货
+                BigDecimal inCountOfCharge= processingChargeItemService.getCountBySource(maps);
+                BigDecimal countByOutSource = inCountOfCharge == null ? BigDecimal.ZERO : inCountOfCharge;
+
+                BigDecimal counts = MathUtils.getBigDecimal(mapDo.get("count")).subtract(countByOutSource);
+
+                if (counts.compareTo(BigDecimal.ZERO) <= 0) {
+                    mapDo.put("quoteCount",0);
+                }else{
+                    mapDo.put("quoteCount",count);
+                }
+            }
+            List<Map<String, Object>> quoteList = detailList
+                    .stream()
+                    .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO)>0)
+                    .collect(Collectors.toList());
+            List<Map<String, Object>> quoteLists= PageUtils.startPage(quoteList, pageno, pagesize);
             Map<String, Object> dsRet = new HashMap<>();
             dsRet.put("pageno",pageno);
             dsRet.put("pagesize",pagesize);
-            dsRet.put("totalPages",(count + pagesize - 1) / pagesize);
-            dsRet.put("totalRows",count);
-            dsRet.put("datas",detailList);
+            dsRet.put("totalPages",(quoteLists.size() + pagesize - 1) / pagesize);
+            dsRet.put("totalRows",quoteLists.size());
+            dsRet.put("datas",quoteLists);
             resulst.put("data", dsRet);
         }
         return R.ok(resulst);
@@ -253,6 +280,8 @@ public class ScmOutsourcingInStockApiController {
         PoiBaseView.render(modelMap, request, response,
                 TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
     }
+
+
 
 
 
