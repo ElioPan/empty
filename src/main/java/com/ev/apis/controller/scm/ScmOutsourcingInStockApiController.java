@@ -178,7 +178,6 @@ public class ScmOutsourcingInStockApiController {
         params.put("createEndTime", createEndTime);
         params.put("supplierId", supplierId);
 
-
         int count = stockInService.countForHead(params);
         List<Map<String, Object>> detailList = stockInService.listForHead(params);
 

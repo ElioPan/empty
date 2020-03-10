@@ -385,7 +385,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 			int rows = inventoryPlanItemService.countOfWinLoss(params);//是否有盘盈（rows>0 是）
 			List<Map<String, Object>> profitLossMsg = inventoryPlanItemService.getProfitLossMsg(params);//查找出盈数据
 
-			params.put("documentType", ConstantForGYL.PYDJ);  //  32--->198//PYDJ  盘盈单据
+			params.put("documentType", ConstantForGYL.PYDJ);
 			int otherInLines = inventoryPlanFitlossService.countOfOtherByPY(params);//是否已经生成其他入库 headId+documentType
 			int linesPL = inventoryPlanFitlossService.count(params);   //是否已经生成盘赢单（lines>0 是）
 
@@ -449,11 +449,12 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 			Map<String, Object> params = new HashMap<>();
 			params.put("headId", planId);
 			params.put("profitLoss", -1);
-			//根据盘点结果组织数据(所查询数据状态为24执行中)；
+
 			//判断是否能够生成盘赢单：主表checkStatus为25时||profit_loss盈亏数量>0&&盘盈表有盘点方案主键的 不允许再次生成盘盈单
 			//是否有盘盈(可以/需要生成盘盈单) （rows>0 是）
 			int rows = inventoryPlanItemService.countOfWinLoss(params);
-			List<Map<String, Object>> profitLossMsg = inventoryPlanItemService.getProfitLossMsg(params);//产找出盘亏数据
+			//找出盘亏数据
+			List<Map<String, Object>> profitLossMsg = inventoryPlanItemService.getProfitLossMsg(params);
 
 			params.put("documentType", ConstantForGYL.PKDJ);
 			//入库子表中是否已经存在
@@ -470,10 +471,10 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				//允许返回生成其他入库的数据，但是盈亏单不更新
 				params.remove("documentType");
 				List<Map<String, Object>> profitLossMsgOer = inventoryPlanItemService.getProfitLossMsg(params);
-				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PYDJ.intValue());
+				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PKDJ.intValue());
 				if(dictionaryDO!=null){
 					for(Map<String, Object> map:profitLossMsg){
-						map.put("documentTypeId",ConstantForGYL.PYDJ);
+						map.put("documentTypeId",ConstantForGYL.PKDJ);
 						map.put("documentTypeName",dictionaryDO.getName());
 					}
 				}

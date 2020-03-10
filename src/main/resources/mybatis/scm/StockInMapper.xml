@@ -631,10 +631,11 @@
 			<if test="sourceCompanyName != null and sourceCompanyName != ''"> AND sourceCompanyName like  CONCAT('%',#{sourceCompanyName},'%')  </if>
 			<if test="createTime != null and createTime != ''"> and createTime = #{createTime} </if>
 			<if test="auditSign != null and auditSign != ''"> and auditSign = #{auditSign} </if>
-			 <if test="createStartTime != null and createStartTime!= ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
+			<if test="createStartTime != null and createStartTime!= ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
 			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
 			<if test="supplierId != null and supplierId != ''"> and sourceCompany = #{supplierId} </if>
 			<if test="supplierName != null and supplierName != ''"> AND sourceCompanyName like  CONCAT('%',#{supplierName},'%')  </if>
+			<if test="storageType != null and storageType != ''"> and storageType = #{storageType} </if>
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -681,6 +682,7 @@
 			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
 			<if test="supplierId != null and supplierId != ''"> and sourceCompany = #{supplierId} </if>
 			<if test="supplierName != null and supplierName != ''"> AND sourceCompanyName like  CONCAT('%',#{supplierName},'%')  </if>
+			<if test="storageType != null and storageType != ''"> and storageType = #{storageType} </if>
 		</where>
 	</select>
 

@@ -92,8 +92,11 @@
 	<!--查找scm_stock_in_item根据盘盈单是否已经生成了其他出库-->
 	<select id="countOfOutByPK" resultType="int">
 
-		select count(*) from scm_stock_out_item
-		where source_code = (select DISTINCT code  from scm_inventory_plan_fitloss WHERE  head_id=#{headId} AND  document_type=#{documentType})
+		select count(*)
+		from
+		scm_stock_out_item
+		where
+		source_code = (select DISTINCT code  from scm_inventory_plan_fitloss WHERE  head_id=#{headId} AND  document_type=#{documentType})
 
 	</select>
 

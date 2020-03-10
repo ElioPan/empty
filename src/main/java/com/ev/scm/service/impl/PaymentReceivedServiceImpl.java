@@ -496,7 +496,7 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 
 							BigDecimal thisAmounts = (toailThisAmounts == null) ? BigDecimal.ZERO : toailThisAmounts;
 							//采购合同应付总金额
-							BigDecimal payAmount=purchasecontractPayDO.getPayAmount()==null?BigDecimal.ZERO : purchasecontractPayDO.getUnpayAmount();
+							BigDecimal payAmount=purchasecontractPayDO.getPayAmount()==null?BigDecimal.ZERO : purchasecontractPayDO.getPayAmount();
 							int boo = (payAmount.subtract(thisAmounts)).compareTo(thisAmount);
 							if (Objects.equals(-1, boo)) {
 								String[] args = {thisAmount.toPlainString(),(payAmount.subtract(thisAmounts)).toPlainString(), itemDo.getSourceCode().toString()};
@@ -518,7 +518,7 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 							BigDecimal toailThisAmounts = paymentReceivedItemService.getInCountOfPayment(map);
 							BigDecimal thisAmounts = (toailThisAmounts == null) ? BigDecimal.ZERO : toailThisAmounts;
 							//销售合同应收总金额
-							BigDecimal receivableAmount=salescontractPayDo.getReceivableAmount()==null?BigDecimal.ZERO : salescontractPayDo.getUnpayAmount();
+							BigDecimal receivableAmount=salescontractPayDo.getReceivableAmount()==null?BigDecimal.ZERO : salescontractPayDo.getReceivableAmount();
 							int boo = (receivableAmount.subtract(thisAmounts)).compareTo(thisAmount);
 							if (Objects.equals(-1, boo)) {
 								String[] args = {thisAmount.toPlainString(),(receivableAmount.subtract(thisAmounts)).toPlainString(), itemDo.getSourceCode().toString()};
