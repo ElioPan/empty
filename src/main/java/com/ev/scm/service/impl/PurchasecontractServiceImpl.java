@@ -183,10 +183,13 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 	@Override
 	public R disAudit(Long id) {
 		PurchasecontractDO purchasecontractDO = this.get(id);
-		//验证是否被采购入库引用
+		//验证是否被采购入库引用  +  发票  +  付款单
 		Map<String,Object>  map= new HashMap<>();
 		map.put("sourceCode",purchasecontractDO.getContractCode());
 		List<StockInItemDO> stockInItemList = stockInItemService.list(map);
+
+
+
 		if(stockInItemList.size()>0){
 			return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));
 		}

@@ -377,7 +377,7 @@ public class ScmPurchaseContractApiController {
             @ApiParam(value = "供应商id") @RequestParam(value = "supplierId",defaultValue = "",required = false)  Long supplierId,
             @ApiParam(value = "制单起始日期") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String  createStartTime,
             @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime,
-            @ApiParam(value = "dialog类型：采购入库传0，采购发票传1",required = true) @RequestParam(value = "dialogType",defaultValue = "")  Integer dialogType
+            @ApiParam(value = "dialog类型：采购入库传0，采购发票传1",required = true) @RequestParam(value = "dialogType")  Integer dialogType
             ){
 
         Map<String, Object> map = Maps.newHashMap();

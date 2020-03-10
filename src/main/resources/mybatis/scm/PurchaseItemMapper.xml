@@ -148,7 +148,8 @@
 			d.amount,
 			d.source_type as sourceType,
 			h.name as sourceTypeName,
-			d.source_code as sourceCode
+			d.source_code as sourceCode,
+			d.source_id as sourceId
 		FROM
 		scm_purchase_item d
 		LEFT JOIN  cus_materiel e on d.materiel_id=e.id
