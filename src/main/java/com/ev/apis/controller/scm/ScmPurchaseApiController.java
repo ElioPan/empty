@@ -221,7 +221,7 @@ public class ScmPurchaseApiController {
                             @ApiParam(value = "开始日期(申请时间)") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
                             @ApiParam(value = "截止日期(申请时间)") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
                             @ApiParam(value = "供应商") @RequestParam(value = "supplierId", defaultValue = "", required = false) Long supplierId,
-                            @ApiParam(value = "供应商名字模糊") @RequestParam(value = "supplierId", defaultValue = "", required = false) String supplierName,
+                            @ApiParam(value = "供应商名字模糊") @RequestParam(value = "supplierName", defaultValue = "", required = false) String supplierName,
                             @ApiParam(value = "制单起始日期") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String  createStartTime,
                             @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime
 //                            @ApiParam(value = "采购合同主键id") @RequestParam(value = "purchaseContractId",required = false) Long purchaseContractId

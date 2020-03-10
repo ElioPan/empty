@@ -51,6 +51,8 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 	private MaterielService materielService;
 	@Autowired
 	private PaymentReceivedItemService paymentReceivedItemService;
+	@Autowired
+	private PurchaseInvoiceItemService purchaseInvoiceItemService;
 
 	@Override
 	public PurchasecontractDO get(Long id) {
@@ -187,10 +189,10 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 		Map<String,Object>  map= new HashMap<>();
 		map.put("sourceCode",purchasecontractDO.getContractCode());
 		List<StockInItemDO> stockInItemList = stockInItemService.list(map);
+		List<PaymentReceivedItemDO> receivedItemDos = paymentReceivedItemService.list(map);
+		List<PurchaseInvoiceItemDO> invoiceItemDos = purchaseInvoiceItemService.list(map);
 
-
-
-		if(stockInItemList.size()>0){
+		if(stockInItemList.size()>0||receivedItemDos.size()>0||invoiceItemDos.size()>0){
 			return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));
 		}
 		if (Objects.equals(purchasecontractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {

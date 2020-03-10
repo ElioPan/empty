@@ -570,6 +570,9 @@ public class StockInServiceImpl implements StockInService {
 		Map<String,Object>  map= new HashMap<>();
 		map.put("id","");
 		List<StockStartDO> listStars = stockStartService.list(map);
+		if(Objects.isNull(listStars)){
+			return R.error(messageSourceHandler.getMessage("scm.stock.InitializationIsNotOverYet",null));
+		}
 		if(!Objects.equals(1,listStars.get(0).getStatus())){
 			return R.error(messageSourceHandler.getMessage("scm.stock.nonUse",null));
 		}
@@ -675,7 +678,7 @@ public class StockInServiceImpl implements StockInService {
 	 */
 	@Override
 	public String checkSourceCounts(String stockInitemDos, Long storageType) {
-		List<StockInItemDO> itemDos = new ArrayList<>();
+		List<StockInItemDO> itemDos ;
 		if (StringUtils.isNotEmpty(stockInitemDos)) {
 			itemDos = JSON.parseArray(stockInitemDos, StockInItemDO.class);
 		} else {

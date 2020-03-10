@@ -495,11 +495,11 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 							BigDecimal toailThisAmounts = paymentReceivedItemService.getInCountOfPayment(map);
 
 							BigDecimal thisAmounts = (toailThisAmounts == null) ? BigDecimal.ZERO : toailThisAmounts;
-							//采购合同未付款金额
-							BigDecimal unpayAmount=purchasecontractPayDO.getUnpayAmount()==null?BigDecimal.ZERO : purchasecontractPayDO.getUnpayAmount();
-							int boo = (unpayAmount.subtract(thisAmounts)).compareTo(thisAmount);
+							//采购合同应付总金额
+							BigDecimal payAmount=purchasecontractPayDO.getPayAmount()==null?BigDecimal.ZERO : purchasecontractPayDO.getUnpayAmount();
+							int boo = (payAmount.subtract(thisAmounts)).compareTo(thisAmount);
 							if (Objects.equals(-1, boo)) {
-								String[] args = {thisAmount.toPlainString(),(unpayAmount.subtract(thisAmounts)).toPlainString(), itemDo.getSourceCode().toString()};
+								String[] args = {thisAmount.toPlainString(),(payAmount.subtract(thisAmounts)).toPlainString(), itemDo.getSourceCode().toString()};
 								return messageSourceHandler.getMessage("stock.payRecived.checkErrorPurchase", args);
 							}
 						} else {
@@ -517,11 +517,11 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 							//已引入的收款金额
 							BigDecimal toailThisAmounts = paymentReceivedItemService.getInCountOfPayment(map);
 							BigDecimal thisAmounts = (toailThisAmounts == null) ? BigDecimal.ZERO : toailThisAmounts;
-							//销售合同未收款
-							BigDecimal unpayAmount=salescontractPayDo.getUnpayAmount()==null?BigDecimal.ZERO : salescontractPayDo.getUnpayAmount();
-							int boo = (unpayAmount.subtract(thisAmounts)).compareTo(thisAmount);
+							//销售合同应收总金额
+							BigDecimal receivableAmount=salescontractPayDo.getReceivableAmount()==null?BigDecimal.ZERO : salescontractPayDo.getUnpayAmount();
+							int boo = (receivableAmount.subtract(thisAmounts)).compareTo(thisAmount);
 							if (Objects.equals(-1, boo)) {
-								String[] args = {thisAmount.toPlainString(),(unpayAmount.subtract(thisAmounts)).toPlainString(), itemDo.getSourceCode().toString()};
+								String[] args = {thisAmount.toPlainString(),(receivableAmount.subtract(thisAmounts)).toPlainString(), itemDo.getSourceCode().toString()};
 								return messageSourceHandler.getMessage("stock.payRecived.checkErrorSales", args);
 							}
 						} else {
