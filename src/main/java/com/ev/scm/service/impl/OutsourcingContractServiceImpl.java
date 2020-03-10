@@ -666,7 +666,9 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                                     .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
                                     .collect(Collectors.toList());
                             String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
-                            return R.error(messageSourceHandler.getMessage("stock.number.error", args));
+                            Map<String,Object> result = Maps.newHashMap();
+                            result.put("sourceId",sourceId);
+                            return R.error(500,messageSourceHandler.getMessage("stock.number.error", args),result);
                         }
                     }
                 }
@@ -693,7 +695,9 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                                     .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
                                     .collect(Collectors.toList());
                             String [] args = {count.get(sourceId).toPlainString(),planFeeding.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
-                            return R.error(messageSourceHandler.getMessage("stock.number.error", args));
+                            Map<String,Object> result = Maps.newHashMap();
+                            result.put("sourceId",sourceId);
+                            return R.error(500,messageSourceHandler.getMessage("stock.number.error", args),result);
                         }
                     }
                 }
