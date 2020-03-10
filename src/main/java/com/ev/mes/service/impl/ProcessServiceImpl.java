@@ -1,10 +1,15 @@
 package com.ev.mes.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.ev.custom.domain.ContentAssocDO;
+import com.ev.custom.service.ContentAssocService;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
+import com.ev.framework.utils.StringUtils;
 import com.ev.mes.dao.ProcessCheckDao;
 import com.ev.mes.dao.ProcessDao;
 import com.ev.mes.dao.ProcessDeviceDao;
@@ -30,6 +35,8 @@ public class ProcessServiceImpl implements ProcessService {
     private ProcessDeviceDao processDeviceDao;
     @Autowired
     private CraftItemService craftItemService;
+    @Autowired
+    private ContentAssocService contentAssocService;
     @Autowired
     private MessageSourceHandler messageSourceHandler;
 
@@ -69,7 +76,7 @@ public class ProcessServiceImpl implements ProcessService {
     }
 
     @Override
-    public R saveAndChange(ProcessDO processDO, String processCheck, String processDevice) {
+    public R saveAndChange(ProcessDO processDO, String processCheck, String processDevice,String uploadAttachment) {
 
         if (Objects.nonNull(processDO.getId())) {
             //更新
@@ -103,6 +110,11 @@ public class ProcessServiceImpl implements ProcessService {
                     processDeviceDao.save(deviceDO);
                 }
             }
+            // 上传附件
+            if (StringUtils.isNoneBlank(uploadAttachment)) {
+                contentAssocService.saveList(processDO.getId(), JSONArray.parseArray(uploadAttachment), Constant.PROCESS_FILE);
+            }
+
             return R.ok();
         } else {
             //新增
@@ -136,6 +148,11 @@ public class ProcessServiceImpl implements ProcessService {
                     processDeviceDao.save(deviceDO);
                 }
             }
+
+            // 上传附件
+            if (StringUtils.isNoneBlank(uploadAttachment)) {
+                contentAssocService.saveList(processDO.getId(), JSONArray.parseArray(uploadAttachment), Constant.PROCESS_FILE);
+            }
             return R.ok();
         }
     }
@@ -165,6 +182,12 @@ public class ProcessServiceImpl implements ProcessService {
         if(!processlist.isEmpty()){
             results.put("processlist",processlist);
             results.put("processCheckDetail",processCheckDetail);
+            param.clear();
+            // 获取附件信息
+            param.put("assocId",id);
+            param.put("assocType",Constant.PROCESS_FILE);
+            List<ContentAssocDO> checkResultList = contentAssocService.list(param);
+            results.put("fileList", checkResultList);
         }
         return R.ok(results);
     }

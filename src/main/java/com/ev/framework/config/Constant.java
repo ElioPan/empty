@@ -186,6 +186,10 @@ public class Constant {
      * 8D报告分析主要原因附件
      */
     public static final String BD_CHECKRESULT_FILE = "8D_CHECKRESULT_FILE";
+	/**
+	 * 工序配置附件
+	 */
+	public static final String PROCESS_FILE = "PROCESS_FILE";
     /**
      * 报修图片
      */

@@ -28,7 +28,6 @@ import java.util.Objects;
 
 /**
  * Created by Kuzi on 2019-11-21.
- * @author
  */
 @Api(value="/", tags = "工序配置 + + 工艺路线")
 @RestController
@@ -48,12 +47,13 @@ public class MesProcessAndCraftApiController {
     @ApiOperation("添加/修改 工序配置")
     @Transactional(rollbackFor = Exception.class)
     public R addAndChangeProcess(ProcessDO processDO,
-                                 @ApiParam(value = "检验项目明细:[{\"proId\":3,\"whetherCheck\":1(1是 0否),\"remark\":\"备注\"}]", required = true)  @RequestParam(value = "processCheck", defaultValue = "", required = false) String processCheck) {
+                                 @ApiParam(value = "检验项目明细:[{\"proId\":3,\"whetherCheck\":1(1是 0否),\"remark\":\"备注\"}]", required = true)  @RequestParam(value = "processCheck", defaultValue = "", required = false) String processCheck,
+                                 @ApiParam(value = "上传附件") @RequestParam(value = "uploadAttachment",defaultValue = "",required = false) String  uploadAttachment) {
         //将审核状态变为待审核状态
         if(processDO.getAuditSign()==null){
             processDO.setAuditSign(ConstantForMES.WAIT_AUDIT);
         }
-        return processService.saveAndChange(processDO, processCheck, "");
+        return processService.saveAndChange(processDO, processCheck, "",uploadAttachment);
     }
 
     @EvApiByToken(value = "/apis/mes/process/audit", method = RequestMethod.POST, apiTitle = "审核 工序配置")
@@ -123,14 +123,13 @@ public class MesProcessAndCraftApiController {
         int count = processService.countListForMap(params);
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
         if (!list.isEmpty()) {
-            for (int i = 0; i < list.size(); i++) {
-                Map<String, Object> listOfOne = list.get(i);
+            for (Map<String, Object> listOfOne : list) {
                 Map<String, Object> map = new HashMap<>();
                 map.put("foreignId", listOfOne.get("id"));
                 map.put("type", ConstantForMES.PROCESS_GXPZ);
 
                 List<Map<String, Object>> detailOfProcess = processCheckService.getDetailByProcessId(map);
-                listOfOne.put("proDetail",detailOfProcess);
+                listOfOne.put("proDetail", detailOfProcess);
             }
 
             DsResultResponse dsRet = new DsResultResponse();

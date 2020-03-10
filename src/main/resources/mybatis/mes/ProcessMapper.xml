@@ -40,6 +40,7 @@
 			`name`,
 			`standard`,
 			`type`,
+			`device_type`,
 			`man_hour`,
 			`labour_price`,
 			`dept_id`,
@@ -65,6 +66,7 @@
 			#{name},
 			#{standard},
 			#{type},
+			#{deviceType},
 			#{manHour},
 			#{labourPrice},
 			#{deptId},
@@ -95,6 +97,7 @@
 			<if test="name != null">`name` = #{name}, </if>
 			<if test="standard != null">`standard` = #{standard}, </if>
 			<if test="type != null">`type` = #{type}, </if>
+			<if test="deviceType != null">`device_type` = #{deviceType}, </if>
 			<if test="manHour != null">`man_hour` = #{manHour}, </if>
 			<if test="labourPrice != null">`labour_price` = #{labourPrice}, </if>
 			<if test="deptId != null">`dept_id` = #{deptId}, </if>
@@ -131,7 +134,7 @@
 
 	<sql id="sql_column_list">
 		`id`,`code`,`name`,`standard`,
-		`type`,`man_hour`,`labour_price`,
+		`type`,`device_type`,`man_hour`,`labour_price`,
 		`dept_id`,`operator`,`demand`,`whether_examine`,
 		`whether_collect`,`device_id`,`check_plan_id`,
 		`remark`,`create_by`,`create_time`,`update_by`,
@@ -148,6 +151,7 @@
 			<if test="name != null and name != ''"> and name = #{name} </if>
 			<if test="standard != null and standard != ''"> and standard = #{standard} </if>
 			<if test="type != null and type != ''"> and type = #{type} </if>
+			<if test="deviceType != null and deviceType != ''"> and device_type = #{deviceType} </if>
 			<if test="manHour != null and manHour != ''"> and man_hour = #{manHour} </if>
 			<if test="labourPrice != null and labourPrice != ''"> and labour_price = #{labourPrice} </if>
 			<if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
@@ -179,6 +183,8 @@
 		a.name,
 		a.standard,
 		a.type,
+		a.device_type AS deviceType,
+		dt.`name` AS deviceTypeName,
 		a.remark,
 		b.name as typeName,
 		a.man_hour as manHour,
@@ -204,6 +210,7 @@
 		a.check_plan_id as checkPlanId
 		FROM mes_process a
 		LEFT JOIN cus_dictionary b on a.type=b.id
+		LEFT JOIN cus_dictionary dt on a.device_type=dt.id
 		LEFT JOIN cus_device c on a.device_id=c.id
 		LEFT JOIN sys_dept d on a.dept_id=d.dept_id
 		LEFT JOIN sys_user e on a.operator=e.user_id
@@ -216,7 +223,7 @@
 			<if test="name != null and name != ''"> and a.name like CONCAT('%',#{name},'%') </if>
 			<if test="useStatus != null"> and a.use_status = #{useStatus} </if>
 			<if test="auditSign != null and auditSign != ''"> and a.audit_sign = #{auditSign} </if>
-
+			<if test="deviceType != null and deviceType != ''"> and a.device_type = #{deviceType} </if>
 			 and a.del_flag = 0
 		</where>
 		<choose>
@@ -249,6 +256,7 @@
 			<if test="name != null and name != ''"> and a.name like CONCAT('%',#{name},'%') </if>
 			<if test="useStatus != null"> and a.use_status = #{useStatus} </if>
 			<if test="auditSign != null and auditSign != ''"> and a.audit_sign = #{auditSign} </if>
+			<if test="deviceType != null and deviceType != ''"> and a.device_type = #{deviceType} </if>
 			and a.del_flag = 0
 		</where>
 	</select>

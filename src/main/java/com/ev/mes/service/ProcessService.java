@@ -29,7 +29,7 @@ public interface ProcessService {
 	
 	int batchRemove(Long[] ids);
 
-	R saveAndChange(ProcessDO processDO, String processCheck , String processDevice );
+	R saveAndChange(ProcessDO processDO, String processCheck , String processDevice,String uploadAttachment );
 
 	List<Map<String, Object>> listForMap(Map<String, Object> map);
 
