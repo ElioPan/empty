@@ -103,13 +103,13 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
 
     @Override
     public R addOrUpdateOutsourcingContract(OutsourcingContractDO outsourcingContract, String bodyItem, String bodyPay, Long[] itemIds, Long[] payIds) {
-        R r = this.checkSourceNumber(bodyItem);
+        Long id = outsourcingContract.getId();
+        R r = this.checkSourceNumber(bodyItem,id);
         if(r!=null){
             return r;
         }
 
         Map<String, Object> result = Maps.newHashMap();
-        Long id = outsourcingContract.getId();
         // 新增
         if (id == null) {
             outsourcingContract.setAuditSign(ConstantForGYL.WAIT_AUDIT);
@@ -196,12 +196,12 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
 
     @Override
     public R editOutsourcingContract(OutsourcingContractDO outsourcingContract, String bodyItem, String bodyPay, Long[] payIds) {
-        R r = this.checkSourceNumber(bodyItem);
+        Long outsourcingContractId = outsourcingContract.getId();
+        R r = this.checkSourceNumber(bodyItem,outsourcingContractId);
         if(r!=null){
             return r;
         }
 
-        Long outsourcingContractId = outsourcingContract.getId();
         OutsourcingContractDO outsourcingContractDO = this.get(outsourcingContractId);
         if (Objects.equals(outsourcingContractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("scm.contract.isUpdate.notAlteration", null));
@@ -625,7 +625,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
     }
 
     @Override
-    public R checkSourceNumber(String bodyItem) {
+    public R checkSourceNumber(String bodyItem,Long id) {
         // 与源单数量对比
         List<OutsourcingContractItemDO> itemDOs = JSON.parseArray(bodyItem, OutsourcingContractItemDO.class)
                 .stream()
@@ -644,6 +644,17 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                 sourceIdAndItemId.put(sourceId,itemDO.getId());
                 count.put(itemDO.getSourceId(), itemDO.getCount());
             }
+            // 获取原先单据的数量
+            Map<Long, BigDecimal> oldCounts = Maps.newHashMap();
+            if (id != null) {
+                Map<String,Object> map = Maps.newHashMap();
+                map.put("contractId",id);
+                List<OutsourcingContractItemDO> list = outsourcingContractItemDao.list(map);
+                if (list.size() > 0) {
+                    oldCounts = list.stream()
+                            .collect(Collectors.toMap(OutsourcingContractItemDO::getSourceId, OutsourcingContractItemDO::getCount, BigDecimal::add));
+                }
+            }
 
             if (count.size() > 0) {
                 Map<String,Object> map;
@@ -656,11 +667,13 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                         contractCount = detailDO.getCount();
                         // 查询源单已被选择数量
                         map = Maps.newHashMap();
-                        map.put("id",sourceIdAndItemId.get(sourceId));
                         map.put("sourceId",sourceId);
                         map.put("sourceType",ConstantForGYL.XSHT);
                         BigDecimal bySource = this.getCountBySource(map);
-                        BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource;
+
+                        BigDecimal oldCount = oldCounts.getOrDefault(sourceId,BigDecimal.ZERO);
+
+                        BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource.subtract(oldCount);
                         if (contractCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
                             List<OutsourcingContractItemDO> collect = itemDOs.stream()
                                     .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
