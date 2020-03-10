@@ -5,11 +5,11 @@
 
 
 	<select id="get" resultType="com.ev.custom.domain.DeviceDO">
-		select `id`,`serialno`,`name`,`type`,`factory`,`model`,`buy_time`,`using_time`,`service_year`,`dept_id`,`user_id`,`using_status`,`device_use`,`repair_end`,`site`,`desc`,`factory_id`,`supplier_id`,`service_id`,`parent_id`,`souce_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_device where id = #{value}
+		select `id`,`serialno`,`name`,`type`,`factory`,`model`,`buy_time`,`using_time`,`service_year`,`dept_id`,`user_id`,`using_status`,`device_use`,`repair_end`,`site`,`desc`,`factory_id`,`supplier_id`,`service_id`,`parent_id`,`souce_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`engineer_id` from cus_device where id = #{value}
 	</select>
 
 	<select id="list" resultType="com.ev.custom.domain.DeviceDO">
-		select `id`,`serialno`,`name`,`type`,`factory`,`model`,`buy_time`,`using_time`,`service_year`,`dept_id`,`user_id`,`using_status`,`device_use`,`repair_end`,`site`,`desc`,`factory_id`,`supplier_id`,`service_id`,`parent_id`,`souce_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_device
+		select `id`,`serialno`,`name`,`type`,`factory`,`model`,`buy_time`,`using_time`,`service_year`,`dept_id`,`user_id`,`using_status`,`device_use`,`repair_end`,`site`,`desc`,`factory_id`,`supplier_id`,`service_id`,`parent_id`,`souce_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`engineer_id` from cus_device
 		<where>
 			<if test="id != null and id != ''"> and id = #{id} </if>
             <if test="maxNo != null and maxNo != ''"> and LEFT(serialno,CHAR_LENGTH(#{maxNo})) = #{maxNo} </if>
@@ -38,6 +38,7 @@
 			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
 			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
 			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+			<if test="engineerId != null and engineerId != ''"> and `engineer_id` = #{engineerId} </if>
 			 AND del_flag=0
 		</where>
 		<choose>
@@ -82,6 +83,7 @@
 			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
 			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
 			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+			<if test="engineerId != null and engineerId != ''"> and `engineer_id` = #{engineerId} </if>
 			and del_flag = 0
 		</where>
 	</select>
@@ -113,7 +115,8 @@
 		`create_time`,
 		`update_by`,
 		`update_time`,
-		`del_flag`
+		`del_flag`,
+		`engineer_id`
 		)
 		values
 		(
@@ -141,7 +144,8 @@
 		#{createTime},
 		#{updateBy},
 		#{updateTime},
-		#{delFlag}
+		#{delFlag},
+		#{engineerId}
 		)
 	</insert>
 
@@ -172,7 +176,9 @@
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
 			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="engineerId != null">`engineer_id` = #{engineerId}, </if>
 			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+
 		</set>
 		where id = #{id}
 	</update>
@@ -370,7 +376,9 @@
 			cussy.name as service_name,
 			cussy.legalperson as service_legalperson_name,
 			cussy.phone       as service_phone,
-			cussy.address       as service_address
+			cussy.address       as service_address,
+			su.`name` AS engineerName,
+			cusd.engineer_id AS engineerId
 		from cus_device cusd
 		LEFT JOIN cus_device cu ON cu.id= cusd.parent_id
 		LEFT JOIN cus_dictionary cusdaa ON cusd.type=cusdaa.id
@@ -382,6 +390,7 @@
 		LEFT JOIN  cus_supplier  cussx  ON cusd.supplier_id=cussx.id
 		LEFT JOIN  cus_supplier  cussy  ON cusd.service_id=cussy.id
 		LEFT JOIN sys_user         user ON cusd.user_id=user.user_id
+		LEFT JOIN sys_user         su ON cusd.engineer_id=su.user_id
 		LEFT JOIN sys_dept        sdept ON cusd.dept_id=sdept.dept_id
 		<where>
 			<if test="id != null and id != ''"> and cusd.id = #{id} </if>
@@ -409,6 +418,7 @@
 			<if test="updateBy != null and updateBy != ''"> and cusd.update_by = #{updateBy} </if>
 			<if test="updateTime != null and updateTime != ''"> and cusd.update_time = #{updateTime} </if>
 			<if test="delFlag != null and delFlag != ''"> and cusd.del_flag = #{delFlag} </if>
+			<if test="engineerId != null and engineerId != ''"> and cusd.engineer_id = #{engineerId} </if>
 			and cusd.del_flag = 0
 		</where>
 	</select>
@@ -434,7 +444,9 @@
 		cussy.name as service_name,
 		cussy.legalperson as service_legalperson_name,
 		cussy.phone       as service_phone,
-		cussy.address       as service_address
+		cussy.address       as service_address,
+		su.`name` AS engineerName,
+		cusd.engineer_id AS engineerId
 		from cus_device cusd
 		LEFT JOIN cus_dictionary cusdaa ON cusd.type=cusdaa.id
 		LEFT JOIN cus_dictionary cusdab ON cusd.using_status=cusdab.id
@@ -444,6 +456,7 @@
 		LEFT JOIN  cus_supplier  cussx  ON cusd.supplier_id=cussx.id
 		LEFT JOIN  cus_supplier  cussy  ON cusd.service_id=cussy.id
 		LEFT JOIN sys_user         user ON cusd.user_id=user.user_id
+		LEFT JOIN sys_user         su ON cusd.engineer_id=su.user_id
 		LEFT JOIN sys_dept        sdept ON cusd.dept_id=sdept.dept_id
 		<where>
 
@@ -480,6 +493,7 @@
 			<if test="serviceId != null and serviceId != ''"> and cusd.service_id =#{serviceId} </if>
 
 			<if test="souceId != null and souceId != ''"> and cusd.souce_id=#{souceId}</if>
+			<if test="engineerId != null and engineerId != ''"> and cusd.engineer_id = #{engineerId} </if>
 			and cusd.del_flag = 0
 		</where>
 		<choose>
@@ -543,6 +557,7 @@
 			<if test="serviceId != null and serviceId != ''"> and cusd.service_id =#{serviceId} </if>
 
 			<if test="souceId != null and souceId != ''"> and cusd.souce_id=#{souceId}</if>
+			<if test="engineerId != null and engineerId != ''"> and cusd.engineer_id = #{engineerId} </if>
 			and cusd.del_flag = 0
 		</where>
 	</select>
@@ -562,7 +577,7 @@
 
 
 	<select id="listOfDeviceDetail" resultType="com.ev.custom.domain.DeviceDO">
-		select `id`,`serialno`,`name`,`type`,`factory`,`model`,`buy_time`,`using_time`,`service_year`,`dept_id`,`user_id`,`using_status`,`device_use`,`repair_end`,`site`,`desc`,`factory_id`,`supplier_id`,`service_id`,`parent_id`,`souce_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_device
+		select `id`,`serialno`,`name`,`type`,`factory`,`model`,`buy_time`,`using_time`,`service_year`,`dept_id`,`user_id`,`using_status`,`device_use`,`repair_end`,`site`,`desc`,`factory_id`,`supplier_id`,`service_id`,`parent_id`,`souce_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`engineer_id` from cus_device
 		<where>
 
 			<if test="name != null and name != ''"> and  name like  CONCAT('%',#{name},'%') </if>
@@ -648,7 +663,9 @@
         device.site AS site,
         factory.`name` AS factoryName,
         supplier.`name` AS supplierName,
-        service.`name` AS serviceName
+        service.`name` AS serviceName,
+		su.`name` AS engineerName,
+		device.engineer_id AS engineerId
         FROM
         cus_device device
         LEFT JOIN cus_device pdevice ON device.parent_id = pdevice.id
@@ -660,6 +677,7 @@
         LEFT JOIN cus_supplier supplier ON device.supplier_id = supplier.id
         LEFT JOIN cus_supplier service ON device.service_id = service.id
         LEFT JOIN sys_user users ON device.user_id = users.user_id
+		LEFT JOIN sys_user         su ON device.engineer_id=su.user_id
         LEFT JOIN sys_dept dept ON device.dept_id = dept.dept_id
         <where>
             <if test="name != null and name != ''"> AND CONCAT(device.name,device.serialno) LIKE #{name}</if>
@@ -715,6 +733,7 @@
         `create_time`,
         `update_by`,
         `update_time`,
+        `engineer_id`,
         `del_flag`
         )
         values
@@ -743,6 +762,7 @@
             #{obj.createTime},
             #{obj.updateBy},
             #{obj.updateTime},
+			#{obj.engineerId},
             #{obj.delFlag}
             )
         </foreach>

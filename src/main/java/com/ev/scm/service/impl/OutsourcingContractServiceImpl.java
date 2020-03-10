@@ -665,9 +665,11 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                             List<OutsourcingContractItemDO> collect = itemDOs.stream()
                                     .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
                                     .collect(Collectors.toList());
-                            String [] args = {count.get(sourceId).toPlainString(),contractCount.subtract(countByOutSource).toPlainString(),collect.get(0).getSourceCode()};
+                            String sourceCount = contractCount.subtract(countByOutSource).toPlainString();
+                            String [] args = {count.get(sourceId).toPlainString(),sourceCount,collect.get(0).getSourceCode()};
                             Map<String,Object> result = Maps.newHashMap();
                             result.put("sourceId",sourceId);
+                            result.put("sourceCount",sourceCount);
                             return R.error(500,messageSourceHandler.getMessage("stock.number.error", args),result);
                         }
                     }
