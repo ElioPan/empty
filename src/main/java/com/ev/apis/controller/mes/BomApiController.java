@@ -1,15 +1,14 @@
 package com.ev.apis.controller.mes;
 
-import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
-import com.ev.framework.config.ConstantForMES;
-import com.ev.framework.utils.R;
-import com.ev.framework.utils.ShiroUtils;
 import com.ev.custom.service.ContentAssocService;
+import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.ConstantForMES;
+import com.ev.framework.il8n.MessageSourceHandler;
+import com.ev.framework.utils.R;
 import com.ev.mes.domain.BomDO;
 import com.ev.mes.service.BomDetailService;
 import com.ev.mes.service.BomService;
-import com.ev.framework.il8n.MessageSourceHandler;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * BOM管理
@@ -81,13 +79,7 @@ public class BomApiController {
         List<Map<String, Object>> data = bomService.listForMap(params);
         int total = bomService.countForMap(params);
         if (data.size() > 0) {
-            DsResultResponse dsRet = new DsResultResponse();
-            dsRet.setDatas(data);
-            dsRet.setPageno(pageno);
-            dsRet.setPagesize(pagesize);
-            dsRet.setTotalRows(total);
-            dsRet.setTotalPages((total + pagesize - 1) / pagesize);
-            results.put("data", dsRet);
+			results.put("data", new DsResultResponse(pageno,pagesize,total,data));
         }
         return R.ok(results);
 	}
@@ -109,20 +101,13 @@ public class BomApiController {
 		Map<String, Object> params = Maps.newHashMapWithExpectedSize(3);
 
 		params.put("bomId", bomId);
-
         params.put("offset", (pageno - 1) * pagesize);
         params.put("limit", pagesize);
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
         List<Map<String, Object>> data = bomDetailService.listForMap(params);
         int total = bomDetailService.countForMap(params);
         if (data.size() > 0) {
-            DsResultResponse dsRet = new DsResultResponse();
-            dsRet.setDatas(data);
-            dsRet.setPageno(pageno);
-            dsRet.setPagesize(pagesize);
-            dsRet.setTotalRows(total);
-            dsRet.setTotalPages((total + pagesize - 1) / pagesize);
-            results.put("data", dsRet);
+			results.put("data", new DsResultResponse(pageno,pagesize,total,data));
         }
         return R.ok(results);
 	}
@@ -186,15 +171,21 @@ public class BomApiController {
 			@ApiParam(value = "子物料数组例："+
 					"[\r\n" + 
 					"    {\r\n" + 
-					"        \"materielId\":16,\r\n" + 
+					"        \"materielId\":16,\r\n" +
+					"        \"isKeyComponents\":1,\r\n" +
 					"        \"standardCount\":10,\r\n" + 
-					"        \"wasteRate\":10,\r\n" + 
+					"        \"wasteRate\":10,\r\n" +
+					"        \"processId\":1,\r\n" +
+					"        \"stationId\":1,\r\n" +
 					"        \"remarks\":\"这里是备注\"\r\n" + 
 					"    },\r\n" + 
 					"    {\r\n" + 
-					"        \"materielId\":17,\r\n" + 
+					"        \"materielId\":17,\r\n" +
+					"        \"isKeyComponents\":1,\r\n" +
 					"        \"standardCount\":1000,\r\n" + 
-					"        \"wasteRate\":20,\r\n" + 
+					"        \"wasteRate\":20,\r\n" +
+					"        \"processId\":1,\r\n" +
+					"        \"stationId\":1,\r\n" +
 					"        \"remarks\":\"这里是备注\"\r\n" + 
 					"    }\r\n" + 
 					"]"
@@ -229,17 +220,23 @@ public class BomApiController {
 			@ApiParam(value = "子物料数组例："+
 					"[\r\n" + 
 					"    {\r\n" + 
-					"        \"id\":1,\r\n" + 
+					"        \"id\":1,\r\n" +
+					"        \"isKeyComponents\":1,\r\n" +
 					"        \"materielId\":16,\r\n" + 
 					"        \"standardCount\":10,\r\n" + 
-					"        \"wasteRate\":10,\r\n" + 
+					"        \"wasteRate\":10,\r\n" +
+					"        \"processId\":1,\r\n" +
+					"        \"stationId\":1,\r\n" +
 					"        \"remarks\":\"这里是备注\"\r\n" + 
 					"    },\r\n" + 
 					"    {\r\n" + 
-					"        \"id\":2,\r\n" + 
+					"        \"id\":2,\r\n" +
+					"        \"isKeyComponents\":1,\r\n" +
 					"        \"materielId\":17,\r\n" + 
 					"        \"standardCount\":10,\r\n" + 
-					"        \"wasteRate\":10,\r\n" + 
+					"        \"wasteRate\":10,\r\n" +
+					"        \"processId\":1,\r\n" +
+					"        \"stationId\":1,\r\n" +
 					"        \"remarks\":\"这里是备注\"\r\n" + 
 					"    }\r\n" + 
 					"]"

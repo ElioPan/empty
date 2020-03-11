@@ -56,10 +56,18 @@
 		location.id AS 	childDefaultLocationId,
 		facility.name AS childDefaultFacilityName,
 		location.name AS childDefaultLocationName,
+		bomdetail.`is_key_components` AS isKeyComponents,
+		IF(bomdetail.`is_key_components`=0,'否','是') AS isKeyComponentsName,
+		process.`id` AS processId,
+		process.`name` AS processName,
+		station.`id` AS stationId,
+		station.`name` AS stationName,
 		bomdetail.`remarks` AS childRemarks
 		FROM mes_bom_detail bomdetail
 		LEFT JOIN cus_materiel material ON material.`id`=bomdetail.`materiel_id`
 		LEFT JOIN cus_dictionary unituom ON unituom.id = material.`unit_uom`
+		LEFT JOIN mes_process process ON process.id = bomdetail.process_id
+		LEFT JOIN mes_station station ON station.id = bomdetail.station_id
 		<!-- LEFT JOIN mes_bom bom ON bom.`id`=bomdetail.`bom_id` -->
 		<!-- LEFT JOIN cus_materiel bommaterial ON bommaterial.`id`=bom.`materiel_id`
 		LEFT JOIN cus_dictionary dict ON dict.`id` = bom.`type` -->
@@ -146,6 +154,7 @@
 			`station_name`,
 			`station_id`,
 			`remarks`,
+			is_key_components,
 			`create_by`,
 			`create_time`,
 			`update_by`,
@@ -161,7 +170,8 @@
 			#{processId},
 			#{stationName},
 			#{stationId},
-			#{remarks}, 
+			#{remarks},
+			#{isKeyComponents},
 			#{createBy}, 
 			#{createTime}, 
 			#{updateBy}, 
@@ -181,6 +191,7 @@
 			<if test="stationName != null">`station_name` = #{stationName}, </if>
 			<if test="stationId != null">`station_id` = #{stationId}, </if>
 			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="isKeyComponents != null">`is_key_components` = #{isKeyComponents}, </if>
 			<if test="createBy != null">`create_by` = #{createBy}, </if>
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
@@ -206,7 +217,7 @@
 	</delete>
 	
 	<sql id="sql_column_list">
-		`id`,`bom_id`,`materiel_id`,`standard_count`,`waste_rate`,`process_id`,`station_name`,`station_id`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+		`id`,`bom_id`,`materiel_id`,`standard_count`,`waste_rate`,`process_id`,`station_name`,`station_id`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`is_key_components`
 	</sql>
 	
 	<sql id="sql_condition">
@@ -220,6 +231,7 @@
 			<if test="stationName != null and stationName != ''"> AND station_name = #{stationName} </if>
 			<if test="stationId != null and stationId != ''"> AND station_id = #{stationId} </if>
 			<if test="remarks != null and remarks != ''"> AND remarks = #{remarks} </if>
+			<if test="isKeyComponents != null and isKeyComponents != ''"> AND is_key_components = #{isKeyComponents} </if>
 			<if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
 			<if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
 			<if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>

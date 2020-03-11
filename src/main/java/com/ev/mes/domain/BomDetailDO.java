@@ -45,6 +45,9 @@ public class BomDetailDO implements Serializable {
 	//工位ID
     @ApiModelProperty(value = "工位ID")
 	private Long stationId;
+	//是否关键件
+	@ApiModelProperty(value = "是否关键件")
+	private Integer isKeyComponents;
 	//备注
     @ApiModelProperty(value = "备注")
 	private String remarks;

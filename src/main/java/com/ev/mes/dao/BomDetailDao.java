@@ -35,9 +35,5 @@ public interface BomDetailDao {
 
 	int countForMap(Map<String, Object> map);
 
-	/**
-	 * @param id
-	 * @return
-	 */
 	int removeByHeadId(Long id);
 }
