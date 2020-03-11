@@ -82,4 +82,9 @@ public class PurchaseInvoiceItemServiceImpl implements PurchaseInvoiceItemServic
 		return purchaseInvoiceItemDao.getInCountOfInvoiceItem(map);
 	}
 
+	@Override
+	public BigDecimal getInCounteExcludeId(Map<String, Object> map) {
+		return purchaseInvoiceItemDao.getInCounteExcludeId(map);
+	}
+
 }

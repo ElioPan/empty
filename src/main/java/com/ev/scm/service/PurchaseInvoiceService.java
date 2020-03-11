@@ -45,6 +45,6 @@ public interface PurchaseInvoiceService {
 
 	String checkSourceCounts(String bodyDetail);
 
-
+	R checkSourceCount(String bodyDetail,Long id );
 
 }

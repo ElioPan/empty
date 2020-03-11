@@ -42,6 +42,8 @@ public interface PurchaseInvoiceItemDao {
 
 	BigDecimal getInCountOfInvoiceItem(Map<String, Object> map);
 
+	BigDecimal getInCounteExcludeId(Map<String, Object> map);
+
 
 
 }
