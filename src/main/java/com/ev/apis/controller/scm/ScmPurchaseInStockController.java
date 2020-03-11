@@ -79,11 +79,11 @@ public class ScmPurchaseInStockController {
                               "]", required = true) @RequestParam(value = "bodyDetail", defaultValue = "") String bodyDetail,
                       @ApiParam(value = "删除的明细id") @RequestParam(value = "itemIds", required = false) Long[] itemIds) {
 
-         String resutlt = stockInService.checkSourceCounts(bodyDetail, ConstantForGYL.PURCHASE_INSTOCK);
-         if(Objects.equals("ok",resutlt)){
+         R resutlt = stockInService.checkSourceCountsPurchase(bodyDetail, stockInDO.getId());
+         if(Objects.isNull(resutlt)){
              return stockInService.addAndChangeInStockType(stockInDO,ConstantForGYL.PURCHASE_INSTOCK,bodyDetail,itemIds);
          }else{
-             return R.error(resutlt);
+             return resutlt;
          }
     }
 

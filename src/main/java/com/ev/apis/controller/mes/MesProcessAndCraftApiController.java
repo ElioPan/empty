@@ -116,7 +116,7 @@ public class MesProcessAndCraftApiController {
         params.put("name", name);
         params.put("offset", (pageno - 1) * pagesize);
         params.put("limit", pagesize);
-        params.put("useStatus", useStatus);
+//        params.put("useStatus", useStatus);
         params.put("auditSign", auditSign);
 
         List<Map<String, Object>> list = processService.listForMap(params);

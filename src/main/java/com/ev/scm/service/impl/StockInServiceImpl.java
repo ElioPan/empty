@@ -677,15 +677,40 @@ public class StockInServiceImpl implements StockInService {
 	 * @return
 	 */
 	@Override
-	public String checkSourceCounts(String stockInitemDos, Long storageType) {
+	public R checkSourceCountsPurchase(String stockInitemDos, Long id) {
 		List<StockInItemDO> itemDos ;
 		if (StringUtils.isNotEmpty(stockInitemDos)) {
 			itemDos = JSON.parseArray(stockInitemDos, StockInItemDO.class);
 		} else {
-			return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
+			return  R.error(messageSourceHandler.getMessage("common.massge.dateIsNon", null));
+		}
+		//合并数量及sourseId
+		Map<Long,BigDecimal>  sourseIdCounts= new HashMap<>();
+		for (StockInItemDO itemDo : itemDos) {
+			Long sourseId=itemDo.getSourceId();
+			if(sourseId==null){
+				continue;
+			}
+			if(sourseIdCounts.containsKey(sourseId)){
+				sourseIdCounts.put(sourseId,sourseIdCounts.get(sourseId).add(itemDo.getCount()));
+				continue;
+			}
+			sourseIdCounts.put(sourseId,itemDo.getCount());
+		}
+
+		List<StockInItemDO> stockInItemDos=new ArrayList<>();
+		for(Long sourseId:sourseIdCounts.keySet()){
+
+			for(StockInItemDO itemDo : itemDos){
+				if(Objects.equals(itemDo.getSourceId(),sourseId)){
+					itemDo.setCount(sourseIdCounts.get(sourseId));
+					stockInItemDos.add(itemDo);
+					break;
+				}
+			}
 		}
 		//验证采购合同
-		for (StockInItemDO itemDo : itemDos) {
+		for (StockInItemDO itemDo : stockInItemDos) {
 
 			if (Objects.nonNull(itemDo.getSourceId())) {
 
@@ -701,29 +726,31 @@ public class StockInServiceImpl implements StockInService {
 							Map<String, Object> map = new HashMap<>();
 							map.put("sourceId", sourceId);
 							map.put("sourceType", sourceType);
-							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
-							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
-							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+							if(id!=null){map.put("id",id);}
+							BigDecimal inCountOfContract = stockInItemService.countOfIntroducedContract(map);
 
 							int boo = (contractItemDO.getCount().subtract(inCountOfContract)).compareTo(thisCount);
 							if (Objects.equals(-1, boo)) {
 								String[] args = {thisCount.toPlainString(), contractItemDO.getCount().subtract(inCountOfContract).toPlainString(), itemDo.getSourceCode().toString()};
-								return messageSourceHandler.getMessage("stock.number.checkError", args);
+								Map<String,Object>  maps= new HashMap<>();
+								maps.put("sourceId",sourceId);
+								maps.put("sourceCount",contractItemDO.getCount().subtract(inCountOfContract));
+								return R.error(500,messageSourceHandler.getMessage("stock.number.checkError", args),maps);
 							}
 
 						} else {
-							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+							return  R.error(messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null));
 						}
 					}else{
 						//引入的源单类型非采购合同
-						return messageSourceHandler.getMessage("scm.checkCount.EroorOfSourceType", null);
+						return  R.error(messageSourceHandler.getMessage("scm.checkCount.EroorOfSourceType", null));
 					}
 				} else {
-					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
+					return  R.error(messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null));
 				}
 			}
 		}
-		return "ok";
+		return null;
 	}
 
 
@@ -782,16 +809,41 @@ public class StockInServiceImpl implements StockInService {
 
 
 	@Override
-	public String  checkSourceCountsOfOutSourcing(String bodyDetail) {
-		//委外合同
+	public R  checkSourceCountsOfOutSourcing(String bodyDetail,Long id) {
+
 		List<StockInItemDO> itemDos = new ArrayList<>();
 		if (StringUtils.isNotEmpty(bodyDetail)) {
 			itemDos = JSON.parseArray(bodyDetail, StockInItemDO.class);
 		} else {
-			return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
+			return  R.error(messageSourceHandler.getMessage("common.massge.dateIsNon", null));
 		}
-		//验证
+		//合并数量及sourseId
+		Map<Long,BigDecimal>  sourseIdCounts= new HashMap<>();
 		for (StockInItemDO itemDo : itemDos) {
+			Long sourseId=itemDo.getSourceId();
+			if(sourseId==null){
+				continue;
+			}
+			if(sourseIdCounts.containsKey(sourseId)){
+				sourseIdCounts.put(sourseId,sourseIdCounts.get(sourseId).add(itemDo.getCount()));
+				continue;
+			}
+			sourseIdCounts.put(sourseId,itemDo.getCount());
+		}
+
+		List<StockInItemDO> stockInItemDos=new ArrayList<>();
+		for(Long sourseId:sourseIdCounts.keySet()){
+
+			for(StockInItemDO itemDo : itemDos){
+				if(Objects.equals(itemDo.getSourceId(),sourseId)){
+					itemDo.setCount(sourseIdCounts.get(sourseId));
+					stockInItemDos.add(itemDo);
+					break;
+				}
+			}
+		}
+		//验证委外合同
+		for (StockInItemDO itemDo : stockInItemDos) {
 
 			if (Objects.nonNull(itemDo.getSourceId())) {
 
@@ -807,45 +859,71 @@ public class StockInServiceImpl implements StockInService {
 							Map<String, Object> map = new HashMap<>();
 							map.put("sourceId", sourceId);
 							map.put("sourceType", sourceType);
-							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
-
+							if(id!=null){map.put("id",id);}
 							//已引入的入库数量
-							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
-							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+							BigDecimal inCountOfContract = stockInItemService.countOfIntroducedContract(map);
 							//合同数量
 							BigDecimal outsourgCount=outsourgContractItemDO.getCount()==null?BigDecimal.ZERO : outsourgContractItemDO.getCount();
 							int boo = (outsourgCount.subtract(inCountOfContract)).compareTo(thisCount);
 							if (Objects.equals(-1, boo)) {
 								String[] args = {thisCount.toPlainString(),(outsourgCount.subtract(inCountOfContract)).toPlainString(), itemDo.getSourceCode().toString()};
-								return messageSourceHandler.getMessage("stock.number.checkError", args);
+								Map<String,Object>  maps= new HashMap<>();
+								maps.put("sourceId",sourceId);
+								maps.put("sourceCount",outsourgCount.subtract(inCountOfContract));
+								return R.error(500,messageSourceHandler.getMessage("stock.number.checkError", args),maps);
+
 							}
 						} else {
-							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+							return R.error(messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null));
 						}
 					}else{
-						//引入的源单类型非生产计划单
-						return messageSourceHandler.getMessage("scm.checkCount.EroorSourceTypeOfOutCourcing", null);
+
+						return R.error(messageSourceHandler.getMessage("scm.checkCount.EroorSourceTypeOfOutCourcing", null));
 					}
 				} else {
-					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
+					return R.error(messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null));
 				}
 			}
 		}
-		return "ok";
+		return null;
 	}
 
 	@Override
-	public String checkSourceCountsOfReturnMateriel(String bodyDetail) {
+	public R checkSourceCountsOfReturnMateriel(String bodyDetail,Long id) {
 
 		//领用出库++委外出库
-		List<StockInItemDO> itemDos = new ArrayList<>();
+		List<StockInItemDO> itemDos;
 		if (StringUtils.isNotEmpty(bodyDetail)) {
 			itemDos = JSON.parseArray(bodyDetail, StockInItemDO.class);
 		} else {
-			return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
+			return  R.error(messageSourceHandler.getMessage("common.massge.dateIsNon", null));
+		}
+		//合并数量及sourseId
+		Map<Long,BigDecimal>  sourseIdCounts= new HashMap<>();
+		for (StockInItemDO itemDo : itemDos) {
+			Long sourseId=itemDo.getSourceId();
+			if(sourseId==null){
+				continue;
+			}
+			if(sourseIdCounts.containsKey(sourseId)){
+				sourseIdCounts.put(sourseId,sourseIdCounts.get(sourseId).add(itemDo.getCount()));
+				continue;
+			}
+			sourseIdCounts.put(sourseId,itemDo.getCount());
+		}
+		List<StockInItemDO> stockInItemDos=new ArrayList<>();
+		for(Long sourseId:sourseIdCounts.keySet()){
+
+			for(StockInItemDO itemDo : itemDos){
+				if(Objects.equals(itemDo.getSourceId(),sourseId)){
+					itemDo.setCount(sourseIdCounts.get(sourseId));
+					stockInItemDos.add(itemDo);
+					break;
+				}
+			}
 		}
 		//验证委外入库单
-		for (StockInItemDO itemDo : itemDos) {
+		for (StockInItemDO itemDo : stockInItemDos) {
 
 			if (Objects.nonNull(itemDo.getSourceId())) {
 
@@ -861,20 +939,22 @@ public class StockInServiceImpl implements StockInService {
 							Map<String, Object> map = new HashMap<>();
 							map.put("sourceId", sourceId);
 							map.put("sourceType", sourceType);
-							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
-
+							if(id!=null){map.put("id",id);}
 							//已引入的入库数量
-							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
-							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+							BigDecimal inCountOfContract = stockInItemService.countOfIntroducedContract(map);
+
 							//领用出库数量
 							BigDecimal outsourgCount=stockOutItemDO.getCount()==null?BigDecimal.ZERO : stockOutItemDO.getCount();
 							int boo = (outsourgCount.subtract(inCountOfContract)).compareTo(thisCount);
 							if (Objects.equals(-1, boo)) {
 								String[] args = {thisCount.toPlainString(),(outsourgCount.subtract(inCountOfContract)).toPlainString(), itemDo.getSourceCode().toString()};
-								return messageSourceHandler.getMessage("stock.number.checkError", args);
+								Map<String,Object>  maps= new HashMap<>();
+								maps.put("sourceId",sourceId);
+								maps.put("sourceCount",outsourgCount.subtract(inCountOfContract));
+								return R.error(500,messageSourceHandler.getMessage("stock.number.checkError", args),maps);
 							}
 						} else {
-							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+							return R.error(messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null));
 						}
 					}else if(Objects.equals(sourceType, ConstantForGYL.WWCK)){
 						//委外出库
@@ -883,31 +963,31 @@ public class StockInServiceImpl implements StockInService {
 							Map<String, Object> map = new HashMap<>();
 							map.put("sourceId", sourceId);
 							map.put("sourceType", sourceType);
-							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
-
+							if(id!=null){map.put("id",id);}
 							//已引入的入库数量
-							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
-							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+							BigDecimal inCountOfContract = stockInItemService.countOfIntroducedContract(map);
 							//委外出库数量
 							BigDecimal outsourgCount=stockOutItemDO.getCount()==null?BigDecimal.ZERO : stockOutItemDO.getCount();
 							int boo = (outsourgCount.subtract(inCountOfContract)).compareTo(thisCount);
 							if (Objects.equals(-1, boo)) {
 								String[] args = {thisCount.toPlainString(),(outsourgCount.subtract(inCountOfContract)).toPlainString(), itemDo.getSourceCode().toString()};
-								return messageSourceHandler.getMessage("stock.number.checkError", args);
+								Map<String,Object>  maps= new HashMap<>();
+								maps.put("sourceId",sourceId);
+								maps.put("sourceCount",outsourgCount.subtract(inCountOfContract));
+								return R.error(500,messageSourceHandler.getMessage("stock.number.checkError", args),maps);
 							}
 						} else {
-							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+							return R.error(messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null));
 						}
-
 					}else{
-						return messageSourceHandler.getMessage("scm.checkCount.EroorSourceTypeOfIntroduce", null);
+						return R.error(messageSourceHandler.getMessage("scm.checkCount.EroorSourceTypeOfIntroduce", null));
 					}
 				} else {
-					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
+					return R.error(messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null));
 				}
 			}
 		}
-		return "ok";
+		return null;
 	}
 
 
