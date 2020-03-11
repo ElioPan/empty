@@ -13,6 +13,7 @@ import com.ev.framework.utils.StringUtils;
 import com.ev.scm.dao.InventoryPlanDao;
 import com.ev.scm.dao.InventoryPlanFitlossDao;
 import com.ev.scm.domain.InventoryPlanDO;
+import com.ev.scm.domain.InventoryPlanFitlossDO;
 import com.ev.scm.domain.InventoryPlanItemDO;
 import com.ev.scm.service.InventoryPlanFitlossService;
 import com.ev.scm.service.InventoryPlanItemService;
@@ -20,6 +21,7 @@ import com.ev.scm.service.InventoryPlanService;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import net.sf.json.JSONObject;
+import org.apache.commons.collections4.Put;
 import org.apache.ibatis.jdbc.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -381,12 +383,14 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 			Map<String, Object> params = new HashMap<>();
 			params.put("headId", planId);
 			params.put("profitLoss", 1);
-
-			int rows = inventoryPlanItemService.countOfWinLoss(params);//是否有盘盈（rows>0 是）
-			List<Map<String, Object>> profitLossMsg = inventoryPlanItemService.getProfitLossMsg(params);//查找出盈数据
+			//是否有盘盈（rows>0 是）
+			int rows = inventoryPlanItemService.countOfWinLoss(params);
+			//查找出盈数据
+			List<Map<String, Object>> profitLossMsg = inventoryPlanItemService.getProfitLossMsg(params);
 
 			params.put("documentType", ConstantForGYL.PYDJ);
-			int otherInLines = inventoryPlanFitlossService.countOfOtherByPY(params);//是否已经生成其他入库 headId+documentType
+			//是否已经生成其他入库 headId+documentType
+			int otherInLines = inventoryPlanFitlossService.countOfOtherByPY(params);
 			int linesPL = inventoryPlanFitlossService.count(params);   //是否已经生成盘赢单（lines>0 是）
 
 			if (rows > 0 && otherInLines == 0 && linesPL == 0) {
@@ -394,15 +398,19 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 
 				//将盘盈数据保存至盈亏表中,保存后并验证更改方案的状态为25
 				inventoryPlanFitlossService.saveProfitORLoss(profitLossMsg, ConstantForGYL.PYDJ);
-
+				Map<String,Object>  maps= new HashMap<>();
+				maps.put("headId",planId);
+				List<InventoryPlanFitlossDO> inventoryPlanFitlossDOS = inventoryPlanFitlossService.list(maps);
 				//返回生成其他入库的数据。
 				params.remove("documentType");
 				List<Map<String, Object>> profitLossMsgNow = inventoryPlanItemService.getProfitLossMsg(params);
+
 				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PYDJ.intValue());
 				if(dictionaryDO!=null){
 					for(Map<String, Object> map:profitLossMsg){
 						map.put("documentTypeId",ConstantForGYL.PYDJ);
 						map.put("documentTypeName",dictionaryDO.getName());
+						map.put("code",inventoryPlanFitlossDOS.get(0).getCode());
 					}
 				}
 
@@ -420,10 +428,14 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 			} else if (rows > 0 && otherInLines == 0 && linesPL > 0) {
 
 				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PYDJ.intValue());
+				Map<String,Object>  maps= new HashMap<>();
+				maps.put("headId",planId);
+				List<InventoryPlanFitlossDO> inventoryPlanFitlossDOS = inventoryPlanFitlossService.list(maps);
 				if(dictionaryDO!=null){
 					for(Map<String, Object> map:profitLossMsg){
 						map.put("documentTypeId",ConstantForGYL.PYDJ);
 						map.put("documentTypeName",dictionaryDO.getName());
+						map.put("code",inventoryPlanFitlossDOS.get(0).getCode());
 					}
 				}
 				Map<String, Object> result = new HashMap<>();
@@ -449,8 +461,6 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 			Map<String, Object> params = new HashMap<>();
 			params.put("headId", planId);
 			params.put("profitLoss", -1);
-
-			//判断是否能够生成盘赢单：主表checkStatus为25时||profit_loss盈亏数量>0&&盘盈表有盘点方案主键的 不允许再次生成盘盈单
 			//是否有盘盈(可以/需要生成盘盈单) （rows>0 是）
 			int rows = inventoryPlanItemService.countOfWinLoss(params);
 			//找出盘亏数据
@@ -461,21 +471,22 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 			int otherInLines = inventoryPlanFitlossService.countOfOutByPK(params);
 			//是否已经生成盘盈单（lines>0 是）
 			int linesPL = inventoryPlanFitlossService.count(params);
-
 			if (rows > 0 && otherInLines == 0 && linesPL == 0) {
-
 				Map<String, Object> result = new HashMap<>();
 				//将盘盈数据保存至盈亏表中,保存后并验证更改方案的状态为25
 				Boolean aBoolean = inventoryPlanFitlossService.saveProfitORLoss(profitLossMsg, ConstantForGYL.PKDJ);
-
 				//允许返回生成其他入库的数据，但是盈亏单不更新
 				params.remove("documentType");
 				List<Map<String, Object>> profitLossMsgOer = inventoryPlanItemService.getProfitLossMsg(params);
+				Map<String,Object>  maps= new HashMap<>();
+				maps.put("headId",planId);
+				List<InventoryPlanFitlossDO> inventoryPlanFitlossDOS = inventoryPlanFitlossService.list(maps);
 				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PKDJ.intValue());
 				if(dictionaryDO!=null){
 					for(Map<String, Object> map:profitLossMsg){
 						map.put("documentTypeId",ConstantForGYL.PKDJ);
 						map.put("documentTypeName",dictionaryDO.getName());
+						map.put("code",inventoryPlanFitlossDOS.get(0).getCode());
 					}
 				}
 				result.put("BodyData", profitLossMsgOer);
@@ -493,10 +504,14 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 
 				Map<String, Object> result = new HashMap<>();
 				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PKDJ.intValue());
+				Map<String,Object>  maps= new HashMap<>();
+				maps.put("headId",planId);
+				List<InventoryPlanFitlossDO> inventoryPlanFitlossDOS = inventoryPlanFitlossService.list(maps);
 				if(dictionaryDO!=null){
 					for(Map<String, Object> map:profitLossMsg){
 						map.put("documentTypeId",ConstantForGYL.PKDJ);
 						map.put("documentTypeName",dictionaryDO.getName());
+						map.put("code",inventoryPlanFitlossDOS.get(0).getCode());
 					}
 				}
 				result.put("BodyData", profitLossMsg);
@@ -507,7 +522,6 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 		} else {
 			return R.ok(messageSourceHandler.getMessage("apis.check.buildWinStockD", null));
 		}
-
 	}
 
 	@Override
