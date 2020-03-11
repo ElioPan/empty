@@ -37,5 +37,7 @@ public interface PurchasecontractItemService {
 
 	BigDecimal getInCountOfPurchaseContract(Map<String, Object> map);
 
+	BigDecimal getInCounteExcludeContractId(Map<String, Object> map);
+
 
 }

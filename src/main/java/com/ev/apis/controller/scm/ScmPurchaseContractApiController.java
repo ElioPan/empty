@@ -98,11 +98,11 @@ public class ScmPurchaseContractApiController {
                          @ApiParam(value = "删除的合同明细ID") @RequestParam(value = "itemIds", required = false) Long[] itemIds,
                          @ApiParam(value = "删除的合同付款条件ID") @RequestParam(value = "payIds", required = false) Long[] payIds){
 
-        String result = purchasecontractService.checkSourceCounts(bodyItem);
-        if(Objects.equals("ok",result)){
+        R result =purchasecontractService.checkSourceCount(bodyItem, purchasecontractDO.getId());
+        if(Objects.isNull(result)){
             return purchasecontractService.addOrChangePurchasecontract(purchasecontractDO, bodyItem, bodyPay,itemIds,payIds);
         }else{
-            return R.error(result);
+            return result;
         }
     }
 

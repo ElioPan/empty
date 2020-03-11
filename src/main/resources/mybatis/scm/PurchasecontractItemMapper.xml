@@ -229,18 +229,18 @@
 		</where>
 	</select>
 
-	<!--<select id="getInCountOfPurchaseContract" resultType="java.math.BigDecimal">-->
-		<!--SELECT-->
-		<!--IF(sum(a.count)is null,0,sum(a.count)) as countractCount-->
-		<!--from-->
-		<!--scm_purchasecontract_item a-->
-		<!--LEFT JOIN scm_purchasecontract b on a.purchase_contract_id=b.id-->
-		<!--<where>-->
-			<!--<if test="purchaseItemId != null and purchaseItemId != ''"> and a.source_id=#{purchaseItemId}</if>-->
-			<!--<if test="sourceId != null and sourceId != ''"> and a.source_id = #{sourceId} </if>-->
-			<!--<if test="sourceType != null and sourceType != ''"> and a.source_type = #{sourceType} </if>-->
-		<!--</where>-->
-	<!--</select>-->
+	<select id="getInCounteExcludeContractId" resultType="java.math.BigDecimal">
+		SELECT
+		IF(sum(a.count)is null,0,sum(a.count)) as countractCount
+		from
+		scm_purchasecontract_item a
+		LEFT JOIN scm_purchasecontract b on a.purchase_contract_id=b.id
+		<where>
+			<if test="purchaseItemId != null and purchaseItemId != ''"> and b.id<![CDATA[<>]]>#{contractId}</if>
+			<if test="sourceId != null and sourceId != ''"> and a.source_id = #{sourceId} </if>
+			<if test="sourceType != null and sourceType != ''"> and a.source_type = #{sourceType} </if>
+		</where>
+	</select>
 
 
 
