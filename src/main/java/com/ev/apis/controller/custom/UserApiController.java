@@ -15,6 +15,7 @@ import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.activiti.engine.identity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -74,11 +75,19 @@ public class UserApiController extends BaseController {
     @ApiOperation("添加用户信息")
     public R save(UserDO user) throws IOException, ParseException {
         //校验用户名是否重复
-        Map<String,Object> params = new HashMap<String,Object>();
-        params.put("username",user.getUsername());
-        if(userService.exit(params)){
+        Map<String,Object> userNameParams = new HashMap<String,Object>();
+        userNameParams.put("username",user.getUsername());
+        if(userService.exit(userNameParams)){
             String[] args = {user.getUsername()};
             return R.error(messageSourceHandler.getMessage("basicInfo.user.isPresence",args));
+        }
+
+        //校验手机号码是否重复
+        Map<String,Object> mobileParams = new HashMap<String,Object>();
+        mobileParams.put("mobile",user.getMobile());
+        if(userService.exit(mobileParams)){
+            String[] args = {user.getMobile()};
+            return R.error(messageSourceHandler.getMessage("basicInfo.mobile.isPresence",args));
         }
 
         if (Constant.DEMO_ACCOUNT.equals(getUsername())) {
@@ -103,6 +112,25 @@ public class UserApiController extends BaseController {
     @EvApiByToken(value = "/apis/user/update",method = RequestMethod.POST,apiTitle = "编辑用户信息")
     @ApiOperation("编辑用户信息")
     R update(UserDO user) throws IOException, ParseException {
+        UserDO userDO = userService.get(user.getUserId());
+        //校验用户名是否重复
+        if(!userDO.getUsername().equals(user.getUsername())){
+            Map<String,Object> userNameParams = new HashMap<String,Object>();
+            userNameParams.put("username",user.getUsername());
+            if(userService.exit(userNameParams)){
+                String[] args = {user.getUsername()};
+                return R.error(messageSourceHandler.getMessage("basicInfo.user.isPresence",args));
+            }
+        }
+        //校验手机号码是否重复
+        if(!userDO.getMobile().equals(user.getMobile())){
+            Map<String,Object> mobileParams = new HashMap<String,Object>();
+            mobileParams.put("mobile",user.getMobile());
+            if(userService.exit(mobileParams)){
+                String[] args = {user.getMobile()};
+                return R.error(messageSourceHandler.getMessage("basicInfo.mobile.isPresence",args));
+            }
+        }
         if (Constant.DEMO_ACCOUNT.equals(getUsername())) {
              return R.error(messageSourceHandler.getMessage("basicInfo.showProject.update",null));
         }
@@ -168,12 +196,11 @@ public class UserApiController extends BaseController {
     @EvApiByToken(value = "/apis/user/isEnabled",method = RequestMethod.POST,apiTitle = "添加用户信息")
     @ApiOperation("是否启用(1)/禁用(0)")
     public R isEnabled(@ApiParam(value = "用户ID",required = true) @RequestParam(value = "userId",defaultValue = "")  Long id,
-            		@ApiParam(value = "是否启用(1)/禁用(0)",required = true) @RequestParam(value = "isEnabled",defaultValue = "") Integer status) {
+            		@ApiParam(value = "是否启用(1)/禁用(0)",required = true) @RequestParam(value = "isEnabled",defaultValue = "") Integer status) throws IOException, ParseException {
         if (Constant.DEMO_ACCOUNT.equals(getUsername())) {
              return R.error(messageSourceHandler.getMessage("basicInfo.showProject.update",null));
         }
-        UserDO user = new UserDO();
-        user.setUserId(id);
+        UserDO user = userService.get(id);
         if (!(status==0||status==1)) {
             return R.error(messageSourceHandler.getMessage("basicInfo.correct.param",null));
 		}

@@ -70,7 +70,7 @@ public interface UserService {
 
 	boolean checkAdmin(UserDO user);
 
-    int edit(UserDO user);
+    int edit(UserDO user) throws IOException, ParseException;
 
 	String selectByIdSet(List<Long> ids);
 }

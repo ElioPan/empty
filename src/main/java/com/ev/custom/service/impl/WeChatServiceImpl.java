@@ -54,6 +54,8 @@ public class WeChatServiceImpl implements WeChatService {
 
     public static final String CREATE_USER_URI = "https://qyapi.weixin.qq.com/cgi-bin/user/create?access_token=ACCESS_TOKEN";
 
+    public static final String INVITE_USER_URI = "https://qyapi.weixin.qq.com/cgi-bin/batch/invite?access_token=ACCESS_TOKEN";
+
     public static final String GET_USER_URI = "https://qyapi.weixin.qq.com/cgi-bin/user/get?access_token=ACCESS_TOKEN&userid=USERID";
 
     public static final String UPDATE_USER_URI = "https://qyapi.weixin.qq.com/cgi-bin/user/update?access_token=ACCESS_TOKEN";
@@ -184,6 +186,7 @@ public class WeChatServiceImpl implements WeChatService {
         WxUserEntity wxUserEntity = new WxUserEntity();
         wxUserEntity.setUserid(userDO.getUsername());
         wxUserEntity.setName(userDO.getName());
+        wxUserEntity.setEnable(userDO.getStatus());
         List<Long> deptId = new ArrayList<Long>();
         deptId.add(userDO.getDeptId());
         wxUserEntity.setDepartment(deptId);
@@ -197,6 +200,39 @@ public class WeChatServiceImpl implements WeChatService {
         }
         return JSONObject.fromObject(json);
 
+    }
+
+    /**
+     * 保存成员
+     *
+     * @param userDO
+     */
+    @Override
+    public JSONObject saveUser(UserDO userDO) throws IOException, ParseException {
+        try{
+            getUser(userDO.getUsername());
+            return updateUser(userDO);
+        }catch (WorkWxException ex){
+            return createUser(userDO);
+        }
+    }
+
+    /**
+     * 邀请成员加入
+     * @param userIds
+     * @return
+     */
+    @Override
+    public JSONObject inviteUser(List<String> userIds) throws IOException, ParseException {
+        String accessToken = getMobileAccessToken(new Date());
+        String url = INVITE_USER_URI.replace("ACCESS_TOKEN", accessToken);
+        JSONObject params = new JSONObject();
+        params.put("user",userIds);
+        String json = HttpClientUtils.sendJsonStr(url, JSON.toJSONString(params));
+        if(!OK_CODE.equals(JSONObject.fromObject(json).get(KEY_ERROR_CODE).toString())){
+            throw new WorkWxException(json);
+        }
+        return JSONObject.fromObject(json);
     }
 
     @Override
@@ -216,6 +252,7 @@ public class WeChatServiceImpl implements WeChatService {
         WxUserEntity wxUserEntity = new WxUserEntity();
         wxUserEntity.setUserid(userDO.getUsername());
         wxUserEntity.setName(userDO.getName());
+        wxUserEntity.setEnable(userDO.getStatus());
         List<Long> deptId = new ArrayList<Long>();
         deptId.add(userDO.getDeptId());
         wxUserEntity.setDepartment(deptId);

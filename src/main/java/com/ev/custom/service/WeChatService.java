@@ -36,6 +36,17 @@ public interface WeChatService {
      *创建成员
      */
     public JSONObject createUser(UserDO userDO) throws IOException, ParseException;
+    /**
+     *创建成员
+     */
+    public JSONObject saveUser(UserDO userDO) throws IOException, ParseException;
+
+    /**
+     * 邀请成员加入
+     * @param userIds
+     * @return
+     */
+    public JSONObject inviteUser(List<String> userIds) throws IOException, ParseException;
 
     /**
      *读取成员
