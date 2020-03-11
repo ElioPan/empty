@@ -616,22 +616,26 @@
 		a.audit_sign as  auditSign,
 		i.name as auditSignName,
 		a.in_time	as   inTime,
-		a.create_time as createTime
+		a.create_time as createTime,
+		j.id as stockInItemId,
+		j.count
 		from
 		scm_stock_in  a
 		LEFT JOIN  cus_dictionary b  ON a.storage_type=b.id
 		LEFT JOIN  cus_supplier c    ON a.source_company=c.id
 		LEFT JOIN  cus_dictionary i  ON a.audit_sign=i.id
+		LEFT JOIN  scm_stock_in_item j  ON a.id=j.inhead_id
 		)aa
 		<where>
 			<if test="sourceCompany != null and sourceCompany != ''"> and sourceCompany = #{sourceCompany} </if>
 			<if test="sourceCompanyName != null and sourceCompanyName != ''"> AND sourceCompanyName like  CONCAT('%',#{sourceCompanyName},'%')  </if>
 			<if test="createTime != null and createTime != ''"> and createTime = #{createTime} </if>
 			<if test="auditSign != null and auditSign != ''"> and auditSign = #{auditSign} </if>
-			 <if test="createStartTime != null and createStartTime!= ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
+			<if test="createStartTime != null and createStartTime!= ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
 			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
 			<if test="supplierId != null and supplierId != ''"> and sourceCompany = #{supplierId} </if>
 			<if test="supplierName != null and supplierName != ''"> AND sourceCompanyName like  CONCAT('%',#{supplierName},'%')  </if>
+			<if test="storageType != null and storageType != ''"> and storageType = #{storageType} </if>
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -678,6 +682,7 @@
 			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
 			<if test="supplierId != null and supplierId != ''"> and sourceCompany = #{supplierId} </if>
 			<if test="supplierName != null and supplierName != ''"> AND sourceCompanyName like  CONCAT('%',#{supplierName},'%')  </if>
+			<if test="storageType != null and storageType != ''"> and storageType = #{storageType} </if>
 		</where>
 	</select>
 

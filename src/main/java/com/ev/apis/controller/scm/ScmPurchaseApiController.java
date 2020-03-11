@@ -8,6 +8,7 @@ import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.MathUtils;
+import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
 import com.ev.scm.domain.PurchaseDO;
 import com.ev.scm.service.PurchaseService;
@@ -220,15 +221,13 @@ public class ScmPurchaseApiController {
                             @ApiParam(value = "开始日期(申请时间)") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
                             @ApiParam(value = "截止日期(申请时间)") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
                             @ApiParam(value = "供应商") @RequestParam(value = "supplierId", defaultValue = "", required = false) Long supplierId,
-                            @ApiParam(value = "供应商名字模糊") @RequestParam(value = "supplierId", defaultValue = "", required = false) String supplierName,
+                            @ApiParam(value = "供应商名字模糊") @RequestParam(value = "supplierName", defaultValue = "", required = false) String supplierName,
                             @ApiParam(value = "制单起始日期") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String  createStartTime,
                             @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime
 //                            @ApiParam(value = "采购合同主键id") @RequestParam(value = "purchaseContractId",required = false) Long purchaseContractId
     ) {
 
         Map<String, Object> params = Maps.newHashMap();
-        params.put("offset", (pageno - 1) * pagesize);
-        params.put("limit", pagesize);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
         params.put("supplierId", supplierId);
@@ -242,10 +241,10 @@ public class ScmPurchaseApiController {
 
         DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PURCHASE.intValue());
         String thisSourceTypeName = dictionaryDO.getName();
-        for (Map<String, Object> datum : list) {
-            datum.put("thisSourceType", ConstantForGYL.PURCHASE);
-            datum.put("thisSourceTypeName", thisSourceTypeName);
-        }
+//        for (Map<String, Object> datum : list) {
+//            datum.put("thisSourceType", ConstantForGYL.PURCHASE);
+//            datum.put("thisSourceTypeName", thisSourceTypeName);
+//        }
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(2);
 
         if (!list.isEmpty()) {
@@ -265,20 +264,23 @@ public class ScmPurchaseApiController {
                 }else{
                     mapDo.put("quoteCount",count);
                 }
+                mapDo.put("thisSourceType", ConstantForGYL.PURCHASE);
+                mapDo.put("thisSourceTypeName", thisSourceTypeName);
             }
             List<Map<String, Object>> quoteList = list
                     .stream()
                     .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO)>0)
                     .collect(Collectors.toList());
 
+            List<Map<String, Object>> quoteLists = PageUtils.startPage(quoteList, pageno, pagesize);
             Map<String,Object> dsRet= new HashMap<>();
             dsRet.put("pageno",pageno);
             dsRet.put("pagesize",pagesize);
-            dsRet.put("totalRows",countForMaps.get("count"));
-            dsRet.put("totalPages",(Integer.parseInt(countForMaps.get("count").toString()) + pagesize - 1) / pagesize);
+            dsRet.put("totalRows",quoteLists.size());
+            dsRet.put("totalPages",(quoteLists.size() + pagesize - 1) / pagesize);
             dsRet.put("totalCount",countForMaps.get("totalCount"));
             dsRet.put("totalAmount",countForMaps.get("totalAmount"));
-            dsRet.put("datas",quoteList);
+            dsRet.put("datas",quoteLists);
             results.put("data", dsRet);
         }
         return R.ok(results);

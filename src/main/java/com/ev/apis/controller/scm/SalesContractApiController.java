@@ -296,11 +296,11 @@ public class SalesContractApiController {
                         break;
                     case 2:
                         // 销售出库引用
-                         bySource = stockOutItemService.getCountBySource(map);
+                         bySource = stockOutItemService.getCountBySource(sourceParam);
                         break;
                     case 3:
                         // 采购申请引用
-                        bySource = purchaseItemService.getInCountOfPurchase(map);
+                        bySource = purchaseItemService.getInCountOfPurchase(sourceParam);
                         break;
                     default:
                         break;

@@ -78,6 +78,17 @@
 		</set>
 		WHERE ${pk.columnName} = #{${pk.attrname}}
 	</update>
+
+	<update id="updateAll" parameterType="${package}.domain.${className}DO">
+		UPDATE ${tableName} SET
+#foreach($column in $columns)
+#if($column.columnName != $pk.columnName)			`$column.columnName` = #{$column.attrname}#if($velocityCount != $columns.size()), #end
+
+#end
+#end
+		WHERE ${pk.columnName} = #{${pk.attrname}}
+	</update>
+
 	
 	<delete id="remove">
 		DELETE FROM ${tableName} WHERE ${pk.columnName} = #{value}

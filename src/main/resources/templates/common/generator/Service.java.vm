@@ -23,6 +23,8 @@ public interface ${className}Service {
 	int save(${className}DO ${classname});
 	
 	int update(${className}DO ${classname});
+
+	int updateAll(${className}DO ${classname});
 	
 	int remove(${pk.attrType} ${pk.attrname});
 	

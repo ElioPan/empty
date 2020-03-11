@@ -241,7 +241,7 @@ public class ProductionFeedingApiController {
 							bySource = stockOutItemService.getCountBySource(sourceParam);
 							break;
 						case 1:
-							bySource = purchaseItemService.getInCountOfPurchase(map);
+							bySource = purchaseItemService.getInCountOfPurchase(sourceParam);
 							break;
 						default:
 							break;

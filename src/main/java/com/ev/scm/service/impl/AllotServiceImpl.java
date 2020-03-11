@@ -321,8 +321,9 @@ public class AllotServiceImpl implements AllotService {
             stockOutService.reverseAudit(id, storageType);
             // 修改调拨单据状态
             allot.setAuditSign(ConstantForGYL.WAIT_AUDIT);
-            allot.setAuditor(0L);
-            count = this.update(allot);
+            allot.setAuditor(null);
+            allot.setAuditTime(null);
+            count = this.updateAll(allot);
             if (count > 0) {
                 return R.ok();
             }
@@ -516,6 +517,11 @@ public class AllotServiceImpl implements AllotService {
     @Override
     public int countForMap(Map<String, Object> map) {
         return allotDao.countForMap(map);
+    }
+
+    @Override
+    public int updateAll(AllotDO allot){
+        return allotDao.updateAll(allot);
     }
 
 }

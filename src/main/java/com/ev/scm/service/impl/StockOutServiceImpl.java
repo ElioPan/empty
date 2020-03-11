@@ -75,6 +75,11 @@ public class StockOutServiceImpl implements StockOutService {
     }
 
     @Override
+    public int updateAll(StockOutDO stockOut){
+        return stockOutDao.updateAll(stockOut);
+    }
+
+    @Override
     public int remove(Long id, Long outType) {
         this.stockOutItemService.removeByStockOutId(id);
         this.removeStockDetail(id, outType);
@@ -347,9 +352,10 @@ public class StockOutServiceImpl implements StockOutService {
         if (auditSignId.equals(ConstantForGYL.OK_AUDITED)) {
             stockOutDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
             // 设置审核人
-            stockOutDO.setAuditor(0L);
+            stockOutDO.setAuditor(null);
+            stockOutDO.setAuditTime(null);
             // 修改出库单据状态
-            count = update(stockOutDO);
+            count = this.updateAll(stockOutDO);
             // 操作库存数据
             this.reverseAudit(id, outType);
         }
@@ -378,7 +384,7 @@ public class StockOutServiceImpl implements StockOutService {
     }
 
     @Override
-    public R checkSourceNumber(String item) {
+    public R checkSourceNumber(String item,Long id) {
         return null;
     }
 

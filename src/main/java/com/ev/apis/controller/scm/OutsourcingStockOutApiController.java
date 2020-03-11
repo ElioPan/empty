@@ -8,8 +8,7 @@ import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
-import com.ev.framework.utils.R;
-import com.ev.framework.utils.StringUtils;
+import com.ev.framework.utils.*;
 import com.ev.mes.domain.ProductionFeedingDO;
 import com.ev.mes.domain.ProductionFeedingDetailDO;
 import com.ev.mes.service.ProductionFeedingDetailService;
@@ -17,6 +16,7 @@ import com.ev.mes.service.ProductionFeedingService;
 import com.ev.scm.domain.StockOutDO;
 import com.ev.scm.service.OutsourcingStockOutService;
 import com.ev.scm.service.StockInItemService;
+import com.ev.scm.service.StockService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -51,6 +52,9 @@ public class OutsourcingStockOutApiController {
 
     @Autowired
     private StockInItemService stockInItemService;
+
+    @Autowired
+    private StockService stockService;
 
     @Autowired
     private ProductionFeedingDetailService feedingDetailService;
@@ -95,7 +99,7 @@ public class OutsourcingStockOutApiController {
                          "    }\n" +
                          "]"
                     , required = true)@RequestParam(value = "item",defaultValue = "") String item) {
-        R r = outsourcingStockOutService.checkSourceNumber(item);
+        R r = outsourcingStockOutService.checkSourceNumber(item,stockOutDO.getId());
         DictionaryDO storageType = dictionaryService.get(ConstantForGYL.WWCK.intValue());
         return r==null?outsourcingStockOutService.add(stockOutDO, item, storageType):r;
 	}
@@ -161,7 +165,7 @@ public class OutsourcingStockOutApiController {
                     , required = true) @RequestParam(value = "item", defaultValue = "") String item,
                   @ApiParam(value = "明细数组") @RequestParam(value = "itemIds", defaultValue = "", required = false) Long[] itemIds
     ) {
-        R r = outsourcingStockOutService.checkSourceNumber(item);
+        R r = outsourcingStockOutService.checkSourceNumber(item,stockOutDO.getId());
 		return r==null?outsourcingStockOutService.edit(stockOutDO, item, ConstantForGYL.WWCK , itemIds):r;
 	}
 	
@@ -257,6 +261,87 @@ public class OutsourcingStockOutApiController {
         if ( data.size() > 0) {
             results.put("data", new DsResultResponse(pageno,pagesize,total,data));
             results.put("total",map);
+        }
+        return R.ok(results);
+    }
+
+    @EvApiByToken(value = "/apis/outsourcingStockOut/dialog", method = RequestMethod.POST, apiTitle = "获取委外出库单dialog列表")
+    @ApiOperation("获取委外出库单dialog列表")
+    public R dialogList(
+            @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+            @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+            @ApiParam(value = "单据编号") @RequestParam(value = "outCode", defaultValue = "", required = false) String outCode,
+            @ApiParam(value = "客户名称") @RequestParam(value = "clientName", defaultValue = "", required = false) String clientName,
+            @ApiParam(value = "客户Id") @RequestParam(value = "clientId", defaultValue = "", required = false) Long clientId,
+            @ApiParam(value = "物料名称") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
+            @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
+            // 高级查询
+            @ApiParam(value = "发料部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
+            @ApiParam(value = "规格型号") @RequestParam(value = "specification", defaultValue = "", required = false) String specification,
+            @ApiParam(value = "批次") @RequestParam(value = "batch", defaultValue = "", required = false) String batch,
+            @ApiParam(value = "出库员") @RequestParam(value = "operatorName", defaultValue = "", required = false) String operatorName,
+            @ApiParam(value = "出库员Id") @RequestParam(value = "operator", defaultValue = "", required = false) Long operator,
+            @ApiParam(value = "制单人") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
+            @ApiParam(value = "制单人Id") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
+            @ApiParam(value = "制单日期") @RequestParam(value = "createTime", defaultValue = "", required = false) String createTime
+
+    ) {
+        Map<String, Object> results = Maps.newHashMap();
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("offset", (pageno - 1) * pagesize);
+        params.put("limit", pagesize);
+
+        params.put("outCode", outCode);
+        params.put("clientId", clientId);
+        params.put("clientName", StringUtils.sqlLike(clientName));
+        params.put("materielName", StringUtils.sqlLike(materielName));
+        params.put("startTime", DateFormatUtil.getFormateDate(stockService.getPeriodTime()));
+        params.put("endTime", endTime);
+        /*高级查询*/
+        params.put("deptId", deptId);
+        params.put("specification", StringUtils.sqlLike(specification));
+        params.put("batch", batch);
+        params.put("operatorName", StringUtils.sqlLike(operatorName));
+        params.put("createByName", StringUtils.sqlLike(createByName));
+        params.put("operator", operator);
+        params.put("createBy", createBy);
+        params.put("createTime", createTime);
+
+        params.put("auditSign", ConstantForGYL.OK_AUDITED);
+        params.put("outboundType", ConstantForGYL.WWCK);
+
+        List<Map<String, Object>> data = this.outsourcingStockOutService.listApi(params);
+        if (data.size() > 0) {
+            Map<String, Object> sourceParam;
+            BigDecimal bySource;
+            for (Map<String, Object> datum : data) {
+                sourceParam = Maps.newHashMap();
+                sourceParam.put("sourceId", datum.get("id"));
+                sourceParam.put("sourceType", ConstantForGYL.WWCK);
+                bySource = stockInItemService.getInCountOfContract(sourceParam);
+
+                BigDecimal countByOutSource = bySource == null ? BigDecimal.ZERO : bySource;
+                BigDecimal count = MathUtils.getBigDecimal(datum.get("count")).subtract(countByOutSource);
+                if (count.compareTo(BigDecimal.ZERO) <= 0) {
+                    datum.put("quoteCount", 0);
+                } else {
+                    datum.put("quoteCount", count);
+                }
+            }
+            List<Map<String, Object>> quoteLists = data
+                    .stream()
+                    .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO) > 0)
+                    .collect(Collectors.toList());
+            if (quoteLists.size() > 0) {
+                DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.WWCK.intValue());
+                String thisSourceTypeName = dictionaryDO.getName();
+                List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
+                for (Map<String, Object> stringObjectMap : quoteList) {
+                    stringObjectMap.put("thisSourceType", ConstantForGYL.WWCK);
+                    stringObjectMap.put("thisSourceTypeName", thisSourceTypeName);
+                }
+                results.put("data", new DsResultResponse(pageno, pagesize, quoteLists.size(), quoteList));
+            }
         }
         return R.ok(results);
     }

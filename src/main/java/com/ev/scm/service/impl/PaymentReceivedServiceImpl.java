@@ -6,17 +6,11 @@ import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
+import com.ev.framework.utils.StringUtils;
 import com.ev.scm.dao.PaymentReceivedDao;
-import com.ev.scm.domain.PaymentReceivedDO;
-import com.ev.scm.domain.PaymentReceivedItemDO;
-import com.ev.scm.domain.PurchasecontractPayDO;
-import com.ev.scm.domain.SalescontractPayDO;
-import com.ev.scm.service.PaymentReceivedItemService;
-import com.ev.scm.service.PaymentReceivedService;
-import com.ev.scm.service.PurchasecontractPayService;
-import com.ev.scm.service.SalescontractPayService;
+import com.ev.scm.domain.*;
+import com.ev.scm.service.*;
 import com.google.common.collect.Maps;
-import org.apache.poi.ss.formula.ptg.MemAreaPtg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,10 +33,14 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 	@Autowired
     private SalescontractPayService salescontractPayService;
 
+
+
 	@Override
 	public Map<String, Object> detailOfPurchaseContrat(Long[] ids) {
 		return paymentReceivedDao.detailOfPurchaseContrat(ids);
 	}
+
+
 
 	@Override
 	public Map<String, Object> detailOfSaleContrat(Long[] ids) {
@@ -458,6 +456,88 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 		return map;
 	}
 
+
+	@Override
+	public String checkSourseCount(String paymentBodys){
+
+		List<PaymentReceivedItemDO> bodys = JSON.parseArray(paymentBodys, PaymentReceivedItemDO.class);
+		for (PaymentReceivedItemDO bPdata : bodys) {
+
+		}
+		//领用出库++委外出库
+		List<PaymentReceivedItemDO> itemDos = new ArrayList<>();
+		if (StringUtils.isNotEmpty(paymentBodys)) {
+			itemDos =JSON.parseArray(paymentBodys, PaymentReceivedItemDO.class);
+		} else {
+			return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
+		}
+		//
+		for (PaymentReceivedItemDO itemDo : itemDos) {
+
+			if (Objects.nonNull(itemDo.getSourceId())) {
+
+				Long sourceId = itemDo.getSourceId();
+				//本次收款、付款金额
+				BigDecimal thisAmount = itemDo.getThisAmount();
+				Long sourceType = itemDo.getSourceType();
+
+				if (Objects.nonNull(sourceType)) {
+					if(Objects.equals(sourceType, ConstantForGYL.CGHT)){
+						//获取采购合同付款条件明细数量
+						PurchasecontractPayDO purchasecontractPayDO = purchasecontractPayService.get(sourceId);
+						if (purchasecontractPayDO != null) {
+							Map<String, Object> map = new HashMap<>();
+							map.put("sourceId", sourceId);
+							map.put("sourceType", sourceType);
+							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
+
+							//已付款的引入总和
+							BigDecimal toailThisAmounts = paymentReceivedItemService.getInCountOfPayment(map);
+
+							BigDecimal thisAmounts = (toailThisAmounts == null) ? BigDecimal.ZERO : toailThisAmounts;
+							//采购合同应付总金额
+							BigDecimal payAmount=purchasecontractPayDO.getPayAmount()==null?BigDecimal.ZERO : purchasecontractPayDO.getPayAmount();
+							int boo = (payAmount.subtract(thisAmounts)).compareTo(thisAmount);
+							if (Objects.equals(-1, boo)) {
+								String[] args = {thisAmount.toPlainString(),(payAmount.subtract(thisAmounts)).toPlainString(), itemDo.getSourceCode().toString()};
+								return messageSourceHandler.getMessage("stock.payRecived.checkErrorPurchase", args);
+							}
+						} else {
+							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+						}
+					}else if(Objects.equals(sourceType, ConstantForGYL.XSHT)){
+						//销售合同
+						SalescontractPayDO salescontractPayDo = salescontractPayService.get(sourceId);
+						if (salescontractPayDo != null) {
+							Map<String, Object> map = new HashMap<>();
+							map.put("sourceId", sourceId);
+							map.put("sourceType", sourceType);
+							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
+
+							//已引入的收款金额
+							BigDecimal toailThisAmounts = paymentReceivedItemService.getInCountOfPayment(map);
+							BigDecimal thisAmounts = (toailThisAmounts == null) ? BigDecimal.ZERO : toailThisAmounts;
+							//销售合同应收总金额
+							BigDecimal receivableAmount=salescontractPayDo.getReceivableAmount()==null?BigDecimal.ZERO : salescontractPayDo.getReceivableAmount();
+							int boo = (receivableAmount.subtract(thisAmounts)).compareTo(thisAmount);
+							if (Objects.equals(-1, boo)) {
+								String[] args = {thisAmount.toPlainString(),(receivableAmount.subtract(thisAmounts)).toPlainString(), itemDo.getSourceCode().toString()};
+								return messageSourceHandler.getMessage("stock.payRecived.checkErrorSales", args);
+							}
+						} else {
+							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+						}
+
+					}else{
+						return messageSourceHandler.getMessage("scm.payRecived.EroorSourceTypeOfIntroduce", null);
+					}
+				} else {
+					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
+				}
+			}
+		}
+		return "ok";
+	}
 
 
 

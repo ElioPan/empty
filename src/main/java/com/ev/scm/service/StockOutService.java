@@ -39,6 +39,8 @@ public interface StockOutService {
 
     int update(StockOutDO stockOutDO);
 
+    int updateAll(StockOutDO stockOut);
+
     R add(StockOutDO stockOutDO, String item, DictionaryDO storageType);
 
     R addByQrcodeId(StockOutDO stockOutDO, List<StockOutItemDO> itemDOS, DictionaryDO storageType);
@@ -90,6 +92,6 @@ public interface StockOutService {
     /**
      * 验证源单数量
      */
-    R checkSourceNumber(String item);
+    R checkSourceNumber(String item,Long id);
 
 }

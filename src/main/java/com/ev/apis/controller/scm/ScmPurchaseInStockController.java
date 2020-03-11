@@ -8,12 +8,14 @@ import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.MathUtils;
+import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.domain.StockInDO;
 import com.ev.scm.service.PurchaseInvoiceItemService;
 import com.ev.scm.service.StockInItemService;
 import com.ev.scm.service.StockInService;
+import com.ev.scm.service.StockOutItemService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -52,6 +54,8 @@ public class ScmPurchaseInStockController {
     private PurchaseInvoiceItemService purchaseInvoiceItemService;
     @Autowired
     private DictionaryService dictionaryService;
+    @Autowired
+    private StockOutItemService stockOutItemService;
 
     @EvApiByToken(value = "/apis/scm/purchaseInStock/saveAndChange", method = RequestMethod.POST, apiTitle = "新增/修改—采购入库")
     @ApiOperation("新增/修改—采购入库")
@@ -245,8 +249,6 @@ public class ScmPurchaseInStockController {
                                  @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime) {
         Map<String, Object> resulst = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
-        params.put("offset", (pageno - 1) * pagesize);
-        params.put("limit", pagesize);
         params.put("supplierName", supplierName);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
@@ -255,7 +257,6 @@ public class ScmPurchaseInStockController {
         params.put("createEndTime", createEndTime);
         params.put("supplierId", supplierId);
         params.put("storageType", ConstantForGYL.PURCHASE_INSTOCK);
-
 
         Map<String, Object> totalForMap = stockInService.countForMap(params);
         List<Map<String, Object>> detailList = stockInService.listForMap(params);
@@ -276,8 +277,8 @@ public class ScmPurchaseInStockController {
 
                 Map<String,Object>mapDo= detailList.get(i);
                 maps.put("sourceId",mapDo.get("stockInItemId"));
-                //采购费用
-                BigDecimal inCountOfContract= purchaseInvoiceItemService.getInCountOfInvoiceItem(maps);
+                //采购退货
+                BigDecimal inCountOfContract= stockOutItemService.getCountBySource(maps);
                 BigDecimal countByOutSource = inCountOfContract == null ? BigDecimal.ZERO : inCountOfContract;
 
                 BigDecimal count = MathUtils.getBigDecimal(mapDo.get("count")).subtract(countByOutSource);
@@ -295,14 +296,15 @@ public class ScmPurchaseInStockController {
                     .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO)>0)
                     .collect(Collectors.toList());
 
+            List<Map<String, Object>> quoteLists= PageUtils.startPage(quoteList, pageno, pagesize);
             Map<String, Object> dsRet = new HashMap<>();
             dsRet.put("pageno",pageno);
             dsRet.put("pagesize",pagesize);
-            dsRet.put("totalPages",(Integer.parseInt(totalForMap.get("count").toString()) + pagesize - 1) / pagesize);
-            dsRet.put("totalRows",Integer.parseInt(totalForMap.get("count").toString()));
+            dsRet.put("totalPages",(quoteLists.size() + pagesize - 1) / pagesize);
+            dsRet.put("totalRows",quoteLists.size());
             dsRet.put("toatalCount",totalForMap.get("toatalCount"));
             dsRet.put("toatalAmount",totalForMap.get("toatalAmount"));
-            dsRet.put("datas",quoteList);
+            dsRet.put("datas",quoteLists);
             resulst.put("data", dsRet);
         }
         return R.ok(resulst);

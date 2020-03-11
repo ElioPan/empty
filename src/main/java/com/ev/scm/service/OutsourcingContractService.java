@@ -29,6 +29,8 @@ public interface OutsourcingContractService {
 	int save(OutsourcingContractDO outsourcingContract);
 	
 	int update(OutsourcingContractDO outsourcingContract);
+
+    int updateAll(OutsourcingContractDO outsourcingContract);
 	
 	int remove(Long id);
 	
@@ -62,5 +64,5 @@ public interface OutsourcingContractService {
 
     BigDecimal getCountBySource(Map<String, Object> map);
 
-    R checkSourceNumber(String bodyItem);
+    R checkSourceNumber(String bodyItem,Long id);
 }

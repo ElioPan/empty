@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.MaintenanceRepositoryDao">
+
+	<select id="get" resultType="com.ev.custom.domain.MaintenanceRepositoryDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM cus_maintenance_repository cmr
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.MaintenanceRepositoryDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM cus_maintenance_repository
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+			<otherwise>
+                ORDER BY id DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+        SELECT COUNT(*) FROM cus_maintenance_repository cmr
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`fault_code`,`fault_type`,`device_type`,`device_id`,`solution`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> AND cmr.id = #{id} </if>
+                            <if test="faultCode != null and faultCode != ''"> AND cmr.fault_code = #{faultCode} </if>
+						<if test="faultCodeSearch != null and faultCodeSearch != ''"> AND cmr.fault_code LIKE #{faultCodeSearch} </if>
+                            <if test="faultType != null and faultType != ''"> AND cmr.fault_type = #{faultType} </if>
+                            <if test="deviceType != null and deviceType != ''"> AND cmr.device_type = #{deviceType} </if>
+                            <if test="deviceId != null and deviceId != ''"> AND cmr.device_id = #{deviceId} </if>
+                            <if test="solution != null and solution != ''"> AND cmr.solution = #{solution} </if>
+                            <if test="createBy != null and createBy != ''"> AND cmr.create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> AND cmr.create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> AND cmr.update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> AND cmr.update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> AND cmr.del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.MaintenanceRepositoryDO" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO cus_maintenance_repository
+		(
+			`fault_code`, 
+			`fault_type`, 
+			`device_type`, 
+			`device_id`, 
+			`solution`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		VALUES
+		(
+			#{faultCode}, 
+			#{faultType}, 
+			#{deviceType}, 
+			#{deviceId}, 
+			#{solution}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.MaintenanceRepositoryDO">
+		UPDATE cus_maintenance_repository
+		<set>
+			<if test="faultCode != null">`fault_code` = #{faultCode}, </if>
+			<if test="faultType != null">`fault_type` = #{faultType}, </if>
+			<if test="deviceType != null">`device_type` = #{deviceType}, </if>
+			<if test="deviceId != null">`device_id` = #{deviceId}, </if>
+			<if test="solution != null">`solution` = #{solution}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="remove">
+		DELETE FROM cus_maintenance_repository WHERE id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+        DELETE FROM cus_maintenance_repository WHERE id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!--自定义-->
+	<select id="checkDuplicate" resultType="int" parameterType="com.ev.custom.domain.MaintenanceRepositoryDO">
+		SELECT
+		COUNT(*)
+		FROM cus_maintenance_repository
+		<where>
+			<if test="id != null and id != ''"> AND id <![CDATA[<>]]> #{id} </if>
+			<if test="faultCode != null and faultCode != ''"> AND fault_code = #{faultCode} </if>
+		</where>
+	</select>
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		cmr.id AS id,
+		cmr.fault_code AS faultCode,
+		cmr.fault_type AS faultType,
+		ft.`name` AS faultTypeName,
+		cmr.device_type AS deviceType,
+		d.`name` AS deviceTypeName,
+		cmr.device_id AS deviceId,
+		cd.`name` AS deviceName,
+		cmr.solution AS solution,
+		cmr.create_time AS createTime,
+		cmr.create_by AS createBy,
+		u.`name` AS createByName
+		FROM
+		cus_maintenance_repository cmr
+		LEFT JOIN cus_device cd on cmr.device_id = cd.id
+		LEFT JOIN cus_dictionary d on cmr.device_type = d.id
+		LEFT JOIN cus_dictionary ft on cmr.fault_type = cd.id
+		LEFT JOIN sys_user u on u.user_id = cmr.create_by
+		<include refid="sql_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY ${sort} ${order}
+			</when>
+			<otherwise>
+				ORDER BY cmr.id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+</mapper>

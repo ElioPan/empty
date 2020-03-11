@@ -41,6 +41,11 @@ public class ${className}ServiceImpl implements ${className}Service {
 	public int update(${className}DO ${classname}){
 		return ${classname}Dao.update(${classname});
 	}
+
+	@Override
+	public int updateAll(${className}DO ${classname}){
+		return ${classname}Dao.updateAll(${classname});
+	}
 	
 	@Override
 	public int remove(${pk.attrType} ${pk.attrname}){

@@ -8,13 +8,11 @@ import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
-import com.ev.framework.utils.MathUtils;
-import com.ev.framework.utils.PageUtils;
-import com.ev.framework.utils.R;
-import com.ev.framework.utils.StringUtils;
+import com.ev.framework.utils.*;
 import com.ev.scm.domain.StockOutDO;
 import com.ev.scm.service.SaleStockOutService;
 import com.ev.scm.service.StockInItemService;
+import com.ev.scm.service.StockService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -49,6 +47,9 @@ public class SaleStockOutApiController {
 
     @Autowired
     private StockInItemService stockInItemService;
+
+    @Autowired
+    private StockService stockService;
 
 	@Autowired
 	private DictionaryService dictionaryService;
@@ -87,7 +88,7 @@ public class SaleStockOutApiController {
                          "    }\n" +
                          "]"
                     , required = true)@RequestParam(value = "item",defaultValue = "") String item) {
-        R r = saleStockOutService.checkSourceNumber(item);
+        R r = saleStockOutService.checkSourceNumber(item,stockOutDO.getId());
         DictionaryDO storageType = dictionaryService.get(ConstantForGYL.XSCK.intValue());
         return r==null?saleStockOutService.add(stockOutDO, item, storageType):r;
 	}
@@ -157,7 +158,7 @@ public class SaleStockOutApiController {
                     "]"
                     , required = true) @RequestParam(value = "item", defaultValue = "") String item,
                   @ApiParam(value = "明细数组") @RequestParam(value = "itemIds", defaultValue = "", required = false) Long[] itemIds) {
-        R r = saleStockOutService.checkSourceNumber(item);
+        R r = saleStockOutService.checkSourceNumber(item,stockOutDO.getId());
 		return r==null?saleStockOutService.edit(stockOutDO, item, ConstantForGYL.XSCK , itemIds):r;
 	}
 	
@@ -225,7 +226,6 @@ public class SaleStockOutApiController {
             @ApiParam(value = "客户名称") @RequestParam(value = "clientName", defaultValue = "", required = false) String clientName,
             @ApiParam(value = "客户Id") @RequestParam(value = "clientId", defaultValue = "", required = false) Long clientId,
             @ApiParam(value = "物料名称") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
-            @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
             // 高级查询
             @ApiParam(value = "销售方式(0现销/1赊销)") @RequestParam(value = "salesType", defaultValue = "", required = false) Integer salesType,
@@ -243,8 +243,9 @@ public class SaleStockOutApiController {
         params.put("clientName", StringUtils.sqlLike(clientName));
         params.put("clientId", clientId);
         params.put("materielName", StringUtils.sqlLike(materielName));
-        params.put("startTime", startTime);
+        params.put("startTime", DateFormatUtil.getFormateDate(stockService.getPeriodTime()));
         params.put("endTime", endTime);
+
         // 高级查询
         params.put("salesType", salesType);
         params.put("specification", StringUtils.sqlLike(specification));
@@ -254,6 +255,8 @@ public class SaleStockOutApiController {
         // 销售出库导入关联单据
         params.put("createStartTime", createStartTime);
         params.put("createEndTime", createEndTime);
+
+
         // 出库类型
         params.put("auditSign", ConstantForGYL.OK_AUDITED);
         params.put("outboundType", ConstantForGYL.XSCK);

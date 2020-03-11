@@ -191,6 +191,7 @@
 		    a.remarks AS remarks,
 			a.source_code as sourceCode,
 			a.source_type as sourceType,
+			a.source_id as sourceId,
 			d.name as sourceTypeName
 		FROM
 			scm_purchasecontract_item a

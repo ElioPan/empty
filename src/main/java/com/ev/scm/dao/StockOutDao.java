@@ -25,6 +25,8 @@ public interface StockOutDao {
 
     int update(StockOutDO stockOutDO);
 
+    int updateAll(StockOutDO stockOut);
+
     int remove(Long id);
 
     int batchRemove(Long[] ids);

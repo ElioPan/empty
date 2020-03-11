@@ -119,6 +119,26 @@
 		</set>
 		where id = #{id}
 	</update>
+
+    <update id="updateAll" parameterType="com.ev.scm.domain.SalesbillDO">
+		UPDATE scm_salesbill SET
+			`client_id` = #{clientId},
+			`invoice_date` = #{invoiceDate},
+			`drawer` = #{drawer},
+			`bill_code` = #{billCode},
+			`invoice_type` = #{invoiceType},
+			`invoice_num` = #{invoiceNum},
+			`audit_sign` = #{auditSign},
+			`remarks` = #{remarks},
+			`auditor` = #{auditor},
+			`audit_time` = #{auditTime},
+			`create_by` = #{createBy},
+			`create_time` = #{createTime},
+			`update_by` = #{updateBy},
+			`update_time` = #{updateTime},
+			`del_flag` = #{delFlag}
+		WHERE id = #{id}
+	</update>
 	
 	<delete id="remove">
 		delete from scm_salesbill where id = #{value}

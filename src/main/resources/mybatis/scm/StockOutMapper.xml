@@ -133,6 +133,30 @@
 		where id = #{id}
 	</update>
 
+    <update id="updateAll" parameterType="com.ev.scm.domain.StockOutDO">
+		UPDATE scm_stock_out SET
+			`out_code` = #{outCode},
+			`outbound_type` = #{outboundType},
+			`client_id` = #{clientId},
+			`supplier_id` = #{supplierId},
+			`sales_user` = #{salesUser},
+			`dept_id` = #{deptId},
+			`sales_type` = #{salesType},
+			`out_time` = #{outTime},
+			`operator` = #{operator},
+			`auditor` = #{auditor},
+			`audit_sign` = #{auditSign},
+			`audit_time` = #{auditTime},
+			`remarks` = #{remarks},
+			`create_by` = #{createBy},
+			`create_time` = #{createTime},
+			`update_by` = #{updateBy},
+			`update_time` = #{updateTime},
+			`del_flag` = #{delFlag}
+		WHERE id = #{id}
+	</update>
+
+
     <delete id="remove">
 		delete from scm_stock_out where id = #{value}
 	</delete>

@@ -25,6 +25,8 @@ public interface SalesbillService {
 	int save(SalesbillDO salesbill);
 	
 	int update(SalesbillDO salesbill);
+
+	int updateAll(SalesbillDO salesbill);
 	
 	int remove(Long id);
 	
@@ -48,5 +50,5 @@ public interface SalesbillService {
 
     Map<String, Object> countTotal(Map<String, Object> map);
 
-	R checkSourceNumber(String bodyItem);
+	R checkSourceNumber(String bodyItem,Long id);
 }

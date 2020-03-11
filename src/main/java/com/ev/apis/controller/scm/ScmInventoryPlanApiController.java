@@ -221,7 +221,7 @@ public class ScmInventoryPlanApiController {
     @ResponseBody
     @EvApiByToken(value = "/apis/scm/exportExcel/systemCountGetOut", method = RequestMethod.GET, apiTitle = "导出系统库存")
     @ApiOperation("导出系统库存")
-    public void exportExcel(
+            public void exportExcel(
             @ApiParam(value = "仓库id(选择所有仓库id为空)",required = true) @RequestParam(value = "warehouse") Long warehouse,
             @ApiParam(value = "商品名称/编码：String") @RequestParam(value = "syntheticData", defaultValue = "") String syntheticData,
             HttpServletRequest request, HttpServletResponse response, ModelMap modelMap) {

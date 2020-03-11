@@ -262,5 +262,18 @@
 	</select>
 
 
+	<select id="getInCountOfPayment" resultType="java.math.BigDecimal">
+		SELECT
+		sum(a.this_amount)
+		FROM
+		scm_payment_received_item a
+		<where>
+			<if test="id != null and id != ''"> and a.id<![CDATA[<>]]> #{id} </if>
+			<if test="sourceId != null and sourceId != ''"> and a.source_id =#{sourceId} </if>
+			<if test="sourceType != null and sourceType != ''"> and a.source_type = #{sourceType} </if>
+		</where>
+	</select>
+
+
 
 </mapper>
