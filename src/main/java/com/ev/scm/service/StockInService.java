@@ -102,8 +102,6 @@ public interface StockInService {
 
 	int countForHead(Map<String, Object> map);
 
-	String  checkSourceCountsOfSaleReturn(String bodyDetail);
-
-
+	R checkSourceCountsOfReturnSales(String bodyDetail,Long id);
 
 }

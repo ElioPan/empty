@@ -338,19 +338,19 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 			sourseIdCounts.put(sourseId,itemDo.getCount());
 		}
 
-		List<PurchaseInvoiceItemDO> contractItemDos=new ArrayList<>();
+		List<PurchaseInvoiceItemDO> invoiceItemDos=new ArrayList<>();
 		for(Long sourseId:sourseIdCounts.keySet()){
 
 			for(PurchaseInvoiceItemDO itemDo : itemDos){
 				if(Objects.equals(itemDo.getSourceId(),sourseId)){
 					itemDo.setCount(sourseIdCounts.get(sourseId));
-					contractItemDos.add(itemDo);
+                    invoiceItemDos.add(itemDo);
 					break;
 				}
 			}
 		}
 		//验证采购合同
-		for (PurchaseInvoiceItemDO itemDo : contractItemDos) {
+		for (PurchaseInvoiceItemDO itemDo : invoiceItemDos) {
 
 			if (Objects.nonNull(itemDo.getSourceId())) {
 
