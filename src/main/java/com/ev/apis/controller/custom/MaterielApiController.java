@@ -273,6 +273,10 @@ public class MaterielApiController {
     @EvApiByToken(value = "/apis/materiel/updateType", method = RequestMethod.POST)
     @ApiOperation("修改物料类别")
     public R updateType(MaterielTypeDO materielType) {
+        MaterielTypeDO materielTypeDO = materielTypeService.get(materielType.getId());
+        if(materielTypeDO.getIsSystem()==1){
+            return R.error(messageSourceHandler.getMessage("common.system.disable.operate", null));
+        }
         if (materielType.getName().equals(materielTypeService.get(materielType.getId()).getName())) {
             int update = materielTypeService.update(materielType);
             if (update > 0) {
@@ -322,6 +326,10 @@ public class MaterielApiController {
     @EvApiByToken(value = "/apis/materiel/removeType", method = RequestMethod.POST)
     @ApiOperation("删除物料类型")
     public R removeType(@ApiParam(value = "物料类型Id", required = true) @RequestParam(value = "id", defaultValue = "") Integer id) {
+        MaterielTypeDO materielTypeDO = materielTypeService.get(id);
+        if(materielTypeDO.getIsSystem()==1){
+            return R.error(messageSourceHandler.getMessage("common.system.disable.operate", null));
+        }
         Integer[] ids = {id};
         // 有关联物料信息则不能删除
         if (materielTypeService.checkDelete(ids) > 0) {
@@ -336,6 +344,12 @@ public class MaterielApiController {
     @EvApiByToken(value = "/apis/materiel/batchRemoveType", method = RequestMethod.POST)
     @ApiOperation("批量删除物料类型")
     public R batchRemoveType(@ApiParam(value = "物料类型Id数组", required = true) @RequestParam(value = "id", defaultValue = "") Integer[] ids) {
+        for(Integer id : ids){
+            MaterielTypeDO materielTypeDO = materielTypeService.get(id);
+            if(materielTypeDO.getIsSystem()==1){
+                return R.error(messageSourceHandler.getMessage("common.system.disable.operate", null));
+            }
+        }
         // 有关联物料信息则不能删除
         if (materielTypeService.checkDelete(ids) > 0) {
             return R.error(messageSourceHandler.getMessage("common.approvedOrChild.delete.disabled", null));
