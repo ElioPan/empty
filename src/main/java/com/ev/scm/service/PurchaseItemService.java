@@ -37,6 +37,9 @@ public interface PurchaseItemService {
 
 	BigDecimal getInCountOfPurchase(Map<String, Object> map);
 
+	BigDecimal getInCountOfExclude(Map<String, Object> map);
+
+
 
 
 }

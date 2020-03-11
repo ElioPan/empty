@@ -127,7 +127,6 @@ public class MesProcessAndCraftApiController {
                 Map<String, Object> map = new HashMap<>();
                 map.put("foreignId", listOfOne.get("id"));
                 map.put("type", ConstantForMES.PROCESS_GXPZ);
-
                 List<Map<String, Object>> detailOfProcess = processCheckService.getDetailByProcessId(map);
                 listOfOne.put("proDetail", detailOfProcess);
             }
