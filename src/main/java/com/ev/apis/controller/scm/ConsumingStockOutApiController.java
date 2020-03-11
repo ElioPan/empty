@@ -253,7 +253,7 @@ public class ConsumingStockOutApiController {
             BigDecimal bySource;
             for (Map<String, Object> datum : data) {
                 sourceParam = Maps.newHashMap();
-                sourceParam.put("sourceId", datum.get("id"));
+                sourceParam.put("sourceId", datum.get("itemId"));
                 sourceParam.put("sourceType", ConstantForGYL.LYCK);
                 bySource = stockInItemService.getInCountOfContract(sourceParam);
 
