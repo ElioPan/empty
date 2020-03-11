@@ -25,6 +25,8 @@ public interface SalesbillDao {
 
 	int update(SalesbillDO salesbill);
 
+	int updateAll(SalesbillDO salesbill);
+
 	int remove(Long id);
 
 	int batchRemove(Long[] ids);

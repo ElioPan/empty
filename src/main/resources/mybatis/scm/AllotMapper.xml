@@ -109,6 +109,23 @@
 		where id = #{id}
 	</update>
 
+	<update id="updateAll" parameterType="com.ev.scm.domain.AllotDO">
+		UPDATE scm_allot SET
+			`allot_code` = #{allotCode},
+			`allot_time` = #{allotTime},
+			`allot_user` = #{allotUser},
+			`audit_sign` = #{auditSign},
+			`auditor` = #{auditor},
+			`audit_time` = #{auditTime},
+			`remark` = #{remark},
+			`create_by` = #{createBy},
+			`create_time` = #{createTime},
+			`update_by` = #{updateBy},
+			`update_time` = #{updateTime},
+			`del_flag` = #{delFlag}
+		WHERE id = #{id}
+	</update>
+
     <delete id="remove">
 		delete from scm_allot where id = #{value}
 	</delete>

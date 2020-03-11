@@ -27,6 +27,8 @@ public interface SalescontractDao {
 
 	int update(SalescontractDO salescontract);
 
+	int updateAll(SalescontractDO salescontract);
+
 	int remove(Long id);
 
 	int batchRemove(Long[] ids);

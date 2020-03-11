@@ -29,6 +29,8 @@ public interface SalescontractService {
 	int save(SalescontractDO salescontract);
 	
 	int update(SalescontractDO salescontract);
+
+	int updateAll(SalescontractDO salescontract);
 	
 	int remove(Long id);
 	

@@ -169,9 +169,10 @@ public class SalescontractServiceImpl implements SalescontractService {
 //        if (!Objects.equals(salescontractDO.getAuditor(), ShiroUtils.getUserId())) {
 //            return R.error(messageSourceHandler.getMessage("common.approved.user", null));
 //        }
-        salescontractDO.setAuditor(0L);
         salescontractDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
-        return this.update(salescontractDO) > 0 ? R.ok() : R.error();
+        salescontractDO.setAuditor(null);
+        salescontractDO.setAuditTime(null);
+        return this.updateAll(salescontractDO) > 0 ? R.ok() : R.error();
     }
 
     @Override
@@ -539,5 +540,10 @@ public class SalescontractServiceImpl implements SalescontractService {
             taskNo = list.get(0).getContractCode();
         }
         return DateFormatUtil.getWorkOrderno(maxNo, taskNo);
+    }
+
+    @Override
+    public int updateAll(SalescontractDO salescontract){
+        return salesContractDao.updateAll(salescontract);
     }
 }

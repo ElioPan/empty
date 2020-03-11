@@ -126,6 +126,28 @@
 		</set>
 		WHERE id = #{id}
 	</update>
+
+    <update id="updateAll" parameterType="com.ev.scm.domain.OutsourcingContractDO">
+		UPDATE scm_outsourcing_contract SET
+			`supplier_id` = #{supplierId},
+			`purchase_person` = #{purchasePerson},
+			`contract_code` = #{contractCode},
+			`contract_type` = #{contractType},
+			`contract_date` = #{contractDate},
+			`contract_expire_date` = #{contractExpireDate},
+			`audit_sign` = #{auditSign},
+			`invoiced_amount` = #{invoicedAmount},
+			`uninvoiced_amount` = #{uninvoicedAmount},
+			`auditor` = #{auditor},
+			`audit_time` = #{auditTime},
+			`create_by` = #{createBy},
+			`create_time` = #{createTime},
+			`update_by` = #{updateBy},
+			`update_time` = #{updateTime},
+			`del_flag` = #{delFlag},
+			`close_status` = #{closeStatus}
+		WHERE id = #{id}
+	</update>
 	
 	<delete id="remove">
 		DELETE FROM scm_outsourcing_contract WHERE id = #{value}

@@ -25,6 +25,8 @@ public interface AllotDao {
 
     int update(AllotDO allot);
 
+    int updateAll(AllotDO allot);
+
     int remove(Long id);
 
     int batchRemove(Long[] ids);

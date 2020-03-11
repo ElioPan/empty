@@ -25,6 +25,8 @@ public interface SalesbillService {
 	int save(SalesbillDO salesbill);
 	
 	int update(SalesbillDO salesbill);
+
+	int updateAll(SalesbillDO salesbill);
 	
 	int remove(Long id);
 	

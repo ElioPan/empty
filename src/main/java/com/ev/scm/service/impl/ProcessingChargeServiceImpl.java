@@ -65,6 +65,11 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 	public int update(ProcessingChargeDO processingCharge){
 		return processingChargeDao.update(processingCharge);
 	}
+
+	@Override
+	public int updateAll(ProcessingChargeDO processingCharge){
+		return processingChargeDao.updateAll(processingCharge);
+	}
 	
 	@Override
 	public int remove(Long id){
@@ -213,8 +218,9 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 
 
 		processingChargeDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
-		processingChargeDO.setAuditor(0L);
-		return this.update(processingChargeDO) > 0 ? R.ok() : R.error();
+		processingChargeDO.setAuditor(null);
+		processingChargeDO.setAuditTime(null);
+		return this.updateAll(processingChargeDO) > 0 ? R.ok() : R.error();
 	}
 
 	@Override

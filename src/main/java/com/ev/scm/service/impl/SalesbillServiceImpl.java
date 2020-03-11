@@ -131,8 +131,9 @@ public class SalesbillServiceImpl implements SalesbillService {
         }
 
         salesbillDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
-        salesbillDO.setAuditor(0L);
-        return this.update(salesbillDO) > 0 ? R.ok() : R.error();
+        salesbillDO.setAuditor(null);
+        salesbillDO.setAuditTime(null);
+        return this.updateAll(salesbillDO) > 0 ? R.ok() : R.error();
 	}
 
 	@Override
@@ -292,5 +293,10 @@ public class SalesbillServiceImpl implements SalesbillService {
             }
         }
         return null;
+    }
+
+    @Override
+    public int updateAll(SalesbillDO salesbill){
+        return salesbillDao.updateAll(salesbill);
     }
 }

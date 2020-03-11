@@ -24,6 +24,8 @@ public interface OutsourcingContractDao {
 	int save(OutsourcingContractDO outsourcingContract);
 	
 	int update(OutsourcingContractDO outsourcingContract);
+
+	int updateAll(OutsourcingContractDO outsourcingContract);
 	
 	int remove(Long id);
 	

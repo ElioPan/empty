@@ -14,9 +14,7 @@ import com.ev.framework.utils.ShiroUtils;
 import com.ev.framework.utils.StringUtils;
 import com.ev.mes.domain.BomDetailDO;
 import com.ev.mes.domain.ProductionFeedingDO;
-import com.ev.mes.domain.ProductionFeedingDetailDO;
 import com.ev.mes.service.BomDetailService;
-import com.ev.mes.service.ProductionFeedingDetailService;
 import com.ev.mes.service.ProductionFeedingService;
 import com.ev.scm.dao.ContractAlterationDao;
 import com.ev.scm.dao.OutsourcingContractDao;
@@ -60,10 +58,6 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
     @Autowired
     private SalescontractItemService salescontractItemService;
     @Autowired
-    private ProductionFeedingDetailService productionFeedingDetailService;
-    @Autowired
-    private ProductionFeedingService productionFeedingService;
-    @Autowired
     private MessageSourceHandler messageSourceHandler;
 
     @Override
@@ -89,6 +83,11 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
     @Override
     public int update(OutsourcingContractDO outsourcingContract) {
         return outsourcingContractDao.update(outsourcingContract);
+    }
+
+    @Override
+    public int updateAll(OutsourcingContractDO outsourcingContract){
+        return outsourcingContractDao.updateAll(outsourcingContract);
     }
 
     @Override
@@ -525,8 +524,9 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
 
         // 修改单据状态
         outsourcingContractDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
-        outsourcingContractDO.setAuditor(0L);
-        return this.update(outsourcingContractDO) > 0 ? R.ok() : R.error();
+        outsourcingContractDO.setAuditor(null);
+        outsourcingContractDO.setAuditTime(null);
+        return this.updateAll(outsourcingContractDO) > 0 ? R.ok() : R.error();
     }
 
     @Override
@@ -633,7 +633,6 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                 .collect(Collectors.toList());
         if(itemDOs.size()>0){
             Map<Long, BigDecimal> count = Maps.newHashMap();
-            Map<Long, Long> sourceIdAndItemId = Maps.newHashMap();
             Long sourceType = itemDOs.get(0).getSourceType();
             for (OutsourcingContractItemDO itemDO : itemDOs) {
                 Long sourceId = itemDO.getSourceId();
@@ -641,7 +640,6 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                     count.put(sourceId, count.get(sourceId).add(itemDO.getCount()));
                     continue;
                 }
-                sourceIdAndItemId.put(sourceId,itemDO.getId());
                 count.put(itemDO.getSourceId(), itemDO.getCount());
             }
             // 获取原先单据的数量

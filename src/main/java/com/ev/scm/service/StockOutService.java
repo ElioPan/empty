@@ -39,6 +39,8 @@ public interface StockOutService {
 
     int update(StockOutDO stockOutDO);
 
+    int updateAll(StockOutDO stockOut);
+
     R add(StockOutDO stockOutDO, String item, DictionaryDO storageType);
 
     R addByQrcodeId(StockOutDO stockOutDO, List<StockOutItemDO> itemDOS, DictionaryDO storageType);

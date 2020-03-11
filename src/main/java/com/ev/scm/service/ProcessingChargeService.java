@@ -24,6 +24,8 @@ public interface ProcessingChargeService {
 	int save(ProcessingChargeDO processingCharge);
 	
 	int update(ProcessingChargeDO processingCharge);
+
+	int updateAll(ProcessingChargeDO processingCharge);
 	
 	int remove(Long id);
 	

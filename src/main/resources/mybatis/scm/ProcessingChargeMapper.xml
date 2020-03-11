@@ -118,6 +118,26 @@
 		</set>
 		WHERE id = #{id}
 	</update>
+
+	<update id="updateAll" parameterType="com.ev.scm.domain.ProcessingChargeDO">
+		UPDATE scm_processing_charge SET
+			`supplier_id` = #{supplierId},
+			`invoice_date` = #{invoiceDate},
+			`invoice_user` = #{invoiceUser},
+			`bill_code` = #{billCode},
+			`invoice_type` = #{invoiceType},
+			`stock_in_id` = #{stockInId},
+			`audit_sign` = #{auditSign},
+			`remarks` = #{remarks},
+			`auditor` = #{auditor},
+			`audit_time` = #{auditTime},
+			`create_by` = #{createBy},
+			`create_time` = #{createTime},
+			`update_by` = #{updateBy},
+			`update_time` = #{updateTime},
+			`del_flag` = #{delFlag}
+		WHERE id = #{id}
+	</update>
 	
 	<delete id="remove">
 		DELETE FROM scm_processing_charge WHERE id = #{value}
