@@ -258,7 +258,7 @@ public class ScmPurchaseApiController {
 
                 Map<String, Object> stringObjectMap = purchaseService.vailableQuantity(map);
                 BigDecimal count=new BigDecimal(mapDo.get("count").toString());
-                if(stringObjectMap==null){
+                if(stringObjectMap!=null){
                     BigDecimal countOfVail=new BigDecimal(stringObjectMap.containsKey("count")?stringObjectMap.get("count").toString():"0");
                     mapDo.put("quoteCount",countOfVail);
                 }else{
