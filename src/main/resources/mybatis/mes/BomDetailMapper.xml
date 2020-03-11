@@ -136,25 +136,31 @@
 	</select>
 	 
 	<insert id="save" parameterType="com.ev.mes.domain.BomDetailDO" useGeneratedKeys="true" keyProperty="id">
-		insert into mes_bom_detail
+		INSERT INTO mes_bom_detail
 		(
-			`materiel_id`, 
-			`bom_id`, 
-			`standard_count`, 
-			`waste_rate`, 
-			`remarks`, 
-			`create_by`, 
-			`create_time`, 
-			`update_by`, 
-			`update_time`, 
+			`bom_id`,
+			`materiel_id`,
+			`standard_count`,
+			`waste_rate`,
+			`process_id`,
+			`station_name`,
+			`station_id`,
+			`remarks`,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
 			`del_flag`
 		)
-		values
+		VALUES
 		(
-			#{materielId}, 
-			#{bomId}, 
-			#{standardCount}, 
-			#{wasteRate}, 
+			#{bomId},
+			#{materielId},
+			#{standardCount},
+			#{wasteRate},
+			#{processId},
+			#{stationName},
+			#{stationId},
 			#{remarks}, 
 			#{createBy}, 
 			#{createTime}, 
@@ -165,12 +171,15 @@
 	</insert>
 	 
 	<update id="update" parameterType="com.ev.mes.domain.BomDetailDO">
-		update mes_bom_detail 
+		UPDATE mes_bom_detail
 		<set>
-			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
 			<if test="bomId != null">`bom_id` = #{bomId}, </if>
+			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
 			<if test="standardCount != null">`standard_count` = #{standardCount}, </if>
 			<if test="wasteRate != null">`waste_rate` = #{wasteRate}, </if>
+			<if test="processId != null">`process_id` = #{processId}, </if>
+			<if test="stationName != null">`station_name` = #{stationName}, </if>
+			<if test="stationId != null">`station_id` = #{stationId}, </if>
 			<if test="remarks != null">`remarks` = #{remarks}, </if>
 			<if test="createBy != null">`create_by` = #{createBy}, </if>
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
@@ -178,7 +187,7 @@
 			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
 			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
 		</set>
-		where id = #{id}
+		WHERE id = #{id}
 	</update>
 	
 	<delete id="remove">
@@ -197,23 +206,26 @@
 	</delete>
 	
 	<sql id="sql_column_list">
-		`id`,`bom_id`,`materiel_id`,`standard_count`,`waste_rate`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+		`id`,`bom_id`,`materiel_id`,`standard_count`,`waste_rate`,`process_id`,`station_name`,`station_id`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 	</sql>
 	
 	<sql id="sql_condition">
-		<where>  
-		  		  <if test="id != null and id != ''"> and id = #{id} </if>
-		  		   <if test="bomId != null and bomId != ''"> and bom_id = #{bomId} </if>
-		  		  <if test="materielId != null and materielId != ''"> and materiel_id = #{materielId} </if>
-		  		  <if test="standardCount != null and standardCount != ''"> and standard_count = #{standardCount} </if>
-		  		  <if test="wasteRate != null and wasteRate != ''"> and waste_rate = #{wasteRate} </if>
-		  		  <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
-		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
-		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
-		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
-		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
-		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
-		  		</where>
+		<where>
+			<if test="id != null and id != ''"> AND id = #{id} </if>
+			<if test="bomId != null and bomId != ''"> AND bom_id = #{bomId} </if>
+			<if test="materielId != null and materielId != ''"> AND materiel_id = #{materielId} </if>
+			<if test="standardCount != null and standardCount != ''"> AND standard_count = #{standardCount} </if>
+			<if test="wasteRate != null and wasteRate != ''"> AND waste_rate = #{wasteRate} </if>
+			<if test="processId != null and processId != ''"> AND process_id = #{processId} </if>
+			<if test="stationName != null and stationName != ''"> AND station_name = #{stationName} </if>
+			<if test="stationId != null and stationId != ''"> AND station_id = #{stationId} </if>
+			<if test="remarks != null and remarks != ''"> AND remarks = #{remarks} </if>
+			<if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+		</where>
 	</sql>
 	
 </mapper>
