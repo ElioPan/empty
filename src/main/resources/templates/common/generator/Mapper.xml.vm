@@ -80,8 +80,7 @@
 	</update>
 
 	<update id="updateAll" parameterType="${package}.domain.${className}DO">
-		UPDATE ${tableName}
-		SET
+		UPDATE ${tableName} SET
 #foreach($column in $columns)
 #if($column.columnName != $pk.columnName)			`$column.columnName` = #{$column.attrname}#if($velocityCount != $columns.size()), #end
 
