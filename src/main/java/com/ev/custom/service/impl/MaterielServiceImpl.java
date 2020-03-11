@@ -4,6 +4,8 @@ import com.ev.custom.dao.MaterielDao;
 import com.ev.custom.domain.MaterielDO;
 import com.ev.custom.service.MaterielService;
 import com.ev.framework.config.ConstantForMES;
+import com.ev.framework.il8n.MessageSourceHandler;
+import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.domain.StockDO;
 import com.google.common.collect.Maps;
@@ -19,6 +21,8 @@ import java.util.Map;
 public class MaterielServiceImpl implements MaterielService {
 	@Autowired
 	private MaterielDao materielDao;
+	@Autowired
+	private MessageSourceHandler messageSourceHandler;
 	
 	@Override
 	public MaterielDO get(Integer id){
@@ -68,11 +72,13 @@ public class MaterielServiceImpl implements MaterielService {
 
 	@Override
 	public Map<String, Object> getDetail(Integer id) {
-		Map<String, Object> param=Maps.newHashMapWithExpectedSize(1);
+		Map<String, Object> param = Maps.newHashMapWithExpectedSize(1);
 		param.put("id", id);
-		List<Map<String,Object>> listForMap = materielDao.listForMap(param);
-		if (listForMap.size()>0) {
-			return listForMap.get(0);
+		List<Map<String, Object>> listForMap = materielDao.listForMap(param);
+		if (listForMap.size() > 0) {
+			Map<String, Object> map = listForMap.get(0);
+			map.put("isUse", this.checkUse(id));
+			return map;
 		}
 		return null;
 	}
@@ -98,8 +104,8 @@ public class MaterielServiceImpl implements MaterielService {
 	}
 
 	@Override
-	public int checkDelete(Long productId) {
-		return materielDao.checkDelete(productId);
+	public int checkUse(Integer id) {
+		return materielDao.checkUse(id);
 	}
 	
 	@Override
@@ -108,20 +114,39 @@ public class MaterielServiceImpl implements MaterielService {
 	}
 
 	@Override
-	public int logicRemove(Integer id) {
+	public R logicRemove(Integer id) {
+		if (this.get(id).getAuditSign().equals(ConstantForMES.OK_AUDITED)) {
+			return R.error(messageSourceHandler.getMessage("common.approvedOrChild.delete.disabled", null));
+		}
+		if (this.checkUse(id) > 0) {
+			return R.error(messageSourceHandler.getMessage("common.delete.disabled", null));
+
+		}
 		MaterielDO materielDO = new MaterielDO();
 		materielDO.setId(id);
 		materielDO.setDelFlag(1);
-		return this.update(materielDO);
+		return this.update(materielDO)>0?R.ok():R.error();
 	}
 
 	@Override
-	public int logicBatchRemove(Integer[] ids) {
+	public R logicBatchRemove(Integer[] ids) {
 		int count = 0;
 		for (Integer id : ids) {
-			count += this.logicRemove(id);
+			if (this.get(id).getAuditSign().equals(ConstantForMES.OK_AUDITED)) {
+				return R.error(messageSourceHandler.getMessage("common.approvedOrChild.delete.disabled", null));
+			}
+			if (this.checkUse(id) > 0) {
+				return R.error(messageSourceHandler.getMessage("common.delete.disabled", null));
+			}
 		}
-		return count;
+		MaterielDO materielDO;
+		for (Integer id : ids) {
+			materielDO = new MaterielDO();
+			materielDO.setId(id);
+			materielDO.setDelFlag(1);
+			count += this.update(materielDO);
+		}
+		return count == ids.length?R.ok():R.error();
 	}
 
     @Override

@@ -39,7 +39,7 @@ public interface MaterielDao {
 	
 	List<StockDO> stockList(List<Long>stockIds);
 
-	int checkDelete(Long productId);
+	int checkUse(Integer id);
 	
 	List<Map<String,Object>> stockCount(Map<String,Object>map);
 	

@@ -1,6 +1,7 @@
 package com.ev.custom.service;
 
 import com.ev.custom.domain.MaterielDO;
+import com.ev.framework.utils.R;
 import com.ev.scm.domain.StockDO;
 
 import java.util.List;
@@ -55,7 +56,7 @@ public interface MaterielService {
 	/**
 	 * 验证能否删除
 	 */
-	int checkDelete(Long productId);
+	int checkUse(Integer id);
 
 	/**
 	 * 获取库存数量
@@ -64,11 +65,11 @@ public interface MaterielService {
 
 	/**
 	 */
-	int logicRemove(Integer id);
+	R logicRemove(Integer id);
 
 	/**
 	 */
-	int logicBatchRemove(Integer[] ids);
+	R logicBatchRemove(Integer[] ids);
 
     int audit(Integer id);
 

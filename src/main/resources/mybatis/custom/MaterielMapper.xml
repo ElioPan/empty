@@ -581,13 +581,22 @@
 		</foreach>
 	</select>
 	
-	<!-- 验证是否能被删除 -->
-	<select id="checkDelete" resultType="int">
-		SELECT COUNT(*) 
-		FROM cus_materiel pro
-		INNER JOIN scm_stock_in_item inb ON inb.`materiel_id`=pro.`id`
-		WHERE pro.`id`=#{value} 
-	</select>	
+	<!-- 验证是否被使用过 -->
+	<select id="checkUse" resultType="int">
+		SELECT
+		COUNT(*)
+		FROM (
+		SELECT
+		  `materiel_id`
+		FROM scm_stock
+		WHERE `materiel_id`=#{value}
+		UNION
+		SELECT
+		  `materiel_id`
+		FROM scm_stock_in_item
+		WHERE `materiel_id`=#{value} LIMIT 1
+		)a
+	</select>
 	
     <insert id="batchSave" parameterType="List" useGeneratedKeys="true" keyProperty="id">
         insert into cus_materiel

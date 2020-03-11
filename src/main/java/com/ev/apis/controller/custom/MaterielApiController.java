@@ -298,29 +298,13 @@ public class MaterielApiController {
     @EvApiByToken(value = "/apis/materiel/remove", method = RequestMethod.POST)
     @ApiOperation("删除物料")
     public R remove(@ApiParam(value = "物料Id", required = true) @RequestParam(value = "id", defaultValue = "") Integer id) {
-        if (materielService.get(id).getAuditSign().equals(ConstantForMES.OK_AUDITED)) {
-            return R.error(messageSourceHandler.getMessage("common.approvedOrChild.delete.disabled", null));
-        }
-        // TODO 有关联物料信息则不能删除（现为逻辑删除）
-        if (materielService.logicRemove(id) > 0) {
-            return R.ok();
-        }
-        return R.error();
+        return materielService.logicRemove(id);
     }
 
     @EvApiByToken(value = "/apis/materiel/batchRemove", method = RequestMethod.POST)
     @ApiOperation("批量删除物料")
     public R batchRemove(@ApiParam(value = "物料Id数组", required = true) @RequestParam(value = "id", defaultValue = "") Integer[] ids) {
-        for (Integer id : ids) {
-            if (materielService.get(id).getAuditSign().equals(ConstantForMES.OK_AUDITED)) {
-                return R.error(messageSourceHandler.getMessage("common.approvedOrChild.delete.disabled", null));
-            }
-        }
-        // TODO 有关联物料信息则不能删除(现为逻辑删除)
-        if (materielService.logicBatchRemove(ids) == ids.length) {
-            return R.ok();
-        }
-        return R.error();
+        return materielService.logicBatchRemove(ids);
     }
 
     @EvApiByToken(value = "/apis/materiel/removeType", method = RequestMethod.POST)
