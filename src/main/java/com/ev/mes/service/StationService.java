@@ -1,5 +1,6 @@
 package com.ev.mes.service;
 
+import com.ev.framework.utils.R;
 import com.ev.mes.domain.StationDO;
 
 import java.util.List;
@@ -29,4 +30,18 @@ public interface StationService {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+    List<Map<String, Object>> listForMap(Map<String, Object> params);
+
+	R addOrUpdate(StationDO stationDO);
+
+	R batchRemoveByIds(Long[] ids);
+
+	R audit(Long id);
+
+	R reverseAudit(Long id);
+
+	String setCode();
+
+	int checkSave(StationDO stationDO);
 }

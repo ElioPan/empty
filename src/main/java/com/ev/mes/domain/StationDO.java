@@ -32,6 +32,9 @@ public class StationDO implements Serializable {
 	//备注
     @ApiModelProperty(value = "备注")
 	private String remark;
+	//备注
+	@ApiModelProperty(value = "备注")
+	private Long auditSign;
 	//创建人
     @ApiModelProperty(value = "创建人")
 	private Long createBy;

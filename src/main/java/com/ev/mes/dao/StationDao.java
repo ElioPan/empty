@@ -31,4 +31,8 @@ public interface StationDao {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+    List<Map<String, Object>> listForMap(Map<String, Object> params);
+
+	int checkSave(StationDO stationDO);
 }
