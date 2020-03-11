@@ -65,11 +65,11 @@ public class ScmSalesReturnInStockApiController {
                               "}\n" +
                               "]", required = true) @RequestParam(value = "bodyDetail", defaultValue = "") String bodyDetail,
                       @ApiParam(value = "删除的明细id") @RequestParam(value = "ItemIds", required = false) Long[] ItemIds) {
-        String result=stockInService.checkSourceCountsOfSaleReturn(bodyDetail);
-        if(Objects.equals("",result)){
+        R result=stockInService.checkSourceCountsOfReturnSales(bodyDetail,stockInDO.getId());
+        if(Objects.isNull(result)){
             return stockInService.addAndChangeInStockType(stockInDO,ConstantForGYL.SALES_RETURN,bodyDetail,ItemIds);
         }else{
-            return  R.error(result);
+            return  result;
         }
 
     }

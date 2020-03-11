@@ -56,10 +56,18 @@
 		location.id AS 	childDefaultLocationId,
 		facility.name AS childDefaultFacilityName,
 		location.name AS childDefaultLocationName,
+		bomdetail.`is_key_components` AS isKeyComponents,
+		IF(bomdetail.`is_key_components`=0,'否','是') AS isKeyComponentsName,
+		process.`id` AS processId,
+		process.`name` AS processName,
+		station.`id` AS stationId,
+		station.`name` AS stationName,
 		bomdetail.`remarks` AS childRemarks
 		FROM mes_bom_detail bomdetail
 		LEFT JOIN cus_materiel material ON material.`id`=bomdetail.`materiel_id`
 		LEFT JOIN cus_dictionary unituom ON unituom.id = material.`unit_uom`
+		LEFT JOIN mes_process process ON process.id = bomdetail.process_id
+		LEFT JOIN mes_station station ON station.id = bomdetail.station_id
 		<!-- LEFT JOIN mes_bom bom ON bom.`id`=bomdetail.`bom_id` -->
 		<!-- LEFT JOIN cus_materiel bommaterial ON bommaterial.`id`=bom.`materiel_id`
 		LEFT JOIN cus_dictionary dict ON dict.`id` = bom.`type` -->
@@ -136,26 +144,34 @@
 	</select>
 	 
 	<insert id="save" parameterType="com.ev.mes.domain.BomDetailDO" useGeneratedKeys="true" keyProperty="id">
-		insert into mes_bom_detail
+		INSERT INTO mes_bom_detail
 		(
-			`materiel_id`, 
-			`bom_id`, 
-			`standard_count`, 
-			`waste_rate`, 
-			`remarks`, 
-			`create_by`, 
-			`create_time`, 
-			`update_by`, 
-			`update_time`, 
+			`bom_id`,
+			`materiel_id`,
+			`standard_count`,
+			`waste_rate`,
+			`process_id`,
+			`station_name`,
+			`station_id`,
+			`remarks`,
+			is_key_components,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
 			`del_flag`
 		)
-		values
+		VALUES
 		(
-			#{materielId}, 
-			#{bomId}, 
-			#{standardCount}, 
-			#{wasteRate}, 
-			#{remarks}, 
+			#{bomId},
+			#{materielId},
+			#{standardCount},
+			#{wasteRate},
+			#{processId},
+			#{stationName},
+			#{stationId},
+			#{remarks},
+			#{isKeyComponents},
 			#{createBy}, 
 			#{createTime}, 
 			#{updateBy}, 
@@ -165,20 +181,24 @@
 	</insert>
 	 
 	<update id="update" parameterType="com.ev.mes.domain.BomDetailDO">
-		update mes_bom_detail 
+		UPDATE mes_bom_detail
 		<set>
-			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
 			<if test="bomId != null">`bom_id` = #{bomId}, </if>
+			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
 			<if test="standardCount != null">`standard_count` = #{standardCount}, </if>
 			<if test="wasteRate != null">`waste_rate` = #{wasteRate}, </if>
+			<if test="processId != null">`process_id` = #{processId}, </if>
+			<if test="stationName != null">`station_name` = #{stationName}, </if>
+			<if test="stationId != null">`station_id` = #{stationId}, </if>
 			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="isKeyComponents != null">`is_key_components` = #{isKeyComponents}, </if>
 			<if test="createBy != null">`create_by` = #{createBy}, </if>
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
 			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
 			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
 		</set>
-		where id = #{id}
+		WHERE id = #{id}
 	</update>
 	
 	<delete id="remove">
@@ -197,23 +217,27 @@
 	</delete>
 	
 	<sql id="sql_column_list">
-		`id`,`bom_id`,`materiel_id`,`standard_count`,`waste_rate`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+		`id`,`bom_id`,`materiel_id`,`standard_count`,`waste_rate`,`process_id`,`station_name`,`station_id`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`is_key_components`
 	</sql>
 	
 	<sql id="sql_condition">
-		<where>  
-		  		  <if test="id != null and id != ''"> and id = #{id} </if>
-		  		   <if test="bomId != null and bomId != ''"> and bom_id = #{bomId} </if>
-		  		  <if test="materielId != null and materielId != ''"> and materiel_id = #{materielId} </if>
-		  		  <if test="standardCount != null and standardCount != ''"> and standard_count = #{standardCount} </if>
-		  		  <if test="wasteRate != null and wasteRate != ''"> and waste_rate = #{wasteRate} </if>
-		  		  <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
-		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
-		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
-		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
-		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
-		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
-		  		</where>
+		<where>
+			<if test="id != null and id != ''"> AND id = #{id} </if>
+			<if test="bomId != null and bomId != ''"> AND bom_id = #{bomId} </if>
+			<if test="materielId != null and materielId != ''"> AND materiel_id = #{materielId} </if>
+			<if test="standardCount != null and standardCount != ''"> AND standard_count = #{standardCount} </if>
+			<if test="wasteRate != null and wasteRate != ''"> AND waste_rate = #{wasteRate} </if>
+			<if test="processId != null and processId != ''"> AND process_id = #{processId} </if>
+			<if test="stationName != null and stationName != ''"> AND station_name = #{stationName} </if>
+			<if test="stationId != null and stationId != ''"> AND station_id = #{stationId} </if>
+			<if test="remarks != null and remarks != ''"> AND remarks = #{remarks} </if>
+			<if test="isKeyComponents != null and isKeyComponents != ''"> AND is_key_components = #{isKeyComponents} </if>
+			<if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+		</where>
 	</sql>
 	
 </mapper>

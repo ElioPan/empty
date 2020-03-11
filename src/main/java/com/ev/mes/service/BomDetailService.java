@@ -32,8 +32,5 @@ public interface BomDetailService {
 
 	int countForMap(Map<String, Object> map);
 
-	/**
-	 * @param id
-	 */
 	int removeByHeadId(Long id);
 }

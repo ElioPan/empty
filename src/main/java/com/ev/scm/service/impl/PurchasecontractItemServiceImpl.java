@@ -72,4 +72,9 @@ public class PurchasecontractItemServiceImpl implements PurchasecontractItemServ
 		return purchasecontractItemDao.getInCountOfPurchaseContract(map);
 	}
 
+	@Override
+	public BigDecimal getInCounteExcludeContractId(Map<String, Object> map) {
+		return purchasecontractItemDao.getInCounteExcludeContractId(map);
+	}
+
 }

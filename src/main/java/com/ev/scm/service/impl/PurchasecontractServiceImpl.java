@@ -544,17 +544,92 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 	}
 
 
-	@Override
-	public String checkSourceCounts(String itemDOs) {
+//	@Override
+//	public String checkSourceCounts(String itemDOs) {
+//
+//		List<PurchasecontractItemDO> itemDos = new ArrayList<>();
+//		if (StringUtils.isNotEmpty(itemDOs)) {
+//			itemDos = JSON.parseArray(itemDOs, PurchasecontractItemDO.class);
+//		} else {
+//			return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
+//		}
+//		//验证 采购申请
+//		for (PurchasecontractItemDO itemDo : itemDos) {
+//			if (Objects.nonNull(itemDo.getSourceId())) {
+//				Long sourceId = itemDo.getSourceId();
+//				Long soueseType = itemDo.getSourceType();
+//				BigDecimal thisCount = itemDo.getCount();
+//
+//				if (Objects.nonNull(soueseType)) {
+//					if (Objects.equals(soueseType, ConstantForGYL.PURCHASE)) {
+//						//采购申请数量
+//						PurchaseItemDO purchaseItemDO = purchaseItemService.get(sourceId);
+//						if (purchaseItemDO != null) {
+//							Map<String, Object> map = new HashMap<>();
+//							map.put("sourceId", sourceId);
+//							map.put("sourceType", soueseType);
+//							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
+//							//查出采购合同中已关联引入的数量
+//							BigDecimal inCounts = purchasecontractItemService.getInCountOfPurchaseContract(map);
+//
+//							BigDecimal inCountOfpurchase = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+//							int boo = (purchaseItemDO.getCount().subtract(inCountOfpurchase)).compareTo(thisCount);
+//							if (Objects.equals(-1, boo)) {
+//								String[] args = {thisCount.toPlainString(), purchaseItemDO.getCount().subtract(inCountOfpurchase).toPlainString(), itemDo.getSourceCode().toString()};
+//								return messageSourceHandler.getMessage("stock.number.checkError", args);
+//							}
+//						} else {
+//							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+//						}
+//					}  else {
+//						return messageSourceHandler.getMessage("scm.checkCount.EroorSourceTypeOfpurchase", null);
+//					}
+//				}else{
+//					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
+//				}
+//			}
+//		}
+//		return "ok";
+//	}
 
-		List<PurchasecontractItemDO> itemDos = new ArrayList<>();
+	@Override
+	public R checkSourceCount(String itemDOs,Long contractId) {
+
+		List<PurchasecontractItemDO> itemDos;
 		if (StringUtils.isNotEmpty(itemDOs)) {
 			itemDos = JSON.parseArray(itemDOs, PurchasecontractItemDO.class);
 		} else {
-			return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
+			return R.error(messageSourceHandler.getMessage("common.massge.dateIsNon", null));
 		}
-		//验证 采购申请
+
+		//合并源单数量及sourseId
+		Map<Long,BigDecimal>  sourseIdCounts= new HashMap<>();
 		for (PurchasecontractItemDO itemDo : itemDos) {
+			Long sourseId=itemDo.getSourceId();
+			if(sourseId==null){
+				continue;
+			}
+			if(sourseIdCounts.containsKey(sourseId)){
+				sourseIdCounts.put(sourseId,sourseIdCounts.get(sourseId).add(itemDo.getCount()));
+				continue;
+			}
+			sourseIdCounts.put(sourseId,itemDo.getCount());
+		}
+
+		List<PurchasecontractItemDO> contractItemDos=new ArrayList<>();
+		for(Long sourseId:sourseIdCounts.keySet()){
+
+			for(PurchasecontractItemDO itemDo : itemDos){
+				if(Objects.equals(itemDo.getSourceId(),sourseId)){
+					itemDo.setCount(sourseIdCounts.get(sourseId));
+					contractItemDos.add(itemDo);
+					break;
+				}
+			}
+		}
+
+		//验证 采购申请
+		for (PurchasecontractItemDO itemDo : contractItemDos) {
 			if (Objects.nonNull(itemDo.getSourceId())) {
 				Long sourceId = itemDo.getSourceId();
 				Long soueseType = itemDo.getSourceType();
@@ -568,29 +643,35 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 							Map<String, Object> map = new HashMap<>();
 							map.put("sourceId", sourceId);
 							map.put("sourceType", soueseType);
-							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
+							if(contractId!=null){map.put("contractId", contractId);}
 							//查出采购合同中已关联引入的数量
-							BigDecimal inCounts = purchasecontractItemService.getInCountOfPurchaseContract(map);
+//							BigDecimal inCounts = purchasecontractItemService.getInCountOfPurchaseContract(map);
+							BigDecimal inCounteExcludeContractId = purchasecontractItemService.getInCounteExcludeContractId(map);
 
-							BigDecimal inCountOfpurchase = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+							BigDecimal inCountOfpurchase = (inCounteExcludeContractId == null) ? BigDecimal.ZERO : inCounteExcludeContractId;
 							int boo = (purchaseItemDO.getCount().subtract(inCountOfpurchase)).compareTo(thisCount);
 							if (Objects.equals(-1, boo)) {
 								String[] args = {thisCount.toPlainString(), purchaseItemDO.getCount().subtract(inCountOfpurchase).toPlainString(), itemDo.getSourceCode().toString()};
-								return messageSourceHandler.getMessage("stock.number.checkError", args);
+								Map<String,Object>  maps= new HashMap<>();
+								maps.put("sourceId",sourceId);
+								maps.put("sourceCount",purchaseItemDO.getCount().subtract(inCountOfpurchase).toPlainString());
+								return R.error(500,messageSourceHandler.getMessage("stock.number.checkError", args),maps);
 							}
 						} else {
-							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+							return R.error(messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null));
 						}
 					}  else {
-						return messageSourceHandler.getMessage("scm.checkCount.EroorSourceTypeOfpurchase", null);
+						return R.error(messageSourceHandler.getMessage("scm.checkCount.EroorSourceTypeOfpurchase", null));
 					}
 				}else{
-					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
+					return R.error(messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null));
 				}
 			}
 		}
-		return "ok";
+		return null;
 	}
+
+
 
 
 }

@@ -6,51 +6,35 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.math.BigDecimal;
 
 
 /**
- * BOM子物料表
+ * 工位
  * 
  * @author ev-monitor
  * @email 286600136@qq.com
- * @date 2020-03-11 09:10:27
+ * @date 2020-03-11 09:25:14
  */
 @Data
-@ApiModel(value = "BOM子物料表")
-public class BomDetailDO implements Serializable {
+@ApiModel(value = "工位")
+public class StationDO implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	//
     @ApiModelProperty()
 	private Long id;
-	//
-    @ApiModelProperty()
-	private Long bomId;
-	//子物料ID
-    @ApiModelProperty(value = "子物料ID")
-	private Integer materielId;
-	//标准数量
-    @ApiModelProperty(value = "标准数量")
-	private BigDecimal standardCount;
-	//损耗率(单位%)
-    @ApiModelProperty(value = "损耗率(单位%)")
-	private BigDecimal wasteRate;
-	//工序
-    @ApiModelProperty(value = "工序")
-	private Long processId;
+	//编号
+    @ApiModelProperty(value = "编号")
+	private String code;
 	//工位名
     @ApiModelProperty(value = "工位名")
-	private String stationName;
-	//工位ID
-    @ApiModelProperty(value = "工位ID")
-	private Long stationId;
-	//是否关键件
-	@ApiModelProperty(value = "是否关键件")
-	private Integer isKeyComponents;
+	private String name;
 	//备注
     @ApiModelProperty(value = "备注")
-	private String remarks;
+	private String remark;
+	//备注
+	@ApiModelProperty(value = "备注")
+	private Long auditSign;
 	//创建人
     @ApiModelProperty(value = "创建人")
 	private Long createBy;

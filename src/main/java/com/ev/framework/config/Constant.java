@@ -434,5 +434,9 @@ public class Constant {
      * 设备用途type
      */
     public static final String DEVICE_PURPOSE = "device_purpose";
+	/**
+	 * 工位
+	 */
+	public static final String GW = "GW";
 
 }

@@ -1,29 +1,27 @@
 package com.ev.mes.service.impl;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.ev.custom.domain.MaterielDO;
+import com.ev.custom.domain.ContentAssocDO;
+import com.ev.custom.service.ContentAssocService;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.alibaba.fastjson.JSON;
-import com.ev.framework.config.ConstantForMES;
-import com.ev.custom.domain.ContentAssocDO;
-import com.ev.custom.service.ContentAssocService;
 import com.ev.mes.dao.BomDao;
 import com.ev.mes.domain.BomDO;
 import com.ev.mes.domain.BomDetailDO;
 import com.ev.mes.service.BomDetailService;
 import com.ev.mes.service.BomService;
 import com.google.common.collect.Maps;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
 public class BomServiceImpl implements BomService {

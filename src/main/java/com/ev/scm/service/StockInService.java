@@ -90,20 +90,18 @@ public interface StockInService {
 
 	List<Map<String, Object>>  getStockInDate(Map<String, Object> map);
 
-	String checkSourceCounts(String stockInitemDos, Long storageType);
+	R checkSourceCountsPurchase(String stockInitemDos, Long id);
 
 	String checkSourceCountsOfProduce(String bodyDetail);
 
-	String checkSourceCountsOfOutSourcing(String bodyDetail);
+	R checkSourceCountsOfOutSourcing(String bodyDetail,Long id);
 
-	String checkSourceCountsOfReturnMateriel(String bodyDetail);
+	R checkSourceCountsOfReturnMateriel(String bodyDetail,Long id);
 
 	List<Map<String, Object>> listForHead(Map<String, Object> map);
 
 	int countForHead(Map<String, Object> map);
 
-	String  checkSourceCountsOfSaleReturn(String bodyDetail);
-
-
+	R checkSourceCountsOfReturnSales(String bodyDetail,Long id);
 
 }

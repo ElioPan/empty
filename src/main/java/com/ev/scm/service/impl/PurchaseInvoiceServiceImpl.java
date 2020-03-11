@@ -314,6 +314,87 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 		return "ok";
 	}
 
+	@Override
+	public R checkSourceCount(String bodyDetail,Long id ) {
+
+		List<PurchaseInvoiceItemDO> itemDos;
+		if (StringUtils.isNotEmpty(bodyDetail)) {
+			itemDos = JSON.parseArray(bodyDetail, PurchaseInvoiceItemDO.class);
+		} else {
+			return R.error(messageSourceHandler.getMessage("common.massge.dateIsNon", null));
+		}
+
+		//合并源单数量及sourseId
+		Map<Long,BigDecimal>  sourseIdCounts= new HashMap<>();
+		for (PurchaseInvoiceItemDO itemDo : itemDos) {
+			Long sourseId=itemDo.getSourceId();
+			if(sourseId==null){
+				continue;
+			}
+			if(sourseIdCounts.containsKey(sourseId)){
+				sourseIdCounts.put(sourseId,sourseIdCounts.get(sourseId).add(itemDo.getCount()));
+				continue;
+			}
+			sourseIdCounts.put(sourseId,itemDo.getCount());
+		}
+
+		List<PurchaseInvoiceItemDO> invoiceItemDos=new ArrayList<>();
+		for(Long sourseId:sourseIdCounts.keySet()){
+
+			for(PurchaseInvoiceItemDO itemDo : itemDos){
+				if(Objects.equals(itemDo.getSourceId(),sourseId)){
+					itemDo.setCount(sourseIdCounts.get(sourseId));
+                    invoiceItemDos.add(itemDo);
+					break;
+				}
+			}
+		}
+		//验证采购合同
+		for (PurchaseInvoiceItemDO itemDo : invoiceItemDos) {
+
+			if (Objects.nonNull(itemDo.getSourceId())) {
+
+				Long sourceId = itemDo.getSourceId();
+				BigDecimal thisCount = itemDo.getCount();
+				Long sourceType = itemDo.getSourceType();
+
+				if (Objects.nonNull(sourceType)) {
+					if (Objects.equals(sourceType, ConstantForGYL.CGHT)) {
+						//采购合同的数量
+						PurchasecontractItemDO contractItemDO = purchasecontractItemService.get(sourceId);
+						if (contractItemDO != null) {
+
+							Map<String, Object> map = new HashMap<>();
+							map.put("sourceId", sourceId);
+							map.put("sourceType", sourceType);
+							if(id!=null){map.put("id",id);}
+							//获取采购发票已引入数量
+//							BigDecimal inCounts = purchaseInvoiceItemService.getInCountOfInvoiceItem(map);
+							BigDecimal inCountOfContract = purchaseInvoiceItemService.getInCounteExcludeId(map);
+
+							int boo = (contractItemDO.getCount().subtract(inCountOfContract)).compareTo(thisCount);
+							if (Objects.equals(-1, boo)) {
+								String[] args = {thisCount.toPlainString(), contractItemDO.getCount().subtract(inCountOfContract).toPlainString(), itemDo.getSourceCode().toString()};
+								Map<String,Object>  maps= new HashMap<>();
+								maps.put("sourceId",sourceId);
+								maps.put("sourceCount",contractItemDO.getCount().subtract(inCountOfContract));
+								return R.error(500,messageSourceHandler.getMessage("stock.number.checkError", args),maps);
+							}
+						} else {
+							return R.error(messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null)) ;
+						}
+					} else {
+						//引入的源单类型非采购合同
+						return R.error(messageSourceHandler.getMessage("scm.checkCount.EroorOfSourceType", null)) ;
+					}
+				} else {
+					return R.error(messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null));
+				}
+			}
+		}
+		return null;
+	}
+
 
 
 }

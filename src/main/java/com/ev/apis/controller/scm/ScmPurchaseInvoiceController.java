@@ -62,11 +62,11 @@ public class ScmPurchaseInvoiceController {
                                           "]\n", required = true)
                                   @RequestParam(value = "bodyItem", defaultValue = "") String bodyItem,
                                 @ApiParam(value = "被删除的明细ID") @RequestParam(value = "itemIds", required = false) Long[] itemIds){
-        String result = purchaseInvoiceService.checkSourceCounts(bodyItem);
-        if(Objects.equals("ok",result)){
+        R result = purchaseInvoiceService.checkSourceCount(bodyItem,purchaseInvoiceDO.getId());
+        if(Objects.isNull(result)){
             return purchaseInvoiceService.addAndChange(purchaseInvoiceDO, bodyItem, itemIds);
         }else{
-            return R.error(result);
+            return result;
         }
     }
 

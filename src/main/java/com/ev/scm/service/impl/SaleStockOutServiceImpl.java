@@ -73,17 +73,17 @@ public class SaleStockOutServiceImpl extends StockOutServiceImpl implements Sale
 
                 BigDecimal countByOutSource = bySource==null?BigDecimal.ZERO:bySource.subtract(oldCount);
                 if (contractCount.compareTo(count.get(sourceId).add(countByOutSource))<0){
-                    List<StockOutItemDO> collect = itemDOs.stream()
-                            .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
-                            .collect(Collectors.toList());
-                    String sourceCount = contractCount.subtract(countByOutSource).toPlainString();
-                    String [] args = {count.get(sourceId).toPlainString(),sourceCount,collect.get(0).getSourceCode()};
-                    Map<String,Object> result = Maps.newHashMap();
-                    result.put("sourceId",sourceId);
-                    result.put("sourceCount",sourceCount);
-                    return R.error(500,messageSourceHandler.getMessage("stock.number.error", args),result);
-                }
+                List<StockOutItemDO> collect = itemDOs.stream()
+                        .filter(itemDO -> Objects.equals(itemDO.getSourceId(),sourceId))
+                        .collect(Collectors.toList());
+                String sourceCount = contractCount.subtract(countByOutSource).toPlainString();
+                String [] args = {count.get(sourceId).toPlainString(),sourceCount,collect.get(0).getSourceCode()};
+                Map<String,Object> result = Maps.newHashMap();
+                result.put("sourceId",sourceId);
+                result.put("sourceCount",sourceCount);
+                return R.error(500,messageSourceHandler.getMessage("stock.number.error", args),result);
             }
+        }
         }
         return null;
     }
