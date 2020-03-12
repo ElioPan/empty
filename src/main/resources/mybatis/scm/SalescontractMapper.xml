@@ -191,6 +191,7 @@
         sales.`contract_code` AS `contractCode`,
         dict.`name` AS contractTypeName,
         IF(sales.close_status=0,'未关闭','关闭') AS closeStatusName,
+        sales.close_status AS closeStatus,
         client.`name` AS clientName,
         salesUser.`name` AS salesPersonName,
         salesUserDept.name AS salesPersonDeptName,
@@ -302,6 +303,7 @@
         auditUser.`name` AS auditorName,
         sales.`audit_time` AS auditTime,
         IF(sales.close_status=0,'未关闭','关闭') AS closeStatusName,
+        sales.close_status AS closeStatus,
         sales.audit_sign AS auditSign,
         dica.`name` AS auditSignName
         FROM

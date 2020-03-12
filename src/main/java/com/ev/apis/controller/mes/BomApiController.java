@@ -17,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -287,6 +289,18 @@ public class BomApiController {
 		bomService.batchRemoveHeadAndBody(ids);
         contentAssocService.removeByAssocIdAndType(ids, ConstantForMES.BOM_FILE);
 		return R.ok();
+	}
+
+
+	/**
+	 * 导入
+	 */
+	@ResponseBody
+	@EvApiByToken(value = "/apis/importExcel/bom", method = RequestMethod.POST, apiTitle = "期初库存导入")
+	@ApiOperation("期初库存导入")
+	@Transactional(rollbackFor = Exception.class)
+	public R readBomFile(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file) {
+		return bomService.importExcel(file);
 	}
 
 }

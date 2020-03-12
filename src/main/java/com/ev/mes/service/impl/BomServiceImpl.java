@@ -1,13 +1,18 @@
 package com.ev.mes.service.impl;
 
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.ev.custom.domain.ContentAssocDO;
+import com.ev.custom.domain.MaterielDO;
 import com.ev.custom.service.ContentAssocService;
+import com.ev.custom.service.MaterielService;
 import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
+import com.ev.framework.utils.ListUtils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.mes.dao.BomDao;
@@ -15,13 +20,18 @@ import com.ev.mes.domain.BomDO;
 import com.ev.mes.domain.BomDetailDO;
 import com.ev.mes.service.BomDetailService;
 import com.ev.mes.service.BomService;
+import com.ev.mes.vo.BomEntity;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class BomServiceImpl implements BomService {
@@ -29,6 +39,8 @@ public class BomServiceImpl implements BomService {
 	private BomDao bomDao;
 	@Autowired
 	private BomDetailService bomDetailService;
+	@Autowired
+	private MaterielService materielService;
 	@Autowired
 	private ContentAssocService contentAssocService;
     @Autowired
@@ -225,6 +237,74 @@ public class BomServiceImpl implements BomService {
 	@Override
 	public List<Map<String, Object>> listForMap(Map<String, Object> params) {
 		return bomDao.listForMap(params);
+	}
+
+	@Override
+	public R importExcel(MultipartFile file) {
+		if (file.isEmpty()) {
+			return R.error(messageSourceHandler.getMessage("file.nonSelect", null));
+		}
+		ImportParams params = new ImportParams();
+		params.setTitleRows(1);
+		params.setHeadRows(1);
+		List<BomEntity> bomEntityList;
+		try {
+			bomEntityList  =  ExcelImportUtil.importExcel(file.getInputStream(), BomEntity.class, params);
+			bomEntityList = bomEntityList.stream().filter(bomEntity -> bomEntity.getSerialno() != null).collect(Collectors.toList());
+		}catch(Exception e) {
+			return R.error(messageSourceHandler.getMessage("file.upload.error", null));
+		}
+		if (bomEntityList.size() > 0) {
+			for (BomEntity bomEntity : bomEntityList) {
+				if (StringUtils.isEmpty(bomEntity.getSerialno())
+						|| StringUtils.isEmpty(bomEntity.getProductCode())
+						|| StringUtils.isEmpty(bomEntity.getMaterielCode())
+						|| !NumberUtils.isNumber(bomEntity.getProductCount())
+						|| !NumberUtils.isNumber(bomEntity.getMaterielCount())
+						|| !NumberUtils.isNumber(bomEntity.getWasteRate())
+				) {
+					return R.error(messageSourceHandler.getMessage("basicInfo.correct.param", null));
+				}
+			}
+			Map<String, List<BomEntity>> groupBomEntity = bomEntityList
+					.stream()
+					.collect(Collectors.groupingBy(BomEntity::getSerialno));
+			List<String> productCodeList = bomEntityList
+					.stream()
+					.map(BomEntity::getProductCode)
+					.collect(Collectors.toList());
+			List<String> materielCodeList = bomEntityList
+					.stream()
+					.map(BomEntity::getMaterielCode)
+					.collect(Collectors.toList());
+			productCodeList.addAll(materielCodeList);
+			List<String> allCode = productCodeList
+					.stream()
+					.distinct()
+					.collect(Collectors.toList());
+			Map<String,Object> param = Maps.newHashMap();
+			param.put("codes",allCode);
+			List<MaterielDO> materielDOList = materielService.list(param);
+			if (materielDOList.size() != allCode.size()) {
+				List<String> collect = materielDOList
+						.stream()
+						.map(MaterielDO::getSerialNo)
+						.collect(Collectors.toList());
+				String[]  notExist= collect
+						.stream()
+						.filter(s -> !allCode.contains(s)).toArray(String[]::new);
+				return R.error(messageSourceHandler.getMessage("basicInfo.materiel.notExist", notExist));
+			}
+
+
+
+
+		}
+
+
+
+
+		return null;
 	}
 
 }

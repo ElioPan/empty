@@ -714,8 +714,10 @@ public class StockOutServiceImpl implements StockOutService {
                         proCount, itemDO.getSourceType(), storageType, stockList);
                 stockInfos.add(saveStockDetail);
             }
-            int updateItemDOCount = stockOutItemService.batchUpdate(updateItemDOs);
-            if (updateItemDOCount > 0) {
+            if (updateItemDOs.size() > 0) {
+               stockOutItemService.batchUpdate(updateItemDOs);
+            }
+            if (stockInfos.size() > 0) {
                 this.batchSaveStockInfo(stockInfos);
                 return R.ok();
             }
