@@ -540,7 +540,7 @@
 
 			<if test="idPath != null and idPath != ''"> AND sdept.id_path like  CONCAT('%',#{idPath},'%')</if>
 
-			<if test="deptId != null and deptId != ''"> AND cusd.dept_id = #{deptId}=</if>
+			<if test="deptId != null and deptId != ''"> AND cusd.dept_id = #{deptId}</if>
 
 			<if test="userId != null and userId != ''"> AND cusd.user_id =#{userId}</if>
 
@@ -608,7 +608,6 @@
 		FROM
 		cus_device
 		<where>
-			<if test="deptId != null and deptId != ''"> and  dept_id =# {deptId}</if>
 			<if test="name != null and name != ''"> and  name like  CONCAT('%',#{name},'%') </if>
 			and del_flag = 0
 		</where>
@@ -630,6 +629,7 @@
 		select count(*) from cus_device cusd
 			<where>
 				<if test="name != null and name != ''"> and  name like  CONCAT('%',#{name},'%') </if>
+				and del_flag = 0
 			</where>
 	</select>
 
