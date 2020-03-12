@@ -265,9 +265,28 @@ public class BomServiceImpl implements BomService {
 					return R.error(messageSourceHandler.getMessage("basicInfo.correct.param", null));
 				}
 			}
-			Map<String, List<BomEntity>> groupBomEntity = bomEntityList
+			Map<String, Object> param = Maps.newHashMap();
+			List<String> bomCodeList = bomEntityList
 					.stream()
-					.collect(Collectors.groupingBy(BomEntity::getSerialno));
+					.map(BomEntity::getSerialno)
+					.distinct()
+					.collect(Collectors.toList());
+			param.put("codes", bomCodeList);
+			List<BomDO> bomList = this.list(param);
+			// 验证是否有重复编号
+			if (bomList.size() > 0) {
+				List<String> collect = bomList
+						.stream()
+						.map(BomDO::getSerialno)
+						.collect(Collectors.toList());
+				List<String> notExistList = bomCodeList
+						.stream()
+						.filter(collect::contains)
+						.collect(Collectors.toList());
+				String[] notExist = {notExistList.toString()};
+				return R.error(messageSourceHandler.getMessage("basicInfo.bom.isExist", notExist));
+			}
+
 			List<String> productCodeList = bomEntityList
 					.stream()
 					.map(BomEntity::getProductCode)
@@ -281,7 +300,7 @@ public class BomServiceImpl implements BomService {
 					.stream()
 					.distinct()
 					.collect(Collectors.toList());
-			Map<String, Object> param = Maps.newHashMap();
+
 			param.put("codes", allCode);
 			List<MaterielDO> materielDOList = materielService.list(param);
 			if (materielDOList.size() != allCode.size()) {
@@ -296,6 +315,10 @@ public class BomServiceImpl implements BomService {
 			Map<String, Integer> idForCode = materielDOList
 					.stream()
 					.collect(Collectors.toMap(MaterielDO::getSerialNo, MaterielDO::getId));
+			Map<String, List<BomEntity>> groupBomEntity = bomEntityList
+					.stream()
+					.collect(Collectors.groupingBy(BomEntity::getSerialno));
+
 			BomDO bom;
 			BomDetailDO bomDetail;
 			BomEntity bomEntity;

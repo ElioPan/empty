@@ -26,6 +26,14 @@
 			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
 			<if test="type != null and type != ''"> and type = #{type} </if>
 			<if test="idPath != null and idPath != ''"> and id_path like CONCAT(CONCAT('%',#{idPath}),'%') </if>
+
+			<if test="deptNames != null and deptNames.size()>0"> and `name` IN
+				<foreach item="item" collection="deptNames" open="(" separator="," close=")" index="index">
+					<if test="item!=null">
+						#{item}
+					</if>
+				</foreach>
+			</if>
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">

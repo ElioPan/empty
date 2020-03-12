@@ -33,6 +33,14 @@
 		  		  <if test="city != null and city != ''"> and city = #{city} </if>
 		  		  <if test="district != null and district != ''"> and district = #{district} </if>
 			      <if test="groupstr != null and groupstr != ''"> and groupstr = #{groupstr} </if>
+
+					<if test="userNames != null and userNames.size()>0"> and `name` IN
+						<foreach item="item" collection="userNames" open="(" separator="," close=")" index="index">
+							<if test="item!=null">
+								#{item}
+							</if>
+						</foreach>
+					</if>
 		  		</where>
         <choose>
             <when test="sort != null and sort.trim() != ''">

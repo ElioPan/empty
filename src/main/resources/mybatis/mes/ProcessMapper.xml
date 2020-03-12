@@ -170,6 +170,13 @@
 			<if test="auditId != null and auditId != ''"> and audit_id = #{auditId} </if>
 			<if test="auditSign != null and auditSign != ''"> and audit_sign = #{auditSign} </if>
 			<if test="useStatus != null and useStatus != ''"> and use_status = #{useStatus} </if>
+			<if test="codes != null and codes.size()>0"> and code IN
+				<foreach item="item" collection="codes" open="(" separator="," close=")" index="index">
+					<if test="item!=null">
+						#{item}
+					</if>
+				</foreach>
+			</if>
 		</where>
 	</sql>
 
