@@ -390,6 +390,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 
 			params.put("documentType", ConstantForGYL.PYDJ);
 			//是否已经生成其他入库 headId+documentType
+
 			int otherInLines = inventoryPlanFitlossService.countOfOtherByPY(params);
 			int linesPL = inventoryPlanFitlossService.count(params);   //是否已经生成盘赢单（lines>0 是）
 
@@ -400,11 +401,11 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				inventoryPlanFitlossService.saveProfitORLoss(profitLossMsg, ConstantForGYL.PYDJ);
 				Map<String,Object>  maps= new HashMap<>();
 				maps.put("headId",planId);
+				maps.put("documentType",ConstantForGYL.PYDJ);
 				List<InventoryPlanFitlossDO> inventoryPlanFitlossDOS = inventoryPlanFitlossService.list(maps);
 				//返回生成其他入库的数据。
 				params.remove("documentType");
 				List<Map<String, Object>> profitLossMsgNow = inventoryPlanItemService.getProfitLossMsg(params);
-
 				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PYDJ.intValue());
 				if(dictionaryDO!=null){
 					for(Map<String, Object> map:profitLossMsg){
@@ -430,6 +431,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PYDJ.intValue());
 				Map<String,Object>  maps= new HashMap<>();
 				maps.put("headId",planId);
+				maps.put("documentType",ConstantForGYL.PYDJ);
 				List<InventoryPlanFitlossDO> inventoryPlanFitlossDOS = inventoryPlanFitlossService.list(maps);
 				if(dictionaryDO!=null){
 					for(Map<String, Object> map:profitLossMsg){
@@ -461,7 +463,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 			Map<String, Object> params = new HashMap<>();
 			params.put("headId", planId);
 			params.put("profitLoss", -1);
-			//是否有盘盈(可以/需要生成盘盈单) （rows>0 是）
+			//是否有盘亏(可以/需要生成盘盈单) （rows>0 是）
 			int rows = inventoryPlanItemService.countOfWinLoss(params);
 			//找出盘亏数据
 			List<Map<String, Object>> profitLossMsg = inventoryPlanItemService.getProfitLossMsg(params);
@@ -469,7 +471,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 			params.put("documentType", ConstantForGYL.PKDJ);
 			//入库子表中是否已经存在
 			int otherInLines = inventoryPlanFitlossService.countOfOutByPK(params);
-			//是否已经生成盘盈单（lines>0 是）
+			//是否已经生成盘亏单（lines>0 是）
 			int linesPL = inventoryPlanFitlossService.count(params);
 			if (rows > 0 && otherInLines == 0 && linesPL == 0) {
 				Map<String, Object> result = new HashMap<>();
@@ -480,6 +482,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				List<Map<String, Object>> profitLossMsgOer = inventoryPlanItemService.getProfitLossMsg(params);
 				Map<String,Object>  maps= new HashMap<>();
 				maps.put("headId",planId);
+				maps.put("documentType",ConstantForGYL.PKDJ);
 				List<InventoryPlanFitlossDO> inventoryPlanFitlossDOS = inventoryPlanFitlossService.list(maps);
 				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PKDJ.intValue());
 				if(dictionaryDO!=null){
@@ -506,6 +509,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PKDJ.intValue());
 				Map<String,Object>  maps= new HashMap<>();
 				maps.put("headId",planId);
+				maps.put("documentType",ConstantForGYL.PKDJ);
 				List<InventoryPlanFitlossDO> inventoryPlanFitlossDOS = inventoryPlanFitlossService.list(maps);
 				if(dictionaryDO!=null){
 					for(Map<String, Object> map:profitLossMsg){
