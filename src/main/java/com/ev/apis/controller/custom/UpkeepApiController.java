@@ -473,19 +473,19 @@ public class UpkeepApiController {
             query. put("resultId", resultId);
         }
         //待处理
-        if (Objects.nonNull(singleStatus) && Objects.equals(singleStatus, Constant.WAITING_DEAL)) {//56待处理
+        if (Objects.nonNull(singleStatus) && Objects.equals(singleStatus, Constant.WAITING_DEAL)) {
             query.put("singleStatuss", singleStatus);
             query.put("manIds", manId);//工单责任人当前登录者
             query.put("overTimeResult", 999);//待处理中显示过期数据
         }
         //待验收   则返回保养计划创建人和
-        if (Objects.nonNull(singleStatus) &&Objects.equals(singleStatus, Constant.WAITING_CHECK)) {//57待验收
+        if (Objects.nonNull(singleStatus) &&Objects.equals(singleStatus, Constant.WAITING_CHECK)) {
             query.put("singleStatus", singleStatus);
             query.put("manIdss", manId);  //工单和计划创建人为当前登录者
         }
         //统计行数+总金额+总工时
         Map<String, Object> countListRecords = upkeepRecordService.countListRecords(query);
-//        int count = 0;
+
         String totalManHour = null;
         String totalCost = null;
         String totalManhourCost=null;
@@ -525,16 +525,15 @@ public class UpkeepApiController {
     @Transactional(rollbackFor = Exception.class)
     public R closeRecordOfPase(@ApiParam(value = "保养工单IDS", required = true) @RequestParam(value = "recordIds", defaultValue = "", required = true) Long[] recordIds,
                                @ApiParam(value = "关闭原因", required = true) @RequestParam(value = "closureReason", defaultValue = "", required = true) String closureReason) {
-            R r = upkeepRecordService.closePaseOfRecord(recordIds,closureReason);
-            return r;
+        R r = upkeepRecordService.closePaseOfRecord(recordIds,closureReason);
+        return r;
     }
 
 
     @EvApiByToken(value = "/apis/upkeepPlan/oneRecordDetail", method = RequestMethod.POST)
     @ApiOperation("保养单详情")
-    public R recordOneDetail(@ApiParam(value = "保养单id", required = true) @RequestParam(value = "recordId", defaultValue = "", required = true) Long recordId) {
+    public R recordOneDetail(@ApiParam(value = "保养单id", required = true) @RequestParam(value = "recordId") Long recordId) {
         Map<String, Object> query = Maps.newHashMap();
-        Map<String, Object> results = Maps.newHashMap();
         query.put("id", recordId);
 
         //计算备件总费用
@@ -573,7 +572,9 @@ public class UpkeepApiController {
 
         //"工单id无数据！"
         if(Objects.isNull(upkeepRecordDo)){ return R.error(messageSourceHandler.getMessage("common.massge.haveNoThing",null));}
-        if (Objects.equals(Constant.WAITING_DEAL, upkeepRecordDo.getResult()) && (dateNow.before(upkeepRecordDo.getEndTime()))){
+        //允许超期的工单暂存保养信息
+//        if (Objects.equals(Constant.WAITING_DEAL, upkeepRecordDo.getResult()) && (dateNow.before(upkeepRecordDo.getEndTime()))){
+        if (Objects.equals(Constant.WAITING_DEAL, upkeepRecordDo.getResult())){
             //允许修改
             UpkeepRecordDO upkeepRecordDO = new UpkeepRecordDO() ;
             upkeepRecordDO. setId(id);
@@ -617,8 +618,11 @@ public class UpkeepApiController {
         UpkeepRecordDO upkeepRecordDo = upkeepRecordService.get(id);
 
         if(Objects.isNull(upkeepRecordDo)){ return R.error("请传正确工单id！");}
-        if (Objects.equals(Constant.WAITING_DEAL, upkeepRecordDo.getResult()) && (dateNow.before(upkeepRecordDo.getEndTime()))){
-            //允许修改
+        //允许超期的工单提交保养信息
+//        if (Objects.equals(Constant.WAITING_DEAL, upkeepRecordDo.getResult()) && (dateNow.before(upkeepRecordDo.getEndTime()))){
+        if (Objects.equals(Constant.WAITING_DEAL, upkeepRecordDo.getResult())){
+
+                //允许修改
             UpkeepRecordDO upkeepRecordDO = new UpkeepRecordDO() ;
             upkeepRecordDO. setId(id);
             upkeepRecordDO. setDownHour(downHour);

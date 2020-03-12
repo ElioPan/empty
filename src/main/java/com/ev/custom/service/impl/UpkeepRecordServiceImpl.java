@@ -297,7 +297,7 @@ public class UpkeepRecordServiceImpl implements UpkeepRecordService {
 		Map<String, Object> results = Maps.newHashMap();
 
 		UpkeepRecordDO recordDO = upkeepRecordDao.get(Long.parseLong(maps.get("id").toString()));
-		List<Map<String, Object>> oneRecordDetailReco =new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> oneRecordDetailReco ;
 		if(recordDO!=null){
 			if(Objects.nonNull(recordDO.getPlanId())){
 				oneRecordDetailReco = this.oneRecordDetail(maps);
