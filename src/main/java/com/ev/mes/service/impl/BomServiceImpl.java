@@ -12,7 +12,6 @@ import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
-import com.ev.framework.utils.ListUtils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.mes.dao.BomDao;
@@ -27,11 +26,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class BomServiceImpl implements BomService {
@@ -249,9 +248,9 @@ public class BomServiceImpl implements BomService {
 		params.setHeadRows(1);
 		List<BomEntity> bomEntityList;
 		try {
-			bomEntityList  =  ExcelImportUtil.importExcel(file.getInputStream(), BomEntity.class, params);
+			bomEntityList = ExcelImportUtil.importExcel(file.getInputStream(), BomEntity.class, params);
 			bomEntityList = bomEntityList.stream().filter(bomEntity -> bomEntity.getSerialno() != null).collect(Collectors.toList());
-		}catch(Exception e) {
+		} catch (Exception e) {
 			return R.error(messageSourceHandler.getMessage("file.upload.error", null));
 		}
 		if (bomEntityList.size() > 0) {
@@ -282,29 +281,56 @@ public class BomServiceImpl implements BomService {
 					.stream()
 					.distinct()
 					.collect(Collectors.toList());
-			Map<String,Object> param = Maps.newHashMap();
-			param.put("codes",allCode);
+			Map<String, Object> param = Maps.newHashMap();
+			param.put("codes", allCode);
 			List<MaterielDO> materielDOList = materielService.list(param);
 			if (materielDOList.size() != allCode.size()) {
 				List<String> collect = materielDOList
 						.stream()
 						.map(MaterielDO::getSerialNo)
 						.collect(Collectors.toList());
-				String[]  notExist= collect
-						.stream()
-						.filter(s -> !allCode.contains(s)).toArray(String[]::new);
+				allCode.removeAll(collect);
+				String[] notExist = {allCode.toString()};
 				return R.error(messageSourceHandler.getMessage("basicInfo.materiel.notExist", notExist));
 			}
+			Map<String, Integer> idForCode = materielDOList
+					.stream()
+					.collect(Collectors.toMap(MaterielDO::getSerialNo, MaterielDO::getId));
+			BomDO bom;
+			BomDetailDO bomDetail;
+			BomEntity bomEntity;
+			Long bomId;
+			for (String bomCode : groupBomEntity.keySet()) {
+				List<BomEntity> bomEntities = groupBomEntity.get(bomCode);
+				// 取出BOM主表
+				bomEntity = bomEntities.get(0);
+				bom = new BomDO();
+				bom.setSerialno(bomEntity.getSerialno());
+				bom.setName(bomEntity.getName());
+				bom.setVersion(bomEntity.getVersion());
+				bom.setMaterielId(idForCode.get(bomEntity.getProductCode()));
+				bom.setCount(new BigDecimal(bomEntity.getProductCount()));
+				bom.setAuditSign(ConstantForMES.WAIT_AUDIT);
+				bom.setUseStatus(1);
+				this.save(bom);
+				bomId = bom.getId();
+				// 取出BOM子表
+				for (BomEntity entity : bomEntities) {
+					bomDetail = new BomDetailDO();
+					bomDetail.setBomId(bomId);
+					bomDetail.setMaterielId(idForCode.get(entity.getMaterielCode()));
+					bomDetail.setStandardCount(new BigDecimal(entity.getMaterielCount()));
+					bomDetail.setWasteRate(new BigDecimal(entity.getWasteRate()));
+					String isKeyComponents = entity.getIsKeyComponents();
+					isKeyComponents = isKeyComponents == null ? "否" : isKeyComponents;
+					bomDetail.setIsKeyComponents("否".equals(isKeyComponents) ? 0 : 1);
+					bomDetailService.save(bomDetail);
+				}
 
-
-
-
+			}
+			return R.ok();
 		}
-
-
-
-
-		return null;
+		return R.error();
 	}
 
 }
