@@ -160,20 +160,21 @@ public class ScmOutsourcingInStockApiController {
     }
 
 
-    @EvApiByToken(value = "/apis/scm/outsourcingInStock/listOfHead", method = RequestMethod.POST, apiTitle = "委外入库主信息列表")
-    @ApiOperation("委外入库主信息列表")
+    @EvApiByToken(value = "/apis/scm/outsourcingInStock/listOfHead", method = RequestMethod.POST, apiTitle = "入库主信息列表")
+    @ApiOperation("入库主信息列表")
     public R otherHeadList(@ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
                                  @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
                                  @ApiParam(value = "物料名（模糊）") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
                                  @ApiParam(value = "供应商id") @RequestParam(value = "supplierId", defaultValue = "", required = false) Long supplierId,
                                  @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
+                                 @ApiParam(value = "入库类型：委外传276；采购传260") @RequestParam(value = "storageType", defaultValue = "", required = false) Long storageType,
                                  @ApiParam(value = "制单起始日期") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String  createStartTime,
                                  @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime) {
         Map<String, Object> resulst = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
         params.put("materielName", materielName);
         params.put("auditSign", auditSign);
-        params.put("storageType", ConstantForGYL.OUTSOURCING_INSTOCK);
+        params.put("storageType", storageType);
         params.put("createStartTime", createStartTime);
         params.put("createEndTime", createEndTime);
         params.put("supplierId", supplierId);
@@ -183,7 +184,7 @@ public class ScmOutsourcingInStockApiController {
 
         if (!detailList.isEmpty()) {
             Map<String,Object>  maps= new HashMap<>();
-            maps.put("sourceType",ConstantForGYL.OUTSOURCING_INSTOCK);
+            maps.put("sourceType",storageType);
 
             for(int i=0;i<detailList.size();i++){
                 Map<String,Object>mapDo= detailList.get(i);

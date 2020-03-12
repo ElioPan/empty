@@ -577,9 +577,38 @@
 
 
 	<select id="listOfDeviceDetail" resultType="com.ev.custom.domain.DeviceDO">
-		select `id`,`serialno`,`name`,`type`,`factory`,`model`,`buy_time`,`using_time`,`service_year`,`dept_id`,`user_id`,`using_status`,`device_use`,`repair_end`,`site`,`desc`,`factory_id`,`supplier_id`,`service_id`,`parent_id`,`souce_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`engineer_id` from cus_device
+		SELECT
+		`id`,
+		`serialno`,
+		`name`,
+		`type`,
+		`factory`,
+		`model`,
+		`buy_time`,
+		`using_time`,
+		`service_year`,
+		`dept_id`,
+		`user_id`,
+		`using_status`,
+		`device_use`,
+		`repair_end`,
+		`site`,
+		`desc`,
+		`factory_id`,
+		`supplier_id`,
+		`service_id`,
+		`parent_id`,
+		`souce_id`,
+		`create_by`,
+		`create_time`,
+		`update_by`,
+		`update_time`,
+		`del_flag`,
+		`engineer_id`
+		FROM
+		cus_device
 		<where>
-
+			<if test="deptId != null and deptId != ''"> and  dept_id =# {deptId}</if>
 			<if test="name != null and name != ''"> and  name like  CONCAT('%',#{name},'%') </if>
 			and del_flag = 0
 		</where>

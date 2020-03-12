@@ -142,7 +142,7 @@ public class DeviceApiController {
             DeptDO deptDO = deptService.get(deptId);
             idPath = Objects.nonNull(deptDO)?deptDO.getIdPath():null;
         }
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("name", name);
         params. put("serialno", name);
         params. put("offset", (pageno - 1) * pagesize);
@@ -290,9 +290,10 @@ public class DeviceApiController {
     @ApiOperation("获取设备列表信息")
     public R list(@ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1",required = true) int pageno,
                   @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20",required = true) int pagesize,
+                  @ApiParam(value = "部門") @RequestParam(value = "deptId") Long deptId,
                   @ApiParam(value = "设备名称",required = false) @RequestParam(value = "name",defaultValue = "",required = true)  String name){
         Map<String,Object> results = Maps.newHashMap();
-        results = this.deviceService.listApi(pageno,pagesize,name);
+        results = this.deviceService.listApi(pageno,pagesize,name,deptId);
         return R.ok(results);
     }
 

@@ -290,11 +290,12 @@ public class StockInServiceImpl implements StockInService {
 
 	@Override
 	public int dealOveraAudit(Long inHeadId) {
-		StockInDO stockInDO=new StockInDO();
+		StockInDO stockInDO = stockInDao.get(inHeadId);
 		stockInDO.setId(inHeadId);
-		stockInDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);//10  待审核--->178L;
-
-		return stockInDao.update(stockInDO);
+		stockInDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+		stockInDO.setAuditor(null);
+		stockInDO.setAuditTime(null);
+		return stockInDao.updateAll(stockInDO);
 	}
 
 	@Override
@@ -542,6 +543,7 @@ public class StockInServiceImpl implements StockInService {
 			stockItemDO.setSourceType(storageType);
 			stockItemDos.add(stockItemDO);
 		}
+		//保存库存子表
 		stockItemService.batchSave(stockItemDos);
 
 		stockInItemService.batchSave(inbodyCdos);

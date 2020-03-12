@@ -55,5 +55,7 @@ public interface StockInDao {
 	int countForHead(Map<String, Object> map);
 
 
+	int updateAll(StockInDO stockInDO);
+
 
 }

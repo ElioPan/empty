@@ -35,7 +35,7 @@ public interface DeviceService {
 
     Map<String,Object> getDeviceQRCode(Long deviceId);
 
-	Map<String,Object> listApi(int pageno,int pagesize,String name);
+	Map<String,Object> listApi(int pageno,int pagesize,String name,Long deptId);
 
 	List<Map<String,Object>> childListDev(Map<String, Object> map);
 

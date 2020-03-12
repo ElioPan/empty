@@ -132,32 +132,32 @@
 	</insert>
 	
 	<update id="update" parameterType="com.ev.scm.domain.StockInDO">
-		update scm_stock_in
-		<set>
-			<if test="inheadCode != null">`inhead_code` = #{inheadCode}, </if>
-			<if test="storageType != null">`Storage_type` = #{storageType}, </if>
-			<if test="sourceCompany != null">`source_company` = #{sourceCompany}, </if>
+	update scm_stock_in
+	<set>
+		<if test="inheadCode != null">`inhead_code` = #{inheadCode}, </if>
+		<if test="storageType != null">`Storage_type` = #{storageType}, </if>
+		<if test="sourceCompany != null">`source_company` = #{sourceCompany}, </if>
 
-			<if test="clientId != null"> client_id = #{clientId}, </if>
-			<if test="deptId != null"> dept_id = #{deptId}, </if>
-			<if test="inOutTime != null">  in_out_time = #{inOutTime}, </if>
+		<if test="clientId != null"> client_id = #{clientId}, </if>
+		<if test="deptId != null"> dept_id = #{deptId}, </if>
+		<if test="inOutTime != null">  in_out_time = #{inOutTime}, </if>
 
-			<if test="operator != null">`operator` = #{operator}, </if>
-			<if test="auditor != null">`auditor` = #{auditor}, </if>
-			<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
-			<if test="auditTime != null">`audit_time` = #{auditTime}, </if>
-			<if test="inTime != null">`in_time` = #{inTime}, </if>
-			<if test="remarks != null">`remarks` = #{remarks}, </if>
-			<if test="createBy != null">`create_by` = #{createBy}, </if>
-			<if test="createTime != null">`create_time` = #{createTime}, </if>
-			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
-			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
-			<if test="delFlag != null">`del_flag` = #{delFlag},</if>
-			<if test="sign != null">`sign` = #{sign},</if>
-			<if test="qrSign != null">`qr_sign` = #{qrcodeId}</if>
-		</set>
-		where id = #{id}
-	</update>
+		<if test="operator != null">`operator` = #{operator}, </if>
+		<if test="auditor != null">`auditor` = #{auditor}, </if>
+		<if test="auditSign != null">`audit_sign` = #{auditSign}, </if>
+		<if test="auditTime != null">`audit_time` = #{auditTime}, </if>
+		<if test="inTime != null">`in_time` = #{inTime}, </if>
+		<if test="remarks != null">`remarks` = #{remarks}, </if>
+		<if test="createBy != null">`create_by` = #{createBy}, </if>
+		<if test="createTime != null">`create_time` = #{createTime}, </if>
+		<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+		<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+		<if test="delFlag != null">`del_flag` = #{delFlag},</if>
+		<if test="sign != null">`sign` = #{sign},</if>
+		<if test="qrSign != null">`qr_sign` = #{qrSign}</if>
+	</set>
+	where id = #{id}
+</update>
 
 	<delete id="remove">
 		delete from scm_stock_in where id = #{value}
@@ -686,6 +686,32 @@
 		</where>
 	</select>
 
+
+	<update id="updateAll" parameterType="com.ev.scm.domain.StockInDO">
+		update scm_stock_in
+		<set>
+			`inhead_code` = #{inheadCode},
+			`Storage_type` = #{storageType},
+			`source_company` = #{sourceCompany},
+			`client_id` = #{clientId},
+			`dept_id` = #{deptId},
+			`in_out_time` = #{inOutTime},
+			`operator` = #{operator},
+			`auditor` = #{auditor},
+			`audit_sign` = #{auditSign},
+			`audit_time` = #{auditTime},
+			`in_time` = #{inTime},
+			`remarks` = #{remarks},
+			`create_by` = #{createBy},
+			`create_time` = #{createTime},
+			`update_by` = #{updateBy},
+			`update_time` = #{updateTime},
+			`del_flag` = #{delFlag},
+			`sign` = #{sign},
+			`qr_sign` = #{qrSign}
+		</set>
+		where id = #{id}
+	</update>
 
 
 
