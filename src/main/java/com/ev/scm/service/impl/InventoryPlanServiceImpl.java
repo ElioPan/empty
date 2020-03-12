@@ -405,7 +405,6 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				List<InventoryPlanFitlossDO> inventoryPlanFitlossDOS = inventoryPlanFitlossService.list(maps);
 				//返回生成其他入库的数据。
 				params.remove("documentType");
-				List<Map<String, Object>> profitLossMsgNow = inventoryPlanItemService.getProfitLossMsg(params);
 				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PYDJ.intValue());
 				if(dictionaryDO!=null){
 					for(Map<String, Object> map:profitLossMsg){
@@ -415,7 +414,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 					}
 				}
 
-				result.put("BodyData", profitLossMsgNow);
+				result.put("BodyData", profitLossMsg);
 				return R.ok(result);
 
 			} else if (rows > 0 && otherInLines > 0) {
@@ -479,7 +478,6 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				Boolean aBoolean = inventoryPlanFitlossService.saveProfitORLoss(profitLossMsg, ConstantForGYL.PKDJ);
 				//允许返回生成其他入库的数据，但是盈亏单不更新
 				params.remove("documentType");
-				List<Map<String, Object>> profitLossMsgOer = inventoryPlanItemService.getProfitLossMsg(params);
 				Map<String,Object>  maps= new HashMap<>();
 				maps.put("headId",planId);
 				maps.put("documentType",ConstantForGYL.PKDJ);
@@ -492,7 +490,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 						map.put("code",inventoryPlanFitlossDOS.get(0).getCode());
 					}
 				}
-				result.put("BodyData", profitLossMsgOer);
+				result.put("BodyData", profitLossMsg);
 				return R.ok(result);
 
 			} else if (rows > 0 && otherInLines > 0) {
