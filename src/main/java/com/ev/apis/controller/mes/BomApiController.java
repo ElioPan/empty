@@ -296,8 +296,8 @@ public class BomApiController {
 	 * 导入
 	 */
 	@ResponseBody
-	@EvApiByToken(value = "/apis/importExcel/bom", method = RequestMethod.POST, apiTitle = "期初库存导入")
-	@ApiOperation("期初库存导入")
+	@EvApiByToken(value = "/apis/importExcel/bom", method = RequestMethod.POST, apiTitle = "bom导入")
+	@ApiOperation("bom导入")
 	@Transactional(rollbackFor = Exception.class)
 	public R readBomFile(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file) {
 		return bomService.importExcel(file);

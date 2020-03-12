@@ -1,5 +1,7 @@
 package com.ev.mes.service.impl;
 
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -16,11 +18,14 @@ import com.ev.mes.domain.CraftItemDO;
 import com.ev.mes.domain.ProcessCheckDO;
 import com.ev.mes.service.CraftService;
 import com.ev.mes.service.ProcessCheckService;
+import com.ev.mes.vo.CraftEntity;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -312,6 +317,101 @@ public class CraftServiceImpl implements CraftService {
     @Override
     public int countListBodyForMap(Map<String, Object> map) {
         return craftDao.countListBodyForMap(map);
+    }
+
+    @Override
+    public R importExcel(MultipartFile file) {
+        if (file.isEmpty()) {
+            return R.error(messageSourceHandler.getMessage("file.nonSelect", null));
+        }
+        ImportParams params = new ImportParams();
+        params.setTitleRows(1);
+        params.setHeadRows(1);
+        List<CraftEntity> craftEntityList;
+        try {
+            craftEntityList = ExcelImportUtil.importExcel(file.getInputStream(), CraftEntity.class, params);
+            craftEntityList = craftEntityList.stream().filter(craftEntity -> craftEntity.getCode() != null).collect(Collectors.toList());
+        } catch (Exception e) {
+            return R.error(messageSourceHandler.getMessage("file.upload.error", null));
+        }
+//        if (craftEntityList.size() > 0) {
+//            for (CraftEntity craftEntity : craftEntityList) {
+//                if (StringUtils.isEmpty(craftEntity.getSerialno())
+//                        || StringUtils.isEmpty(craftEntity.getProductCode())
+//                        || StringUtils.isEmpty(craftEntity.getMaterielCode())
+//                        || !NumberUtils.isNumber(craftEntity.getProductCount())
+//                        || !NumberUtils.isNumber(craftEntity.getMaterielCount())
+//                        || !NumberUtils.isNumber(craftEntity.getWasteRate())
+//                ) {
+//                    return R.error(messageSourceHandler.getMessage("basicInfo.correct.param", null));
+//                }
+//            }
+//            Map<String, List<CraftEntity>> groupBomEntity = craftEntityList
+//                    .stream()
+//                    .collect(Collectors.groupingBy(CraftEntity::getSerialno));
+//            List<String> productCodeList = craftEntityList
+//                    .stream()
+//                    .map(CraftEntity::getProductCode)
+//                    .collect(Collectors.toList());
+//            List<String> materielCodeList = craftEntityList
+//                    .stream()
+//                    .map(CraftEntity::getMaterielCode)
+//                    .collect(Collectors.toList());
+//            productCodeList.addAll(materielCodeList);
+//            List<String> allCode = productCodeList
+//                    .stream()
+//                    .distinct()
+//                    .collect(Collectors.toList());
+//            Map<String, Object> param = Maps.newHashMap();
+//            param.put("codes", allCode);
+//            List<MaterielDO> materielDOList = materielService.list(param);
+//            if (materielDOList.size() != allCode.size()) {
+//                List<String> collect = materielDOList
+//                        .stream()
+//                        .map(MaterielDO::getSerialNo)
+//                        .collect(Collectors.toList());
+//                allCode.removeAll(collect);
+//                String[] notExist = {allCode.toString()};
+//                return R.error(messageSourceHandler.getMessage("basicInfo.materiel.notExist", notExist));
+//            }
+//            Map<String, Integer> idForCode = materielDOList
+//                    .stream()
+//                    .collect(Collectors.toMap(MaterielDO::getSerialNo, MaterielDO::getId));
+//            BomDO bom;
+//            BomDetailDO bomDetail;
+//            CraftEntity craftEntity;
+//            Long bomId;
+//            for (String bomCode : groupBomEntity.keySet()) {
+//                List<CraftEntity> bomEntities = groupBomEntity.get(bomCode);
+//                // 取出BOM主表
+//                craftEntity = bomEntities.get(0);
+//                bom = new BomDO();
+//                bom.setSerialno(craftEntity.getSerialno());
+//                bom.setName(craftEntity.getName());
+//                bom.setVersion(craftEntity.getVersion());
+//                bom.setMaterielId(idForCode.get(craftEntity.getProductCode()));
+//                bom.setCount(new BigDecimal(craftEntity.getProductCount()));
+//                bom.setAuditSign(ConstantForMES.WAIT_AUDIT);
+//                bom.setUseStatus(1);
+//                this.save(bom);
+//                bomId = bom.getId();
+//                // 取出BOM子表
+//                for (CraftEntity entity : bomEntities) {
+//                    bomDetail = new BomDetailDO();
+//                    bomDetail.setBomId(bomId);
+//                    bomDetail.setMaterielId(idForCode.get(entity.getMaterielCode()));
+//                    bomDetail.setStandardCount(new BigDecimal(entity.getMaterielCount()));
+//                    bomDetail.setWasteRate(new BigDecimal(entity.getWasteRate()));
+//                    String isKeyComponents = entity.getIsKeyComponents();
+//                    isKeyComponents = isKeyComponents == null ? "否" : isKeyComponents;
+//                    bomDetail.setIsKeyComponents("否".equals(isKeyComponents) ? 0 : 1);
+//                    bomDetailService.save(bomDetail);
+//                }
+//
+//            }
+//            return R.ok();
+//        }
+        return R.error();
     }
 
 
