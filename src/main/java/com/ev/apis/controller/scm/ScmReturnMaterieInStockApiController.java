@@ -59,7 +59,7 @@ public class ScmReturnMaterieInStockApiController {
                               "\"warehouse\":1," +
                               "\"warehLocation\":2," +
                               "\"returnReason\":\"不好用\"," +
-                              "\"sourceType\":源单类型,\n" +
+                              "\"sourceType\":源 单 类 型,\n" +
                               "\"sourceCode\":\"SCLY20190720001\"," +
                               "\"sourceId\":1}"+
                               "\"qrcodeId\":\"二维码主键id\"\n" +
