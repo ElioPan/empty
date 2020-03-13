@@ -169,8 +169,8 @@ public class QrcodeApiController {
         return R.ok(result);
     }
 
-    @EvApiByToken(value = "/apis/scm/qrcode/backDetail",method = RequestMethod.GET,apiTitle = "获取出库时二维码信息")
-    @ApiOperation("获取出库时二维码信息")
+    @EvApiByToken(value = "/apis/scm/qrcode/backDetail",method = RequestMethod.GET,apiTitle = "退货（料）二维码信息")
+    @ApiOperation("退货（料）二维码信息")
     public R outDetail(@ApiParam(value = "二维码主键") @RequestParam(value = "qrCodeId") Long qrCodeId,
                        @ApiParam(value = "退货（料）单单据编号") @RequestParam(value = "sourceCode") String sourceCode){
         Map<String,Object> result = new HashMap<>();
@@ -189,7 +189,7 @@ public class QrcodeApiController {
          */
         List<QrcodeItemDO> qrcodeItemDOList = qrcodeItemService.list(new HashMap<String,Object>(1){{put("inheadCode",sourceCode);}});
         if(qrcodeItemDOList.size()==0){
-            return R.error(messageSourceHandler.getMessage("scm.qrcode.invalidSource",null));
+            return R.error(messageSourceHandler.getMessage("scm.qrcode.invalidSource",new String[]{sourceCode}));
         }
 
         List<Map<String,Object>> qrCodeList = qrcodeService.listForMap(new HashMap<String,Object>(1){{put("id",qrCodeId);}});
