@@ -35,6 +35,6 @@ public interface ProcessDao {
 
 	int deletOfProcess(Map<String, Object> map);
 
-
+	int checkSave(Map<String, Object> map);
 
 }

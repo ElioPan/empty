@@ -280,6 +280,16 @@
 		</foreach>
 	</update>
 
+	<select id="checkSave" resultType="int">
+		select
+		count(*)
+		FROM
+		mes_process
+		<where>
+			<if test="name != null and name != ''"> and name = #{name} </if>
+			<if test="code != null and code != ''"> and code = #{code}</if>
+		</where>
+	</select>
 
 
 	
