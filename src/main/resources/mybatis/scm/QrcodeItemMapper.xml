@@ -34,7 +34,7 @@
 	</select>
 
     <sql id="sql_column_list">
-		`id`,`qrcode_id`,`in_out_type`,`inhead_id`,`inbody_id`,`count`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+		`id`,`qrcode_id`,`in_out_type`,`inhead_id`,`inhead_code`,`inbody_id`,`count`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 	</sql>
 
     <sql id="sql_condition">
@@ -43,6 +43,7 @@
                             <if test="qrcodeId != null and qrcodeId != ''"> AND qrcode_id = #{qrcodeId} </if>
                             <if test="inOutType != null and inOutType != ''"> AND in_out_type = #{inOutType} </if>
                             <if test="inheadId != null and inheadId != ''"> AND inhead_id = #{inheadId} </if>
+							<if test="inheadCode != null and inheadCode != ''"> AND inhead_code = #{inheadCode} </if>
                             <if test="inbodyId != null and inbodyId != ''"> AND inbody_id = #{inbodyId} </if>
                             <if test="count != null and count != ''"> AND count = #{count} </if>
                             <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
@@ -58,7 +59,8 @@
 		(
 			`qrcode_id`, 
 			`in_out_type`, 
-			`inhead_id`, 
+			`inhead_id`,
+			`inhead_code`,
 			`inbody_id`, 
 			`count`, 
 			`create_by`, 
@@ -71,7 +73,8 @@
 		(
 			#{qrcodeId}, 
 			#{inOutType}, 
-			#{inheadId}, 
+			#{inheadId},
+			#{inheadCode},
 			#{inbodyId}, 
 			#{count}, 
 			#{createBy}, 
@@ -88,6 +91,7 @@
 			`qrcode_id`,
 			`in_out_type`,
 			`inhead_id`,
+		    `inhead_code`,
 			`inbody_id`,
 			`count`,
 			`create_by`,
@@ -102,6 +106,7 @@
 			#{obj.qrcodeId},
 			#{obj.inOutType},
 			#{obj.inheadId},
+			#{obj.inheadCode},
 			#{obj.inbodyId},
 			#{obj.count},
 			#{obj.createBy},
@@ -119,6 +124,7 @@
 			<if test="qrcodeId != null">`qrcode_id` = #{qrcodeId}, </if>
 			<if test="inOutType != null">`in_out_type` = #{inOutType}, </if>
 			<if test="inheadId != null">`inhead_id` = #{inheadId}, </if>
+			<if test="inheadCode != null">`inhead_code` = #{inheadCode}, </if>
 			<if test="inbodyId != null">`inbody_id` = #{inbodyId}, </if>
 			<if test="count != null">`count` = #{count}, </if>
 			<if test="createBy != null">`create_by` = #{createBy}, </if>

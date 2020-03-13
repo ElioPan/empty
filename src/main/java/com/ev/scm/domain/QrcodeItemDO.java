@@ -37,6 +37,9 @@ public class QrcodeItemDO implements Serializable {
 	//单据主键(主表主键)
     @ApiModelProperty(value = "单据主键(主表主键)")
 	private Long inheadId;
+	//单据编号(主表编号)
+	@ApiModelProperty(value = "单据编号(主表编号)")
+	private String inheadCode;
 	//单据主键（子表主键)
     @ApiModelProperty(value = "单据主键（子表主键)")
 	private Long inbodyId;
@@ -59,10 +62,11 @@ public class QrcodeItemDO implements Serializable {
 	@ApiModelProperty(value = "删除状态")
 	private Integer delFlag = 0;
 
-	public QrcodeItemDO(Long qrcodeId, Long inOutType, Long inheadId, Long inbodyId, BigDecimal count) {
+	public QrcodeItemDO(Long qrcodeId, Long inOutType, Long inheadId, String inheadCode, Long inbodyId, BigDecimal count) {
 		this.qrcodeId = qrcodeId;
 		this.inOutType = inOutType;
 		this.inheadId = inheadId;
+		this.inheadCode = inheadCode;
 		this.inbodyId = inbodyId;
 		this.count = count;
 	}

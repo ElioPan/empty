@@ -8,6 +8,8 @@ import com.ev.framework.utils.R;
 import com.ev.mes.domain.MaterialInspectionDO;
 import com.ev.mes.service.MaterialInspectionService;
 import com.ev.scm.domain.QrcodeDO;
+import com.ev.scm.domain.QrcodeItemDO;
+import com.ev.scm.service.QrcodeItemService;
 import com.ev.scm.service.QrcodeService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
@@ -34,6 +36,9 @@ public class QrcodeApiController {
 
     @Autowired
     QrcodeService qrcodeService;
+
+    @Autowired
+    QrcodeItemService qrcodeItemService;
 
     @Autowired
     MaterialInspectionService materialInspectionService;
@@ -160,6 +165,34 @@ public class QrcodeApiController {
             return R.error(messageSourceHandler.getMessage("scm.qrcode.notIn",null));
         }
         List<Map<String,Object>> qrCodeList = qrcodeService.listForMap(new HashMap<String,Object>(){{put("id",qrCodeId);}});
+        result.put("qrCodeInfo",qrCodeList.get(0));
+        return R.ok(result);
+    }
+
+    @EvApiByToken(value = "/apis/scm/qrcode/backDetail",method = RequestMethod.GET,apiTitle = "获取出库时二维码信息")
+    @ApiOperation("获取出库时二维码信息")
+    public R outDetail(@ApiParam(value = "二维码主键") @RequestParam(value = "qrCodeId") Long qrCodeId,
+                       @ApiParam(value = "退货（料）单单据编号") @RequestParam(value = "sourceCode") Long sourceCode){
+        Map<String,Object> result = new HashMap<>();
+        /**
+         * 验证是否包含此二维码信息
+         */
+        QrcodeDO qrcodeDO = qrcodeService.get(qrCodeId);
+        if(qrcodeDO == null){
+            return R.error(messageSourceHandler.getMessage("scm.qrcode.invalid",null));
+        }
+        if(qrcodeDO.getStockId() == null){
+            return R.error(messageSourceHandler.getMessage("scm.qrcode.notIn",null));
+        }
+        /**
+         * 验证扫描的二维码是否为源单关联的码
+         */
+        List<QrcodeItemDO> qrcodeItemDOList = qrcodeItemService.list(new HashMap<String,Object>(1){{put("inheadCode",sourceCode);}});
+        if(qrcodeItemDOList.size()==0){
+            return R.error(messageSourceHandler.getMessage("scm.qrcode.invalidSource",null));
+        }
+
+        List<Map<String,Object>> qrCodeList = qrcodeService.listForMap(new HashMap<String,Object>(1){{put("id",qrCodeId);}});
         result.put("qrCodeInfo",qrCodeList.get(0));
         return R.ok(result);
     }
