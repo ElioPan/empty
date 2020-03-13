@@ -649,12 +649,16 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
             BigDecimal checkCount=new BigDecimal(inventoryPlanEntity.getCheckCount());
             InventoryPlanItemDO inventoryPlanItemDO = inventoryPlanItemService.get(Long.parseLong(id));
             BigDecimal systemCount= inventoryPlanItemDO.getSystemCount();
+
             inventoryPlanItemDO.setCheckCount(checkCount);
             inventoryPlanItemDO.setProfitLoss(systemCount.subtract(checkCount));
             listItemDo.add(inventoryPlanItemDO);
         }
 
         if(listItemDo.size()>0){
+            InventoryPlanDO inventoryPlanDO = this.get(listItemDo.get(0).getHeadId());
+            inventoryPlanDO.setCheckStatus(ConstantForGYL.EXECUTE_NOW);
+            this.update(inventoryPlanDO);
             inventoryPlanItemService.batchUpdate(listItemDo);
             return R.ok();
         }else{
