@@ -59,9 +59,10 @@ public class ScmReturnMaterieInStockApiController {
                               "\"warehouse\":1," +
                               "\"warehLocation\":2," +
                               "\"returnReason\":\"不好用\"," +
-                              "\"sourceTtype\":34," +
+                              "\"sourceType\":源单类型,\n" +
                               "\"sourceCode\":\"SCLY20190720001\"," +
                               "\"sourceId\":1}"+
+                              "\"qrcodeId\":\"二维码主键id\"\n" +
                               "]", required = true) @RequestParam(value = "bodyDetail", defaultValue = "") String bodyDetail,
                       @ApiParam(value = "删除的明细id") @RequestParam(value = "itemIds", required = false) Long[] itemIds) {
 
