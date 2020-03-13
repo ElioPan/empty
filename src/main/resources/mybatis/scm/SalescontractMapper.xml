@@ -192,6 +192,7 @@
         dict.`name` AS contractTypeName,
         IF(sales.close_status=0,'未关闭','关闭') AS closeStatusName,
         sales.close_status AS closeStatus,
+        client.`id` AS clientId,
         client.`name` AS clientName,
         salesUser.`name` AS salesPersonName,
         salesUserDept.name AS salesPersonDeptName,
