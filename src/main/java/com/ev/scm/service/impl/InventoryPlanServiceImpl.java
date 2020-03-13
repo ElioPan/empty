@@ -624,17 +624,15 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 		params.setTitleRows(0);
 		params.setHeadRows(1);
 		List<InventoryPlanEntity> InventoryPlanList;
-		List<InventoryPlanEntity> InventoryPlanHaveNoIdList;
-		List<Map<String,String>> InventoryPlanReuseIMap;
+		Map<String,String> InventoryPlanReuseIMap;
 		try {
 			InventoryPlanList = ExcelImportUtil.importExcel(file.getInputStream(), InventoryPlanEntity.class, params);
-			InventoryPlanHaveNoIdList=InventoryPlanList.stream().filter(InventoryPlanEntity -> InventoryPlanEntity.getId() == null).collect(Collectors.toList());
-			InventoryPlanReuseIMap=null;
 			InventoryPlanList = InventoryPlanList.stream().filter(InventoryPlanEntity -> InventoryPlanEntity.getId() != null).collect(Collectors.toList());
-		} catch (Exception e) {
+            InventoryPlanReuseIMap=InventoryPlanList.stream().collect(Collectors.toMap(InventoryPlanEntity::getId,InventoryPlanEntity::getCheckCount,(k1,k2)->k1));
+
+        } catch (Exception e) {
 			return R.error(messageSourceHandler.getMessage("file.upload.error", null));
 		}
-
 		if(InventoryPlanList.size()>0){
 			for(InventoryPlanEntity inventoryPlanEntity:InventoryPlanList){
 				if(StringUtils.isEmpty(inventoryPlanEntity.getCheckCount())){
@@ -642,16 +640,30 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				}
 			}
 		}
-
-		if(InventoryPlanHaveNoIdList.size()>0){
+		if(InventoryPlanList.size()>InventoryPlanReuseIMap.size()){
 			return R.error(messageSourceHandler.getMessage("scm.inventoryPlan.haveNoId", null));
 		}
+        List<InventoryPlanItemDO> listItemDo=new ArrayList<>();
+        for(InventoryPlanEntity inventoryPlanEntity:InventoryPlanList){
+            String id=inventoryPlanEntity.getId();
+            BigDecimal checkCount=new BigDecimal(inventoryPlanEntity.getCheckCount());
+            InventoryPlanItemDO inventoryPlanItemDO = inventoryPlanItemService.get(Long.parseLong(id));
+            BigDecimal systemCount= inventoryPlanItemDO.getSystemCount();
+            inventoryPlanItemDO.setCheckCount(checkCount);
+            inventoryPlanItemDO.setProfitLoss(systemCount.subtract(checkCount));
+            listItemDo.add(inventoryPlanItemDO);
+        }
+
+        if(listItemDo.size()>0){
+            inventoryPlanItemService.batchUpdate(listItemDo);
+            return R.ok();
+        }else{
+            return R.error();
+        }
 
 
 
-
-		return null;
-	}
+}
 
 
 
