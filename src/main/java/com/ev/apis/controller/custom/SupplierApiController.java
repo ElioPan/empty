@@ -67,7 +67,7 @@ public class SupplierApiController {
                                  @ApiParam(value = "联系人", required = true) @RequestParam(value = "linkname", defaultValue = "", required = true) String linkname) {
 
 
-        Map<String,Object>  paramy= new HashMap<String,Object>();
+        Map<String,Object>  paramy= new HashMap<>();
         paramy.put("name",supplierDO.getName().trim());
         int lines = supplierService.checkSave(paramy);
         if(lines>0){

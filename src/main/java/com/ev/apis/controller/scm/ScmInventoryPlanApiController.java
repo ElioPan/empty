@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -219,31 +220,39 @@ public class ScmInventoryPlanApiController {
 
 
     @ResponseBody
-    @EvApiByToken(value = "/apis/scm/exportExcel/systemCountGetOut", method = RequestMethod.GET, apiTitle = "导出系统库存")
-    @ApiOperation("导出系统库存")
-            public void exportExcel(
-            @ApiParam(value = "仓库id(选择所有仓库id为空)",required = true) @RequestParam(value = "warehouse") Long warehouse,
-            @ApiParam(value = "商品名称/编码：String") @RequestParam(value = "syntheticData", defaultValue = "") String syntheticData,
+    @EvApiByToken(value = "/apis/scm/exportExcel/systemCountGetOut", method = RequestMethod.GET, apiTitle = "导出盘点方案")
+    @ApiOperation("导出盘点方案")
+     public void exportExcel(
+            @ApiParam(value = "盘点方案id", required = true) @RequestParam(value = "planId") Long planId,
             HttpServletRequest request, HttpServletResponse response, ModelMap modelMap) {
 
         Map<String,Object> query = com.beust.jcommander.internal.Maps.newHashMap();
-        query.put("warehouse",warehouse);
-        query.put("name",syntheticData);
+//        query.put("warehouse",warehouse);
+//
+//        query.put("name",syntheticData);
+//        List<Map<String, Object>> list = inventoryPlanItemService.getProMsgCount(query);
+        query.put("id", planId);
+        List<Map<String, Object>> list = inventoryPlanService.getProMsgByHeadId(query);
 
-        List<Map<String, Object>> list = inventoryPlanItemService.getProMsgCount(query);
 
         ClassPathResource classPathResource = new ClassPathResource("poi/scm_inventory_plan.xlsx");
         Map<String,Object> map = Maps.newHashMap();
         map.put("list", list);
         TemplateExportParams result = new TemplateExportParams(classPathResource.getPath());
-        modelMap.put(TemplateExcelConstants.FILE_NAME, "系统库存");
+        modelMap.put(TemplateExcelConstants.FILE_NAME, "方案系统库存");
         modelMap.put(TemplateExcelConstants.PARAMS, result);
         modelMap.put(TemplateExcelConstants.MAP_DATA, map);
         PoiBaseView.render(modelMap, request, response,
                 TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
     }
 
-
+    @ResponseBody
+    @EvApiByToken(value = "/apis/importExcel/inventoryPlanResult", method = RequestMethod.POST, apiTitle = "盘点结果导入")
+    @ApiOperation("盘点结果导入")
+    @Transactional(rollbackFor = Exception.class)
+    public R inventoryPlanResult(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file) {
+        return inventoryPlanService.disposeImportExcel(file);
+    }
 
 
 

@@ -621,7 +621,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 			return R.error(messageSourceHandler.getMessage("file.nonSelect", null));
 		}
 		ImportParams params = new ImportParams();
-		params.setTitleRows(1);
+		params.setTitleRows(0);
 		params.setHeadRows(1);
 		List<InventoryPlanEntity> InventoryPlanList;
 		List<InventoryPlanEntity> InventoryPlanHaveNoIdList;
