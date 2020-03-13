@@ -211,12 +211,9 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 	@Override
 	public R addInventoryPlan(InventoryPlanDO checkHeadDO, String checkBodys, Long[] deleItemIds) {
 		//提箱前端当选择的仓库为“所有仓库”时 仓库字段放空值
-
-		InventoryPlanDO inventoryPlanDO = inventoryPlanService.get(checkHeadDO.getId());
-
-		if (Objects.nonNull(inventoryPlanDO)) {
-			if (Objects.equals(inventoryPlanDO.getCheckStatus(), ConstantForGYL.EXECUTE_NON)) {
-
+		if (Objects.nonNull(checkHeadDO.getId())) {
+            InventoryPlanDO inventoryPlanDO = inventoryPlanService.get(checkHeadDO.getId());
+            if (Objects.equals(inventoryPlanDO.getCheckStatus(), ConstantForGYL.EXECUTE_NON)) {
 				int rows = inventoryPlanService.update(checkHeadDO);
 				if (rows > 0) {
 					if (Objects.nonNull(checkBodys)) {
@@ -234,7 +231,9 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 					if (deleItemIds.length > 0) {
 						inventoryPlanItemService.batchRemove(deleItemIds);
 					}
-					return R.ok();
+                    Map<String,Object>  map= new HashMap<>();
+                    map.put("id",checkHeadDO.getId());
+                    return R.ok(map);
 				} else {
 					return R.error(messageSourceHandler.getMessage("apis.check.saveChangePlan", null));
 				}
@@ -252,12 +251,13 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				body.setHeadId(checkHeadDO.getId());
 				inventoryPlanItemService.save(body);
 			}
-			return R.ok();
+			Map<String,Object>  map= new HashMap<>();
+			map.put("id",checkHeadDO.getId());
+			return R.ok(map);
 		} else {
 			return R.error(messageSourceHandler.getMessage("apis.check.addCheck", null));
 		}
 	}
-
 }
 
 	@Override
