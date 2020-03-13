@@ -1,5 +1,7 @@
 package com.ev.scm.service.impl;
 
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.beust.jcommander.internal.Maps;
@@ -10,6 +12,8 @@ import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
+import com.ev.mes.vo.BomEntity;
+import com.ev.mes.vo.InventoryPlanEntity;
 import com.ev.scm.dao.InventoryPlanDao;
 import com.ev.scm.dao.InventoryPlanFitlossDao;
 import com.ev.scm.domain.InventoryPlanDO;
@@ -18,16 +22,14 @@ import com.ev.scm.domain.InventoryPlanItemDO;
 import com.ev.scm.service.InventoryPlanFitlossService;
 import com.ev.scm.service.InventoryPlanItemService;
 import com.ev.scm.service.InventoryPlanService;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
 import net.sf.json.JSONObject;
-import org.apache.commons.collections4.Put;
-import org.apache.ibatis.jdbc.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -610,6 +612,52 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 			return  R.error(messageSourceHandler.getMessage("apis.check.buildWinStockD",null));
 		}
 	}
+
+
+	@Override
+	public R disposeImportExcel(MultipartFile file){
+
+		if (file.isEmpty()) {
+			return R.error(messageSourceHandler.getMessage("file.nonSelect", null));
+		}
+		ImportParams params = new ImportParams();
+		params.setTitleRows(1);
+		params.setHeadRows(1);
+		List<InventoryPlanEntity> InventoryPlanList;
+		List<InventoryPlanEntity> InventoryPlanHaveNoIdList;
+		List<Map<String,String>> InventoryPlanReuseIMap;
+		try {
+			InventoryPlanList = ExcelImportUtil.importExcel(file.getInputStream(), InventoryPlanEntity.class, params);
+			InventoryPlanHaveNoIdList=InventoryPlanList.stream().filter(InventoryPlanEntity -> InventoryPlanEntity.getId() == null).collect(Collectors.toList());
+			InventoryPlanReuseIMap=null;
+			InventoryPlanList = InventoryPlanList.stream().filter(InventoryPlanEntity -> InventoryPlanEntity.getId() != null).collect(Collectors.toList());
+		} catch (Exception e) {
+			return R.error(messageSourceHandler.getMessage("file.upload.error", null));
+		}
+
+		if(InventoryPlanList.size()>0){
+			for(InventoryPlanEntity inventoryPlanEntity:InventoryPlanList){
+				if(StringUtils.isEmpty(inventoryPlanEntity.getCheckCount())){
+					return R.error(messageSourceHandler.getMessage("scm.inventoryPlan.haveNoData", null));
+				}
+			}
+		}
+
+		if(InventoryPlanHaveNoIdList.size()>0){
+			return R.error(messageSourceHandler.getMessage("scm.inventoryPlan.haveNoId", null));
+		}
+
+
+
+
+		return null;
+	}
+
+
+
+
+
+
 
 
 

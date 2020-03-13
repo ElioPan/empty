@@ -2,6 +2,7 @@ package com.ev.scm.service;
 
 import com.ev.framework.utils.R;
 import com.ev.scm.domain.InventoryPlanDO;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -56,5 +57,7 @@ public interface InventoryPlanService {
 	R disposeCheckByQrId(Long planId,String  qrMsg, Long qrId);
 
 	R disposePhoneCheckResuls(Long planId,String checkBodys);
+
+	R disposeImportExcel(MultipartFile file);
 
 }

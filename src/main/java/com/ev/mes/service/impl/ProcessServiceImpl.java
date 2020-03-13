@@ -3,6 +3,7 @@ package com.ev.mes.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.ev.custom.domain.ContentAssocDO;
+import com.ev.custom.domain.SupplierDO;
 import com.ev.custom.service.ContentAssocService;
 import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
@@ -22,7 +23,10 @@ import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 
 @Service
@@ -118,18 +122,27 @@ public class ProcessServiceImpl implements ProcessService {
             return R.ok();
         } else {
             //新增
-            //<if test="maxNo != null and maxNo != ''"> and LEFT(work_orderNo,12) = #{maxNo} </if>
-            String prefix = DateFormatUtil.getWorkOrderno(ConstantForMES.PROCESS_GXPZ, new Date());
-            Map<String, Object> params = Maps.newHashMapWithExpectedSize(3);
-            params.put("maxNo", prefix);
-            params.put("offset", 0);
-            params.put("limit", 1);
-            List<ProcessDO> list = processDao.list(params);
-            String suffix = null;
-            if (list.size() > 0) {
-                suffix = list.get(0).getCode();
+            if(StringUtils.isNotEmpty(processDO.getCode())&&!(processDO.getCode().startsWith(Constant.GYS))){
+                Map<String, Object> params = Maps.newHashMapWithExpectedSize(1);
+                params.put("code",processDO.getCode());
+                if(processDao.checkSave(params)>0){
+                    return R.error(messageSourceHandler.getMessage("common.duplicate.serialNo",null));
+                }
             }
-            processDO.setCode(DateFormatUtil.getWorkOrderno(prefix, suffix));
+            if(StringUtils.isEmpty(processDO.getCode()) || processDO.getCode().startsWith(ConstantForMES.PROCESS_GXPZ)){
+                String prefix = DateFormatUtil.getWorkOrderno(ConstantForMES.PROCESS_GXPZ, new Date());
+                Map<String, Object> params = Maps.newHashMapWithExpectedSize(3);
+                params.put("maxNo", prefix);
+                params.put("offset", 0);
+                params.put("limit", 1);
+                List<ProcessDO> list = processDao.list(params);
+                String suffix = null;
+                if (list.size() > 0) {
+                    suffix = list.get(0).getCode();
+                }
+                processDO.setCode(DateFormatUtil.getWorkOrderno(prefix, suffix));
+            }
+
             processDO.setAuditSign(ConstantForMES.WAIT_AUDIT);
             processDao.save(processDO);
 
