@@ -546,7 +546,7 @@ public class StockInServiceImpl implements StockInService {
 
 		stockInItemService.batchSave(inbodyCdos);
 
-		qrcodeService.saveInQrCode(stockDos,inbodyCdos);
+		qrcodeService.saveInQrCode(stockInDO, stockDos,inbodyCdos);
 
 		}
 

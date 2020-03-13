@@ -5,10 +5,7 @@ import com.ev.framework.config.ConstantForGYL;
 import com.ev.mes.domain.MaterialInspectionDO;
 import com.ev.scm.dao.QrcodeDao;
 import com.ev.scm.domain.*;
-import com.ev.scm.service.QrcodeItemService;
-import com.ev.scm.service.QrcodeService;
-import com.ev.scm.service.StockOutService;
-import com.ev.scm.service.StockService;
+import com.ev.scm.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +22,9 @@ public class QrcodeServiceImpl implements QrcodeService {
 
     @Autowired
     private StockService stockService;
+
+    @Autowired
+    private StockInItemService stockInItemService;
 
     @Autowired
     private QrcodeItemService qrcodeItemService;
@@ -127,12 +127,15 @@ public class QrcodeServiceImpl implements QrcodeService {
 
     /**
 	 * 入库后调用方法保存二维码信息
+     * @param stockInDO 入库主表信息
 	 * @param stockDOS 保存的库存列表
 	 * @param params 前端扫码参数列表[{......,qrCodeId:1}{......,qrCodeId:2}]
 	 */
     @Override
-    public void saveInQrCode(List<StockDO> stockDOS, List<StockInItemDO> params) {
+    public void saveInQrCode(StockInDO stockInDO, List<StockDO> stockDOS, List<StockInItemDO> params) {
+        List<StockInItemDO> stockInItemDOS = stockInItemService.list(new HashMap<String,Object>(){{put("inheadId",stockInDO.getId());}});
         List<QrcodeDO> qrcodeDOList = new ArrayList<>();
+        List<QrcodeItemDO> qrcodeItemDOList = new ArrayList<>();
         /**
          * 整理数量，批量更新
          */
@@ -150,8 +153,21 @@ public class QrcodeServiceImpl implements QrcodeService {
                     break;
                 }
             }
+            for (StockInItemDO stockInItemDOSaved : stockInItemDOS) {
+                /**
+                 * 库位相同，物料相同，批号相同的分组
+                 */
+                if (Objects.equals(stockInItemDOSaved.getMaterielId(), stockInItemDO.getMaterielId()) &&
+                        (stockInItemDOSaved.getWarehouse() + "-" + stockInItemDOSaved.getWarehLocation()).equals(stockInItemDO.getWarehouse() + "-" + stockInItemDO.getWarehLocation()) &&
+                        stockInItemDOSaved.getBatch().equals(stockInItemDO.getBatch())) {
+                    QrcodeItemDO qrcodeItemDO = new QrcodeItemDO(stockInItemDO.getQrcodeId(), stockInDO.getStorageType(), stockInDO.getId(),stockInDO.getInheadCode(), stockInItemDOSaved.getId(), stockInItemDO.getCount());
+                    qrcodeItemDOList.add(qrcodeItemDO);
+                    break;
+                }
+            }
         }
         batchUpdate(qrcodeDOList);
+        qrcodeItemService.batchInsert(qrcodeItemDOList);
     }
 
 	/**
@@ -173,7 +189,7 @@ public class QrcodeServiceImpl implements QrcodeService {
                 if(Arrays.asList(stockOutItemDOSaved.getStockId().split(",")).contains(qrcodeDO.getStockId().toString())){
                     qrcodeDO.setRemainCount(qrcodeDO.getRemainCount().subtract(stockOutItemDO.getCount()));
                     qrcodeDOList.add(qrcodeDO);
-                    QrcodeItemDO qrcodeItemDO = new QrcodeItemDO(qrCodeId, stockOutDO.getOutboundType(), stockOutItemDOSaved.getOutId(), stockOutItemDOSaved.getId(), stockOutItemDO.getCount());
+                    QrcodeItemDO qrcodeItemDO = new QrcodeItemDO(qrCodeId, stockOutDO.getOutboundType(), stockOutDO.getId(), stockOutDO.getOutCode(), stockOutItemDOSaved.getId(), stockOutItemDO.getCount());
                     qrcodeItemDOList.add(qrcodeItemDO);
                     break;
                 }
