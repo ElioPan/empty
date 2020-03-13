@@ -290,11 +290,12 @@ public class StockInServiceImpl implements StockInService {
 
 	@Override
 	public int dealOveraAudit(Long inHeadId) {
-		StockInDO stockInDO=new StockInDO();
+		StockInDO stockInDO = stockInDao.get(inHeadId);
 		stockInDO.setId(inHeadId);
-		stockInDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);//10  待审核--->178L;
-
-		return stockInDao.update(stockInDO);
+		stockInDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+		stockInDO.setAuditor(null);
+		stockInDO.setAuditTime(null);
+		return stockInDao.updateAll(stockInDO);
 	}
 
 	@Override
@@ -542,6 +543,7 @@ public class StockInServiceImpl implements StockInService {
 			stockItemDO.setSourceType(storageType);
 			stockItemDos.add(stockItemDO);
 		}
+		//保存库存子表
 		stockItemService.batchSave(stockItemDos);
 
 		stockInItemService.batchSave(inbodyCdos);
@@ -755,19 +757,43 @@ public class StockInServiceImpl implements StockInService {
 
 
 	@Override
-	public String checkSourceCountsOfProduce(String bodyDetail){
+	public R checkSourceCountsOfProduce(String bodyDetail,Long id){
 
-		List<StockInItemDO> itemDos = new ArrayList<>();
+		List<StockInItemDO> itemDos;
 		if (StringUtils.isNotEmpty(bodyDetail)) {
 			itemDos = JSON.parseArray(bodyDetail, StockInItemDO.class);
 		} else {
-			return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
+			return R.error(messageSourceHandler.getMessage("common.massge.dateIsNon", null));
 		}
+        //合并数量及sourseId
+        Map<Long,BigDecimal>  sourseIdCounts= new HashMap<>();
+        for (StockInItemDO itemDo : itemDos) {
+            Long sourseId=itemDo.getSourceId();
+            if(sourseId==null){
+                continue;
+            }
+            if(sourseIdCounts.containsKey(sourseId)){
+                sourseIdCounts.put(sourseId,sourseIdCounts.get(sourseId).add(itemDo.getCount()));
+                continue;
+            }
+            sourseIdCounts.put(sourseId,itemDo.getCount());
+        }
+
+        List<StockInItemDO> stockInItemDos=new ArrayList<>();
+        for(Long sourseId:sourseIdCounts.keySet()){
+
+            for(StockInItemDO itemDo : itemDos){
+                if(Objects.equals(itemDo.getSourceId(),sourseId)){
+                    itemDo.setCount(sourseIdCounts.get(sourseId));
+                    stockInItemDos.add(itemDo);
+                    break;
+                }
+            }
+        }
 		//验证生产计划单
-		for (StockInItemDO itemDo : itemDos) {
+		for (StockInItemDO itemDo : stockInItemDos) {
 
 			if (Objects.nonNull(itemDo.getSourceId())) {
-
 				Long sourceId = itemDo.getSourceId();
 				BigDecimal thisCount = itemDo.getCount();
 				Long sourceType = itemDo.getSourceType();
@@ -780,31 +806,31 @@ public class StockInServiceImpl implements StockInService {
 							Map<String, Object> map = new HashMap<>();
 							map.put("sourceId", sourceId);
 							map.put("sourceType", sourceType);
-							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
-							//已引入的入库数量
-							BigDecimal inCounts = stockInItemService.getInCountOfContract(map);
-							BigDecimal inCountOfContract = (inCounts == null) ? BigDecimal.ZERO : inCounts;
+                            if(id!=null){map.put("id",id);}
+                            BigDecimal inCountOfContract = stockInItemService.countOfIntroducedContract(map);
 							//上线数量
 							BigDecimal completionMax=productionPlanDO.getCompletionMax()==null?BigDecimal.ZERO : productionPlanDO.getCompletionMax();
 							int boo = ((productionPlanDO.getPlanCount().add(completionMax)).subtract(inCountOfContract)).compareTo(thisCount);
 							if (Objects.equals(-1, boo)) {
 								String[] args = {thisCount.toPlainString(), ((productionPlanDO.getPlanCount().add(completionMax)).subtract(inCountOfContract)).toPlainString(), itemDo.getSourceCode().toString()};
-								return messageSourceHandler.getMessage("stock.number.exceededQuantity", args);
+                                Map<String,Object>  maps= new HashMap<>();
+                                maps.put("sourceId",sourceId);
+                                maps.put("sourceCount",(productionPlanDO.getPlanCount().add(completionMax)).subtract(inCountOfContract));
+                                return R.error(500,messageSourceHandler.getMessage("stock.number.exceededQuantity", args),maps);
 							}
-
 						} else {
-							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+							return R.error(messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null));
 						}
 					}else{
 						//引入的源单类型非生产计划单
-						return messageSourceHandler.getMessage("scm.checkCount.EroorSourceTypeOfproduce", null);
+						return R.error(messageSourceHandler.getMessage("scm.checkCount.EroorSourceTypeOfproduce", null));
 					}
 				} else {
-					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
+                    return  R.error(messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null));
 				}
 			}
 		}
-		return "ok";
+		return null;
 	}
 
 

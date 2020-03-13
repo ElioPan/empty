@@ -43,7 +43,7 @@ public interface PurchaseService {
 
 	R getdetail(Long id);
 
-	String checkSourceCounts(String itemDos, Long storageType);
+	R checkSourceCounts(String itemDos, Long id);
 
 	Map<String, Object> vailableQuantity(Map<String, Object> map);
 

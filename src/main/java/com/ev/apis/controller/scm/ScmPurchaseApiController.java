@@ -65,11 +65,11 @@ public class ScmPurchaseApiController {
                                         "]", required = true) @RequestParam(value = "item", defaultValue = "") String item,
                                 @ApiParam(value = "删除的明细行id:") @RequestParam(value = "itemIds", required = false) Long[] deleItemIds) {
 
-        String resutlt = purchaseService.checkSourceCounts(item, ConstantForGYL.PURCHASE);
-        if(Objects.equals("ok",resutlt)){
+        R resutlt = purchaseService.checkSourceCounts(item, purchaseDO.getId());
+        if(Objects.isNull(resutlt)){
             return purchaseService.addPurchase(purchaseDO, item, deleItemIds);
         }else{
-            return R.error(resutlt);
+            return resutlt;
         }
     }
 

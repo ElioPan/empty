@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.ev.framework.utils.R;
 import com.ev.mes.domain.BomDO;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * BOM主表
@@ -52,4 +53,6 @@ public interface BomService {
 	int countForMap(Map<String, Object> params);
 
 	List<Map<String, Object>> listForMap(Map<String, Object> params);
+
+	R importExcel(MultipartFile file);
 }

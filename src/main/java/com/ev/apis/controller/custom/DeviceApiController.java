@@ -6,16 +6,15 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
 import com.alibaba.fastjson.JSONArray;
-import com.ev.custom.vo.DeviceEntity;
-import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
-import com.ev.framework.config.Constant;
-import com.ev.framework.config.ConstantForMES;
-import com.ev.framework.utils.*;
 import com.ev.custom.domain.*;
 import com.ev.custom.service.*;
-import com.ev.system.domain.DeptDO;
+import com.ev.custom.vo.DeviceEntity;
+import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.Constant;
 import com.ev.framework.il8n.MessageSourceHandler;
+import com.ev.framework.utils.*;
+import com.ev.system.domain.DeptDO;
 import com.ev.system.domain.UserDO;
 import com.ev.system.service.DeptService;
 import com.ev.system.service.UserService;
@@ -143,7 +142,7 @@ public class DeviceApiController {
             DeptDO deptDO = deptService.get(deptId);
             idPath = Objects.nonNull(deptDO)?deptDO.getIdPath():null;
         }
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("name", name);
         params. put("serialno", name);
         params. put("offset", (pageno - 1) * pagesize);
@@ -836,7 +835,7 @@ public class DeviceApiController {
                     String[] arg = {StringUtils.join(duplicateElements.toArray(), ",")};
                     return R.error(messageSourceHandler.getMessage("basicInfo.code.isPresence", arg));
                 }
-            }
+    }
 
             Map<String, Object> param = Maps.newHashMap();
             param.put("maxNo", Constant.SB);

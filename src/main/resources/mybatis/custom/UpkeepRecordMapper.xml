@@ -474,39 +474,24 @@
 		) alldobule
 		<where>
 			<if test="idPath != null and idPath != ''"> and  idPath like  CONCAT('%',#{idPath},'%')</if>
-
 			<if test="id != null and id != ''"> and id = #{id} </if>
 			<if test="planId != null and planId != ''"> and plan_id = #{planId} </if>
 			<if test="deviceName != null and deviceName != ''"> and  deviceName like  CONCAT('%',#{deviceName},'%') </if>
-
 			<if test="serialno != null and serialno != ''"> and  device_serialno like  CONCAT('%',#{serialno},'%') </if>
-
 			<if test="workOrderno != null and workOrderno != ''"> and work_orderNo = #{workOrderno} </if>
-
 			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(start_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(end_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
-
 			<if test="manHour != null and manHour != ''"> and man_hour = #{manHour} </if>
-
 			<if test="cost != null and cost != ''"> and cost = #{cost} </if>
-
 			<if test="result != null and result != ''"> and result = #{result} </if>
-
 			<if test="createByofPlan != null and createByofPlan != ''"> and createByofPlan = #{createByofPlan} </if>
-
 			<if test="singleStatus != null and singleStatus != ''"> and result =#{singleStatus}  </if>
-
 			<if test="singleStatuss != null and singleStatuss != ''"> and ( result= #{singleStatuss} OR  result = #{overTimeResult} ) </if>
-
 			 <if test="manIdss != null and manIdss != ''"> and createByOfRecord=#{manIdss} </if>  <!--createBy   plan 的创建人-->
-
 			<if test="manId != null and manId != ''"> AND  (createByOfRecord=#{manId} OR (engineer_id = #{manId} and result<![CDATA[<>]]>146 )) </if>
 			<if test="engineerId != null and engineerId != ''"> and engineer_id = #{engineerId} </if>
-
 			 <if test="resultId != null and resultId != ''"> and result = #{resultId} </if>
-
 			<if test="manIds != null and manIds != ''"> AND  engineer_id = #{manIds}  </if>
-
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">

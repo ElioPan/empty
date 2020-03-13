@@ -56,7 +56,7 @@ public interface PaymentReceivedService {
 
 	Map<String, Object> detailOfSaleContrat(Long[] ids);
 
-	String checkSourseCount(String paymentBodys);
+	R checkSourseCount(String paymentBodys,Long id);
 
 
 }

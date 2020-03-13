@@ -228,15 +228,39 @@ public class PurchaseServiceImpl implements PurchaseService {
 
 
     @Override
-    public String checkSourceCounts(String purchaseItemDos, Long storageType ) {
-        List<PurchaseItemDO> itemDos = new ArrayList<>();
+    public R checkSourceCounts(String purchaseItemDos, Long id ) {
+        List<PurchaseItemDO> itemDos;
         if (StringUtils.isNotEmpty(purchaseItemDos)) {
             itemDos = JSON.parseArray(purchaseItemDos, PurchaseItemDO.class);
         } else {
-            return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
+            return  R.error(messageSourceHandler.getMessage("common.massge.dateIsNon", null));
+        }
+        //合并数量及sourseId
+        Map<Long,BigDecimal>  sourseIdCounts= new HashMap<>();
+        for (PurchaseItemDO itemDo : itemDos) {
+            Long sourseId=itemDo.getSourceId();
+            if(sourseId==null){
+                continue;
+            }
+            if(sourseIdCounts.containsKey(sourseId)){
+                sourseIdCounts.put(sourseId,sourseIdCounts.get(sourseId).add(itemDo.getCount()));
+                continue;
+            }
+            sourseIdCounts.put(sourseId,itemDo.getCount());
+        }
+        List<PurchaseItemDO> purchaseItemDo=new ArrayList<>();
+        for(Long sourseId:sourseIdCounts.keySet()){
+
+            for(PurchaseItemDO itemDo : itemDos){
+                if(Objects.equals(itemDo.getSourceId(),sourseId)){
+                    itemDo.setCount(sourseIdCounts.get(sourseId));
+                    purchaseItemDo.add(itemDo);
+                    break;
+                }
+            }
         }
         //验证 销售合同 生产投料单
-        for (PurchaseItemDO itemDo : itemDos) {
+        for (PurchaseItemDO itemDo : purchaseItemDo) {
             if (Objects.nonNull(itemDo.getSourceId())) {
                 Long sourceId = itemDo.getSourceId();
                 Long soueseType = itemDo.getSourceType();
@@ -250,19 +274,21 @@ public class PurchaseServiceImpl implements PurchaseService {
                             Map<String, Object> map = new HashMap<>();
                             map.put("sourceId", sourceId);
                             map.put("sourceType", soueseType);
-                            if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
+                            if(id!=null){map.put("id", id);}
 
                             //查出采购申请中已关联引入的数量
-                            BigDecimal inCounts = purchaseItemService.getInCountOfPurchase(map);
+                            BigDecimal inCountOfpurchase = purchaseItemService.getInCountOfExclude(map);
 
-                            BigDecimal inCountOfpurchase = (inCounts == null) ? BigDecimal.ZERO : inCounts;
                             int boo = (salescontractItemDO.getCount().subtract(inCountOfpurchase)).compareTo(thisCount);
                             if (Objects.equals(-1, boo)) {
                                 String[] args = {thisCount.toPlainString(), salescontractItemDO.getCount().subtract(inCountOfpurchase).toPlainString(), itemDo.getSourceCode().toString()};
-                                return messageSourceHandler.getMessage("stock.number.checkError", args);
+                                Map<String,Object>  maps= new HashMap<>();
+                                maps.put("sourceId",sourceId);
+                                maps.put("sourceCount",salescontractItemDO.getCount().subtract(inCountOfpurchase));
+                                return R.error(500,messageSourceHandler.getMessage("stock.number.checkError", args),maps);
                             }
                         } else {
-                            return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+                            return R.error(messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null));
                         }
                     } else if (Objects.equals(soueseType, ConstantForGYL.SCTLD)) {
                         //生产投料单
@@ -271,28 +297,28 @@ public class PurchaseServiceImpl implements PurchaseService {
                             Map<String, Object> map = new HashMap<>();
                             map.put("sourceId", sourceId);
                             map.put("storageType", soueseType);
-                            if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
-                            BigDecimal inCounts = purchaseItemService.getInCountOfPurchase(map);
+                            if(id!=null){map.put("id", id);}
+                            BigDecimal inCountOfpurchase = purchaseItemService.getInCountOfExclude(map);
 
-                            BigDecimal inCountOfpurchase = (inCounts == null) ? BigDecimal.ZERO : inCounts;
                             int boo = (productionFeedingDetailDO.getPlanFeeding().subtract(inCountOfpurchase)).compareTo(thisCount);
                             if (Objects.equals(-1, boo)) {
                                 String[] args = {thisCount.toPlainString(), productionFeedingDetailDO.getOutCount().subtract(inCountOfpurchase).toPlainString(), itemDo.getSourceType().toString()};
-                                return messageSourceHandler.getMessage("stock.number.checkError", args);
-                            }
+                                Map<String,Object>  maps= new HashMap<>();
+                                maps.put("sourceId",sourceId);
+                                maps.put("sourceCount",productionFeedingDetailDO.getPlanFeeding().subtract(inCountOfpurchase));
+                                return R.error(500,messageSourceHandler.getMessage("stock.number.checkError", args),maps);                            }
                         } else {
-                            return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+                            return R.error(messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null));
                         }
-
                     } else {
-                        return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+                        return R.error(messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null));
                     }
                 }else{
-                    return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
+                    return R.error(messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null));
                 }
             }
         }
-        return "ok";
+        return null;
     }
 
 

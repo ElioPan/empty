@@ -61,6 +61,13 @@
 							</if>
 						</foreach>
 					</if>
+					<if test="codes != null and codes.size()>0"> and serial_no IN
+						<foreach item="item" collection="codes" open="(" separator="," close=")" index="index">
+							<if test="item!=null">
+								#{item}
+							</if>
+						</foreach>
+					</if>
 		  		</where>
         <choose>
             <when test="sort != null and sort.trim() != ''">

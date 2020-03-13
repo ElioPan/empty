@@ -72,4 +72,9 @@ public class PurchaseItemServiceImpl implements PurchaseItemService {
 		return purchaseItemDao.getInCountOfPurchase(map);
 	}
 
+	@Override
+	public BigDecimal getInCountOfExclude(Map<String, Object> map) {
+		return purchaseItemDao.getInCountOfExclude(map);
+	}
+
 }

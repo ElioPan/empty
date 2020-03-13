@@ -458,85 +458,99 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 
 
 	@Override
-	public String checkSourseCount(String paymentBodys){
+	public R checkSourseCount(String paymentBodys,Long id){
 
-		List<PaymentReceivedItemDO> bodys = JSON.parseArray(paymentBodys, PaymentReceivedItemDO.class);
-		for (PaymentReceivedItemDO bPdata : bodys) {
-
-		}
-		//领用出库++委外出库
-		List<PaymentReceivedItemDO> itemDos = new ArrayList<>();
+		List<PaymentReceivedItemDO> itemDos;
 		if (StringUtils.isNotEmpty(paymentBodys)) {
 			itemDos =JSON.parseArray(paymentBodys, PaymentReceivedItemDO.class);
 		} else {
-			return messageSourceHandler.getMessage("common.massge.dateIsNon", null);
+			return R.error(messageSourceHandler.getMessage("common.massge.dateIsNon", null));
 		}
-		//
+		//合并数量及sourseId
+		Map<Long,BigDecimal>  sourseIdCounts= new HashMap<>();
 		for (PaymentReceivedItemDO itemDo : itemDos) {
+			Long sourseId=itemDo.getSourceId();
+			if(sourseId==null){
+				continue;
+			}
+			if(sourseIdCounts.containsKey(sourseId)){
+				sourseIdCounts.put(sourseId,sourseIdCounts.get(sourseId).add(itemDo.getThisAmount()));
+				continue;
+			}
+			sourseIdCounts.put(sourseId,itemDo.getThisAmount());
+		}
+		List<PaymentReceivedItemDO> paymentReceivedItemDos=new ArrayList<>();
+		for(Long sourseId:sourseIdCounts.keySet()){
+
+			for(PaymentReceivedItemDO itemDo : itemDos){
+				if(Objects.equals(itemDo.getSourceId(),sourseId)){
+					itemDo.setThisAmount(sourseIdCounts.get(sourseId));
+					paymentReceivedItemDos.add(itemDo);
+					break;
+				}
+			}
+		}
+		//采购合同+++++销售合同
+		for (PaymentReceivedItemDO itemDo : paymentReceivedItemDos) {
 
 			if (Objects.nonNull(itemDo.getSourceId())) {
-
 				Long sourceId = itemDo.getSourceId();
 				//本次收款、付款金额
 				BigDecimal thisAmount = itemDo.getThisAmount();
 				Long sourceType = itemDo.getSourceType();
-
 				if (Objects.nonNull(sourceType)) {
 					if(Objects.equals(sourceType, ConstantForGYL.CGHT)){
 						//获取采购合同付款条件明细数量
 						PurchasecontractPayDO purchasecontractPayDO = purchasecontractPayService.get(sourceId);
 						if (purchasecontractPayDO != null) {
-							Map<String, Object> map = new HashMap<>();
-							map.put("sourceId", sourceId);
-							map.put("sourceType", sourceType);
-							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
-
+//							Map<String, Object> map = new HashMap<>();
+//							map.put("sourceId", sourceId);
+//							map.put("sourceType", sourceType);
+//							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
 							//已付款的引入总和
-							BigDecimal toailThisAmounts = paymentReceivedItemService.getInCountOfPayment(map);
+//							BigDecimal toailThisAmounts = paymentReceivedItemService.getInCountOfPayment(map);
+//							BigDecimal thisAmounts = (toailThisAmounts == null) ? BigDecimal.ZERO : toailThisAmounts;
+							//采购合同未付总金额
+							BigDecimal unpayAmount=purchasecontractPayDO.getUnpayAmount()==null?BigDecimal.ZERO : purchasecontractPayDO.getUnpayAmount();
 
-							BigDecimal thisAmounts = (toailThisAmounts == null) ? BigDecimal.ZERO : toailThisAmounts;
-							//采购合同应付总金额
-							BigDecimal payAmount=purchasecontractPayDO.getPayAmount()==null?BigDecimal.ZERO : purchasecontractPayDO.getPayAmount();
-							int boo = (payAmount.subtract(thisAmounts)).compareTo(thisAmount);
+							int boo = unpayAmount.compareTo(thisAmount);
 							if (Objects.equals(-1, boo)) {
-								String[] args = {thisAmount.toPlainString(),(payAmount.subtract(thisAmounts)).toPlainString(), itemDo.getSourceCode().toString()};
-								return messageSourceHandler.getMessage("stock.payRecived.checkErrorPurchase", args);
+								String[] args = {thisAmount.toPlainString(),unpayAmount.toPlainString(), itemDo.getSourceCode().toString()};
+								Map<String,Object>  maps= new HashMap<>();
+								maps.put("sourceId",sourceId);
+								maps.put("sourceCount",unpayAmount);
+								return R.error(500,messageSourceHandler.getMessage("stock.payRecived.checkErrorPurchase", args),maps);
 							}
 						} else {
-							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+							return R.error(messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null));
 						}
 					}else if(Objects.equals(sourceType, ConstantForGYL.XSHT)){
 						//销售合同
 						SalescontractPayDO salescontractPayDo = salescontractPayService.get(sourceId);
 						if (salescontractPayDo != null) {
-							Map<String, Object> map = new HashMap<>();
-							map.put("sourceId", sourceId);
-							map.put("sourceType", sourceType);
-							if(itemDo.getId()!=null){map.put("id", itemDo.getId());}
 
-							//已引入的收款金额
-							BigDecimal toailThisAmounts = paymentReceivedItemService.getInCountOfPayment(map);
-							BigDecimal thisAmounts = (toailThisAmounts == null) ? BigDecimal.ZERO : toailThisAmounts;
-							//销售合同应收总金额
-							BigDecimal receivableAmount=salescontractPayDo.getReceivableAmount()==null?BigDecimal.ZERO : salescontractPayDo.getReceivableAmount();
-							int boo = (receivableAmount.subtract(thisAmounts)).compareTo(thisAmount);
+							//销售合同未收总金额
+							BigDecimal unpayAmount=salescontractPayDo.getUnpayAmount()==null?BigDecimal.ZERO : salescontractPayDo.getReceivableAmount();
+							int boo = unpayAmount.compareTo(thisAmount);
 							if (Objects.equals(-1, boo)) {
-								String[] args = {thisAmount.toPlainString(),(receivableAmount.subtract(thisAmounts)).toPlainString(), itemDo.getSourceCode().toString()};
-								return messageSourceHandler.getMessage("stock.payRecived.checkErrorSales", args);
+								String[] args = {thisAmount.toPlainString(),unpayAmount.toPlainString(), itemDo.getSourceCode().toString()};
+								Map<String,Object>  maps= new HashMap<>();
+								maps.put("sourceId",sourceId);
+								maps.put("sourceCount",unpayAmount);
+								return R.error(500,messageSourceHandler.getMessage("stock.payRecived.checkErrorSales", args),maps);
 							}
 						} else {
-							return messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null);
+							return R.error(messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null));
 						}
-
 					}else{
-						return messageSourceHandler.getMessage("scm.payRecived.EroorSourceTypeOfIntroduce", null);
+						return R.error(messageSourceHandler.getMessage("scm.payRecived.EroorSourceTypeOfIntroduce", null));
 					}
 				} else {
-					return messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null);
+					return R.error(messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null));
 				}
 			}
 		}
-		return "ok";
+		return null;
 	}
 
 

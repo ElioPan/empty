@@ -1,26 +1,44 @@
 package com.ev.mes.service.impl;
 
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.ev.custom.domain.DeviceDO;
+import com.ev.custom.domain.DictionaryDO;
+import com.ev.custom.service.DeviceService;
+import com.ev.custom.service.DictionaryService;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
+import com.ev.framework.utils.StringUtils;
 import com.ev.mes.dao.CraftDao;
 import com.ev.mes.dao.CraftItemDao;
 import com.ev.mes.dao.ProcessCheckDao;
 import com.ev.mes.domain.CraftDO;
 import com.ev.mes.domain.CraftItemDO;
 import com.ev.mes.domain.ProcessCheckDO;
+import com.ev.mes.domain.ProcessDO;
 import com.ev.mes.service.CraftService;
 import com.ev.mes.service.ProcessCheckService;
+import com.ev.mes.service.ProcessService;
+import com.ev.mes.vo.CraftEntity;
+import com.ev.system.domain.DeptDO;
+import com.ev.system.domain.UserDO;
+import com.ev.system.service.DeptService;
+import com.ev.system.service.UserService;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -28,9 +46,19 @@ public class CraftServiceImpl implements CraftService {
     @Autowired
     private CraftDao craftDao;
     @Autowired
+    private ProcessService processService;
+    @Autowired
+    private DeptService deptService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private DeviceService deviceService;
+    @Autowired
     private ProcessCheckDao processCheckDao;
     @Autowired
     private CraftItemDao craftItemDao;
+    @Autowired
+    private DictionaryService dictionaryService;
     @Autowired
     private MessageSourceHandler messageSourceHandler;
 
@@ -312,6 +340,201 @@ public class CraftServiceImpl implements CraftService {
     @Override
     public int countListBodyForMap(Map<String, Object> map) {
         return craftDao.countListBodyForMap(map);
+    }
+
+    @Override
+    public R importExcel(MultipartFile file) {
+        if (file.isEmpty()) {
+            return R.error(messageSourceHandler.getMessage("file.nonSelect", null));
+        }
+        ImportParams params = new ImportParams();
+        params.setTitleRows(1);
+        params.setHeadRows(1);
+        List<CraftEntity> craftEntityList;
+        try {
+            craftEntityList = ExcelImportUtil.importExcel(file.getInputStream(), CraftEntity.class, params);
+            craftEntityList = craftEntityList.stream().filter(craftEntity -> craftEntity.getCode() != null).collect(Collectors.toList());
+        } catch (Exception e) {
+            return R.error(messageSourceHandler.getMessage("file.upload.error", null));
+        }
+        if (craftEntityList.size() > 0) {
+            for (CraftEntity craftEntity : craftEntityList) {
+                if (
+                        StringUtils.isEmpty(craftEntity.getProcessCode())
+                ) {
+                    return R.error(messageSourceHandler.getMessage("basicInfo.correct.param", null));
+                }
+            }
+            Map<String, Object> param = Maps.newHashMap();
+            List<String> codeList = craftEntityList
+                    .stream()
+                    .map(CraftEntity::getCode)
+                    .distinct()
+                    .collect(Collectors.toList());
+            param.put("codes", codeList);
+            List<CraftDO> craftDOList = this.list(param);
+            if (craftDOList.size() > 0) {
+                List<String> collect = craftDOList
+                        .stream()
+                        .map(CraftDO::getCode)
+                        .collect(Collectors.toList());
+                List<String> craftList = codeList
+                        .stream()
+                        .filter(collect::contains)
+                        .collect(Collectors.toList());
+                String[] notExist = {craftList.toString()};
+                return R.error(messageSourceHandler.getMessage("basicInfo.craft.isExist", notExist));
+            }
+
+            List<String> processCodeList = craftEntityList
+                    .stream()
+                    .map(CraftEntity::getProcessCode)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            param.put("codes", processCodeList);
+            List<ProcessDO> processDOList = processService.list(param);
+            if (processDOList.size() != processCodeList.size()) {
+                List<String> collect = processDOList
+                        .stream()
+                        .map(ProcessDO::getCode)
+                        .collect(Collectors.toList());
+                processCodeList.removeAll(collect);
+                String[] notExist = {processCodeList.toString()};
+                return R.error(messageSourceHandler.getMessage("basicInfo.process.notExist", notExist));
+            }
+
+            Map<String, List<CraftEntity>> groupCraftEntity = craftEntityList
+                    .stream()
+                    .collect(Collectors.groupingBy(CraftEntity::getCode));
+            List<String> deptList = craftEntityList
+                    .stream()
+                    .filter(craftEntity -> craftEntity.getDeptName() != null)
+                    .map(CraftEntity::getDeptName)
+                    .distinct()
+                    .collect(Collectors.toList());
+            List<String> userList = craftEntityList
+                    .stream()
+                    .filter(craftEntity -> craftEntity.getOperatorName() != null)
+                    .map(CraftEntity::getOperatorName)
+                    .distinct()
+                    .collect(Collectors.toList());
+            List<String> deviceList = craftEntityList
+                    .stream()
+                    .filter(craftEntity -> craftEntity.getDeviceName() != null)
+                    .map(CraftEntity::getDeviceName)
+                    .distinct()
+                    .collect(Collectors.toList());
+            List<DictionaryDO> typeList = dictionaryService.listByType(ConstantForMES.PROCESS_TYPE);
+
+            Map<String, Long> deptMap = Maps.newHashMap();
+            if (deptList.size() > 0) {
+                param.put("deptNames", deptList);
+                List<DeptDO> list = deptService.list(param);
+                if (list.size() > 0) {
+                    deptMap = list.stream().collect(Collectors.toMap(DeptDO::getName, DeptDO::getDeptId));
+                }
+            }
+            Map<String, Long> userMap = Maps.newHashMap();
+            if (userList.size() > 0) {
+                param.put("userNames", userList);
+                List<UserDO> list = userService.list(param);
+                if (list.size() > 0) {
+                    userMap = list.stream().collect(Collectors.toMap(UserDO::getName, UserDO::getUserId));
+                }
+            }
+            Map<String, Long> deviceMap = Maps.newHashMap();
+            if (deviceList.size() > 0) {
+                param.put("deviceNames", deviceList);
+                List<DeviceDO> list = deviceService.list(param);
+                if (list.size() > 0) {
+                    deviceMap = list.stream().collect(Collectors.toMap(DeviceDO::getName, DeviceDO::getId));
+                }
+            }
+            Map<String, Long> typeMap = Maps.newHashMap();
+            if (typeList.size() > 0) {
+                typeMap = typeList.stream().collect(Collectors.toMap(DictionaryDO::getName, m -> m.getId().longValue()));
+            }
+
+            Map<String, Long> idForCode = processDOList
+                    .stream()
+                    .collect(Collectors.toMap(ProcessDO::getCode, ProcessDO::getId));
+            CraftDO craft;
+            CraftItemDO craftItem;
+            CraftEntity craftEntity;
+            Long craftId;
+            String isBoolean;
+            String number;
+            for (String craftCode : groupCraftEntity.keySet()) {
+                List<CraftEntity> craftEntities = groupCraftEntity.get(craftCode);
+                // 取出BOM主表
+                craftEntity = craftEntities.get(0);
+                craft = new CraftDO();
+                craft.setCode(craftEntity.getCode());
+                craft.setName(craftEntity.getName());
+                craft.setVersion(craftEntity.getVersion());
+                craft.setAuditSign(ConstantForMES.WAIT_AUDIT);
+                craft.setUseStatus(1);
+                this.save(craft);
+                craftId = craft.getId();
+                // 取出BOM子表
+                for (CraftEntity entity : craftEntities) {
+                    craftItem = new CraftItemDO();
+                    craftItem.setCraftId(craftId);
+                    craftItem.setDemand(entity.getDemand());
+
+                    craftItem.setProcessId(idForCode.get(entity.getProcessCode()));
+                    craftItem.setDeptId(typeMap.getOrDefault(entity.getTypeName(), null));
+                    craftItem.setDeptId(deptMap.getOrDefault(entity.getDeptName(), null));
+                    craftItem.setOperator(userMap.getOrDefault(entity.getOperatorName(), null));
+                    craftItem.setDeviceId(deviceMap.getOrDefault(entity.getDeviceName(), null));
+
+                    isBoolean = entity.getAutoDispatch();
+                    isBoolean = isBoolean == null ? "否" : isBoolean;
+                    craftItem.setAutoDispatch("否".equals(isBoolean) ? 0 : 1);
+                    isBoolean = entity.getWhetherOutsource();
+                    isBoolean = isBoolean == null ? "否" : isBoolean;
+                    craftItem.setWhetherOutsource("否".equals(isBoolean) ? 0 : 1);
+                    isBoolean = entity.getWhetherExamine();
+                    isBoolean = isBoolean == null ? "否" : isBoolean;
+                    craftItem.setWhetherExamine("否".equals(isBoolean) ? 0 : 1);
+                    isBoolean = entity.getWhetherCollect();
+                    isBoolean = isBoolean == null ? "否" : isBoolean;
+                    craftItem.setWhetherCollect("否".equals(isBoolean) ? 0 : 1);
+
+
+                    number = entity.getStandard();
+                    if (NumberUtils.isNumber(number)) {
+                        craftItem.setStandard(new BigDecimal(number));
+                    } else {
+                        craftItem.setStandard(BigDecimal.ZERO);
+                    }
+                    number = entity.getTotalHour();
+                    if (NumberUtils.isNumber(number)) {
+                        craftItem.setTotalHour(new BigDecimal(number));
+                    } else {
+                        craftItem.setTotalHour(BigDecimal.ZERO);
+                    }
+                    number = entity.getManHour();
+                    if (NumberUtils.isNumber(number)) {
+                        craftItem.setManHour(new BigDecimal(number));
+                    } else {
+                        craftItem.setManHour(BigDecimal.ZERO);
+                    }
+                    number = entity.getLabourPrice();
+                    if (NumberUtils.isNumber(number)) {
+                        craftItem.setLabourPrice(new BigDecimal(number));
+                    } else {
+                        craftItem.setLabourPrice(BigDecimal.ZERO);
+                    }
+
+                    craftItemDao.save(craftItem);
+                }
+
+            }
+            return R.ok();
+        }
+        return R.error();
     }
 
 

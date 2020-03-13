@@ -120,10 +120,11 @@ public class DeviceServiceImpl implements DeviceService {
 		Map<String,Object> dictMap = this.dictionaryService.getDictMap();
 		Map<String,Object> userMap = this.userService.getUserMap();
 		Map<String,Object> deptMap = this.deptService.getDeptMap();
-		///////////////////////////////////////////////
+
 		Map<String,Object> results = Maps.newHashMap();
-		Map<String, Object> params = new HashMap<String, Object>();
+		Map<String, Object> params = new HashMap<>();
 		params.put("name",name);
+//		params.put("deptId",deptId);
 		params.put("offset",pageno-1);
 		params.put("limit",pagesize);
 //		List<DeviceDO> devices = deviceDao.list(params);

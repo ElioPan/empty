@@ -2,6 +2,7 @@ package com.ev.mes.service;
 
 import com.ev.framework.utils.R;
 import com.ev.mes.domain.CraftDO;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -47,4 +48,5 @@ public interface CraftService {
 
 	int countListBodyForMap(Map<String, Object> map);
 
+    R importExcel(MultipartFile file);
 }

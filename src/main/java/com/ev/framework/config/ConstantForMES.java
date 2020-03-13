@@ -6,6 +6,7 @@ package com.ev.framework.config;
  */
 public final class ConstantForMES{
 
+
     private ConstantForMES() {
 	}
 	/**
@@ -151,6 +152,11 @@ public final class ConstantForMES{
 	 * 投料单Type
 	 */
 	public static final String FEEDING = "feeding";
+
+	/**
+	 * 工序类型Type
+	 */
+	public static final String PROCESS_TYPE = "process_type";
 
 
 }

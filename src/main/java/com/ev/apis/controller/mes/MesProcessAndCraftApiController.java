@@ -19,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
@@ -127,7 +129,6 @@ public class MesProcessAndCraftApiController {
                 Map<String, Object> map = new HashMap<>();
                 map.put("foreignId", listOfOne.get("id"));
                 map.put("type", ConstantForMES.PROCESS_GXPZ);
-
                 List<Map<String, Object>> detailOfProcess = processCheckService.getDetailByProcessId(map);
                 listOfOne.put("proDetail", detailOfProcess);
             }
@@ -300,7 +301,18 @@ public class MesProcessAndCraftApiController {
     }
 
 
-
+    /**
+     *
+     * @param file 工艺路线EXCEL 文件
+     * Created by gumingjie on 2020-03-12.
+     */
+    @ResponseBody
+    @EvApiByToken(value = "/apis/importExcel/craft", method = RequestMethod.POST, apiTitle = "工艺路线导入")
+    @ApiOperation("工艺路线导入")
+    @Transactional(rollbackFor = Exception.class)
+    public R readCraftFile(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file) {
+        return craftService.importExcel(file);
+    }
 
 
 

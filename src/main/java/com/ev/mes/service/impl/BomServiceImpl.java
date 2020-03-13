@@ -1,9 +1,13 @@
 package com.ev.mes.service.impl;
 
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.ev.custom.domain.ContentAssocDO;
+import com.ev.custom.domain.MaterielDO;
 import com.ev.custom.service.ContentAssocService;
+import com.ev.custom.service.MaterielService;
 import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
@@ -15,13 +19,18 @@ import com.ev.mes.domain.BomDO;
 import com.ev.mes.domain.BomDetailDO;
 import com.ev.mes.service.BomDetailService;
 import com.ev.mes.service.BomService;
+import com.ev.mes.vo.BomEntity;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class BomServiceImpl implements BomService {
@@ -29,6 +38,8 @@ public class BomServiceImpl implements BomService {
 	private BomDao bomDao;
 	@Autowired
 	private BomDetailService bomDetailService;
+	@Autowired
+	private MaterielService materielService;
 	@Autowired
 	private ContentAssocService contentAssocService;
     @Autowired
@@ -225,6 +236,124 @@ public class BomServiceImpl implements BomService {
 	@Override
 	public List<Map<String, Object>> listForMap(Map<String, Object> params) {
 		return bomDao.listForMap(params);
+	}
+
+	@Override
+	public R importExcel(MultipartFile file) {
+		if (file.isEmpty()) {
+			return R.error(messageSourceHandler.getMessage("file.nonSelect", null));
+		}
+		ImportParams params = new ImportParams();
+		params.setTitleRows(1);
+		params.setHeadRows(1);
+		List<BomEntity> bomEntityList;
+		try {
+			bomEntityList = ExcelImportUtil.importExcel(file.getInputStream(), BomEntity.class, params);
+			bomEntityList = bomEntityList.stream().filter(bomEntity -> bomEntity.getSerialno() != null).collect(Collectors.toList());
+		} catch (Exception e) {
+			return R.error(messageSourceHandler.getMessage("file.upload.error", null));
+		}
+		if (bomEntityList.size() > 0) {
+			for (BomEntity bomEntity : bomEntityList) {
+				if (StringUtils.isEmpty(bomEntity.getSerialno())
+						|| StringUtils.isEmpty(bomEntity.getProductCode())
+						|| StringUtils.isEmpty(bomEntity.getMaterielCode())
+						|| !NumberUtils.isNumber(bomEntity.getProductCount())
+						|| !NumberUtils.isNumber(bomEntity.getMaterielCount())
+						|| !NumberUtils.isNumber(bomEntity.getWasteRate())
+				) {
+					return R.error(messageSourceHandler.getMessage("basicInfo.correct.param", null));
+				}
+			}
+			Map<String, Object> param = Maps.newHashMap();
+			List<String> bomCodeList = bomEntityList
+					.stream()
+					.map(BomEntity::getSerialno)
+					.distinct()
+					.collect(Collectors.toList());
+			param.put("codes", bomCodeList);
+			List<BomDO> bomList = this.list(param);
+			// 验证是否有重复编号
+			if (bomList.size() > 0) {
+				List<String> collect = bomList
+						.stream()
+						.map(BomDO::getSerialno)
+						.collect(Collectors.toList());
+				List<String> notExistList = bomCodeList
+						.stream()
+						.filter(collect::contains)
+						.collect(Collectors.toList());
+				String[] notExist = {notExistList.toString()};
+				return R.error(messageSourceHandler.getMessage("basicInfo.bom.isExist", notExist));
+			}
+
+			List<String> productCodeList = bomEntityList
+					.stream()
+					.map(BomEntity::getProductCode)
+					.collect(Collectors.toList());
+			List<String> materielCodeList = bomEntityList
+					.stream()
+					.map(BomEntity::getMaterielCode)
+					.collect(Collectors.toList());
+			productCodeList.addAll(materielCodeList);
+			List<String> allCode = productCodeList
+					.stream()
+					.distinct()
+					.collect(Collectors.toList());
+
+			param.put("codes", allCode);
+			List<MaterielDO> materielDOList = materielService.list(param);
+			if (materielDOList.size() != allCode.size()) {
+				List<String> collect = materielDOList
+						.stream()
+						.map(MaterielDO::getSerialNo)
+						.collect(Collectors.toList());
+				allCode.removeAll(collect);
+				String[] notExist = {allCode.toString()};
+				return R.error(messageSourceHandler.getMessage("basicInfo.materiel.notExist", notExist));
+			}
+			Map<String, Integer> idForCode = materielDOList
+					.stream()
+					.collect(Collectors.toMap(MaterielDO::getSerialNo, MaterielDO::getId));
+			Map<String, List<BomEntity>> groupBomEntity = bomEntityList
+					.stream()
+					.collect(Collectors.groupingBy(BomEntity::getSerialno));
+
+			BomDO bom;
+			BomDetailDO bomDetail;
+			BomEntity bomEntity;
+			Long bomId;
+			for (String bomCode : groupBomEntity.keySet()) {
+				List<BomEntity> bomEntities = groupBomEntity.get(bomCode);
+				// 取出BOM主表
+				bomEntity = bomEntities.get(0);
+				bom = new BomDO();
+				bom.setSerialno(bomEntity.getSerialno());
+				bom.setName(bomEntity.getName());
+				bom.setVersion(bomEntity.getVersion());
+				bom.setMaterielId(idForCode.get(bomEntity.getProductCode()));
+				bom.setCount(new BigDecimal(bomEntity.getProductCount()));
+				bom.setAuditSign(ConstantForMES.WAIT_AUDIT);
+				bom.setUseStatus(1);
+				this.save(bom);
+				bomId = bom.getId();
+				// 取出BOM子表
+				for (BomEntity entity : bomEntities) {
+					bomDetail = new BomDetailDO();
+					bomDetail.setBomId(bomId);
+					bomDetail.setMaterielId(idForCode.get(entity.getMaterielCode()));
+					bomDetail.setStandardCount(new BigDecimal(entity.getMaterielCount()));
+					bomDetail.setWasteRate(new BigDecimal(entity.getWasteRate()));
+					String isKeyComponents = entity.getIsKeyComponents();
+					isKeyComponents = isKeyComponents == null ? "否" : isKeyComponents;
+					bomDetail.setIsKeyComponents("否".equals(isKeyComponents) ? 0 : 1);
+					bomDetailService.save(bomDetail);
+				}
+
+			}
+			return R.ok();
+		}
+		return R.error();
 	}
 
 }

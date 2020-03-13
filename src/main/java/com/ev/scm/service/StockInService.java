@@ -92,7 +92,7 @@ public interface StockInService {
 
 	R checkSourceCountsPurchase(String stockInitemDos, Long id);
 
-	String checkSourceCountsOfProduce(String bodyDetail);
+	R checkSourceCountsOfProduce(String bodyDetail,Long id);
 
 	R checkSourceCountsOfOutSourcing(String bodyDetail,Long id);
 

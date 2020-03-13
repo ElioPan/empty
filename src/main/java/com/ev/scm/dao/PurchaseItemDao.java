@@ -37,4 +37,7 @@ public interface PurchaseItemDao {
 	Map<String, Object>aggregate(Map<String, Object> map);
 
 	BigDecimal getInCountOfPurchase(Map<String, Object> map);
+
+	BigDecimal getInCountOfExclude(Map<String, Object> map);
+
 }
