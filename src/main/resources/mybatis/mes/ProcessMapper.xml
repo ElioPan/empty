@@ -146,6 +146,7 @@
 
 	<sql id="sql_condition">
 		<where>
+			<if test="maxNo != null and maxNo != ''"> and LEFT(code,12) = #{maxNo} </if>
 			<if test="id != null and id != ''"> and id = #{id} </if>
 			<if test="code != null and code != ''"> and code = #{code} </if>
 			<if test="name != null and name != ''"> and name = #{name} </if>
