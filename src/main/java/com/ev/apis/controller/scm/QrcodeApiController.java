@@ -172,7 +172,7 @@ public class QrcodeApiController {
     @EvApiByToken(value = "/apis/scm/qrcode/backDetail",method = RequestMethod.GET,apiTitle = "获取出库时二维码信息")
     @ApiOperation("获取出库时二维码信息")
     public R outDetail(@ApiParam(value = "二维码主键") @RequestParam(value = "qrCodeId") Long qrCodeId,
-                       @ApiParam(value = "退货（料）单单据编号") @RequestParam(value = "sourceCode") Long sourceCode){
+                       @ApiParam(value = "退货（料）单单据编号") @RequestParam(value = "sourceCode") String sourceCode){
         Map<String,Object> result = new HashMap<>();
         /**
          * 验证是否包含此二维码信息
