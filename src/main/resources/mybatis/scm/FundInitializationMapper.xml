@@ -125,5 +125,61 @@
 			#{id}
 		</foreach>
 	</delete>
-	
+
+
+
+	<update id="updateUsingStart" parameterType="map">
+		UPDATE
+			scm_fund_initialization
+		SET
+			`using_start` = #{usingStart}
+		WHERE id in
+		<foreach item="id" collection="ids" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</update>
+
+	<select id="getlist" resultType="map">
+		SELECT
+		a.id,
+		a.period,
+		a.bank,
+		b.name as bankName,
+		a.account_number as accountNumber,
+		a.initial_amount AS  initialAmount,
+		a.using_start as usingStart,
+		CASE  when a.using_start=1 then "禁用"
+				when a.using_start=0 then "启用"
+		      END as usingStartName
+		from
+		scm_fund_initialization a
+		LEFT JOIN cus_dictionary b on a.bank=b.id
+		<where>
+			<if test="id != null and id != ''"> AND a.id = #{id} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY ${sort} ${order}
+			</when>
+			<otherwise>
+				ORDER BY a.id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="countOfList" resultType="map">
+		SELECT
+		COUNT(*) as totailCount,
+		IF(SUM(a.initial_amount)is null ,0,SUM(a.initial_amount)) AS  totailInitialAmount
+		from
+		scm_fund_initialization a
+		LEFT JOIN cus_dictionary b on a.bank=b.id
+		<where>
+			<if test="id != null and id != ''"> AND a.id = #{id} </if>
+		</where>
+	</select>
+
 </mapper>

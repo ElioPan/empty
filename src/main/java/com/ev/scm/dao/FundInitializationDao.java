@@ -30,4 +30,14 @@ public interface FundInitializationDao {
 	int remove(Integer id);
 	
 	int batchRemove(Integer[] ids);
+
+	int updateUsingStart(Map<String, Object> map);
+
+	Map<String, Object> countOfList(Map<String, Object> map);
+
+	List<Map<String, Object>>getlist(Map<String, Object> map);
+
+
+
+
 }

@@ -298,7 +298,7 @@ public class ScmPurchaseInStockController {
                     totalCount= totalCount.add(new BigDecimal(map.get("count").toString())) ;
                     totalAmount=totalAmount.add(new BigDecimal(map.containsKey("amount")?map.get("amount").toString():"0")) ;
                 }
-            }
+        }
             Map<String, Object> dsRet = new HashMap<>();
             dsRet.put("pageno",pageno);
             dsRet.put("pagesize",pagesize);

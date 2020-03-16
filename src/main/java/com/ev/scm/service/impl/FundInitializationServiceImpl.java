@@ -4,13 +4,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
-import com.ev.mes.vo.InventoryPlanEntity;
 import com.ev.scm.dao.FundInitializationDao;
 import com.ev.scm.domain.FundInitializationDO;
 import com.ev.scm.service.FundInitializationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -69,42 +69,65 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 
 
 	@Override
-	public R disposeAddAndChage(Integer usingStart,String body){
+	public R disposeAddAndChage(String body ){
 
 		if(!StringUtils.isEmpty(body)){
 			List<FundInitializationDO> fundInitializationDOS = JSONObject.parseArray(body, FundInitializationDO.class);
-			if(fundInitializationDOS.size()>0){
-                List<FundInitializationDO> sss = fundInitializationDOS.stream().filter(FundInitializationDO -> FundInitializationDO.getUsingStart() != null).collect(Collectors.toList());
+             List<FundInitializationDO> fundInitializationDos = fundInitializationDOS.stream().filter(FundInitializationDO -> FundInitializationDO.getId() != null).collect(Collectors.toList());
 
-
-
-                for(FundInitializationDO fundInitializationDO:fundInitializationDOS){
-                    if(Objects.isNull(fundInitializationDO.getId())){
-
-
-                    }else{
-
-                    }
-
-
-                }
-
-
-
-			}else{
-
-			}
-
-			return  R.ok();
+               if(fundInitializationDos.size()>0){
+                    FundInitializationDO fundInitializationDO = this.get(fundInitializationDos.get(0).getId());
+                   if(Objects.equals(1,fundInitializationDO.getUsingStart())){
+                       return R.error(messageSourceHandler.getMessage("scm.FundInitialization.dataIsUsing", null));
+                   }
+                   if(Objects.equals(0,fundInitializationDO.getUsingStart())){
+                       return R.error(messageSourceHandler.getMessage("scm.FundInitialization.dataIsUsing", null));
+                   }
+               }
+                //允许修改或者新增
+                   for(FundInitializationDO fundInitializationDO:fundInitializationDOS){
+                       if(Objects.isNull(fundInitializationDO.getId())){
+                        //新增
+                           this.save(fundInitializationDO);
+                       }else{
+                           //更新
+                           this.update(fundInitializationDO);
+                       }
+                   }
+                   return  R.ok();
 		}else{
-
 			return R.error();
-
 		}
 	}
 
+    @Override
+    public R disposeStartUsing(Long[] ids){
+        Map<String,Object>  map= new HashMap<>();
+        map.put("ids",ids);
+        map.put("usingStart",0);
+        fundInitializationDao.updateUsingStart(map);
+        return R.ok();
+    }
 
 
+    @Override
+    public R disposeForbidden(Long[] ids){
+        Map<String,Object>  map= new HashMap<>();
+        map.put("ids",ids);
+        map.put("usingStart",1);
+        fundInitializationDao.updateUsingStart(map);
+        return R.ok();
+    }
+
+    @Override
+    public Map<String, Object> countOfList(Map<String, Object> map) {
+        return fundInitializationDao.countOfList(map);
+    }
+
+    @Override
+    public List<Map<String, Object>> getlist(Map<String, Object> map) {
+        return fundInitializationDao.getlist(map);
+    }
 
 
 }

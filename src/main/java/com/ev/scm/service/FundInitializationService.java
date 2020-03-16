@@ -31,5 +31,13 @@ public interface FundInitializationService {
 	
 	int batchRemove(Integer[] ids);
 
-	R disposeAddAndChage(Integer usingStart, String body);
+	R disposeAddAndChage(String body);
+
+	R disposeStartUsing(Long[] ids);
+
+	R disposeForbidden(Long[] ids);
+
+	Map<String, Object> countOfList(Map<String, Object> map);
+
+	List<Map<String, Object>>getlist(Map<String, Object> map);
 }

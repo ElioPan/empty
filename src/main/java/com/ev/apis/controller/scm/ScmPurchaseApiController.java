@@ -241,10 +241,7 @@ public class ScmPurchaseApiController {
 
         DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PURCHASE.intValue());
         String thisSourceTypeName = dictionaryDO.getName();
-//        for (Map<String, Object> datum : list) {
-//            datum.put("thisSourceType", ConstantForGYL.PURCHASE);
-//            datum.put("thisSourceTypeName", thisSourceTypeName);
-//        }
+
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(2);
 
         if (!list.isEmpty()) {

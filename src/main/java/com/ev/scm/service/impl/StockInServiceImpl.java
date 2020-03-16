@@ -295,6 +295,8 @@ public class StockInServiceImpl implements StockInService {
 		stockInDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
 		stockInDO.setAuditor(null);
 		stockInDO.setAuditTime(null);
+		stockInDO.setUpdateTime(new Date());
+		stockInDO.setUpdateBy(ShiroUtils.getUserId());
 		return stockInDao.updateAll(stockInDO);
 	}
 

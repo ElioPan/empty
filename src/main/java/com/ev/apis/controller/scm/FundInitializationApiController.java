@@ -1,5 +1,6 @@
 package com.ev.apis.controller.scm;
 
+import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.utils.R;
 import com.ev.scm.service.FundInitializationService;
@@ -11,6 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Author Kuzi
@@ -29,7 +34,6 @@ public class FundInitializationApiController {
     @ApiOperation("增加/修改初始数据")
     @Transactional(rollbackFor = Exception.class)
     public R add(
-            @ApiParam(value = "启用0禁用1:") @RequestParam(value = "body", defaultValue = "") Integer usingStart,
                  @ApiParam(value = "明细:[{\n" +
                          "\"id\":\"修改时必传\",\n" +
                          "\"period\":\"期间\",\n" +
@@ -37,11 +41,46 @@ public class FundInitializationApiController {
                          "\"accountNumber\":\"银行账号\",\n" +
                          "\"initialAmount\":\"期初金额\"\n" +
                          "}]", required = true) @RequestParam(value = "body", defaultValue = "") String body){
-        return fundInitializationService.disposeAddAndChage(usingStart,body);
+        return fundInitializationService.disposeAddAndChage(body);
     }
 
+    @EvApiByToken(value = "scm/apis/fundInitialization/startUsing", method = RequestMethod.POST, apiTitle = "启用")
+    @ApiOperation("启用")
+    @Transactional(rollbackFor = Exception.class)
+    public R startUsing(
+            @ApiParam(value = "明细行主键:", required = true) @RequestParam(value = "ids") Long[] ids){
+        return fundInitializationService.disposeStartUsing(ids);
+    }
 
+    @EvApiByToken(value = "scm/apis/fundInitialization/forbidden", method = RequestMethod.POST, apiTitle = "禁用")
+    @ApiOperation("禁用")
+    @Transactional(rollbackFor = Exception.class)
+    public R  forbidden(
+            @ApiParam(value = "明细行主键:", required = true) @RequestParam(value = "ids") Long[] ids){
+        return fundInitializationService.disposeForbidden(ids);
+    }
 
+    @EvApiByToken(value = "scm/apis/fundInitialization/list", method = RequestMethod.POST, apiTitle = "列表")
+    @ApiOperation("列表")
+    @Transactional(rollbackFor = Exception.class)
+    public R  list(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+                   @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize){
+        Map<String,Object> params= new HashMap<>();
+        params.put("offset", (pageno - 1) * pagesize);
+        params.put("limit", pagesize);
+        List<Map<String, Object>> getlist = fundInitializationService.getlist(params);
+        Map<String, Object> countOfList = fundInitializationService.countOfList(params);
+
+        if ( getlist.size() > 0) {
+            params.clear();
+            int total= Integer.parseInt(countOfList.get("totailCount").toString());
+            params.put("total",total);
+            params.put("totailInitialAmount",countOfList.get("totailInitialAmount"));
+            params.put("data", new DsResultResponse(pageno,pagesize,total,getlist));
+        }
+        return R.ok(params);
+
+    }
 
 
 
