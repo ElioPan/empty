@@ -273,13 +273,13 @@ public class ScmPurchaseApiController {
                     .collect(Collectors.toList());
 
                 List<Map<String, Object>> quoteLists = PageUtils.startPage(quoteList, pageno, pagesize);
-            int totalCount=0;
-            int totalAmount=0;
+            BigDecimal totalCount=BigDecimal.ZERO;
+            BigDecimal totalAmount=BigDecimal.ZERO;
             if(quoteLists!=null){
 
                 for(Map<String, Object> maps:quoteLists){
-                    totalCount+= (int)maps.get("count");
-                    totalAmount+=(int)maps.get("amount");
+                    totalCount= totalCount.add(new BigDecimal(maps.get("count").toString())) ;
+                    totalAmount=totalAmount.add(new BigDecimal(maps.get("amount").toString())) ;
                 }
             }
             Map<String,Object> dsRet= new HashMap<>();
