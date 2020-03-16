@@ -272,14 +272,23 @@ public class ScmPurchaseApiController {
                     .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO)>0)
                     .collect(Collectors.toList());
 
-            List<Map<String, Object>> quoteLists = PageUtils.startPage(quoteList, pageno, pagesize);
+                List<Map<String, Object>> quoteLists = PageUtils.startPage(quoteList, pageno, pagesize);
+            int totalCount=0;
+            int totalAmount=0;
+            if(quoteLists!=null){
+
+                for(Map<String, Object> maps:quoteLists){
+                    totalCount+= (int)maps.get("count");
+                    totalAmount+=(int)maps.get("amount");
+                }
+            }
             Map<String,Object> dsRet= new HashMap<>();
             dsRet.put("pageno",pageno);
             dsRet.put("pagesize",pagesize);
-            dsRet.put("totalRows",quoteLists.size());
-            dsRet.put("totalPages",(quoteLists.size() + pagesize - 1) / pagesize);
-            dsRet.put("totalCount",countForMaps.get("totalCount"));
-            dsRet.put("totalAmount",countForMaps.get("totalAmount"));
+            dsRet.put("totalRows",quoteLists!=null?quoteLists.size():0);
+            dsRet.put("totalPages",((quoteLists!=null?quoteLists.size():0) + pagesize - 1) / pagesize);
+            dsRet.put("totalCount",totalCount);
+            dsRet.put("totalAmount",totalAmount);
             dsRet.put("datas",quoteLists);
             results.put("data", dsRet);
         }
