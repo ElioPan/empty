@@ -173,6 +173,7 @@ public class StockServiceImpl implements StockService {
 			}
 
 			// 批次管理验证
+			List<String> isLotError = Lists.newArrayList();
 			Map<String, Integer> isLotMap = materielDOs
 					.stream()
 					.collect(Collectors.toMap(MaterielDO::getSerialNo, MaterielDO::getIsLot));
@@ -181,12 +182,12 @@ public class StockServiceImpl implements StockService {
 				Integer isLot = isLotMap.get(serialno);
 				String batch = stockEntity.getBatch();
 				if ((isLot == 1 && StringUtils.isEmpty(batch)) || (isLot == 0 && StringUtils.isNoneEmpty(batch))) {
-					continue;
+					isLotError.add(serialno);
 				}
-				isLotMap.remove(serialno);
 			}
-			if (isLotMap.size() > 0) {
-				String []args = {isLotMap.keySet().toString()};
+			if (isLotError.size() > 0) {
+				List<String> collect = isLotError.stream().distinct().collect(Collectors.toList());
+				String []args = {collect.toString()};
 				return R.error(messageSourceHandler.getMessage("basicInfo.materiel.isLotError", args));
 			}
 			Map<String, Integer> idToMap = materielDOs.stream()
