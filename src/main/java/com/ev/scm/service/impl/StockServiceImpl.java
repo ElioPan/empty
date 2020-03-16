@@ -153,66 +153,129 @@ public class StockServiceImpl implements StockService {
 			}
 
 			Map<String, Object> emptyMap = Maps.newHashMap();
-			List<FacilityDO> facilityDOs = facilityService.list(emptyMap);
-			List<FacilityLocationDO> locationDOs = facilityLocationService.list(emptyMap);
-			List<MaterielDO> materielDOs = materielService.list(emptyMap);
 
-			boolean isFacilityError = true;
-			boolean isMaterielError = true;
+			// 物料验证
+			List<String> codes = stockEntityList
+					.stream()
+					.map(StockEntity::getSerialno)
+					.distinct()
+					.collect(Collectors.toList());
+			emptyMap.put("codes",codes);
+			List<MaterielDO> materielDOs = materielService.list(emptyMap);
+			if (materielDOs.size() != codes.size()) {
+				List<String> materielCodes = materielDOs
+						.stream()
+						.map(MaterielDO::getSerialNo)
+						.collect(Collectors.toList());
+				codes.removeAll(materielCodes);
+				String[] notExist = {codes.toString()};
+				return R.error(messageSourceHandler.getMessage("basicInfo.materiel.notExist", notExist));
+			}
+
+			// 批次管理验证
+			List<String> isLotError = Lists.newArrayList();
+			Map<String, Integer> isLotMap = materielDOs
+					.stream()
+					.collect(Collectors.toMap(MaterielDO::getSerialNo, MaterielDO::getIsLot));
+			for (StockEntity stockEntity : stockEntityList) {
+				String serialno = stockEntity.getSerialno();
+				Integer isLot = isLotMap.get(serialno);
+				String batch = stockEntity.getBatch();
+				if ((isLot == 1 && StringUtils.isEmpty(batch)) || (isLot == 0 && StringUtils.isNoneEmpty(batch))) {
+					isLotError.add(serialno);
+				}
+			}
+			if (isLotError.size() > 0) {
+				List<String> collect = isLotError.stream().distinct().collect(Collectors.toList());
+				String []args = {collect.toString()};
+				return R.error(messageSourceHandler.getMessage("basicInfo.materiel.isLotError", args));
+			}
+			Map<String, Integer> idToMap = materielDOs.stream()
+					.collect(Collectors.toMap(MaterielDO::getSerialNo, MaterielDO::getId));
+
+			// 仓库验证
+			List<String> facilityCodes = stockEntityList
+					.stream()
+					.map(StockEntity::getFacilityName)
+					.distinct()
+					.collect(Collectors.toList());
+			emptyMap.put("codes",facilityCodes);
+			List<FacilityDO> facilityDOs = facilityService.list(emptyMap);
+			if (facilityDOs.size() != facilityCodes.size()) {
+				List<String> collect = facilityDOs
+						.stream()
+						.map(FacilityDO::getName)
+						.collect(Collectors.toList());
+				facilityCodes.removeAll(collect);
+				String[] notExist = {facilityCodes.toString()};
+				return R.error(messageSourceHandler.getMessage("basicInfo.facility.notExist", notExist));
+			}
+
+			// 检查仓库与仓位是否匹配
+			Map<String, Integer> facilityIdToMap = facilityDOs
+					.stream()
+					.collect(Collectors.toMap(FacilityDO::getName, FacilityDO::getId));
+			List<Integer> facilityIds = new ArrayList<>(facilityIdToMap.values());
+			emptyMap.put("codes",facilityIds);
+			List<FacilityLocationDO> locationDOs = facilityLocationService.list(emptyMap);
+
+			// 检查库位是否存在
+			boolean isLocationNull = false;
+			if (locationDOs.size() == 0) {
+				isLocationNull = true;
+			}
+			if(isLocationNull){
+				List<String> collect = stockEntityList.stream()
+						.filter(stockEntity -> stockEntity.getFacilityLocationName() != null)
+						.map(StockEntity::getFacilityLocationName)
+						.collect(Collectors.toList());
+				String[] args = {collect.toString()};
+				return R.error(messageSourceHandler.getMessage("basicInfo.location.notExist", args));
+			}
+			// 检验库位是否匹配
+			Map<Integer, List<FacilityLocationDO>> idToLocationDOs = locationDOs
+					.stream()
+					.collect(Collectors.groupingBy(FacilityLocationDO::getFacilityId));
+			List<FacilityLocationDO> facilityLocationDOS;
+			List<Map<String,String>> locationNameList = Lists.newArrayList();
+			Map<String,String> map;
+			for (StockEntity stockEntity : stockEntityList) {
+				String facilityLocation = stockEntity.getFacilityLocationName();
+				if (facilityLocation == null) {
+					continue;
+				}
+				Integer facility = facilityIdToMap.get(stockEntity.getFacilityName());
+				facilityLocationDOS = idToLocationDOs.get(facility);
+				boolean present = facilityLocationDOS
+						.stream()
+						.anyMatch(facilityLocationDO -> facilityLocation.equals(facilityLocationDO.getName()));
+				if(!present){
+					map = Maps.newHashMap();
+					map.put("仓库",stockEntity.getFacilityName());
+					map.put("库位",facilityLocation);
+					locationNameList.add(map);
+				}
+			}
+			if (locationNameList.size() > 0) {
+				String[] args = {locationNameList.toString()};
+				return R.error(messageSourceHandler.getMessage("basicInfo.facility.isFacilityError", args));
+			}
+			Map<String, Integer> locationIdToMap = locationDOs.stream().collect(Collectors.toMap(FacilityLocationDO::getName, FacilityLocationDO::getId));
+
+
 			Date now = new Date();
 			Long userId = ShiroUtils.getUserId();
 			List<StockDO> stockDOs = Lists.newArrayList();
 			StockDO stockDO;
-			String serialNo;
-			String batch;
-			Integer isLot;
 			for (StockEntity stockEntity : stockEntityList) {
 				stockDO = new StockDO();
 				// 默认仓库
 				facilityName = stockEntity.getFacilityName();
 				facilityLocationName = stockEntity.getFacilityLocationName();
-				for (FacilityDO facilityDO : facilityDOs) {
-					isFacilityError = true;
-					if (Objects.equals(facilityDO.getName(), facilityName)) {
-						Integer facilityDOId = facilityDO.getId();
-						// 默认库位
-						for (FacilityLocationDO locationDO : locationDOs) {
-							if (Objects.equals(locationDO.getName(), facilityLocationName)) {
-								// 若库位不在该仓库中
-								if (Objects.equals(locationDO.getFacilityId(), facilityDOId)) {
-									isFacilityError = false;
-									stockDO.setWarehLocation(locationDO.getId().longValue());
-								}
-								break;
-							}
-						}
-						stockDO.setWarehouse(facilityDOId.longValue());
-						break;
-					}
-				}
-				if (isFacilityError) {
-					String[] args = {facilityName, facilityLocationName};
-					return R.error(messageSourceHandler.getMessage("basicInfo.facility.isFacilityError", args));
-				}
-				// 验证物料是否存在
-				serialNo = stockEntity.getSerialno();
-				batch = stockEntity.getBatch();
-				for (MaterielDO materielDO : materielDOs) {
-					if (Objects.equals(materielDO.getSerialNo(), serialNo)) {
-						isLot = materielDO.getIsLot();
-						if ((isLot == 1 && StringUtils.isEmpty(batch)) || (isLot == 0 && StringUtils.isNoneEmpty(batch))) {
-							String[] args = {materielDO.getName()};
-							return R.error(messageSourceHandler.getMessage("basicInfo.materiel.isLotError", args));
-						}
-						isMaterielError = false;
-						stockDO.setMaterielId(materielDO.getId().longValue());
-						break;
-					}
-				}
-				if (isMaterielError) {
-					String[] args = {serialNo};
-					return R.error(messageSourceHandler.getMessage("basicInfo.materiel.isMaterielError", args));
-				}
+				Integer integer = locationIdToMap.get(facilityLocationName);
+				stockDO.setWarehouse(facilityIdToMap.get(facilityName).longValue());
+				stockDO.setWarehLocation(integer!=null?integer.longValue():null);
+				stockDO.setMaterielId(idToMap.get(stockEntity.getSerialno()).longValue());
 				stockDO.setBatch(stockEntity.getBatch());
 				BigDecimal count = BigDecimal.valueOf(Double.parseDouble(stockEntity.getTotalCount()));
 				stockDO.setEnteringTime(now);

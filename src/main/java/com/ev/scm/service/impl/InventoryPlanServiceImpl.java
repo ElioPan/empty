@@ -211,12 +211,9 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 	@Override
 	public R addInventoryPlan(InventoryPlanDO checkHeadDO, String checkBodys, Long[] deleItemIds) {
 		//提箱前端当选择的仓库为“所有仓库”时 仓库字段放空值
-
-		InventoryPlanDO inventoryPlanDO = inventoryPlanService.get(checkHeadDO.getId());
-
-		if (Objects.nonNull(inventoryPlanDO)) {
-			if (Objects.equals(inventoryPlanDO.getCheckStatus(), ConstantForGYL.EXECUTE_NON)) {
-
+		if (Objects.nonNull(checkHeadDO.getId())) {
+            InventoryPlanDO inventoryPlanDO = inventoryPlanService.get(checkHeadDO.getId());
+            if (Objects.equals(inventoryPlanDO.getCheckStatus(), ConstantForGYL.EXECUTE_NON)) {
 				int rows = inventoryPlanService.update(checkHeadDO);
 				if (rows > 0) {
 					if (Objects.nonNull(checkBodys)) {
@@ -234,7 +231,9 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 					if (deleItemIds.length > 0) {
 						inventoryPlanItemService.batchRemove(deleItemIds);
 					}
-					return R.ok();
+                    Map<String,Object>  map= new HashMap<>();
+                    map.put("id",checkHeadDO.getId());
+                    return R.ok(map);
 				} else {
 					return R.error(messageSourceHandler.getMessage("apis.check.saveChangePlan", null));
 				}
@@ -252,12 +251,13 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				body.setHeadId(checkHeadDO.getId());
 				inventoryPlanItemService.save(body);
 			}
-			return R.ok();
+			Map<String,Object>  map= new HashMap<>();
+			map.put("id",checkHeadDO.getId());
+			return R.ok(map);
 		} else {
 			return R.error(messageSourceHandler.getMessage("apis.check.addCheck", null));
 		}
 	}
-
 }
 
 	@Override
@@ -624,17 +624,15 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 		params.setTitleRows(0);
 		params.setHeadRows(1);
 		List<InventoryPlanEntity> InventoryPlanList;
-		List<InventoryPlanEntity> InventoryPlanHaveNoIdList;
-		List<Map<String,String>> InventoryPlanReuseIMap;
+		Map<String,String> InventoryPlanReuseIMap;
 		try {
 			InventoryPlanList = ExcelImportUtil.importExcel(file.getInputStream(), InventoryPlanEntity.class, params);
-			InventoryPlanHaveNoIdList=InventoryPlanList.stream().filter(InventoryPlanEntity -> InventoryPlanEntity.getId() == null).collect(Collectors.toList());
-			InventoryPlanReuseIMap=null;
 			InventoryPlanList = InventoryPlanList.stream().filter(InventoryPlanEntity -> InventoryPlanEntity.getId() != null).collect(Collectors.toList());
-		} catch (Exception e) {
+            InventoryPlanReuseIMap=InventoryPlanList.stream().collect(Collectors.toMap(InventoryPlanEntity::getId,InventoryPlanEntity::getCheckCount,(k1,k2)->k1));
+
+        } catch (Exception e) {
 			return R.error(messageSourceHandler.getMessage("file.upload.error", null));
 		}
-
 		if(InventoryPlanList.size()>0){
 			for(InventoryPlanEntity inventoryPlanEntity:InventoryPlanList){
 				if(StringUtils.isEmpty(inventoryPlanEntity.getCheckCount())){
@@ -642,16 +640,34 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				}
 			}
 		}
-
-		if(InventoryPlanHaveNoIdList.size()>0){
+		if(InventoryPlanList.size()>InventoryPlanReuseIMap.size()){
 			return R.error(messageSourceHandler.getMessage("scm.inventoryPlan.haveNoId", null));
 		}
+        List<InventoryPlanItemDO> listItemDo=new ArrayList<>();
+        for(InventoryPlanEntity inventoryPlanEntity:InventoryPlanList){
+            String id=inventoryPlanEntity.getId();
+            BigDecimal checkCount=new BigDecimal(inventoryPlanEntity.getCheckCount());
+            InventoryPlanItemDO inventoryPlanItemDO = inventoryPlanItemService.get(Long.parseLong(id));
+            BigDecimal systemCount= inventoryPlanItemDO.getSystemCount();
+
+            inventoryPlanItemDO.setCheckCount(checkCount);
+            inventoryPlanItemDO.setProfitLoss(systemCount.subtract(checkCount));
+            listItemDo.add(inventoryPlanItemDO);
+        }
+
+        if(listItemDo.size()>0){
+            InventoryPlanDO inventoryPlanDO = this.get(listItemDo.get(0).getHeadId());
+            inventoryPlanDO.setCheckStatus(ConstantForGYL.EXECUTE_NOW);
+            this.update(inventoryPlanDO);
+            inventoryPlanItemService.batchUpdate(listItemDo);
+            return R.ok();
+        }else{
+            return R.error();
+        }
 
 
 
-
-		return null;
-	}
+}
 
 
 

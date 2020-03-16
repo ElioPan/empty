@@ -23,6 +23,13 @@
 		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
             <if test="auditSign != null and auditSign != ''"> and audit_sign = #{auditSign} </if>
             <if test="auditor != null and auditor != ''"> and auditor = #{auditor} </if>
+			<if test="codes != null and codes.size()>0"> and facility_id IN
+				<foreach item="item" collection="codes" open="(" separator="," close=")" index="index">
+					<if test="item!=null">
+						#{item}
+					</if>
+				</foreach>
+			</if>
 		  		</where>
         <choose>
             <when test="sort != null and sort.trim() != ''">

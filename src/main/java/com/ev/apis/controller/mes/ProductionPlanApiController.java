@@ -64,7 +64,7 @@ public class ProductionPlanApiController {
 			@ApiParam(value = "状态ID") @RequestParam(value = "status", defaultValue = "", required = false) Integer status,
 			@ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
-            @ApiParam(value = "标识") @RequestParam(value = "mark", defaultValue = "", required = false) String mark,
+            @ApiParam(value = "标识(dialog下达状态，检验必检)") @RequestParam(value = "mark", defaultValue = "", required = false) String mark,
             @ApiParam(value = "需排序字段") @RequestParam(value = "sort",defaultValue = "",required = false)  String sort,
             @ApiParam(value = "升（asc）降(desc)序") @RequestParam(value = "order",defaultValue = "",required = false)  String order
 //			@ApiParam(value = "生产计划名称", required = false) @RequestParam(value = "productionPlanName", defaultValue = "", required = false) String productionPlanName,
