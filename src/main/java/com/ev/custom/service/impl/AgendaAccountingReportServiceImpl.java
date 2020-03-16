@@ -102,6 +102,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
             monthReportCollect = monthReport.stream()
                     .collect(Collectors.toMap(stringObjectMap -> stringObjectMap.get("createBy").toString(), stringObjectMap -> stringObjectMap.get("monthCount")));
         }
+       String timeLimit  = startTime + "至" + endTime;
         for (Map<String, Object> userDO : userDOsList) {
             String userId = userDO.get("userId").toString();
             Object dailyCount = dailyReportCollect.get(userId);
@@ -110,6 +111,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
             userDO.put("dailyCount", dailyCount == null ? workingNum : dailyCount);
             userDO.put("weekCount", weekCount == null ? weekNum : weekCount);
             userDO.put("monthCount", monthCount == null ? monthNum : monthCount);
+            userDO.put("timeLimit", timeLimit);
         }
         Map<String, Object> results = Maps.newHashMap();
         results.put("data", new DsResultResponse(pageNo, pageSize, userDOs.size(), userDOsList));
