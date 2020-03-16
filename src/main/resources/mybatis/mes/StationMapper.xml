@@ -88,11 +88,10 @@
                     </where>
     </sql>
 	 
-	<insert id="save" parameterType="com.ev.mes.domain.StationDO">
+	<insert id="save" parameterType="com.ev.mes.domain.StationDO" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO mes_station
 		(
-			`id`, 
-			`code`, 
+			`code`,
 			`name`, 
 			`remark`,
 			`audit_sign`,
@@ -104,8 +103,7 @@
 		)
 		VALUES
 		(
-			#{id}, 
-			#{code}, 
+			#{code},
 			#{name}, 
 			#{remark},
 			#{auditSign},
