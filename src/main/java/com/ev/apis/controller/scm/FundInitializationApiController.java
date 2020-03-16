@@ -64,10 +64,12 @@ public class FundInitializationApiController {
     @ApiOperation("列表")
     @Transactional(rollbackFor = Exception.class)
     public R  list(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
-                   @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize){
+                   @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+                   @ApiParam(value = "启用0，禁用1") @RequestParam(value = "usingStart",defaultValue = "") Integer  usingStart){
         Map<String,Object> params= new HashMap<>();
         params.put("offset", (pageno - 1) * pagesize);
         params.put("limit", pagesize);
+        params.put("usingStart", usingStart);
         List<Map<String, Object>> getlist = fundInitializationService.getlist(params);
         Map<String, Object> countOfList = fundInitializationService.countOfList(params);
 

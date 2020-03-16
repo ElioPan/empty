@@ -207,7 +207,7 @@ public final class ConstantForGYL {
 	/**
 	 * 银行转账单前缀
 	 */
-	public static final String BANK_TRANSFER = "YHZZ";
+	public static final String BANK_TRANSFER = "ZJCQ";
 	/**
 	 * 加工费用前缀
 	 */

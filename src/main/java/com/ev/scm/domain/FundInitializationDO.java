@@ -23,7 +23,7 @@ public class FundInitializationDO implements Serializable {
 	
 	//
     @ApiModelProperty(value = "")
-	private Integer id;
+	private Long id;
 	//期间
     @ApiModelProperty(value = "期间")
 	private Date period;

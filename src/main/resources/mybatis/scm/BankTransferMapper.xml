@@ -165,9 +165,9 @@
 		c.name as auditSignName,
 		d.id as itemId ,
 		d.transfer_out_acc as transferOutAcc,
-		e.name as transferOutAccName,
+		e.account_number as transferOutAccName,
 		d.transfer_in_acc as transferInAcc,
-		f.name as transferInAccName,
+		f.account_number as transferInAccName,
 		d.transfer_amount as transferAmount,
 		d.settlement_type  as settlementType,
 		g.name as settlementTypeName,
@@ -178,8 +178,8 @@
 		LEFT JOIN sys_user b on  a.`transactor_id`=b.user_id
 		LEFT JOIN cus_dictionary c on  a.audit_sign=c.id
 		LEFT JOIN scm_bank_transfer_item d on a.id =d.transfer_id
-		LEFT JOIN cus_dictionary e on  d.transfer_out_acc=e.id
-		LEFT JOIN cus_dictionary f on  d.transfer_in_acc=f.id
+		LEFT JOIN scm_fund_initialization e on  d.transfer_out_acc=e.id
+		LEFT JOIN scm_fund_initialization f on  d.transfer_in_acc=f.id
 		LEFT JOIN cus_dictionary g on  d.settlement_type=g.id
 		<where>
 			<if test="id != null and id != ''"> AND id = #{id} </if>
@@ -207,11 +207,12 @@
 		COUNT(*)
 		from
 		scm_bank_transfer  a
+		scm_bank_transfer  a
 		LEFT JOIN sys_user b on  a.`transactor_id`=b.user_id
 		LEFT JOIN cus_dictionary c on  a.audit_sign=c.id
 		LEFT JOIN scm_bank_transfer_item d on a.id =d.transfer_id
-		LEFT JOIN cus_dictionary e on  d.transfer_out_acc=e.id
-		LEFT JOIN cus_dictionary f on  d.transfer_in_acc=f.id
+		LEFT JOIN scm_fund_initialization e on  d.transfer_out_acc=e.id
+		LEFT JOIN scm_fund_initialization f on  d.transfer_in_acc=f.id
 		LEFT JOIN cus_dictionary g on  d.settlement_type=g.id
 		<where>
 			<if test="id != null and id != ''"> AND id = #{id} </if>

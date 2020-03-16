@@ -1,12 +1,12 @@
 package com.ev.scm.domain;
 
-import java.io.Serializable;
-import java.util.Date;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
 
 /**
@@ -37,7 +37,7 @@ public class BankTransferItemDO implements Serializable {
     @ApiModelProperty(value = "转账金额")
 	private BigDecimal transferAmount;
 	//结算方式
-    @ApiModelProperty(value = "结算方式")
+    @ApiModelProperty(value = "收支类型")
 	private Long settlementType;
 	//结算号
     @ApiModelProperty(value = "结算号")
@@ -60,5 +60,9 @@ public class BankTransferItemDO implements Serializable {
 	//删除状态
     @ApiModelProperty(value = "删除状态")
 	private Integer delFlag;
+
+	@ApiModelProperty(value = "业务类型")
+	private Long businessType;
+
 
 }

@@ -436,7 +436,7 @@
 		cusd.*,
 		cusdaa.name   as type_mes,
 		cusdab.name   as status_name,
-		user.username as user_name,
+		user.name as user_name,
 		sdept.name as dept_name,
 		cusdad.name as souce_name,
 		cusdae.name as use_name,

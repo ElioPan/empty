@@ -15,7 +15,7 @@ import java.util.Map;
 @Mapper
 public interface FundInitializationDao {
 
-	FundInitializationDO get(Integer id);
+	FundInitializationDO get(Long id);
 	
 	List<FundInitializationDO> list(Map<String, Object> map);
 	

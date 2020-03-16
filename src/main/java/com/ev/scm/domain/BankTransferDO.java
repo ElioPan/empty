@@ -29,7 +29,7 @@ public class BankTransferDO implements Serializable {
 	private String transferCode;
 
 	//转账日期
-    @ApiModelProperty(value = "转账日期")
+    @ApiModelProperty(value = "日期")
 	private Date transferDate;
 	//经办人
     @ApiModelProperty(value = "经办人")

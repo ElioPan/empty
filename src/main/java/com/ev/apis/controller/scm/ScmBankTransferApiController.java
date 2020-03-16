@@ -45,11 +45,11 @@ public class ScmBankTransferApiController {
             @ApiParam(value = "明细行：[\n" +
                     "{\n" +
                     "\"id\":\"明细主键（修改时必传）\",\n" +
-                    "\"transferOutAcc\":\"转出账号\",\n" +
-                    "\"transferInAcc\":\"转入账号\",\n" +
+                    "\"businessType\":\"业务类型\",\n" +
+                    "\"transferOutAcc\":\"转出账号(放入引用的id,没有不传)\",\n" +
+                    "\"transferInAcc\":\"转入账号(放入引用的id,没有不传)\",\n" +
                     "\"transferAmount\":\"转账金额\",\n" +
-                    "\"settlementType\":\"结算方式\",\n" +
-                    "\"statementNumber\":\"结算号\",\n" +
+                    "\"settlementType\":\"收支类型\",\n" +
                     "\"remarks\":\"备注\"\n" +
                     "}\n" +
                     "]") @RequestParam(value = "transferBodys", defaultValue = "", required = false) String transferBodys,

@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public interface FundInitializationService {
 	
-	FundInitializationDO get(Integer id);
+	FundInitializationDO get(Long id);
 	
 	List<FundInitializationDO> list(Map<String, Object> map);
 	

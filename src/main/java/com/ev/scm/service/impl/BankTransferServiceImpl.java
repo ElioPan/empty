@@ -9,9 +9,12 @@ import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.dao.BankTransferDao;
 import com.ev.scm.domain.BankTransferDO;
 import com.ev.scm.domain.BankTransferItemDO;
+import com.ev.scm.domain.FundInitializationDO;
 import com.ev.scm.service.BankTransferItemService;
 import com.ev.scm.service.BankTransferService;
+import com.ev.scm.service.FundInitializationService;
 import com.google.common.collect.Maps;
+import org.omg.CORBA.OBJ_ADAPTER;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +29,9 @@ public class BankTransferServiceImpl implements BankTransferService {
 	private BankTransferDao bankTransferDao;
 	@Autowired
 	private BankTransferItemService bankTransferItemService;
+	@Autowired
+	private FundInitializationService fundInitializationService;
+
 	
 	@Override
 	public BankTransferDO get(Long id){
@@ -93,6 +99,21 @@ public class BankTransferServiceImpl implements BankTransferService {
 
 			if (row > 0) {
 				List<BankTransferItemDO> bodys = JSON.parseArray(transferBodys, BankTransferItemDO.class);
+				for (BankTransferItemDO bPdata : bodys) {
+					Long fundInitializationId=0L;
+					if(bPdata.getTransferInAcc()!=null){
+						fundInitializationId=bPdata.getTransferInAcc();
+					}else if(bPdata.getTransferOutAcc()!=null){
+						fundInitializationId=bPdata.getTransferOutAcc();
+					}
+					FundInitializationDO fundInitializationDO = fundInitializationService.get(bPdata.getTransferInAcc());
+					if(fundInitializationDO!=null){
+						if(Objects.equals(1,fundInitializationDO.getUsingStart())){
+							String[] arg={fundInitializationDO.getAccountNumber().toString()};
+							return R.error(messageSourceHandler.getMessage("scm.FundInitialization.forbidden",arg));
+						}
+					}
+				}
 				for (BankTransferItemDO bPdata : bodys) {
 					bPdata.setTransferId(bankTransferDO.getId());
 					bankTransferItemService.save(bPdata);

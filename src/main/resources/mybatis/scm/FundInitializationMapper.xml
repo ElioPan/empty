@@ -156,6 +156,7 @@
 		LEFT JOIN cus_dictionary b on a.bank=b.id
 		<where>
 			<if test="id != null and id != ''"> AND a.id = #{id} </if>
+			<if test="usingStart != null and usingStart !=''"> AND a.using_start = #{usingStart} </if>
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -179,6 +180,7 @@
 		LEFT JOIN cus_dictionary b on a.bank=b.id
 		<where>
 			<if test="id != null and id != ''"> AND a.id = #{id} </if>
+			<if test="usingStart != null and usingStart !=''"> AND a.using_start = #{usingStart} </if>
 		</where>
 	</select>
 

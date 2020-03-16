@@ -34,11 +34,14 @@
 	</select>
 
     <sql id="sql_column_list">
-		`id`,`transfer_id`,`transfer_out_acc`,`transfer_in_acc`,`transfer_amount`,`settlement_type`,`statement_number`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+		`id`,`transfer_id`,`transfer_out_acc`,`transfer_in_acc`,
+		`transfer_amount`,`settlement_type`,`statement_number`,
+		`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,
+		`del_flag`,`business_type`
 	</sql>
 
     <sql id="sql_condition">
-        <where>
+        			<where>
                             <if test="id != null and id != ''"> AND id = #{id} </if>
                             <if test="transferId != null and transferId != ''"> AND transfer_id = #{transferId} </if>
                             <if test="transferOutAcc != null and transferOutAcc != ''"> AND transfer_out_acc = #{transferOutAcc} </if>
@@ -52,9 +55,12 @@
                             <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
                             <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
                             <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
-                    </where>
+							<if test="businessType != null and businessType != ''"> AND business_type = #{businessType} </if>
+
+					</where>
     </sql>
-	 
+
+
 	<insert id="save" parameterType="com.ev.scm.domain.BankTransferItemDO" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO scm_bank_transfer_item
 		(
@@ -69,7 +75,8 @@
 			`create_time`, 
 			`update_by`, 
 			`update_time`, 
-			`del_flag`
+			`del_flag`,
+			`business_type`
 		)
 		VALUES
 		(
@@ -84,7 +91,8 @@
 			#{createTime}, 
 			#{updateBy}, 
 			#{updateTime}, 
-			#{delFlag}
+			#{delFlag},
+			#{businessType}
 		)
 	</insert>
 	 
@@ -103,6 +111,7 @@
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
 			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
 			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+			<if test="businessType != null">`business_type` = #{businessType}</if>
 		</set>
 		WHERE id = #{id}
 	</update>
@@ -132,19 +141,22 @@
 		select
 		a.id as id ,
 		a.transfer_out_acc as transferOutAcc ,
-		b.name as transferOutAccName,
+		b.account_number as transferOutAccName,
 		a.transfer_in_acc as transferInAcc,
-		c.name as transferInAccName,
+		c.account_number as transferInAccName,
 		a.transfer_amount as transferAmount,
 		a.settlement_type  as settlementType,
 		d.name as settlementTypeName,
 		a.statement_number as statementNumber ,
-		a.remarks
+		a.remarks,
+		a.business_type as	businessType,
+		e.name as businessTypeName
 		from
 		scm_bank_transfer_item  a
-		LEFT JOIN cus_dictionary b on  a.transfer_out_acc=b.id
-		LEFT JOIN cus_dictionary c on  a.transfer_in_acc=c.id
+		LEFT JOIN scm_fund_initialization b on  a.transfer_out_acc=b.id
+		LEFT JOIN scm_fund_initialization c on  a.transfer_in_acc=c.id
 		LEFT JOIN cus_dictionary d on  a.settlement_type=d.id
+		LEFT JOIN cus_dictionary e on  a.business_type=e.id
 		where
 			a.transfer_id=#{id}
 	</select>

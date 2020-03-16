@@ -27,7 +27,7 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 
 
 	@Override
-	public FundInitializationDO get(Integer id){
+	public FundInitializationDO get(Long id){
 		return fundInitializationDao.get(id);
 	}
 	
