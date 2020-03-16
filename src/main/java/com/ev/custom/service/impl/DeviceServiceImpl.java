@@ -147,6 +147,7 @@ public class DeviceServiceImpl implements DeviceService {
 				map.put("usingStatus", device.getUsingStatus() == null ? "" : dictMap.get(device.getUsingStatus().toString()));
 				map.put("site", device.getSite() == null ? "" : device.getSite());
 				map.put("deptName", device.getDeptId() == null ? "" : deptMap.get(device.getDeptId().toString()));
+				map.put("engineerId", device.getEngineerId() == null ? "" : device.getEngineerId());
 				map.put("userName", device.getUserId() == null ? "" : userMap.get(device.getUserId().toString()));
 				map.put("usingTime", device.getUsingTime() == null ? "" : device.getUsingTime());
 				datas.add(map);

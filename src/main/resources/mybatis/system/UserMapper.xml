@@ -18,7 +18,7 @@
 		  		  <if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
 		  		  <if test="email != null and email != ''"> and email = #{email} </if>
 		  		  <if test="mobile != null and mobile != ''"> and mobile = #{mobile} </if>
-		  		  <if test="status != null and status != ''"> and status = #{status} </if>
+		  		  <if test="status != null"> and status = #{status} </if>
 		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
 		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
 		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
@@ -130,7 +130,7 @@
 			</if>
 			<if test="email != null and email != ''"> and sysuser.email = #{email} </if>
 			<if test="mobile != null and mobile != ''"> and sysuser.mobile = #{mobile} </if>
-			<if test="status != null and status != ''"> and sysuser.status = #{status} </if>
+			<if test="status != null"> and sysuser.status = #{status} </if>
 			<if test="createBy != null and createBy != ''"> and sysuser.create_by = #{createBy} </if>
 			<if test="createTime != null and createTime != ''"> and sysuser.create_time = #{createTime} </if>
 			<if test="updateTime != null and updateTime != ''"> and sysuser.update_time = #{updateTime} </if>
