@@ -30,4 +30,11 @@ public interface QrcodeItemService {
 	int batchRemove(Long[] ids);
 
 	int batchInsert(List<QrcodeItemDO> qrcodeItemDOList);
+
+	/**
+	 * 获取二维码历史明细
+	 * @param qrCodeId 二维码主键
+	 * @return
+	 */
+	List<Map<String,Object>> logDetail(Long qrCodeId);
 }

@@ -31,6 +31,9 @@ public class QrcodeItemDO implements Serializable {
 	//二维码主键ID
     @ApiModelProperty(value = "二维码主键ID")
 	private Long qrcodeId;
+	//操作类型
+	@ApiModelProperty(value = "操作类型(0:入库；1：出库)")
+	private Integer operateType;
 	//单据类型
     @ApiModelProperty(value = "单据类型")
 	private Long inOutType;

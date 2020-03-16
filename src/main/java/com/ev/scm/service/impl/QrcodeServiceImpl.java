@@ -161,6 +161,7 @@ public class QrcodeServiceImpl implements QrcodeService {
                         (stockInItemDOSaved.getWarehouse() + "-" + stockInItemDOSaved.getWarehLocation()).equals(stockInItemDO.getWarehouse() + "-" + stockInItemDO.getWarehLocation()) &&
                         stockInItemDOSaved.getBatch().equals(stockInItemDO.getBatch())) {
                     QrcodeItemDO qrcodeItemDO = new QrcodeItemDO(stockInItemDO.getQrcodeId(), stockInDO.getStorageType(), stockInDO.getId(),stockInDO.getInheadCode(), stockInItemDOSaved.getId(), stockInItemDO.getCount());
+                    qrcodeItemDO.setOperateType(0);
                     qrcodeItemDOList.add(qrcodeItemDO);
                     break;
                 }
@@ -190,10 +191,10 @@ public class QrcodeServiceImpl implements QrcodeService {
                     qrcodeDO.setRemainCount(qrcodeDO.getRemainCount().subtract(stockOutItemDO.getCount()));
                     qrcodeDOList.add(qrcodeDO);
                     QrcodeItemDO qrcodeItemDO = new QrcodeItemDO(qrCodeId, stockOutDO.getOutboundType(), stockOutDO.getId(), stockOutDO.getOutCode(), stockOutItemDOSaved.getId(), stockOutItemDO.getCount());
+                    qrcodeItemDO.setOperateType(1);
                     qrcodeItemDOList.add(qrcodeItemDO);
                     break;
                 }
-
 			}
 		}
 		batchUpdate(qrcodeDOList);

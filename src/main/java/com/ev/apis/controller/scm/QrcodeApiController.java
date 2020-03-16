@@ -196,4 +196,27 @@ public class QrcodeApiController {
         result.put("qrCodeInfo",qrCodeList.get(0));
         return R.ok(result);
     }
+
+    @EvApiByToken(value = "/apis/scm/qrcode/logDetail",method = RequestMethod.GET,apiTitle = "物料条码追溯查询")
+    @ApiOperation("物料条码追溯查询")
+    public R logDetail(@ApiParam(value = "二维码主键") @RequestParam(value = "qrCodeId") Long qrCodeId){
+        Map<String,Object> result = new HashMap<>();
+        /**
+         * 验证是否包含此二维码信息
+         */
+        QrcodeDO qrcodeDO = qrcodeService.get(qrCodeId);
+        if(qrcodeDO == null){
+            return R.error(messageSourceHandler.getMessage("scm.qrcode.invalid",null));
+        }
+        if(qrcodeDO.getStockId() == null){
+            return R.error(messageSourceHandler.getMessage("scm.qrcode.notIn",null));
+        }
+        /**
+         * 获取二维码历史信息
+         */
+        List<Map<String,Object>> qrCodeList = qrcodeService.listForMap(new HashMap<String,Object>(1){{put("id",qrCodeId);}});
+        result.put("header",qrCodeList.get(0));
+        result.put("body",qrcodeItemService.logDetail(qrCodeId));
+        return R.ok(result);
+    }
 }

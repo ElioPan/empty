@@ -34,7 +34,7 @@
 	</select>
 
     <sql id="sql_column_list">
-		`id`,`qrcode_id`,`in_out_type`,`inhead_id`,`inhead_code`,`inbody_id`,`count`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+		`id`,`qrcode_id`,`in_out_type`,`operate_type`,`inhead_id`,`inhead_code`,`inbody_id`,`count`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 	</sql>
 
     <sql id="sql_condition">
@@ -58,7 +58,8 @@
 		INSERT INTO scm_qrcode_item
 		(
 			`qrcode_id`, 
-			`in_out_type`, 
+			`in_out_type`,
+			`operate_type`,
 			`inhead_id`,
 			`inhead_code`,
 			`inbody_id`, 
@@ -72,7 +73,8 @@
 		VALUES
 		(
 			#{qrcodeId}, 
-			#{inOutType}, 
+			#{inOutType},
+			#{operateType},
 			#{inheadId},
 			#{inheadCode},
 			#{inbodyId}, 
@@ -90,6 +92,7 @@
 		(
 			`qrcode_id`,
 			`in_out_type`,
+		    `operate_type`,
 			`inhead_id`,
 		    `inhead_code`,
 			`inbody_id`,
@@ -105,6 +108,7 @@
 		(
 			#{obj.qrcodeId},
 			#{obj.inOutType},
+			#{obj.operateType},
 			#{obj.inheadId},
 			#{obj.inheadCode},
 			#{obj.inbodyId},
@@ -123,6 +127,7 @@
 		<set>
 			<if test="qrcodeId != null">`qrcode_id` = #{qrcodeId}, </if>
 			<if test="inOutType != null">`in_out_type` = #{inOutType}, </if>
+			<if test="operateType != null">`operate_type` = #{operateType}, </if>
 			<if test="inheadId != null">`inhead_id` = #{inheadId}, </if>
 			<if test="inheadCode != null">`inhead_code` = #{inheadCode}, </if>
 			<if test="inbodyId != null">`inbody_id` = #{inbodyId}, </if>
