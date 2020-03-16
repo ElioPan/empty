@@ -140,7 +140,7 @@
 		cus_maintenance_repository cmr
 		LEFT JOIN cus_device cd on cmr.device_id = cd.id
 		LEFT JOIN cus_dictionary d on cmr.device_type = d.id
-		LEFT JOIN cus_dictionary ft on cmr.fault_type = cd.id
+		LEFT JOIN cus_dictionary ft on cmr.fault_type = ft.id
 		LEFT JOIN sys_user u on u.user_id = cmr.create_by
 		<include refid="sql_condition"/>
 		<choose>
