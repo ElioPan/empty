@@ -217,7 +217,7 @@ public class ScmPurchaseApiController {
     @EvApiByToken(value = "/apis/scm/purchase/PurchaseIntroduce", method = RequestMethod.POST, apiTitle = "导入列表—采购申请单")
     @ApiOperation("导入列表—采购申请单")
     public R purchaseOflistForIntroduce(@ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1") int pageno,
-                            @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+                            @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "5") int pagesize,
                             @ApiParam(value = "开始日期(申请时间)") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
                             @ApiParam(value = "截止日期(申请时间)") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
                             @ApiParam(value = "供应商") @RequestParam(value = "supplierId", defaultValue = "", required = false) Long supplierId,

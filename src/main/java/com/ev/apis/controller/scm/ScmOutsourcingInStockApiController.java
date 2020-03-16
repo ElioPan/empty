@@ -163,7 +163,7 @@ public class ScmOutsourcingInStockApiController {
     @EvApiByToken(value = "/apis/scm/outsourcingInStock/listOfHead", method = RequestMethod.POST, apiTitle = "入库主信息列表")
     @ApiOperation("入库主信息列表")
     public R otherHeadList(@ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
-                                 @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
+                                 @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "5", required = false) int pagesize,
                                  @ApiParam(value = "物料名（模糊）") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
                                  @ApiParam(value = "供应商id") @RequestParam(value = "supplierId", defaultValue = "", required = false) Long supplierId,
                                  @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
@@ -209,11 +209,11 @@ public class ScmOutsourcingInStockApiController {
             Map<String, Object> dsRet = new HashMap<>();
             dsRet.put("pageno",pageno);
             dsRet.put("pagesize",pagesize);
-            dsRet.put("totalPages",(quoteLists.size() + pagesize - 1) / pagesize);
-            dsRet.put("totalRows",quoteLists.size());
+            dsRet.put("totalPages",((quoteLists!=null?quoteLists.size():0) + pagesize - 1) / pagesize);
+            dsRet.put("totalRows",quoteLists!=null?quoteLists.size():0);
             dsRet.put("datas",quoteLists);
             resulst.put("data", dsRet);
-        }
+    }
         return R.ok(resulst);
     }
 

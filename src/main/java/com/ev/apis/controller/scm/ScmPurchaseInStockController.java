@@ -240,7 +240,7 @@ public class ScmPurchaseInStockController {
     @EvApiByToken(value = "/apis/scm/purchaseInStock/listIntroduce", method = RequestMethod.POST, apiTitle = "导入列表--采购入库")
     @ApiOperation("导入列表--采购入库")
     public R listIntroduce(@ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
-                                 @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
+                                 @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "5", required = false) int pagesize,
                                  @ApiParam(value = "供应商（模糊）") @RequestParam(value = "supplierName", defaultValue = "", required = false) String supplierName,
                                  @ApiParam(value = "供应商ID") @RequestParam(value = "supplierId",defaultValue = "",required = false)  Long supplierId,
                                  @ApiParam(value = "入库起始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
@@ -258,16 +258,10 @@ public class ScmPurchaseInStockController {
         params.put("supplierId", supplierId);
         params.put("storageType", ConstantForGYL.PURCHASE_INSTOCK);
 
-        Map<String, Object> totalForMap = stockInService.countForMap(params);
         List<Map<String, Object>> detailList = stockInService.listForMap(params);
 
         DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PURCHASE_INSTOCK.intValue());
         String thisSourceTypeName = dictionaryDO.getName();
-//        for (Map<String, Object> datum : detailList) {
-//            datum.put("thisSourceType", ConstantForGYL.PURCHASE_INSTOCK);
-//            datum.put("thisSourceTypeName", thisSourceTypeName);
-//        }
-
         if (!detailList.isEmpty()) {
 
             Map<String,Object>  maps= new HashMap<>();
@@ -297,13 +291,21 @@ public class ScmPurchaseInStockController {
                     .collect(Collectors.toList());
 
             List<Map<String, Object>> quoteLists= PageUtils.startPage(quoteList, pageno, pagesize);
+            BigDecimal totalCount=BigDecimal.ZERO;
+            BigDecimal totalAmount=BigDecimal.ZERO;
+            if(quoteLists!=null){
+                for(Map<String, Object> map:quoteLists){
+                    totalCount= totalCount.add(new BigDecimal(map.get("count").toString())) ;
+                    totalAmount=totalAmount.add(new BigDecimal(map.get("amount").toString())) ;
+                }
+            }
             Map<String, Object> dsRet = new HashMap<>();
             dsRet.put("pageno",pageno);
             dsRet.put("pagesize",pagesize);
-            dsRet.put("totalPages",(quoteLists.size() + pagesize - 1) / pagesize);
-            dsRet.put("totalRows",quoteLists.size());
-            dsRet.put("toatalCount",totalForMap.get("toatalCount"));
-            dsRet.put("toatalAmount",totalForMap.get("toatalAmount"));
+            dsRet.put("totalPages",((quoteLists!=null?quoteLists.size():0) + pagesize - 1) / pagesize);
+            dsRet.put("totalRows",quoteLists!=null?quoteLists.size():0);
+            dsRet.put("toatalCount",totalCount);
+            dsRet.put("toatalAmount",totalAmount);
             dsRet.put("datas",quoteLists);
             resulst.put("data", dsRet);
         }

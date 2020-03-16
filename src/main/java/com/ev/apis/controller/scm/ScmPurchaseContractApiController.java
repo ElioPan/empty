@@ -370,7 +370,7 @@ public class ScmPurchaseContractApiController {
     @ApiOperation("导入列表—采购合同")
     public R listIntroduce(
             @ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
-            @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize,
+            @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "5") int pagesize,
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime",defaultValue = "",required = false)  String startTime,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime",defaultValue = "",required = false)  String endTime,
             @ApiParam(value = "供应商名称模糊查询") @RequestParam(value = "fuzzyQuery",required = false) String fuzzyQuery,
@@ -436,13 +436,12 @@ public class ScmPurchaseContractApiController {
                     .collect(Collectors.toList());
 
             List<Map<String, Object>>quoteLists = PageUtils.startPage(quoteList, pageno, pagesize);
-
             Map<String,Object>  dsRet= new HashMap<>();
             dsRet.put("datas",quoteLists);
             dsRet.put("pageno",pageno);
             dsRet.put("pagesize",pagesize);
-            dsRet.put("totalRows",quoteLists.size());
-            dsRet.put("totalPages",(quoteLists.size() + pagesize - 1) / pagesize);
+            dsRet.put("totalRows",quoteLists!=null?quoteLists.size():0);
+            dsRet.put("totalPages",((quoteLists!=null?quoteLists.size():0) + pagesize - 1) / pagesize);
             result.put("data", dsRet);
         }
         return R.ok(result);

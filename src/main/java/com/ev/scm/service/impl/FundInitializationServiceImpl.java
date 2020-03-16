@@ -4,16 +4,17 @@ import com.alibaba.fastjson.JSONObject;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
+import com.ev.mes.vo.InventoryPlanEntity;
 import com.ev.scm.dao.FundInitializationDao;
 import com.ev.scm.domain.FundInitializationDO;
-import com.ev.scm.domain.StockInItemDO;
 import com.ev.scm.service.FundInitializationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -73,6 +74,22 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 		if(!StringUtils.isEmpty(body)){
 			List<FundInitializationDO> fundInitializationDOS = JSONObject.parseArray(body, FundInitializationDO.class);
 			if(fundInitializationDOS.size()>0){
+                List<FundInitializationDO> sss = fundInitializationDOS.stream().filter(FundInitializationDO -> FundInitializationDO.getUsingStart() != null).collect(Collectors.toList());
+
+
+
+                for(FundInitializationDO fundInitializationDO:fundInitializationDOS){
+                    if(Objects.isNull(fundInitializationDO.getId())){
+
+
+                    }else{
+
+                    }
+
+
+                }
+
+
 
 			}else{
 
