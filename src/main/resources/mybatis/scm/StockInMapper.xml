@@ -4,7 +4,33 @@
 <mapper namespace="com.ev.scm.dao.StockInDao">
 
 	<select id="get" resultType="com.ev.scm.domain.StockInDO">
-		select `id`,`inhead_code`,`storage_type`,`source_company`,`operator`,`auditor`,`audit_sign`,`audit_time`,`in_time`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`sign`,`qr_sign` from scm_stock_in where id = #{value}
+		SELECT
+			`id`,
+			`inhead_code`,
+			`storage_type`,
+			`source_company`,
+			`client_id`,
+			`dept_id`,
+			`in_out_time`,
+			`operator`,
+			`purchase_type`,
+			`pay_account`,
+			`auditor`,
+			`audit_sign`,
+			`audit_time`,
+			`in_time`,
+			`remarks`,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
+			`del_flag`,
+			`sign`,
+			`qr_sign`
+		FROM
+			scm_stock_in
+		WHERE
+			id = #{value}
 	</select>
 
 
@@ -84,7 +110,7 @@
 		insert into scm_stock_in
 		(
 		`inhead_code`,
-		`Storage_type`,
+		`storage_type`,
 		`source_company`,
 		`client_id`,
 		`dept_id`,
