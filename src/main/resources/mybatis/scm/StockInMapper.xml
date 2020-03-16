@@ -719,6 +719,8 @@
 			`inhead_code` = #{inheadCode},
 			`Storage_type` = #{storageType},
 			`source_company` = #{sourceCompany},
+			`purchase_type`=#{purchaseType},
+			`pay_account`=#{payAccount},
 			`client_id` = #{clientId},
 			`dept_id` = #{deptId},
 			`in_out_time` = #{inOutTime},
@@ -738,8 +740,6 @@
 		</set>
 		where id = #{id}
 	</update>
-
-
 
 
 
