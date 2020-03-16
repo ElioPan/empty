@@ -296,7 +296,7 @@ public class ScmPurchaseInStockController {
             if(quoteLists!=null){
                 for(Map<String, Object> map:quoteLists){
                     totalCount= totalCount.add(new BigDecimal(map.get("count").toString())) ;
-                    totalAmount=totalAmount.add(new BigDecimal(map.get("amount").toString())) ;
+                    totalAmount=totalAmount.add(new BigDecimal(map.containsKey("amount")?map.get("amount").toString():"0")) ;
                 }
             }
             Map<String, Object> dsRet = new HashMap<>();
