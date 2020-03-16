@@ -45,7 +45,7 @@ public class UserApiController extends BaseController {
                   @ApiParam(value = "姓名") @RequestParam(value = "userName",defaultValue = "",required = false)  String userName,
                   @ApiParam(value = "姓名&&手机号码") @RequestParam(value = "query",defaultValue = "",required = false)  String query,
                   @ApiParam(value = "手机号码") @RequestParam(value = "mobile",defaultValue = "",required = false)  String mobile,
-                  @ApiParam(value = "是否显示禁用") @RequestParam(value = "status",defaultValue = "",required = false)  String status,
+                  @ApiParam(value = "是否显示禁用") @RequestParam(value = "status",defaultValue = "",required = false)  Integer status,
                   @ApiParam(value = "部门ID") @RequestParam(value = "deptId",defaultValue = "",required = false)  String deptId){
         Map<String, Object> params = Maps.newHashMap();
         params.put("createBy",userId);
