@@ -194,6 +194,7 @@ public class QrcodeApiController {
 
         List<Map<String,Object>> qrCodeList = qrcodeService.listForMap(new HashMap<String,Object>(1){{put("id",qrCodeId);}});
         result.put("qrCodeInfo",qrCodeList.get(0));
+        result.put("inOutCount",qrcodeItemDOList.get(0).getCount());
         return R.ok(result);
     }
 
