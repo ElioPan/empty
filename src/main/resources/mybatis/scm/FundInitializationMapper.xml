@@ -150,13 +150,14 @@
 		a.using_start as usingStart,
 		CASE  when a.using_start=1 then "禁用"
 				when a.using_start=0 then "启用"
-		      END as usingStartName
+		       END as usingStartName
 		from
 		scm_fund_initialization a
 		LEFT JOIN cus_dictionary b on a.bank=b.id
 		<where>
 			<if test="id != null and id != ''"> AND a.id = #{id} </if>
 			<if test="usingStart != null and usingStart !=''"> AND a.using_start = #{usingStart} </if>
+			<if test="accountNumber != null and accountNumber !=''"> AND a.account_number = #{accountNumber} </if>
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -181,6 +182,7 @@
 		<where>
 			<if test="id != null and id != ''"> AND a.id = #{id} </if>
 			<if test="usingStart != null and usingStart !=''"> AND a.using_start = #{usingStart} </if>
+			<if test="accountNumber != null and accountNumber !=''"> AND a.account_number = #{accountNumber} </if>
 		</where>
 	</select>
 

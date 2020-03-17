@@ -40,4 +40,6 @@ public interface FundInitializationService {
 	Map<String, Object> countOfList(Map<String, Object> map);
 
 	List<Map<String, Object>>getlist(Map<String, Object> map);
+
+	R disposeFundBalance(int pageno,int pagesize,Map<String, Object> map, String  endTime);
 }

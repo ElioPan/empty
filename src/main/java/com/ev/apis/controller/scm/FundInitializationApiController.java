@@ -86,6 +86,27 @@ public class FundInitializationApiController {
 
 
 
+    @EvApiByToken(value = "scm/apis/fundInitialization/fundBalance", method = RequestMethod.POST, apiTitle = "资金余额")
+    @ApiOperation("资金余额")
+    @Transactional(rollbackFor = Exception.class)
+    public R  fundBalance(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+                   @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+                   @ApiParam(value = "启用0，禁用1") @RequestParam(value = "usingStart",defaultValue = "") Integer  usingStart,
+                   @ApiParam(value = "截止时间") @RequestParam(value = "endTime",defaultValue = "") String  endTime,
+                   @ApiParam(value = "组织") @RequestParam(value = "deptId",defaultValue = "") Long  deptId,
+                   @ApiParam(value = "银行账号") @RequestParam(value = "accountNumber",defaultValue = "") String  accountNumber){
+        Map<String,Object> params= new HashMap<>();
+        params.put("offset", (pageno - 1) * pagesize);
+        params.put("limit", pagesize);
+        params.put("usingStart", usingStart);
+        params.put("endTime", endTime);
+        params.put("deptId", deptId);
+        params.put("accountNumber", accountNumber);
+
+        return fundInitializationService.disposeFundBalance(pageno,pagesize,params,endTime);
+
+    }
+
 
 
 

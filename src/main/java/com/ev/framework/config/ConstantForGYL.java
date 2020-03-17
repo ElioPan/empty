@@ -270,4 +270,8 @@ public final class ConstantForGYL {
 	 */
 	public static final Long INCOM = 293L;
 
+	/**
+	 * 资金余额 列表中的公司
+	 */
+	public static final String company_ame = "芯软质控系统有限公司";
 }

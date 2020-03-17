@@ -182,7 +182,7 @@
 			<if test="settlementType != null and settlementType != ''"> AND a.settlement_type = #{settlementType} </if>
 			<if test="auditSign != null and auditSign != ''"> AND b.audit_sign = #{auditSign} </if>
 			<if test="transferId != null and transferId != ''"> AND b.id <![CDATA[<>]]> #{transferId} </if>
-			<if test="createTime != null and createTime !=''">AND a.create_time = #{createTime}, </if>
+			<if test="transferDate != null and transferDate != ''">  and  DATE_FORMAT(b.transfer_date,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{transferDate},'%Y-%m-%d')</if>
 		</where>
 	</select>
 

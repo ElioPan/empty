@@ -1,15 +1,19 @@
 package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.ev.apis.model.DsResultResponse;
+import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.dao.FundInitializationDao;
 import com.ev.scm.domain.FundInitializationDO;
+import com.ev.scm.service.BankTransferItemService;
 import com.ev.scm.service.FundInitializationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +27,8 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 	private FundInitializationDao fundInitializationDao;
 	@Autowired
 	private MessageSourceHandler messageSourceHandler;
-
+	@Autowired
+	private BankTransferItemService bankTransferItemService;
 
 
 	@Override
@@ -128,6 +133,40 @@ public class FundInitializationServiceImpl implements FundInitializationService 
     public List<Map<String, Object>> getlist(Map<String, Object> map) {
         return fundInitializationDao.getlist(map);
     }
+
+
+	@Override
+	public R disposeFundBalance( int pageno,int pagesize,Map<String, Object> map, String  endTime){
+
+		List<Map<String, Object>> getlist = this.getlist(map);
+		Map<String, Object> countOfList = this.countOfList(map);
+		Map<String,Object>  params= new HashMap<>();
+		if ( getlist.size() > 0) {
+			for(Map<String, Object> oneDetail:getlist){
+				Map<String,Object>  maps= new HashMap<>();
+				maps.put("transferOutAcc",oneDetail.get("id"));
+				maps.put("settlementType", ConstantForGYL.EXPENDITURE);
+				maps.put("transferDate",endTime);
+				int outAmount = bankTransferItemService.totalOutOrInAmount(maps);
+				maps.clear();
+				maps.put("transferInAcc",oneDetail.get("id"));
+				maps.put("settlementType",ConstantForGYL.INCOM);
+				maps.put("transferDate",endTime);
+				int inAmount = bankTransferItemService.totalOutOrInAmount(maps);
+				//初始化金额
+				BigDecimal initializationAmount=oneDetail.get("initialAmount")==null?BigDecimal.ZERO:new BigDecimal(oneDetail.get("initialAmount").toString());
+
+				oneDetail.put("remainingAmount",initializationAmount.add(new BigDecimal(inAmount)).subtract(new BigDecimal(outAmount)));
+				oneDetail.put("companyName",ConstantForGYL.company_ame);
+			}
+			int total= Integer.parseInt(countOfList.get("totailCount").toString());
+			params.put("total",total);
+			params.put("totailInitialAmount",countOfList.get("totailInitialAmount"));
+			params.put("data", new DsResultResponse(pageno,pagesize,total,getlist));
+		}
+		return R.ok(params);
+	}
+
 
 
 }
