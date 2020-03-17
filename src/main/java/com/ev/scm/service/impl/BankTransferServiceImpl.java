@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jmx.export.metadata.ManagedOperation;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -107,7 +108,7 @@ public class BankTransferServiceImpl implements BankTransferService {
 					return R.error(forbiddenResult);
 				}
 				//验证是否超支
-				String overspendResult = this.checkOverspend(bodys);
+				String overspendResult = this.checkOverspend(bodys,bankTransferDO.getId());
 				if(!Objects.equals("ok",overspendResult)){
 					return R.error(overspendResult);
 				}
@@ -167,34 +168,40 @@ public class BankTransferServiceImpl implements BankTransferService {
 			return "ok";
 	}
 
-	public String checkOverspend(List<BankTransferItemDO> bodys){
+	public String checkOverspend(List<BankTransferItemDO> bodys,Long transferId){
 		List<BankTransferItemDO> bodysSettlementType = bodys.stream().filter(BankTransferItemDO -> BankTransferItemDO.getSettlementType().equals(ConstantForGYL.EXPENDITURE) ).collect(Collectors.toList());
 		if(bodysSettlementType.size()>0){
 			for (BankTransferItemDO bPdata : bodysSettlementType) {
-				Long fundInitializationId=0L;
-				if(bPdata.getTransferInAcc()!=null){
-					fundInitializationId=bPdata.getTransferInAcc();
-				}else if(bPdata.getTransferOutAcc()!=null){
-					fundInitializationId=bPdata.getTransferOutAcc();
-				}
-				FundInitializationDO fundInitializationDO = fundInitializationService.get(fundInitializationId);
+				Long fundInitializationId=bPdata.getTransferOutAcc();
+                FundInitializationDO fundInitializationDO = fundInitializationService.get(fundInitializationId);
+                if(Objects.isNull(fundInitializationDO)){
+                    return messageSourceHandler.getMessage("scm.FundInitialization.TheOriginalAccountDoesNotExist",null);
+                }
+                //本次某账号总支出
+                BigDecimal transferOutAmount=BigDecimal.ZERO;
+                for (BankTransferItemDO bDo : bodysSettlementType) {
+                    if(Objects.equals(bDo.getTransferOutAcc(),fundInitializationId)){
+                        transferOutAmount=transferOutAmount.add(bDo.getTransferAmount());
+                    }
+                }
 				//  总收入   总支出
 				Map<String,Object>  map= new HashMap<>();
-//				map.put("",);
-//				map.put("",);
-//				map.put("",);
-
-
-
-
-				if(fundInitializationDO!=null){
-					if(Objects.equals(1,fundInitializationDO.getUsingStart())){
-						String[] arg={fundInitializationDO.getAccountNumber().toString()};
-						return messageSourceHandler.getMessage("scm.FundInitialization.forbidden",arg);
-					}
-				}else{
-					return messageSourceHandler.getMessage("scm.FundInitialization.TheOriginalAccountDoesNotExist",null);
-				}
+				map.put("transferOutAcc",fundInitializationId);
+				map.put("settlementType",ConstantForGYL.EXPENDITURE);
+				if(transferId!=null){map.put("transferId",transferId);}
+                int outAmount = bankTransferItemService.totalOutOrInAmount(map);
+                map.clear();
+                map.put("transferInAcc",fundInitializationId);
+                map.put("settlementType",ConstantForGYL.INCOM);
+                if(transferId!=null){map.put("transferId",transferId);}
+                int inAmount = bankTransferItemService.totalOutOrInAmount(map);
+                //初始化金额
+                BigDecimal initializationAmount=fundInitializationDO.getInitialAmount()==null?BigDecimal.ZERO:fundInitializationDO.getInitialAmount();
+                int results =(initializationAmount.add(new BigDecimal(inAmount))).compareTo(transferOutAmount.add(new BigDecimal(outAmount)));
+                if(Objects.equals(-1,results)){
+                    String[] arg={fundInitializationDO.getAccountNumber(),(initializationAmount.add(new BigDecimal(inAmount)).subtract(new BigDecimal(outAmount))).toPlainString(),transferOutAmount.toPlainString(),};
+                    return  messageSourceHandler.getMessage("scm.FundInitialization.BeyondTheBalanceOfPayments",arg);
+                }
 			}
 		}
 		return "ok";

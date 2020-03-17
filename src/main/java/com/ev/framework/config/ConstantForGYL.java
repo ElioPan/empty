@@ -261,12 +261,13 @@ public final class ConstantForGYL {
 	 * 分批认定 计价方法
 	 */
 	public static final Integer BATCH_FINDS = 143;
-
-
 	/**
 	 * 支出
 	 */
 	public static final Long EXPENDITURE = 294L;
-
+	/**
+	 * 收入
+	 */
+	public static final Long INCOM = 293L;
 
 }

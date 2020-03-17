@@ -21,7 +21,7 @@ import java.util.Map;
  * @Author Kuzi
  * @Date 2020-3-16 10:09
  **/
-@Api(value = "/",tags="资金初始数据")
+@Api(value = "/",tags="资金初始数据+资金余额+资金明细")
 @RestController
 public class FundInitializationApiController {
 
@@ -83,6 +83,8 @@ public class FundInitializationApiController {
         return R.ok(params);
 
     }
+
+
 
 
 
