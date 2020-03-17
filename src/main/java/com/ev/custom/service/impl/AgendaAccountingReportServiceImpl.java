@@ -2,7 +2,9 @@ package com.ev.custom.service.impl;
 
 import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.dao.AgendaAccountingReportDao;
+import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.AgendaAccountingReportService;
+import com.ev.custom.service.DictionaryService;
 import com.ev.custom.vo.AgendaVO;
 import com.ev.framework.config.Constant;
 import com.ev.framework.il8n.MessageSourceHandler;
@@ -27,6 +29,8 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
     @Autowired
     private AgendaAccountingReportDao reportDao;
     @Autowired
+    private DictionaryService dictionaryService;
+    @Autowired
     private UserService userService;
     @Autowired
     private MessageSourceHandler messageSourceHandler;
@@ -44,7 +48,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         List<Object> userIds = userDOsList.stream()
                 .map(stringObjectMap -> stringObjectMap.get("userId"))
                 .collect(Collectors.toList());
-        return Triple.of(userDOsList, userIds, userDOsList.size());
+        return Triple.of(userDOsList, userIds, userDOs.size());
     }
 
     @Override
@@ -137,6 +141,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         param.put("startTime", startTime);
         param.put("endTime", endTime);
         List<Map<String, Object>> overtimeForItem = reportDao.overtimeForItem(param);
+        Double total = reportDao.overtimeForItemTotal(param);
         Map<String, Object> results = Maps.newHashMap();
         Map<String, Double> overTimeGroup =  overtimeForItem
                 .stream()
@@ -149,22 +154,276 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
             map.put("totalTimeArea", timeArea == null ? 0 : timeArea);
         }
         results.put("data", new DsResultResponse(agendaVO.getPageno(), agendaVO.getPagesize(), userList.getRight(), userDOsList));
-        results.put("dataItem", overtimeForItem);
+//        results.put("dataItem", overtimeForItem);
+        results.put("total", total==null?0:total);
         return R.ok(results);
     }
 
     @Override
-    public R leave(AgendaVO agendaVO) {
-        return null;
+    public R overtimeItem(AgendaVO agendaVO) {
+        Long userId = agendaVO.getUserId();
+        if (userId == null) {
+            return R.ok();
+        }
+        String startTime = agendaVO.getStartTime();
+        String endTime = agendaVO.getEndTime();
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("userId", userId);
+        param.put("status", Constant.APPLY_COMPLETED);
+        param.put("startTime", startTime);
+        param.put("endTime", endTime);
+        List<Map<String, Object>> overtimeForItem = reportDao.overtimeForItem(param);
+        Map<String,Object> result = Maps.newHashMap();
+        if (overtimeForItem.size() > 0) {
+            List<Map<String, Object>> overtimeForItemList = PageUtils.startPage(overtimeForItem, agendaVO.getPageno(), agendaVO.getPagesize());
+            result.put("data", new DsResultResponse(agendaVO.getPageno(), agendaVO.getPagesize(), overtimeForItem.size(), overtimeForItemList));
+
+        }
+        return R.ok(result);
     }
 
     @Override
-    public R applyForReimbursement(AgendaVO agendaVO) {
-        return null;
+    public R leaveGroup(AgendaVO agendaVO) {
+        Triple<List<Map<String, Object>>, List<Object>, Integer> userList = getUserList(agendaVO);
+        if (userList == null) {
+            return R.ok();
+        }
+        String startTime = agendaVO.getStartTime();
+        String endTime = agendaVO.getEndTime();
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("userIds", userList.getMiddle());
+        param.put("status", Constant.APPLY_COMPLETED);
+        param.put("startTime", startTime);
+        param.put("endTime", endTime);
+        List<Map<String, Object>> leaveForItem = reportDao.leaveItem(param);
+        Map<String, Object> results = Maps.newHashMap();
+        Map<String, Double> leaveGroup = Maps.newHashMap();
+        if (leaveForItem.size() > 0) {
+            leaveGroup = leaveForItem
+                    .stream()
+                    .collect(Collectors.toMap(stringObjectMap -> stringObjectMap.get("createBy").toString(), stringObjectMap -> Double.parseDouble(stringObjectMap.get("timeArea").toString()), Double::sum));
+        }
+        List<Map<String, Object>> userDOsList = userList.getLeft();
+        Double total = reportDao.leaveItemTotal(param);
+        for (Map<String, Object> map : userDOsList) {
+            String userId = map.get("userId").toString();
+            Double timeArea = leaveGroup.get(userId);
+            map.put("NAME", map.get("NAME") + "小计");
+            map.put("totalTimeArea", timeArea == null ? 0 : timeArea);
+        }
+        results.put("data", new DsResultResponse(agendaVO.getPageno(), agendaVO.getPagesize(), userList.getRight(), userDOsList));
+        results.put("total", total == null ? 0 : total);
+        return R.ok(results);
+    }
+
+    @Override
+    public R leaveTypeGroup(AgendaVO agendaVO) {
+        Long userId = agendaVO.getUserId();
+        if (userId == null) {
+            return R.ok();
+        }
+        Map<String,Object> result = Maps.newHashMap();
+        List<DictionaryDO> dictionaryDOS = dictionaryService.listByType(Constant.LEAVE_APPLY_TYPE);
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("status", Constant.APPLY_COMPLETED);
+        param.put("startTime", agendaVO.getStartTime());
+        param.put("endTime", agendaVO.getEndTime());
+        param.put("createBy", userId);
+        List<Map<String, Object>> leaveForItemGroupType = reportDao.leaveForItemGroupType(param);
+        List<String> collect = dictionaryDOS
+                .stream()
+                .map(dictionaryDO -> dictionaryDO.getName() + "小计")
+                .collect(Collectors.toList());
+        if (leaveForItemGroupType.size() != collect.size()) {
+            List<String> typeName = leaveForItemGroupType
+                    .stream()
+                    .map(stringObjectMap -> stringObjectMap.get("typeName").toString())
+                    .collect(Collectors.toList());
+            collect.removeAll(typeName);
+            Map<String, Object> map;
+            for (String s : collect) {
+                map = Maps.newHashMap();
+                map.put("userId", userId);
+                map.put("typeName", s);
+                map.put("typeTotalTimeArea", 0);
+                leaveForItemGroupType.add(map);
+            }
+        }
+        result.put("data",leaveForItemGroupType);
+        return R.ok(result);
+    }
+
+    @Override
+    public R leave(AgendaVO agendaVO,Long typeId) {
+        Long userId = agendaVO.getUserId();
+        if (userId == null || typeId == null) {
+            return R.ok();
+        }
+        Map<String,Object> result = Maps.newHashMap();
+        String startTime = agendaVO.getStartTime();
+        String endTime = agendaVO.getEndTime();
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("createBy", userId);
+        param.put("type", typeId);
+        param.put("status", Constant.APPLY_COMPLETED);
+        param.put("startTime", startTime);
+        param.put("endTime", endTime);
+        List<Map<String, Object>> leaveForItem = reportDao.leaveItem(param);
+        if (leaveForItem.size() > 0) {
+            List<Map<String, Object>> leaveForItemList = PageUtils.startPage(leaveForItem, agendaVO.getPageno(), agendaVO.getPagesize());
+            result.put("data", new DsResultResponse(agendaVO.getPageno(), agendaVO.getPagesize(), leaveForItem.size(), leaveForItemList));
+        }
+        return R.ok(result);
+    }
+
+    @Override
+    public R applyForReimbursement(AgendaVO agendaVO,Long typeId) {
+        Long userId = agendaVO.getUserId();
+        if (userId == null || typeId == null) {
+            return R.ok();
+        }
+        Map<String,Object> result = Maps.newHashMap();
+        String startTime = agendaVO.getStartTime();
+        String endTime = agendaVO.getEndTime();
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("createBy", userId);
+        param.put("type", typeId);
+        param.put("status", Constant.APPLY_COMPLETED);
+        param.put("startTime", startTime);
+        param.put("endTime", endTime);
+        List<Map<String, Object>> applyForReimbursementItem = reportDao.applyForReimbursementItem(param);
+        if (applyForReimbursementItem.size() > 0) {
+            List<Map<String, Object>> applyForReimbursementItemList = PageUtils.startPage(applyForReimbursementItem, agendaVO.getPageno(), agendaVO.getPagesize());
+            result.put("data", new DsResultResponse(agendaVO.getPageno(), agendaVO.getPagesize(), applyForReimbursementItem.size(), applyForReimbursementItemList));
+        }
+        return R.ok(result);
+    }
+
+    @Override
+    public R applyForReimbursementGroup(AgendaVO agendaVO) {
+        Triple<List<Map<String, Object>>, List<Object>, Integer> userList = getUserList(agendaVO);
+        if (userList == null) {
+            return R.ok();
+        }
+        String startTime = agendaVO.getStartTime();
+        String endTime = agendaVO.getEndTime();
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("userIds", userList.getMiddle());
+        param.put("status", Constant.APPLY_COMPLETED);
+        param.put("startTime", startTime);
+        param.put("endTime", endTime);
+        List<Map<String, Object>> applyForReimbursementItem = reportDao.applyForReimbursementItem(param);
+        Map<String, Object> results = Maps.newHashMap();
+        Map<String, Double> leaveGroup = Maps.newHashMap();
+        if (applyForReimbursementItem.size() > 0) {
+            leaveGroup = applyForReimbursementItem
+                    .stream()
+                    .collect(Collectors.toMap(stringObjectMap -> stringObjectMap.get("createBy").toString(), stringObjectMap -> Double.parseDouble(stringObjectMap.get("reiCount").toString()), Double::sum));
+        }
+        List<Map<String, Object>> userDOsList = userList.getLeft();
+        Double total = reportDao.leaveItemTotal(param);
+        for (Map<String, Object> map : userDOsList) {
+            String userId = map.get("userId").toString();
+            Double totalReiCount = leaveGroup.get(userId);
+            map.put("NAME", map.get("NAME") + "小计");
+            map.put("totalReiCount", totalReiCount == null ? 0 : totalReiCount);
+        }
+        results.put("data", new DsResultResponse(agendaVO.getPageno(), agendaVO.getPagesize(), userList.getRight(), userDOsList));
+        results.put("total", total == null ? 0 : total);
+        return R.ok(results);
+    }
+
+    @Override
+    public R applyForReimbursementTypeGroup(AgendaVO agendaVO) {
+        Long userId = agendaVO.getUserId();
+        if (userId == null) {
+            return R.ok();
+        }
+        Map<String,Object> result = Maps.newHashMap();
+        List<DictionaryDO> dictionaryDOS = dictionaryService.listByType(Constant.REIM_APPLY_TYPE);
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("status", Constant.APPLY_COMPLETED);
+        param.put("startTime", agendaVO.getStartTime());
+        param.put("endTime", agendaVO.getEndTime());
+        param.put("createBy", userId);
+        List<Map<String, Object>> applyForReimbursementGroupType = reportDao.applyForReimbursementGroupType(param);
+        List<String> collect = dictionaryDOS
+                .stream()
+                .map(dictionaryDO -> dictionaryDO.getName() + "小计")
+                .collect(Collectors.toList());
+        if (applyForReimbursementGroupType.size() != collect.size()) {
+            List<String> typeName = applyForReimbursementGroupType
+                    .stream()
+                    .map(stringObjectMap -> stringObjectMap.get("typeName").toString())
+                    .collect(Collectors.toList());
+            collect.removeAll(typeName);
+            Map<String, Object> map;
+            for (String s : collect) {
+                map = Maps.newHashMap();
+                map.put("userId", userId);
+                map.put("typeName", s);
+                map.put("typeTotalReiCount", 0);
+                applyForReimbursementGroupType.add(map);
+            }
+        }
+        result.put("data",applyForReimbursementGroupType);
+        return R.ok(result);
     }
 
     @Override
     public R payment(AgendaVO agendaVO) {
-        return null;
+        Triple<List<Map<String, Object>>, List<Object>, Integer> userList = getUserList(agendaVO);
+        if (userList == null) {
+            return R.ok();
+        }
+        String startTime = agendaVO.getStartTime();
+        String endTime = agendaVO.getEndTime();
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("userIds", userList.getMiddle());
+        param.put("status", Constant.APPLY_COMPLETED);
+        param.put("startTime", startTime);
+        param.put("endTime", endTime);
+        List<Map<String, Object>> paymentForItem = reportDao.paymentForItem(param);
+        Double total = reportDao.overtimeForItemTotal(param);
+        Map<String, Object> results = Maps.newHashMap();
+        Map<String, Double> paymentGroup = paymentForItem
+                .stream()
+                .collect(Collectors.toMap(stringObjectMap -> stringObjectMap.get("createBy").toString(), stringObjectMap -> Double.parseDouble(stringObjectMap.get("totalNumber").toString()), Double::sum));
+        List<Map<String, Object>> userDOsList = userList.getLeft();
+        for (Map<String, Object> map : userDOsList) {
+            String userId = map.get("userId").toString();
+            Double totalNumber = paymentGroup.get(userId);
+            map.put("NAME", map.get("NAME") + "小计");
+            map.put("totalNumber", totalNumber == null ? 0 : totalNumber);
+        }
+        results.put("data", new DsResultResponse(agendaVO.getPageno(), agendaVO.getPagesize(), userList.getRight(), userDOsList));
+//        results.put("dataItem", overtimeForItem);
+        results.put("total", total == null ? 0 : total);
+        return R.ok(results);
     }
+
+    @Override
+    public R paymentItem(AgendaVO agendaVO) {
+        Long userId = agendaVO.getUserId();
+        if (userId == null) {
+            return R.ok();
+        }
+        String startTime = agendaVO.getStartTime();
+        String endTime = agendaVO.getEndTime();
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("userId", userId);
+        param.put("status", Constant.APPLY_COMPLETED);
+        param.put("startTime", startTime);
+        param.put("endTime", endTime);
+        List<Map<String, Object>> overtimeForItem = reportDao.paymentForItem(param);
+        Map<String,Object> result = Maps.newHashMap();
+        if (overtimeForItem.size() > 0) {
+            List<Map<String, Object>> overtimeForItemList = PageUtils.startPage(overtimeForItem, agendaVO.getPageno(), agendaVO.getPagesize());
+            result.put("data", new DsResultResponse(agendaVO.getPageno(), agendaVO.getPagesize(), overtimeForItem.size(), overtimeForItemList));
+
+        }
+        return R.ok(result);
+    }
+
+
 }

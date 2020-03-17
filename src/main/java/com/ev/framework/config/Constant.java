@@ -3,6 +3,7 @@ package com.ev.framework.config;
 
 public class Constant {
 
+
     private Constant() {
 	}
     //演示系统账户
@@ -280,6 +281,10 @@ public class Constant {
 	 */
 	public static final String LEAVE_APPLY_COMMENT = "LEAVE_APPLY_COMMENT";
 	/**
+	 * 请假类型
+	 */
+	public static final String LEAVE_APPLY_TYPE = "leave_apply_type";
+	/**
 	 * 月报附件
 	 */
 	public static final String MONTH_REPORT_APPEARANCE_ATTACHMENT = "MONTH_REPORT_APPEARANCE_ATTACHMENT";
@@ -331,6 +336,10 @@ public class Constant {
 	 * 报销申请
 	 */
 	public static final String REIM_APPLY_TARGET = "REIM_APPLY_TARGET";
+	/**
+	 * 报销类型
+	 */
+	public static final String REIM_APPLY_TYPE = "reim_apply_type";
 	/**
 	 * 报销申请评论
 	 */

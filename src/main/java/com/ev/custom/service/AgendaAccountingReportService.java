@@ -16,9 +16,21 @@ public interface AgendaAccountingReportService {
 
     R overtime(AgendaVO agendaVO);
 
-    R leave(AgendaVO agendaVO);
+    R overtimeItem(AgendaVO agendaVO);
 
-    R applyForReimbursement(AgendaVO agendaVO);
+    R leaveGroup(AgendaVO agendaVO);
+
+    R leaveTypeGroup(AgendaVO agendaVO);
+
+    R leave(AgendaVO agendaVO,Long typeId);
+
+    R applyForReimbursement(AgendaVO agendaVO,Long typeId);
+
+    R applyForReimbursementGroup(AgendaVO agendaVO);
+
+    R applyForReimbursementTypeGroup(AgendaVO agendaVO);
 
     R payment(AgendaVO agendaVO);
+
+    R paymentItem(AgendaVO agendaVO);
 }

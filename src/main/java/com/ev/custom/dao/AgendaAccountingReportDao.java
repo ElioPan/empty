@@ -22,13 +22,24 @@ public interface AgendaAccountingReportDao {
 
     List<Map<String, Object>> executeForMonthReport(Map<String, Object> param);
 
-    List<Map<String, Object>> overtimeForGroup(Map<String, Object> param);
+    Double overtimeForItemTotal(Map<String, Object> param);
 
     List<Map<String, Object>> overtimeForItem(Map<String, Object> param);
 
-    List<Map<String, Object>> leave(AgendaVO agendaVO);
+    List<Map<String, Object>> leaveItem(Map<String, Object> param);
 
-    List<Map<String, Object>> applyForReimbursement(AgendaVO agendaVO);
+    Double leaveItemTotal(Map<String, Object> param);
 
-    List<Map<String, Object>> payment(AgendaVO agendaVO);
+    List<Map<String, Object>> leaveForItemGroupType(Map<String, Object> param);
+
+    List<Map<String, Object>> applyForReimbursementItem(Map<String, Object> param);
+
+    Double applyForReimbursementItemTotal(Map<String, Object> param);
+
+    List<Map<String, Object>> applyForReimbursementGroupType(Map<String, Object> param);
+
+    List<Map<String, Object>> paymentForItem(Map<String, Object> param);
+
+    Double paymentItemTotal(Map<String, Object> param);
+
 }

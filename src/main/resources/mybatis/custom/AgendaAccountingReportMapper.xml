@@ -65,11 +65,8 @@
         GROUP BY create_by
     </select>
 
-    <select id="overtimeForGroup" resultType="java.util.Map" parameterType="com.ev.custom.vo.AgendaVO">
 
-    </select>
-
-    <select id="overtimeForItem" resultType="java.util.Map" parameterType="com.ev.custom.vo.AgendaVO">
+    <select id="overtimeForItem" resultType="java.util.Map">
         SELECT
         sd.name AS deptName,
         su.name AS NAME,
@@ -77,6 +74,28 @@
         apply.begin_time AS beginTime,
         apply.reason AS reason,
         apply.time_area AS timeArea
+        FROM
+        cus_over_time_apply apply
+        LEFT JOIN sys_user su ON su.user_id=apply.over_time_user
+        LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
+        <where>
+            <if test="status != null and status != ''"> and apply.status = #{status} </if>
+            <if test="userId != null and userId != ''"> and apply.over_time_user = #{userId} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="userIds != null and userIds.size()>0"> and apply.over_time_user IN
+                <foreach item="item" collection="userIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="overtimeForItemTotal" resultType="java.lang.Double">
+        SELECT
+        SUM(apply.time_area)
         FROM
         cus_over_time_apply apply
         LEFT JOIN sys_user su ON su.user_id=apply.over_time_user
@@ -95,16 +114,218 @@
         </where>
     </select>
 
-    <select id="leave" resultType="java.util.Map" parameterType="com.ev.custom.vo.AgendaVO">
-
+    <select id="leaveItem" resultType="java.util.Map">
+        SELECT
+        sd.name AS deptName,
+        su.name AS NAME,
+        apply.create_by AS createBy,
+        apply.type AS type,
+        cd.name AS typeName,
+        apply.begin_time AS beginTime,
+        apply.reason AS reason,
+        apply.time_area AS timeArea
+        FROM
+        cus_leave_apply apply
+        LEFT JOIN cus_dictionary cd ON cd.id=apply.type
+        LEFT JOIN sys_user su ON su.user_id=apply.create_by
+        LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
+        <where>
+            <if test="createBy != null and status != ''"> and apply.create_by = #{createBy} </if>
+            <if test="status != null and status != ''"> and apply.status = #{status} </if>
+            <if test="type != null and type != ''"> and apply.type = #{type} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="userIds != null and userIds.size()>0"> and apply.create_by IN
+                <foreach item="item" collection="userIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
     </select>
 
-    <select id="applyForReimbursement" resultType="java.util.Map" parameterType="com.ev.custom.vo.AgendaVO">
-
+    <select id="leaveItemTotal" resultType="java.lang.Double">
+        SELECT
+        SUM(apply.time_area)
+        FROM
+        cus_leave_apply apply
+        LEFT JOIN sys_user su ON su.user_id=apply.create_by
+        LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
+        <where>
+            <if test="status != null and status != ''"> and apply.status = #{status} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="userIds != null and userIds.size()>0"> and apply.create_by IN
+                <foreach item="item" collection="userIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
     </select>
 
-    <select id="payment" resultType="java.util.Map" parameterType="com.ev.custom.vo.AgendaVO">
+    <select id="leaveForItemGroupType" resultType="java.util.Map">
+        SELECT
+        apply.create_by AS userId,
+        apply.type AS type,
+        CONCAT(cd.name,'小计') AS typeName,
+        SUM(apply.time_area) AS typeTotalTimeArea
+        FROM
+        cus_leave_apply apply
+        LEFT JOIN cus_dictionary cd ON cd.id=apply.type
+        LEFT JOIN sys_user su ON su.user_id=apply.create_by
+        LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
+        <where>
+            <if test="createBy != null and createBy != ''"> and apply.create_by = #{createBy} </if>
+            <if test="status != null and status != ''"> and apply.status = #{status} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="userIds != null and userIds.size()>0"> and apply.create_by IN
+                <foreach item="item" collection="userIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
+        GROUP BY apply.create_by,apply.type
+    </select>
 
+    <select id="applyForReimbursementItem" resultType="java.util.Map">
+        SELECT
+        sd.name AS deptName,
+        su.name AS NAME,
+        item.create_by AS createBy,
+        item.type AS type,
+        cd.name AS typeName,
+        item.rei_date AS reiDate,
+        item.rei_count AS reiCount,
+        item.rei_item_description AS reiItemDescription
+        FROM
+        cus_reim_apply_item item
+        LEFT JOIN cus_reim_apply cra ON cra.id=item.reim_apply_id
+        LEFT JOIN cus_dictionary cd ON cd.id=item.type
+        LEFT JOIN sys_user su ON su.user_id=item.create_by
+        LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
+        <where>
+            <if test="status != null and status != ''"> and cra.status = #{status} </if>
+            <if test="createBy != null and status != ''"> and item.create_by = #{createBy} </if>
+            <if test="type != null and type != ''"> and item.type = #{type} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT( item.rei_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT( item.rei_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="userIds != null and userIds.size()>0"> and  item.create_by IN
+                <foreach item="item" collection="userIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="applyForReimbursementItemTotal" resultType="java.lang.Double">
+        SELECT
+        SUM(item.rei_count)
+        FROM
+        cus_reim_apply_item item
+        LEFT JOIN cus_reim_apply cra ON cra.id=item.reim_apply_id
+        LEFT JOIN cus_dictionary cd ON cd.id=item.type
+        LEFT JOIN sys_user su ON su.user_id=item.create_by
+        LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
+        <where>
+            <if test="status != null and status != ''"> and cra.status = #{status} </if>
+            <if test="type != null and type != ''"> and item.type = #{type} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT( item.rei_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT( item.rei_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="userIds != null and userIds.size()>0"> and  item.create_by IN
+                <foreach item="item" collection="userIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="applyForReimbursementGroupType" resultType="java.util.Map">
+        SELECT
+        item.create_by AS userId,
+        item.type AS type,
+        CONCAT(cd.name,'小计') AS typeName,
+        SUM(item.rei_count) AS typeTotalReiCount
+        FROM
+        cus_reim_apply_item item
+        LEFT JOIN cus_reim_apply cra ON cra.id=item.reim_apply_id
+        LEFT JOIN cus_dictionary cd ON cd.id=item.type
+        LEFT JOIN sys_user su ON su.user_id=item.create_by
+        LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
+        <where>
+            <if test="status != null and status != ''"> and cra.status = #{status} </if>
+            <if test="createBy != null and status != ''"> and item.create_by = #{createBy} </if>
+            <if test="type != null and type != ''"> and item.type = #{type} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT( item.rei_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT( item.rei_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="userIds != null and userIds.size()>0"> and  item.create_by IN
+                <foreach item="item" collection="userIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
+        GROUP BY item.create_by,item.type
+    </select>
+
+    <select id="paymentForItem" resultType="java.util.Map">
+        SELECT
+        sd.name AS deptName,
+        su.name AS NAME,
+        apply.create_by AS createBy,
+        apply.pay_user AS payUser,
+        apply.pay_date AS payDate,
+        apply.total_number AS totalNumber,
+        apply.pay_reason AS payReason
+        FROM
+        cus_pay_apply apply
+        LEFT JOIN sys_user su ON su.user_id=apply.create_by
+        LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
+        <where>
+            <if test="status != null and status != ''"> and apply.status = #{status} </if>
+            <if test="userId != null and userId != ''"> and apply.create_by = #{userId} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(apply.pay_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(apply.pay_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="userIds != null and userIds.size()>0"> and apply.create_by IN
+                <foreach item="item" collection="userIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="paymentItemTotal" resultType="java.lang.Double">
+        SELECT
+        SUM(total_number)
+        FROM
+        cus_pay_apply apply
+        LEFT JOIN sys_user su ON su.user_id=apply.create_by
+        LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
+        <where>
+            <if test="status != null and status != ''"> and apply.status = #{status} </if>
+            <if test="userId != null and userId != ''"> and apply.create_by = #{userId} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(apply.pay_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(apply.pay_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="userIds != null and userIds.size()>0"> and apply.create_by IN
+                <foreach item="item" collection="userIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
     </select>
 
 </mapper>
