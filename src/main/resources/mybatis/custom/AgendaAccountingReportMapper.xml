@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.AgendaAccountingReportDao">
+
+    <select id="executeForDailyReport" resultType="java.util.Map">
+	SELECT
+    create_by AS createBy,
+    #{dailyCount} - COUNT(create_by) AS dailyCount
+	FROM
+	cus_daily_report
+        <where>
+            <if test="status != null and status != ''"> and status = #{status} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="userIds != null and userIds.size()>0"> and create_by IN
+                <foreach item="item" collection="userIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
+    GROUP BY create_by
+    </select>
+
+    <select id="executeForWeekReport" resultType="java.util.Map">
+        SELECT
+        create_by AS createBy,
+        #{weekCount} - COUNT(create_by) AS weekCount
+        FROM
+        cus_week_report
+        <where>
+            <if test="status != null and status != ''"> and status = #{status} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="userIds != null and userIds.size()>0"> and create_by IN
+                <foreach item="item" collection="userIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
+        GROUP BY create_by
+    </select>
+    <select id="executeForMonthReport" resultType="java.util.Map">
+        SELECT
+        create_by AS createBy,
+        #{monthCount} - COUNT(create_by) AS monthCount
+        FROM
+        cus_month_report
+        <where>
+            <if test="status != null and status != ''"> and status = #{status} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="userIds != null and userIds.size()>0"> and create_by IN
+                <foreach item="item" collection="userIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
+        GROUP BY create_by
+    </select>
+
+    <select id="overtime" resultType="java.util.Map" parameterType="com.ev.custom.vo.AgendaVO">
+
+    </select>
+
+    <select id="leave" resultType="java.util.Map" parameterType="com.ev.custom.vo.AgendaVO">
+
+    </select>
+
+    <select id="applyForReimbursement" resultType="java.util.Map" parameterType="com.ev.custom.vo.AgendaVO">
+
+    </select>
+
+    <select id="payment" resultType="java.util.Map" parameterType="com.ev.custom.vo.AgendaVO">
+
+    </select>
+
+</mapper>

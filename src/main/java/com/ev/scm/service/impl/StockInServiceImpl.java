@@ -388,15 +388,15 @@ public class StockInServiceImpl implements StockInService {
 				List<StockInItemDO> inbodyCDos = JSON.parseArray(bodyDetail, StockInItemDO.class);
 
 				Boolean qR=Objects.nonNull(inbodyCDos.get(0).getQrcodeId());
-				if(qR){
-					for(StockInItemDO stockInItemDo:inbodyCDos ){
-						QrcodeDO qrcodeDo = qrcodeService.get(stockInItemDo.getQrcodeId());
-						if(Objects.nonNull(qrcodeDo.getStockId())){
-							String [] args = {stockInItemDo.getMaterielId().toString()};
-							return R.error(messageSourceHandler.getMessage("scm.stockIn.inStockIsOver",args));
-						}
-					}
-				}
+//				if(qR){
+//					for(StockInItemDO stockInItemDo:inbodyCDos ){
+//						QrcodeDO qrcodeDo = qrcodeService.get(stockInItemDo.getQrcodeId());
+//						if(Objects.nonNull(qrcodeDo.getStockId())){
+//							String [] args = {stockInItemDo.getMaterielId().toString()};
+//							return R.error(messageSourceHandler.getMessage("scm.stockIn.inStockIsOver",args));
+//						}
+//					}
+//				}
 				//保寸主表信息
 				stockInDO.setInheadCode(code);
 				stockInDO.setAuditSign(ConstantForGYL.WAIT_AUDIT );
@@ -492,7 +492,14 @@ public class StockInServiceImpl implements StockInService {
 		Map<String,Object>  map= new HashMap<>();
 		for(StockInItemDO itemDO:inbodyCdos){
 			List<Map<String,Object>> list=new ArrayList<>();
-			String comparisonSign=itemDO.getMaterielId().toString()+"-"+itemDO.getBatch().toString()+"-"+itemDO.getWarehouse().toString();
+//			String comparisonSign=itemDO.getMaterielId().toString()+"-"+itemDO.getBatch().toString()+"-"+itemDO.getWarehouse().toString();
+
+			String dd=itemDO.getBatch()==null?"11":itemDO.getBatch().toString();
+
+			String ddd=itemDO.getMaterielId().toString();
+			String dddd=itemDO.getWarehouse().toString();
+			String comparisonSign=itemDO.getMaterielId().toString()+"-"+(itemDO.getBatch()==null?"11":itemDO.getBatch().toString())+"-"+itemDO.getWarehouse().toString();
+
 			map.put(comparisonSign,itemDO);
 		}
 
@@ -514,7 +521,7 @@ public class StockInServiceImpl implements StockInService {
 			Long qrcodeId=null;
 			for (StockInItemDO stockInItemDO : inbodyCdos) {
 				//比对条件
-				String itemSign = stockInItemDO.getMaterielId().toString() + "-" + stockInItemDO.getBatch().toString() + "-" + stockInItemDO.getWarehouse().toString();
+				String itemSign = stockInItemDO.getMaterielId().toString() + "-" + (stockInItemDO.getBatch()==null?"11":stockInItemDO.getBatch().toString())+ "-" + stockInItemDO.getWarehouse().toString();
 				if (Objects.equals(ss, itemSign)) {
 					inCount = inCount.add(stockInItemDO.getCount());
 					qrcodeId=stockInItemDO.getQrcodeId();
