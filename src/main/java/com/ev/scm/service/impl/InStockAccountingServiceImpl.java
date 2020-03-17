@@ -222,6 +222,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
     @Override
    public R disposeBusinessAccounting(Long[] stockInIds){
 
+
         boolean b = this.disposeIsClose(stockInIds,false);
         if (!b){
             return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
@@ -638,8 +639,16 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         if (inOutTimeMap.isEmpty()) {
             return false;
         } else {
+            Map<String, Object> peramy = new HashMap<>();
             for (Map<String, Object> maps : inOutTimeMap) {
-                Map<String, Object> peramy = new HashMap<>();
+                peramy.clear();
+                if(Objects.isNull(maps)){
+                    continue;
+                }
+                Boolean boo=maps.containsKey("inOutTime");
+                if(!boo){
+                    continue;
+                }
                 peramy.put("period", maps.get("inOutTime"));
                 int counts = this.getAnalysisDate(peramy);
                 if(counts==0){

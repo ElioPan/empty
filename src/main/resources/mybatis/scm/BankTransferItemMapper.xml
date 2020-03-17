@@ -170,4 +170,20 @@
           transfer_id=#{id}
 	</select>
 
+	<select id="totalOutOrInAmount" resultType="int">
+		SELECT
+		IF(sum(a.transfer_amount) is null,0,sum(a.transfer_amount))
+		from
+		scm_bank_transfer_item a
+		LEFT JOIN scm_bank_transfer b on  a.transfer_id =b.id
+		<where>
+			<if test="transferOutAcc != null and transferOutAcc != ''"> AND a.transfer_out_acc = #{transferOutAcc} </if>
+			<if test="transferInAcc != null and transferInAcc != ''"> AND a.transfer_in_acc = #{transferInAcc} </if>
+			<if test="settlementType != null and settlementType != ''"> AND a.settlement_type = #{settlementType} </if>
+			<if test="auditSign != null and auditSign != ''"> AND b.audit_sign = #{auditSign} </if>
+			<if test="createTime != null and createTime !=''">AND a.create_time = #{createTime}, </if>
+		</where>
+	</select>
+
+
 </mapper>
