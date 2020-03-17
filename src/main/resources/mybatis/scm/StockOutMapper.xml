@@ -348,7 +348,7 @@
                         #{item}
                     </if>
                 </foreach>
-                AND IFNULL(item.`count`,0) = IFNULL(item.charge_off_count,0)
+                AND IFNULL(item.`count`,0) <![CDATA[<>]]> IFNULL(item.charge_off_count,0)
             </if>
         </where>
     </sql>
