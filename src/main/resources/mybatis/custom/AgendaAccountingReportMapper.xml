@@ -65,8 +65,34 @@
         GROUP BY create_by
     </select>
 
-    <select id="overtime" resultType="java.util.Map" parameterType="com.ev.custom.vo.AgendaVO">
+    <select id="overtimeForGroup" resultType="java.util.Map" parameterType="com.ev.custom.vo.AgendaVO">
 
+    </select>
+
+    <select id="overtimeForItem" resultType="java.util.Map" parameterType="com.ev.custom.vo.AgendaVO">
+        SELECT
+        sd.name AS deptName,
+        su.name AS NAME,
+        apply.over_time_user AS overTimeUser,
+        apply.begin_time AS beginTime,
+        apply.reason AS reason,
+        apply.time_area AS timeArea
+        FROM
+        cus_over_time_apply apply
+        LEFT JOIN sys_user su ON su.user_id=apply.over_time_user
+        LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
+        <where>
+            <if test="status != null and status != ''"> and apply.status = #{status} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="userIds != null and userIds.size()>0"> and apply.over_time_user IN
+                <foreach item="item" collection="userIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
     </select>
 
     <select id="leave" resultType="java.util.Map" parameterType="com.ev.custom.vo.AgendaVO">

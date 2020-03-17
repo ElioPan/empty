@@ -22,7 +22,9 @@ public interface AgendaAccountingReportDao {
 
     List<Map<String, Object>> executeForMonthReport(Map<String, Object> param);
 
-    List<Map<String, Object>> overtime(AgendaVO agendaVO);
+    List<Map<String, Object>> overtimeForGroup(Map<String, Object> param);
+
+    List<Map<String, Object>> overtimeForItem(Map<String, Object> param);
 
     List<Map<String, Object>> leave(AgendaVO agendaVO);
 

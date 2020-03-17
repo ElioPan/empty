@@ -12,6 +12,7 @@ import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
 import com.ev.system.service.UserService;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,12 +31,26 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
     @Autowired
     private MessageSourceHandler messageSourceHandler;
 
+    private Triple<List<Map<String, Object>>, List<Object>, Integer> getUserList(AgendaVO agendaVO) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("status", 1);
+        params.put("userId", agendaVO.getUserId());
+        params.put("deptId", agendaVO.getDeptId());
+        List<Map<String, Object>> userDOs = userService.listForMap(params);
+        if (userDOs.size() == 0) {
+            return null;
+        }
+        List<Map<String, Object>> userDOsList = PageUtils.startPage(userDOs, agendaVO.getPageno(), agendaVO.getPagesize());
+        List<Object> userIds = userDOsList.stream()
+                .map(stringObjectMap -> stringObjectMap.get("userId"))
+                .collect(Collectors.toList());
+        return Triple.of(userDOsList, userIds, userDOsList.size());
+    }
+
     @Override
     public R execute(AgendaVO agendaVO) {
         String startTime = agendaVO.getStartTime();
         String endTime = agendaVO.getEndTime();
-        int pageNo = agendaVO.getPageno();
-        int pageSize = agendaVO.getPagesize();
         if (startTime == null || endTime == null) {
             return R.error(messageSourceHandler.getMessage("param.time.isEmpty", null));
         }
@@ -57,24 +72,13 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         // 月报应填天数
         int monthNum = DateUtils.getMonthNum(d1, d2);
         // 获取用户 用户的部门信息
-        Long userIdParam = agendaVO.getUserId();
-        Long deptIdParam = agendaVO.getDeptId();
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("status", 1);
-        params.put("userId", userIdParam);
-        params.put("deptId", deptIdParam);
-        List<Map<String, Object>> userDOs = userService.listForMap(params);
-        if (userDOs.size() == 0) {
+        Triple<List<Map<String, Object>>, List<Object>, Integer> userList = getUserList(agendaVO);
+        if (userList == null) {
             return R.ok();
         }
-        List<Map<String, Object>> userDOsList = PageUtils.startPage(userDOs, pageNo, pageSize);
-
-        List<Object> userIds = userDOsList.stream()
-                .map(stringObjectMap -> stringObjectMap.get("userId"))
-                .collect(Collectors.toList());
         // 日志未填
         Map<String, Object> param = Maps.newHashMap();
-        param.put("userIds", userIds);
+        param.put("userIds", userList.getMiddle());
         param.put("status", Constant.APPLY_APPROED);
         param.put("startTime", startTime);
         param.put("endTime", endTime);
@@ -102,7 +106,8 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
             monthReportCollect = monthReport.stream()
                     .collect(Collectors.toMap(stringObjectMap -> stringObjectMap.get("createBy").toString(), stringObjectMap -> stringObjectMap.get("monthCount")));
         }
-       String timeLimit  = startTime + "至" + endTime;
+        String timeLimit = startTime + "至" + endTime;
+        List<Map<String, Object>> userDOsList = userList.getLeft();
         for (Map<String, Object> userDO : userDOsList) {
             String userId = userDO.get("userId").toString();
             Object dailyCount = dailyReportCollect.get(userId);
@@ -114,13 +119,38 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
             userDO.put("timeLimit", timeLimit);
         }
         Map<String, Object> results = Maps.newHashMap();
-        results.put("data", new DsResultResponse(pageNo, pageSize, userDOs.size(), userDOsList));
+        results.put("data", new DsResultResponse(agendaVO.getPageno(), agendaVO.getPagesize(), userList.getRight(), userDOsList));
         return R.ok(results);
     }
 
     @Override
     public R overtime(AgendaVO agendaVO) {
-        return null;
+        Triple<List<Map<String, Object>>, List<Object>, Integer> userList = getUserList(agendaVO);
+        if (userList == null) {
+            return R.ok();
+        }
+        String startTime = agendaVO.getStartTime();
+        String endTime = agendaVO.getEndTime();
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("userIds", userList.getMiddle());
+        param.put("status", Constant.APPLY_COMPLETED);
+        param.put("startTime", startTime);
+        param.put("endTime", endTime);
+        List<Map<String, Object>> overtimeForItem = reportDao.overtimeForItem(param);
+        Map<String, Object> results = Maps.newHashMap();
+        Map<String, Double> overTimeGroup =  overtimeForItem
+                .stream()
+                .collect(Collectors.toMap(stringObjectMap -> stringObjectMap.get("overTimeUser").toString(), stringObjectMap -> Double.parseDouble(stringObjectMap.get("timeArea").toString()), Double::sum));
+        List<Map<String, Object>> userDOsList = userList.getLeft();
+        for (Map<String, Object> map : userDOsList) {
+            String userId = map.get("userId").toString();
+            Double timeArea = overTimeGroup.get(userId);
+            map.put("NAME", map.get("NAME") + "小计");
+            map.put("totalTimeArea", timeArea == null ? 0 : timeArea);
+        }
+        results.put("data", new DsResultResponse(agendaVO.getPageno(), agendaVO.getPagesize(), userList.getRight(), userDOsList));
+        results.put("dataItem", overtimeForItem);
+        return R.ok(results);
     }
 
     @Override
