@@ -224,8 +224,15 @@ public class OutsourcingContractApiController {
         int total = Integer.parseInt(stringBigDecimalMap.getOrDefault("total",0).toString());
         Map<String, Object> result = Maps.newHashMap();
         if (data.size() > 0) {
+            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.WWHT.intValue());
+            String thisSourceTypeName = dictionaryDO.getName();
+            for (Map<String, Object> stringObjectMap : data) {
+                stringObjectMap.put("thisSourceType", ConstantForGYL.WWHT);
+                stringObjectMap.put("thisSourceTypeName", thisSourceTypeName);
+            }
             result.put("data", new DsResultResponse(pageno,pagesize,total,data));
             result.put("total", stringBigDecimalMap);
+
         }
         return R.ok(result);
 	}

@@ -16,9 +16,11 @@ import com.ev.scm.service.FundInitializationService;
 import com.google.common.collect.Maps;
 import org.omg.CORBA.OBJ_ADAPTER;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jmx.export.metadata.ManagedOperation;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -99,21 +101,17 @@ public class BankTransferServiceImpl implements BankTransferService {
 
 			if (row > 0) {
 				List<BankTransferItemDO> bodys = JSON.parseArray(transferBodys, BankTransferItemDO.class);
-				for (BankTransferItemDO bPdata : bodys) {
-					Long fundInitializationId=0L;
-					if(bPdata.getTransferInAcc()!=null){
-						fundInitializationId=bPdata.getTransferInAcc();
-					}else if(bPdata.getTransferOutAcc()!=null){
-						fundInitializationId=bPdata.getTransferOutAcc();
-					}
-					FundInitializationDO fundInitializationDO = fundInitializationService.get(bPdata.getTransferInAcc());
-					if(fundInitializationDO!=null){
-						if(Objects.equals(1,fundInitializationDO.getUsingStart())){
-							String[] arg={fundInitializationDO.getAccountNumber().toString()};
-							return R.error(messageSourceHandler.getMessage("scm.FundInitialization.forbidden",arg));
-						}
-					}
+				//验证是否禁用
+				String forbiddenResult = this.checkForbidden(bodys);
+				if(!Objects.equals("ok",forbiddenResult)){
+					return R.error(forbiddenResult);
 				}
+				//验证是否超支
+				String overspendResult = this.checkOverspend(bodys);
+				if(!Objects.equals("ok",overspendResult)){
+					return R.error(overspendResult);
+				}
+
 				for (BankTransferItemDO bPdata : bodys) {
 					bPdata.setTransferId(bankTransferDO.getId());
 					bankTransferItemService.save(bPdata);
@@ -146,6 +144,60 @@ public class BankTransferServiceImpl implements BankTransferService {
 				return R.error();
 			}
 		}
+	}
+
+	public String checkForbidden(List<BankTransferItemDO> bodys){
+		for (BankTransferItemDO bPdata : bodys) {
+			Long fundInitializationId=0L;
+			if(bPdata.getTransferInAcc()!=null){
+				fundInitializationId=bPdata.getTransferInAcc();
+			}else if(bPdata.getTransferOutAcc()!=null){
+				fundInitializationId=bPdata.getTransferOutAcc();
+			}
+			FundInitializationDO fundInitializationDO = fundInitializationService.get(fundInitializationId);
+			if(fundInitializationDO!=null){
+				if(Objects.equals(1,fundInitializationDO.getUsingStart())){
+					String[] arg={fundInitializationDO.getAccountNumber().toString()};
+					return messageSourceHandler.getMessage("scm.FundInitialization.forbidden",arg);
+				}
+			}else{
+				return messageSourceHandler.getMessage("scm.FundInitialization.TheOriginalAccountDoesNotExist",null);
+			}
+		}
+			return "ok";
+	}
+
+	public String checkOverspend(List<BankTransferItemDO> bodys){
+		List<BankTransferItemDO> bodysSettlementType = bodys.stream().filter(BankTransferItemDO -> BankTransferItemDO.getSettlementType().equals(ConstantForGYL.EXPENDITURE) ).collect(Collectors.toList());
+		if(bodysSettlementType.size()>0){
+			for (BankTransferItemDO bPdata : bodysSettlementType) {
+				Long fundInitializationId=0L;
+				if(bPdata.getTransferInAcc()!=null){
+					fundInitializationId=bPdata.getTransferInAcc();
+				}else if(bPdata.getTransferOutAcc()!=null){
+					fundInitializationId=bPdata.getTransferOutAcc();
+				}
+				FundInitializationDO fundInitializationDO = fundInitializationService.get(fundInitializationId);
+				//  总收入   总支出
+				Map<String,Object>  map= new HashMap<>();
+//				map.put("",);
+//				map.put("",);
+//				map.put("",);
+
+
+
+
+				if(fundInitializationDO!=null){
+					if(Objects.equals(1,fundInitializationDO.getUsingStart())){
+						String[] arg={fundInitializationDO.getAccountNumber().toString()};
+						return messageSourceHandler.getMessage("scm.FundInitialization.forbidden",arg);
+					}
+				}else{
+					return messageSourceHandler.getMessage("scm.FundInitialization.TheOriginalAccountDoesNotExist",null);
+				}
+			}
+		}
+		return "ok";
 	}
 
 	@Override

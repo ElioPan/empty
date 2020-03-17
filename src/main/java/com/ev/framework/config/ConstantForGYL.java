@@ -263,7 +263,10 @@ public final class ConstantForGYL {
 	public static final Integer BATCH_FINDS = 143;
 
 
-
+	/**
+	 * 支出
+	 */
+	public static final Long EXPENDITURE = 294L;
 
 
 }

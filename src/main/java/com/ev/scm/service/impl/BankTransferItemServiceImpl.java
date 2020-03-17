@@ -67,4 +67,9 @@ public class BankTransferItemServiceImpl implements BankTransferItemService {
 		return bankTransferItemDao.totalAmount(map);
 	}
 
+	@Override
+	public int totalOutOrInAmount(Map<String, Object> map) {
+		return bankTransferItemDao.totalOutOrInAmount(map);
+	}
+
 }
