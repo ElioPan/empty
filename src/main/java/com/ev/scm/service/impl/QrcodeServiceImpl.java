@@ -146,7 +146,7 @@ public class QrcodeServiceImpl implements QrcodeService {
                  */
                 if (Objects.equals(stockDO.getMaterielId(), stockInItemDO.getMaterielId()) &&
                         (stockDO.getWarehouse() + "-" + stockDO.getWarehLocation()).equals(stockInItemDO.getWarehouse() + "-" + stockInItemDO.getWarehLocation()) &&
-                        stockDO.getBatch().equals(stockInItemDO.getBatch())) {
+                        stockInItemDO.getBatch()==null?true:stockInItemDO.getBatch().equals(stockDO.getBatch())) {
                     QrcodeDO qrcodeDO = qrcodeDao.get(stockInItemDO.getQrcodeId());
                     qrcodeDO.setStockId(stockDO.getId());
                     qrcodeDOList.add(qrcodeDO);
@@ -159,7 +159,7 @@ public class QrcodeServiceImpl implements QrcodeService {
                  */
                 if (Objects.equals(stockInItemDOSaved.getMaterielId(), stockInItemDO.getMaterielId()) &&
                         (stockInItemDOSaved.getWarehouse() + "-" + stockInItemDOSaved.getWarehLocation()).equals(stockInItemDO.getWarehouse() + "-" + stockInItemDO.getWarehLocation()) &&
-                        stockInItemDOSaved.getBatch().equals(stockInItemDO.getBatch())) {
+                        stockInItemDO.getBatch()==null?true:stockInItemDO.getBatch().equals(stockInItemDOSaved.getBatch())) {
                     QrcodeItemDO qrcodeItemDO = new QrcodeItemDO(stockInItemDO.getQrcodeId(), stockInDO.getStorageType(), stockInDO.getId(),stockInDO.getInheadCode(), stockInItemDOSaved.getId(), stockInItemDO.getCount());
                     qrcodeItemDO.setOperateType(0);
                     qrcodeItemDOList.add(qrcodeItemDO);
@@ -211,7 +211,7 @@ public class QrcodeServiceImpl implements QrcodeService {
             for(StockDO stockDO : stockDOS){
                 if(Objects.equals(stockDO.getMaterielId(), stockDOTemp.getMaterielId()) &&
                         (stockDO.getWarehouse() + "-" + stockDO.getWarehLocation()).equals(allotItemDO.getInFacility() + "-" + allotItemDO.getInLocation()) &&
-                        stockDO.getBatch().equals(stockDOTemp.getBatch())){
+                        stockDO.getBatch()==null?true:stockDO.getBatch().equals(stockDOTemp.getBatch())){
                     qrcodeDO.setStockId(stockDO.getId());
                     qrcodeDOList.add(qrcodeDO);
                     break;

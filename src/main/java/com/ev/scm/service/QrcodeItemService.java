@@ -1,7 +1,6 @@
 package com.ev.scm.service;
 
 import com.ev.scm.domain.QrcodeItemDO;
-import com.ev.scm.domain.StockDO;
 
 import java.util.List;
 import java.util.Map;
