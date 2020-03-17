@@ -156,7 +156,9 @@
 		LEFT JOIN cus_dictionary b on a.bank=b.id
 		<where>
 			<if test="id != null and id != ''"> AND a.id = #{id} </if>
-			<if test="usingStart != null and usingStart !=''"> AND a.using_start = #{usingStart} </if>
+			<!--<if test="usingStart != null and usingStart !=''"> AND a.using_start = #{usingStart} </if>-->
+			<if test="usingStart == 0 "> AND a.using_start = #{usingStart} </if>
+			<if test="usingStart == 1 "> AND a.using_start = #{usingStart} </if>
 			<if test="accountNumber != null and accountNumber !=''"> AND a.account_number = #{accountNumber} </if>
 		</where>
 		<choose>
@@ -181,7 +183,9 @@
 		LEFT JOIN cus_dictionary b on a.bank=b.id
 		<where>
 			<if test="id != null and id != ''"> AND a.id = #{id} </if>
-			<if test="usingStart != null and usingStart !=''"> AND a.using_start = #{usingStart} </if>
+			<!--<if test="usingStart != null and usingStart !=''"> AND a.using_start = #{usingStart} </if>-->
+			<if test="usingStart == 0 "> AND a.using_start = #{usingStart} </if>
+			<if test="usingStart == 1 "> AND a.using_start = #{usingStart} </if>
 			<if test="accountNumber != null and accountNumber !=''"> AND a.account_number = #{accountNumber} </if>
 		</where>
 	</select>
