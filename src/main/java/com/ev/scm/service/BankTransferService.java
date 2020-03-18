@@ -2,6 +2,7 @@ package com.ev.scm.service;
 
 import com.ev.framework.utils.R;
 import com.ev.scm.domain.BankTransferDO;
+import com.ev.scm.domain.BankTransferItemDO;
 
 import java.util.List;
 import java.util.Map;
@@ -42,4 +43,6 @@ public interface BankTransferService {
 	List<Map<String, Object>> listForMap(Map<String, Object> map);
 
 	int countForMap(Map<String, Object> map);
+
+	String checkOverspend(List<BankTransferItemDO> bodys, Long transferId);
 }

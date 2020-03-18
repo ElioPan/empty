@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Service
@@ -168,8 +169,9 @@ public class BankTransferServiceImpl implements BankTransferService {
 			return "ok";
 	}
 
+	@Override
 	public String checkOverspend(List<BankTransferItemDO> bodys,Long transferId){
-		List<BankTransferItemDO> bodysSettlementType = bodys.stream().filter(BankTransferItemDO -> BankTransferItemDO.getSettlementType().equals(ConstantForGYL.EXPENDITURE) ).collect(Collectors.toList());
+        List<BankTransferItemDO> bodysSettlementType = bodys.stream().filter(BankTransferItemDO -> Objects.nonNull(BankTransferItemDO.getTransferOutAcc()) ).collect(Collectors.toList());
 		if(bodysSettlementType.size()>0){
 			for (BankTransferItemDO bPdata : bodysSettlementType) {
 				Long fundInitializationId=bPdata.getTransferOutAcc();

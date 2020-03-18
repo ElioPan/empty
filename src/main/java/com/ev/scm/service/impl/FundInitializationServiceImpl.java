@@ -2,6 +2,8 @@ package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.ev.apis.model.DsResultResponse;
+import com.ev.custom.domain.DictionaryDO;
+import com.ev.custom.service.DictionaryService;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.PageUtils;
@@ -29,7 +31,8 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 	private MessageSourceHandler messageSourceHandler;
 	@Autowired
 	private BankTransferItemService bankTransferItemService;
-
+    @Autowired
+    private DictionaryService dictionaryService;
 
 	@Override
 	public FundInitializationDO get(Long id){
@@ -196,14 +199,25 @@ public class FundInitializationServiceImpl implements FundInitializationService 
         if(inBankDetails.isEmpty()&&!outBankDetails.isEmpty()){
             bankDetails= outBankDetails;
         }
+
         Map<String,Object>  resulst= new HashMap<>();
         if(!bankDetails.isEmpty()){
+            Map<String,Object>  initiaData= new HashMap<>();
+            initiaData.put("id",0);
+            initiaData.put("transferDate",fundInitializationDO.getPeriod());
+            initiaData.put("businessTypeName","期初余额");
+            initiaData.put("remainingAmount",fundInitializationDO.getInitialAmount());
+            initiaData.put("companyName",ConstantForGYL.company_ame);
+            initiaData.put("transferAccName",fundInitializationDO.getAccountNumber());
+            DictionaryDO dictionaryDO = dictionaryService.get(fundInitializationDO.getBank().intValue());
+            if(dictionaryDO!=null){initiaData.put("backName",dictionaryDO.getName());}
+            bankDetails.add(initiaData);
             Collections.sort(bankDetails, new Comparator<Map<String, Object>>() {
                 @Override
                 public int compare(Map<String, Object> arg0, Map<String, Object> arg1) {
                     Integer s0 = Integer.valueOf(arg0.get("id").toString());
                     Integer s1 = Integer.valueOf(arg1.get("id").toString());
-                    return s1.compareTo(s0);
+                    return s0.compareTo(s1);
                 }
             });
             List<Map<String, Object>> quoteLists= PageUtils.startPage(bankDetails, pageno, pagesize);
