@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.CommutationInitializationDao">
+
+	<select id="get" resultType="com.ev.scm.domain.CommutationInitializationDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_commutation_initialization 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.CommutationInitializationDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_commutation_initialization
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+			<otherwise>
+                ORDER BY id DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+        SELECT COUNT(*) FROM scm_commutation_initialization
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`period`,`client_id`,`supplier_id`,`initial_amount`,`using_start`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> AND id = #{id} </if>
+                            <if test="period != null and period != ''"> AND period = #{period} </if>
+                            <if test="clientId != null and clientId != ''"> ANDclient_id = #{clientId} </if>
+                            <if test="supplierId != null and supplierId != ''"> AND supplier_id = #{supplierId} </if>
+                            <if test="initialAmount != null and initialAmount != ''"> AND initial_amount = #{initialAmount} </if>
+                            <if test="usingStart != null and usingStart != ''"> AND using_start = #{usingStart} </if>
+                            <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.CommutationInitializationDO" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO scm_commutation_initialization
+		(
+			`period`, 
+			`client_id`,
+			`supplier_id`, 
+			`initial_amount`, 
+			`using_start`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		VALUES
+		(
+			#{period}, 
+			#{clientId},
+			#{supplierId}, 
+			#{initialAmount}, 
+			#{usingStart}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.CommutationInitializationDO">
+		UPDATE scm_commutation_initialization
+		<set>
+			<if test="period != null">`period` = #{period}, </if>
+			<if test="clientId != null">`client_id` = #{clientId}, </if>
+			<if test="supplierId != null">`supplier_id` = #{supplierId}, </if>
+			<if test="initialAmount != null">`initial_amount` = #{initialAmount}, </if>
+			<if test="usingStart != null">`using_start` = #{usingStart}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<update id="updateAll" parameterType="com.ev.scm.domain.CommutationInitializationDO">
+		UPDATE scm_commutation_initialization SET
+			`period` = #{period}, 
+			`client_id` = #{clientId},
+			`supplier_id` = #{supplierId}, 
+			`initial_amount` = #{initialAmount}, 
+			`using_start` = #{usingStart}, 
+			`create_by` = #{createBy}, 
+			`create_time` = #{createTime}, 
+			`update_by` = #{updateBy}, 
+			`update_time` = #{updateTime}, 
+			`del_flag` = #{delFlag}
+		WHERE id = #{id}
+	</update>
+
+	
+	<delete id="remove">
+		DELETE FROM scm_commutation_initialization WHERE id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+        DELETE FROM scm_commutation_initialization WHERE id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+</mapper>
