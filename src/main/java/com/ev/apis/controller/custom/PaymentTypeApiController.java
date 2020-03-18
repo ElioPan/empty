@@ -113,8 +113,8 @@ public class PaymentTypeApiController {
             @ApiParam(value = "收支类型代码") @RequestParam(value = "code", defaultValue = "", required = true)String code,
             @ApiParam(value = "收支类型名字") @RequestParam(value = "name", defaultValue = "", required = true)String name){
         Map<String,Object>  map= new HashMap<>();
-        map.put("offset", 0);
-        map.put("limit", 1);
+        map.put("offset", (pageno - 1) * pagesize);
+        map.put("limit", pagesize);
         map.put("code",code);
         map.put("name",name);
         List<Map<String, Object>> list = paymentTypeService.listOfMap(map);
