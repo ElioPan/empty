@@ -1,6 +1,6 @@
-package com.ev.custom.service;
+package com.ev.report.service;
 
-import com.ev.custom.vo.DeviceVO;
+import com.ev.report.vo.DeviceVO;
 import com.ev.framework.utils.R;
 
 /**

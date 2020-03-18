@@ -1,7 +1,7 @@
-package com.ev.apis.controller.custom;
+package com.ev.apis.controller.report;
 
-import com.ev.custom.service.DeviceAccountingReportService;
-import com.ev.custom.vo.DeviceVO;
+import com.ev.report.service.DeviceAccountingReportService;
+import com.ev.report.vo.DeviceVO;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.utils.R;
 import io.swagger.annotations.Api;

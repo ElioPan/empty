@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import springfox.documentation.annotations.ApiIgnore;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
@@ -76,6 +77,22 @@ public class Swagger2Config {
                     return packageName.startsWith("com.ev.apis.controller")
                             && packageName.contains(".scm");
                 })
+                .paths(PathSelectors.any())
+                .build()
+                .enable(true)
+                ;
+    }
+
+    @Bean("管理报表")
+    public Docket createRestReportApi() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .groupName("Report")
+                .ignoredParameterTypes(ApiIgnore.class)
+                .apiInfo(apiInfo())
+                .directModelSubstitute(LocalDate.class, java.sql.Date.class)
+                .directModelSubstitute(LocalDateTime.class, java.util.Date.class)
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.ev.apis.controller.report"))
                 .paths(PathSelectors.any())
                 .build()
                 .enable(true)

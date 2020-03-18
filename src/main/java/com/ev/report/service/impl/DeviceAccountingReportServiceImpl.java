@@ -1,13 +1,13 @@
-package com.ev.custom.service.impl;
+package com.ev.report.service.impl;
 
 import com.ev.apis.model.DsResultResponse;
-import com.ev.custom.dao.DeviceAccountingReportDao;
+import com.ev.report.dao.DeviceAccountingReportDao;
 import com.ev.custom.domain.PatrolRecordDO;
 import com.ev.custom.domain.RepairEventDO;
 import com.ev.custom.domain.RepairRecordDO;
 import com.ev.custom.domain.UpkeepRecordDO;
-import com.ev.custom.service.DeviceAccountingReportService;
-import com.ev.custom.vo.DeviceVO;
+import com.ev.report.service.DeviceAccountingReportService;
+import com.ev.report.vo.DeviceVO;
 import com.ev.framework.config.Constant;
 import com.ev.framework.utils.*;
 import com.google.common.collect.Maps;

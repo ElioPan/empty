@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.ev.custom.dao.DeviceAccountingReportDao">
+<mapper namespace="com.ev.report.dao.DeviceAccountingReportDao">
 
 
-    <select id="deviceList" resultType="map" parameterType="com.ev.custom.vo.DeviceVO">
+    <select id="deviceList" resultType="map" parameterType="com.ev.report.vo.DeviceVO">
         SELECT
         device.`id` AS id,
         device.serialno AS serialno,

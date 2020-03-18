@@ -1,18 +1,17 @@
-package com.ev.custom.service.impl;
+package com.ev.report.service.impl;
 
 import com.ev.apis.model.DsResultResponse;
-import com.ev.custom.dao.AgendaAccountingReportDao;
 import com.ev.custom.domain.DictionaryDO;
-import com.ev.custom.service.AgendaAccountingReportService;
 import com.ev.custom.service.DictionaryService;
-import com.ev.custom.vo.AgendaVO;
 import com.ev.framework.config.Constant;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.DateUtils;
 import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
-import com.ev.system.service.UserService;
+import com.ev.report.dao.AgendaAccountingReportDao;
+import com.ev.report.service.AgendaAccountingReportService;
+import com.ev.report.vo.AgendaVO;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +30,6 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
     @Autowired
     private DictionaryService dictionaryService;
     @Autowired
-    private UserService userService;
-    @Autowired
     private MessageSourceHandler messageSourceHandler;
 
     private Triple<List<Map<String, Object>>, List<Object>, Integer> getUserList(AgendaVO agendaVO) {
@@ -40,7 +37,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         params.put("status", 1);
         params.put("userId", agendaVO.getUserId());
         params.put("deptId", agendaVO.getDeptId());
-        List<Map<String, Object>> userDOs = userService.listForMap(params);
+        List<Map<String, Object>> userDOs = reportDao.userList(params);
         if (userDOs.size() == 0) {
             return null;
         }
@@ -150,7 +147,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         for (Map<String, Object> map : userDOsList) {
             String userId = map.get("userId").toString();
             Double timeArea = overTimeGroup.get(userId);
-            map.put("NAME", map.get("NAME") + "小计");
+            map.put("userName", map.get("userName") + "小计");
             map.put("totalTimeArea", timeArea == null ? 0 : timeArea);
         }
         results.put("data", new DsResultResponse(agendaVO.getPageno(), agendaVO.getPagesize(), userList.getRight(), userDOsList));
@@ -208,7 +205,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         for (Map<String, Object> map : userDOsList) {
             String userId = map.get("userId").toString();
             Double timeArea = leaveGroup.get(userId);
-            map.put("NAME", map.get("NAME") + "小计");
+            map.put("userName", map.get("userName") + "小计");
             map.put("totalTimeArea", timeArea == null ? 0 : timeArea);
         }
         results.put("data", new DsResultResponse(agendaVO.getPageno(), agendaVO.getPagesize(), userList.getRight(), userDOsList));
@@ -325,7 +322,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         for (Map<String, Object> map : userDOsList) {
             String userId = map.get("userId").toString();
             Double totalReiCount = leaveGroup.get(userId);
-            map.put("NAME", map.get("NAME") + "小计");
+            map.put("userName", map.get("userName") + "小计");
             map.put("totalReiCount", totalReiCount == null ? 0 : totalReiCount);
         }
         results.put("data", new DsResultResponse(agendaVO.getPageno(), agendaVO.getPagesize(), userList.getRight(), userDOsList));
@@ -393,7 +390,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         for (Map<String, Object> map : userDOsList) {
             String userId = map.get("userId").toString();
             Double totalNumber = paymentGroup.get(userId);
-            map.put("NAME", map.get("NAME") + "小计");
+            map.put("userName", map.get("userName") + "小计");
             map.put("totalNumber", totalNumber == null ? 0 : totalNumber);
         }
         results.put("data", new DsResultResponse(agendaVO.getPageno(), agendaVO.getPagesize(), userList.getRight(), userDOsList));
