@@ -108,6 +108,37 @@ public class FundInitializationApiController {
     }
 
 
+    @EvApiByToken(value = "scm/apis/fundInitialization/financialDetails", method = RequestMethod.POST, apiTitle = "资金明细")
+    @ApiOperation("资金明细")
+    @Transactional(rollbackFor = Exception.class)
+    public R  financialDetails(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+                          @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+                          @ApiParam(value = "启用0，禁用1") @RequestParam(value = "usingStart",defaultValue = "") Integer  usingStart,
+                               @ApiParam(value = "开始时间") @RequestParam(value = "startTime",defaultValue = "") String  startTime,
+                               @ApiParam(value = "截止时间") @RequestParam(value = "endTime",defaultValue = "") String  endTime,
+                          @ApiParam(value = "组织") @RequestParam(value = "deptId",defaultValue = "") Long  deptId,
+                          @ApiParam(value = "银行账号(初始化表中的id)",required = true) @RequestParam(value = "id",defaultValue = "") Long  id){
+        Map<String,Object> params= new HashMap<>();
+        params.put("offset", (pageno - 1) * pagesize);
+        params.put("limit", pagesize);
+        params.put("usingStart", usingStart);
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+        params.put("deptId", deptId);
+
+        return fundInitializationService.disposeFinancialDetails(pageno,pagesize,params,id);
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 
 }

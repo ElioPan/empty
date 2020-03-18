@@ -72,4 +72,14 @@ public class BankTransferItemServiceImpl implements BankTransferItemService {
 		return bankTransferItemDao.totalOutOrInAmount(map);
 	}
 
+	@Override
+	public List<Map<String, Object>> getBankDetail(Map<String, Object> map) {
+		return bankTransferItemDao.getBankDetail(map);
+	}
+
+	@Override
+	public List<Map<String, Object>> getBankOutDetail(Map<String, Object> map) {
+		return bankTransferItemDao.getBankOutDetail(map);
+	}
+
 }

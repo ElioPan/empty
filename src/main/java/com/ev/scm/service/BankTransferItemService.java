@@ -36,4 +36,10 @@ public interface BankTransferItemService {
 
 	int totalOutOrInAmount(Map<String, Object> map);
 
+	List<Map<String, Object>> getBankDetail(Map<String, Object> map);
+
+	List<Map<String, Object>> getBankOutDetail(Map<String, Object> map);
+
+
+
 }

@@ -183,8 +183,78 @@
 			<if test="auditSign != null and auditSign != ''"> AND b.audit_sign = #{auditSign} </if>
 			<if test="transferId != null and transferId != ''"> AND b.id <![CDATA[<>]]> #{transferId} </if>
 			<if test="transferDate != null and transferDate != ''">  and  DATE_FORMAT(b.transfer_date,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{transferDate},'%Y-%m-%d')</if>
+			<if test="fundDate != null and fundDate != ''">  and  b.transfer_date &lt;= #{fundDate}</if>
 		</where>
 	</select>
 
+	<select id="getBankDetail" resultType="map">
+		SELECT
+		a.id,
+		b.transfer_date as fundDate,
+		DATE_FORMAT(b.transfer_date,'%Y-%m-%d') as  transferDate,
+		b.transfer_code as transferCode,
+		a.business_type as businessType,
+		c.name as businessTypeName,
+		e.account_number as transferAccName,
+		g.name as backName,
+		a.transfer_amount as inTransferAmount
+		FROM
+		scm_bank_transfer_item a
+		LEFT JOIN scm_bank_transfer b on a.transfer_id=b.id
+		LEFT JOIN cus_dictionary c on a.business_type=c.id
+		LEFT JOIN scm_fund_initialization e on a.transfer_in_acc=e.id
+		LEFT JOIN cus_dictionary g on e.bank=g.id
+		<where>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(b.transfer_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(b.transfer_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="transferInAcc != null and transferInAcc != ''"> AND a.transfer_in_acc = #{transferInAcc} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY ${sort} ${order}
+			</when>
+			<otherwise>
+				ORDER BY a.id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="getBankOutDetail" resultType="map">
+		SELECT
+		a.id,
+		b.transfer_date as fundDate,
+		DATE_FORMAT(b.transfer_date,'%Y-%m-%d') as  transferDate,
+		b.transfer_code as transferCode,
+		a.business_type as businessType,
+		c.name as businessTypeName,
+		d.account_number as transferAccName,
+		f.name as  backName,
+		a.transfer_amount as outTransferAmount
+		FROM
+		scm_bank_transfer_item a
+		LEFT JOIN scm_bank_transfer b on a.transfer_id=b.id
+		LEFT JOIN cus_dictionary c on a.business_type=c.id
+		LEFT JOIN scm_fund_initialization d on a.transfer_out_acc=d.id
+		LEFT JOIN cus_dictionary f on d.bank=f.id
+		<where>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(b.transfer_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(b.transfer_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="transferOutAcc != null and transferOutAcc != ''"> AND a.transfer_out_acc = #{transferOutAcc} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY ${sort} ${order}
+			</when>
+			<otherwise>
+				ORDER BY a.id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
 
 </mapper>

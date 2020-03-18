@@ -4,20 +4,22 @@ import com.alibaba.fastjson.JSONObject;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
+import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.dao.FundInitializationDao;
 import com.ev.scm.domain.FundInitializationDO;
+import com.ev.scm.domain.StockOutItemDO;
 import com.ev.scm.service.BankTransferItemService;
 import com.ev.scm.service.FundInitializationService;
+import javafx.beans.binding.IntegerBinding;
+import jdk.internal.util.xml.impl.Input;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.mail.FetchProfile;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -166,6 +168,93 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 		}
 		return R.ok(params);
 	}
+
+
+    @Override
+    public R disposeFinancialDetails(int pageno,int pagesize,Map<String, Object> map,Long founId){
+
+        FundInitializationDO fundInitializationDO = this.get(founId);
+        BigDecimal initialAmount=fundInitializationDO.getInitialAmount();
+        map.put("transferOutAcc",founId);
+        List<Map<String, Object>> outBankDetails = bankTransferItemService.getBankOutDetail(map);
+        map.put("transferInAcc",founId);
+        List<Map<String, Object>> inBankDetails = bankTransferItemService.getBankDetail(map);
+
+        List<Map<String, Object>>  bankDetails= new ArrayList<>();
+        if(!outBankDetails.isEmpty()){
+                for(Map<String, Object> oneMap:outBankDetails){
+                   String fundDate=oneMap.get("fundDate").toString();
+                   Map<String,Object>  query= new HashMap<>();
+                    query.put("fundDate",fundDate);
+                    query.put("transferOutAcc",founId);
+                    int outAmount = bankTransferItemService.totalOutOrInAmount(query);
+                    query.remove("transferOutAcc");
+                    query.put("transferInAcc",founId);
+                    int inAmount = bankTransferItemService.totalOutOrInAmount(query);
+                    BigDecimal remainingAmount=initialAmount.add(new BigDecimal(inAmount)).subtract(new BigDecimal(outAmount));
+                    oneMap.put("remainingAmount",remainingAmount);
+                    oneMap.put("companyName",ConstantForGYL.company_ame);
+                }
+         }
+        if(!inBankDetails.isEmpty()){
+            for(Map<String, Object> oneMap:inBankDetails){
+                String fundDate=oneMap.get("fundDate").toString();
+                Map<String,Object>  query= new HashMap<>();
+                query.put("fundDate",fundDate);
+                query.put("transferOutAcc",founId);
+                int outAmount = bankTransferItemService.totalOutOrInAmount(query);
+                query.remove("transferOutAcc");
+                query.put("transferInAcc",founId);
+                int inAmount = bankTransferItemService.totalOutOrInAmount(query);
+                BigDecimal remainingAmount=initialAmount.add(new BigDecimal(inAmount)).subtract(new BigDecimal(outAmount));
+                oneMap.put("remainingAmount",remainingAmount);
+                oneMap.put("companyName",ConstantForGYL.company_ame);
+            }
+        }
+        if(!inBankDetails.isEmpty()&&!outBankDetails.isEmpty()){
+            if(outBankDetails.addAll(inBankDetails)){
+                bankDetails= outBankDetails;
+            }
+        }
+        if(!inBankDetails.isEmpty()&&outBankDetails.isEmpty()){
+            bankDetails= inBankDetails;
+        }
+        if(inBankDetails.isEmpty()&&!outBankDetails.isEmpty()){
+            bankDetails= outBankDetails;
+        }
+        Map<String,Object>  resulst= new HashMap<>();
+        if(!bankDetails.isEmpty()){
+            Collections.sort(bankDetails, new Comparator<Map<String, Object>>() {
+                @Override
+                public int compare(Map<String, Object> arg0, Map<String, Object> arg1) {
+                    Integer s0 = Integer.valueOf(arg0.get("id").toString());
+                    Integer s1 = Integer.valueOf(arg1.get("id").toString());
+                    return s1.compareTo(s0);
+                }
+            });
+            List<Map<String, Object>> quoteLists= PageUtils.startPage(bankDetails, pageno, pagesize);
+            BigDecimal outTransferAmount=BigDecimal.ZERO;
+            BigDecimal inTransferAmount=BigDecimal.ZERO;
+            if(quoteLists!=null){
+                for(Map<String, Object> oneQuoteList:quoteLists){
+                    outTransferAmount= outTransferAmount.add(new BigDecimal(oneQuoteList.containsKey("outTransferAmount")?oneQuoteList.get("outTransferAmount").toString():"0")) ;
+                    inTransferAmount=inTransferAmount.add(new BigDecimal(oneQuoteList.containsKey("inTransferAmount")?oneQuoteList.get("inTransferAmount").toString():"0")) ;
+                }
+            }
+            Map<String, Object> dsRet = new HashMap<>();
+            dsRet.put("pageno",pageno);
+            dsRet.put("pagesize",pagesize);
+            dsRet.put("totalPages",((quoteLists!=null?quoteLists.size():0) + pagesize - 1) / pagesize);
+            dsRet.put("totalRows",quoteLists!=null?quoteLists.size():0);
+            dsRet.put("totalOutTransferAmount",outTransferAmount);
+            dsRet.put("totalInTransferAmount",inTransferAmount);
+            dsRet.put("datas",quoteLists);
+            resulst.put("data", dsRet);
+        }
+        return R.ok(resulst);
+    }
+
+
 
 
 

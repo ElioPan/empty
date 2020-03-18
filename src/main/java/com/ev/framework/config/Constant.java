@@ -448,4 +448,9 @@ public class Constant {
 	 */
 	public static final String GW = "GW";
 
+	/**
+	 * 收支类型
+	 */
+	public static final String SZRX = "SZRX";
+
 }
