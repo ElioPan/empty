@@ -23,10 +23,10 @@
         LEFT JOIN sys_dept dept ON dept.dept_id=device.dept_id
         LEFT JOIN sys_user users ON users.user_id=device.user_id
         <where>
-            <if test="nameAndCode != null and nameAndCode != ''"> and CONCAT(`name`,`serialno`) LIKE #{nameAndCode} </if>
-            <if test="type != null and type != ''"> and type = #{type} </if>
-            <if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
-            <if test="usingStatus != null and usingStatus != ''"> and using_status = #{usingStatus} </if>
+            <if test="nameAndCode != null and nameAndCode != ''"> and CONCAT(device.`name`,device.`serialno`) LIKE #{nameAndCode} </if>
+            <if test="type != null and type != ''"> and device.type = #{type} </if>
+            <if test="deptId != null and deptId != ''"> and device.dept_id = #{deptId} </if>
+            <if test="usingStatus != null and usingStatus != ''"> and device.using_status = #{usingStatus} </if>
             AND device.del_flag=0
         </where>
     </select>
