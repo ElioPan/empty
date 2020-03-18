@@ -187,12 +187,12 @@ public class BankTransferServiceImpl implements BankTransferService {
 				//  总收入   总支出
 				Map<String,Object>  map= new HashMap<>();
 				map.put("transferOutAcc",fundInitializationId);
-				map.put("settlementType",ConstantForGYL.EXPENDITURE);
+//				map.put("settlementType",ConstantForGYL.EXPENDITURE);
 				if(transferId!=null){map.put("transferId",transferId);}
                 int outAmount = bankTransferItemService.totalOutOrInAmount(map);
                 map.clear();
                 map.put("transferInAcc",fundInitializationId);
-                map.put("settlementType",ConstantForGYL.INCOM);
+//                map.put("settlementType",ConstantForGYL.INCOM);
                 if(transferId!=null){map.put("transferId",transferId);}
                 int inAmount = bankTransferItemService.totalOutOrInAmount(map);
                 //初始化金额

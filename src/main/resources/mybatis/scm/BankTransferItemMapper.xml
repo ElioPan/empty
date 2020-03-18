@@ -155,7 +155,7 @@
 		scm_bank_transfer_item  a
 		LEFT JOIN scm_fund_initialization b on  a.transfer_out_acc=b.id
 		LEFT JOIN scm_fund_initialization c on  a.transfer_in_acc=c.id
-		LEFT JOIN cus_dictionary d on  a.settlement_type=d.id
+		LEFT JOIN cus_payment_type d on  a.settlement_type=d.id
 		LEFT JOIN cus_dictionary e on  a.business_type=e.id
 		where
 			a.transfer_id=#{id}
