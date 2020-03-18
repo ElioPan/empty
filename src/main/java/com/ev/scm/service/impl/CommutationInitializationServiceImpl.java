@@ -40,7 +40,17 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 	public int save(CommutationInitializationDO commutationInitialization){
 		return commutationInitializationDao.save(commutationInitialization);
 	}
-	
+
+	@Override
+	public List<Map<String, Object>> getListForMap(Map<String, Object> map) {
+		return commutationInitializationDao.getListForMap(map);
+	}
+
+	@Override
+	public int countForMap(Map<String, Object> map) {
+		return commutationInitializationDao.countForMap(map);
+	}
+
 	@Override
 	public int update(CommutationInitializationDO commutationInitialization){
 		return commutationInitializationDao.update(commutationInitialization);
@@ -83,8 +93,4 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 
 
 
-
-
-
-	
 }

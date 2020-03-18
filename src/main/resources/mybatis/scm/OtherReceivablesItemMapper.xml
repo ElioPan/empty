@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.scm.dao.OtherReceivablesItemDao">
+
+	<select id="get" resultType="com.ev.scm.domain.OtherReceivablesItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM scm_other_receivables_item 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.scm.domain.OtherReceivablesItemDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM scm_other_receivables_item
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+			<otherwise>
+                ORDER BY id DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+        SELECT COUNT(*) FROM scm_other_receivables_item
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`received_id`,`accrual_date`,`receivable_payables_amount`,`paid_received_amount`,`no_receipt_payment_amount`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> AND id = #{id} </if>
+                            <if test="receivedId != null and receivedId != ''"> AND received_id = #{receivedId} </if>
+                            <if test="accrualDate != null and accrualDate != ''"> AND accrual_date = #{accrualDate} </if>
+                            <if test="receivablePayablesAmount != null and receivablePayablesAmount != ''"> AND receivable_payables_amount = #{receivablePayablesAmount} </if>
+                            <if test="paidReceivedAmount != null and paidReceivedAmount != ''"> AND paid_received_amount = #{paidReceivedAmount} </if>
+                            <if test="noReceiptPaymentAmount != null and noReceiptPaymentAmount != ''"> AND no_receipt_payment_amount = #{noReceiptPaymentAmount} </if>
+                            <if test="remarks != null and remarks != ''"> AND remarks = #{remarks} </if>
+                            <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.scm.domain.OtherReceivablesItemDO" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO scm_other_receivables_item
+		(
+			`received_id`, 
+			`accrual_date`, 
+			`receivable_payables_amount`, 
+			`paid_received_amount`, 
+			`no_receipt_payment_amount`, 
+			`remarks`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		VALUES
+		(
+			#{receivedId}, 
+			#{accrualDate}, 
+			#{receivablePayablesAmount}, 
+			#{paidReceivedAmount}, 
+			#{noReceiptPaymentAmount}, 
+			#{remarks}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.scm.domain.OtherReceivablesItemDO">
+		UPDATE scm_other_receivables_item
+		<set>
+			<if test="receivedId != null">`received_id` = #{receivedId}, </if>
+			<if test="accrualDate != null">`accrual_date` = #{accrualDate}, </if>
+			<if test="receivablePayablesAmount != null">`receivable_payables_amount` = #{receivablePayablesAmount}, </if>
+			<if test="paidReceivedAmount != null">`paid_received_amount` = #{paidReceivedAmount}, </if>
+			<if test="noReceiptPaymentAmount != null">`no_receipt_payment_amount` = #{noReceiptPaymentAmount}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<update id="updateAll" parameterType="com.ev.scm.domain.OtherReceivablesItemDO">
+		UPDATE scm_other_receivables_item SET
+			`received_id` = #{receivedId}, 
+			`accrual_date` = #{accrualDate}, 
+			`receivable_payables_amount` = #{receivablePayablesAmount}, 
+			`paid_received_amount` = #{paidReceivedAmount}, 
+			`no_receipt_payment_amount` = #{noReceiptPaymentAmount}, 
+			`remarks` = #{remarks}, 
+			`create_by` = #{createBy}, 
+			`create_time` = #{createTime}, 
+			`update_by` = #{updateBy}, 
+			`update_time` = #{updateTime}, 
+			`del_flag` = #{delFlag}
+		WHERE id = #{id}
+	</update>
+
+	
+	<delete id="remove">
+		DELETE FROM scm_other_receivables_item WHERE id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+        DELETE FROM scm_other_receivables_item WHERE id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+</mapper>

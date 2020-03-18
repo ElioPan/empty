@@ -30,4 +30,11 @@ public interface CommutationInitializationDao {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+	List<Map<String, Object>> getListForMap(Map<String, Object> map);
+
+	int countForMap(Map<String, Object> map);
+
+
+
 }

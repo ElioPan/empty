@@ -125,5 +125,41 @@
 			#{id}
 		</foreach>
 	</delete>
-	
+
+
+	<select id="getListForMap" resultType="map">
+		SELECT
+		a.id,
+		a.period,
+		a.supplier_id as  supplierId,
+		b.name as supplierName,
+		a.client_id as clientId,
+		c.name as clientName,
+		a.initial_amount as initialAmount
+		FROM
+		scm_commutation_initialization a
+		LEFT JOIN cus_supplier  b on  a.supplier_id=b.id
+		LEFT JOIN cus_client  c on  a.client_id=c.id
+		<where>
+			<if test="clientId != null and clientId != ''"> AND a.client_id is not null </if>
+			<if test="supplierId != null and supplierId != ''"> AND a.supplier_id is not null </if>
+		</where>
+	</select>
+
+	<select id="countForMap" resultType="int">
+		SELECT
+		 IF(sum(a.initial_amount)is null,0,sum(a.initial_amount))
+		FROM
+		scm_commutation_initialization a
+		LEFT JOIN cus_supplier  b on  a.supplier_id=b.id
+		LEFT JOIN cus_client  c on  a.client_id=c.id
+		<where>
+			<if test="clientId != null and clientId != ''"> AND a.client_id is not null </if>
+			<if test="supplierId != null and supplierId != ''"> AND a.supplier_id is not null </if>
+		</where>
+	</select>
+
+
+
+
 </mapper>

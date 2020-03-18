@@ -55,6 +55,7 @@ public class ScmPaymentOrderApiController {
                     "\"accountNumber\":\"付款账号\",\n" +
                     "\"settlementType\":\"结算方式\",\n" +
                     "\"statementNumber\":\"结算号\",\n" +
+                    "\"paymentType\":\"收支类型\"\n" +
                     "\"remarks\":\"备注\"\n" +
                     "}\n" +
                     "]") @RequestParam(value = "paymentBodys", defaultValue = "", required = false) String paymentBodys,

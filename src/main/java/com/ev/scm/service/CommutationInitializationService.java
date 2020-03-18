@@ -32,4 +32,9 @@ public interface CommutationInitializationService {
 	int batchRemove(Long[] ids);
 
 	R disposeAddAndChage(String body);
+
+	List<Map<String, Object>> getListForMap(Map<String, Object> map);
+
+	int countForMap(Map<String, Object> map);
+
 }

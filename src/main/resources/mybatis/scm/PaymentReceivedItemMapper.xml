@@ -37,7 +37,7 @@
 		`id`,`payment_received_id`,`source_type`,`source_code`,`source_id`,`source_pay_item_id`,`accrual_date`,
 		`receivable_payables_amount`,`paid_received_amount`,`this_amount`,
 		`no_receipt_payment_amount`,`account_number`,`settlement_type`,`statement_number`,
-		`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+		`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`payment_type`
 	</sql>
 
     <sql id="sql_condition">
@@ -63,7 +63,8 @@
                             <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
                             <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
                             <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
-                    </where>
+			<if test="paymentType != null and paymentType != ''"> AND payment_type = #{paymentType} </if>
+         </where>
     </sql>
 	 
 	<insert id="save" parameterType="com.ev.scm.domain.PaymentReceivedItemDO" useGeneratedKeys="true" keyProperty="id">
@@ -87,7 +88,8 @@
 			`create_time`, 
 			`update_by`, 
 			`update_time`, 
-			`del_flag`
+			`del_flag`,
+			`payment_type`
 		)
 		VALUES
 		(
@@ -109,7 +111,8 @@
 			#{createTime}, 
 			#{updateBy}, 
 			#{updateTime}, 
-			#{delFlag}
+			#{delFlag},
+			#{paymentType}
 		)
 	</insert>
 	 
@@ -134,7 +137,8 @@
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
 			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
-			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+			<if test="delFlag != null">`del_flag` = #{delFlag},</if>
+			<if test="paymentType != null">`payment_type` = #{paymentType}</if>
 		</set>
 		WHERE id = #{id}
 	</update>
@@ -182,23 +186,26 @@
 			IF(a.sign='SK',d.create_time,c.create_time) as SourceCreateTime,
 			b.statement_number as statementNumber,
 			b.account_number as accountNumber,
-			j.name as accountNumberName,
-			b.settlement_type as settlementType,
+			j.account_number as accountNumberName,
+			b.settlement_type as settlementType,<!--结算方式-->
 			k.name as settlementTypeName,
 			b.remarks,
 			b.source_type as  sourceType,
 			m.name as sourceTypeName,
 			b.source_code as sourceCode,
-			b.source_id as sourceId
+			b.source_id as sourceId,
+			b.payment_type as paymentType,
+			o.name as paymentTypeName
 			from
 			scm_payment_received_item  b
 			LEFT JOIN scm_purchasecontract_pay c on b.source_pay_item_id=c.id
 			LEFT JOIN scm_salescontract_pay d on b.source_pay_item_id=d.id
-			LEFT JOIN cus_dictionary j on b.account_number=j.id
+			LEFT JOIN scm_fund_initialization j on b.account_number=j.id
 			LEFT JOIN cus_dictionary k on b.settlement_type=k.id
 			LEFT JOIN cus_dictionary m on b.source_type=m.id
 			LEFT JOIN scm_payment_received  a on  a.id =b.payment_received_id
-			WHERE
+			LEFT JOIN cus_payment_type o on  o.id =b.payment_type
+		WHERE
 			b.payment_received_id=#{id}
 	</select>
 
@@ -224,7 +231,7 @@
 			b.paid_received_amount as paid_receivedAmount,-->
 		b.statement_number as statementNumber,
 		b.account_number as accountNumber,
-		j.name as accountNumberName,
+		j.account_number as accountNumberName,
 		b.settlement_type as settlementType,
 		k.name as settlementTypeName,
 		b.remarks,
@@ -236,7 +243,7 @@
 		scm_payment_received_item  b
 		LEFT JOIN scm_purchasecontract_pay c on b.source_pay_item_id=c.id
 		LEFT JOIN scm_salescontract_pay d on b.source_pay_item_id=d.id
-		LEFT JOIN cus_dictionary j on b.account_number=j.id
+		LEFT JOIN scm_fund_initialization j on b.account_number=j.id
 		LEFT JOIN cus_dictionary k on b.settlement_type=k.id
 		LEFT JOIN cus_dictionary m on b.source_type=m.id
 		LEFT JOIN scm_payment_received  a on  a.id =b.payment_received_id

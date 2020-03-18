@@ -12,6 +12,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @Author Kuzi
  * @Date 2020-3-18 11:01
@@ -38,7 +42,27 @@ public class CommutationInitializationApiController {
         return commutationInitializationService.disposeAddAndChage(body);
     }
 
+    @EvApiByToken(value = "scm/apis/commutationInitialization/list", method = RequestMethod.POST, apiTitle = "列表")
+    @ApiOperation("列表")
+    @Transactional(rollbackFor = Exception.class)
+    public R getList( ){
 
+          Map<String,Object> map= new HashMap<>();
+          map.put("clientId",1);
+        List<Map<String, Object>> listForMapClient = commutationInitializationService.getListForMap(map);
+        int sumAmoutClient=commutationInitializationService.countForMap(map);
+        map.remove("clientId");
+        map.put("supplierId",1);
+        List<Map<String, Object>> listForMapSupplier = commutationInitializationService.getListForMap(map);
+        int sumAmoutSupplier=commutationInitializationService.countForMap(map);
+
+        map.clear();
+        map.put("Client",listForMapClient);
+        map.put("sumAmoutClient",sumAmoutClient);
+        map.put("Supplier",listForMapSupplier);
+        map.put("sumAmoutSupplier",sumAmoutSupplier);
+        return R.ok(map);
+    }
 
 
 
