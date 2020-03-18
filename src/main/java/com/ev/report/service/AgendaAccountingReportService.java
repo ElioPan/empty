@@ -1,6 +1,6 @@
-package com.ev.custom.service;
+package com.ev.report.service;
 
-import com.ev.custom.vo.AgendaVO;
+import com.ev.report.vo.AgendaVO;
 import com.ev.framework.utils.R;
 
 /**
@@ -22,9 +22,9 @@ public interface AgendaAccountingReportService {
 
     R leaveTypeGroup(AgendaVO agendaVO);
 
-    R leave(AgendaVO agendaVO,Long typeId);
+    R leave(AgendaVO agendaVO, Long typeId);
 
-    R applyForReimbursement(AgendaVO agendaVO,Long typeId);
+    R applyForReimbursement(AgendaVO agendaVO, Long typeId);
 
     R applyForReimbursementGroup(AgendaVO agendaVO);
 

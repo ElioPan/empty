@@ -1,7 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.ev.custom.dao.AgendaAccountingReportDao">
+<mapper namespace="com.ev.report.dao.AgendaAccountingReportDao">
+
+    <select id="userList" resultType="java.util.Map">
+        SELECT
+        sysuser.`user_id` AS userId,
+        sysuser.`name` AS userName,
+        sysuser.`dept_id` AS deptId,
+        dept.`name` as deptName
+        FROM
+        sys_user sysuser
+        LEFT JOIN sys_dept dept on dept.dept_id = sysuser.dept_id
+        <where>
+            <if test="status != null and status != ''"> and sysuser.status = #{status} </if>
+            <if test="deptId != null and deptId != ''"> and sysuser.dept_id = #{deptId} </if>
+            <if test="userId != null and userId != ''"> and sysuser.user_id = #{userId} </if>
+        </where>
+    </select>
 
     <select id="executeForDailyReport" resultType="java.util.Map">
 	SELECT
@@ -327,5 +343,6 @@
             </if>
         </where>
     </select>
+
 
 </mapper>

@@ -1,6 +1,5 @@
-package com.ev.custom.dao;
+package com.ev.report.dao;
 
-import com.ev.custom.vo.AgendaVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -42,4 +41,5 @@ public interface AgendaAccountingReportDao {
 
     Double paymentItemTotal(Map<String, Object> param);
 
+    List<Map<String, Object>> userList(Map<String, Object> params);
 }
