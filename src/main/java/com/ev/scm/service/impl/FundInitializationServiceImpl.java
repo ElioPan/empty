@@ -180,34 +180,10 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 
         List<Map<String, Object>>  bankDetails= new ArrayList<>();
         if(!outBankDetails.isEmpty()){
-                for(Map<String, Object> oneMap:outBankDetails){
-                   String fundDate=oneMap.get("fundDate").toString();
-                   Map<String,Object>  query= new HashMap<>();
-                    query.put("fundDate",fundDate);
-                    query.put("transferOutAcc",founId);
-                    int outAmount = bankTransferItemService.totalOutOrInAmount(query);
-                    query.remove("transferOutAcc");
-                    query.put("transferInAcc",founId);
-                    int inAmount = bankTransferItemService.totalOutOrInAmount(query);
-                    BigDecimal remainingAmount=initialAmount.add(new BigDecimal(inAmount)).subtract(new BigDecimal(outAmount));
-                    oneMap.put("remainingAmount",remainingAmount);
-                    oneMap.put("companyName",ConstantForGYL.company_ame);
-                }
+            outBankDetails= this.disposeAmount(outBankDetails, founId, initialAmount);
          }
         if(!inBankDetails.isEmpty()){
-            for(Map<String, Object> oneMap:inBankDetails){
-                String fundDate=oneMap.get("fundDate").toString();
-                Map<String,Object>  query= new HashMap<>();
-                query.put("fundDate",fundDate);
-                query.put("transferOutAcc",founId);
-                int outAmount = bankTransferItemService.totalOutOrInAmount(query);
-                query.remove("transferOutAcc");
-                query.put("transferInAcc",founId);
-                int inAmount = bankTransferItemService.totalOutOrInAmount(query);
-                BigDecimal remainingAmount=initialAmount.add(new BigDecimal(inAmount)).subtract(new BigDecimal(outAmount));
-                oneMap.put("remainingAmount",remainingAmount);
-                oneMap.put("companyName",ConstantForGYL.company_ame);
-            }
+            inBankDetails= this.disposeAmount(inBankDetails, founId, initialAmount);
         }
         if(!inBankDetails.isEmpty()&&!outBankDetails.isEmpty()){
             if(outBankDetails.addAll(inBankDetails)){
@@ -252,6 +228,23 @@ public class FundInitializationServiceImpl implements FundInitializationService 
         return R.ok(resulst);
     }
 
+
+    private   List<Map<String, Object>> disposeAmount(List<Map<String, Object>> list,Long  founId ,BigDecimal initialAmount){
+        for(Map<String, Object> oneMap:list){
+            String fundDate=oneMap.get("fundDate").toString();
+            Map<String,Object>  query= new HashMap<>();
+            query.put("fundDate",fundDate);
+            query.put("transferOutAcc",founId);
+            int outAmount = bankTransferItemService.totalOutOrInAmount(query);
+            query.remove("transferOutAcc");
+            query.put("transferInAcc",founId);
+            int inAmount = bankTransferItemService.totalOutOrInAmount(query);
+            BigDecimal remainingAmount=initialAmount.add(new BigDecimal(inAmount)).subtract(new BigDecimal(outAmount));
+            oneMap.put("remainingAmount",remainingAmount);
+            oneMap.put("companyName",ConstantForGYL.company_ame);
+        }
+        return  list;
+    }
 
 
 
