@@ -7,8 +7,8 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-@ApiModel(value = "日程报表参数")
-public class AgendaVO implements Serializable {
+@ApiModel(value = "共通参数")
+public class CommonVO implements Serializable {
     //当前第几页
     @ApiModelProperty(value = "当前第几页", required = true)
     private int pageno = 1;
@@ -25,6 +25,6 @@ public class AgendaVO implements Serializable {
     @ApiModelProperty(value = "部门")
     private Long deptId;
     //职员
-    @ApiModelProperty(value = "职员")
+    @ApiModelProperty(value = "员工")
     private Long userId;
 }

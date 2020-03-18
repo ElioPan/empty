@@ -1,6 +1,6 @@
 package com.ev.report.service;
 
-import com.ev.report.vo.AgendaVO;
+import com.ev.report.vo.CommonVO;
 import com.ev.framework.utils.R;
 
 /**
@@ -12,25 +12,25 @@ import com.ev.framework.utils.R;
  */
 public interface AgendaAccountingReportService {
 
-    R execute(AgendaVO agendaVO);
+    R execute(CommonVO commonVO);
 
-    R overtime(AgendaVO agendaVO);
+    R overtime(CommonVO commonVO);
 
-    R overtimeItem(AgendaVO agendaVO);
+    R overtimeItem(CommonVO commonVO);
 
-    R leaveGroup(AgendaVO agendaVO);
+    R leaveGroup(CommonVO commonVO);
 
-    R leaveTypeGroup(AgendaVO agendaVO);
+    R leaveTypeGroup(CommonVO commonVO);
 
-    R leave(AgendaVO agendaVO, Long typeId);
+    R leave(CommonVO commonVO, Long typeId);
 
-    R applyForReimbursement(AgendaVO agendaVO, Long typeId);
+    R applyForReimbursement(CommonVO commonVO, Long typeId);
 
-    R applyForReimbursementGroup(AgendaVO agendaVO);
+    R applyForReimbursementGroup(CommonVO commonVO);
 
-    R applyForReimbursementTypeGroup(AgendaVO agendaVO);
+    R applyForReimbursementTypeGroup(CommonVO commonVO);
 
-    R payment(AgendaVO agendaVO);
+    R payment(CommonVO commonVO);
 
-    R paymentItem(AgendaVO agendaVO);
+    R paymentItem(CommonVO commonVO);
 }
