@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.DeviceAccountingReportDao">
+
+
+    <select id="deviceList" resultType="map" parameterType="com.ev.custom.vo.DeviceVO">
+        SELECT
+        device.`id` AS id,
+        device.serialno AS serialno,
+        device.`name` AS `name`,
+        device.model AS model,
+        type.`name` AS typeName,
+        uses.`name` AS usingStatusName,
+        device.site AS site,
+        dept.`name` AS deptName,
+        users.`name` AS userName,
+        device.using_time AS usingTime,
+        device.buy_time AS buyTime
+        FROM cus_device device
+        LEFT JOIN cus_dictionary type on device.type = type.id
+        LEFT JOIN cus_dictionary uses on device.using_status = uses.id
+        LEFT JOIN sys_dept dept ON dept.dept_id=device.dept_id
+        LEFT JOIN sys_user users ON users.user_id=device.user_id
+        <where>
+            <if test="nameAndCode != null and nameAndCode != ''"> and CONCAT(`name`,`serialno`) LIKE #{nameAndCode} </if>
+            <if test="type != null and type != ''"> and type = #{type} </if>
+            <if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
+            <if test="usingStatus != null and usingStatus != ''"> and using_status = #{usingStatus} </if>
+            AND device.del_flag=0
+        </where>
+    </select>
+    <select id="repairList" resultType="com.ev.custom.domain.RepairRecordDO">
+        SELECT
+        record.`id`,
+        record.`type`,
+        record. `level`,
+        record.`usage`,
+        record.`status`,
+        record.`create_by`,
+        record.`create_time`,
+        record.`start_time`,
+        record. `end_time`,
+        record.`man_hour`,
+        record.`cost`,
+        record.`content`,
+        record.`cause`,
+        record.`solution`,
+        record.`event_id`,
+        record.`update_by`,
+        record.`update_time`,
+        record.`del_flag`,
+        record.`off_time`,
+        record.`off_hour`,
+        event.device_id
+        FROM
+        cus_repair_record record
+        LEFT JOIN cus_repair_event event ON event.id=record.event_id
+        <where>
+            <if test="id != null and id != ''"> and record.id = #{id} </if>
+            <if test="status != null and status != ''"> and record.status = #{status} </if>
+            <if test="deviceIds != null and deviceIds.size()>0"> and event.device_id IN
+                <foreach item="item" collection="deviceIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+            AND record.status <![CDATA[<>]]> 146
+        </where>
+    </select>
+
+    <select id="repairEventList" resultType="com.ev.custom.domain.RepairEventDO">
+        SELECT
+        `id`,
+        `work_orderNo`,
+        `type`,
+        `level`,
+        `usage`,
+        `engineer_id`,
+        `plan_time`,
+        `man_hour`,
+        `cost`,
+        `status`,
+        `content`,
+        `device_id`,
+        `create_by`,
+        `create_time`,
+        `parent_id`,
+        `parent_type`,
+        `update_by`,
+        `update_time`,
+        `del_flag`
+        FROM
+        cus_repair_event
+        <where>
+            <if test="id != null and id != ''"> and id = #{id} </if>
+            <if test="status != null and status != ''"> and status = #{status} </if>
+            AND status <![CDATA[<>]]> 146
+        </where>
+    </select>
+
+
+    <select id="upkeepList" resultType="com.ev.custom.domain.UpkeepRecordDO">
+        SELECT
+        `id`,
+        `man_hour_cost`,
+        `work_orderNo`,
+        `name`,
+        `start_time`,
+        `end_time`,
+        `actual_start_time`,
+        `actual_end_time`,
+        `upkeep_level`,
+        `man_hour`,
+        `engineer_id`,
+        `down_hour`,
+        `cost`,
+        `status`,
+        `result`,
+        `closure_reason`,
+        `content`,
+        `plan_id`,
+        `device_id`,
+        `create_by`,
+        `create_time`,
+        `type`,
+        `message_id`,
+        `update_by`,
+        `update_time`,
+        `del_flag`
+        FROM
+        cus_upkeep_record
+        <where>
+            <if test="id != null and id != ''"> and id = #{id} </if>
+            <if test="status != null and status != ''"> and status = #{status} </if>
+            <if test="deviceIds != null and deviceIds.size()>0"> and device_id IN
+                <foreach item="item" collection="deviceIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+            AND status <![CDATA[<>]]> 146
+        </where>
+    </select>
+    <select id="patrolList" resultType="com.ev.custom.domain.PatrolRecordDO">
+        SELECT
+        record.`id`,
+        record.`work_orderNo`,
+        record.`name`,
+        record.`engineer_id`,
+        record.`cellphone`,
+        record.`start_time`,
+        record.`end_time`,
+        record.`status`,
+        record.`content`,
+        record.`result`,
+        record.`plan_id`,
+        record.`inform_id`,
+        record.`complete_time`,
+        record.`close_reason`,
+        record.`create_by`,
+        record.`create_time`,
+        record.`update_by`,
+        record.`update_time`,
+        record.`del_flag`,
+        plan.link_device_id AS device_id
+        FROM
+        cus_patrol_record record
+        LEFT JOIN cus_patrol_plan_detail plan on record.`plan_id` = plan.link_patrol_plan_id
+        <where>
+            <if test="id != null and id != ''"> and record.id = #{id} </if>
+            <if test="status != null and status != ''"> and record.status != #{status} </if>
+            <if test="deviceIds != null and deviceIds.size()>0"> and plan.link_device_id IN
+                <foreach item="item" collection="deviceIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+            AND record.status <![CDATA[<>]]> 146
+        </where>
+
+    </select>
+
+
+
+</mapper>
