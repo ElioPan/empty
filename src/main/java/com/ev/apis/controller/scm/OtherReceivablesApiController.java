@@ -89,7 +89,7 @@ public class OtherReceivablesApiController {
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime",defaultValue = "") String startTime,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime",defaultValue = "") String endTime,
             @ApiParam(value = "审核") @RequestParam(value = "auditSign",defaultValue = "") Long auditSign,
-            @ApiParam(value = "单据号") @RequestParam(value = "id",defaultValue = "") String code ) {
+            @ApiParam(value = "单据号") @RequestParam(value = "code",defaultValue = "") String code ) {
 
         Map<String,Object> map= new HashMap<>();
         map.put("offset",(pageno-1)*pagesize);
