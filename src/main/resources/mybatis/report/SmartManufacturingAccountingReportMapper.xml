@@ -147,6 +147,52 @@
         </where>
     </select>
 
+    <select id="productionInspection" resultType="com.ev.report.domain.MaterialInspectionDO">
+        SELECT
+            `id`,
+            `inspection_type`,
+            `source_id`,
+            `source_no`,
+            `source_type`,
+            `supplier_id`,
+            `client_id`,
+            `dept_id`,
+            `inspector`,
+            `materiel_id`,
+            `batch_no`,
+            `inspection_scheme`,
+            `send_count`,
+            `inspection_count`,
+            `qualified_count`,
+            `unqualified_count`,
+            `inspection_no`,
+            `industrial_waste_count`,
+            `scrap_waste_count`,
+            `auditor`,
+            `status`,
+            `is_printed_qrcode`,
+            `remarks`,
+            `create_by`,
+            `create_time`,
+            `update_by`,
+            `update_time`,
+            `del_flag`
+        FROM
+            mes_material_inspection
+        <where>
+            <if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+            <if test="inspectionType != null and inspectionType != ''"> and inspection_type = #{inspectionType} </if>
+            <if test="planIds != null and planIds.size()>0"> and source_id IN
+                <foreach item="item" collection="planIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
+
+    </select>
+
     <select id="stockInItem" resultType="com.ev.report.domain.StockInItemDO">
         SELECT
         `id`,

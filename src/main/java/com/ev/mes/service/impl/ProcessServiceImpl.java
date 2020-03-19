@@ -23,10 +23,7 @@ import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 
 @Service
@@ -114,6 +111,10 @@ public class ProcessServiceImpl implements ProcessService {
                     processDeviceDao.save(deviceDO);
                 }
             }
+            //删除路径
+            Long[] ids = {processDO.getId()};
+            contentAssocService.removeByAssocIdAndType(ids, Constant.PROCESS_FILE);
+
             // 上传附件
             if (StringUtils.isNoneBlank(uploadAttachment)) {
                 contentAssocService.saveList(processDO.getId(), JSONArray.parseArray(uploadAttachment), Constant.PROCESS_FILE);
