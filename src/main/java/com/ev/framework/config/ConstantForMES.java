@@ -7,7 +7,7 @@ package com.ev.framework.config;
 public final class ConstantForMES{
 
 
-    private ConstantForMES() {
+	private ConstantForMES() {
 	}
 	/**
 	 * 待审核
@@ -157,6 +157,11 @@ public final class ConstantForMES{
 	 * 工序类型Type
 	 */
 	public static final String PROCESS_TYPE = "process_type";
+
+	/**
+	 * 产品检验
+	 */
+	public static final Integer CPJY = 217;
 
 
 }

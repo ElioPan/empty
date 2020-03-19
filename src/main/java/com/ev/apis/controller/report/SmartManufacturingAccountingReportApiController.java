@@ -64,8 +64,8 @@ public class SmartManufacturingAccountingReportApiController {
         List<Map<String, Object>> data = reportService.productionPlanList(params);
         int total = reportService.productionPlanCount(params);
         if (data.size() > 0) {
-            Pair<List<Map<String,Object>>,Map<String, BigDecimal>> productionPlan = reportService.processPlan(data,false);
-            Pair<List<Map<String,Object>>,Map<String, BigDecimal>> totalProductionPlan = reportService.processPlan(totalData,true);
+            Pair<List<Map<String,Object>>,Map<String, BigDecimal>> productionPlan = reportService.productionPlan(data,false);
+            Pair<List<Map<String,Object>>,Map<String, BigDecimal>> totalProductionPlan = reportService.productionPlan(totalData,true);
             results.put("total", totalProductionPlan.getRight());
             results.put("data", new DsResultResponse(pageno,pagesize,total,productionPlan.getLeft()));
         }
@@ -104,10 +104,10 @@ public class SmartManufacturingAccountingReportApiController {
         List<Map<String, Object>> data = reportService.processPlanList(params);
         int total = reportService.processPlanCount(params);
         if (data.size() > 0) {
-            Pair<List<Map<String,Object>>,Map<String, BigDecimal>> productionPlan = reportService.processPlan(data,false);
-            Pair<List<Map<String,Object>>,Map<String, BigDecimal>> totalProductionPlan = reportService.processPlan(totalData,true);
-            results.put("total", totalProductionPlan.getRight());
-            results.put("data", new DsResultResponse(pageno,pagesize,total,productionPlan.getLeft()));
+            Pair<List<Map<String,Object>>,Map<String, BigDecimal>> processPlan = reportService.processPlan(data,false);
+            Pair<List<Map<String,Object>>,Map<String, BigDecimal>> totalProcessPlan = reportService.processPlan(totalData,true);
+            results.put("total", totalProcessPlan.getRight());
+            results.put("data", new DsResultResponse(pageno,pagesize,total,processPlan.getLeft()));
         }
         return R.ok(results);
     }
