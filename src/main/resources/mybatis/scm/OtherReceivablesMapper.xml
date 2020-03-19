@@ -146,5 +146,149 @@
 			#{id}
 		</foreach>
 	</delete>
-	
+
+	<select id="countCanDelte" resultType="int">
+		SELECT
+		COUNT(*)
+		FROM
+		scm_other_receivables
+		where
+		audit_sign=178
+		and id in
+		<foreach item="id" collection="ids" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+
+	<select id="getHeadDetail" resultType="map">
+		select
+		a.id,
+		a.supplier_client_id as supplierClientId,
+		b.name as supplierName,
+		c.name as clientName,
+		a.code,
+		a.amount,
+		a.digest,
+		a.dept_id as deptId,
+		d.name  as deptName,
+		a.audit_sign as auditSign,
+		e.name as auditSignName,
+		a.auditor,
+		f.name as auditorName,
+		a.create_by as createBy,
+		g.name  as createByName,
+		a.create_time as createTime
+		from
+		scm_other_receivables a
+		LEFT JOIN  cus_supplier b ON a.supplier_client_id=b.id
+		LEFT JOIN cus_client c on  a.supplier_client_id=c.id
+		LEFT JOIN sys_dept d on  a.dept_id=d.dept_id
+		LEFT JOIN cus_dictionary e on  a.audit_sign=e.id
+		LEFT JOIN sys_user f on  a.auditor=f.user_id
+		LEFT JOIN sys_user g on  a.create_by=g.user_id
+		WHERE
+		a.id=#{value}
+	</select>
+
+	<select id="listForMap" resultType="map">
+		SELECT
+		*
+		from
+		(
+		select
+		a.sign,
+		a.id,
+		a.supplier_client_id as supplierClientId,
+		b.name as supplierName,
+		c.name as clientName,
+		a.code,
+		a.amount,
+		a.digest,
+		a.dept_id as deptId,
+		d.name  as deptName,
+		a.audit_sign as auditSign,
+		e.name as auditSignName,
+		a.auditor,
+		f.name as auditorName,
+		a.create_by as createBy,
+		g.name  as createByName,
+		a.create_time as createTime
+		from
+		scm_other_receivables a
+		LEFT JOIN  cus_supplier b ON a.supplier_client_id=b.id
+		LEFT JOIN cus_client c on  a.supplier_client_id=c.id
+		LEFT JOIN sys_dept d on  a.dept_id=d.dept_id
+		LEFT JOIN cus_dictionary e on  a.audit_sign=e.id
+		LEFT JOIN sys_user f on  a.auditor=f.user_id
+		LEFT JOIN sys_user g on  a.create_by=g.user_id
+		) aa
+		<where>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="sign != null and sign != ''"> AND sign = #{sign} </if>
+			<if test="auditSign != null and auditSign != ''"> AND auditSign = #{auditSign} </if>
+			<if test="code != null and code != ''"> AND code = #{code} </if>
+			<if test="supplierName != null and supplierName != ''"> AND supplierName Like CONCAT('%',#{supplierClientId},'%')  </if>
+			<if test="clientName != null and clientName != ''"> AND clientName Like CONCAT('%',#{clientName},'%') </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY ${sort} ${order}
+			</when>
+			<otherwise>
+				ORDER BY id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="countForMap" resultType="map">
+			SELECT
+			count(id) as `count`,
+			IF(sum(amount) is null,0,sum(amount)) as totailAmount
+			from
+			(
+			select
+			a.sign,
+			a.id,
+			a.supplier_client_id as supplierClientId,
+			b.name as supplierName,
+			c.name as clientName,
+			a.code,
+			a.amount,
+			a.digest,
+			a.dept_id as deptId,
+			d.name  as deptName,
+			a.audit_sign as auditSign,
+			e.name as auditSignName,
+			a.auditor,
+			f.name as auditorName,
+			a.create_by as createBy,
+			g.name  as createByName,
+			a.create_time as createTime
+			from
+			scm_other_receivables a
+			LEFT JOIN  cus_supplier b ON a.supplier_client_id=b.id
+			LEFT JOIN cus_client c on  a.supplier_client_id=c.id
+			LEFT JOIN sys_dept d on  a.dept_id=d.dept_id
+			LEFT JOIN cus_dictionary e on  a.audit_sign=e.id
+			LEFT JOIN sys_user f on  a.auditor=f.user_id
+			LEFT JOIN sys_user g on  a.create_by=g.user_id
+			) aa
+			<where>
+				<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+				<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+				<if test="sign != null and sign != ''"> AND sign = #{sign} </if>
+				<if test="auditSign != null and auditSign != ''"> AND auditSign = #{auditSign} </if>
+				<if test="code != null and code != ''"> AND code = #{code} </if>
+				<if test="supplierName != null and supplierName != ''"> AND supplierName Like CONCAT('%',#{supplierClientId},'%')  </if>
+				<if test="clientName != null and clientName != ''"> AND clientName Like CONCAT('%',#{clientName},'%') </if>
+			</where>
+	</select>
+
+
+
 </mapper>

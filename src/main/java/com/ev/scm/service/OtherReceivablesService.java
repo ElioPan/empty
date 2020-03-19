@@ -32,4 +32,22 @@ public interface OtherReceivablesService {
 	int batchRemove(Long[] ids);
 
 	R disposeAddAndChange(OtherReceivablesDO otherReceivablesDO, String  bodys, Long[] deleItemIds, String sign);
+
+	R disposeAudit(Long id );
+
+	R disposeReverseAudit(Long id );
+
+	R dispoRemove(Long[] ids);
+
+	int countCanDelte(Map<String, Object> map);
+
+	R getDetail(Long id);
+
+	Map<String, Object> getHeadDetail(Long id);
+
+	Map<String, Object> countForMap(Map<String, Object> map);
+
+	List<Map<String, Object>> listForMap(Map<String, Object> map);
+
+
 }

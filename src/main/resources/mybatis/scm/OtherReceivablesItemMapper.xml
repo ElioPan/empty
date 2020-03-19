@@ -130,5 +130,43 @@
 			#{id}
 		</foreach>
 	</delete>
-	
+
+	<delete id="batchRemoveByHeadId">
+		DELETE
+		FROM
+		scm_other_receivables_item
+		WHERE received_id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="getBodyDetail" resultType="map">
+		select
+		a.id,
+		a.accrual_date as accrualDate,
+		a.receivable_payables_amount AS receivablePayablesAmount,
+		a.paid_received_amount as paidReceivedAmount,
+		a.no_receipt_payment_amount as noReceiptPaymentAmount,
+		a.remarks
+		from
+		scm_other_receivables_item a
+		where
+		a.received_id=#{value}
+	</select>
+
+	<select id="totailAmount" resultType="map">
+		select
+		IF(SUM(receivable_payables_amount) is null,0,SUM(receivable_payables_amount)) as totailReceivablePayablesAmount,
+		IF(SUM(paid_received_amount) is null,0,SUM(paid_received_amount)) as totailPaidReceivedAmount,
+		IF(SUM(no_receipt_payment_amount) is null,0,SUM(no_receipt_payment_amount)) as totailNoReceiptPaymentAmount
+		from
+		scm_other_receivables_item
+		where
+		received_id=#{value}
+	</select>
+
+
+
+
 </mapper>

@@ -56,5 +56,20 @@ public class OtherReceivablesItemServiceImpl implements OtherReceivablesItemServ
 	public int batchRemove(Long[] ids){
 		return otherReceivablesItemDao.batchRemove(ids);
 	}
-	
+
+	@Override
+	public int batchRemoveByHeadId(Long[] ids) {
+		return otherReceivablesItemDao.batchRemoveByHeadId(ids);
+	}
+
+	@Override
+	public List<Map<String, Object>> getBodyDetail(Long id) {
+		return otherReceivablesItemDao.getBodyDetail(id);
+	}
+
+	@Override
+	public Map<String, Object> totailAmount(Long id) {
+		return otherReceivablesItemDao.totailAmount(id);
+	}
+
 }

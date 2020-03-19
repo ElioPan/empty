@@ -1,11 +1,10 @@
 package com.ev.scm.dao;
 
 import com.ev.scm.domain.OtherReceivablesItemDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 import java.util.Map;
-
-import org.apache.ibatis.annotations.Mapper;
 
 /**
  * 其他应收应付明细
@@ -31,4 +30,12 @@ public interface OtherReceivablesItemDao {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+	int batchRemoveByHeadId(Long[] ids);
+
+	List<Map<String, Object>> getBodyDetail(Long id);
+
+	Map<String, Object> totailAmount(Long id);
+
+
 }

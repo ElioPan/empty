@@ -12,6 +12,7 @@ import java.util.Map;
  * @email 286600136@qq.com
  * @date 2020-03-18 16:27:57
  */
+
 public interface OtherReceivablesItemService {
 	
 	OtherReceivablesItemDO get(Long id);
@@ -29,4 +30,13 @@ public interface OtherReceivablesItemService {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+	int batchRemoveByHeadId(Long[] ids);
+
+	List<Map<String, Object>> getBodyDetail(Long id);
+
+	Map<String, Object> totailAmount(Long id);
+
+
+
 }
