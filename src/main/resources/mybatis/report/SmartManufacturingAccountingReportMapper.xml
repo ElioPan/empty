@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.report.dao.SmartManufacturingAccountingReportDao">
+
+    <select id="productionPlanList" resultType="java.util.Map">
+        SELECT
+        plan.`id` AS id,
+        IFNULL(plan.`plan_no`,0) AS planNo,
+        dicts.`name` AS  planStatusName,
+        dept.`name` AS deptName,
+        materiel.serial_no AS materielSerialNo,
+        materiel.name AS materielName,
+        materiel.specification AS specification,
+        unituom.name AS unitUomName,
+        IFNULL(plan.`plan_end_time`,'') AS planEndTime,
+        IFNULL(plan.`actual_finish_time`,'') AS actualFinishTime,
+        plan.`plan_count` AS planCount
+        <include refid="sql_productionPlanList_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+            <otherwise>
+                ORDER BY plan.`id` DESC
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+    <select id="productionPlanCount" resultType="java.lang.Integer">
+        SELECT
+        COUNT(*)
+        <include refid="sql_productionPlanList_condition"/>
+    </select>
+    <sql id="sql_productionPlanList_condition">
+        FROM mes_production_plan plan
+        LEFT JOIN cus_materiel materiel ON materiel.`id`= plan.`materiel_id`
+        LEFT JOIN cus_dictionary unituom ON unituom.id = materiel.`unit_uom`
+        LEFT JOIN sys_dept dept ON dept.`dept_id`=plan.`pro_dept`
+        LEFT JOIN cus_dictionary dicts ON dicts.id = plan.`status`
+        <where>
+            <if test="id != null and id != ''"> and plan.id = #{id} </if>
+            <if test="planCode != null and planCode != ''"> and plan.`plan_no` = #{planCode} </if>
+            <if test="materielId != null and materielId != ''"> and plan.`materiel_id` = #{materielId} </if>
+            <if test="deptId != null and deptId != ''"> and plan.`pro_dept` = #{deptId} </if>
+            <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(plan.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(plan.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="materielSerialNo != null and materielSerialNo != ''"> and materiel.serial_no LIKE #{materielSerialNo} </if>
+        </where>
+    </sql>
+
+    <select id="processReport" resultType="com.ev.report.domain.ProcessReportDO">
+        SELECT
+        report.id,
+        report.`code`,
+        report.`dispatch_item_id`,
+        report.`supplier_id`,
+        IFNULL(report.`completion_count`,0),
+        IFNULL(report.`conformity_count`,0),
+        IFNULL(report.`rework_count`,0),
+        IFNULL(report.`scrap_count`,0),
+        report.`status`,
+        report.`create_by`,
+        report.`create_time`,
+        report.`update_by`,
+        report.`update_time`,
+        report.`del_flag`,
+        dispatch.foriegn_id AS process_plan_item_id
+        FROM
+        mes_process_report report
+        LEFT JOIN mes_dispatch_item dispatch ON dispatch.id = report.dispatch_item_id
+        <where>
+            <if test="planIds != null and planIds.size()>0"> and dispatch.foriegn_id  IN
+                <foreach item="item" collection="planIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="processReportCheck" resultType="com.ev.report.domain.ProcessReportCheckDO">
+        SELECT
+        rcheck.id,
+        rcheck.`code`,
+        rcheck.`process_report_id`,
+        rcheck.`materia_id`,
+        rcheck.`supplier_id`,
+        rcheck.`check_plan_id`,
+        IFNULL(rcheck.`conformity_count`,0),
+        IFNULL(rcheck.`rework_count`,0),
+        IFNULL(rcheck.`scrap_count`,0),
+        IFNULL(rcheck.`check_count`,0),
+        rcheck.`status`,
+        rcheck.`create_by`,
+        rcheck.`create_time`,
+        rcheck.`update_by`,
+        rcheck.`update_time`,
+        rcheck.`del_flag`,
+        dispatch.foriegn_id AS process_plan_item_id
+        FROM
+        mes_process_report_check rcheck
+        LEFT JOIN mes_process_report report ON report.id = rcheck.process_report_id
+        LEFT JOIN mes_dispatch_item dispatch ON dispatch.id = report.dispatch_item_id
+        <where>
+            <if test="planIds != null and planIds.size()>0"> and  dispatch.foriegn_id IN
+                <foreach item="item" collection="planIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="materielScrapItem" resultType="com.ev.report.domain.MaterialsScrapItemDO">
+        SELECT
+        item.`id`,
+        item.`scrap_id`,
+        item.`material_id`,
+        item.`batch`,
+        item.`scrap_reason`,
+        IFNULL(item.`scrap_count`,0),
+        item.`remark`,
+        item.`create_by`,
+        item.`create_time`,
+        item.`update_by`,
+        item.`update_time`,
+        item.`del_flag`,
+        feeding.production_plan_id
+        FROM
+        mes_materials_scrap_item item
+        LEFT JOIN mes_materials_scrap scrap ON scrap.id = item.scrap_id
+        LEFT JOIN mes_production_feeding_detail detail ON detail.id = scrap.foreign_id
+        LEFT JOIN mes_production_feeding feeding ON feeding.id = detail.head_id
+        <where>
+            <if test="planIds != null and planIds.size()>0"> and feeding.production_plan_id IN
+                <foreach item="item" collection="planIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="stockInItem" resultType="com.ev.report.domain.StockInItemDO">
+        SELECT
+        `id`,
+        `inhead_id`,
+        `materiel_id`,
+        `batch`,
+        `count`,
+        `unit_price`,
+        `amount`,
+        `warehouse`,
+        `wareh_location`,
+        `return_reason`,
+        `source_type`,
+        `source_code`,
+        `source_id`,
+        `expense`,
+        `cost`,
+        `create_by`,
+        `create_time`,
+        `update_by`,
+        `update_time`,
+        `del_flag`,
+        `qrcode_id`,
+        `account_source`
+        FROM
+        scm_stock_in_item
+        <where>
+            <if test="planIds != null and planIds.size()>0"> and source_id IN
+                <foreach item="item" collection="planIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+            <if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+        </where>
+    </select>
+
+    <select id="processPlanList" resultType="java.util.Map">
+        SELECT
+        detail.`id`,
+        plan.`work_order_no` AS planNo,
+        dicts.`name` AS planStatusName,
+        dept.`name` AS deptName,
+        materiel.serial_no AS materielSerialNo,
+        materiel.`name` AS materielName,
+        materiel.specification AS specification,
+        unituom.`name` AS unitUomName,
+        process.`name` AS processName,
+        IFNULL(detail.`plan_end_time`, '') AS planEndTime,
+        IFNULL(detail.reality_end_time, '') AS actualFinishTime,
+        IFNULL(detail.plan_count, 0) AS planCount
+        <include refid="sql_processPlan_condition"/>
+    </select>
+    <select id="processPlanCount" resultType="java.lang.Integer">
+        SELECT
+        COUNT(*)
+        <include refid="sql_processPlan_condition"/>
+    </select>
+    <sql id="sql_processPlan_condition">
+        FROM
+        mes_working_procedure_detail detail
+        LEFT JOIN mes_working_procedure_plan plan ON plan.id = detail.plan_id
+        LEFT JOIN sys_dept dept ON dept.dept_id = detail.dept_id
+        LEFT JOIN mes_process process ON process.id = detail.process_id
+        LEFT JOIN cus_dictionary dicts ON dicts.id = plan.`status`
+        LEFT JOIN cus_materiel materiel ON materiel.`id` = plan.`materiel_id`
+        LEFT JOIN cus_dictionary unituom ON unituom.id = materiel.`unit_uom`
+        <where>
+            <if test="id != null and id != ''"> and plan.id = #{id} </if>
+            <if test="planCode != null and planCode != ''"> and plan.`work_order_no` = #{planCode} </if>
+            <if test="materielId != null and materielId != ''"> and plan.`materiel_id` = #{materielId} </if>
+            <if test="deptId != null and deptId != ''"> and detail.`dept_id` = #{deptId} </if>
+            <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(plan.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(plan.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="materielSerialNo != null and materielSerialNo != ''"> and materiel.serial_no LIKE #{materielSerialNo} </if>
+            <if test="status != null and status != ''"> and plan.status <![CDATA[<>]]> #{status} </if>
+        </where>
+    </sql>
+
+
+    <select id="productionBatchList" resultType="java.util.Map">
+
+    </select>
+    <select id="productionBatchCount" resultType="java.lang.Integer">
+
+    </select>
+    <select id="processOutputList" resultType="java.util.Map">
+
+    </select>
+    <select id="processOutputCount" resultType="java.lang.Integer">
+
+    </select>
+
+
+
+</mapper>

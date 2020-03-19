@@ -1,6 +1,9 @@
 package com.ev.mes.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.ev.custom.domain.ContentAssocDO;
+import com.ev.custom.service.ContentAssocService;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -28,6 +31,8 @@ public class DispatchItemServiceImpl implements DispatchItemService {
     private DispatchItemDao dispatchItemDao;
     @Autowired
     private WorkingProcedureDetailService workingProcedureDetailService;
+    @Autowired
+    private ContentAssocService contentAssocService;
     @Autowired
     private DispatchWorkingHungService dispatchWorkingHungService;
     @Autowired
@@ -401,8 +406,16 @@ public class DispatchItemServiceImpl implements DispatchItemService {
         Map<String,Object>  map= new HashMap<String,Object>();
         List<Map<String, Object>> startWorkByOperator = dispatchItemDao.getStartWorkByOperator(operatorId);
         if (!startWorkByOperator.isEmpty()){
-           map.put("data",startWorkByOperator.get(0));
+            Map<String, Object> data = startWorkByOperator.get(0);
+            map.put("data",data);
+            Map<String,Object> param = Maps.newHashMap();
+            // 获取附件信息
+            param.put("assocId",data.getOrDefault("processId",0));
+            param.put("assocType", Constant.PROCESS_FILE);
+            List<ContentAssocDO> checkResultList = contentAssocService.list(param);
+            map.put("fileList", checkResultList);
         }
+
         return R.ok(map);
     }
 
