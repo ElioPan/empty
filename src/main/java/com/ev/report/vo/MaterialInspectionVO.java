@@ -1,4 +1,4 @@
-package com.ev.report.domain;
+package com.ev.report.vo;
 
 import lombok.Data;
 
@@ -14,7 +14,7 @@ import java.util.Date;
  * @date 2020-03-19 12:54:56
  */
 @Data
-public class MaterialInspectionDO implements Serializable {
+public class MaterialInspectionVO implements Serializable {
 	private static final long serialVersionUID = 1L;
 	//
 	private Long id;

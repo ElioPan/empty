@@ -48,10 +48,11 @@
             <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(plan.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(plan.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
             <if test="materielSerialNo != null and materielSerialNo != ''"> and materiel.serial_no LIKE #{materielSerialNo} </if>
+            <if test="status != null and status != ''"> and plan.status <![CDATA[<>]]> #{status} </if>
         </where>
     </sql>
 
-    <select id="processReport" resultType="com.ev.report.domain.ProcessReportDO">
+    <select id="processReport" resultType="com.ev.report.vo.ProcessReportVO">
         SELECT
         report.id,
         report.`code`,
@@ -82,7 +83,7 @@
         </where>
     </select>
 
-    <select id="processReportCheck" resultType="com.ev.report.domain.ProcessReportCheckDO">
+    <select id="processReportCheck" resultType="com.ev.report.vo.ProcessReportCheckVO">
         SELECT
         rcheck.id,
         rcheck.`code`,
@@ -116,7 +117,7 @@
         </where>
     </select>
 
-    <select id="materielScrapItem" resultType="com.ev.report.domain.MaterialsScrapItemDO">
+    <select id="materielScrapItem" resultType="com.ev.report.vo.MaterialsScrapItemVO">
         SELECT
         item.`id`,
         item.`scrap_id`,
@@ -147,7 +148,7 @@
         </where>
     </select>
 
-    <select id="productionInspection" resultType="com.ev.report.domain.MaterialInspectionDO">
+    <select id="productionInspection" resultType="com.ev.report.vo.MaterialInspectionVO">
         SELECT
             `id`,
             `inspection_type`,
@@ -181,6 +182,7 @@
             mes_material_inspection
         <where>
             <if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+            <if test="status != null and status != ''"> and status = #{status} </if>
             <if test="inspectionType != null and inspectionType != ''"> and inspection_type = #{inspectionType} </if>
             <if test="planIds != null and planIds.size()>0"> and source_id IN
                 <foreach item="item" collection="planIds" open="(" separator="," close=")" index="index">
@@ -193,7 +195,7 @@
 
     </select>
 
-    <select id="stockInItem" resultType="com.ev.report.domain.StockInItemDO">
+    <select id="stockInItem" resultType="com.ev.report.vo.StockInItemVO">
         SELECT
         `id`,
         `inhead_id`,

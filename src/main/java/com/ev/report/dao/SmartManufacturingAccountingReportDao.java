@@ -1,6 +1,6 @@
 package com.ev.report.dao;
 
-import com.ev.report.domain.*;
+import com.ev.report.vo.*;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -32,13 +32,13 @@ public interface SmartManufacturingAccountingReportDao {
 
     int processOutputCount(Map<String, Object> params);
 
-    List<ProcessReportDO> processReport(Map<String, Object> param);
+    List<ProcessReportVO> processReport(Map<String, Object> param);
 
-    List<ProcessReportCheckDO> processReportCheck(Map<String, Object> param);
+    List<ProcessReportCheckVO> processReportCheck(Map<String, Object> param);
 
-    List<MaterialsScrapItemDO> materielScrapItem(Map<String, Object> param);
+    List<MaterialsScrapItemVO> materielScrapItem(Map<String, Object> param);
 
-    List<StockInItemDO> stockInItem(Map<String, Object> param);
+    List<StockInItemVO> stockInItem(Map<String, Object> param);
 
-    List<MaterialInspectionDO> productionInspection(Map<String, Object> param);
+    List<MaterialInspectionVO> productionInspection(Map<String, Object> param);
 }
