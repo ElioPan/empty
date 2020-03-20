@@ -127,7 +127,6 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 		List<Map<String, Object>> saleContractorDate = this.disposeSaleContractorDate(parameter);
 		//收款单
 		List<Map<String, Object>> paymentDate= this.disposePaymentAmount(parameter, ConstantForGYL.ALL_BILL);
-
 		//组合
 		List<Map<String, Object>>  allDate= new ArrayList<>();
 		if(otherDate.size()>0){
@@ -166,15 +165,18 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 					return s0.compareTo(s1);
 				}
 			});
-
 			BigDecimal totailOughtAmount=BigDecimal.ZERO;
 			BigDecimal totailReceivedAmount=BigDecimal.ZERO;
+			BigDecimal remainingAmount=new BigDecimal(allDate.get(0).get("remainingAmount").toString());
 			for(Map<String, Object> oneDate:allDate){
 				oneDate.remove("time");
+				BigDecimal oughtAmount=new BigDecimal(oneDate.containsKey("oughtAmount")?oneDate.get("oughtAmount").toString():"0");
+				BigDecimal receivedAmount=new BigDecimal(oneDate.containsKey("receivedAmount")?oneDate.get("receivedAmount").toString():"0");
+				remainingAmount=remainingAmount.add(oughtAmount).subtract(receivedAmount);
+				oneDate.put("remainingAmount",remainingAmount);
 				totailOughtAmount=totailOughtAmount.add(new BigDecimal(oneDate.containsKey("oughtAmount")?oneDate.get("oughtAmount").toString():"0"));
-				totailReceivedAmount=totailOughtAmount.add(new BigDecimal(oneDate.containsKey("receivedAmount")?oneDate.get("receivedAmount").toString():"0"));
+				totailReceivedAmount=totailReceivedAmount.add(new BigDecimal(oneDate.containsKey("receivedAmount")?oneDate.get("receivedAmount").toString():"0"));
 			}
-
 			int pageno=Integer.parseInt(parameter.get("pageno").toString());
 			int pagesize=Integer.parseInt(parameter.get("pagesize").toString());
 			List<Map<String, Object>> quoteLists= PageUtils.startPage(allDate, pageno, pagesize);
