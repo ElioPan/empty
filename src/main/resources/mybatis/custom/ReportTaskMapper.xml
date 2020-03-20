@@ -48,7 +48,8 @@
 		dic.`name` as `statusName`,
 		diclst.`value` as `linkStageValue`,
 		diclst.`id` as linkStageValueId,
-		diclst.`name` as `linkStageName`
+		diclst.`name` as `linkStageName`,
+		taskmain.detail AS detail
 		FROM
 		(SELECT crt.* from cus_report_task crt LEFT JOIN cus_dictionary crtdic on crtdic.id = crt.`link_order_type` WHERE crtdic.`value`='BDBG') reporttask
 		LEFT JOIN cus_quality_report qualityreport ON reporttask.`link_order_no`= qualityreport.report_no
