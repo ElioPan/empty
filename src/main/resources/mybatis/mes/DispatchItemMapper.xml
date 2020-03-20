@@ -167,11 +167,14 @@
 		      when  b.already_count &lt; b.plan_count then '待派工'
 		      end  isDispatchin,
 		b.dept_id as  deptId,
-		f.id_path as idPath
+		f.id_path as idPath,
+		c.device_type AS deviceType,
+		processType.`name` AS deviceTypeName
 		from
 		mes_working_procedure_plan  a
 		LEFT JOIN mes_working_procedure_detail  b  on  a.id=b.plan_id
 		LEFT JOIN mes_process  c    on  b.process_id=c.id
+		LEFT JOIN cus_dictionary processType  on  processType.id=c.device_type
 		LEFT JOIN cus_materiel d    on  a.materiel_id=d.id
 		LEFT JOIN cus_dictionary e  on  b.is_dispatching=e.id
 		LEFT JOIN sys_dept f  on  b.dept_id=f.dept_id
