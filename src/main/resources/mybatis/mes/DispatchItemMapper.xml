@@ -222,12 +222,16 @@
 			d.specification,
 			c.name as processName,
 			a.already_count as alreadyCount,
-			a.plan_count  as planCount
+			a.plan_count  as planCount,
+			c.device_type AS deviceType,
+		    processType.`name` AS deviceTypeName
 		from
 		mes_working_procedure_detail a
 		LEFT JOIN mes_working_procedure_plan  b  on  a.plan_id=b.id
 		LEFT JOIN cus_materiel d  on  b.materiel_id=d.id
 		LEFT JOIN mes_process  c  on  a.process_id=c.id
+		LEFT JOIN cus_dictionary processType  on  processType.id=c.device_type
+
 		where
 		 a.id=#{value}
 	</select>
