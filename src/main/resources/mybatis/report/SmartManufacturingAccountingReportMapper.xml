@@ -6,7 +6,7 @@
     <select id="productionPlanList" resultType="java.util.Map">
         SELECT
         plan.`id` AS id,
-        IFNULL(plan.`plan_no`,0) AS planNo,
+        plan.`plan_no` AS planNo,
         dicts.`name` AS  planStatusName,
         dept.`name` AS deptName,
         materiel.serial_no AS materielSerialNo,
@@ -58,10 +58,10 @@
         report.`code`,
         report.`dispatch_item_id`,
         report.`supplier_id`,
-        IFNULL(report.`completion_count`,0),
-        IFNULL(report.`conformity_count`,0),
-        IFNULL(report.`rework_count`,0),
-        IFNULL(report.`scrap_count`,0),
+        IFNULL(report.`completion_count`,0) AS completion_count,
+        IFNULL(report.`conformity_count`,0) AS conformity_count,
+        IFNULL(report.`rework_count`,0) AS rework_count,
+        IFNULL(report.`scrap_count`,0) AS scrap_count,
         report.`status`,
         report.`create_by`,
         report.`create_time`,
@@ -91,10 +91,10 @@
         rcheck.`materia_id`,
         rcheck.`supplier_id`,
         rcheck.`check_plan_id`,
-        IFNULL(rcheck.`conformity_count`,0),
-        IFNULL(rcheck.`rework_count`,0),
-        IFNULL(rcheck.`scrap_count`,0),
-        IFNULL(rcheck.`check_count`,0),
+        IFNULL(rcheck.`conformity_count`,0) AS conformity_count,
+        IFNULL(rcheck.`rework_count`,0) AS rework_count,
+        IFNULL(rcheck.`scrap_count`,0) AS scrap_count,
+        IFNULL(rcheck.`check_count`,0) AS check_count,
         rcheck.`status`,
         rcheck.`create_by`,
         rcheck.`create_time`,
@@ -124,7 +124,7 @@
         item.`material_id`,
         item.`batch`,
         item.`scrap_reason`,
-        IFNULL(item.`scrap_count`,0),
+        IFNULL(item.`scrap_count`,0) AS scrap_count,
         item.`remark`,
         item.`create_by`,
         item.`create_time`,
@@ -248,6 +248,17 @@
         IFNULL(detail.reality_end_time, '') AS actualFinishTime,
         IFNULL(detail.plan_count, 0) AS planCount
         <include refid="sql_processPlan_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+            <otherwise>
+                ORDER BY detail.`id` DESC
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
     </select>
     <select id="processPlanCount" resultType="java.lang.Integer">
         SELECT

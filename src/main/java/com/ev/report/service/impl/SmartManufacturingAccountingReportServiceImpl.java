@@ -220,7 +220,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
         // 完工入库（工序计划关联下的生产入库数量）
         Map<Long, BigDecimal> stockInCountMap = stockInItemList
                 .stream()
-                .collect(Collectors.toMap(StockInItemVO::getSourceId, StockInItemVO::getCost, BigDecimal::add));
+                .collect(Collectors.toMap(StockInItemVO::getSourceId, StockInItemVO::getCount, BigDecimal::add));
 
         // 若是分页统计总数则不处理列表内的内容
         if (isTotalData) {
