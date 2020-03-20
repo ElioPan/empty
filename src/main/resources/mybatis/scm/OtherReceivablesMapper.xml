@@ -199,8 +199,10 @@
 		a.sign,
 		a.id,
 		a.supplier_client_id as supplierClientId,
-		b.name as supplierName,
-		c.name as clientName,
+		IF(a.sign='QTYS',c.name,c.name) as clientName,
+		IF(a.sign='QTYF',b.name,b.name) as supplierName,
+		<!--b.name as supplierName,
+		c.name as clientName,-->
 		a.code,
 		a.amount,
 		a.digest,
@@ -229,7 +231,8 @@
 			<if test="sign != null and sign != ''"> AND sign = #{sign} </if>
 			<if test="auditSign != null and auditSign != ''"> AND auditSign = #{auditSign} </if>
 			<if test="code != null and code != ''"> AND code = #{code} </if>
-			<if test="supplierName != null and supplierName != ''"> AND supplierName Like CONCAT('%',#{supplierClientId},'%')  </if>
+			<if test="clientSupplierId != null and clientSupplierId != ''"> AND supplierClientId = #{clientSupplierId} </if>
+			<if test="supplierName != null and supplierName != ''"> AND supplierName Like CONCAT('%',#{supplierName},'%')  </if>
 			<if test="clientName != null and clientName != ''"> AND clientName Like CONCAT('%',#{clientName},'%') </if>
 		</where>
 		<choose>

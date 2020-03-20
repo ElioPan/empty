@@ -83,7 +83,24 @@ public class CommutationInitializationApiController {
         return commutationInitializationService.getClientAccountMessage(params);
     }
 
+    @EvApiByToken(value = "/apis/commutationInitialization/supplierReconciliation", method = RequestMethod.POST, apiTitle = "供应商往来对账")
+    @ApiOperation("供应商往来对账")
+    public R supplierReconciliation(
+            @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+            @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+            @ApiParam(value = "供应商ID",required = true ) @RequestParam(value = "supplierId") Long supplierId,
+            @ApiParam(value = "开始时间",required = true) @RequestParam(value = "startTime") String startTime,
+            @ApiParam(value = "结束时间",required = true) @RequestParam(value = "endTime") String endTime) {
 
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("pageno", pageno);
+        params.put("pagesize", pagesize);
+        params.put("endTime", endTime);
+        params.put("startTime", startTime);
+        params.put("supplierId", supplierId);
+
+        return commutationInitializationService.getSupplierAccountMessage(params);
+    }
 
 
 

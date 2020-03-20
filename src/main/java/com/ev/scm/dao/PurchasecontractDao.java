@@ -39,4 +39,7 @@ public interface PurchasecontractDao {
 
 	int wetherChangeContract(Map<String, Object> map);
 
+	List<Map<String, Object>> getDetailOfHead(Map<String, Object> map);
+
+
 }

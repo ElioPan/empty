@@ -54,6 +54,11 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 	@Autowired
 	private PurchaseInvoiceItemService purchaseInvoiceItemService;
 
+
+	@Override
+	public List<Map<String, Object>> getDetailOfHead(Map<String, Object> map) {
+		return purchasecontractDao.getDetailOfHead(map);
+	}
 	@Override
 	public PurchasecontractDO get(Long id) {
 		return purchasecontractDao.get(id);
@@ -670,7 +675,6 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 		}
 		return null;
 	}
-
 
 
 

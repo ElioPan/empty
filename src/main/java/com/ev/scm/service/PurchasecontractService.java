@@ -59,4 +59,7 @@ public interface PurchasecontractService {
 
 	R checkSourceCount(String itemDOs,Long contractId);
 
+	List<Map<String, Object>> getDetailOfHead(Map<String, Object> map);
+
+
 }

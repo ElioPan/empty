@@ -398,7 +398,52 @@
 		</foreach>
 	</select>
 
+	<select id="getDetailOfHead" resultType="map">
+		SELECT
+		a.id,
+		a.supplier_id as  supplierId,
+		b.name as supplierIdName,
+		a.buyer,
+		c.name as buyerName,
+		a.dept_id as deptId,
+		d.`name` as deptName,
+		a.contract_type as contractType,
+		e.name as contractTypeName,
+		a.contract_date as contractDate,
+		a.contract_effective_date as contractEffectiveDate,
+		a.contract_code as contractCode,
+		a.Invoiced_amount as InvoicedAmount,
+		a.uninvoiced_amount as uninvoicedAmount,
+		a.create_by AS createby,
+		f.name as createByName,
+		a.create_time as createTime,
+		a.auditor,
+		g.name as auditorName,
+		a.audit_time as auditTime,
+		a.close_status as closeStatus,
+		case when a.close_status=0 then '未关闭'
+		when a.close_status=1 then '关闭'
+		end closeStatusName,
+		a.audit_sign as auditSign,
+		a.create_time as createTime,
+		h.name as auditSignName
+		FROM
+		scm_purchasecontract  a
+		LEFT JOIN   cus_supplier  b on  a.supplier_id=b.id
+		LEFT JOIN   sys_user c on  a.buyer=c.user_id
+		LEFT JOIN   sys_dept d on  a.dept_id=d.dept_id
+		LEFT JOIN   cus_dictionary e on  a.contract_type=e.id
+		LEFT JOIN   sys_user f on  a.create_by=f.user_id
+		LEFT JOIN   sys_user g on  a.auditor=g.user_id
+		LEFT JOIN   cus_dictionary h on  a.audit_sign=h.id
+		 WHERE
+              a.audit_sign=#{auditSign}
+        AND
+              a.supplier_id=#{supplierId}
 
+        and  DATE_FORMAT(a.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')
+        and  DATE_FORMAT(a.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')
+	</select>
 
 
 </mapper>

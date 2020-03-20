@@ -41,5 +41,7 @@ public interface CommutationInitializationService {
 
 	List<Map<String, Object>> getDetail(Map<String, Object> map);
 
+	R getSupplierAccountMessage(Map<String, Object> parameter );
+
 
 }
