@@ -3,7 +3,7 @@
 
 <mapper namespace="com.ev.report.dao.AgendaAccountingReportDao">
 
-    <select id="userList" resultType="java.util.Map">
+    <select id="userList"  resultType="com.ev.report.vo.UserForReportVO">
         SELECT
         sysuser.`user_id` AS userId,
         sysuser.`name` AS userName,
@@ -13,16 +13,16 @@
         sys_user sysuser
         LEFT JOIN sys_dept dept on dept.dept_id = sysuser.dept_id
         <where>
-            <if test="status != null and status != ''"> and sysuser.status = #{status} </if>
             <if test="deptId != null and deptId != ''"> and sysuser.dept_id = #{deptId} </if>
             <if test="userId != null and userId != ''"> and sysuser.user_id = #{userId} </if>
+             AND status = 1
         </where>
     </select>
 
-    <select id="executeForDailyReport" resultType="java.util.Map">
+    <select id="executeForDailyReport" resultType="com.ev.report.vo.UserForReportVO">
 	SELECT
-    create_by AS createBy,
-    #{dailyCount} - COUNT(create_by) AS dailyCount
+    create_by AS user_id,
+    #{dailyCount} - COUNT(create_by) AS `count`
 	FROM
 	cus_daily_report
         <where>
@@ -40,10 +40,10 @@
     GROUP BY create_by
     </select>
 
-    <select id="executeForWeekReport" resultType="java.util.Map">
+    <select id="executeForWeekReport" resultType="com.ev.report.vo.UserForReportVO">
         SELECT
-        create_by AS createBy,
-        #{weekCount} - COUNT(create_by) AS weekCount
+        create_by AS user_id,
+        #{weekCount} - COUNT(create_by) AS `count`
         FROM
         cus_week_report
         <where>
@@ -60,10 +60,10 @@
         </where>
         GROUP BY create_by
     </select>
-    <select id="executeForMonthReport" resultType="java.util.Map">
+    <select id="executeForMonthReport" resultType="com.ev.report.vo.UserForReportVO">
         SELECT
-        create_by AS createBy,
-        #{monthCount} - COUNT(create_by) AS monthCount
+        create_by AS user_id,
+        #{monthCount} - COUNT(create_by) AS `count`
         FROM
         cus_month_report
         <where>
@@ -85,11 +85,11 @@
     <select id="overtimeForItem" resultType="java.util.Map">
         SELECT
         sd.name AS deptName,
-        su.name AS NAME,
-        apply.over_time_user AS overTimeUser,
+        su.name AS `name`,
+        apply.over_time_user AS createBy,
         apply.begin_time AS beginTime,
         apply.reason AS reason,
-        apply.time_area AS timeArea
+        apply.time_area AS totalCount
         FROM
         cus_over_time_apply apply
         LEFT JOIN sys_user su ON su.user_id=apply.over_time_user
@@ -133,13 +133,13 @@
     <select id="leaveItem" resultType="java.util.Map">
         SELECT
         sd.name AS deptName,
-        su.name AS NAME,
+        su.name AS `name`,
         apply.create_by AS createBy,
         apply.type AS type,
         cd.name AS typeName,
         apply.begin_time AS beginTime,
         apply.reason AS reason,
-        apply.time_area AS timeArea
+        apply.time_area AS totalCount
         FROM
         cus_leave_apply apply
         LEFT JOIN cus_dictionary cd ON cd.id=apply.type
@@ -187,7 +187,7 @@
         apply.create_by AS userId,
         apply.type AS type,
         CONCAT(cd.name,'小计') AS typeName,
-        SUM(apply.time_area) AS typeTotalTimeArea
+        SUM(apply.time_area) AS typeTotalCount
         FROM
         cus_leave_apply apply
         LEFT JOIN cus_dictionary cd ON cd.id=apply.type
@@ -212,12 +212,12 @@
     <select id="applyForReimbursementItem" resultType="java.util.Map">
         SELECT
         sd.name AS deptName,
-        su.name AS NAME,
+        su.name AS `name`,
         item.create_by AS createBy,
         item.type AS type,
         cd.name AS typeName,
         item.rei_date AS reiDate,
-        item.rei_count AS reiCount,
+        item.rei_count AS totalCount,
         item.rei_item_description AS reiItemDescription
         FROM
         cus_reim_apply_item item
@@ -270,7 +270,7 @@
         item.create_by AS userId,
         item.type AS type,
         CONCAT(cd.name,'小计') AS typeName,
-        SUM(item.rei_count) AS typeTotalReiCount
+        SUM(item.rei_count) AS typeTotalCount
         FROM
         cus_reim_apply_item item
         LEFT JOIN cus_reim_apply cra ON cra.id=item.reim_apply_id
@@ -297,11 +297,11 @@
     <select id="paymentForItem" resultType="java.util.Map">
         SELECT
         sd.name AS deptName,
-        su.name AS NAME,
+        su.name AS `name`,
         apply.create_by AS createBy,
         apply.pay_user AS payUser,
         apply.pay_date AS payDate,
-        apply.total_number AS totalNumber,
+        apply.total_number AS totalCount,
         apply.pay_reason AS payReason
         FROM
         cus_pay_apply apply

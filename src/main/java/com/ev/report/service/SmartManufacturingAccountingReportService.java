@@ -22,6 +22,10 @@ public interface SmartManufacturingAccountingReportService {
 
     R pieceRate(CommonVO commonVO);
 
+    R pieceRateGroupByDept(CommonVO commonVO);
+
+    R pieceRateGroupByUser(CommonVO commonVO);
+
     Pair<List<Map<String, Object>>, Map<String, BigDecimal>> productionBatch(List<Map<String, Object>> data);
 
     Pair<List<Map<String, Object>>, Map<String, BigDecimal>> processOutput(List<Map<String, Object>> data);
@@ -41,4 +45,5 @@ public interface SmartManufacturingAccountingReportService {
     List<Map<String, Object>> processOutputList(Map<String, Object> params);
 
     int processOutputCount(Map<String, Object> params);
+
 }

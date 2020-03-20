@@ -1,5 +1,6 @@
 package com.ev.report.dao;
 
+import com.ev.report.vo.UserForReportVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -15,11 +16,11 @@ import java.util.Map;
 @Mapper
 public interface AgendaAccountingReportDao {
 
-    List<Map<String, Object>> executeForDailyReport(Map<String, Object> param);
+    List<UserForReportVO> executeForDailyReport(Map<String, Object> param);
 
-    List<Map<String, Object>> executeForWeekReport(Map<String, Object> param);
+    List<UserForReportVO> executeForWeekReport(Map<String, Object> param);
 
-    List<Map<String, Object>> executeForMonthReport(Map<String, Object> param);
+    List<UserForReportVO> executeForMonthReport(Map<String, Object> param);
 
     Double overtimeForItemTotal(Map<String, Object> param);
 
@@ -41,5 +42,5 @@ public interface AgendaAccountingReportDao {
 
     Double paymentItemTotal(Map<String, Object> param);
 
-    List<Map<String, Object>> userList(Map<String, Object> params);
+    List<UserForReportVO> userList(Map<String, Object> params);
 }

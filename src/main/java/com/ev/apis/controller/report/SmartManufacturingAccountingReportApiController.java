@@ -66,10 +66,10 @@ public class SmartManufacturingAccountingReportApiController {
         List<Map<String, Object>> data = reportService.productionPlanList(params);
         int total = reportService.productionPlanCount(params);
         if (data.size() > 0) {
-            Pair<List<Map<String,Object>>,Map<String, BigDecimal>> productionPlan = reportService.productionPlan(data,false);
-            Pair<List<Map<String,Object>>,Map<String, BigDecimal>> totalProductionPlan = reportService.productionPlan(totalData,true);
+            Pair<List<Map<String, Object>>, Map<String, BigDecimal>> productionPlan = reportService.productionPlan(data, false);
+            Pair<List<Map<String, Object>>, Map<String, BigDecimal>> totalProductionPlan = reportService.productionPlan(totalData, true);
             results.put("total", totalProductionPlan.getRight());
-            results.put("data", new DsResultResponse(pageno,pagesize,total,productionPlan.getLeft()));
+            results.put("data", new DsResultResponse(pageno, pagesize, total, productionPlan.getLeft()));
         }
         return R.ok(results);
     }
@@ -106,16 +106,34 @@ public class SmartManufacturingAccountingReportApiController {
         List<Map<String, Object>> data = reportService.processPlanList(params);
         int total = reportService.processPlanCount(params);
         if (data.size() > 0) {
-            Pair<List<Map<String,Object>>,Map<String, BigDecimal>> processPlan = reportService.processPlan(data,false);
-            Pair<List<Map<String,Object>>,Map<String, BigDecimal>> totalProcessPlan = reportService.processPlan(totalData,true);
+            Pair<List<Map<String, Object>>, Map<String, BigDecimal>> processPlan = reportService.processPlan(data, false);
+            Pair<List<Map<String, Object>>, Map<String, BigDecimal>> totalProcessPlan = reportService.processPlan(totalData, true);
             results.put("total", totalProcessPlan.getRight());
-            results.put("data", new DsResultResponse(pageno,pagesize,total,processPlan.getLeft()));
+            results.put("data", new DsResultResponse(pageno, pagesize, total, processPlan.getLeft()));
         }
         return R.ok(results);
     }
 
-    @EvApiByToken(value = "/apis/smartManufacturing/pieceRate", method = RequestMethod.POST, apiTitle = "计件工资统计")
-    @ApiOperation("计件工资统计")
+    @EvApiByToken(value = "/apis/smartManufacturing/pieceRate/groupByDept", method = RequestMethod.POST, apiTitle = "计件工资统计(部门汇总)")
+    @ApiOperation("计件工资统计(部门汇总)")
+    public R pieceRateGroupByDept(
+            CommonVO commonVO
+    ) {
+        // 查询列表数据
+        return reportService.pieceRateGroupByDept(commonVO);
+    }
+
+    @EvApiByToken(value = "/apis/smartManufacturing/pieceRate/groupByUser", method = RequestMethod.POST, apiTitle = "计件工资统计(人员汇总)")
+    @ApiOperation("计件工资统计(人员汇总)")
+    public R pieceRateGroupByUser(
+            CommonVO commonVO
+    ) {
+        // 查询列表数据
+        return reportService.pieceRateGroupByUser(commonVO);
+    }
+
+    @EvApiByToken(value = "/apis/smartManufacturing/pieceRate", method = RequestMethod.POST, apiTitle = "计件工资统计(详细列表)")
+    @ApiOperation("计件工资统计(详细列表)")
     public R pieceRate(
             CommonVO commonVO
     ) {
@@ -151,9 +169,9 @@ public class SmartManufacturingAccountingReportApiController {
         List<Map<String, Object>> data = reportService.productionBatchList(params);
         int total = reportService.productionBatchCount(params);
         if (data.size() > 0) {
-            Pair<List<Map<String,Object>>,Map<String, BigDecimal>> productionBatch = reportService.productionBatch(data);
+            Pair<List<Map<String, Object>>, Map<String, BigDecimal>> productionBatch = reportService.productionBatch(data);
             results.put("total", productionBatch.getRight());
-            results.put("data", new DsResultResponse(pageno,pagesize,total,productionBatch.getLeft()));
+            results.put("data", new DsResultResponse(pageno, pagesize, total, productionBatch.getLeft()));
         }
         return R.ok(results);
     }
@@ -186,9 +204,9 @@ public class SmartManufacturingAccountingReportApiController {
         List<Map<String, Object>> data = reportService.processOutputList(params);
         int total = reportService.processOutputCount(params);
         if (data.size() > 0) {
-            Pair<List<Map<String,Object>>,Map<String, BigDecimal>> processOutput = reportService.processOutput(data);
+            Pair<List<Map<String, Object>>, Map<String, BigDecimal>> processOutput = reportService.processOutput(data);
             results.put("total", processOutput.getRight());
-            results.put("data", new DsResultResponse(pageno,pagesize,total,processOutput.getLeft()));
+            results.put("data", new DsResultResponse(pageno, pagesize, total, processOutput.getLeft()));
         }
         return R.ok(results);
     }

@@ -5,6 +5,7 @@ import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.R;
 import com.ev.report.dao.SmartManufacturingAccountingReportDao;
+import com.ev.report.service.AgendaAccountingReportService;
 import com.ev.report.service.SmartManufacturingAccountingReportService;
 import com.ev.report.vo.*;
 import com.google.common.collect.Maps;
@@ -22,6 +23,8 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
 
     @Autowired
     private SmartManufacturingAccountingReportDao reportDao;
+    @Autowired
+    private AgendaAccountingReportService reportService;
 
     @Override
     public Pair<List<Map<String, Object>>, Map<String, BigDecimal>> processPlan(List<Map<String, Object>> data,boolean isTotalData) {
@@ -350,6 +353,18 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
 
     @Override
     public R pieceRate(CommonVO commonVO) {
+        return null;
+    }
+
+    @Override
+    public R pieceRateGroupByDept(CommonVO commonVO) {
+
+
+        return null;
+    }
+
+    @Override
+    public R pieceRateGroupByUser(CommonVO commonVO) {
         return null;
     }
 

@@ -40,7 +40,7 @@ public class  PageUtils implements Serializable {
 	 * @param pageSize 每页多少条数据
 	 * @return
 	 */
-	public static List<Map<String, Object>> startPage(List<Map<String, Object>> list, Integer pageNum, Integer pageSize) {
+	public static <T> List<T> startPage(List<T> list, Integer pageNum, Integer pageSize) {
 		if(list == null){
 			return null;
 		}
