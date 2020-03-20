@@ -290,10 +290,9 @@ public class DeviceApiController {
     @ApiOperation("获取设备列表信息")
     public R list(@ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1",required = true) int pageno,
                   @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20",required = true) int pagesize,
+                  @ApiParam(value = "设备类型id", required = false) @RequestParam(value = "type", required = false) Integer type,
                   @ApiParam(value = "设备名称",required = false) @RequestParam(value = "name",defaultValue = "",required = true)  String name){
-        Map<String,Object> results = Maps.newHashMap();
-        results = this.deviceService.listApi(pageno,pagesize,name);
-        return R.ok(results);
+        return R.ok(this.deviceService.listApi(pageno,pagesize,name,type));
     }
 
     @EvApiByToken(value = "/apis/device/detail", method = RequestMethod.POST, apiTitle = "获取设备详情页信息")

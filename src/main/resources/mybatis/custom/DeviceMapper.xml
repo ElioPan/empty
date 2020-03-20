@@ -616,6 +616,7 @@
 		cus_device
 		<where>
 			<if test="name != null and name != ''"> and  name like  CONCAT('%',#{name},'%') </if>
+			<if test="type != null and type != ''"> AND `type` =#{type} </if>
 			and del_flag = 0
 		</where>
 		<choose>

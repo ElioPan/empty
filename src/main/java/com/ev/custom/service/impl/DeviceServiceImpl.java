@@ -116,7 +116,7 @@ public class DeviceServiceImpl implements DeviceService {
 
 
 	@Override
-	public Map<String, Object> listApi(int pageno,int pagesize,String name) {
+	public Map<String, Object> listApi(int pageno,int pagesize,String name,Integer type) {
 		Map<String,Object> dictMap = this.dictionaryService.getDictMap();
 		Map<String,Object> userMap = this.userService.getUserMap();
 		Map<String,Object> deptMap = this.deptService.getDeptMap();
@@ -124,6 +124,7 @@ public class DeviceServiceImpl implements DeviceService {
 		Map<String,Object> results = Maps.newHashMap();
 		Map<String, Object> params = new HashMap<>();
 		params.put("name",name);
+		params.put("type",type);
 //		params.put("deptId",deptId);
 		params.put("offset",pageno-1);
 		params.put("limit",pagesize);
