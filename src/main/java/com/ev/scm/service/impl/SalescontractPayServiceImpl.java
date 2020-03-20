@@ -49,5 +49,10 @@ public class SalescontractPayServiceImpl implements SalescontractPayService {
 	public int batchRemove(Long[] pids){
 		return salescontractPayDao.batchRemove(pids);
 	}
-	
+
+	@Override
+	public Map<String, Object> countByContract(Map<String, Object> map) {
+		return salescontractPayDao.countByContract(map);
+	}
+
 }

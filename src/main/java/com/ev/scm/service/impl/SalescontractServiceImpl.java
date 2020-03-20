@@ -414,6 +414,8 @@ public class SalescontractServiceImpl implements SalescontractService {
         return contractVO;
     }
 
+
+
     @Override
     public R close(Long id) {
         SalescontractDO salescontractDO = this.get(id);
@@ -545,5 +547,10 @@ public class SalescontractServiceImpl implements SalescontractService {
     @Override
     public int updateAll(SalescontractDO salescontract){
         return salesContractDao.updateAll(salescontract);
+    }
+
+    @Override
+    public List<Map<String, Object>> getDetailOfHead(Map<String, Object> map) {
+        return salesContractDao.getDetailOfHead(map);
     }
 }

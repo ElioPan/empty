@@ -41,4 +41,6 @@ public interface SalescontractDao {
 
 	int childCount(Long id);
 
+	List<Map<String, Object>> getDetailOfHead(Map<String, Object> map);
+
 }

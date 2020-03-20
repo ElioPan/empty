@@ -43,6 +43,10 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 
 
 	@Override
+	public List<Map<String, Object>> detailOfReceivedAmount(Map<String, Object> map) {
+		return paymentReceivedDao.detailOfReceivedAmount(map);
+	}
+	@Override
 	public Map<String, Object> detailOfSaleContrat(Long[] ids) {
 		return paymentReceivedDao.detailOfSaleContrat(ids);
 	}

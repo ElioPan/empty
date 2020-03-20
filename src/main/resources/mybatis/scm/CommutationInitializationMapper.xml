@@ -35,7 +35,7 @@
 
     <sql id="sql_column_list">
 		`id`,`period`,`client_id`,`supplier_id`,`initial_amount`,`using_start`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
-	</sql>
+</sql>
 
     <sql id="sql_condition">
         <where>
@@ -160,6 +160,26 @@
 	</select>
 
 
+	<select id="getDetail" resultType="map">
+		SELECT
+		a.id,
+		a.period,
+		a.supplier_id as  supplierId,
+		b.name as supplierName,
+		a.client_id as clientId,
+		c.name as clientName,
+		a.initial_amount as initialAmount,
+		a.create_time as createTime
+		FROM
+		scm_commutation_initialization a
+		LEFT JOIN cus_supplier  b on  a.supplier_id=b.id
+		LEFT JOIN cus_client  c on  a.client_id=c.id
+		<where>
+			<if test="clientId != null and clientId != ''"> AND a.client_id =#{clientId} </if>
+			<if test="supplierId != null and supplierId != ''"> AND a.supplier_id =#{supplierId} </if>
+		</where>
+		ORDER BY id DESC
+	</select>
 
 
 </mapper>

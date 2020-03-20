@@ -37,4 +37,9 @@ public interface CommutationInitializationService {
 
 	int countForMap(Map<String, Object> map);
 
+	R getClientAccountMessage(Map<String, Object> map);
+
+	List<Map<String, Object>> getDetail(Map<String, Object> map);
+
+
 }

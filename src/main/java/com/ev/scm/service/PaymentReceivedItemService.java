@@ -39,7 +39,7 @@ public interface PaymentReceivedItemService {
 
 	BigDecimal getInCountOfPayment(Map<String, Object> map);
 
-
+	List<PaymentReceivedItemDO> getInOfPaymentAmount(Map<String, Object> map);
 
 
 }

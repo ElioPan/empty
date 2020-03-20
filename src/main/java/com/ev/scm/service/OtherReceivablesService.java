@@ -35,7 +35,7 @@ public interface OtherReceivablesService {
 
 	R disposeAudit(Long id );
 
-	R disposeReverseAudit(Long id );
+	R disposeReverseAudit(Long id ,String sign);
 
 	R dispoRemove(Long[] ids);
 

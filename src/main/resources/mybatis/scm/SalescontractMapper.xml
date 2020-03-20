@@ -345,5 +345,56 @@
     </select>
 
 
+
+    <select id="getDetailOfHead" resultType="map">
+        SELECT
+        sales.`id` AS id,
+        sales.client_id AS clientId,
+        client.`name` AS clientName,
+        sales.sales_person AS salesPerson,
+        salesUser.`name` AS salesPersonName,
+        sales.`sales_person_dept` AS salesPersonDept,
+        salesUserDept.`name` AS salesPersonDeptName,
+        sales.`contract_code` AS `contractCode`,
+        sales.`contract_type` AS contractType,
+        dict.`name` AS contractTypeName,
+        sales.contract_date AS contractDate,
+        sales.contract_expire_date AS contractExpireDate,
+        sales.discount_rate AS discountRate,
+        sales.discount_amount AS discountAmount,
+        sales.pay_amount AS payAmount,
+        sales.invoiced_amount AS invoicedAmount,
+        sales.uninvoiced_amount AS uninvoicedAmount,
+        sales.create_by AS createBy,
+        createUser.name AS createByName,
+        sales.create_time AS createTime,
+        sales.auditor AS auditor,
+        auditUser.`name` AS auditorName,
+        sales.`audit_time` AS auditTime,
+        IF(sales.close_status=0,'未关闭','关闭') AS closeStatusName,
+        sales.close_status AS closeStatus,
+        sales.audit_sign AS auditSign,
+        dica.`name` AS auditSignName
+        FROM
+        scm_salescontract sales
+        LEFT JOIN cus_dictionary dict ON dict.id = sales.contract_type
+        LEFT JOIN cus_client client ON client.id = sales.client_id
+        LEFT JOIN sys_user salesUser ON salesUser.user_id = sales.sales_person
+        LEFT JOIN sys_dept salesUserDept ON salesUserDept.dept_id = sales.sales_person_dept
+        LEFT JOIN sys_user createUser ON createUser.user_id = sales.create_by
+        LEFT JOIN sys_user auditUser ON auditUser.user_id = sales.auditor
+        LEFT JOIN cus_dictionary dica ON dica.id = sales.audit_sign
+        WHERE
+              sales.audit_sign=#{auditSign}
+        AND
+              sales.client_id=#{clientId}
+
+        and  DATE_FORMAT(sales.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')
+        and  DATE_FORMAT(sales.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')
+<!--         AND  sales.create_time &gt;=  #{startTime}
+        AND  sales.create_time&lt;=   #{endTime}-->
+    </select>
+
+
 	
 </mapper>

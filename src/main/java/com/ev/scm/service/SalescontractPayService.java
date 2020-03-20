@@ -27,4 +27,7 @@ public interface SalescontractPayService {
 	int remove(Long pid);
 	
 	int batchRemove(Long[] pids);
+
+	Map<String,Object> countByContract(Map<String, Object> map);
+
 }

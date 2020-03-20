@@ -284,5 +284,18 @@ public final class ConstantForGYL {
 	 */
 	public static final String OTHER_PAYABLE = "QTYF";
 
+	/**
+	 * 其他应收单
+	 */
+	public static final Long OTHER_RECIVEABLE_TYPE = 295L;
+	/**
+	 * 其他应付单
+	 */
+	public static final Long OTHER_PAYABLE_TYPE = 296L;
+
+	/**
+	 * 期初余额
+	 */
+	public static final String REMANING_AMOUNT = "期初余额";
 
 }

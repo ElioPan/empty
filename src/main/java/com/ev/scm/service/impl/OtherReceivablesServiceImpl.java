@@ -9,8 +9,10 @@ import com.ev.framework.utils.ShiroUtils;
 import com.ev.scm.dao.OtherReceivablesDao;
 import com.ev.scm.domain.OtherReceivablesDO;
 import com.ev.scm.domain.OtherReceivablesItemDO;
+import com.ev.scm.domain.PaymentReceivedItemDO;
 import com.ev.scm.service.OtherReceivablesItemService;
 import com.ev.scm.service.OtherReceivablesService;
+import com.ev.scm.service.PaymentReceivedItemService;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,8 @@ public class OtherReceivablesServiceImpl implements OtherReceivablesService {
 	private MessageSourceHandler messageSourceHandler;
 	@Autowired
 	private OtherReceivablesItemService otherReceivablesItemService;
-	
+	@Autowired
+	private PaymentReceivedItemService paymentReceivedItemService;
 	@Override
 	public OtherReceivablesDO get(Long id){
 		return otherReceivablesDao.get(id);
@@ -154,8 +157,16 @@ public class OtherReceivablesServiceImpl implements OtherReceivablesService {
 	}
 
 	@Override
-	public R disposeReverseAudit(Long id ){
+	public R disposeReverseAudit(Long id ,String sign){
 		OtherReceivablesDO otherReceivablesDO = this.get(id);
+
+		String code=otherReceivablesDO.getCode();
+		Map<String,Object>  map= new HashMap<>();
+		map.put("sourceCode",code);
+		List<PaymentReceivedItemDO> list = paymentReceivedItemService.list(map);
+		if(list.size()>0){
+			return R.error(messageSourceHandler.getMessage("scm.otherPayment.used",null));
+		}
 		if(Objects.nonNull(otherReceivablesDO)){
 			if(Objects.equals(otherReceivablesDO.getAuditSign(),ConstantForGYL.WAIT_AUDIT)){
 				return R.error(messageSourceHandler.getMessage("common.massge.okWaitAudit",null));

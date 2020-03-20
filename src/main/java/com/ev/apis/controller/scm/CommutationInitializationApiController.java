@@ -3,6 +3,7 @@ package com.ev.apis.controller.scm;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.utils.R;
 import com.ev.scm.service.CommutationInitializationService;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -20,7 +21,7 @@ import java.util.Map;
  * @Author Kuzi
  * @Date 2020-3-18 11:01
  **/
-@Api(value="/",tags="往来初始化+客户往来对账+供应商往来对账")
+@Api(value="/",tags="往来初始化++客户、供应商往来对账")
 @RestController
 public class CommutationInitializationApiController {
 
@@ -55,7 +56,6 @@ public class CommutationInitializationApiController {
         map.put("supplierId",1);
         List<Map<String, Object>> listForMapSupplier = commutationInitializationService.getListForMap(map);
         int sumAmoutSupplier=commutationInitializationService.countForMap(map);
-
         map.clear();
         map.put("Client",listForMapClient);
         map.put("sumAmoutClient",sumAmoutClient);
@@ -63,6 +63,33 @@ public class CommutationInitializationApiController {
         map.put("sumAmoutSupplier",sumAmoutSupplier);
         return R.ok(map);
     }
+
+    @EvApiByToken(value = "/apis/commutationInitialization/customerReconciliation", method = RequestMethod.POST, apiTitle = "客户往来对账")
+    @ApiOperation("客户往来对账")
+    public R customerReconciliation(
+            @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+            @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+            @ApiParam(value = "客户ID",required = true ) @RequestParam(value = "clientId") Long clientId,
+            @ApiParam(value = "开始时间",required = true) @RequestParam(value = "startTime") String startTime,
+            @ApiParam(value = "结束时间",required = true) @RequestParam(value = "endTime") String endTime) {
+
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("pageno", pageno);
+        params.put("pagesize", pagesize);
+        params.put("endTime", endTime);
+        params.put("startTime", startTime);
+        params.put("clientId", clientId);
+
+        return commutationInitializationService.getClientAccountMessage(params);
+    }
+
+
+
+
+
+
+
+
 
 
 

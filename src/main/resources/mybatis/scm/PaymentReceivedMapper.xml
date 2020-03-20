@@ -239,6 +239,8 @@
 			<if test="settlementType != null and settlementType != ''"> AND settlementType = #{settlementType} </if>
 			<if test="sign != null and sign != ''"> AND sign = #{sign} </if>
 			<if test="prCode != null and prCode != ''"> AND prCode = #{prCode} </if>
+			<if test="auditSign != null and auditSign != ''"> AND auditSign = #{auditSign} </if>
+
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -308,6 +310,7 @@
 			<if test="settlementType != null and settlementType != ''"> AND settlementType = #{settlementType} </if>
 			<if test="sign != null and sign != ''"> AND sign = #{sign} </if>
 			<if test="prCode != null and prCode != ''"> AND prCode = #{prCode} </if>
+			<if test="auditSign != null and auditSign != ''"> AND auditSign = #{auditSign} </if>
 		</where>
 	</select>
 
@@ -346,7 +349,7 @@
 		LEFT JOIN sys_user i on a.auditor=i.user_id
 		LEFT JOIN sys_user n on a.create_by=n.user_id
 		where
-		a.id=#{id}
+		a.id = #{id}
 	</select>
 
 
@@ -403,4 +406,54 @@
 				</foreach>
 			) aa
 	</select>
+
+
+
+	<select id="detailOfReceivedAmount" resultType="map">
+		SELECT
+		a.id,
+		a.create_time AS createTime,
+		a.pr_date AS prDate,
+		a.pr_code AS prCode,
+		a.cus_sup_id as  cusSupId,
+		IF(a.sign='sk',c.name,d.name) AS cusSupName,
+		a.pr_type as prType,
+		e.name as prTypeName,
+		a.pr_amount as prAmount,
+		a.payee ,
+		g.name as payeeName,
+		a.payer,
+		f.name as payerName,
+		a.audit_sign as auditSign,
+		h.name as auditSignName,
+		a.auditor,
+		i.name as auditorName,
+		a.create_by as createBy,
+		n.name as createByName,
+		a.create_time as createTime,
+		a.audit_time as auditTime
+		FROM
+		scm_payment_received a
+		LEFT JOIN cus_client c on a.cus_sup_id=c.id
+		LEFT JOIN cus_supplier d on a.cus_sup_id=d.id
+		LEFT JOIN cus_dictionary e on a.pr_type=e.id
+		LEFT JOIN sys_user g on a.payee=g.user_id
+		LEFT JOIN sys_user f on a.payer=f.user_id
+		LEFT JOIN cus_dictionary h on a.audit_sign=h.id
+		LEFT JOIN sys_user i on a.auditor=i.user_id
+		LEFT JOIN sys_user n on a.create_by=n.user_id
+		<where>
+			<if test="id != null and id != ''"> AND a.id = #{id} </if>
+			<if test="cusSupId != null and cusSupId != ''"> AND a.cus_sup_id = #{cusSupId} </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(a.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(a.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="sign != null and sign != ''"> AND a.sign = #{sign} </if>
+			<if test="auditSign != null and auditSign != ''"> AND a.audit_sign = #{auditSign} </if>
+		</where>
+	</select>
+
+
+
+
+
 </mapper>

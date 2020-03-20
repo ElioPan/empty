@@ -58,5 +58,8 @@ public interface PaymentReceivedService {
 
 	R checkSourseCount(String paymentBodys,Long id);
 
+	List<Map<String, Object>> detailOfReceivedAmount(Map<String, Object> map);
+
+
 
 }

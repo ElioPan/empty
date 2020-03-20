@@ -281,6 +281,17 @@
 		</where>
 	</select>
 
-
+	<select id="getInOfPaymentAmount" resultType="com.ev.scm.domain.PaymentReceivedItemDO">
+		SELECT
+		a.payment_received_id,
+		a.this_amount
+		FROM
+		scm_payment_received_item a
+		where
+		a.payment_received_id in
+		<foreach item="id" collection="paymentId" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
 
 </mapper>

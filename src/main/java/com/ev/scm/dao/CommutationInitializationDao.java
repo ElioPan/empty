@@ -35,6 +35,9 @@ public interface CommutationInitializationDao {
 
 	int countForMap(Map<String, Object> map);
 
+	List<Map<String, Object>> getDetail(Map<String, Object> map);
+
+
 
 
 }

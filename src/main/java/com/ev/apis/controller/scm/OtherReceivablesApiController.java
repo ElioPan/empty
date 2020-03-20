@@ -1,6 +1,8 @@
 package com.ev.apis.controller.scm;
 
 import com.ev.apis.model.DsResultResponse;
+import com.ev.custom.domain.DictionaryDO;
+import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.R;
@@ -27,7 +29,8 @@ import java.util.Map;
 @Api(value="/",tags = "其他应收")
 @RestController
 public class OtherReceivablesApiController {
-
+    @Autowired
+    private DictionaryService dictionaryService;
     @Autowired
     private OtherReceivablesService otherReceivablesService;
 
@@ -63,7 +66,7 @@ public class OtherReceivablesApiController {
     @Transactional(rollbackFor = Exception.class)
     public R reverseAudit(
             @ApiParam(value = "主键id") @RequestParam(value = "id", required = false) Long id) {
-        return otherReceivablesService.disposeReverseAudit(id);
+        return otherReceivablesService.disposeReverseAudit(id,ConstantForGYL.OTHER_RECIVEABLE);
     }
 
     @EvApiByToken(value = "/apis/scm/otherReceivables/batchDelete", method = RequestMethod.POST, apiTitle = "删除--其他应收")
@@ -103,8 +106,14 @@ public class OtherReceivablesApiController {
 
         List<Map<String, Object>> list = otherReceivablesService.listForMap(map);
         Map<String, Object> countForMap = otherReceivablesService.countForMap(map);
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.OTHER_RECIVEABLE_TYPE.intValue());
+        String thisSourceTypeName = dictionaryDO.getName();
         Map<String, Object> result = Maps.newHashMap();
         if (list.size() > 0) {
+            for(Map<String, Object> mapDo:list){
+                mapDo.put("thisSourceType", ConstantForGYL.OTHER_RECIVEABLE_TYPE);
+                mapDo.put("thisSourceTypeName", thisSourceTypeName);
+            }
             result.put("data", new DsResultResponse(pageno,pagesize,Integer.parseInt(countForMap.get("count").toString()),list));
             result.put("totalAmount", countForMap.get("totailAmount"));
         }

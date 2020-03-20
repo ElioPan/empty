@@ -69,4 +69,8 @@ public interface SalescontractService {
 	Map<String, Object> payCountForMap(Map<String, Object> map);
 
 	ContractVO getContractHeadVOS(SalescontractDO newSalesContract,SalescontractDO oldSalesContract);
+
+
+	List<Map<String, Object>> getDetailOfHead(Map<String, Object> map);
+
 }
