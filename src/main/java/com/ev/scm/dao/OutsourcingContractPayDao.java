@@ -33,4 +33,8 @@ public interface OutsourcingContractPayDao {
     void batchRemoveByOutsourcingContractIds(Long[] outsourcingContractIds);
 
     Map<String, Object> countByContract(Map<String, Object> params);
+
+    List<Map<String, Object>> payListForMap(Map<String, Object> map);
+
+	Map<String, Object> payCountForMap(Map<String, Object> map);
 }

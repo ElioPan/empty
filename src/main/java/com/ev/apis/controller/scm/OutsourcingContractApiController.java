@@ -611,6 +611,50 @@ public class OutsourcingContractApiController {
         return   outsourcingContractService.getAlterationDetail(id);
     }
 
+    @EvApiByToken(value = "/apis/outsourcingContract/payList",method = RequestMethod.POST,apiTitle = "获取委外合同付款条件列表")
+    @ApiOperation("获取委外合同付款条件列表")
+    public R payList(
+            @ApiParam(value = "开始时间") @RequestParam(value = "startTime",defaultValue = "",required = false)  String startTime,
+            @ApiParam(value = "结束时间") @RequestParam(value = "endTime",defaultValue = "",required = false)  String endTime,
+            @ApiParam(value = "客户名称") @RequestParam(value = "supplierName",defaultValue = "",required = false)  String supplierName,
+            @ApiParam(value = "客户Id") @RequestParam(value = "supplierId",defaultValue = "",required = false)  Long supplierId,
+            @ApiParam(value = "关闭状态/0未关/1关闭") @RequestParam(value = "closeStatus",defaultValue = "",required = false)  Long closeStatus,
+            @ApiParam(value = "审核状态") @RequestParam(value = "auditSign",required = false) Long auditSign,
+            @ApiParam(value = "是否为dialog") @RequestParam(value = "isDialog",required = false) Long isDialog,
+
+            @ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
+            @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize){
+        Map<String, Object> map = Maps.newHashMap();
+        // 列表查询
+        map.put("startTime", startTime);
+        map.put("endTime", endTime);
+        map.put("closeStatus", closeStatus);
+        map.put("auditSign", auditSign);
+        map.put("isDialog", isDialog);
+        map.put("supplierId", supplierId);
+        map.put("supplierName", StringUtils.sqlLike(supplierName));
+
+        map.put("offset",(pageno-1)*pagesize);
+        map.put("limit",pagesize);
+
+
+        List<Map<String, Object>> data = outsourcingContractService.payListForMap(map);
+        Map<String, Object> stringBigDecimalMap = outsourcingContractService.payCountForMap(map);
+        int total = Integer.parseInt(stringBigDecimalMap.getOrDefault("total",0).toString());
+        Map<String, Object> result = Maps.newHashMap();
+        if (data.size() > 0) {
+            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.WWHT.intValue());
+            String thisSourceTypeName = dictionaryDO.getName();
+            for (Map<String, Object> datum : data) {
+                datum.put("thisSourceType", ConstantForGYL.WWHT);
+                datum.put("thisSourceTypeName", thisSourceTypeName);
+            }
+            result.put("data", new DsResultResponse(pageno,pagesize,total,data));
+            result.put("total", stringBigDecimalMap);
+        }
+        return R.ok(result);
+    }
+
     @ResponseBody
     @EvApiByToken(value = "/apis/exportExcel/outsourcingContract", method = RequestMethod.GET, apiTitle = "导出合同")
     @ApiOperation("导出合同")

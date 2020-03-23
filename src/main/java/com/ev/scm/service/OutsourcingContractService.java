@@ -65,4 +65,8 @@ public interface OutsourcingContractService {
     BigDecimal getCountBySource(Map<String, Object> map);
 
     R checkSourceNumber(String bodyItem,Long id);
+
+    List<Map<String, Object>> payListForMap(Map<String, Object> map);
+
+    Map<String, Object> payCountForMap(Map<String, Object> map);
 }

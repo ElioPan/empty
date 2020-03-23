@@ -131,4 +131,58 @@
 		<include refid="sql_condition"/>
 	</select>
 
+	<select id="payListForMap" resultType="java.util.Map">
+		SELECT
+		pay.id AS itemId,
+		pay.contract_id AS id,
+		contract.`contract_code`  AS contractCode,
+		contract.supplier_id AS supplierId,
+		supplier.`name` AS supplierName,
+		pay.paid_amount AS paidAmount,
+		pay.payable_amount AS payableAmount,
+		pay.unpaid_amount AS unpaidAmount,
+		pay.`remarks` AS remarks
+		FROM scm_outsourcing_contract_pay pay
+		LEFT JOIN scm_outsourcing_contract contract ON contract.id = pay.contract_id
+		LEFT JOIN cus_supplier supplier ON supplier.id = contract.supplier_id
+		<where>
+			<if test="clientName != null and clientName != ''"> and supplier.`name` LIKE #{clientName} </if>
+			<if test="isDialog==1"> and pay.unpaid_amount &gt; 0 </if>
+			<if test="closeStatus != null"> and contract.close_status = #{closeStatus} </if>
+			<if test="auditSign != null and auditSign != ''"> and contract.audit_sign = #{auditSign} </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(contract.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(contract.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by pay.id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="payCountForMap" resultType="java.util.Map">
+		SELECT
+		COUNT(*) AS totalCount,
+		SUM(pay.paid_amount) AS totalPaidAmount,
+		SUM(pay.payable_amount) AS totalPayableAmount,
+		SUM(pay.unpaid_amount)  AS totalUnpaidAmount
+		FROM scm_outsourcing_contract_pay pay
+		LEFT JOIN scm_outsourcing_contract contract ON contract.id = pay.contract_id
+		LEFT JOIN cus_supplier supplier ON supplier.id = contract.supplier_id
+		<where>
+			<if test="clientName != null and clientName != ''"> and supplier.`name` LIKE #{clientName} </if>
+			<if test="isDialog==1"> and pay.unpaid_amount &gt; 0 </if>
+			<if test="closeStatus != null"> and contract.close_status = #{closeStatus} </if>
+			<if test="auditSign != null and auditSign != ''"> and contract.audit_sign = #{auditSign} </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(contract.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(contract.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+		</where>
+	</select>
+
 </mapper>
