@@ -149,13 +149,12 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 			List<Map<String, Object>> detail = this.getDetail(mapCommutation);
 			mapCommutation.remove("clientId");
 			if (detail.size() > 0) {
-				mapCommutation.put("date", detail.get(0).get("createTime"));
+				mapCommutation.put("date", DateFormatUtil.getDateByParttern(detail.get(0).get("createTime").toString(), "yyyy-MM-dd"));
 				mapCommutation.put("time", "2000-01-01 00:00:00");
 				mapCommutation.put("clientName", detail.get(0).get("clientName"));
 				mapCommutation.put("typeName", ConstantForGYL.REMANING_AMOUNT);
 				mapCommutation.put("remainingAmount", detail.get(0).get("initialAmount"));
 			}
-
 			allDate.add(mapCommutation);
 			Collections.sort(allDate, new Comparator<Map<String, Object>>() {
 				@Override
@@ -223,7 +222,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
             List<Map<String, Object>> detail = this.getDetail(mapCommutation);
             mapCommutation.remove("clientId");
             if (detail.size() > 0) {
-                mapCommutation.put("date", detail.get(0).get("createTime"));
+                mapCommutation.put("date", DateFormatUtil.getDateByParttern(detail.get(0).get("createTime").toString(), "yyyy-MM-dd"));
                 mapCommutation.put("time", "2000-01-01 00:00:00");
                 mapCommutation.put("supplierName", detail.get(0).get("supplierName"));
                 mapCommutation.put("typeName", ConstantForGYL.REMANING_AMOUNT);
@@ -282,14 +281,14 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
         List<Map<String, Object>> saleDates=new ArrayList<>();
         if(saleMaps.size()>0){
             for(Map<String, Object> saleMap:saleMaps){
-                map.clear();
-                map.put("date",DateFormatUtil.getDateByParttern(saleMap.get("createTime").toString(), "yyyy-MM-dd"));
-                map.put("time",saleMap.get("createTime"));
-                map.put("code",saleMap.get("contractCode"));
-                map.put("supplierName",saleMap.containsKey("supplierIdName")?saleMap.get("supplierIdName"):null);
-                map.put("typeName",dictionaryDO.getName());
-                map.put("oughtAmount",new BigDecimal(saleMap.containsKey("invoicedAmount")?saleMap.get("InvoicedAmount").toString():"0").add(new BigDecimal(saleMap.containsKey("uninvoicedAmount")?saleMap.get("uninvoicedAmount").toString():"0")));
-                saleDates.add(map);
+                Map<String,Object>  maps= new HashMap<>();
+				maps.put("date",DateFormatUtil.getDateByParttern(saleMap.get("createTime").toString(), "yyyy-MM-dd"));
+				maps.put("time",saleMap.get("createTime"));
+				maps.put("code",saleMap.get("contractCode"));
+				maps.put("supplierName",saleMap.containsKey("supplierIdName")?saleMap.get("supplierIdName"):null);
+				maps.put("typeName",dictionaryDO.getName());
+				maps.put("oughtAmount",new BigDecimal(saleMap.containsKey("invoicedAmount")?saleMap.get("InvoicedAmount").toString():"0").add(new BigDecimal(saleMap.containsKey("uninvoicedAmount")?saleMap.get("uninvoicedAmount").toString():"0")));
+                saleDates.add(maps);
             }
         }
         return saleDates;
@@ -319,7 +318,6 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 		if(otherMaps.size()>0){
 			for(Map<String, Object> otherMap:otherMaps){
 				Map<String,Object>  maps= new HashMap<>();
-//				maps.clear();
 				maps.put("date",DateFormatUtil.getDateByParttern(otherMap.get("createTime").toString(), "yyyy-MM-dd"));
 				maps.put("time",otherMap.get("createTime"));
 				maps.put("code",otherMap.get("code"));
@@ -346,14 +344,14 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 		List<Map<String, Object>> saleDates=new ArrayList<>();
 		if(saleMaps.size()>0){
 			for(Map<String, Object> saleMap:saleMaps){
-				map.clear();
-				map.put("date",DateFormatUtil.getDateByParttern(saleMap.get("createTime").toString(), "yyyy-MM-dd"));
-				map.put("time",saleMap.get("createTime"));
-				map.put("code",saleMap.get("contractCode"));
-				map.put("clientName",saleMap.get("clientName"));
-				map.put("typeName",dictionaryDO.getName());
-				map.put("oughtAmount",new BigDecimal(saleMap.containsKey("invoicedAmount")?saleMap.get("invoicedAmount").toString():"0").add(new BigDecimal(saleMap.containsKey("uninvoicedAmount")?saleMap.get("uninvoicedAmount").toString():"0")));
-				saleDates.add(map);
+				Map<String,Object>  maps= new HashMap<>();
+				maps.put("date",DateFormatUtil.getDateByParttern(saleMap.get("createTime").toString(), "yyyy-MM-dd"));
+				maps.put("time",saleMap.get("createTime"));
+				maps.put("code",saleMap.get("contractCode"));
+				maps.put("clientName",saleMap.get("clientName"));
+				maps.put("typeName",dictionaryDO.getName());
+				maps.put("oughtAmount",new BigDecimal(saleMap.containsKey("invoicedAmount")?saleMap.get("invoicedAmount").toString():"0").add(new BigDecimal(saleMap.containsKey("uninvoicedAmount")?saleMap.get("uninvoicedAmount").toString():"0")));
+				saleDates.add(maps);
 			}
 		}
 		return saleDates;
@@ -395,19 +393,19 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 				idAmount.put(id,thisAmount);
 			}
 			for(Map<String, Object> paymentMap:paymentMaps){
-				map.clear();
-				map.put("date",DateFormatUtil.getDateByParttern(paymentMap.get("createTime").toString(), "yyyy-MM-dd"));
-				map.put("time",paymentMap.get("createTime"));
-				map.put("code",paymentMap.get("prCode"));
+				Map<String,Object>  maps= new HashMap<>();
+				maps.put("date",DateFormatUtil.getDateByParttern(paymentMap.get("createTime").toString(), "yyyy-MM-dd"));
+				maps.put("time",paymentMap.get("createTime"));
+				maps.put("code",paymentMap.get("prCode"));
 
                 if(parameter.containsKey("supplierId")){
-                    map.put("supplierName",paymentMap.get("cusSupName"));
+					maps.put("supplierName",paymentMap.get("cusSupName"));
                 }else{
-                    map.put("clientName",paymentMap.get("cusSupName"));
+					maps.put("clientName",paymentMap.get("cusSupName"));
                 }
-				map.put("typeName",paymentMap.get("prTypeName"));
-				map.put("receivedAmount",idAmount.get(paymentMap.get("id")));
-				paymentDates.add(map);
+				maps.put("typeName",paymentMap.get("prTypeName"));
+				maps.put("receivedAmount",idAmount.get(paymentMap.get("id")));
+				paymentDates.add(maps);
 			}
 		}
 		return paymentDates;
