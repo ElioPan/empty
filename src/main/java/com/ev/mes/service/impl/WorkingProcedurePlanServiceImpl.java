@@ -16,6 +16,7 @@ import com.ev.mes.domain.WorkingProcedurePlanDO;
 import com.ev.mes.service.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.xmlbeans.impl.jam.mutable.MPackage;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -690,6 +691,18 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 				}
 			}
 
+			Map<String,Object>  mapDetailDo= new HashMap<>();
+			mapDetailDo.put("planId",planDO.getId());
+			mapDetailDo.put("sort","id");
+			mapDetailDo.put("order","ASC");
+			List<WorkingProcedureDetailDO> list = detailService.list(mapDetailDo);
+			if(list.size()>0){
+				for(int i=0;i<list.size();i++){
+					WorkingProcedureDetailDO detailDo =list.get(i);
+					detailDo.setSerialNumber(i);
+					detailService.update(detailDo);
+				}
+			}
 		}
 		return update;
 	}
