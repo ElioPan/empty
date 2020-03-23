@@ -553,7 +553,10 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 				}else if(Objects.equals(sourceType, ConstantForGYL.OTHER_RECIVEABLE_TYPE)){
 						System.out.println("ok");
 						//TODO
-				}else {
+				}else if(Objects.equals(sourceType, ConstantForGYL.WWHT)){
+                        System.out.println("ok");
+                        //TODO
+                    }else {
 						return R.error(messageSourceHandler.getMessage("scm.payRecived.EroorSourceTypeOfIntroduce", null));
 				       }
 				} else {
