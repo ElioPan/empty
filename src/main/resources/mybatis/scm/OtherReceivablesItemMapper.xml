@@ -170,13 +170,14 @@
 
 		SELECT
 		a.id ,
+        b.create_time as createTime,
 		b.code,
 		b.supplier_client_id as  supplierClientId,
 		IF(b.sign='SK',d.name,c.name) as supplierClientName,
 		a.accrual_date as accrualDate,
-		a.receivable_payables_amount AS receivable_payablesAmount,
-		a.paid_received_amount  as paid_receivedAmount,
-		a.no_receipt_payment_amount as no_receiptPaymentAmount,
+		a.receivable_payables_amount AS receivablePayablesAmount,
+		a.paid_received_amount  as paidReceivedAmount,
+		a.no_receipt_payment_amount as noReceiptPaymentAmount,
 		a.remarks
 		from
 		scm_other_receivables_item a
