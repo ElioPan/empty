@@ -286,6 +286,46 @@
         </where>
     </sql>
 
+    <select id="pieceRateItem" resultType="com.ev.report.vo.PieceRateVO">
+        SELECT
+        report.id,
+        detail.dept_id AS deptId,
+        dept.`name` AS deptName,
+        report.`create_by` AS operator,
+        users.`name` AS operatorName,
+        materiel.`serial_no` AS serialNo,
+        materiel.`name` AS materielName,
+        materiel.`specification` AS specification,
+        dic.`name` AS unitUomName,
+        report.code AS code,
+        report.create_time AS createTime,
+        process.code AS processCode,
+        process.`name`  AS processName,
+        IFNULL(report.conformity_count,0) AS conformityCount,
+        IFNULL(detail.labour_price,0) AS labourPrice,
+        IFNULL(report.conformity_count,0)*IFNULL(detail.labour_price,0) AS totalPrice
+        FROM mes_process_report report
+        LEFT JOIN mes_dispatch_item dispatch ON dispatch.id = report.dispatch_item_id
+        LEFT JOIN mes_working_procedure_detail detail ON detail.id = dispatch.foriegn_id
+        LEFT JOIN mes_working_procedure_plan plan ON plan.id = detail.plan_id
+        LEFT JOIN sys_dept dept ON dept.dept_id = detail.dept_id
+        LEFT JOIN sys_user users ON users.user_id =  report.`create_by`
+        LEFT JOIN cus_materiel materiel ON materiel.id=plan.`materiel_id`
+        LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.unit_uom
+        LEFT JOIN mes_process process ON process.id=detail.process_id
+        <where>
+            <if test="userId != null and userId != ''"> and report.`create_by` = #{userId} </if>
+            <if test="deptId != null and deptId != ''"> and detail.dept_id  = #{deptId} </if>
+            <if test="deptIds != null and deptIds.size()>0"> and detail.dept_id IN
+                <foreach item="item" collection="deptIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
+        ORDER BY detail.dept_id
+    </select>
 
     <select id="productionBatchList" resultType="java.util.Map">
 
@@ -299,7 +339,5 @@
     <select id="processOutputCount" resultType="java.lang.Integer">
 
     </select>
-
-
 
 </mapper>
