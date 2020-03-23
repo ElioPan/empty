@@ -2,6 +2,7 @@ package com.ev.report.service;
 
 import com.ev.framework.utils.R;
 import com.ev.report.vo.CommonVO;
+import com.ev.report.vo.ProcessReportVO;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
@@ -28,8 +29,6 @@ public interface SmartManufacturingAccountingReportService {
 
     R productionBatch(Long id);
 
-    Pair<List<Map<String, Object>>, Map<String, BigDecimal>> processOutput(List<Map<String, Object>> data);
-
     List<Map<String, Object>> productionPlanList(Map<String, Object> params);
 
     int productionPlanCount(Map<String, Object> params);
@@ -38,12 +37,8 @@ public interface SmartManufacturingAccountingReportService {
 
     int processPlanCount(Map<String, Object> params);
 
-    List<Map<String, Object>> productionBatchList(Map<String, Object> params);
+    List<ProcessReportVO> processOutputList(Map<String, Object> params);
 
-    int productionBatchCount(Map<String, Object> params);
-
-    List<Map<String, Object>> processOutputList(Map<String, Object> params);
-
-    int processOutputCount(Map<String, Object> params);
+    Map<String, Object> processOutputCount(Map<String, Object> params);
 
 }

@@ -54,26 +54,87 @@
 
     <select id="processReport" resultType="com.ev.report.vo.ProcessReportVO">
         SELECT
-        report.id,
-        report.`code`,
-        report.`dispatch_item_id`,
-        report.`supplier_id`,
-        IFNULL(report.`completion_count`,0) AS completion_count,
-        IFNULL(report.`conformity_count`,0) AS conformity_count,
-        IFNULL(report.`rework_count`,0) AS rework_count,
-        IFNULL(report.`scrap_count`,0) AS scrap_count,
-        report.`status`,
-        report.`create_by`,
-        report.`create_time`,
-        report.`update_by`,
-        report.`update_time`,
-        report.`del_flag`,
-        dispatch.foriegn_id AS process_plan_item_id
-        FROM
-        mes_process_report report
-        LEFT JOIN mes_dispatch_item dispatch ON dispatch.id = report.dispatch_item_id
+        a.id as id,
+        a.code as code,
+        IFNULL(a.create_time,'') as createTime,
+        h.name as processName,
+        a.create_by AS createBy,
+        b.operator,
+        c.name as operatorName,
+        n.name as deviceName,
+        e.materiel_id as materielId,
+        f.serial_no as serialNo,
+        f.name as materielName,
+        f.specification,
+        g.name as unitName,
+        e.batch_no as batchNo,
+        IFNULL(a.completion_count,0) as completionCount,
+        IFNULL(mn.conformity_count,0) AS conformityCount,
+        IFNULL(mn.rework_count,0) AS reworkCount,
+        IFNULL(mn.scrap_count,0) AS scrapCount,
+        b.foriegn_id AS processPlanItemId
+        from
+        mes_process_report  a
+        LEFT JOIN  mes_dispatch_item   b ON a.dispatch_item_id =b.id
+        LEFT JOIN  sys_user   c    on  b.operator=c.user_id
+        LEFT JOIN  mes_working_procedure_detail  d  on  b.foriegn_id=d.id
+        LEFT JOIN  mes_working_procedure_plan    e  on  d.plan_id=e.id
+        LEFT JOIN  cus_materiel    f  on  e.materiel_id=f.id
+        LEFT JOIN  cus_dictionary    g  on  f.unit_uom=g.id
+        LEFT JOIN  mes_process    h  on  d.process_id=h.id
+        LEFT JOIN  cus_device   n  on  b.device_id=n .id
+        LEFT JOIN  mes_process_report_check mn on a.id=mn.process_report_id
         <where>
-            <if test="planIds != null and planIds.size()>0"> and dispatch.foriegn_id  IN
+            <if test="deptId != null and deptId != ''"> and d.`dept_id` = #{deptId} </if>
+            <if test="userId != null and userId != ''"> and b.operator = #{userId} </if>
+            <if test="processId != null and processId != ''"> and d.process_id = #{processId} </if>
+            <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(a.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(a.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="planIds != null and planIds.size()>0"> and b.foriegn_id  IN
+                <foreach item="item" collection="planIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order},id desc
+            </when>
+            <otherwise>
+                order by a.id desc
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+    <select id="processOutputCount" resultType="map">
+        SELECT
+        COUNT(*) AS total,
+        IFNULL(SUM(a.completion_count),0) as completionCount,
+        IFNULL(SUM(mn.conformity_count),0) AS conformityCount,
+        IFNULL(SUM(mn.rework_count),0) AS reworkCount,
+        IFNULL(SUM(mn.scrap_count),0) AS scrapCount
+        from
+        mes_process_report  a
+        LEFT JOIN  mes_dispatch_item   b ON a.dispatch_item_id =b.id
+        LEFT JOIN  sys_user   c    on  b.operator=c.user_id
+        LEFT JOIN  mes_working_procedure_detail  d  on  b.foriegn_id=d.id
+        LEFT JOIN  mes_working_procedure_plan    e  on  d.plan_id=e.id
+        LEFT JOIN  cus_materiel    f  on  e.materiel_id=f.id
+        LEFT JOIN  cus_dictionary    g  on  f.unit_uom=g.id
+        LEFT JOIN  mes_process    h  on  d.process_id=h.id
+        LEFT JOIN  cus_device   n  on  b.device_id=n .id
+        LEFT JOIN  mes_process_report_check mn on a.id=mn.process_report_id
+        <where>
+            <if test="deptId != null and deptId != ''"> and d.`dept_id` = #{deptId} </if>
+            <if test="userId != null and userId != ''"> and b.operator = #{userId} </if>
+            <if test="processId != null and processId != ''"> and d.process_id = #{processId} </if>
+            <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(a.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(a.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="planIds != null and planIds.size()>0"> and b.foriegn_id  IN
                 <foreach item="item" collection="planIds" open="(" separator="," close=")" index="index">
                     <if test="item!=null">
                         #{item}
@@ -82,6 +143,7 @@
             </if>
         </where>
     </select>
+
 
     <select id="processReportCheck" resultType="com.ev.report.vo.ProcessReportCheckVO">
         SELECT
@@ -360,19 +422,6 @@
             </if>
         </where>
         ORDER BY detail.dept_id
-    </select>
-
-    <select id="productionBatchList" resultType="java.util.Map">
-
-    </select>
-    <select id="productionBatchCount" resultType="java.lang.Integer">
-
-    </select>
-    <select id="processOutputList" resultType="java.util.Map">
-
-    </select>
-    <select id="processOutputCount" resultType="java.lang.Integer">
-
     </select>
 
 </mapper>

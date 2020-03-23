@@ -471,13 +471,6 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
         return R.ok(results);
     }
 
-    @Override
-    public Pair<List<Map<String, Object>>, Map<String, BigDecimal>> processOutput(List<Map<String, Object>> data) {
-        Map<String, BigDecimal> totalMap = Maps.newHashMap();
-
-
-        return Pair.of(data, totalMap);
-    }
 
     @Override
     public List<Map<String, Object>> productionPlanList(Map<String, Object> params) {
@@ -500,22 +493,12 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
     }
 
     @Override
-    public List<Map<String, Object>> productionBatchList(Map<String, Object> params) {
-        return reportDao.productionBatchList(params);
+    public List<ProcessReportVO> processOutputList(Map<String, Object> params) {
+        return reportDao.processReport(params);
     }
 
     @Override
-    public int productionBatchCount(Map<String, Object> params) {
-        return reportDao.productionBatchCount(params);
-    }
-
-    @Override
-    public List<Map<String, Object>> processOutputList(Map<String, Object> params) {
-        return reportDao.processOutputList(params);
-    }
-
-    @Override
-    public int processOutputCount(Map<String, Object> params) {
+    public Map<String, Object> processOutputCount(Map<String, Object> params) {
         return reportDao.processOutputCount(params);
     }
 }
