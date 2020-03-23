@@ -316,5 +316,27 @@
 	</select>
 
 
+	<select id="getssss" resultType="map">
+		SELECT
+		a.id,
+		b.create_time as createTime,
+		b.
+		a.account_number as accountNumber,
+		a.this_amount AS thisAmount
+		FROM
+		scm_payment_received_item a
+		LEFT  JOIN  scm_payment_received b on b.id=a.payment_received_id
+		<where>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="sign != null and sign != ''"> AND b.sign = #{sign} </if>
+			<if test="auditSign != null and auditSign != ''"> AND b.audit_sign = #{auditSign} </if>
+			<if test="accountNumber != null and accountNumber != ''"> AND a.account_number IN
+				<foreach item="id" collection="accountNumber" open="(" separator="," close=")">
+					#{id}
+				</foreach> </if>
+		</where>
+	</select>
+
 
 </mapper>

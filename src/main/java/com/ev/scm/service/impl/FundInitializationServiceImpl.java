@@ -214,10 +214,9 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 				oneDetail.put("remainingAmount",initializationAmount.add(new BigDecimal(inAmount)).add(totailInAmount).subtract(totailOutAmount).subtract(new BigDecimal(outAmount)));
 				oneDetail.put("companyName",ConstantForGYL.company_ame);
 			}
-			int total= Integer.parseInt(countOfList.get("totailCount").toString());
-			params.put("total",total);
+			params.put("total",getlist.size());
 			params.put("totailInitialAmount",countOfList.get("totailInitialAmount"));
-			params.put("data", new DsResultResponse(pageno,pagesize,total,getlist));
+			params.put("data", new DsResultResponse(pageno,pagesize,getlist.size(),getlist));
 		}
 		return R.ok(params);
 	}
@@ -232,6 +231,13 @@ public class FundInitializationServiceImpl implements FundInitializationService 
         List<Map<String, Object>> outBankDetails = bankTransferItemService.getBankOutDetail(map);
         map.put("transferInAcc",founId);
         List<Map<String, Object>> inBankDetails = bankTransferItemService.getBankDetail(map);
+
+        //收款  付款
+
+
+
+
+
 
         List<Map<String, Object>>  bankDetails= new ArrayList<>();
         if(!outBankDetails.isEmpty()){

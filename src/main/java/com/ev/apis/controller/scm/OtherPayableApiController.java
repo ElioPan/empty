@@ -147,10 +147,13 @@ public class OtherPayableApiController {
         map.put("sign",ConstantForGYL.OTHER_PAYABLE);
         List<Map<String, Object>> list = otherReceivablesItemService.getDetailOfIntroduce(map);
         Map<String, Object> countForMap = otherReceivablesItemService.totailAmountOfIntroduce(map);
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.OTHER_PAYABLE_TYPE.intValue());
+        String sourceTypeName=dictionaryDO.getName();
         Map<String, Object> result = Maps.newHashMap();
         if (list.size() > 0) {
             for(Map<String, Object> maps:list){
                 maps.put("sourceType",ConstantForGYL.OTHER_PAYABLE_TYPE);
+                maps.put("sourceTypeName",sourceTypeName);
             }
             result.put("data", new DsResultResponse(pageno,pagesize,Integer.parseInt(countForMap.get("count").toString()),list));
             result.put("totailReceivablePayablesAmount", countForMap.get("totailReceivablePayablesAmount"));

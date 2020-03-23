@@ -11,6 +11,7 @@ import com.ev.scm.dao.PaymentReceivedDao;
 import com.ev.scm.domain.*;
 import com.ev.scm.service.*;
 import com.google.common.collect.Maps;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -503,7 +504,7 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 				BigDecimal thisAmount = itemDo.getThisAmount();
 				Long sourceType = itemDo.getSourceType();
 				if (Objects.nonNull(sourceType)) {
-					if(Objects.equals(sourceType, ConstantForGYL.CGHT)){
+					if (Objects.equals(sourceType, ConstantForGYL.CGHT)) {
 						//获取采购合同付款条件明细数量
 						PurchasecontractPayDO purchasecontractPayDO = purchasecontractPayService.get(sourceId);
 						if (purchasecontractPayDO != null) {
@@ -515,40 +516,46 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 //							BigDecimal toailThisAmounts = paymentReceivedItemService.getInCountOfPayment(map);
 //							BigDecimal thisAmounts = (toailThisAmounts == null) ? BigDecimal.ZERO : toailThisAmounts;
 							//采购合同未付总金额
-							BigDecimal unpayAmount=purchasecontractPayDO.getUnpayAmount()==null?BigDecimal.ZERO : purchasecontractPayDO.getUnpayAmount();
+							BigDecimal unpayAmount = purchasecontractPayDO.getUnpayAmount() == null ? BigDecimal.ZERO : purchasecontractPayDO.getUnpayAmount();
 
 							int boo = unpayAmount.compareTo(thisAmount);
 							if (Objects.equals(-1, boo)) {
-								String[] args = {thisAmount.toPlainString(),unpayAmount.toPlainString(), itemDo.getSourceCode().toString()};
-								Map<String,Object>  maps= new HashMap<>();
-								maps.put("sourceId",sourceId);
-								maps.put("sourceCount",unpayAmount);
-								return R.error(500,messageSourceHandler.getMessage("stock.payRecived.checkErrorPurchase", args),maps);
+								String[] args = {thisAmount.toPlainString(), unpayAmount.toPlainString(), itemDo.getSourceCode().toString()};
+								Map<String, Object> maps = new HashMap<>();
+								maps.put("sourceId", sourceId);
+								maps.put("sourceCount", unpayAmount);
+								return R.error(500, messageSourceHandler.getMessage("stock.payRecived.checkErrorPurchase", args), maps);
 							}
 						} else {
 							return R.error(messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null));
 						}
-					}else if(Objects.equals(sourceType, ConstantForGYL.XSHT)){
+					} else if (Objects.equals(sourceType, ConstantForGYL.XSHT)) {
 						//销售合同
 						SalescontractPayDO salescontractPayDo = salescontractPayService.get(sourceId);
 						if (salescontractPayDo != null) {
 
 							//销售合同未收总金额
-							BigDecimal unpayAmount=salescontractPayDo.getUnpayAmount()==null?BigDecimal.ZERO : salescontractPayDo.getReceivableAmount();
+							BigDecimal unpayAmount = salescontractPayDo.getUnpayAmount() == null ? BigDecimal.ZERO : salescontractPayDo.getReceivableAmount();
 							int boo = unpayAmount.compareTo(thisAmount);
 							if (Objects.equals(-1, boo)) {
-								String[] args = {thisAmount.toPlainString(),unpayAmount.toPlainString(), itemDo.getSourceCode().toString()};
-								Map<String,Object>  maps= new HashMap<>();
-								maps.put("sourceId",sourceId);
-								maps.put("sourceCount",unpayAmount);
-								return R.error(500,messageSourceHandler.getMessage("stock.payRecived.checkErrorSales", args),maps);
+								String[] args = {thisAmount.toPlainString(), unpayAmount.toPlainString(), itemDo.getSourceCode().toString()};
+								Map<String, Object> maps = new HashMap<>();
+								maps.put("sourceId", sourceId);
+								maps.put("sourceCount", unpayAmount);
+								return R.error(500, messageSourceHandler.getMessage("stock.payRecived.checkErrorSales", args), maps);
 							}
 						} else {
 							return R.error(messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null));
 						}
-					}else{
+					}else if(Objects.equals(sourceType, ConstantForGYL.OTHER_PAYABLE_TYPE)){
+						System.out.println("ok");
+						//TODO
+				}else if(Objects.equals(sourceType, ConstantForGYL.OTHER_RECIVEABLE_TYPE)){
+						System.out.println("ok");
+						//TODO
+				}else {
 						return R.error(messageSourceHandler.getMessage("scm.payRecived.EroorSourceTypeOfIntroduce", null));
-					}
+				       }
 				} else {
 					return R.error(messageSourceHandler.getMessage("scm.purchase.haveNoMagOfSource", null));
 				}

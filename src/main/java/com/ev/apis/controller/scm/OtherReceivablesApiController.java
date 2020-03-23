@@ -38,6 +38,7 @@ public class OtherReceivablesApiController {
     private OtherReceivablesItemService otherReceivablesItemService;
 
 
+
     @EvApiByToken(value = "/apis/scm/otherReceivables/addAndChange", method = RequestMethod.POST, apiTitle = "增加/修改--其他应收")
     @ApiOperation("增加/修改--其他应收")
     @Transactional(rollbackFor = Exception.class)
@@ -145,11 +146,13 @@ public class OtherReceivablesApiController {
 
         List<Map<String, Object>> list = otherReceivablesItemService.getDetailOfIntroduce(map);
         Map<String, Object> countForMap = otherReceivablesItemService.totailAmountOfIntroduce(map);
-
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.OTHER_RECIVEABLE_TYPE.intValue());
+        String sourceTypeName=dictionaryDO.getName();
         Map<String, Object> result = Maps.newHashMap();
         if (list.size() > 0) {
             for(Map<String, Object> maps:list){
                 maps.put("sourceType",ConstantForGYL.OTHER_RECIVEABLE_TYPE);
+                maps.put("sourceTypeName",sourceTypeName);
             }
             result.put("data", new DsResultResponse(pageno,pagesize,Integer.parseInt(countForMap.get("count").toString()),list));
             result.put("totailReceivablePayablesAmount", countForMap.get("totailReceivablePayablesAmount"));
