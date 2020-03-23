@@ -96,7 +96,9 @@ public class PaymentReceivedItemServiceImpl implements PaymentReceivedItemServic
 	}
 
 	@Override
-	public BigDecimal getInCountById(Map<String, Object> map) {
+	public List<Map<String, Object>> getInCountById(Map<String, Object> map) {
 		return paymentReceivedItemDao.getInCountById(map);
 	}
+
+
 }

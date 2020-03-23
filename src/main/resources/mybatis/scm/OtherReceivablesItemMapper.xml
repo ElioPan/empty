@@ -188,7 +188,7 @@
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
 			<if test="auditSign !=null and auditSign != ''"> AND b.audit_sign = #{auditSign} </if>
 			<if test="sign != null and sign != ''"> AND b.sign = #{sign} </if>
-			<if test="supplierId != null and supplierName != ''"> AND b.supplier_client_id = #{supplierName} </if>
+			<if test="supplierId != null and supplierId != ''"> AND b.supplier_client_id = #{supplierId} </if>
 			<if test="clientId != null and clientId != ''"> AND b.supplier_client_id = #{clientId} </if>
 		</where>
 		<choose>
@@ -220,7 +220,7 @@
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
 			<if test="auditSign!= null and auditSign != ''"> AND b.audit_sign = #{auditSign} </if>
 			<if test="sign != null and sign != ''"> AND b.sign = #{sign} </if>
-			<if test="supplierId != null and supplierName != ''"> AND b.supplier_client_id = #{supplierName} </if>
+			<if test="supplierId != null and supplierId != ''"> AND b.supplier_client_id = #{supplierId} </if>
 			<if test="clientId != null and clientId != ''"> AND b.supplier_client_id = #{clientId} </if>
 		</where>
 	</select>

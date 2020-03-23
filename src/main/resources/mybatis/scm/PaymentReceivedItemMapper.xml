@@ -295,20 +295,24 @@
 	</select>
 
 
-	<select id="getInCountById" resultType="java.math.BigDecimal">
+	<select id="getInCountById" resultType="map">
 		SELECT
-		IF(sum(a.this_amount) is null,0,sum(a.this_amount))
+		a.id,
+		a.account_number as accountNumber,
+		a.this_amount AS thisAmount
 		FROM
 		scm_payment_received_item a
 		LEFT  JOIN  scm_payment_received b on b.id=a.payment_received_id
 		<where>
-			<if test="sign != null and sign != ''"> AND b.sign = #{sign} </if>   sign  auditSign  accountNumber
-			<if test="auditSign != null and auditSign != ''"> AND a.audit_sign = #{auditSign} </if>
+			<if test="sign != null and sign != ''"> AND b.sign = #{sign} </if>
+			<if test="auditSign != null and auditSign != ''"> AND b.audit_sign = #{auditSign} </if>
 			<if test="accountNumber != null and accountNumber != ''"> AND a.account_number IN
 				<foreach item="id" collection="accountNumber" open="(" separator="," close=")">
-				#{id}
+						#{id}
 				</foreach> </if>
 		</where>
 	</select>
+
+
 
 </mapper>

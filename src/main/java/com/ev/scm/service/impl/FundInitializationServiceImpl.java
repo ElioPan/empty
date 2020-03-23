@@ -147,38 +147,34 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 		Map<String, Object> countOfList = this.countOfList(map);
 		Map<String,Object>  params= new HashMap<>();
 		Map<String,Object>  mapId= new HashMap<>();
-
-        for(Map<String, Object> oneDetail:getlist){
-            String id=oneDetail.get("id").toString();
-           if(mapId.containsKey("id")){
-               mapId.put(id,id);
-            continue;
-           }
-            mapId.put(id,id);
-        }
-        Set<String> strId = map.keySet();
-        Long[] ids= new Long[mapId.size()];
-        int i=0;
-        for(String ss :strId){
-            ids[i]= Long.parseLong(ss);
-            i+=1;
-        }
-         //付款
-        Map<String,Object>  query= new HashMap<>();
-        query.put("sign", ConstantForGYL.PAYMENT_ORDER);
-        query.put("auditSign",ConstantForGYL.OK_AUDITED);
-        query.put("accountNumber",ids);
-        BigDecimal outCountById = paymentReceivedItemService.getInCountById(query);
-
-        //收款
-        query.put("sign", ConstantForGYL.ALL_BILL);
-        BigDecimal inCountById = paymentReceivedItemService.getInCountById(query);
-
-
-
-
-
         if ( getlist.size() > 0) {
+
+            for(Map<String, Object> oneDetail:getlist){
+                String id=oneDetail.get("id").toString();
+                if(mapId.containsKey("id")){
+                    mapId.put(id,id);
+                    continue;
+                }
+                mapId.put(id,id);
+            }
+            Set<String> strId = mapId.keySet();
+            Long[] ids= new Long[mapId.size()];
+            int i=0;
+            for(String ss :strId){
+                ids[i]= Long.parseLong(ss);
+                i+=1;
+            }
+
+            //付款
+            Map<String,Object>  query= new HashMap<>();
+            query.put("sign", ConstantForGYL.PAYMENT_ORDER);
+            query.put("auditSign",ConstantForGYL.OK_AUDITED);
+            query.put("accountNumber",ids);
+            List<Map<String, Object>> outMaps= paymentReceivedItemService.getInCountById(query);
+            //收款
+            query.put("sign", ConstantForGYL.ALL_BILL);
+            List<Map<String, Object>> inMaps=paymentReceivedItemService.getInCountById(query);
+
 			for(Map<String, Object> oneDetail:getlist){
 				Map<String,Object>  maps= new HashMap<>();
 				maps.put("transferOutAcc",oneDetail.get("id"));
@@ -193,7 +189,23 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 				//初始化金额
 				BigDecimal initializationAmount=oneDetail.get("initialAmount")==null?BigDecimal.ZERO:new BigDecimal(oneDetail.get("initialAmount").toString());
 
-				oneDetail.put("remainingAmount",initializationAmount.add(new BigDecimal(inAmount)).subtract(new BigDecimal(outAmount)));
+                BigDecimal totailOutAmount=BigDecimal.ZERO;
+                if(outMaps.size()>0){
+                        for(Map<String, Object> outMap:outMaps){
+                            if(Objects.equals(Long.parseLong(oneDetail.get("id").toString()),Long.parseLong(outMap.get("accountNumber").toString()))){
+                                totailOutAmount=totailOutAmount.add(new BigDecimal(outMap.get("thisAmount").toString()));
+                            }
+                        }
+                }
+                BigDecimal totailInAmount=BigDecimal.ZERO;
+                if(inMaps.size()>0){
+                        for(Map<String, Object> inMap:inMaps){
+                            if(Objects.equals(Long.parseLong(oneDetail.get("id").toString()),Long.parseLong(inMap.get("accountNumber").toString()))){
+                                totailInAmount=totailInAmount.add(new BigDecimal(inMap.get("thisAmount").toString()));
+                            }
+                        }
+                }
+				oneDetail.put("remainingAmount",initializationAmount.add(new BigDecimal(inAmount)).add(totailInAmount).subtract(totailOutAmount).subtract(new BigDecimal(outAmount)));
 				oneDetail.put("companyName",ConstantForGYL.company_ame);
 			}
 			int total= Integer.parseInt(countOfList.get("totailCount").toString());
