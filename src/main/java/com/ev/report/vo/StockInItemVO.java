@@ -63,5 +63,9 @@ public class StockInItemVO implements Serializable {
 	private Long qrcodeId;
 	//记录已被核销的出库id及核销数量
 	private String accountSource;
+	// 入库单号
+	private String stockInCode;
+	// 入库事件
+	private String inOutTime;
 
 }

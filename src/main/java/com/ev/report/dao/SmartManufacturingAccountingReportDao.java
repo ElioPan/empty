@@ -40,7 +40,11 @@ public interface SmartManufacturingAccountingReportDao {
 
     List<StockInItemVO> stockInItem(Map<String, Object> param);
 
+    List<StockOutItemVO> stockOutItem(Map<String, Object> param);
+
     List<MaterialInspectionVO> productionInspection(Map<String, Object> param);
 
     List<PieceRateVO> pieceRateItem(Map<String, Object> param);
+
+
 }

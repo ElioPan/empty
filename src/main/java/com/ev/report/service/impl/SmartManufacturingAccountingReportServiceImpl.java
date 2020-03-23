@@ -456,11 +456,19 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
     }
 
     @Override
-    public Pair<List<Map<String, Object>>, Map<String, BigDecimal>> productionBatch(List<Map<String, Object>> data) {
-        Map<String, BigDecimal> totalMap = Maps.newHashMap();
-
-
-        return Pair.of(data, totalMap);
+    public R productionBatch(Long id) {
+        Map<String, Object> param = Maps.newHashMap();
+        // 查询领料单
+        param.put("planId", id);
+        param.put("sourceType", ConstantForMES.SCTL);
+        List<StockOutItemVO> stockOutItemList = reportDao.stockOutItem(param);
+        // 查询入库单
+        param.put("sourceType", ConstantForMES.SCJH);
+        List<StockInItemVO> stockInItemList = reportDao.stockInItem(param);
+        Map<String, Object> results = Maps.newHashMap();
+        results.put("stockIn", stockInItemList);
+        results.put("stockOut", stockOutItemList);
+        return R.ok(results);
     }
 
     @Override

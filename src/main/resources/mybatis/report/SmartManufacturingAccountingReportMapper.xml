@@ -197,39 +197,74 @@
 
     <select id="stockInItem" resultType="com.ev.report.vo.StockInItemVO">
         SELECT
-        `id`,
-        `inhead_id`,
-        `materiel_id`,
-        `batch`,
-        `count`,
-        `unit_price`,
-        `amount`,
-        `warehouse`,
-        `wareh_location`,
-        `return_reason`,
-        `source_type`,
-        `source_code`,
-        `source_id`,
-        `expense`,
-        `cost`,
-        `create_by`,
-        `create_time`,
-        `update_by`,
-        `update_time`,
-        `del_flag`,
-        `qrcode_id`,
-        `account_source`
+        item.`id`,
+        item.`inhead_id`,
+        item.`materiel_id`,
+        item.`batch`,
+        item.`count`,
+        item.`unit_price`,
+        item.`amount`,
+        item.`warehouse`,
+        item.`wareh_location`,
+        item.`return_reason`,
+        item.`source_type`,
+        item.`source_code`,
+        item.`source_id`,
+        item.`expense`,
+        item.`cost`,
+        item.`create_by`,
+        item.`create_time`,
+        item.`update_by`,
+        item.`update_time`,
+        item.`del_flag`,
+        item.`qrcode_id`,
+        item.`account_source`,
+        stock.inhead_code AS stockInCode,
+        stock.in_out_time
         FROM
-        scm_stock_in_item
+        scm_stock_in_item item
+        LEFT JOIN scm_stock_in stock ON stock.id=item.inhead_id
         <where>
-            <if test="planIds != null and planIds.size()>0"> and source_id IN
+            <if test="planIds != null and planIds.size()>0"> and item.source_id IN
                 <foreach item="item" collection="planIds" open="(" separator="," close=")" index="index">
                     <if test="item!=null">
                         #{item}
                     </if>
                 </foreach>
             </if>
-            <if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+            <if test="sourceType != null and sourceType != ''"> and item.source_type = #{sourceType} </if>
+            <if test="planId != null and planId != ''"> and item.source_id = #{planId} </if>
+        </where>
+    </select>
+
+    <select id="stockOutItem" resultType="com.ev.report.vo.StockOutItemVO">
+        SELECT
+        item.`id`,
+        stock.out_code AS stockOutCode,
+        stock.out_time AS outTime,
+        materiel.`serial_no` AS serialNo,
+        materiel.`name` AS materielName,
+        materiel.`specification` AS specification,
+        dic.`name` AS unitUomName,
+        item.`batch`,
+        item.`count`
+        FROM
+        scm_stock_out_item item
+        LEFT JOIN scm_stock_out stock ON stock.id=item.out_id
+        LEFT JOIN cus_materiel materiel ON materiel.id=item.`materiel_id`
+        LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.unit_uom
+        LEFT JOIN mes_production_feeding_detail detail ON detail.id=item.source_id
+        LEFT JOIN mes_production_feeding feeding ON feeding.id=detail.head_id
+        <where>
+            <if test="planIds != null and planIds.size()>0"> and feeding.production_plan_id IN
+                <foreach item="item" collection="planIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+            <if test="sourceType != null and sourceType != ''"> and item.source_type = #{sourceType} </if>
+            <if test="planId != null and planId != ''"> and feeding.production_plan_id = #{planId} </if>
         </where>
     </select>
 

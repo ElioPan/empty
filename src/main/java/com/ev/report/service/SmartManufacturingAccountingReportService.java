@@ -26,7 +26,7 @@ public interface SmartManufacturingAccountingReportService {
 
     R pieceRateGroupByUser(CommonVO commonVO);
 
-    Pair<List<Map<String, Object>>, Map<String, BigDecimal>> productionBatch(List<Map<String, Object>> data);
+    R productionBatch(Long id);
 
     Pair<List<Map<String, Object>>, Map<String, BigDecimal>> processOutput(List<Map<String, Object>> data);
 
