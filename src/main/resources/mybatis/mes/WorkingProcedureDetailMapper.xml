@@ -57,8 +57,8 @@
 			dictds.name AS `processStatusName`,
 			<!--跟踪记录使用  -->
 			detail.`reality_end_time` AS realityEndTime,
-			detail.`reality_start_time` AS realityStartTime
-			
+			detail.`reality_start_time` AS realityStartTime,
+			detail.serial_number as serialNumber
 			<!-- ,
 			workingplan.`source_id` AS sourceId, 
 			workingplan.`source_no` AS sourceNo,
@@ -134,8 +134,8 @@
 			<!-- 完工数量 -->
 			detail.`reality_end_time` AS realityEndTime,
 			detail.`reality_start_time` AS realityStartTime,
-			detail.completion_count AS completionCount
-			
+			detail.completion_count AS completionCount,
+			detail.serial_number AS serialNumber
 			FROM mes_working_procedure_detail  detail
 			LEFT JOIN  mes_process process ON process.`id`=detail.`process_id`
             LEFT JOIN  cus_dictionary dicp ON dicp.`id`=detail.`process_type`
@@ -178,8 +178,8 @@
         <!-- 完工数量 -->
         detail.`reality_end_time` AS realityEndTime,
         detail.`reality_start_time` AS realityStartTime,
-        detail.completion_count AS completionCount
-
+        detail.completion_count AS completionCount,
+		detail.serial_number AS serialNumber
         FROM mes_working_procedure_detail  detail
         LEFT JOIN  mes_process process ON process.`id`=detail.`process_id`
         LEFT JOIN  cus_dictionary dicp ON dicp.`id`=detail.`process_type`
@@ -203,7 +203,8 @@
 			b.norm,
 			b.method,
 			b.instrument_name as  instrument,
-			b.remark
+			b.remark,
+			c.serial_number AS serialNumber
 		FROM mes_process_check a
 		LEFT JOIN mes_check_project b on a.pro_id=b.id
         LEFT JOIN mes_working_procedure_detail c on a.foreign_id=c.id
@@ -227,7 +228,8 @@
 			a.device_id as deviceId,
 			a.start_time as startTime,
 			a.end_time as endTime,
-			a.plan_count as planCount
+			a.plan_count as planCount,
+			b.serial_number AS serialNumber
 			FROM
 			mes_dispatch_item   a
 			LEFT JOIN mes_working_procedure_detail b  on a.foriegn_id=b.id
@@ -246,6 +248,7 @@
 		(
 			`plan_id`, 
 			`process_id`,
+			`serial_number`,
 			`process_type`,
 			`demand`, 
 			`dept_id`, 
@@ -279,6 +282,7 @@
 		(
 			#{planId}, 
 			#{processId},
+			#{serialNumber},
 			#{processType},
 			#{demand}, 
 			#{deptId}, 
@@ -313,6 +317,7 @@
 	<update id="update" parameterType="com.ev.mes.domain.WorkingProcedureDetailDO">
 		update mes_working_procedure_detail 
 		<set>
+			<if test="serialNumber != null">`serial_number` = #{serialNumber}, </if>
 			<if test="planId != null">`plan_id` = #{planId}, </if>
 			<if test="processId != null">`process_id` = #{processId}, </if>
             <if test="processType != null">`process_type` = #{processType}, </if>
@@ -350,6 +355,7 @@
 	<update id="updateByPlanId" parameterType="com.ev.mes.domain.WorkingProcedureDetailDO">
 		update mes_working_procedure_detail 
 		<set>
+			<if test="serialNumber != null">`serial_number` = #{serialNumber}, </if>
 			<if test="processId != null">`process_id` = #{processId}, </if>
             <if test="processType != null">`process_type` = #{processType}, </if>
 			<if test="demand != null">`demand` = #{demand}, </if>
@@ -399,11 +405,13 @@
 	</delete>
 	
 	<sql id="sql_column_list">
-		`id`,`plan_id`,`process_id`,`process_type`,`demand`,`dept_id`,`operator`,`is_examine`,`is_outsource`,`is_collect`,`device_id`,`device_name`,`is_auto`,`is_dispatching`,`plan_count`,`plan_start_time`,`plan_end_time`,`standard`,`total_hour`,`man_hour`,`labour_price`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`already_count`,`completion_count`,`reality_end_time`,`reality_start_time`,`before_split_id`
+		`id`,`plan_id`,`serial_number`,`process_id`,`process_type`,`demand`,`dept_id`,`operator`,`is_examine`,`is_outsource`,`is_collect`,`device_id`,`device_name`,`is_auto`,`is_dispatching`,`plan_count`,`plan_start_time`,`plan_end_time`,`standard`,`total_hour`,`man_hour`,`labour_price`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`already_count`,`completion_count`,`reality_end_time`,`reality_start_time`,`before_split_id`
 	</sql>
 	
 	<sql id="sql_condition">
-		<where>  
+		<where>
+
+				 <if test="serial_number != null and serial_number != ''"> and serial_number = #{serialNumber} </if>
 		  		  <if test="id != null and id != ''"> and id = #{id} </if>
 		  		  <if test="planId != null and planId != ''"> and plan_id = #{planId} </if>
 		  		  <if test="processId != null and processId != ''"> and process_id = #{processId} </if>

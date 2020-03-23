@@ -13,10 +13,9 @@ import com.ev.scm.dao.FundInitializationDao;
 import com.ev.scm.domain.FundInitializationDO;
 import com.ev.scm.service.BankTransferItemService;
 import com.ev.scm.service.FundInitializationService;
-
+import com.ev.scm.service.PaymentReceivedItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -33,6 +32,9 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 	private BankTransferItemService bankTransferItemService;
     @Autowired
     private DictionaryService dictionaryService;
+    @Autowired
+    private PaymentReceivedItemService paymentReceivedItemService;
+
 
 	@Override
 	public FundInitializationDO get(Long id){
@@ -144,7 +146,39 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 		List<Map<String, Object>> getlist = this.getlist(map);
 		Map<String, Object> countOfList = this.countOfList(map);
 		Map<String,Object>  params= new HashMap<>();
-		if ( getlist.size() > 0) {
+		Map<String,Object>  mapId= new HashMap<>();
+
+        for(Map<String, Object> oneDetail:getlist){
+            String id=oneDetail.get("id").toString();
+           if(mapId.containsKey("id")){
+               mapId.put(id,id);
+            continue;
+           }
+            mapId.put(id,id);
+        }
+        Set<String> strId = map.keySet();
+        Long[] ids= new Long[mapId.size()];
+        int i=0;
+        for(String ss :strId){
+            ids[i]= Long.parseLong(ss);
+            i+=1;
+        }
+         //付款
+        Map<String,Object>  query= new HashMap<>();
+        query.put("sign", ConstantForGYL.PAYMENT_ORDER);
+        query.put("auditSign",ConstantForGYL.OK_AUDITED);
+        query.put("accountNumber",ids);
+        BigDecimal outCountById = paymentReceivedItemService.getInCountById(query);
+
+        //收款
+        query.put("sign", ConstantForGYL.ALL_BILL);
+        BigDecimal inCountById = paymentReceivedItemService.getInCountById(query);
+
+
+
+
+
+        if ( getlist.size() > 0) {
 			for(Map<String, Object> oneDetail:getlist){
 				Map<String,Object>  maps= new HashMap<>();
 				maps.put("transferOutAcc",oneDetail.get("id"));

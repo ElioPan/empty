@@ -94,4 +94,9 @@ public class PaymentReceivedItemServiceImpl implements PaymentReceivedItemServic
 	public List<PaymentReceivedItemDO> getInOfPaymentAmount(Map<String, Object> map) {
 		return paymentReceivedItemDao.getInOfPaymentAmount(map);
 	}
+
+	@Override
+	public BigDecimal getInCountById(Map<String, Object> map) {
+		return paymentReceivedItemDao.getInCountById(map);
+	}
 }

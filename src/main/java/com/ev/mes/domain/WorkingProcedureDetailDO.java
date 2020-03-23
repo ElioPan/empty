@@ -1,12 +1,12 @@
 package com.ev.mes.domain;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.Date;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
 
 
 /**
@@ -27,6 +27,9 @@ public class WorkingProcedureDetailDO implements Serializable {
 	//工序计划ID
     @ApiModelProperty(value = "工序计划ID")
 	private Long planId;
+
+	@ApiModelProperty(value = "序号")
+	private Integer serialNumber;
 	//工序ID
     @ApiModelProperty(value = "工序ID")
 	private Long processId;

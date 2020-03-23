@@ -97,6 +97,7 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 				detailDO.setPlanId(planId);
 				detailDO.setIsDispatching(ConstantForMES.PLAN);
 				detailDO.setAlreadyCount(BigDecimal.ZERO);
+				detailDO.setSerialNumber(i);
 				detailService.save(detailDO);
 				// 是否需要检验
 				if (detailDO.getIsExamine() == 1) {
@@ -657,6 +658,7 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 				WorkingProcedureDetailDO detailDO = parseArray.get(i);
 				if (detailDO.getId() == null) {
 					detailDO.setPlanId(planId);
+					detailDO.setSerialNumber(i);
 					detailService.save(detailDO);
 				}
 				if (detailDO.getId() != null) {

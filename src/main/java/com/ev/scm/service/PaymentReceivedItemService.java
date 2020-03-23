@@ -41,5 +41,8 @@ public interface PaymentReceivedItemService {
 
 	List<PaymentReceivedItemDO> getInOfPaymentAmount(Map<String, Object> map);
 
+	BigDecimal getInCountById(Map<String, Object> map);
+
+
 
 }

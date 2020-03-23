@@ -373,7 +373,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 
 		List<Map<String, Object>> paymentDates=new ArrayList<>();
 
-		if(paymentMaps.size()>0){
+		if(paymentMaps.isEmpty()){
 			Long[] ids=new Long[paymentMaps.size()];
 			for(int i=0;i<paymentMaps.size();i++){
 				ids[i]=Long.parseLong(paymentMaps.get(i).get("id").toString());
