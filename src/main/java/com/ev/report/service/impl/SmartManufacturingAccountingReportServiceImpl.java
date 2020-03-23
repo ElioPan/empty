@@ -353,7 +353,21 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
 
     @Override
     public R pieceRate(CommonVO commonVO) {
-        return null;
+        Long deptId = commonVO.getDeptId();
+        Long userId = commonVO.getUserId();
+        if (deptId == null || userId == null) {
+            return R.ok();
+        }
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("deptId", deptId);
+        param.put("userId", userId);
+        List<PieceRateVO> pieceRateVOLists = reportDao.pieceRateItem(param);
+        if (pieceRateVOLists.size() == 0) {
+            return R.ok();
+        }
+        Map<String, Object> results = Maps.newHashMap();
+        results.put("data", pieceRateVOLists);
+        return R.ok(results);
     }
 
     @Override
@@ -362,24 +376,28 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
         int pageSize = commonVO.getPagesize();
         Long userIdInfo = commonVO.getUserId();
         Long deptIdInfo = commonVO.getDeptId();
-        // 获取用户 用户的部门信息
+        // 获取所有的报工单
         Map<String, Object> param = Maps.newHashMap();
         param.put("userId", userIdInfo);
         param.put("deptId", deptIdInfo);
         List<PieceRateVO> pieceRateVOLists = reportDao.pieceRateItem(param);
-        if (pieceRateVOLists.size()==0) {
+        if (pieceRateVOLists.size() == 0) {
             return R.ok();
         }
         List<PieceRateVO> pieceRateVOList = PageUtils.startPage(pieceRateVOLists, pageNo, pageSize);
         // 各个部门工资小计
-        Map<String, BigDecimal> deptTotal = pieceRateVOList
+        Map<Long, BigDecimal> deptTotal = pieceRateVOList
                 .stream()
-                .collect(Collectors.toMap(PieceRateVO::getDeptName, PieceRateVO::getTotalPrice, BigDecimal::add));
+                .collect(Collectors.toMap(PieceRateVO::getDeptId, PieceRateVO::getTotalPrice, BigDecimal::add));
+        Map<Long, String> deptNameMap = pieceRateVOList
+                .stream()
+                .collect(Collectors.toMap(PieceRateVO::getDeptId, PieceRateVO::getDeptName, (v1, v2) -> v1));
         List<Map<String, Object>> data = Lists.newArrayList();
         Map<String, Object> map;
-        for (String s : deptTotal.keySet()) {
+        for (Long s : deptTotal.keySet()) {
             map = Maps.newHashMap();
-            map.put("deptName", s + "小计");
+            map.put("deptId", s);
+            map.put("deptName", deptNameMap.get(s) + "小计");
             map.put("totalPieceRate", deptTotal.get(s));
             data.add(map);
         }
@@ -406,7 +424,35 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
 
     @Override
     public R pieceRateGroupByUser(CommonVO commonVO) {
-        return null;
+        Long deptId = commonVO.getDeptId();
+        if (deptId == null) {
+            return R.ok();
+        }
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("deptId", deptId);
+        List<PieceRateVO> pieceRateVOLists = reportDao.pieceRateItem(param);
+        if (pieceRateVOLists.size() == 0) {
+            return R.ok();
+        }
+        // 各个部门工资小计
+        Map<Long, BigDecimal> userTotal = pieceRateVOLists
+                .stream()
+                .collect(Collectors.toMap(PieceRateVO::getOperator, PieceRateVO::getTotalPrice, BigDecimal::add));
+        Map<Long, String> userNameMap = pieceRateVOLists
+                .stream()
+                .collect(Collectors.toMap(PieceRateVO::getOperator, PieceRateVO::getOperatorName, (v1, v2) -> v1));
+        List<Map<String, Object>> data = Lists.newArrayList();
+        Map<String, Object> map;
+        for (Long s : userTotal.keySet()) {
+            map = Maps.newHashMap();
+            map.put("userId", s);
+            map.put("userName", userNameMap.get(s) + "小计");
+            map.put("totalPieceRate", userTotal.get(s));
+            data.add(map);
+        }
+        Map<String, Object> results = Maps.newHashMap();
+        results.put("data", data);
+        return R.ok(results);
     }
 
     @Override
