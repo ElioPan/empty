@@ -141,6 +141,7 @@
 		pay.paid_amount AS paidAmount,
 		pay.payable_amount AS payableAmount,
 		pay.unpaid_amount AS unpaidAmount,
+		pay.payable_date AS payableDate,
 		pay.`remarks` AS remarks
 		FROM scm_outsourcing_contract_pay pay
 		LEFT JOIN scm_outsourcing_contract contract ON contract.id = pay.contract_id
