@@ -37,5 +37,10 @@ public interface OtherReceivablesItemDao {
 
 	Map<String, Object> totailAmount(Long id);
 
+	List<Map<String, Object>> getDetailOfIntroduce(Map<String, Object> map);
+
+	Map<String, Object> totailAmountOfIntroduce(Map<String, Object> map);
+
+
 
 }

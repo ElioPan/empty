@@ -72,4 +72,14 @@ public class OtherReceivablesItemServiceImpl implements OtherReceivablesItemServ
 		return otherReceivablesItemDao.totailAmount(id);
 	}
 
+	@Override
+	public List<Map<String, Object>> getDetailOfIntroduce(Map<String, Object> map) {
+		return otherReceivablesItemDao.getDetailOfIntroduce(map);
+	}
+
+	@Override
+	public Map<String, Object> totailAmountOfIntroduce(Map<String, Object> map) {
+		return otherReceivablesItemDao.totailAmountOfIntroduce(map);
+	}
+
 }

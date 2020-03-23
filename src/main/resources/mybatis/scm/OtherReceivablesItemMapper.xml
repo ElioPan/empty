@@ -166,6 +166,65 @@
 		received_id=#{value}
 	</select>
 
+	<select id="getDetailOfIntroduce" resultType="map">
+
+		SELECT
+		a.id ,
+		b.code,
+		b.supplier_client_id as  supplierClientId,
+		IF(b.sign='SK',d.name,c.name) as supplierClientName,
+		a.accrual_date as accrualDate,
+		a.receivable_payables_amount AS receivable_payablesAmount,
+		a.paid_received_amount  as paid_receivedAmount,
+		a.no_receipt_payment_amount as no_receiptPaymentAmount,
+		a.remarks
+		from
+		scm_other_receivables_item a
+		LEFT JOIN  scm_other_receivables b on  a.received_id=b.id
+		LEFT JOIN  cus_supplier c on  b.supplier_client_id=c.id
+		LEFT JOIN  cus_client d on  b.supplier_client_id=d.id
+		<where>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="auditSign !=null and auditSign != ''"> AND b.audit_sign = #{auditSign} </if>
+			<if test="sign != null and sign != ''"> AND b.sign = #{sign} </if>
+			<if test="supplierId != null and supplierName != ''"> AND b.supplier_client_id = #{supplierName} </if>
+			<if test="clientId != null and clientId != ''"> AND b.supplier_client_id = #{clientId} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY ${sort} ${order}
+			</when>
+			<otherwise>
+				ORDER BY id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="totailAmountOfIntroduce" resultType="map">
+		select
+		count(*) as `count`,
+		IF(SUM(a.receivable_payables_amount) is null,0,SUM(a.receivable_payables_amount)) as totailReceivablePayablesAmount,
+		IF(SUM(a.paid_received_amount) is null,0,SUM(a.paid_received_amount)) as totailPaidReceivedAmount,
+		IF(SUM(a.no_receipt_payment_amount) is null,0,SUM(a.no_receipt_payment_amount)) as totailNoReceiptPaymentAmount
+		from
+		scm_other_receivables_item a
+		LEFT JOIN  scm_other_receivables b on  a.received_id=b.id
+		LEFT JOIN  cus_supplier c on  b.supplier_client_id=c.id
+		LEFT JOIN  cus_client d on  b.supplier_client_id=d.id
+		<where>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="auditSign!= null and auditSign != ''"> AND b.audit_sign = #{auditSign} </if>
+			<if test="sign != null and sign != ''"> AND b.sign = #{sign} </if>
+			<if test="supplierId != null and supplierName != ''"> AND b.supplier_client_id = #{supplierName} </if>
+			<if test="clientId != null and clientId != ''"> AND b.supplier_client_id = #{clientId} </if>
+		</where>
+	</select>
+
 
 
 
