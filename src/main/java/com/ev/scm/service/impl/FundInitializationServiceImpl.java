@@ -145,7 +145,7 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 
 		List<Map<String, Object>> getlist = this.getlist(map);
 		Map<String, Object> countOfList = this.countOfList(map);
-		Map<String,Object>  params= new HashMap<>();
+        Map<String,Object>  params= new HashMap<>();
 		Map<String,Object>  mapId= new HashMap<>();
         if ( getlist.size() > 0) {
 
@@ -170,6 +170,8 @@ public class FundInitializationServiceImpl implements FundInitializationService 
             query.put("sign", ConstantForGYL.PAYMENT_ORDER);
             query.put("auditSign",ConstantForGYL.OK_AUDITED);
             query.put("accountNumber",ids);
+            query.put("startTime", map.get("startTime"));
+            query.put("endTime", map.get("endTime"));
             List<Map<String, Object>> outMaps= paymentReceivedItemService.getInCountById(query);
             //收款
             query.put("sign", ConstantForGYL.ALL_BILL);
@@ -180,11 +182,15 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 				maps.put("transferOutAcc",oneDetail.get("id"));
 				maps.put("settlementType", ConstantForGYL.EXPENDITURE);
 				maps.put("transferDate",endTime);
+                maps.put("startTime", map.get("startTime"));
+                maps.put("endTime", map.get("endTime"));
 				int outAmount = bankTransferItemService.totalOutOrInAmount(maps);
 				maps.clear();
 				maps.put("transferInAcc",oneDetail.get("id"));
 				maps.put("settlementType",ConstantForGYL.INCOM);
 				maps.put("transferDate",endTime);
+                maps.put("startTime", map.get("startTime"));
+                maps.put("endTime", map.get("endTime"));
 				int inAmount = bankTransferItemService.totalOutOrInAmount(maps);
 				//初始化金额
 				BigDecimal initializationAmount=oneDetail.get("initialAmount")==null?BigDecimal.ZERO:new BigDecimal(oneDetail.get("initialAmount").toString());

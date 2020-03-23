@@ -148,6 +148,9 @@ public class OtherReceivablesApiController {
 
         Map<String, Object> result = Maps.newHashMap();
         if (list.size() > 0) {
+            for(Map<String, Object> maps:list){
+                maps.put("sourceType",ConstantForGYL.OTHER_RECIVEABLE_TYPE);
+            }
             result.put("data", new DsResultResponse(pageno,pagesize,Integer.parseInt(countForMap.get("count").toString()),list));
             result.put("totailReceivablePayablesAmount", countForMap.get("totailReceivablePayablesAmount"));
             result.put("totailPaidReceivedAmount", countForMap.get("totailPaidReceivedAmount"));

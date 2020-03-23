@@ -173,7 +173,7 @@
         b.create_time as createTime,
 		b.code,
 		b.supplier_client_id as  supplierClientId,
-		IF(b.sign='SK',d.name,c.name) as supplierClientName,
+		IF(b.sign='QTYS',d.name,c.name) as supplierClientName,
 		a.accrual_date as accrualDate,
 		a.receivable_payables_amount AS receivablePayablesAmount,
 		a.paid_received_amount  as paidReceivedAmount,

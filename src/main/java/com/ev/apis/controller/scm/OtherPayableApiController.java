@@ -149,6 +149,9 @@ public class OtherPayableApiController {
         Map<String, Object> countForMap = otherReceivablesItemService.totailAmountOfIntroduce(map);
         Map<String, Object> result = Maps.newHashMap();
         if (list.size() > 0) {
+            for(Map<String, Object> maps:list){
+                maps.put("sourceType",ConstantForGYL.OTHER_PAYABLE_TYPE);
+            }
             result.put("data", new DsResultResponse(pageno,pagesize,Integer.parseInt(countForMap.get("count").toString()),list));
             result.put("totailReceivablePayablesAmount", countForMap.get("totailReceivablePayablesAmount"));
             result.put("totailPaidReceivedAmount", countForMap.get("totailPaidReceivedAmount"));
