@@ -3,12 +3,16 @@ package com.ev.apis.controller.scm;
 import com.alibaba.druid.util.StringUtils;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.mes.domain.MaterialInspectionDO;
 import com.ev.mes.service.MaterialInspectionService;
+import com.ev.scm.domain.PurchasecontractItemDO;
 import com.ev.scm.domain.QrcodeDO;
 import com.ev.scm.domain.QrcodeItemDO;
+import com.ev.scm.service.PurchasecontractItemService;
+import com.ev.scm.service.PurchasecontractService;
 import com.ev.scm.service.QrcodeItemService;
 import com.ev.scm.service.QrcodeService;
 import com.google.common.collect.Maps;
@@ -42,6 +46,11 @@ public class QrcodeApiController {
 
     @Autowired
     MaterialInspectionService materialInspectionService;
+
+    @Autowired
+    PurchasecontractItemService purchasecontractItemService;
+
+
 
     @EvApiByToken(value = "/apis/scm/qrcode/list",method = RequestMethod.GET,apiTitle = "获取二维码列表")
     @ApiOperation("获取二维码列表")
@@ -144,9 +153,21 @@ public class QrcodeApiController {
         if(!qrcodeService.isMultipleIn(isMultiple,contractNo, materialInspectionDO)){
             return R.error(messageSourceHandler.getMessage("scm.qrcode.in.oneContract",null));
         }
-
-        List<Map<String,Object>> qrCodeList = qrcodeService.listForMap(new HashMap<String,Object>(){{put("id",qrCodeId);}});
-        result.put("qrCodeInfo",qrCodeList.get(0));
+        /**
+         * 获取二维码关联合同单价
+         */
+        Map<String,Object> qrCodeInfo = qrcodeService.listForMap(new HashMap<String,Object>(){{put("id",qrCodeId);}}).get(0);
+        Long inspectionId = Long.parseLong(qrCodeInfo.get("inspectionId").toString());
+        MaterialInspectionDO inspectionDO = materialInspectionService.get(inspectionId);
+        if(inspectionDO.getSourceId()!=null && Long.valueOf(inspectionDO.getSourceType().toString()).compareTo(ConstantForGYL.CGHT) ==0 ){
+            PurchasecontractItemDO purchasecontractItemDO = purchasecontractItemService.get(inspectionDO.getSourceId());
+            qrCodeInfo.put("unitPrice",purchasecontractItemDO.getUnitPrice());
+            qrCodeInfo.put("amount",purchasecontractItemDO.getAmount());
+        }else{
+            qrCodeInfo.put("unitPrice",0);
+            qrCodeInfo.put("amount",0);
+        }
+        result.put("qrCodeInfo",qrCodeInfo);
         return R.ok(result);
     }
 

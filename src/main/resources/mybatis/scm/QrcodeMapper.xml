@@ -37,6 +37,7 @@
 		SELECT
 		qrcode.id as id,
 		qrcode.batch as batch,
+		inspection_id as inspectionId,
 		qrcode.contract_no as contractNo,
 		qrcode.count as count,
 		qrcode.remain_count as remainCount,
