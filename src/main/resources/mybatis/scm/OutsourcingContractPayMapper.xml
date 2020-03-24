@@ -193,6 +193,8 @@
 	<select id="getOutContractPayAmount" resultType="com.ev.scm.domain.OutsourcingContractPayDO">
 		SELECT
 		id,
+		paid_amount,
+		payable_amount,
 		unpaid_amount
 		FROM scm_outsourcing_contract_pay
 		WHERE id IN
