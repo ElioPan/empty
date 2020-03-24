@@ -397,6 +397,7 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 				btDo.setId(id);
 				btDo.setSign(sign);
 				btDo.setAuditTime(null);
+				btDo.setAuditSign(ConstantForGYL.WAIT_AUDIT);
 				btDo.setUpdateTime(new Date());
 				paymentReceivedDao.updateAll(btDo);
 				this.changeBackAuditContractAmoutn(sign,list,payItemId);
