@@ -330,7 +330,21 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 		}else if(Objects.equals(sourceTyp,ConstantForGYL.WWHT)){
         	//委外合同
 			List<OutsourcingContractPayDO> outContractPayAmount = outsourcingContractPayService.getOutContractPayAmount(query);
-
+			if(!Objects.equals(payItemId.length,outContractPayAmount.size())){
+				return  messageSourceHandler.getMessage("scm.canDelet.contractPayItemDelet",null);
+			}
+			for(PaymentReceivedItemDO pyReceivedItemDo:list){
+				Long pyItemId=pyReceivedItemDo.getSourcePayItemId();
+				for(OutsourcingContractPayDO outsourcingContractPayDO:outContractPayAmount){
+					if(Objects.equals(pyItemId,outsourcingContractPayDO.getId())){
+						int compareTo = pyReceivedItemDo.getThisAmount().compareTo(outsourcingContractPayDO.getUnpaidAmount());
+						if(compareTo>0){
+							return messageSourceHandler.getMessage("scm.canDelet.contractPayItemChange",null);
+						}
+						break;
+					}
+				}
+			}
 		}
         	return "ok";
     }
