@@ -261,7 +261,7 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 				Long pyItemId=pyReceivedItemDo.getSourcePayItemId();
 				for(OtherReceivablesItemDO otherDo:otherNoReceiptAmount){
 					if(Objects.equals(pyItemId,otherDo.getId())){
-						otherDo.setReceivablePayablesAmount((otherDo.getReceivablePayablesAmount()==null?BigDecimal.ZERO:otherDo.getReceivablePayablesAmount()).add(pyReceivedItemDo.getThisAmount()));
+						otherDo.setPaidReceivedAmount((otherDo.getPaidReceivedAmount()==null?BigDecimal.ZERO:otherDo.getPaidReceivedAmount()).add(pyReceivedItemDo.getThisAmount()));
 						otherDo.setNoReceiptPaymentAmount((otherDo.getNoReceiptPaymentAmount()==null?BigDecimal.ZERO:otherDo.getNoReceiptPaymentAmount()).subtract(pyReceivedItemDo.getThisAmount()));
 						otherReceivablesItemService.update(otherDo);
 					}
@@ -275,7 +275,7 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 				for(OutsourcingContractPayDO outsourcingContractPayDO:outContractPayAmount){
 					if(Objects.equals(pyItemId,outsourcingContractPayDO.getId())){
 						outsourcingContractPayDO.setUnpaidAmount(outsourcingContractPayDO.getUnpaidAmount().subtract(pyReceivedItemDo.getThisAmount()));
-						outsourcingContractPayDO.setPayableAmount((outsourcingContractPayDO.getPayableAmount()==null?BigDecimal.ZERO:outsourcingContractPayDO.getPayableAmount()).add(pyReceivedItemDo.getThisAmount()));
+						outsourcingContractPayDO.setPaidAmount((outsourcingContractPayDO.getPaidAmount()==null?BigDecimal.ZERO:outsourcingContractPayDO.getPaidAmount()).add(pyReceivedItemDo.getThisAmount()));
 						outsourcingContractPayService.update(outsourcingContractPayDO);
 				}
 				}
@@ -448,7 +448,7 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 				Long pyItemId=pyReceivedItemDo.getSourcePayItemId();
 				for(OtherReceivablesItemDO otherDo:otherNoReceiptAmount){
 					if(Objects.equals(pyItemId,otherDo.getId())){
-						otherDo.setReceivablePayablesAmount((otherDo.getReceivablePayablesAmount()==null?BigDecimal.ZERO:otherDo.getReceivablePayablesAmount()).subtract(pyReceivedItemDo.getThisAmount()));
+						otherDo.setPaidReceivedAmount((otherDo.getPaidReceivedAmount()==null?BigDecimal.ZERO:otherDo.getPaidReceivedAmount()).subtract(pyReceivedItemDo.getThisAmount()));
 						otherDo.setNoReceiptPaymentAmount((otherDo.getNoReceiptPaymentAmount()==null?BigDecimal.ZERO:otherDo.getNoReceiptPaymentAmount()).add(pyReceivedItemDo.getThisAmount()));
 						otherReceivablesItemService.update(otherDo);
 					}
@@ -461,7 +461,7 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 				for(OutsourcingContractPayDO outsourcingContractPayDO:outContractPayAmount){
 					if(Objects.equals(pyItemId,outsourcingContractPayDO.getId())){
 						outsourcingContractPayDO.setUnpaidAmount(outsourcingContractPayDO.getUnpaidAmount().add(pyReceivedItemDo.getThisAmount()));
-						outsourcingContractPayDO.setPayableAmount((outsourcingContractPayDO.getPayableAmount()==null?BigDecimal.ZERO:outsourcingContractPayDO.getPayableAmount()).subtract(pyReceivedItemDo.getThisAmount()));
+						outsourcingContractPayDO.setPaidAmount((outsourcingContractPayDO.getPaidAmount()==null?BigDecimal.ZERO:outsourcingContractPayDO.getPaidAmount()).subtract(pyReceivedItemDo.getThisAmount()));
 						outsourcingContractPayService.update(outsourcingContractPayDO);
 					}
 				}
@@ -490,9 +490,23 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 		Map<String,Object>  map= new HashMap<>();
 		map.put("id",id);
 		Map<String,Object> receivedDetail = this.detailOfReceived(map);
-		List<Map<String, Object>> detailOfItem = paymentReceivedItemService.detailOfitem(map);
-		Map<String, Object> totallAmount = paymentReceivedItemService.totallAmount(map);
+		Map<String,Object>  query= new HashMap<>();
+		query.put("paymentReceivedId",id);
+		List<PaymentReceivedItemDO> list = paymentReceivedItemService.list(query);
+		Long sourceType=list.get(0).getSourceType();
 
+		Map<String, Object> totallAmount = paymentReceivedItemService.totallAmount(map);
+		List<Map<String, Object>> detailOfItem=new ArrayList<>();
+		//采购销售合同
+		if(Objects.equals(sourceType,ConstantForGYL.CGHT)||Objects.equals(sourceType,ConstantForGYL.XSHT)){
+			detailOfItem = paymentReceivedItemService.detailOfitem(map);
+		}else if(Objects.equals(sourceType,ConstantForGYL.WWHT)){
+			//委外合同
+			detailOfItem = paymentReceivedItemService.detailOfOutsourcing(map);
+		}else if(Objects.equals(sourceType,ConstantForGYL.OTHER_RECIVEABLE_TYPE)||Objects.equals(sourceType,ConstantForGYL.OTHER_PAYABLE_TYPE)){
+			//其他应收应付
+			detailOfItem = paymentReceivedItemService.detailOfAboutOther(map);
+		}
 		Map<String, Object> stringObjectMap=new HashMap<>();
 		if(!detailOfItem.isEmpty()) {
 			stringObjectMap = this.totaAmountOfStatistics(detailOfItem, sign);
@@ -520,6 +534,7 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 	 */
 	public Map<String,Object> totaAmountOfStatistics(List<Map<String, Object>> list,String sign){
 
+		Long  sourceType=Long.parseLong(list.get(0).get("sourceType").toString());
 		Map<String,Object>  map= new HashMap<>();
 		List nowList=new ArrayList();
 		for (int i = 0; i < list.size(); i++) {
@@ -533,12 +548,16 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 			stockInheadIds[i]=Long.valueOf(String.valueOf(nowList.get(i)));
 		}
 
-		if(Objects.equals(ConstantForGYL.PAYMENT_ORDER,sign)){
+		if(Objects.equals(ConstantForGYL.CGHT,sourceType)){
 			//统计采购合同
 			map= this.detailOfPurchaseContrat(stockInheadIds);
-		}else if(Objects.equals(ConstantForGYL.ALL_BILL,sign)){
+		}else if(Objects.equals(ConstantForGYL.XSHT,sourceType)){
 			//销售合同
 			map = this.detailOfSaleContrat(stockInheadIds);
+		}else if(Objects.equals(ConstantForGYL.OTHER_RECIVEABLE_TYPE,sourceType)||Objects.equals(ConstantForGYL.OTHER_PAYABLE_TYPE,sourceType)){
+			map = paymentReceivedDao.detailOfOtherAmount(stockInheadIds);
+		}else if(Objects.equals(ConstantForGYL.WWHT,sourceType)){
+			map = paymentReceivedDao.detailOfOutContract(stockInheadIds);
 		}
 		return map;
 	}

@@ -232,7 +232,9 @@
 	<select id="otherNoReceiptAmount" resultType="com.ev.scm.domain.OtherReceivablesItemDO">
 		select
 		id,
-		noReceiptPaymentAmount
+		receivable_payables_amount,
+		paid_received_amount,
+		no_receipt_payment_amount
 		from
 		scm_other_receivables_item
 		where

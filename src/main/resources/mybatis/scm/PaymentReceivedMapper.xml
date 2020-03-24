@@ -407,6 +407,45 @@
 			) aa
 	</select>
 
+	<select id="detailOfOtherAmount" resultType="map">
+		select
+		if(sum(receivable_payables_amount) is null,0,sum(receivable_payables_amount)) as receivablePayablesAmount,
+		if(sum(paid_received_amount) is null,0,sum(paid_received_amount)) as paidReceivedAmount,
+		if(sum(no_receipt_payment_amount) is null,0,sum(no_receipt_payment_amount)) as noReceiptPaymentAmount
+		from
+		(
+		SELECT
+		a.receivable_payables_amount ,
+		a.paid_received_amount,
+		a.no_receipt_payment_amount
+		FROM
+		scm_other_receivables_item  a
+		WHERE  a.id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+		) aa
+	</select>
+
+	<select id="detailOfOutContract" resultType="map">
+		select
+		if(sum(payable_amount) is null,0,sum(payable_amount)) as receivablePayablesAmount,
+		if(sum(paid_amount) is null,0,sum(paid_amount)) as paidReceivedAmount,
+		if(sum(unpaid_amount) is null,0,sum(unpaid_amount)) as noReceiptPaymentAmount
+		from
+		(
+		SELECT
+		a.payable_amount ,
+		a.paid_amount,
+		a.unpaid_amount
+		FROM
+		scm_outsourcing_contract_pay  a
+		WHERE  a.id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+		) aa
+	</select>
 
 
 	<select id="detailOfReceivedAmount" resultType="map">

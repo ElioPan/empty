@@ -49,5 +49,10 @@ public interface PaymentReceivedDao {
 
 	Map<String, Object> detailOfSaleContrat(Long[] ids);
 
+	Map<String, Object> detailOfOtherAmount(Long[] ids);
+
+	Map<String, Object> detailOfOutContract(Long[] ids);
+
+
 
 }

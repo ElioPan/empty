@@ -105,5 +105,15 @@ public class PaymentReceivedItemServiceImpl implements PaymentReceivedItemServic
 		return paymentReceivedItemDao.getsPaymentDetails(map);
 	}
 
+	@Override
+	public List<Map<String, Object>> detailOfOutsourcing(Map<String, Object> map) {
+		return paymentReceivedItemDao.detailOfOutsourcing(map);
+	}
+
+	@Override
+	public List<Map<String, Object>> detailOfAboutOther(Map<String, Object> map) {
+		return paymentReceivedItemDao.detailOfAboutOther(map);
+	}
+
 
 }

@@ -45,6 +45,8 @@ public interface PaymentReceivedItemService {
 
 	List<Map<String, Object>> getsPaymentDetails(Map<String, Object> map);
 
+	List<Map<String, Object>> detailOfOutsourcing(Map<String, Object> map);
 
+	List<Map<String, Object>> detailOfAboutOther(Map<String, Object> map);
 
 }
