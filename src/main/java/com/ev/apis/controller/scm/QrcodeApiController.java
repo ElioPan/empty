@@ -185,8 +185,8 @@ public class QrcodeApiController {
         if(qrcodeDO.getStockId() == null){
             return R.error(messageSourceHandler.getMessage("scm.qrcode.notIn",null));
         }
-        List<Map<String,Object>> qrCodeList = qrcodeService.listForMap(new HashMap<String,Object>(){{put("id",qrCodeId);}});
-        result.put("qrCodeInfo",qrCodeList.get(0));
+        Map<String,Object> qrCodeInfo = qrcodeService.listForMap(new HashMap<String,Object>(){{put("id",qrCodeId);}}).get(0);
+        result.put("qrCodeInfo",qrCodeInfo);
         return R.ok(result);
     }
 
