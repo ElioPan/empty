@@ -84,11 +84,12 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 	public R disposeAddAndChage(String body ){
 
 		if(!StringUtils.isEmpty(body)){
-			List<FundInitializationDO> fundInitializationDOS = JSONObject.parseArray(body, FundInitializationDO.class);
-             List<FundInitializationDO> fundInitializationDos = fundInitializationDOS.stream().filter(FundInitializationDO -> FundInitializationDO.getId() != null).collect(Collectors.toList());
+			List<FundInitializationDO> fundInitializationDoS = JSONObject.parseArray(body, FundInitializationDO.class);
+            List<FundInitializationDO> fundInitializationHaveId = fundInitializationDoS.stream().filter(FundInitializationDO -> FundInitializationDO.getId() != null).collect(Collectors.toList());
+            List<FundInitializationDO> fundInitializationHaveNoId = fundInitializationDoS.stream().filter(FundInitializationDO -> FundInitializationDO.getId() == null).collect(Collectors.toList());
 
-               if(fundInitializationDos.size()>0){
-                    FundInitializationDO fundInitializationDO = this.get(fundInitializationDos.get(0).getId());
+               if(fundInitializationHaveId.size()>0){
+                    FundInitializationDO fundInitializationDO = this.get(fundInitializationHaveId.get(0).getId());
                    if(Objects.equals(1,fundInitializationDO.getUsingStart())){
                        return R.error(messageSourceHandler.getMessage("scm.FundInitialization.dataIsUsing", null));
                    }
@@ -96,8 +97,18 @@ public class FundInitializationServiceImpl implements FundInitializationService 
                        return R.error(messageSourceHandler.getMessage("scm.FundInitialization.dataIsUsing", null));
                    }
                }
-                //允许修改或者新增
-                   for(FundInitializationDO fundInitializationDO:fundInitializationDOS){
+               //校验账号是否重复
+            for(FundInitializationDO fundInitializationDO:fundInitializationHaveNoId){
+                   Map<String,Object>  map= new HashMap<>();
+                   map.put("accountNumber",fundInitializationDO.getAccountNumber());
+                List<FundInitializationDO> list = this.list(map);
+                if(list.size()>0){
+                    String[] msg={fundInitializationDO.getAccountNumber().toString()};
+                    return R.error(messageSourceHandler.getMessage("scm.fundInitialization.alreadyExist", msg));
+                }
+            }
+              //允许修改或者新增
+                   for(FundInitializationDO fundInitializationDO:fundInitializationDoS){
                        if(Objects.isNull(fundInitializationDO.getId())){
                         //新增
                            this.save(fundInitializationDO);
