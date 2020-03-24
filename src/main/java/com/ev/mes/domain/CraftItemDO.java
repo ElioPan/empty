@@ -23,6 +23,8 @@ public class CraftItemDO implements Serializable {
 	//
     @ApiModelProperty(value = "")
 	private Long id;
+	@ApiModelProperty(value = "序号")
+	private Integer serialNumber;
 	//工艺路线主键
     @ApiModelProperty(value = "工艺路线主键")
 	private Long craftId;

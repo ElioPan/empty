@@ -36,7 +36,8 @@
 	<insert id="save" parameterType="com.ev.mes.domain.CraftItemDO" useGeneratedKeys="true" keyProperty="id">
 		insert into mes_craft_item
 		(
-			`craft_id`, 
+			`craft_id`,
+			`serial_number`,
 			`process_id`, 
 			`whether_outsource`, 
 			`whether_collect`, 
@@ -59,7 +60,8 @@
 		)
 		values
 		(
-			#{craftId}, 
+			#{craftId},
+			#{serialNumber},
 			#{processId}, 
 			#{whetherOutsource}, 
 			#{whetherCollect}, 
@@ -86,6 +88,7 @@
 		update mes_craft_item 
 		<set>
 			<if test="craftId != null">`craft_id` = #{craftId}, </if>
+			<if test="serialNumber != null">`serial_number` = #{serialNumber}, </if>
 			<if test="processId != null">`process_id` = #{processId}, </if>
 			<if test="whetherOutsource != null">`whether_outsource` = #{whetherOutsource}, </if>
 			<if test="whetherCollect != null">`whether_collect` = #{whetherCollect}, </if>
@@ -121,12 +124,13 @@
 	</delete>
 	
 	<sql id="sql_column_list">
-		`id`,`craft_id`,`process_id`,`whether_outsource`,`whether_collect`,`auto_dispatch`,`whether_examine`,`demand`,`total_hour`,`dept_id`,`standard`,`device_id`,`type`,`man_hour`,`labour_price`,`operator`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+		`id`,`serial_number`,`craft_id`,`process_id`,`whether_outsource`,`whether_collect`,`auto_dispatch`,`whether_examine`,`demand`,`total_hour`,`dept_id`,`standard`,`device_id`,`type`,`man_hour`,`labour_price`,`operator`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 	</sql>
 	
 	<sql id="sql_condition">
 		<where>  
 		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+					<if test="serialNumber != null and serialNumber != ''"> and serial_number = #{serialNumber} </if>
 		  		  <if test="craftId != null and craftId != ''"> and craft_id = #{craftId} </if>
 		  		  <if test="processId != null and processId != ''"> and process_id = #{processId} </if>
 		  		  <if test="whetherOutsource != null and whetherOutsource != ''"> and whether_outsource = #{whetherOutsource} </if>
@@ -173,6 +177,7 @@
 			f.name as deviceName,
 			a.total_hour as totalHour,
 			a.man_hour  as manHour,
+			a.serial_number as serialNumber,
 			a.labour_price as labourPrice
 			from  mes_craft_item a
 		LEFT JOIN mes_process  b on  a.process_id=b.id

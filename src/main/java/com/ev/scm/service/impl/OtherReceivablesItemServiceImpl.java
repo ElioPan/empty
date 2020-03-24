@@ -82,4 +82,9 @@ public class OtherReceivablesItemServiceImpl implements OtherReceivablesItemServ
 		return otherReceivablesItemDao.totailAmountOfIntroduce(map);
 	}
 
+	@Override
+	public List<OtherReceivablesItemDO> otherNoReceiptAmount(Map<String, Object> map) {
+		return otherReceivablesItemDao.otherNoReceiptAmount(map);
+	}
+
 }

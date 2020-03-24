@@ -229,6 +229,18 @@
 	</select>
 
 
+	<select id="otherNoReceiptAmount" resultType="com.ev.scm.domain.OtherReceivablesItemDO">
+		select
+		id,
+		noReceiptPaymentAmount
+		from
+		scm_other_receivables_item
+		where
+		id IN
+		<foreach item="id" collection="payItemId" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
 
 
 

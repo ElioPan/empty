@@ -1,11 +1,10 @@
 package com.ev.scm.dao;
 
 import com.ev.scm.domain.OutsourcingContractPayDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 import java.util.Map;
-
-import org.apache.ibatis.annotations.Mapper;
 
 /**
  * 委外合同付款条件
@@ -37,4 +36,7 @@ public interface OutsourcingContractPayDao {
     List<Map<String, Object>> payListForMap(Map<String, Object> map);
 
 	Map<String, Object> payCountForMap(Map<String, Object> map);
+
+	List<OutsourcingContractPayDO> getOutContractPayAmount(Map<String, Object> map);
+
 }

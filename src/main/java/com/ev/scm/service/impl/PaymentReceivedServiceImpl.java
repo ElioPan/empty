@@ -191,16 +191,12 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 				}
 			}
 			query.put("payItemId",payItemId);
-
 		//验证合同金额
-        int checkResukt = this.checkContractAmoutn(sign, list, payItemId);
-        if(Objects.equals(1,checkResukt)){
-            return R.error(messageSourceHandler.getMessage("scm.canDelet.contractPayItemDelet",null));
-        }else if(Objects.equals(2,checkResukt)){
-            return R.error(messageSourceHandler.getMessage("scm.canDelet.contractPayItemChange",null));
-        }else if(checkResukt==3){
-            return R.error(messageSourceHandler.getMessage("scm.canDelet.saleContractPayItemChange",null));
+        String  checkResukt = this.checkContractAmoutn(sign, list, payItemId);
+        if(!Objects.equals("ok",checkResukt)){
+            return R.error(checkResukt);
         }
+
 
 		if(Objects.nonNull(paymentReceivedDO)){
 			if(Objects.equals(paymentReceivedDO.getAuditSign(),ConstantForGYL.WAIT_AUDIT)){
@@ -264,53 +260,79 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 
     }
 
-    public int checkContractAmoutn(String sign,List<PaymentReceivedItemDO> list,Long[] payItemId){
+    public String checkContractAmoutn(String sign,List<PaymentReceivedItemDO> list,Long[] payItemId){
+
+		Long sourceTyp=list.get(0).getSourceType();
+
         Map<String,Object>  query= new HashMap<>();
         query.put("payItemId",payItemId);
-        if(Objects.equals(sign,ConstantForGYL.PAYMENT_ORDER)){
+        if(Objects.equals(sourceTyp,ConstantForGYL.CGHT)){
             //采购合同
             List<PurchasecontractPayDO> purchasecontractPayDO = purchasecontractPayService.detailOfPayById(query);
             if(!Objects.equals(payItemId.length,purchasecontractPayDO.size())){
-//                return R.error(messageSourceHandler.getMessage("scm.canDelet.contractPayItemDelet",null));
-                return  1;
+                return  messageSourceHandler.getMessage("scm.canDelet.contractPayItemDelet",null);
             }
             for(PaymentReceivedItemDO pyReceivedItemDo:list){
                 Long pyItemId=pyReceivedItemDo.getSourcePayItemId();
-
                 for(PurchasecontractPayDO purchasecontractPayDo:purchasecontractPayDO){
                     if(Objects.equals(pyItemId,purchasecontractPayDo.getId())){
                         int compareTo = pyReceivedItemDo.getThisAmount().compareTo(purchasecontractPayDo.getUnpayAmount());
                         if(compareTo>0){
-//                            return R.error(messageSourceHandler.getMessage("scm.canDelet.contractPayItemChange",null));
-                            return 2;
+                            return messageSourceHandler.getMessage("scm.canDelet.contractPayItemChange",null);
                         }
                         break;
                     }
                 }
             }
-        }else if(Objects.equals(sign,ConstantForGYL.ALL_BILL)){
+        }else if(Objects.equals(sourceTyp,ConstantForGYL.XSHT)){
             //销售合同
             List<SalescontractPayDO> salescontractPayDO = this.detailOfSalePayById(query);
             if(!Objects.equals(payItemId.length,salescontractPayDO.size())){
 //                return R.error(messageSourceHandler.getMessage("scm.canDelet.contractPayItemDelet",null));
-                return  1;
+                return  messageSourceHandler.getMessage("scm.canDelet.contractPayItemDelet",null);
             }
             for(PaymentReceivedItemDO pyReceivedItemDo:list){
                 Long pyItemId=pyReceivedItemDo.getSourcePayItemId();
-
                 for(SalescontractPayDO salecontractPayDo:salescontractPayDO){
                     if(Objects.equals(pyItemId,salecontractPayDo.getId())){
                         int compareTo = pyReceivedItemDo.getThisAmount().compareTo(salecontractPayDo.getUnpayAmount());
                         if(compareTo>0){
-//                            return R.error(messageSourceHandler.getMessage("scm.canDelet.saleContractPayItemChange",null));
-                            return 3;
+                            return messageSourceHandler.getMessage("scm.canDelet.saleContractPayItemChange",null);
                         }
                         break;
                     }
                 }
             }
-        }
-        	return 0;
+      	}else if(Objects.equals(sourceTyp,ConstantForGYL.OTHER_RECIVEABLE_TYPE)||Objects.equals(sourceTyp,ConstantForGYL.OTHER_PAYABLE_TYPE)){
+			//其他应收应付
+			List<OtherReceivablesItemDO> otherNoReceiptAmount = otherReceivablesItemService.otherNoReceiptAmount(query);
+			if(!Objects.equals(payItemId.length,otherNoReceiptAmount.size())){
+				return  messageSourceHandler.getMessage("scm.theSourceList.beDeleted",null);
+			}
+			for(PaymentReceivedItemDO pyReceivedItemDo:list){
+				Long pyItemId=pyReceivedItemDo.getSourcePayItemId();
+				for(OtherReceivablesItemDO otherDo:otherNoReceiptAmount){
+					if(Objects.equals(pyItemId,otherDo.getId())){
+						int result = pyReceivedItemDo.getThisAmount().compareTo(otherDo.getNoReceiptPaymentAmount());
+						if(result>0){
+							if(Objects.equals(sign,ConstantForGYL.PAYMENT_ORDER)){
+								String[]  msg={pyReceivedItemDo.getThisAmount().toPlainString(),otherDo.getNoReceiptPaymentAmount().toPlainString(),pyReceivedItemDo.getSourceCode()};
+								return messageSourceHandler.getMessage("stock.payRecived.checkErrorPurchase",msg);
+							}else{
+								String[]  msg={pyReceivedItemDo.getThisAmount().toPlainString(),otherDo.getNoReceiptPaymentAmount().toPlainString(),pyReceivedItemDo.getSourceCode()};
+								return messageSourceHandler.getMessage("stock.payRecived.checkErrorSales",msg);
+							}
+						}
+						break;
+					}
+				}
+			}
+		}else if(Objects.equals(sourceTyp,ConstantForGYL.WWHT)){
+        	//委外合同
+			List<OutsourcingContractPayDO> outContractPayAmount = outsourcingContractPayService.getOutContractPayAmount(query);
+
+		}
+        	return "ok";
     }
 
 	@Override

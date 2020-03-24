@@ -176,9 +176,13 @@ public class MesProcessAndCraftApiController {
     public R addAndChangeCraft(CraftDO craftDO,
                                @ApiParam(value = "[\n" +
                                        "{\n" +
-                                       "\"id\":\"工艺明细行主键(修改时传且必传)\",\"processId\":2,\"demand\":\"工艺要求\",\"deptId\":\"生产部门\",\"operator\":\"操作工\",\"autoDispatch\":\"是否自动派工\",\n" +
+                                       "\"id\":\"工艺明细行主键(修改时传且必传)\"," +
+                                       "\"processId\":2," +
+                                       "\"serialNumber\":序号," +
+                                       "\"demand\":\"工艺要求\",\"deptId\":\"生产部门\",\"operator\":\"操作工\",\"autoDispatch\":\"是否自动派工\",\n" +
                                        "\"standard\":\"基准良率\",\"type\":\"工序类型\",\"whetherExamine\":\"是否检验\",\"whetherOutsource\":\"是否委外\",\"whetherCollect\":\"是否联网采集\",\n" +
                                        "\"deviceId\":\"使用设备id\",\"totalHour\":\"工作时长\",\"manHour\":\"单件工时\",\"labourPrice\":\"单件工价\",\n" +
+
                                        "\"pro\":[\n" +
                                        "{\n" +
                                        "\"id\":\"检验项目表主键(修改时传且必传)\",\n" +

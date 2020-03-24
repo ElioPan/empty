@@ -187,4 +187,21 @@
 		</where>
 	</select>
 
+
+
+
+	<select id="getOutContractPayAmount" resultType="com.ev.scm.domain.OutsourcingContractPayDO">
+		SELECT
+		id,
+		unpaid_amount
+		FROM scm_outsourcing_contract_pay
+		WHERE id IN
+		<foreach item="id" collection="payItemId" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+
+
+
+
 </mapper>

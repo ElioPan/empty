@@ -27,4 +27,7 @@ public interface OutsourcingContractPayService {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+	List<OutsourcingContractPayDO> getOutContractPayAmount(Map<String, Object> map);
+
 }

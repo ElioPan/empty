@@ -41,6 +41,6 @@ public interface OtherReceivablesItemService {
 
 	Map<String, Object> totailAmountOfIntroduce(Map<String, Object> map);
 
-
+	List<OtherReceivablesItemDO> otherNoReceiptAmount(Map<String, Object> map);
 
 }

@@ -51,5 +51,12 @@ public class OutsourcingContractPayServiceImpl implements OutsourcingContractPay
 	public int batchRemove(Long[] ids){
 		return outsourcingContractPayDao.batchRemove(ids);
 	}
-	
+
+	@Override
+	public List<OutsourcingContractPayDO> getOutContractPayAmount(Map<String, Object> map) {
+		return outsourcingContractPayDao.getOutContractPayAmount(map);
+	}
+
+
+
 }
