@@ -97,7 +97,6 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 				detailDO.setPlanId(planId);
 				detailDO.setIsDispatching(ConstantForMES.PLAN);
 				detailDO.setAlreadyCount(BigDecimal.ZERO);
-				detailDO.setSerialNumber(i);
 				detailService.save(detailDO);
 				// 是否需要检验
 				if (detailDO.getIsExamine() == 1) {
@@ -658,7 +657,6 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 				WorkingProcedureDetailDO detailDO = parseArray.get(i);
 				if (detailDO.getId() == null) {
 					detailDO.setPlanId(planId);
-					detailDO.setSerialNumber(i);
 					detailService.save(detailDO);
 				}
 				if (detailDO.getId() != null) {
@@ -687,19 +685,6 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 						checkDO.setId(checkId);
 						checkService.update(checkDO);
 					}
-				}
-			}
-
-			Map<String,Object>  mapDetailDo= new HashMap<>();
-			mapDetailDo.put("planId",planDO.getId());
-			mapDetailDo.put("sort","id");
-			mapDetailDo.put("order","ASC");
-			List<WorkingProcedureDetailDO> list = detailService.list(mapDetailDo);
-			if(list.size()>0){
-				for(int i=0;i<list.size();i++){
-					WorkingProcedureDetailDO detailDo =list.get(i);
-					detailDo.setSerialNumber(i);
-					detailService.update(detailDo);
 				}
 			}
 		}
