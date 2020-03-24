@@ -168,4 +168,9 @@ public final class ConstantForMES{
 	 */
 	public static final Integer SCTL = 277;
 
+	/**
+	 * 来料检验
+	 */
+	public static final Integer LLJY = 216;
+
 }

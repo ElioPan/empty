@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.report.dao.QualityManagementAccountingReportDao">
+
+    <!--采购不良&&产品不良-->
+    <select id="badPurchaseList" resultType="java.util.Map">
+        SELECT
+        detail.id AS id,
+        inspection.supplier_id AS supplierId,
+        supplier.`name` AS supplierName,
+        materiel.`serial_no` AS serialNo,
+        materiel.`id` AS materielId,
+        materiel.`name` AS materielName,
+        materiel.`specification` AS specification,
+        dic.`name` AS unitUomName,
+        poor.`id` AS poorId,
+        poor.`name` AS poorName,
+        inspection.dept_id AS deptId,
+        dept.`name` AS deptName,
+        SUM(detail.unqualified_count) AS unqualifiedCount
+        FROM mes_material_inspection_detail detail
+        LEFT JOIN mes_material_inspection inspection ON detail.`head_id`=inspection.id
+        LEFT JOIN cus_supplier supplier ON supplier.id=inspection.supplier_id
+        LEFT JOIN cus_materiel materiel ON materiel.id=inspection.`materiel_id`
+        LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.unit_uom
+        LEFT JOIN mes_poor poor ON poor.id=detail.reason_id
+        LEFT JOIN sys_dept dept ON dept.dept_id=inspection.dept_id
+        <where>
+            <if test="inspectionType != null and inspectionType != ''"> and inspection.inspection_type = #{inspectionType} </if>
+            <if test="status != null and status != ''"> and inspection.status = #{status} </if>
+            <if test="deptId != null and deptId != ''"> and inspection.dept_id = #{deptId} </if>
+            <if test="supplierId != null and supplierId != ''"> and inspection.supplier_id = #{supplierId} </if>
+            <if test="materielId != null and materielId != ''"> and inspection.`materiel_id` = #{materielId} </if>
+            <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(inspection.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(inspection.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            AND detail.reason_id IS NOT NULL
+            AND detail.unqualified_count &gt; 0
+        </where>
+        <choose>
+            <when test="groupBatch == 1">
+                GROUP BY inspection.supplier_id,materiel.`id`,poor.`id`,inspection.batch_no
+            </when>
+            <otherwise>
+                GROUP BY inspection.supplier_id,materiel.`id`,poor.`id`
+            </otherwise>
+        </choose>
+        ORDER BY inspection.supplier_id,materiel.`id`,poor.`id`
+    </select>
+
+    <!--工序检验单 报工单创建人为操作工-->
+    <select id="badProcessList" resultType="java.util.Map">
+        SELECT
+        item.id AS id,
+        mwpd.dept_id AS deptId,
+        dept.name AS deptName,
+        mwpd.process_id AS processId,
+        mp.`name` AS processName,
+        mdi.device_id AS deviceId,
+        cd.`name` AS deviceName,
+        mpr.create_by AS operator,
+        su.`name` AS operatorName,
+        materiel.`id` AS materielId,
+        materiel.serial_no AS materielSerialNo,
+        materiel.name AS materielName,
+        materiel.specification AS specification,
+        unituom.name AS unitUomName,
+        mpo.id AS poorId,
+        mpo.name AS poorName,
+        item.rejects_count AS rejectsCount
+        FROM
+        mes_process_report_check_item item
+        LEFT JOIN mes_process_report_check mprc ON mprc.id=item.report_check_id
+        LEFT JOIN mes_process_report mpr ON mpr.id=mprc.process_report_id
+        LEFT JOIN mes_dispatch_item mdi ON mdi.id=mpr.dispatch_item_id
+        LEFT JOIN mes_working_procedure_detail mwpd ON mwpd.id=mdi.foriegn_id
+        LEFT JOIN mes_process mp ON mp.id=mwpd.process_id
+        LEFT JOIN cus_device cd ON cd.id=mdi.device_id
+        LEFT JOIN sys_dept dept ON dept.dept_id=mwpd.dept_id
+        LEFT JOIN sys_user su ON su.user_id=mpr.create_by
+        LEFT JOIN mes_poor mpo ON mpo.id=item.rejects_reason
+        LEFT JOIN cus_materiel materiel ON materiel.`id`= mprc.`materia_id`
+        LEFT JOIN cus_dictionary unituom ON unituom.id = materiel.`unit_uom`
+        <where>
+            <if test="deptId != null and deptId != ''"> and mwpd.dept_id = #{deptId} </if>
+            <if test="processId != null and processId != ''"> and mp.id = #{processId} </if>
+            <if test="operator != null and operator != ''"> and mpr.create_by = #{operator} </if>
+            <if test="deviceId != null and deviceId != ''"> and mdi.device_id = #{deviceId} </if>
+            <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(item.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(item.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            AND mpo.id IS NOT NULL
+            AND item.rejects_count &gt; 0
+        </where>
+        <choose>
+            <when test="isGroup == 1">
+                GROUP BY mwpd.dept_id,mp.id,cd.id,mpr.create_by,materiel.`id`,mpo.`id`
+                ORDER BY mwpd.dept_id,mp.id,cd.id,mpr.create_by,materiel.`id`,mpo.`id`
+            </when>
+            <otherwise>
+                ORDER BY mwpd.dept_id,mp.id
+            </otherwise>
+        </choose>
+
+
+    </select>
+
+</mapper>
