@@ -392,12 +392,13 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 
 		if(Objects.nonNull(paymentReceivedDO)){
 			if(Objects.equals(paymentReceivedDO.getAuditSign(),ConstantForGYL.OK_AUDITED)){
-				PaymentReceivedDO btDo=new PaymentReceivedDO();
-				btDo.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+				PaymentReceivedDO btDo=this.get(id);
 				btDo.setAuditor(0L);
 				btDo.setId(id);
 				btDo.setSign(sign);
-				this.updateAuditSign(btDo);
+				btDo.setAuditTime(null);
+				btDo.setUpdateTime(new Date());
+				paymentReceivedDao.updateAll(btDo);
 				this.changeBackAuditContractAmoutn(sign,list,payItemId);
 				return R.ok();
 			}else{

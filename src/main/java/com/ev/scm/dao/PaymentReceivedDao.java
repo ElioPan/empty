@@ -53,6 +53,6 @@ public interface PaymentReceivedDao {
 
 	Map<String, Object> detailOfOutContract(Long[] ids);
 
-
+	int updateAll(PaymentReceivedDO paymentReceived);
 
 }

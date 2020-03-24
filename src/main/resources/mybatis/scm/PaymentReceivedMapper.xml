@@ -143,7 +143,6 @@
 	</delete>
 
 
-
 	<update id="updateAuditSign" parameterType="com.ev.scm.domain.PaymentReceivedDO">
 		UPDATE scm_payment_received
 		<set>
@@ -171,6 +170,31 @@
 		sign=#{sign}
 	</update>
 
+	<update id="updateAll" parameterType="com.ev.scm.domain.PaymentReceivedDO">
+		UPDATE scm_payment_received
+		set
+			`sign` = #{sign},
+			`cus_sup_id` = #{cusSupId},
+			`pr_type` = #{prType},
+			`pr_code` = #{prCode},
+			`supplier_client_id` = #{supplierClientId},
+			`pr_amount` = #{prAmount},
+			`pr_date` = #{prDate},
+			`payee` = #{payee},
+			`payer` = #{payer},
+			`audit_sign` = #{auditSign},
+			`auditor` = #{auditor},
+			`audit_time` = #{auditTime},
+			`create_by` = #{createBy},
+			`create_time` = #{createTime},
+			`update_by` = #{updateBy},
+			`update_time` = #{updateTime},
+			`del_flag` = #{delFlag}
+		WHERE
+		id = #{id}
+		and
+		sign=#{sign}
+	</update>
 
     <select id="canDeletOfCount" resultType="int">
         select
