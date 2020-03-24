@@ -107,7 +107,6 @@ public class FundInitializationApiController {
 
     }
 
-
     @EvApiByToken(value = "scm/apis/fundInitialization/financialDetails", method = RequestMethod.POST, apiTitle = "资金明细")
     @ApiOperation("资金明细")
     @Transactional(rollbackFor = Exception.class)

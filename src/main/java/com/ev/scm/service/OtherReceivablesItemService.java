@@ -37,6 +37,10 @@ public interface OtherReceivablesItemService {
 
 	Map<String, Object> totailAmount(Long id);
 
+	List<Map<String, Object>> getDetailOfIntroduce(Map<String, Object> map);
 
+	Map<String, Object> totailAmountOfIntroduce(Map<String, Object> map);
+
+	List<OtherReceivablesItemDO> otherNoReceiptAmount(Map<String, Object> map);
 
 }

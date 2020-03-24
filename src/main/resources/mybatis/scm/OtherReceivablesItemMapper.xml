@@ -166,7 +166,81 @@
 		received_id=#{value}
 	</select>
 
+	<select id="getDetailOfIntroduce" resultType="map">
 
+		SELECT
+		a.id ,
+        b.create_time as createTime,
+		b.code,
+		b.supplier_client_id as  supplierClientId,
+		IF(b.sign='QTYS',d.name,c.name) as supplierClientName,
+		a.accrual_date as accrualDate,
+		a.receivable_payables_amount AS receivablePayablesAmount,
+		a.paid_received_amount  as paidReceivedAmount,
+		a.no_receipt_payment_amount as noReceiptPaymentAmount,
+		a.remarks
+		from
+		scm_other_receivables_item a
+		LEFT JOIN  scm_other_receivables b on  a.received_id=b.id
+		LEFT JOIN  cus_supplier c on  b.supplier_client_id=c.id
+		LEFT JOIN  cus_client d on  b.supplier_client_id=d.id
+		<where>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="auditSign !=null and auditSign != ''"> AND b.audit_sign = #{auditSign} </if>
+			<if test="sign != null and sign != ''"> AND b.sign = #{sign} </if>
+			<if test="supplierId != null and supplierId != ''"> AND b.supplier_client_id = #{supplierId} </if>
+			<if test="clientId != null and clientId != ''"> AND b.supplier_client_id = #{clientId} </if>
+			and a.no_receipt_payment_amount &gt; 0
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY ${sort} ${order}
+			</when>
+			<otherwise>
+				ORDER BY id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="totailAmountOfIntroduce" resultType="map">
+		select
+		count(*) as `count`,
+		IF(SUM(a.receivable_payables_amount) is null,0,SUM(a.receivable_payables_amount)) as totailReceivablePayablesAmount,
+		IF(SUM(a.paid_received_amount) is null,0,SUM(a.paid_received_amount)) as totailPaidReceivedAmount,
+		IF(SUM(a.no_receipt_payment_amount) is null,0,SUM(a.no_receipt_payment_amount)) as totailNoReceiptPaymentAmount
+		from
+		scm_other_receivables_item a
+		LEFT JOIN  scm_other_receivables b on  a.received_id=b.id
+		LEFT JOIN  cus_supplier c on  b.supplier_client_id=c.id
+		LEFT JOIN  cus_client d on  b.supplier_client_id=d.id
+		<where>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(b.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="auditSign!= null and auditSign != ''"> AND b.audit_sign = #{auditSign} </if>
+			<if test="sign != null and sign != ''"> AND b.sign = #{sign} </if>
+			<if test="supplierId != null and supplierId != ''"> AND b.supplier_client_id = #{supplierId} </if>
+			<if test="clientId != null and clientId != ''"> AND b.supplier_client_id = #{clientId} </if>
+			and a.no_receipt_payment_amount &gt; 0
+		</where>
+	</select>
+
+
+	<select id="otherNoReceiptAmount" resultType="com.ev.scm.domain.OtherReceivablesItemDO">
+		select
+		id,
+		noReceiptPaymentAmount
+		from
+		scm_other_receivables_item
+		where
+		id IN
+		<foreach item="id" collection="payItemId" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
 
 
 

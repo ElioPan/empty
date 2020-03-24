@@ -687,7 +687,6 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 					}
 				}
 			}
-
 		}
 		return update;
 	}

@@ -177,6 +177,8 @@
 		scm_bank_transfer_item a
 		LEFT JOIN scm_bank_transfer b on  a.transfer_id =b.id
 		<where>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(b.transfer_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(b.transfer_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
 			<if test="transferOutAcc != null and transferOutAcc != ''"> AND a.transfer_out_acc = #{transferOutAcc} </if>
 			<if test="transferInAcc != null and transferInAcc != ''"> AND a.transfer_in_acc = #{transferInAcc} </if>
 			<if test="settlementType != null and settlementType != ''"> AND a.settlement_type = #{settlementType} </if>
@@ -189,6 +191,7 @@
 
 	<select id="getBankDetail" resultType="map">
 		SELECT
+		b.id as signId,
 		a.id,
 		b.transfer_date as fundDate,
 		DATE_FORMAT(b.transfer_date,'%Y-%m-%d') as  transferDate,
@@ -224,6 +227,7 @@
 
 	<select id="getBankOutDetail" resultType="map">
 		SELECT
+		b.id as signId,
 		a.id,
 		b.transfer_date as fundDate,
 		DATE_FORMAT(b.transfer_date,'%Y-%m-%d') as  transferDate,

@@ -332,6 +332,8 @@
     LEFT JOIN scm_stock_out_item outi ON outi.source_id = item.id
     LEFT JOIN scm_salesbill_item sitem ON sitem.source_id = item.id
     LEFT JOIN scm_outsourcing_contract_item soci ON soci.source_id = item.id
+    LEFT JOIN scm_salescontract_pay pay ON pay.salescontract_id=item.salescontract_id
+    LEFT JOIN scm_payment_received_item spri ON spri.source_id = pay.id
     WHERE
     item.`salescontract_id` = #{value} AND
     (
@@ -339,6 +341,7 @@
     OR outi.source_type = 204
     OR sitem.source_type = 204
     OR soci.source_type = 204
+    OR spri.source_type = 204
     )
 
     ) a

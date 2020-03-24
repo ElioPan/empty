@@ -1,12 +1,12 @@
 package com.ev.scm.domain;
 
-import java.io.Serializable;
-import java.util.Date;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
 
 /**
@@ -38,7 +38,7 @@ public class OtherReceivablesItemDO implements Serializable {
 	private BigDecimal paidReceivedAmount;
 	//未收/未付金额
     @ApiModelProperty(value = "未收/未付金额")
-	private String noReceiptPaymentAmount;
+	private BigDecimal noReceiptPaymentAmount;
 	//备注
     @ApiModelProperty(value = "备注")
 	private String remarks;

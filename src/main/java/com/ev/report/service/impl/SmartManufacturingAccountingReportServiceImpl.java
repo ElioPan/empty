@@ -1,13 +1,15 @@
 package com.ev.report.service.impl;
 
+import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.utils.MathUtils;
+import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
 import com.ev.report.dao.SmartManufacturingAccountingReportDao;
-import com.ev.report.service.AgendaAccountingReportService;
 import com.ev.report.service.SmartManufacturingAccountingReportService;
 import com.ev.report.vo.*;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +25,9 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
 
     @Autowired
     private SmartManufacturingAccountingReportDao reportDao;
-    @Autowired
-    private AgendaAccountingReportService reportService;
 
     @Override
-    public Pair<List<Map<String, Object>>, Map<String, BigDecimal>> processPlan(List<Map<String, Object>> data,boolean isTotalData) {
+    public Pair<List<Map<String, Object>>, Map<String, BigDecimal>> processPlan(List<Map<String, Object>> data, boolean isTotalData) {
         Map<String, BigDecimal> totalMap = Maps.newHashMap();
         // 获取所有工序计划ID
         List<Object> planIds = data.stream()
@@ -71,11 +71,11 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
             // 计划生产数量合计
             BigDecimal totalPlanCount = BigDecimal.valueOf(
                     data.stream()
-                    .map(stringObjectMap -> Double.parseDouble(stringObjectMap.getOrDefault("planCount", 0.0d).toString()))
-                    .reduce(Double::sum)
-                    .orElse(0.0d)
+                            .map(stringObjectMap -> Double.parseDouble(stringObjectMap.getOrDefault("planCount", 0.0d).toString()))
+                            .reduce(Double::sum)
+                            .orElse(0.0d)
             );
-            totalMap.put("totalPlanCount",totalPlanCount);
+            totalMap.put("totalPlanCount", totalPlanCount);
 
             // 完工数量合计
             BigDecimal totalCompletionCount = completionCountMap
@@ -83,11 +83,11 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                     .stream()
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
-            totalMap.put("totalCompletionCount",totalCompletionCount);
+            totalMap.put("totalCompletionCount", totalCompletionCount);
 
             // 差异数量合计 差异数量合计= 计划生产数量合计-完工数量合计
             BigDecimal totalDifferenceCount = totalPlanCount.subtract(totalCompletionCount);
-            totalMap.put("totalDifferenceCount",totalDifferenceCount);
+            totalMap.put("totalDifferenceCount", totalDifferenceCount);
 
             // 检验数量合计
             BigDecimal totalCheckCount = checkCountMap
@@ -95,7 +95,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                     .stream()
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
-            totalMap.put("totalCheckCount",totalCheckCount);
+            totalMap.put("totalCheckCount", totalCheckCount);
 
             // 合格数量合计
             BigDecimal totalConformityCount = conformityCountMap
@@ -103,11 +103,11 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                     .stream()
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
-            totalMap.put("totalConformityCount",totalConformityCount);
+            totalMap.put("totalConformityCount", totalConformityCount);
 
             // 不合格数量合计 不合格数量合计= 检验数量合计-合格数量合计
             BigDecimal totalUnConformityCount = totalCheckCount.subtract(totalConformityCount);
-            totalMap.put("totalUnConformityCount",totalUnConformityCount);
+            totalMap.put("totalUnConformityCount", totalUnConformityCount);
 
             // 返工数量合计
             BigDecimal totalReworkCount = reworkCountMap
@@ -115,7 +115,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                     .stream()
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
-            totalMap.put("totalReworkCount",totalReworkCount);
+            totalMap.put("totalReworkCount", totalReworkCount);
 
             // 报废数量合计
             BigDecimal totalScrapCount = totalScrapCountMap
@@ -123,7 +123,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                     .stream()
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
-            totalMap.put("totalScrapCount",totalScrapCount);
+            totalMap.put("totalScrapCount", totalScrapCount);
 
             return Pair.of(data, totalMap);
         }
@@ -173,7 +173,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
     }
 
     @Override
-    public Pair<List<Map<String, Object>>, Map<String, BigDecimal>> productionPlan(List<Map<String, Object>> data, boolean isTotalData ) {
+    public Pair<List<Map<String, Object>>, Map<String, BigDecimal>> productionPlan(List<Map<String, Object>> data, boolean isTotalData) {
         Map<String, BigDecimal> totalMap = Maps.newHashMap();
         // 获取所有生产计划ID
         List<Object> planIds = data.stream()
@@ -234,7 +234,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                             .reduce(Double::sum)
                             .orElse(0.0d)
             );
-            totalMap.put("totalPlanCount",totalPlanCount);
+            totalMap.put("totalPlanCount", totalPlanCount);
 
             // TODO 完工数量合计
             BigDecimal totalCompletionCount = completionCountMap
@@ -242,11 +242,11 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                     .stream()
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
-            totalMap.put("totalCompletionCount",totalCompletionCount);
+            totalMap.put("totalCompletionCount", totalCompletionCount);
 
             // 差异数量合计 差异数量合计= 完工数量合计-计划生产数量合计
             BigDecimal totalDifferenceCount = totalCompletionCount.subtract(totalPlanCount);
-            totalMap.put("totalDifferenceCount",totalDifferenceCount);
+            totalMap.put("totalDifferenceCount", totalDifferenceCount);
 
             // 检验数量（产品检验内的检验数量）
             BigDecimal totalCheckCount = checkCountMap
@@ -254,7 +254,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                     .stream()
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
-            totalMap.put("totalCheckCount",totalCheckCount);
+            totalMap.put("totalCheckCount", totalCheckCount);
 
             // 合格数量合计
             BigDecimal totalConformityCount = conformityCountMap
@@ -262,11 +262,11 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                     .stream()
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
-            totalMap.put("totalConformityCount",totalConformityCount);
+            totalMap.put("totalConformityCount", totalConformityCount);
 
             // 不合格数量合计 不合格数量合计= 检验数量合计-合格数量合计
             BigDecimal totalUnConformityCount = totalCheckCount.subtract(totalConformityCount);
-            totalMap.put("totalUnConformityCount",totalUnConformityCount);
+            totalMap.put("totalUnConformityCount", totalUnConformityCount);
 
             // 因料报废数量合计
             BigDecimal totalMaterielScrapCount = materielScrapCountMap
@@ -274,7 +274,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                     .stream()
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
-            totalMap.put("totalMaterielScrapCount",totalMaterielScrapCount);
+            totalMap.put("totalMaterielScrapCount", totalMaterielScrapCount);
 
             // 因工报废数量合计
             BigDecimal totalWorkScrapCount = workScrapCountMap
@@ -282,7 +282,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                     .stream()
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
-            totalMap.put("totalWorkScrapCount",totalWorkScrapCount);
+            totalMap.put("totalWorkScrapCount", totalWorkScrapCount);
 
             // 完工入库数量合计
             BigDecimal totalStockInCount = stockInCountMap
@@ -290,7 +290,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                     .stream()
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
-            totalMap.put("totalStockInCount",totalStockInCount);
+            totalMap.put("totalStockInCount", totalStockInCount);
 
             return Pair.of(data, totalMap);
         }
@@ -353,40 +353,124 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
 
     @Override
     public R pieceRate(CommonVO commonVO) {
-        return null;
+        Long deptId = commonVO.getDeptId();
+        Long userId = commonVO.getUserId();
+        if (deptId == null || userId == null) {
+            return R.ok();
+        }
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("deptId", deptId);
+        param.put("userId", userId);
+        List<PieceRateVO> pieceRateVOLists = reportDao.pieceRateItem(param);
+        if (pieceRateVOLists.size() == 0) {
+            return R.ok();
+        }
+        Map<String, Object> results = Maps.newHashMap();
+        results.put("data", pieceRateVOLists);
+        return R.ok(results);
     }
 
     @Override
     public R pieceRateGroupByDept(CommonVO commonVO) {
+        int pageNo = commonVO.getPageno();
+        int pageSize = commonVO.getPagesize();
+        Long userIdInfo = commonVO.getUserId();
+        Long deptIdInfo = commonVO.getDeptId();
+        // 获取所有的报工单
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("userId", userIdInfo);
+        param.put("deptId", deptIdInfo);
+        List<PieceRateVO> pieceRateVOLists = reportDao.pieceRateItem(param);
+        if (pieceRateVOLists.size() == 0) {
+            return R.ok();
+        }
+        List<PieceRateVO> pieceRateVOList = PageUtils.startPage(pieceRateVOLists, pageNo, pageSize);
+        // 各个部门工资小计
+        Map<Long, BigDecimal> deptTotal = pieceRateVOList
+                .stream()
+                .collect(Collectors.toMap(PieceRateVO::getDeptId, PieceRateVO::getTotalPrice, BigDecimal::add));
+        Map<Long, String> deptNameMap = pieceRateVOList
+                .stream()
+                .collect(Collectors.toMap(PieceRateVO::getDeptId, PieceRateVO::getDeptName, (v1, v2) -> v1));
+        List<Map<String, Object>> data = Lists.newArrayList();
+        Map<String, Object> map;
+        for (Long s : deptTotal.keySet()) {
+            map = Maps.newHashMap();
+            map.put("deptId", s);
+            map.put("deptName", deptNameMap.get(s) + "小计");
+            map.put("totalPieceRate", deptTotal.get(s));
+            data.add(map);
+        }
+        // 获取不分页的总合计
+        BigDecimal total = pieceRateVOLists
+                .stream()
+                .map(PieceRateVO::getTotalPrice)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
 
-
-        return null;
+        Map<String, Object> results = Maps.newHashMap();
+        // 获取部门个数
+        int size = (int) pieceRateVOLists
+                .stream()
+                .map(PieceRateVO::getDeptId)
+                .distinct()
+                .count();
+        if (data.size() > 0) {
+            results.put("total", total);
+            results.put("data", new DsResultResponse(pageNo, pageSize, size, data));
+        }
+        return R.ok(results);
     }
 
     @Override
     public R pieceRateGroupByUser(CommonVO commonVO) {
-        return null;
+        Long deptId = commonVO.getDeptId();
+        if (deptId == null) {
+            return R.ok();
+        }
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("deptId", deptId);
+        List<PieceRateVO> pieceRateVOLists = reportDao.pieceRateItem(param);
+        if (pieceRateVOLists.size() == 0) {
+            return R.ok();
+        }
+        // 各个部门工资小计
+        Map<Long, BigDecimal> userTotal = pieceRateVOLists
+                .stream()
+                .collect(Collectors.toMap(PieceRateVO::getOperator, PieceRateVO::getTotalPrice, BigDecimal::add));
+        Map<Long, String> userNameMap = pieceRateVOLists
+                .stream()
+                .collect(Collectors.toMap(PieceRateVO::getOperator, PieceRateVO::getOperatorName, (v1, v2) -> v1));
+        List<Map<String, Object>> data = Lists.newArrayList();
+        Map<String, Object> map;
+        for (Long s : userTotal.keySet()) {
+            map = Maps.newHashMap();
+            map.put("userId", s);
+            map.put("userName", userNameMap.get(s) + "小计");
+            map.put("totalPieceRate", userTotal.get(s));
+            data.add(map);
+        }
+        Map<String, Object> results = Maps.newHashMap();
+        results.put("data", data);
+        return R.ok(results);
     }
 
     @Override
-    public Pair<List<Map<String, Object>>, Map<String, BigDecimal>> productionBatch(List<Map<String, Object>> data) {
-        Map<String,BigDecimal> totalMap = Maps.newHashMap();
-
-
-
-
-        return Pair.of(data,totalMap);
+    public R productionBatch(Long id) {
+        Map<String, Object> param = Maps.newHashMap();
+        // 查询领料单
+        param.put("planId", id);
+        param.put("sourceType", ConstantForMES.SCTL);
+        List<StockOutItemVO> stockOutItemList = reportDao.stockOutItem(param);
+        // 查询入库单
+        param.put("sourceType", ConstantForMES.SCJH);
+        List<StockInItemVO> stockInItemList = reportDao.stockInItem(param);
+        Map<String, Object> results = Maps.newHashMap();
+        results.put("stockIn", stockInItemList);
+        results.put("stockOut", stockOutItemList);
+        return R.ok(results);
     }
 
-    @Override
-    public Pair<List<Map<String, Object>>, Map<String, BigDecimal>> processOutput(List<Map<String, Object>> data) {
-        Map<String,BigDecimal> totalMap = Maps.newHashMap();
-
-
-
-
-        return Pair.of(data,totalMap);
-    }
 
     @Override
     public List<Map<String, Object>> productionPlanList(Map<String, Object> params) {
@@ -409,22 +493,12 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
     }
 
     @Override
-    public List<Map<String, Object>> productionBatchList(Map<String, Object> params) {
-        return reportDao.productionBatchList(params);
+    public List<ProcessReportVO> processOutputList(Map<String, Object> params) {
+        return reportDao.processReport(params);
     }
 
     @Override
-    public int productionBatchCount(Map<String, Object> params) {
-        return reportDao.productionBatchCount(params);
-    }
-
-    @Override
-    public List<Map<String, Object>> processOutputList(Map<String, Object> params) {
-        return reportDao.processOutputList(params);
-    }
-
-    @Override
-    public int processOutputCount(Map<String, Object> params) {
+    public Map<String, Object> processOutputCount(Map<String, Object> params) {
         return reportDao.processOutputCount(params);
     }
 }

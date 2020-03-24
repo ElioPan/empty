@@ -226,6 +226,7 @@
 		g.name as deviceName,
 		b.man_hour	as manHour,
 		b.labour_price	 as labourPrice,
+		b.serial_number as serialNumber,
 		b.total_hour as  totalHour
 		FROM
 		mes_craft_item b

@@ -1,29 +1,27 @@
 package com.ev.apis.controller.mes;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
+import com.ev.apis.model.DsResultResponse;
+import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
+import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
+import com.ev.mes.domain.WorkingProcedurePlanDO;
+import com.ev.mes.service.WorkingProcedureDetailService;
+import com.ev.mes.service.WorkingProcedurePlanService;
+import com.google.common.collect.Maps;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ev.framework.annotation.EvApiByToken;
-import com.ev.apis.model.DsResultResponse;
-import com.ev.framework.config.ConstantForMES;
-import com.ev.framework.utils.R;
-import com.ev.mes.domain.WorkingProcedurePlanDO;
-import com.ev.mes.service.WorkingProcedureDetailService;
-import com.ev.mes.service.WorkingProcedurePlanService;
-import com.google.common.collect.Maps;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * 工序计划管理
@@ -158,8 +156,9 @@ public class WorkingProcedurePlanApiController {
 	@ApiOperation("保存工序计划信息(不通过生产计划)")
 	public R save(WorkingProcedurePlanDO planDO, @ApiParam(value = "工序项目数组例："+
 			"[\r\n" + 
-			"    {\r\n" + 
+			"    {\r\n" +
 			"        \"processId\":1,\r\n" +
+			"        \"serialNumber\":1,\r\n" +
             "        \"processType\":239,\r\n" +
             "        \"demand\":\"工艺要求\",\r\n" +
 			"        \"deptId\":22,\r\n" + 
@@ -225,7 +224,8 @@ public class WorkingProcedurePlanApiController {
 	public R update(WorkingProcedurePlanDO planDO, @ApiParam(value = "工序项目数组例："+
 			"[\r\n" + 
 			"    {\r\n" + 
-			"        \"id\":1,\r\n" + 
+			"        \"id\":1,\r\n" +
+			"        \"serialNumber\":1,\r\n" +
 			"        \"processId\":1,\r\n" +
             "        \"processType\":239,\r\n" +
 			"        \"demand\":\"工艺要求\",\r\n" + 

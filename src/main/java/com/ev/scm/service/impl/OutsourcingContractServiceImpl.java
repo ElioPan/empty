@@ -720,4 +720,14 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         return null;
     }
 
+    @Override
+    public List<Map<String, Object>> payListForMap(Map<String, Object> map) {
+        return outsourcingContractPayDao.payListForMap(map);
+    }
+
+    @Override
+    public Map<String, Object> payCountForMap(Map<String, Object> map) {
+        return outsourcingContractPayDao.payCountForMap(map);
+    }
+
 }

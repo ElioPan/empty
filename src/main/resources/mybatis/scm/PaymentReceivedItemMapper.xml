@@ -294,4 +294,58 @@
 		</foreach>
 	</select>
 
+
+	<select id="getInCountById" resultType="map">
+		SELECT
+		a.id,
+		a.account_number as accountNumber,
+		a.this_amount AS thisAmount
+		FROM
+		scm_payment_received_item a
+		LEFT  JOIN  scm_payment_received b on b.id=a.payment_received_id
+		<where>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(b.pr_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(b.pr_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="sign != null and sign != ''"> AND b.sign = #{sign} </if>
+			<if test="auditSign != null and auditSign != ''"> AND b.audit_sign = #{auditSign} </if>
+			<if test="accountNumber != null and accountNumber != ''"> AND a.account_number IN
+				<foreach item="id" collection="accountNumber" open="(" separator="," close=")">
+						#{id}
+				</foreach> </if>
+		</where>
+	</select>
+
+
+	<select id="getsPaymentDetails" resultType="map">
+		SELECT
+		b.id as signId,
+		a.id,
+		b.pr_date as fundDate,
+		DATE_FORMAT(b.pr_date,'%Y-%m-%d') as  transferDate,
+		b.pr_code as transferCode,
+		c.account_number as transferAccName,
+		d.name as backName,
+		a.this_amount AS thisAmount,
+		CASE WHEN  b.sign='SK' THEN a.this_amount
+		END inTransferAmount,
+		CASE WHEN  b.sign='FK' THEN a.this_amount
+		END  outTransferAmount,
+		b.pr_type as businessType,
+		e.name as businessTypeName
+		FROM
+		scm_payment_received_item a
+		LEFT  JOIN  scm_payment_received b on b.id=a.payment_received_id
+		LEFT JOIN scm_fund_initialization c on a.account_number=c.id
+		LEFT JOIN cus_dictionary d on c.bank=d.id
+		LEFT JOIN cus_dictionary e on b.pr_type=e.id
+		<where>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(b.pr_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(b.pr_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="sign != null and sign != ''"> AND b.sign = #{sign} </if>
+			<if test="auditSign != null and auditSign != ''"> AND b.audit_sign = #{auditSign} </if>
+			<if test="accountNumber != null and accountNumber != ''"> AND a.account_number = #{accountNumber}</if>
+		</where>
+	</select>
+
+
 </mapper>

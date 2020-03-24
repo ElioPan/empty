@@ -7,6 +7,7 @@ import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.R;
 import com.ev.scm.domain.OtherReceivablesDO;
+import com.ev.scm.service.OtherReceivablesItemService;
 import com.ev.scm.service.OtherReceivablesService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
@@ -33,6 +34,9 @@ public class OtherPayableApiController {
     private DictionaryService dictionaryService;
     @Autowired
     private OtherReceivablesService otherReceivablesService;
+    @Autowired
+    private OtherReceivablesItemService otherReceivablesItemService;
+
 
     @EvApiByToken(value = "/apis/scm/otherPayable/addAndChange", method = RequestMethod.POST, apiTitle = "增加/修改--其他应付")
     @ApiOperation("增加/修改--其他应付")
@@ -123,8 +127,40 @@ public class OtherPayableApiController {
 
     }
 
+    @EvApiByToken(value = "/apis/scm/otherPayable/listForIncoming", method = RequestMethod.POST, apiTitle = "源单引入列表--其他应付")
+    @ApiOperation("源单引入列表--其他应付")
+    public R listForIncoming(
+            @ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
+            @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize,
+            @ApiParam(value = "供应商id") @RequestParam(value = "supplierId",defaultValue = "") Long supplierId,
+            @ApiParam(value = "开始时间") @RequestParam(value = "startTime",defaultValue = "") String startTime,
+            @ApiParam(value = "结束时间") @RequestParam(value = "endTime",defaultValue = "") String endTime,
+            @ApiParam(value = "审核") @RequestParam(value = "auditSign",defaultValue = "") Long auditSign) {
 
-
-
+        Map<String,Object> map= new HashMap<>();
+        map.put("offset",(pageno-1)*pagesize);
+        map.put("limit",pagesize);
+        map.put("supplierId",supplierId);
+        map.put("startTime",startTime);
+        map.put("endTime",endTime);
+        map.put("auditSign",auditSign);
+        map.put("sign",ConstantForGYL.OTHER_PAYABLE);
+        List<Map<String, Object>> list = otherReceivablesItemService.getDetailOfIntroduce(map);
+        Map<String, Object> countForMap = otherReceivablesItemService.totailAmountOfIntroduce(map);
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.OTHER_PAYABLE_TYPE.intValue());
+        String sourceTypeName=dictionaryDO.getName();
+        Map<String, Object> result = Maps.newHashMap();
+        if (list.size() > 0) {
+            for(Map<String, Object> maps:list){
+                maps.put("sourceType",ConstantForGYL.OTHER_PAYABLE_TYPE);
+                maps.put("sourceTypeName",sourceTypeName);
+            }
+            result.put("data", new DsResultResponse(pageno,pagesize,Integer.parseInt(countForMap.get("count").toString()),list));
+            result.put("totailReceivablePayablesAmount", countForMap.get("totailReceivablePayablesAmount"));
+            result.put("totailPaidReceivedAmount", countForMap.get("totailPaidReceivedAmount"));
+            result.put("totailNoReceiptPaymentAmount", countForMap.get("totailNoReceiptPaymentAmount"));
+        }
+        return R.ok(result);
+    }
 
 }

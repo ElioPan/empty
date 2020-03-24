@@ -24,13 +24,7 @@ public interface SmartManufacturingAccountingReportDao {
 
     int processPlanCount(Map<String, Object> params);
 
-    List<Map<String, Object>> productionBatchList(Map<String, Object> params);
-
-    int productionBatchCount(Map<String, Object> params);
-
-    List<Map<String, Object>> processOutputList(Map<String, Object> params);
-
-    int processOutputCount(Map<String, Object> params);
+    Map<String, Object> processOutputCount(Map<String, Object> params);
 
     List<ProcessReportVO> processReport(Map<String, Object> param);
 
@@ -40,5 +34,10 @@ public interface SmartManufacturingAccountingReportDao {
 
     List<StockInItemVO> stockInItem(Map<String, Object> param);
 
+    List<StockOutItemVO> stockOutItem(Map<String, Object> param);
+
     List<MaterialInspectionVO> productionInspection(Map<String, Object> param);
+
+    List<PieceRateVO> pieceRateItem(Map<String, Object> param);
+
 }
