@@ -173,6 +173,7 @@
 		d.name  as deptName,
 		a.audit_sign as auditSign,
 		e.name as auditSignName,
+		a.audit_time as auditTime,
 		a.auditor,
 		f.name as auditorName,
 		a.create_by as createBy,

@@ -30,10 +30,12 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 
 	@Autowired
 	private PurchasecontractPayService purchasecontractPayService;
-
+	@Autowired
+	private OutsourcingContractPayService outsourcingContractPayService;
 	@Autowired
     private SalescontractPayService salescontractPayService;
-
+	@Autowired
+	private OtherReceivablesItemService otherReceivablesItemService;
 
 
 	@Override
@@ -422,9 +424,9 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 			map.put("detailOfItem",detailOfItem);
 			//子表总金额
 			map.put("totallAmount",totallAmount);
-			map.put("allReceivablePayablesAmount",stringObjectMap.containsKey("receivablePayablesAmount")?stringObjectMap.get("receivablePayablesAmount"):0);
-			map.put("allPaidReceivedAmount",stringObjectMap.containsKey("paidReceivedAmount")?stringObjectMap.get("paidReceivedAmount"):0);
-			map.put("allNoReceiptPaymentAmount",stringObjectMap.containsKey("noReceiptPaymentAmount")?stringObjectMap.get("noReceiptPaymentAmount"):0);
+			map.put("allReceivablePayablesAmount", stringObjectMap.getOrDefault("receivablePayablesAmount", 0));
+			map.put("allPaidReceivedAmount", stringObjectMap.getOrDefault("paidReceivedAmount", 0));
+			map.put("allNoReceiptPaymentAmount",stringObjectMap.getOrDefault("noReceiptPaymentAmount",0));
 			result.put("data",map);
 		}
 		return R.ok(result);
@@ -548,15 +550,55 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 							return R.error(messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null));
 						}
 					}else if(Objects.equals(sourceType, ConstantForGYL.OTHER_PAYABLE_TYPE)){
-						System.out.println("ok");
-						//TODO
+						//其他应付
+						OtherReceivablesItemDO otherReceivablesItemDO = otherReceivablesItemService.get(sourceId);
+						if (otherReceivablesItemDO != null) {
+							BigDecimal unpayAmount=otherReceivablesItemDO.getNoReceiptPaymentAmount()!=null?otherReceivablesItemDO.getNoReceiptPaymentAmount():(BigDecimal.ZERO);
+							int boo = unpayAmount.compareTo(thisAmount);
+							if (Objects.equals(-1, boo)) {
+								String[] args = {thisAmount.toPlainString(), unpayAmount.toPlainString(), itemDo.getSourceCode().toString()};
+								Map<String, Object> maps = new HashMap<>();
+								maps.put("sourceId", sourceId);
+								maps.put("sourceCount", unpayAmount);
+								return R.error(500, messageSourceHandler.getMessage("stock.payRecived.checkErrorPurchase", args), maps);
+							}
+						}else{
+							return R.error(messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null));
+						}
 				}else if(Objects.equals(sourceType, ConstantForGYL.OTHER_RECIVEABLE_TYPE)){
-						System.out.println("ok");
-						//TODO
+						//其他应收
+						OtherReceivablesItemDO otherReceivablesItemDO = otherReceivablesItemService.get(sourceId);
+						if (otherReceivablesItemDO != null) {
+							BigDecimal unpayAmount=otherReceivablesItemDO.getNoReceiptPaymentAmount()!=null?otherReceivablesItemDO.getNoReceiptPaymentAmount():(BigDecimal.ZERO);
+							int boo = unpayAmount.compareTo(thisAmount);
+							if (Objects.equals(-1, boo)) {
+								String[] args = {thisAmount.toPlainString(), unpayAmount.toPlainString(), itemDo.getSourceCode().toString()};
+								Map<String, Object> maps = new HashMap<>();
+								maps.put("sourceId", sourceId);
+								maps.put("sourceCount", unpayAmount);
+								return R.error(500, messageSourceHandler.getMessage("stock.payRecived.checkErrorSales", args), maps);
+							}
+						}else{
+							return R.error(messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null));
+						}
 				}else if(Objects.equals(sourceType, ConstantForGYL.WWHT)){
-                        System.out.println("ok");
-                        //TODO
-                    }else {
+					//委外合同
+						OutsourcingContractPayDO outsourcingContractPayDO = outsourcingContractPayService.get(sourceId);
+						if (outsourcingContractPayDO != null) {
+
+							BigDecimal unpayAmount = outsourcingContractPayDO.getUnpaidAmount() == null ? BigDecimal.ZERO : outsourcingContractPayDO.getUnpaidAmount();
+							int boo = unpayAmount.compareTo(thisAmount);
+							if (Objects.equals(-1, boo)) {
+								String[] args = {thisAmount.toPlainString(), unpayAmount.toPlainString(), itemDo.getSourceCode().toString()};
+								Map<String, Object> maps = new HashMap<>();
+								maps.put("sourceId", sourceId);
+								maps.put("sourceCount", unpayAmount);
+								return R.error(500, messageSourceHandler.getMessage("stock.payRecived.checkErrorPurchase", args), maps);
+							}
+						} else {
+							return R.error(messageSourceHandler.getMessage("scm.stock.haveNoMagOfSource", null));
+						}
+                 }else {
 						return R.error(messageSourceHandler.getMessage("scm.payRecived.EroorSourceTypeOfIntroduce", null));
 				       }
 				} else {

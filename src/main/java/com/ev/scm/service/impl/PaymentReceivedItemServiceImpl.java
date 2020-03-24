@@ -100,5 +100,10 @@ public class PaymentReceivedItemServiceImpl implements PaymentReceivedItemServic
 		return paymentReceivedItemDao.getInCountById(map);
 	}
 
+	@Override
+	public List<Map<String, Object>> getsPaymentDetails(Map<String, Object> map) {
+		return paymentReceivedItemDao.getsPaymentDetails(map);
+	}
+
 
 }

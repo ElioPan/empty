@@ -46,6 +46,8 @@ public interface PaymentReceivedItemDao {
 	List<Map<String, Object>> getInCountById(Map<String, Object> map);
 
 
+	List<Map<String, Object>> getsPaymentDetails(Map<String, Object> map);
+
 
 
 }

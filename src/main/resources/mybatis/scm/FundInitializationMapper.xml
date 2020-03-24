@@ -160,6 +160,7 @@
 			<if test="usingStart == 0 "> AND a.using_start = #{usingStart} </if>
 			<if test="usingStart == 1 "> AND a.using_start = #{usingStart} </if>
 			<if test="accountNumber != null and accountNumber !=''"> AND a.account_number = #{accountNumber} </if>
+			<if test="endTime != null and endTime !=''"> AND a.period &lt;= #{endTime} </if>
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
