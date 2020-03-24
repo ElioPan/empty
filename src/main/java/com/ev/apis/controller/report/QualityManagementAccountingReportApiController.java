@@ -2,6 +2,7 @@ package com.ev.apis.controller.report;
 
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
@@ -436,28 +437,40 @@ public class QualityManagementAccountingReportApiController {
         return R.ok(results);
     }
 
+    /**
+     *  采购入库物料且有批次管理
+     */
     @EvApiByToken(value = "/apis/qualityManagement/qualityTraceability", method = RequestMethod.POST, apiTitle = "质量追溯分析")
     @ApiOperation("质量追溯分析")
     public R qualityTraceability(
             @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
             @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
-            @ApiParam(value = "物料ID") @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId,
-            @ApiParam(value = "批号") @RequestParam(value = "batch", defaultValue = "", required = false) String batch,
+            @ApiParam(value = "物料ID", required = true) @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId,
+            @ApiParam(value = "批号", required = true) @RequestParam(value = "batch", defaultValue = "", required = false) String batch,
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime
     ) {
         // 查询列表数据
         Map<String, Object> params = Maps.newHashMap();
-        params.put("offset", (pageno - 1) * pagesize);
-        params.put("limit", pagesize);
+
 
         params.put("batch", batch);
         params.put("deviceId", materielId);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
-        Map<String, Object> results = Maps.newHashMap();
-        List<Map<String, Object>> data = reportService.qualityTraceabilityList(params);
+
+        params.put("auditSign", ConstantForGYL.OK_AUDITED);
+
+        params.put("storageType", ConstantForGYL.PURCHASE_INSTOCK);
+        params.put("inspectionType", ConstantForMES.LLJY);
+        params.put("outboundType", ConstantForGYL.LYCK);
         int total = reportService.qualityTraceabilityCount(params);
+
+        params.put("offset", (pageno - 1) * pagesize);
+        params.put("limit", pagesize);
+        // 采购入库&来料检验&生产领料&生产计划
+        List<Map<String, Object>> data = reportService.qualityTraceabilityList(params);
+        Map<String, Object> results = Maps.newHashMap();
         if (data.size() > 0) {
             results.put("data", new DsResultResponse(pageno, pagesize, total, data));
         }

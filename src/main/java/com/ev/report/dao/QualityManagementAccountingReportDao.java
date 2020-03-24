@@ -1,6 +1,5 @@
 package com.ev.report.dao;
 
-import com.ev.custom.domain.SupplierDO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -19,4 +18,6 @@ public interface QualityManagementAccountingReportDao {
     List<Map<String, Object>> badPurchaseList(Map<String, Object> params);
 
     List<Map<String, Object>> badProcessList(Map<String, Object> params);
+
+    List<Map<String, Object>> qualityTraceabilityList(Map<String, Object> params);
 }

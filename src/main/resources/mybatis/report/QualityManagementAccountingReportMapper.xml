@@ -100,7 +100,170 @@
                 ORDER BY mwpd.dept_id,mp.id
             </otherwise>
         </choose>
+    </select>
 
+    <!--采购入库&来料检验&生产领料&生产计划-->
+    <select id="qualityTraceabilityList" resultType="java.util.Map">
+        SELECT
+        typeName,
+        id,
+        `time`,
+        `code`,
+        materielId,
+        serialNo,
+        materielName,
+        specification,
+        unitUomName,
+        batch,
+        SUM(`count`) AS `count`,
+        facilityName,
+        locationName,
+        sourceTypeName,
+        sourceCode
+        FROM
+        (
+        SELECT
+        '采购入库' AS typeName,
+        stock.id AS id,
+        stock.in_out_time AS `time`,
+        stock.inhead_code AS `code`,
+        materiel.`id` AS materielId,
+        materiel.`serial_no` AS serialNo,
+        materiel.`name` AS materielName,
+        materiel.`specification` AS specification,
+        dic.`name` AS unitUomName,
+        item.`batch` AS batch,
+        item.`count` AS `count`,
+        facility.`name` AS facilityName,
+        location.`name` AS locationName,
+        dict.`name` AS sourceTypeName,
+        item.source_code AS sourceCode
+        FROM
+        scm_stock_in_item item
+        LEFT JOIN scm_stock_in stock ON stock.id=item.inhead_id
+        LEFT JOIN cus_materiel materiel ON materiel.id=item.materiel_id
+        LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.unit_uom
+        LEFT JOIN cus_facility facility ON facility.id = item.warehouse
+        LEFT JOIN cus_facility_location location ON location.id = item.wareh_location
+        LEFT JOIN cus_dictionary dict ON dict.`id`=item.source_type
+        <where>
+            <if test="storageType != null and storageType != ''"> and stock.storage_type = #{storageType} </if>
+
+            <if test="auditSign != null and auditSign != ''"> and stock.audit_sign = #{auditSign} </if>
+
+            <if test="batch != null and batch != ''"> and item.`batch` = #{batch} </if>
+            <if test="materielId != null and materielId != ''"> and item.`materiel_id` = #{materielId} </if>
+            <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(stock.in_out_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(stock.in_out_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+        </where>
+        UNION ALL
+        SELECT
+        '来料检验' AS typeName,
+        inspection.id AS id,
+        inspection.create_time AS `time`,
+        inspection.inspection_no AS `code`,
+        materiel.`id` AS materielId,
+        materiel.`serial_no` AS serialNo,
+        materiel.`name` AS materielName,
+        materiel.`specification` AS specification,
+        dic.`name` AS unitUomName,
+        inspection.`batch_no` AS batch,
+        inspection.inspection_count AS `count`,
+        '' AS facilityName,
+        '' AS locationName,
+        dict.`name` AS sourceTypeName,
+        inspection.source_no AS sourceCode
+        FROM
+         mes_material_inspection inspection
+        LEFT JOIN cus_materiel materiel ON materiel.id=inspection.materiel_id
+        LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.unit_uom
+        LEFT JOIN cus_dictionary dict ON dict.`id`=inspection.source_type
+        <where>
+            <if test="inspectionType != null and inspectionType != ''"> and inspection.inspection_type = #{inspectionType} </if>
+
+            <if test="auditSign != null and auditSign != ''"> and inspection.status = #{auditSign} </if>
+
+            <if test="batch != null and batch != ''"> and inspection.`batch_no` = #{batch} </if>
+            <if test="materielId != null and materielId != ''"> and inspection.`materiel_id` = #{materielId} </if>
+            <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(inspection.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(inspection.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+        </where>
+        UNION ALL
+        SELECT
+        '生产领料' AS typeName,
+        sout.id AS id,
+        sout.`out_time` AS `time`,
+        sout.`out_code` AS `code`,
+        materiel.`id` AS materielId,
+        materiel.`serial_no` AS serialNo,
+        materiel.`name` AS materielName,
+        materiel.`specification` AS specification,
+        dic.`name` AS unitUomName,
+        item.`batch` AS batch,
+        item.count AS `count`,
+        facility.`name` AS facilityName,
+        location.`name` AS locationName,
+        dict.`name` AS sourceTypeName,
+        item.source_code AS sourceCode
+        FROM
+        scm_stock_out_item item
+        LEFT JOIN scm_stock_out sout ON sout.id=item.out_id
+        LEFT JOIN scm_stock stock ON stock.id=item.stock_id
+        LEFT JOIN cus_facility facility ON facility.id = stock.warehouse
+        LEFT JOIN cus_facility_location location ON location.id = stock.wareh_location
+        LEFT JOIN cus_materiel materiel ON materiel.id=item.materiel_id
+        LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.unit_uom
+        LEFT JOIN cus_dictionary dict ON dict.`id`=item.source_type
+        <where>
+            <if test="outboundType != null and inspectionType != ''"> and sout.outbound_type = #{outboundType} </if>
+
+            <if test="auditSign != null and auditSign != ''"> and sout.audit_sign = #{auditSign} </if>
+
+            <if test="batch != null and batch != ''"> and item.`batch` = #{batch} </if>
+            <if test="materielId != null and materielId != ''"> and item.`materiel_id` = #{materielId} </if>
+            <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(sout.`out_time`,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(sout.`out_time`,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+        </where>
+        UNION ALL
+        SELECT
+        '生产计划' AS typeName,
+        plan.`id` AS id,
+        feeding.`create_time` AS `time`,
+        plan.`plan_no` AS `code`,
+        materiel.`id` AS materielId,
+        materiel.`serial_no` AS serialNo,
+        materiel.`name` AS materielName,
+        materiel.`specification` AS specification,
+        dic.`name` AS unitUomName,
+        plan.`batch_no` AS batch,
+        plan.plan_count AS `count`,
+        '' AS facilityName,
+        '' AS locationName,
+        dict.`name` AS sourceTypeName,
+        plan.source_no AS sourceCode
+        FROM
+        mes_production_feeding_detail item
+        LEFT JOIN mes_production_feeding feeding ON feeding.id=item.head_id
+        LEFT JOIN mes_production_plan plan ON plan.id=feeding.production_plan_id
+        LEFT JOIN cus_materiel materiel ON materiel.id=plan.materiel_id
+        LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.unit_uom
+        LEFT JOIN cus_dictionary dict ON dict.`id`=plan.source_type
+        <where>
+            <if test="auditSign != null and auditSign != ''"> and feeding.status = #{auditSign} </if>
+
+            <if test="batch != null and batch != ''"> and item.`batch_no` = #{batch} </if>
+            <if test="materielId != null and materielId != ''"> and item.`materiel_id` = #{materielId} </if>
+            <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(feeding.`create_time`,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(feeding.`create_time`,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            AND feeding.production_plan_id IS NOT NULL
+        </where>
+        ) a
+        GROUP BY a.`id`,a.`typeName`
+        ORDER BY a.`time`
+
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
 
     </select>
 

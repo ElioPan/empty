@@ -25,12 +25,12 @@ public class QualityManagementAccountingReportServiceImpl implements QualityMana
 
     @Override
     public List<Map<String, Object>> qualityTraceabilityList(Map<String, Object> params) {
-        return null;
+        return reportDao.qualityTraceabilityList(params);
     }
 
     @Override
     public int qualityTraceabilityCount(Map<String, Object> params) {
-        return 0;
+        return reportDao.qualityTraceabilityList(params).size();
     }
 
 }
