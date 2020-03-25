@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 
@@ -236,6 +237,24 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 
         FundInitializationDO fundInitializationDO = this.get(founId);
         BigDecimal initialAmount=fundInitializationDO.getInitialAmount();
+
+        List<Map<String, Object>>  balanceDetails= new ArrayList<>();
+        Map<String,Object>  initiaData= new HashMap<>();
+        if(fundInitializationDO!=null){
+            initiaData.put("id",0);
+            initiaData.put("fundDate","2000-01-01 00:00:00");
+            initiaData.put("createTime","2000-01-01 00:00:00");
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            initiaData.put("transferDate",formatter.format(fundInitializationDO.getPeriod()));
+            initiaData.put("businessTypeName","期初余额");
+            initiaData.put("remainingAmount",fundInitializationDO.getInitialAmount());
+            initiaData.put("companyName",ConstantForGYL.company_ame);
+            initiaData.put("transferAccName",fundInitializationDO.getAccountNumber());
+            DictionaryDO dictionaryDO = dictionaryService.get(fundInitializationDO.getBank().intValue());
+            if(dictionaryDO!=null){initiaData.put("backName",dictionaryDO.getName());}
+            balanceDetails.add(initiaData);
+        }
+        //收支
         map.put("transferOutAcc",founId);
         List<Map<String, Object>> outBankDetails = bankTransferItemService.getBankOutDetail(map);
         map.put("transferInAcc",founId);
@@ -257,7 +276,6 @@ public class FundInitializationServiceImpl implements FundInitializationService 
         List<Map<String, Object>> bankInDetails = this.disposeInAmount(inBankDetails);
         List<Map<String, Object>> bankOutDetails = this.disposeOutAmount(outBankDetails);
 
-        List<Map<String, Object>>  balanceDetails= new ArrayList<>();
         if(payInDetails.size()>0){
             balanceDetails.addAll(payInDetails);
         }
@@ -272,29 +290,25 @@ public class FundInitializationServiceImpl implements FundInitializationService 
         }
         Map<String,Object>  resulst= new HashMap<>();
         if(balanceDetails.size()>0){
-            Map<String,Object>  initiaData= new HashMap<>();
-            initiaData.put("id",0);
-            initiaData.put("fundDate","2000-01-01 00:00:00");
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            initiaData.put("transferDate",formatter.format(fundInitializationDO.getPeriod()));
-            initiaData.put("businessTypeName","期初余额");
-            initiaData.put("remainingAmount",fundInitializationDO.getInitialAmount());
-            initiaData.put("companyName",ConstantForGYL.company_ame);
-            initiaData.put("transferAccName",fundInitializationDO.getAccountNumber());
-            DictionaryDO dictionaryDO = dictionaryService.get(fundInitializationDO.getBank().intValue());
-            if(dictionaryDO!=null){initiaData.put("backName",dictionaryDO.getName());}
-            balanceDetails.add(initiaData);
-            Collections.sort(balanceDetails, new Comparator<Map<String, Object>>() {
-                @Override
-                public int compare(Map<String, Object> arg0, Map<String, Object> arg1) {
 
-                    Long s0= DateFormatUtil.getDateByParttern(arg0.get("fundDate").toString(), "yyyy-MM-dd").getTime();
-                    Long s1=DateFormatUtil.getDateByParttern(arg1.get("fundDate").toString(), "yyyy-MM-dd").getTime();
-                    return s0.compareTo(s1);
-                }
-            });
+//            List<Map<String, Object>>  balanceDetail =balanceDetails.stream().sorted((v1,v2)-> (DateFormatUtil.getDateByParttern(v1.get("fundDate").toString(), "yyyy-MM-dd").getTime())
+//                        >(DateFormatUtil.getDateByParttern(v2.get("fundDate").toString(), "yyyy-MM-dd").getTime())?1:-1).sorted((v1,v2)->
+//                    (DateFormatUtil.getDateByParttern(v1.get("createTime").toString(), "yyyy-MM-dd HH:mm:ss").getTime()) >(DateFormatUtil.getDateByParttern(v2.get("createTime").toString(), "yyyy-MM-dd HH:mm:ss").getTime())?1:-1).collect(Collectors.toList());
 
-            List<Map<String, Object>> quoteLists= PageUtils.startPage(balanceDetails, pageno, pagesize);
+//            Collections.sort(balanceDetails, new Comparator<Map<String, Object>>() {
+//                @Override
+//                public int compare(Map<String, Object> arg0, Map<String, Object> arg1) {
+//                    Long s0= DateFormatUtil.getDateByParttern(arg0.get("fundDate").toString(), "yyyy-MM-dd").getTime();
+//                    Long s1=DateFormatUtil.getDateByParttern(arg1.get("fundDate").toString(), "yyyy-MM-dd").getTime();
+//                    return s0.compareTo(s1);
+//                }
+//            });
+
+            List<Map<String, Object>>  balanceDetail =balanceDetails.stream()
+                    .sorted((v1,v2)->v1.get("fundDate").toString().compareTo(v2.get("fundDate").toString()))
+                    .sorted((v1,v2)->v1.get("createTime").toString().compareTo(v2.get("createTime").toString())).collect(Collectors.toList());
+
+            List<Map<String, Object>> quoteLists= PageUtils.startPage(balanceDetail, pageno, pagesize);
             BigDecimal totalOutTransferAmount=BigDecimal.ZERO;
             BigDecimal totalInTransferAmount=BigDecimal.ZERO;
             if(quoteLists!=null){

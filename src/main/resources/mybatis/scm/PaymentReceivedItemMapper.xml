@@ -386,6 +386,7 @@
 		b.id as signId,
 		a.id,
 		b.pr_date as fundDate,
+		b.create_time as createTime,
 		DATE_FORMAT(b.pr_date,'%Y-%m-%d') as  transferDate,
 		b.pr_code as transferCode,
 		c.account_number as transferAccName,
