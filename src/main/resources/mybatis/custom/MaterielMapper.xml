@@ -152,7 +152,7 @@
 		LEFT JOIN cus_dictionary unituom ON unituom.id = material.unit_uom
 		LEFT JOIN cus_dictionary materialattribute ON materialattribute.id = material.`attribute`
 		LEFT JOIN cus_dictionary materialmethod ON materialmethod.id = material.`valuation_method`
-		LEFT JOIN cus_dictionary tecroute ON tecroute.id = material.`tec_route`
+		LEFT JOIN mes_craft tecroute ON tecroute.id = material.`tec_route`
 <!-- 		LEFT JOIN cus_uom lengthuom ON lengthuom.id = material.length_uom
 		LEFT JOIN cus_uom supportuom ON supportuom.id = material.support_uom
 		LEFT JOIN cus_uom weightuom ON weightuom.id = material.weight_uom -->

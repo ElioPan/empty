@@ -1,10 +1,9 @@
 package com.ev.framework.utils;
 
-import org.apache.poi.ss.formula.functions.T;
+import com.google.common.collect.Lists;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 public class  PageUtils implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -35,16 +34,16 @@ public class  PageUtils implements Serializable {
 	/**
 	 * 开始分页
 	 *
-	 * @param list
+	 * @param list 分页前的数据
 	 * @param pageNum  页码
 	 * @param pageSize 每页多少条数据
-	 * @return
+	 * @return 分页后的数据
 	 */
 	public static <T> List<T> startPage(List<T> list, Integer pageNum, Integer pageSize) {
-		if(list == null){
+		if (list == null) {
 			return null;
 		}
-		if(list.size() == 0){
+		if (list.size() == 0) {
 			return null;
 		}
 
@@ -56,12 +55,13 @@ public class  PageUtils implements Serializable {
 			pageCount = count / pageSize + 1;
 		}
 
+		if (pageNum > pageCount) {
+			return Lists.newArrayList();
+		}
+
 		int fromIndex = 0; //开始索引
 		int toIndex = 0; //结束索引
 
-		if(pageNum > pageCount){
-			pageNum = pageCount;
-		}
 		if (!pageNum.equals(pageCount)) {
 			fromIndex = (pageNum - 1) * pageSize;
 			toIndex = fromIndex + pageSize;
