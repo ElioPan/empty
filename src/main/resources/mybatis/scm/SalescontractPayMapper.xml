@@ -190,7 +190,7 @@
 
 	<select id="payCountForMap" resultType="java.util.Map">
 		SELECT
-		COUNT(*) AS totalCount,
+		COUNT(*) AS total,
 		SUM(receivable_amount) AS totalReceivableAmount,
 		SUM(received_amount) AS totalReceivedAmount,
 		SUM(unpay_amount)  AS totalUnpayAmount
