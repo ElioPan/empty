@@ -67,6 +67,12 @@ public class SalescontractServiceImpl implements SalescontractService {
             salesContract.setContractCode(this.salesContractCode());
             salesContract.setUninvoicedAmount(salesContract.getPayAmount());
             salesContract.setInvoicedAmount(BigDecimal.ZERO);
+            if (salesContract.getDiscountRate() == null) {
+                salesContract.setDiscountRate(BigDecimal.ZERO);
+            }
+            if (salesContract.getDiscountAmount() == null) {
+                salesContract.setDiscountAmount(BigDecimal.ZERO);
+            }
             salesContractDao.save(salesContract);
             id = salesContract.getId();
         } else {
