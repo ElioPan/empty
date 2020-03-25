@@ -581,7 +581,7 @@ public class StockInServiceImpl implements StockInService {
 		Map<String,Object>  map= new HashMap<>();
 		map.put("id","");
 		List<StockStartDO> listStars = stockStartService.list(map);
-		if(Objects.isNull(listStars)){
+		if(listStars.size()==0){
 			return R.error(messageSourceHandler.getMessage("scm.stock.InitializationIsNotOverYet",null));
 		}
 		if(!Objects.equals(1,listStars.get(0).getStatus())){
