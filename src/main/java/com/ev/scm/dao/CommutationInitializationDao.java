@@ -37,6 +37,7 @@ public interface CommutationInitializationDao {
 
 	List<Map<String, Object>> getDetail(Map<String, Object> map);
 
+	Map<String, Object> getDetailByClientOrSupplierId(Map<String, Object> map);
 
 
 

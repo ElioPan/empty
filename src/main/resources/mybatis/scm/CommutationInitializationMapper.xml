@@ -182,4 +182,19 @@
 	</select>
 
 
+	<select id="getDetailByClientOrSupplierId" resultType="map">
+		SELECT
+		*
+		FROM
+		scm_commutation_initialization a
+		<where>
+			<if test="id != null and id != ''"> AND a.id &lt;&gt; #{id} </if>
+			<if test="clientId != null and clientId != ''"> AND a.client_id =#{clientId} </if>
+			<if test="supplierId != null and supplierId != ''"> AND a.supplier_id =#{supplierId} </if>
+		</where>
+	</select>
+
+
+
+
 </mapper>

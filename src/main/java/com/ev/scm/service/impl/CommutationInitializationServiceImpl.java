@@ -10,14 +10,15 @@ import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
 import com.ev.scm.dao.CommutationInitializationDao;
 import com.ev.scm.domain.CommutationInitializationDO;
+import com.ev.scm.domain.FundInitializationDO;
 import com.ev.scm.domain.PaymentReceivedItemDO;
 import com.ev.scm.service.*;
-import com.sun.org.apache.bcel.internal.generic.RETURN;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -90,7 +91,10 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 	public int updateAll(CommutationInitializationDO commutationInitialization){
 		return commutationInitializationDao.updateAll(commutationInitialization);
 	}
-	
+	@Override
+	public Map<String, Object> getDetailByClientOrSupplierId(Map<String, Object> map) {
+		return commutationInitializationDao.getDetailByClientOrSupplierId(map);
+	}
 	@Override
 	public int remove(Long id){
 		return commutationInitializationDao.remove(id);
@@ -106,8 +110,43 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 
 		List<CommutationInitializationDO> commutationInitializationDos= JSONObject.parseArray(body,CommutationInitializationDO.class);
 		if(commutationInitializationDos.size()>0){
-			for(CommutationInitializationDO commuIniDo:commutationInitializationDos){
+			//验重
+			List<CommutationInitializationDO> commutationInitializationClinets = commutationInitializationDos.stream().filter(CommutationInitializationDO -> CommutationInitializationDO.getClientId() != null).collect(Collectors.toList());
+			List<CommutationInitializationDO> commutationInitializationSupplier = commutationInitializationDos.stream().filter(CommutationInitializationDO -> CommutationInitializationDO.getSupplierId() != null ).collect(Collectors.toList());
+			if(commutationInitializationClinets.size()>0){
+				for(CommutationInitializationDO clent:commutationInitializationClinets){
+					Map<String, Object> detail;
+					Map<String,Object>  map= new HashMap<>(2);
+					map.put("clientId",clent.getClientId());
+					if(clent.getId()!=null){
+						map.put("id",clent.getId());
+						 detail = this.getDetailByClientOrSupplierId(map);
+					}else{
+						 detail = this.getDetailByClientOrSupplierId(map);
+					}
+					if(detail!=null){
+						return R.error(messageSourceHandler.getMessage("scm.commutationInitialization.clientAlreadyExist", null));
+					}
+				}
+			}
+			if(commutationInitializationSupplier.size()>0){
+				for(CommutationInitializationDO supplier:commutationInitializationSupplier){
+					Map<String, Object> detail;
+					Map<String,Object>  map= new HashMap<>(2);
+					map.put("supplierId",supplier.getSupplierId());
+					if(supplier.getId()!=null){
+						map.put("id",supplier.getId());
+						detail = this.getDetailByClientOrSupplierId(map);
+					}else{
+						detail = this.getDetailByClientOrSupplierId(map);
+					}
+					if(detail!=null){
+						return R.error(messageSourceHandler.getMessage("scm.commutationInitialization.supplierAlreadyExist", null));
+					}
+				}
+			}
 
+			for(CommutationInitializationDO commuIniDo:commutationInitializationDos){
 				if(Objects.nonNull(commuIniDo.getId())){
 					commutationInitializationDao.update(commuIniDo);
 				}else{
@@ -130,6 +169,20 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 		List<Map<String, Object>> paymentDate= this.disposePaymentAmount(parameter, ConstantForGYL.ALL_BILL);
 		//组合
 		List<Map<String, Object>>  allDate= new ArrayList<>();
+		Map<String,Object>  mapCommutation= new HashMap<>();
+		mapCommutation.put("clientId",parameter.get("clientId"));
+
+		List<Map<String, Object>> detail = this.getDetail(mapCommutation);
+		mapCommutation.remove("clientId");
+		if (detail.size() > 0) {
+			mapCommutation.put("date", DateFormatUtil.getDateByParttern(detail.get(0).get("createTime").toString(), "yyyy-MM-dd"));
+			mapCommutation.put("time", "2000-01-01 00:00:00");
+			mapCommutation.put("clientName", detail.get(0).get("clientName"));
+			mapCommutation.put("typeName", ConstantForGYL.REMANING_AMOUNT);
+			mapCommutation.put("remainingAmount", detail.get(0).get("initialAmount"));
+			allDate.add(mapCommutation);
+		}
+
 		if(otherDate.size()>0){
 			allDate.addAll(otherDate);
 		}
@@ -143,19 +196,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 		Map<String,Object>  resulst= new HashMap<>();
 		//排序   依照时间排序
 		if(allDate.size()>0){
-			Map<String,Object>  mapCommutation= new HashMap<>();
-			mapCommutation.put("clientId",parameter.get("clientId"));
 
-			List<Map<String, Object>> detail = this.getDetail(mapCommutation);
-			mapCommutation.remove("clientId");
-			if (detail.size() > 0) {
-				mapCommutation.put("date", DateFormatUtil.getDateByParttern(detail.get(0).get("createTime").toString(), "yyyy-MM-dd"));
-				mapCommutation.put("time", "2000-01-01 00:00:00");
-				mapCommutation.put("clientName", detail.get(0).get("clientName"));
-				mapCommutation.put("typeName", ConstantForGYL.REMANING_AMOUNT);
-				mapCommutation.put("remainingAmount", detail.get(0).get("initialAmount"));
-			}
-			allDate.add(mapCommutation);
 			Collections.sort(allDate, new Comparator<Map<String, Object>>() {
 				@Override
 				public int compare(Map<String, Object> arg0, Map<String, Object> arg1) {
@@ -202,8 +243,22 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
         List<Map<String, Object>> purchaseContractorDate = this.disposePurchaseContractorDate(parameter);
         //付款单
         List<Map<String, Object>> paymentDate= this.disposePaymentAmount(parameter, ConstantForGYL.PAYMENT_ORDER);
-        //组合
-        List<Map<String, Object>>  allDate= new ArrayList<>();
+
+		//组合
+		List<Map<String, Object>>  allDate= new ArrayList<>();
+        //初始化数据
+		Map<String,Object>  mapCommutation= new HashMap<>();
+		mapCommutation.put("supplierId",parameter.get("supplierId"));
+		List<Map<String, Object>> detail = this.getDetail(mapCommutation);
+		mapCommutation.remove("supplierId");
+		if (detail.size() > 0) {
+			mapCommutation.put("date", DateFormatUtil.getDateByParttern(detail.get(0).get("createTime").toString(), "yyyy-MM-dd"));
+			mapCommutation.put("time", "2000-01-01 00:00:00");
+			mapCommutation.put("supplierName", detail.get(0).get("supplierName"));
+			mapCommutation.put("typeName", ConstantForGYL.REMANING_AMOUNT);
+			mapCommutation.put("remainingAmount", detail.get(0).get("initialAmount"));
+			allDate.add(mapCommutation);
+		}
         if(otherDate.size()>0){
             allDate.addAll(otherDate);
         }
@@ -213,23 +268,14 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
         if(paymentDate.size()>0){
             allDate.addAll(paymentDate);
         }
+		if(paymentDate.size()>0){
+			allDate.addAll(paymentDate);
+		}
+
         Map<String,Object>  resulst= new HashMap<>();
         //排序   依照时间排序
         if(allDate.size()>0){
-            Map<String,Object>  mapCommutation= new HashMap<>();
-            mapCommutation.put("supplierId",parameter.get("supplierId"));
 
-            List<Map<String, Object>> detail = this.getDetail(mapCommutation);
-            mapCommutation.remove("clientId");
-            if (detail.size() > 0) {
-                mapCommutation.put("date", DateFormatUtil.getDateByParttern(detail.get(0).get("createTime").toString(), "yyyy-MM-dd"));
-                mapCommutation.put("time", "2000-01-01 00:00:00");
-                mapCommutation.put("supplierName", detail.get(0).get("supplierName"));
-                mapCommutation.put("typeName", ConstantForGYL.REMANING_AMOUNT);
-                mapCommutation.put("remainingAmount", detail.get(0).get("initialAmount"));
-            }
-
-            allDate.add(mapCommutation);
             Collections.sort(allDate, new Comparator<Map<String, Object>>() {
                 @Override
                 public int compare(Map<String, Object> arg0, Map<String, Object> arg1) {
@@ -268,7 +314,9 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
         return R.ok(resulst);
     }
 
-    private List<Map<String,Object>> disposePurchaseContractorDate(Map<String,Object > parameter){
+
+
+	private List<Map<String,Object>> disposePurchaseContractorDate(Map<String,Object > parameter){
 
         Map<String,Object>  map= new HashMap<>();
         map.put("supplierId",parameter.get("supplierId"));

@@ -43,5 +43,6 @@ public interface CommutationInitializationService {
 
 	R getSupplierAccountMessage(Map<String, Object> parameter );
 
+	Map<String, Object> getDetailByClientOrSupplierId(Map<String, Object> map);
 
 }

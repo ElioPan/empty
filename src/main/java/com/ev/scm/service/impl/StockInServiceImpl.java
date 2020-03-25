@@ -492,14 +492,7 @@ public class StockInServiceImpl implements StockInService {
 		Map<String,Object>  map= new HashMap<>();
 		for(StockInItemDO itemDO:inbodyCdos){
 			List<Map<String,Object>> list=new ArrayList<>();
-//			String comparisonSign=itemDO.getMaterielId().toString()+"-"+itemDO.getBatch().toString()+"-"+itemDO.getWarehouse().toString();
-
-			String dd=itemDO.getBatch()==null?"11":itemDO.getBatch().toString();
-
-			String ddd=itemDO.getMaterielId().toString();
-			String dddd=itemDO.getWarehouse().toString();
 			String comparisonSign=itemDO.getMaterielId().toString()+"-"+(itemDO.getBatch()==null?"11":itemDO.getBatch().toString())+"-"+itemDO.getWarehouse().toString();
-
 			map.put(comparisonSign,itemDO);
 		}
 
