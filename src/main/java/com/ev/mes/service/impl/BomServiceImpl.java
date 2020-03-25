@@ -106,8 +106,7 @@ public class BomServiceImpl implements BomService {
 
 	@Override
 	public R add(BomDO bom, String childBomArray, String uploadAttachments) {
-        String serialNo = bom.getSerialno().trim();
-        bom.setSerialno(serialNo);
+        String serialNo = bom.getSerialno();
         if(StringUtils.isEmpty(serialNo) || serialNo.startsWith(Constant.BOM)){
             Map<String,Object> param = Maps.newHashMap();
             param.put("maxNo",Constant.BOM);
@@ -116,7 +115,9 @@ public class BomServiceImpl implements BomService {
 
             List<BomDO> list = this.list(param);
             bom.setSerialno(DateFormatUtil.getWorkOrderno(Constant.BOM,list.size()>0?list.get(0).getSerialno():null,4));
-        }
+        }else{
+			bom.setSerialno(serialNo.trim());
+		}
 
 	    if (this.isNoRepeat(bom.getSerialno())) {
             return R.error(messageSourceHandler.getMessage("common.duplicate.serialNo",null));
