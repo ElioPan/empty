@@ -165,8 +165,8 @@ public class MaterielApiController {
     @ApiOperation("添加物料")
     public R add(MaterielDO materiel) {
         // 若编号为空 则自动生成
-        String serialNo = materiel.getSerialNo().trim();
-        materiel.setSerialNo(serialNo);
+
+        String serialNo = materiel.getSerialNo();
         if (StringUtils.isEmpty(serialNo) || serialNo.startsWith(Constant.WL)) {
             Map<String, Object> param = Maps.newHashMap();
             param.put("maxNo", Constant.WL);
@@ -175,7 +175,10 @@ public class MaterielApiController {
 
             List<MaterielDO> list = materielService.list(param);
             materiel.setSerialNo(DateFormatUtil.getWorkOrderno(Constant.WL, list.size() > 0 ? list.get(0).getSerialNo() : null, 4));
+        }else {
+            materiel.setSerialNo(serialNo.trim());
         }
+
 
         //  编号不能重复
         if (materielService.checkSave(materiel) == 0) {
