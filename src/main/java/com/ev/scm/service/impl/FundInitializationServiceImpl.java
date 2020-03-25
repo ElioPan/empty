@@ -192,12 +192,12 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 			for(Map<String, Object> oneDetail:getlist){
 				Map<String,Object>  maps= new HashMap<>();
 				maps.put("transferOutAcc",oneDetail.get("id"));
-				maps.put("settlementType", ConstantForGYL.EXPENDITURE);
+//				maps.put("settlementType", ConstantForGYL.EXPENDITURE);
 				maps.put("transferDate",endTime);
 				int outAmount = bankTransferItemService.totalOutOrInAmount(maps);
 				maps.clear();
 				maps.put("transferInAcc",oneDetail.get("id"));
-				maps.put("settlementType",ConstantForGYL.INCOM);
+//				maps.put("settlementType",ConstantForGYL.INCOM);
 				maps.put("transferDate",endTime);
 				int inAmount = bankTransferItemService.totalOutOrInAmount(maps);
 				//初始化金额
@@ -363,7 +363,7 @@ public class FundInitializationServiceImpl implements FundInitializationService 
                 for(String str:ids){
                     for(Map<String, Object> strMap:outDetails){
                         if(Objects.equals(strMap.get("signId").toString(),str)){
-                            strMap.put("inTransferAmount",mapIdsAmount.get(str));
+                            strMap.put("outTransferAmount",mapIdsAmount.get(str));
                             outMapDetails.add(strMap);
                             break;
                         }
