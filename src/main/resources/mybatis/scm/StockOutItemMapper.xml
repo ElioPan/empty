@@ -12,7 +12,8 @@
 
 	<select id="list" resultType="com.ev.scm.domain.StockOutItemDO">
 		SELECT
-		item.*
+		item.*,
+        stock.out_code
 		FROM scm_stock_out_item item
 		LEFT JOIN scm_stock_out stock ON stock.`id`=item.`out_id`
         <where>

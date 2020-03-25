@@ -89,4 +89,9 @@ public class StockOutItemDO implements Serializable {
     @ApiModelProperty(value = "删除状态")
 	private Integer delFlag;
 
+
+	//单据编号
+	@ApiModelProperty(value = "单据单号",hidden = true)
+	private String outCode;
+
 }

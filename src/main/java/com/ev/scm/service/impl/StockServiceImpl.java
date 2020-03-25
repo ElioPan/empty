@@ -430,6 +430,7 @@ public class StockServiceImpl implements StockService {
 
 	@Override
 	public R endInitial() {
+		//TODO 保存一份初始化数据
 		Map<String, Object> emptyMap = Maps.newHashMap();
 		List<StockStartDO> list = stockStartService.list(emptyMap);
 		if (list.size() == 0) {
@@ -1020,6 +1021,7 @@ public class StockServiceImpl implements StockService {
 		List<String> unitPriceEmpty = stockInList.stream()
 				.filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("unitPrice")).compareTo(BigDecimal.ZERO) == 0)
 				.map(stringObjectMap -> stringObjectMap.get("inheadCode").toString())
+				.distinct()
 				.collect(Collectors.toList());
 
 		if (unitPriceEmpty.size() > 0) {
@@ -1049,19 +1051,24 @@ public class StockServiceImpl implements StockService {
 		List<String> stockInUnitPriceEmpty = stockInList.stream()
 				.filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("unitPrice")).compareTo(BigDecimal.ZERO) == 0)
 				.map(stringObjectMap -> stringObjectMap.get("inheadCode").toString())
+				.distinct()
 				.collect(Collectors.toList());
-
+		String [] args = new String[2];
 		if (stockInUnitPriceEmpty.size() > 0) {
-			String[] args = {stockInUnitPriceEmpty.toString()};
 			// -1码为查询出有空的单价的错误码
-			return R.error(-1, messageSourceHandler.getMessage("scm.stockIn.unitPriceEmpty", args));
+			args[0] = stockInUnitPriceEmpty.toString();
 		}
-		List<StockOutItemDO> stockOutUnitPriceEmpty = stockOutItemService.list(params).stream()
+		List<String> stockOutUnitPriceEmpty = stockOutItemService.list(params).stream()
 				.filter(stockOutItemDO -> stockOutItemDO.getUnitPrice().compareTo(BigDecimal.ZERO) == 0)
+				.map(StockOutItemDO::getOutCode)
+				.distinct()
 				.collect(Collectors.toList());
 		if (stockOutUnitPriceEmpty.size() > 0) {
 			// -1码为查询出有空的单价的错误码
-			return R.error(-1, messageSourceHandler.getMessage("scm.stockOut.unitPriceEmpty", null));
+			args[1] = stockOutUnitPriceEmpty.toString();
+		}
+		if (args[0] != null || args[1] != null) {
+			return R.error(-1, messageSourceHandler.getMessage("scm.stockOut.unitPriceEmpty", args));
 		}
 		return R.ok();
 	}
