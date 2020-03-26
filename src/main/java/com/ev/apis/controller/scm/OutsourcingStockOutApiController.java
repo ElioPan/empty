@@ -174,12 +174,14 @@ public class OutsourcingStockOutApiController {
 	public R writeOffList(
 			@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
 			@ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+            @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
             @ApiParam(value = "委外入库单明细ID", required = true) @RequestParam(value = "stockInItemId", defaultValue = "") Long stockInItemId
 			) {
         Map<String, Object> results = Maps.newHashMap();
         Map<String, Object> params = Maps.newHashMap();
         params.put("offset", (pageno - 1) * pagesize);
         params.put("limit", pagesize);
+        params.put("auditSign", auditSign);
         params.put("outboundType", ConstantForGYL.WWCK);
         // 核销导入列表
         Long outsourcingContractItemId = stockInItemService.get(stockInItemId).getSourceId();
