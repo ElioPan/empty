@@ -866,15 +866,17 @@ public class StockServiceImpl implements StockService {
 						, (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
 				continue;
 			}
-
-			// 本月未入库，存在上个月的库存
-			if (weightedAverageIdList.contains(Integer.parseInt(materielId))) {
-				materielInUnitPriceMap.put(materielId
-						, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(), Constant.BIGDECIMAL_ZERO));
-			}else {
-				materielInUnitPriceMap.put(materielIdAndBatch
-						, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(), Constant.BIGDECIMAL_ZERO));
+			if (analysisDO.getInitialCount().compareTo(BigDecimal.ZERO)!=0) {
+				// 本月未入库，存在上个月的库存
+				if (weightedAverageIdList.contains(Integer.parseInt(materielId))) {
+					materielInUnitPriceMap.put(materielId
+							, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(), Constant.BIGDECIMAL_ZERO));
+				}else {
+					materielInUnitPriceMap.put(materielIdAndBatch
+							, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(), Constant.BIGDECIMAL_ZERO));
+				}
 			}
+
 			analysisDO.setInAmount(BigDecimal.ZERO);
 			analysisDO.setInCount(BigDecimal.ZERO);
 		}
