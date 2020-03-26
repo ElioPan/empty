@@ -1066,10 +1066,14 @@ public class StockServiceImpl implements StockService {
 		if (stockOutUnitPriceEmpty.size() > 0) {
 			// -1码为查询出有空的单价的错误码
 			args[1] = stockOutUnitPriceEmpty.toString();
-		}else{
-			args[1] = "无";
 		}
 		if (args[0] != null || args[1] != null) {
+			if(args[1]==null){
+				args[1]="无";
+			}
+			if(args[0]==null){
+				args[0]="无";
+			}
 			return R.error(-1, messageSourceHandler.getMessage("scm.stockOut.unitPriceEmpty", args));
 		}
 		return R.ok();
