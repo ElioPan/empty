@@ -251,6 +251,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 		mapCommutation.put("supplierId",parameter.get("supplierId"));
 		List<Map<String, Object>> detail = this.getDetail(mapCommutation);
 		mapCommutation.remove("supplierId");
+		Map<String,Object>  resulst= new HashMap<>();
 		if (detail.size() > 0) {
 			mapCommutation.put("date", DateFormatUtil.getDateByParttern(detail.get(0).get("createTime").toString(), "yyyy-MM-dd"));
 			mapCommutation.put("time", "2000-01-01 00:00:00");
@@ -258,7 +259,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 			mapCommutation.put("typeName", ConstantForGYL.REMANING_AMOUNT);
 			mapCommutation.put("remainingAmount", detail.get(0).get("initialAmount"));
 			allDate.add(mapCommutation);
-		}
+
         if(otherDate.size()>0){
             allDate.addAll(otherDate);
         }
@@ -272,7 +273,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 			allDate.addAll(paymentDate);
 		}
 
-        Map<String,Object>  resulst= new HashMap<>();
+
         //排序   依照时间排序
         if(allDate.size()>0){
 
@@ -311,6 +312,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
             dsRet.put("datas",quoteLists);
             resulst.put("data", dsRet);
         }
+		}
         return R.ok(resulst);
     }
 
