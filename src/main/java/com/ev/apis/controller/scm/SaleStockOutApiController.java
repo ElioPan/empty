@@ -176,7 +176,6 @@ public class SaleStockOutApiController {
             // 高级查询
             @ApiParam(value = "销售方式(0现销/1赊销)") @RequestParam(value = "salesType", defaultValue = "", required = false) Integer salesType,
             @ApiParam(value = "规格型号") @RequestParam(value = "specification", defaultValue = "", required = false) String specification,
-            @ApiParam(value = "销售部门") @RequestParam(value = "materielName", defaultValue = "", required = false) String deptName,
             @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
             @ApiParam(value = "销售员") @RequestParam(value = "salesUserName", defaultValue = "", required = false) String salesUserName,
             @ApiParam(value = "制单人") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
@@ -198,7 +197,6 @@ public class SaleStockOutApiController {
         params.put("auditSign", auditSign);
         params.put("salesType", salesType);
         params.put("specification", StringUtils.sqlLike(specification));
-        params.put("deptName", StringUtils.sqlLike(deptName));
         params.put("salesUserName", StringUtils.sqlLike(salesUserName));
         params.put("createByName", StringUtils.sqlLike(createByName));
         // 销售出库导入关联单据
