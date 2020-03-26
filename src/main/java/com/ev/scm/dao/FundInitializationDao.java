@@ -37,7 +37,6 @@ public interface FundInitializationDao {
 
 	List<Map<String, Object>>getlist(Map<String, Object> map);
 
-
-
+	FundInitializationDO getDetaileInnitial(Map<String, Object> map);
 
 }

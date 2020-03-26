@@ -44,4 +44,7 @@ public interface FundInitializationService {
 	R disposeFundBalance(int pageno,int pagesize,Map<String, Object> map, String  endTime);
 
 	R disposeFinancialDetails(int pageno,int pagesize,Map<String, Object> map,Long founId);
+
+	FundInitializationDO getDetaileInnitial(Map<String, Object> map);
+
 }

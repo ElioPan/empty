@@ -191,4 +191,22 @@
 		</where>
 	</select>
 
+
+
+	<select id="getDetaileInnitial" resultType="com.ev.scm.domain.FundInitializationDO">
+		SELECT
+		*
+		from
+		scm_fund_initialization a
+		<where>
+			<if test="id != null and id != ''"> AND a.id = #{id} </if>
+			<if test="usingStart == 0 "> AND a.using_start = #{usingStart} </if>
+			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(a.period,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(a.period,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="accountNumber != null and accountNumber !=''"> AND a.account_number = #{accountNumber} </if>
+		</where>
+	</select>
+
+
+
 </mapper>

@@ -43,6 +43,11 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 	public FundInitializationDO get(Long id){
 		return fundInitializationDao.get(id);
 	}
+
+    @Override
+    public FundInitializationDO getDetaileInnitial(Map<String, Object> map) {
+        return fundInitializationDao.getDetaileInnitial(map);
+    }
 	
 	@Override
 	public List<FundInitializationDO> list(Map<String, Object> map){
@@ -233,63 +238,65 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 
 
     @Override
-    public R disposeFinancialDetails(int pageno,int pagesize,Map<String, Object> map,Long founId){
-
-        FundInitializationDO fundInitializationDO = this.get(founId);
-        BigDecimal initialAmount=fundInitializationDO.getInitialAmount();
-
-        List<Map<String, Object>>  balanceDetails= new ArrayList<>();
-        Map<String,Object>  initiaData= new HashMap<>();
-        if(fundInitializationDO!=null){
-            initiaData.put("id",0);
-            initiaData.put("fundDate","2000-01-01 00:00:00");
-            initiaData.put("createTime","2000-01-01 00:00:00");
+    public R disposeFinancialDetails(int pageno, int pagesize, Map<String, Object> map, Long founId) {
+        map.put("id", founId);
+        FundInitializationDO fundInitializationDO = this.getDetaileInnitial(map);
+        BigDecimal initialAmount = fundInitializationDO.getInitialAmount();
+        map.remove("id");
+        Map<String, Object> resulst = new HashMap<>();
+        List<Map<String, Object>> balanceDetails = new ArrayList<>();
+        Map<String, Object> initiaData = new HashMap<>();
+        if (fundInitializationDO != null) {
+            initiaData.put("id", 0);
+            initiaData.put("fundDate", "2000-01-01 00:00:00");
+            initiaData.put("createTime", "2000-01-01 00:00:00");
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            initiaData.put("transferDate",formatter.format(fundInitializationDO.getPeriod()));
-            initiaData.put("businessTypeName","期初余额");
-            initiaData.put("remainingAmount",fundInitializationDO.getInitialAmount());
-            initiaData.put("companyName",ConstantForGYL.company_ame);
-            initiaData.put("transferAccName",fundInitializationDO.getAccountNumber());
+            initiaData.put("transferDate", formatter.format(fundInitializationDO.getPeriod()));
+            initiaData.put("businessTypeName", "期初余额");
+            initiaData.put("remainingAmount", fundInitializationDO.getInitialAmount());
+            initiaData.put("companyName", ConstantForGYL.company_ame);
+            initiaData.put("transferAccName", fundInitializationDO.getAccountNumber());
             DictionaryDO dictionaryDO = dictionaryService.get(fundInitializationDO.getBank().intValue());
-            if(dictionaryDO!=null){initiaData.put("backName",dictionaryDO.getName());}
+            if (dictionaryDO != null) {
+                initiaData.put("backName", dictionaryDO.getName());
+            }
             balanceDetails.add(initiaData);
-        }
-        //收支
-        map.put("transferOutAcc",founId);
-        List<Map<String, Object>> outBankDetails = bankTransferItemService.getBankOutDetail(map);
-        map.put("transferInAcc",founId);
-        List<Map<String, Object>> inBankDetails = bankTransferItemService.getBankDetail(map);
 
-        //收款  付款
-        Map<String,Object>  query= new HashMap<>();
-        query.put("accountNumber",founId);
-        query.put("auditSign",ConstantForGYL.OK_AUDITED);
-        query.put("sign",ConstantForGYL.ALL_BILL);
-        query.put("startTime",map.get("startTime"));
-        query.put("endTime",map.get("endTime"));
-        List<Map<String, Object>> inDetails = paymentReceivedItemService.getsPaymentDetails(query);
-        query.put("sign",ConstantForGYL.PAYMENT_ORDER);
-        List<Map<String, Object>> outDetails = paymentReceivedItemService.getsPaymentDetails(query);
+            //收支
+            map.put("transferOutAcc", founId);
+            List<Map<String, Object>> outBankDetails = bankTransferItemService.getBankOutDetail(map);
+            map.put("transferInAcc", founId);
+            List<Map<String, Object>> inBankDetails = bankTransferItemService.getBankDetail(map);
 
-        List<Map<String, Object>> payInDetails = this.disposeInAmount(inDetails);
-        List<Map<String, Object>> payOutDetails = this.disposeOutAmount(outDetails);
-        List<Map<String, Object>> bankInDetails = this.disposeInAmount(inBankDetails);
-        List<Map<String, Object>> bankOutDetails = this.disposeOutAmount(outBankDetails);
+            //收款  付款
+            Map<String, Object> query = new HashMap<>();
+            query.put("accountNumber", founId);
+            query.put("auditSign", ConstantForGYL.OK_AUDITED);
+            query.put("sign", ConstantForGYL.ALL_BILL);
+            query.put("startTime", map.get("startTime"));
+            query.put("endTime", map.get("endTime"));
+            List<Map<String, Object>> inDetails = paymentReceivedItemService.getsPaymentDetails(query);
+            query.put("sign", ConstantForGYL.PAYMENT_ORDER);
+            List<Map<String, Object>> outDetails = paymentReceivedItemService.getsPaymentDetails(query);
 
-        if(payInDetails.size()>0){
-            balanceDetails.addAll(payInDetails);
-        }
-        if(payOutDetails.size()>0){
-            balanceDetails.addAll(payOutDetails);
-        }
-        if(bankInDetails.size()>0){
-            balanceDetails.addAll(bankInDetails);
-        }
-        if(bankOutDetails.size()>0){
-            balanceDetails.addAll(bankOutDetails);
-        }
-        Map<String,Object>  resulst= new HashMap<>();
-        if(balanceDetails.size()>0){
+            List<Map<String, Object>> payInDetails = this.disposeInAmount(inDetails);
+            List<Map<String, Object>> payOutDetails = this.disposeOutAmount(outDetails);
+            List<Map<String, Object>> bankInDetails = this.disposeInAmount(inBankDetails);
+            List<Map<String, Object>> bankOutDetails = this.disposeOutAmount(outBankDetails);
+
+            if (payInDetails.size() > 0) {
+                balanceDetails.addAll(payInDetails);
+            }
+            if (payOutDetails.size() > 0) {
+                balanceDetails.addAll(payOutDetails);
+            }
+            if (bankInDetails.size() > 0) {
+                balanceDetails.addAll(bankInDetails);
+            }
+            if (bankOutDetails.size() > 0) {
+                balanceDetails.addAll(bankOutDetails);
+            }
+            if (balanceDetails.size() > 0) {
 
 //            List<Map<String, Object>>  balanceDetail =balanceDetails.stream().sorted((v1,v2)-> (DateFormatUtil.getDateByParttern(v1.get("fundDate").toString(), "yyyy-MM-dd").getTime())
 //                        >(DateFormatUtil.getDateByParttern(v2.get("fundDate").toString(), "yyyy-MM-dd").getTime())?1:-1).sorted((v1,v2)->
@@ -304,35 +311,38 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 //                }
 //            });
 
-            List<Map<String, Object>>  balanceDetail =balanceDetails.stream()
-                    .sorted((v1,v2)->v1.get("fundDate").toString().compareTo(v2.get("fundDate").toString()))
-                    .sorted((v1,v2)->v1.get("createTime").toString().compareTo(v2.get("createTime").toString())).collect(Collectors.toList());
+                List<Map<String, Object>> balanceDetail = balanceDetails.stream()
+                        .sorted((v1, v2) -> v1.get("fundDate").toString().compareTo(v2.get("fundDate").toString()))
+                        .sorted((v1, v2) -> v1.get("createTime").toString().compareTo(v2.get("createTime").toString())).collect(Collectors.toList());
 
-            List<Map<String, Object>> quoteLists= PageUtils.startPage(balanceDetail, pageno, pagesize);
-            BigDecimal totalOutTransferAmount=BigDecimal.ZERO;
-            BigDecimal totalInTransferAmount=BigDecimal.ZERO;
-            if(quoteLists!=null){
-                for(Map<String, Object> oneQuoteList:quoteLists){
-                    oneQuoteList.remove("fundDate");
-                    oneQuoteList.put("companyName",ConstantForGYL.company_ame);
-                    initialAmount=initialAmount.add(new BigDecimal(oneQuoteList.containsKey("inTransferAmount")?oneQuoteList.get("inTransferAmount").toString():"0")).subtract(new BigDecimal(oneQuoteList.containsKey("outTransferAmount")?oneQuoteList.get("outTransferAmount").toString():"0"));
-                    oneQuoteList.put("remainingAmount",initialAmount);
-                    totalOutTransferAmount= totalOutTransferAmount.add(new BigDecimal(oneQuoteList.containsKey("outTransferAmount")?oneQuoteList.get("outTransferAmount").toString():"0")) ;
-                    totalInTransferAmount=totalInTransferAmount.add(new BigDecimal(oneQuoteList.containsKey("inTransferAmount")?oneQuoteList.get("inTransferAmount").toString():"0")) ;
+                List<Map<String, Object>> quoteLists = PageUtils.startPage(balanceDetail, pageno, pagesize);
+                BigDecimal totalOutTransferAmount = BigDecimal.ZERO;
+                BigDecimal totalInTransferAmount = BigDecimal.ZERO;
+                if (quoteLists != null) {
+                    for (Map<String, Object> oneQuoteList : quoteLists) {
+                        oneQuoteList.remove("fundDate");
+                        oneQuoteList.put("companyName", ConstantForGYL.company_ame);
+                        initialAmount = initialAmount.add(new BigDecimal(oneQuoteList.containsKey("inTransferAmount") ? oneQuoteList.get("inTransferAmount").toString() : "0")).subtract(new BigDecimal(oneQuoteList.containsKey("outTransferAmount") ? oneQuoteList.get("outTransferAmount").toString() : "0"));
+                        oneQuoteList.put("remainingAmount", initialAmount);
+                        totalOutTransferAmount = totalOutTransferAmount.add(new BigDecimal(oneQuoteList.containsKey("outTransferAmount") ? oneQuoteList.get("outTransferAmount").toString() : "0"));
+                        totalInTransferAmount = totalInTransferAmount.add(new BigDecimal(oneQuoteList.containsKey("inTransferAmount") ? oneQuoteList.get("inTransferAmount").toString() : "0"));
+                    }
                 }
+                Map<String, Object> dsRet = new HashMap<>();
+                dsRet.put("pageno", pageno);
+                dsRet.put("pagesize", pagesize);
+                dsRet.put("totalPages", ((quoteLists != null ? quoteLists.size() : 0) + pagesize - 1) / pagesize);
+                dsRet.put("totalRows", balanceDetail != null ? balanceDetail.size() : 0);
+                dsRet.put("totalOutTransferAmount", totalOutTransferAmount);
+                dsRet.put("totalInTransferAmount", totalInTransferAmount);
+                dsRet.put("datas", quoteLists);
+                resulst.put("data", dsRet);
             }
-            Map<String, Object> dsRet = new HashMap<>();
-            dsRet.put("pageno",pageno);
-            dsRet.put("pagesize",pagesize);
-            dsRet.put("totalPages",((quoteLists!=null?quoteLists.size():0) + pagesize - 1) / pagesize);
-            dsRet.put("totalRows",balanceDetail!=null?balanceDetail.size():0);
-            dsRet.put("totalOutTransferAmount",totalOutTransferAmount);
-            dsRet.put("totalInTransferAmount",totalInTransferAmount);
-            dsRet.put("datas",quoteLists);
-            resulst.put("data", dsRet);
         }
         return R.ok(resulst);
     }
+
+
 
 
     private   List<Map<String, Object>> disposeInAmount(List<Map<String, Object>> inDetails){
