@@ -180,6 +180,9 @@ public class OutsourcingStockOutApiController {
         Map<String, Object> results = Maps.newHashMap();
         Map<String, Object> params = Maps.newHashMap();
         params.put("offset", (pageno - 1) * pagesize);
+        params.put("sort", "outTime");
+        params.put("order", "ASC");
+
         params.put("limit", pagesize);
         params.put("auditSign", auditSign);
         params.put("outboundType", ConstantForGYL.WWCK);
