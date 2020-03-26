@@ -226,7 +226,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 			dsRet.put("pageno",pageno);
 			dsRet.put("pagesize",pagesize);
 			dsRet.put("totalPages",((quoteLists!=null?quoteLists.size():0) + pagesize - 1) / pagesize);
-			dsRet.put("totalRows",quoteLists!=null?quoteLists.size():0);
+			dsRet.put("totalRows",allDate!=null?allDate.size():0);
 			dsRet.put("totailOughtAmount",totailOughtAmount);
 			dsRet.put("totailReceivedAmount",totailReceivedAmount);
 			dsRet.put("datas",quoteLists);
@@ -305,7 +305,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
             dsRet.put("pageno",pageno);
             dsRet.put("pagesize",pagesize);
             dsRet.put("totalPages",((quoteLists!=null?quoteLists.size():0) + pagesize - 1) / pagesize);
-            dsRet.put("totalRows",quoteLists!=null?quoteLists.size():0);
+            dsRet.put("totalRows",allDate!=null?allDate.size():0);
             dsRet.put("totailOughtAmount",totailOughtAmount);
             dsRet.put("totailReceivedAmount",totailReceivedAmount);
             dsRet.put("datas",quoteLists);

@@ -425,7 +425,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 
 			} else if (rows == 0) {
 				//"此次盘点无盘盈！"
-				return R.ok(messageSourceHandler.getMessage("apis.check.buildWinStockA", null));
+				return R.error(messageSourceHandler.getMessage("apis.check.buildWinStockA", null));
 
 			} else if (rows > 0 && otherInLines == 0 && linesPL > 0) {
 
@@ -501,7 +501,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 
 			} else if (rows == 0) {
 				//此次盘点无盘亏
-				return R.ok(messageSourceHandler.getMessage("apis.check.buildLossStockA", null));
+				return R.error(messageSourceHandler.getMessage("apis.check.buildLossStockA", null));
 
 			} else if (rows > 0 && otherInLines == 0 && linesPL > 0) {
 
@@ -524,7 +524,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				return R.error();
 			}
 		} else {
-			return R.ok(messageSourceHandler.getMessage("apis.check.buildWinStockD", null));
+			return R.error(messageSourceHandler.getMessage("apis.check.buildWinStockD", null));
 		}
 	}
 

@@ -298,4 +298,9 @@ public final class ConstantForGYL {
 	 */
 	public static final String REMANING_AMOUNT = "期初余额";
 
+	/**
+	 * 其他应付单
+	 */
+	public static final String OTHER_PAYABLE_NAME= "其他应付单";
+
 }

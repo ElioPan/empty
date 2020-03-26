@@ -96,8 +96,6 @@ public class FundInitializationApiController {
                    @ApiParam(value = "组织") @RequestParam(value = "deptId",defaultValue = "") Long  deptId,
                    @ApiParam(value = "银行账号") @RequestParam(value = "accountNumber",defaultValue = "") String  accountNumber){
         Map<String,Object> params= new HashMap<>();
-        params.put("offset", (pageno - 1) * pagesize);
-        params.put("limit", pagesize);
         params.put("usingStart", usingStart);
         params.put("endTime", endTime);
         params.put("deptId", deptId);
@@ -118,8 +116,6 @@ public class FundInitializationApiController {
                           @ApiParam(value = "组织") @RequestParam(value = "deptId",defaultValue = "") Long  deptId,
                           @ApiParam(value = "银行账号(初始化表中的id)",required = true) @RequestParam(value = "id",defaultValue = "") Long  id){
         Map<String,Object> params= new HashMap<>();
-        params.put("offset", (pageno - 1) * pagesize);
-        params.put("limit", pagesize);
         params.put("usingStart", usingStart);
         params.put("startTime", startTime);
         params.put("endTime", endTime);

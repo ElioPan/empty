@@ -148,7 +148,12 @@ public class OtherPayableApiController {
         List<Map<String, Object>> list = otherReceivablesItemService.getDetailOfIntroduce(map);
         Map<String, Object> countForMap = otherReceivablesItemService.totailAmountOfIntroduce(map);
         DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.OTHER_PAYABLE_TYPE.intValue());
-        String sourceTypeName=dictionaryDO.getName();
+        String sourceTypeName;
+        if(dictionaryDO!=null){
+            sourceTypeName=dictionaryDO.getName();
+        }else{
+            sourceTypeName=ConstantForGYL.OTHER_PAYABLE_NAME;
+        }
         Map<String, Object> result = Maps.newHashMap();
         if (list.size() > 0) {
             for(Map<String, Object> maps:list){

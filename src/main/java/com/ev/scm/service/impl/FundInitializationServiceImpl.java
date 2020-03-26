@@ -325,7 +325,7 @@ public class FundInitializationServiceImpl implements FundInitializationService 
             dsRet.put("pageno",pageno);
             dsRet.put("pagesize",pagesize);
             dsRet.put("totalPages",((quoteLists!=null?quoteLists.size():0) + pagesize - 1) / pagesize);
-            dsRet.put("totalRows",quoteLists!=null?quoteLists.size():0);
+            dsRet.put("totalRows",balanceDetail!=null?balanceDetail.size():0);
             dsRet.put("totalOutTransferAmount",totalOutTransferAmount);
             dsRet.put("totalInTransferAmount",totalInTransferAmount);
             dsRet.put("datas",quoteLists);
