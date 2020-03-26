@@ -198,7 +198,7 @@ public final class ConstantForGYL {
 	/**
 	 * 委外合同前缀
 	 */
-	public static final String OUTSOURCING_CONTRACT = "WWTH";
+	public static final String OUTSOURCING_CONTRACT = "WWHT";
 	/**
 	 * 委外合同
 	 */
