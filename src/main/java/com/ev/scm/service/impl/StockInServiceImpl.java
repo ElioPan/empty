@@ -388,15 +388,7 @@ public class StockInServiceImpl implements StockInService {
 				List<StockInItemDO> inbodyCDos = JSON.parseArray(bodyDetail, StockInItemDO.class);
 
 				Boolean qR=Objects.nonNull(inbodyCDos.get(0).getQrcodeId());
-//				if(qR){
-//					for(StockInItemDO stockInItemDo:inbodyCDos ){
-//						QrcodeDO qrcodeDo = qrcodeService.get(stockInItemDo.getQrcodeId());
-//						if(Objects.nonNull(qrcodeDo.getStockId())){
-//							String [] args = {stockInItemDo.getMaterielId().toString()};
-//							return R.error(messageSourceHandler.getMessage("scm.stockIn.inStockIsOver",args));
-//						}
-//					}
-//				}
+
 				//保寸主表信息
 				stockInDO.setInheadCode(code);
 				stockInDO.setAuditSign(ConstantForGYL.WAIT_AUDIT );
@@ -530,6 +522,9 @@ public class StockInServiceImpl implements StockInService {
 				stockDo.setCount(inCount);
 				stockDo.setAvailableCount(inCount);
 				stockDo.setQrcodeId(qrcodeId);
+				stockDo.setUnitPrice(stockInItemDo.getUnitPrice()==null?BigDecimal.ZERO:stockInItemDo.getUnitPrice());
+				stockDo.setAmount(stockInItemDo.getAmount()==null?BigDecimal.ZERO.stripTrailingZeros():stockInItemDo.getAmount());
+				stockDo.setCode(stockInDO.getInheadCode());
 			}
 			stockDos.add(stockDo);
 		}
