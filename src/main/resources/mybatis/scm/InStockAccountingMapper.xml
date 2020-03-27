@@ -11,6 +11,7 @@
         SELECT
         b.id,
         b.materiel_id as materielId,
+        b.waste_rate as wasteRate,
         b.standard_count as standardCount
         FROM
         mes_bom_detail b

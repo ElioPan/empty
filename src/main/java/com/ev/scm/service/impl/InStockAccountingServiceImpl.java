@@ -552,7 +552,9 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 //本次需要核销的数量
                 Map<String, Object> map = bomItem.get(i);
                 BigDecimal standardCount = new BigDecimal(map.get("standardCount").toString());
-                BigDecimal needAccountCount = standardCount.multiply(count);
+                BigDecimal wasteRate=new BigDecimal(map.get("wasteRate").toString());
+                BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100), Constant.BIGDECIMAL_ZERO);
+                BigDecimal needAccountCount = planFeeding.multiply(count);
                 map.put("standardCount", needAccountCount);
                 bomItems.add(map);
             }
