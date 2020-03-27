@@ -200,7 +200,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 BigDecimal expense=stockInItemDo.getExpense()==null?BigDecimal.ZERO:stockInItemDo.getExpense();
 
                 if(!Objects.equals(0,expense.compareTo(BigDecimal.ZERO) )){
-                    BigDecimal oldAmount=stockInItemDo.getAmount().multiply(expense);
+                    BigDecimal oldAmount=stockInItemDo.getAmount().subtract(expense);
                     stockInItemDo.setAmount(oldAmount);
                     stockInItemDo.setUnitPrice(oldAmount.divide(stockInItemDo.getCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
                     oldStockInItemDos.add(stockInItemDo);
@@ -227,12 +227,10 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         if (!b){
             return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
         }
-
         //判断主表sign是否为1,就略去；为0就计算金额单价回写，并更新主表sign为1
         for(int j=0;j<stockInIds.length;j++){
             StockInDO stockInDo = stockInService.get(stockInIds[j]);
             if(Objects.equals(0,stockInDo.getSign())){
-
                 Map<String,Object>  map= new HashMap<>();
                 map.put("inheadId",stockInIds[j]);
                 //子表明细
@@ -246,7 +244,6 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                     if(!Objects.equals(0,expense.compareTo(BigDecimal.ZERO) )){
 
                         BigDecimal newAmount=stockInItemDo.getAmount().add(expense);
-
                         stockInItemDo.setAmount(newAmount);
                         stockInItemDo.setUnitPrice(newAmount.divide(stockInItemDo.getCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
                         newStockInItemDos.add(stockInItemDo);
@@ -274,7 +271,6 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         if (!b){
             return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
         }
-
         StockInItemDO itemDO=stockIntemService.get(stockInItemId);
         if(itemDO!=null){
             if(!Objects.equals(itemDO.getAccountSource(),"0")){
@@ -283,7 +279,6 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         }else{
             return R.error(messageSourceHandler.getMessage("common.massge.haveNoId", null));
         }
-
         List<Map<String,Object>> list = JSONArray.parseObject(detailAccounting, List.class);
 
         List<Map<String,Object>> accoutSources=new ArrayList<>();
@@ -516,7 +511,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
             return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
         }
         List<Map<String, Object>> stockOutItemDoList = new ArrayList<>();
-        JSONArray stockOutItemDos = new JSONArray();
+        JSONArray stockOutItemDos ;
         if (StringUtils.isNotEmpty(detailAccounting)) {
 
             stockOutItemDos = JSON.parseArray(detailAccounting);
@@ -559,8 +554,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 bomItems.add(map);
             }
         }
-        List<Map<String, Object>> results = new ArrayList<>();
-        List<Map<String, Object>> leaveOverMaterials = new ArrayList<>();
+
         for (int k = 0; k < bomItems.size(); k++) {
             //需要某一组件物料需要核销的数量
             BigDecimal standardCount = new BigDecimal(bomItems.get(k).get("standardCount").toString());
