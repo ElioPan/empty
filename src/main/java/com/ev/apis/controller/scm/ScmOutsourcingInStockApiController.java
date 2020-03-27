@@ -5,10 +5,7 @@ import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
-import com.ev.framework.utils.MathUtils;
-import com.ev.framework.utils.PageUtils;
-import com.ev.framework.utils.R;
-import com.ev.framework.utils.ShiroUtils;
+import com.ev.framework.utils.*;
 import com.ev.scm.domain.StockInDO;
 import com.ev.scm.service.ProcessingChargeItemService;
 import com.ev.scm.service.StockInItemService;
@@ -29,10 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -121,7 +115,8 @@ public class ScmOutsourcingInStockApiController {
                                  @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
                                  @ApiParam(value = "制单日期") @RequestParam(value = "createTime", defaultValue = "", required = false) String  createTime,
                                  @ApiParam(value = "制单起始日期") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String  createStartTime,
-                                 @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime) {
+                                 @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime,
+                                 @ApiParam(value = "核算时间") @RequestParam(value = "periodTime", defaultValue = "", required = false) String periodTime) {
         Map<String, Object> resulst = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
 
@@ -140,6 +135,11 @@ public class ScmOutsourcingInStockApiController {
         params.put("limit", pagesize);
         params.put("createStartTime", createStartTime);
         params.put("createEndTime", createEndTime);
+        if(StringUtils.isNotEmpty(periodTime)){
+            Date periodTimes = DateFormatUtil.getDateByParttern(periodTime, "yyyy-MM-dd");
+            params.put("startPeriodTime", DatesUtil.getSupportBeginDayOfMonth(periodTimes));
+            params.put("endPeriodTime", DatesUtil.getSupportEndDayOfMonth(periodTimes));
+        }
 
         Map<String, Object> totalForMap = stockInService.countForMap(params);
         List<Map<String, Object>> detailList = stockInService.listForMap(params);
@@ -163,13 +163,13 @@ public class ScmOutsourcingInStockApiController {
     @EvApiByToken(value = "/apis/scm/outsourcingInStock/listOfHead", method = RequestMethod.POST, apiTitle = "入库主信息列表")
     @ApiOperation("入库主信息列表")
     public R otherHeadList(@ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
-                                 @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "5", required = false) int pagesize,
-                                 @ApiParam(value = "物料名（模糊）") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
-                                 @ApiParam(value = "供应商id") @RequestParam(value = "supplierId", defaultValue = "", required = false) Long supplierId,
-                                 @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
-                                 @ApiParam(value = "入库类型：委外传276；采购传260") @RequestParam(value = "storageType", defaultValue = "", required = false) Long storageType,
-                                 @ApiParam(value = "制单起始日期") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String  createStartTime,
-                                 @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime) {
+                           @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "5", required = false) int pagesize,
+                           @ApiParam(value = "物料名（模糊）") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
+                           @ApiParam(value = "供应商id") @RequestParam(value = "supplierId", defaultValue = "", required = false) Long supplierId,
+                           @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
+                           @ApiParam(value = "入库类型：委外传276；采购传260") @RequestParam(value = "storageType", defaultValue = "", required = false) Long storageType,
+                           @ApiParam(value = "制单起始日期") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String createStartTime,
+                           @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String createEndTime) {
         Map<String, Object> resulst = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
         params.put("materielName", materielName);
@@ -182,38 +182,45 @@ public class ScmOutsourcingInStockApiController {
         int count = stockInService.countForHead(params);
         List<Map<String, Object>> detailList = stockInService.listForHead(params);
 
-        if (!detailList.isEmpty()) {
-            Map<String,Object>  maps= new HashMap<>();
-            maps.put("sourceType",storageType);
+        Map<String, Object> dsRet = new HashMap<>();
+        dsRet.put("pageno", pageno);
+        dsRet.put("pagesize", pagesize);
+        if (Objects.equals(ConstantForGYL.OUTSOURCING_INSTOCK, storageType)) {
+            if (!detailList.isEmpty()) {
+                Map<String, Object> maps = new HashMap<>();
+                maps.put("sourceType", storageType);
 
-            for(int i=0;i<detailList.size();i++){
-                Map<String,Object>mapDo= detailList.get(i);
-                maps.put("sourceId",mapDo.get("stockInItemId"));
-                //采购退货
-                BigDecimal inCountOfCharge= processingChargeItemService.getCountBySource(maps);
-                BigDecimal countByOutSource = inCountOfCharge == null ? BigDecimal.ZERO : inCountOfCharge;
+                for (int i = 0; i < detailList.size(); i++) {
+                    Map<String, Object> mapDo = detailList.get(i);
+                    maps.put("sourceId", mapDo.get("stockInItemId"));
+                    //采购退货
+                    BigDecimal inCountOfCharge = processingChargeItemService.getCountBySource(maps);
+                    BigDecimal countByOutSource = inCountOfCharge == null ? BigDecimal.ZERO : inCountOfCharge;
 
-                BigDecimal counts = MathUtils.getBigDecimal(mapDo.get("count")).subtract(countByOutSource);
+                    BigDecimal counts = MathUtils.getBigDecimal(mapDo.get("count")).subtract(countByOutSource);
 
-                if (counts.compareTo(BigDecimal.ZERO) <= 0) {
-                    mapDo.put("quoteCount",0);
-                }else{
-                    mapDo.put("quoteCount",count);
+                    if (counts.compareTo(BigDecimal.ZERO) <= 0) {
+                        mapDo.put("quoteCount", 0);
+                    } else {
+                        mapDo.put("quoteCount", count);
+                    }
                 }
+                List<Map<String, Object>> quoteList = detailList
+                        .stream()
+                        .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO) > 0)
+                        .collect(Collectors.toList());
+                List<Map<String, Object>> quoteLists = PageUtils.startPage(quoteList, pageno, pagesize);
+                dsRet.put("totalPages", ((quoteLists != null ? quoteLists.size() : 0) + pagesize - 1) / pagesize);
+                dsRet.put("totalRows", quoteList != null ? quoteList.size() : 0);
+                dsRet.put("datas", quoteLists);
             }
-            List<Map<String, Object>> quoteList = detailList
-                    .stream()
-                    .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO)>0)
-                    .collect(Collectors.toList());
-            List<Map<String, Object>> quoteLists= PageUtils.startPage(quoteList, pageno, pagesize);
-            Map<String, Object> dsRet = new HashMap<>();
-            dsRet.put("pageno",pageno);
-            dsRet.put("pagesize",pagesize);
-            dsRet.put("totalPages",((quoteLists!=null?quoteLists.size():0) + pagesize - 1) / pagesize);
-            dsRet.put("totalRows",quoteLists!=null?quoteLists.size():0);
-            dsRet.put("datas",quoteLists);
-            resulst.put("data", dsRet);
-    }
+        } else {
+            List<Map<String, Object>> quoteLists = PageUtils.startPage(detailList, pageno, pagesize);
+            dsRet.put("totalPages", ((quoteLists != null ? quoteLists.size() : 0) + pagesize - 1) / pagesize);
+            dsRet.put("totalRows", detailList != null ? detailList.size() : 0);
+            dsRet.put("datas", quoteLists);
+        }
+        resulst.put("data", dsRet);
         return R.ok(resulst);
     }
 

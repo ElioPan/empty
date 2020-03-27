@@ -109,12 +109,10 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         if (!b){
             return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
         }
-
         List nowList=new ArrayList();
         for (int i = 0; i < stockInIds.length; i++) {
             nowList.add(stockInIds[i]);
         }
-
         nowList=new ArrayList(new HashSet(nowList));
 
         Long[] stockInheadIds=new Long[nowList.size()];
@@ -135,9 +133,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                     changeExpenseOfStockInItem(stockInheadIds,true);
                     return R.ok(messageSourceHandler.getMessage("scm.ocation.contractExpenceIsOkByCount",null));
                 }else {
-
                     changeExpenseOfStockInItem(stockInheadIds,false);
-
                     return R.ok(messageSourceHandler.getMessage("scm.ocation.contractExpenceIsOkByAmount",null));
                 }
         }

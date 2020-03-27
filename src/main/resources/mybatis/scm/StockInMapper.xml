@@ -436,6 +436,8 @@
 			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(inOutTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
 			<if test="supplierId != null and supplierId != ''"> and sourceCompany = #{supplierId} </if>
 			<if test="clientId != null and clientId != ''"> and clientId = #{clientId} </if>
+			<if test="startPeriodTime != null and startPeriodTime!= ''"> and  DATE_FORMAT(inOutTime,'%Y-%m-%d') &gt;=  #{startPeriodTime}</if>
+			<if test="endPeriodTime != null and endPeriodTime != ''">  and  DATE_FORMAT(inOutTime,'%Y-%m-%d') &lt;=  #{endPeriodTime}</if>
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -550,6 +552,8 @@
 			<if test="createTime != null and createTime != ''"> and createTime = #{createTime} </if>
 			<if test="supplierId != null and supplierId != ''"> and sourceCompany = #{supplierId} </if>
 			<if test="clientId != null and clientId != ''"> and clientId = #{clientId} </if>
+			<if test="startPeriodTime != null and startPeriodTime!= ''"> and  DATE_FORMAT(inOutTime,'%Y-%m-%d') &gt;=  #{startPeriodTime}</if>
+			<if test="endPeriodTime != null and endPeriodTime != ''">  and  DATE_FORMAT(inOutTime,'%Y-%m-%d') &lt;=  #{endPeriodTime}</if>
 		</where>
 	</select>
 
@@ -628,13 +632,13 @@
 
 	<select id="listForHead" resultType="map">
 		select
+		DISTINCT
 		*
 		from
 		(
 		select
 		a.id,
 		a.inhead_code   as inheadCode,
-		a.storage_type  as  storageType,
 		b.name as storageTypeName,
 		a.source_company as sourceCompany,
 		c.name as sourceCompanyName,
@@ -643,8 +647,9 @@
 		i.name as auditSignName,
 		a.in_time	as   inTime,
 		a.create_time as createTime,
-		j.id as stockInItemId,
-		j.count
+		a.storage_type  as  storageType,
+		IF(a.storage_type=276,j.id,0) as stockInItemId,
+		IF(a.storage_type=276,j.count,0) as count
 		from
 		scm_stock_in  a
 		LEFT JOIN  cus_dictionary b  ON a.storage_type=b.id
