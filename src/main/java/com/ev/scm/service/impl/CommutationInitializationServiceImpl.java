@@ -373,7 +373,12 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 				maps.put("code",otherMap.get("code"));
 				maps.put("clientName",otherMap.containsKey("clientName")?otherMap.get("clientName"):null);
                 maps.put("supplierName",otherMap.containsKey("supplierName")?otherMap.get("supplierName"):null);
-				maps.put("typeName",dictionaryDO.getName());
+//				maps.put("typeName",dictionaryDO.getName());
+				if(parameter.containsKey("supplierId")){
+					maps.put("typeName",ConstantForGYL.OTHER_PAYABLE_NAME);
+				}else{
+					maps.put("typeName",ConstantForGYL.OTHER_RECIVEABLE_NAME);
+				}
 				maps.put("oughtAmount",otherMap.get("amount"));
 				otherDate.add(maps);
 			}
@@ -450,10 +455,11 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 
                 if(parameter.containsKey("supplierId")){
 					maps.put("supplierName",paymentMap.get("cusSupName"));
-                }else{
+					maps.put("typeName",ConstantForGYL.PAYMEN_PAIED_NAME);
+				}else{
 					maps.put("clientName",paymentMap.get("cusSupName"));
-                }
-				maps.put("typeName",paymentMap.get("prTypeName"));
+					maps.put("typeName",ConstantForGYL.PAYMEN_RECIVED_NAME);
+				}
 				maps.put("receivedAmount",idAmount.get(paymentMap.get("id")));
 				paymentDates.add(maps);
 			}
