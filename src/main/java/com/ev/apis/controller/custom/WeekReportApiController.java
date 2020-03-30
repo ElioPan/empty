@@ -130,7 +130,7 @@ public class WeekReportApiController {
         contentDetail.put("url","/week/weekDetail?id="+weekReportId);
         List<Long> toUsers = new ArrayList<>();
         toUsers.add(weekReportService.get(weekReportId).getCreateBy());
-        noticeService.saveAndSendSocket("周报回复信息", comment, weekReportId, contentDetail.toString(),2L,ShiroUtils.getUserId(),toUsers);
+        noticeService.saveAndSendSocket("周报回复信息",comment, weekReportId, contentDetail.toString(),2L,ShiroUtils.getUserId(),toUsers);
         return R.ok();
     }
 
@@ -140,13 +140,18 @@ public class WeekReportApiController {
     public R saveAddAndSaveChange(@ApiParam(value = "周报信息", required = true) WeekReportDO weekReport,
                                   @ApiParam(value = "所有的周报明细信息：[{\"reportDate\":\"2019-09-27\",\"week\":\"星期一\",\"mustContent\":\"必做事项\",\"waitContet\":\"待做事项\",\"needSource\":\"需求资源\"}]") @RequestParam(value = "newWeekReportItems", defaultValue = "", required = false) String newWeekReportItems,
                                   @ApiParam(value = "发给谁") @RequestParam(value = "targetList", defaultValue = "", required = false) Long[] targetList,
-                                  @ApiParam(value = "上传附件") @RequestParam(value = "taglocationappearanceImage", defaultValue = "", required = false) String[] taglocationappearanceImage) {
+                                  @ApiParam(value = "上传附件") @RequestParam(value = "taglocationappearanceImage", defaultValue = "", required = false) String[] taglocationappearanceImage) throws IOException, ParseException {
 
         if (!Objects.nonNull(weekReport.getId())) {
             if(weekReportService.duplicateDetectionOrNot(newWeekReportItems)){
 
                 weekReport.setStatus(Constant.TS);//146暂存
                 weekReportService.add(weekReport, newWeekReportItems, targetList, taglocationappearanceImage);
+                JSONObject contentDetail = new JSONObject();
+                contentDetail.put("id",weekReport.getId());
+                contentDetail.put("url","/week/weekDetail?id="+weekReport.getId());
+                List<Long> toUsers = Arrays.asList(targetList);
+                noticeService.saveAndSendSocket("周报查看提醒","您有新的周报待处理（回复）信息!", weekReport.getId(), contentDetail.toString(),2L,ShiroUtils.getUserId(),toUsers);
                 return R.ok();
             }else{
                 //"本周周报已写！请勿重复新建！"
@@ -160,6 +165,11 @@ public class WeekReportApiController {
                     if (!(Objects.equals(Constant.APPLY_APPROED, weekReportDoOne.getStatus()))) {  //148已提交不允许修改
                         //更新
                         weekReportService.saveWeekChangeAndSbmit(weekReport, newWeekReportItems, targetList,  taglocationappearanceImage,0);
+                        JSONObject contentDetail = new JSONObject();
+                        contentDetail.put("id",weekReport.getId());
+                        contentDetail.put("url","/week/weekDetail?id="+weekReport.getId());
+                        List<Long> toUsers = Arrays.asList(targetList);
+                        noticeService.saveAndSendSocket("周报查看提醒","您有新的周报待处理（回复）信息!", weekReport.getId(), contentDetail.toString(),2L,ShiroUtils.getUserId(),toUsers);
                         return R.ok();
                     } else {
                         //"已提交不允许修改！"

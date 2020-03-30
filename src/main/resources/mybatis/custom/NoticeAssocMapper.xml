@@ -7,7 +7,7 @@
 		SELECT 
 		<include refid="sql_column_list"/>  
 		FROM cus_notice_assoc 
-		WHERE notice_id = #{value}
+		WHERE id = #{value}
 	</select>
 
 	<select id="list" resultType="com.ev.custom.domain.NoticeAssocDO">
@@ -20,7 +20,7 @@
                 ORDER BY ${sort} ${order}
             </when>
 			<otherwise>
-                ORDER BY notice_id DESC
+                ORDER BY id DESC
 			</otherwise>
         </choose>
 		<if test="offset != null and limit != null">
@@ -34,17 +34,18 @@
 	</select>
 
     <sql id="sql_column_list">
-		`notice_id`,`user_id`,`user_name`,`assoc_type`,`sign_status`
+		`id`,`notice_id`,`user_id`,`user_name`,`assoc_type`,`sign_status`
 	</sql>
 
     <sql id="sql_condition">
         <where>
-                            <if test="noticeId != null and noticeId != ''"> AND notice_id = #{noticeId} </if>
-                            <if test="userId != null and userId != ''"> AND user_id = #{userId} </if>
-                            <if test="userName != null and userName != ''"> AND user_name = #{userName} </if>
-                            <if test="assocType != null and assocType != ''"> AND assoc_type = #{assocType} </if>
-                            <if test="signStatus != null and signStatus != ''"> AND sign_status = #{signStatus} </if>
-                    </where>
+			<if test="id != null and id != ''"> AND id = #{id} </if>
+			<if test="noticeId != null and noticeId != ''"> AND notice_id = #{noticeId} </if>
+			<if test="userId != null and userId != ''"> AND user_id = #{userId} </if>
+			<if test="userName != null and userName != ''"> AND user_name = #{userName} </if>
+			<if test="assocType != null and assocType != ''"> AND assoc_type = #{assocType} </if>
+			<if test="signStatus != null and signStatus != ''"> AND sign_status = #{signStatus} </if>
+		</where>
     </sql>
 	 
 	<insert id="save" parameterType="com.ev.custom.domain.NoticeAssocDO">
@@ -90,32 +91,34 @@
 	<update id="update" parameterType="com.ev.custom.domain.NoticeAssocDO">
 		UPDATE cus_notice_assoc
 		<set>
+			<if test="noticeId != null">`notice_id` = #{noticeId}, </if>
 			<if test="userId != null">`user_id` = #{userId}, </if>
 			<if test="userName != null">`user_name` = #{userName}, </if>
 			<if test="assocType != null">`assoc_type` = #{assocType}, </if>
 			<if test="signStatus != null">`sign_status` = #{signStatus}</if>
 		</set>
-		WHERE notice_id = #{noticeId}
+		WHERE id = #{id}
 	</update>
 
 	<update id="updateAll" parameterType="com.ev.custom.domain.NoticeAssocDO">
 		UPDATE cus_notice_assoc SET
+			`notice_id` = #{noticeId},
 			`user_id` = #{userId}, 
 			`user_name` = #{userName}, 
 			`assoc_type` = #{assocType}, 
 			`sign_status` = #{signStatus}
-		WHERE notice_id = #{noticeId}
+		WHERE id = #{id}
 	</update>
 
 	
 	<delete id="remove">
-		DELETE FROM cus_notice_assoc WHERE notice_id = #{value}
+		DELETE FROM cus_notice_assoc WHERE id = #{value}
 	</delete>
 	
 	<delete id="batchRemove">
-        DELETE FROM cus_notice_assoc WHERE notice_id IN
+        DELETE FROM cus_notice_assoc WHERE id IN
 		<foreach item="noticeId" collection="array" open="(" separator="," close=")">
-			#{noticeId}
+			#{ids}
 		</foreach>
 	</delete>
 	

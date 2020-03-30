@@ -16,7 +16,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface NoticeAssocDao {
 
-	NoticeAssocDO get(Long noticeId);
+	NoticeAssocDO get(Long id);
 	
 	List<NoticeAssocDO> list(Map<String, Object> map);
 	
@@ -30,7 +30,7 @@ public interface NoticeAssocDao {
 
 	int updateAll(NoticeAssocDO noticeAssoc);
 	
-	int remove(Long notice_id);
+	int remove(Long id);
 	
-	int batchRemove(Long[] noticeIds);
+	int batchRemove(Long[] ids);
 }

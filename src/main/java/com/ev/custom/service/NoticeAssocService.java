@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public interface NoticeAssocService {
 	
-	NoticeAssocDO get(Long noticeId);
+	NoticeAssocDO get(Long id);
 	
 	List<NoticeAssocDO> list(Map<String, Object> map);
 	
@@ -27,9 +27,9 @@ public interface NoticeAssocService {
 
 	int updateAll(NoticeAssocDO noticeAssoc);
 	
-	int remove(Long noticeId);
+	int remove(Long id);
 	
-	int batchRemove(Long[] noticeIds);
+	int batchRemove(Long[] ids);
 
 	int batchInsert(List<NoticeAssocDO> noticeAssocDOList);
 }

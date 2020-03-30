@@ -18,8 +18,8 @@ public class NoticeAssocServiceImpl implements NoticeAssocService {
 	private NoticeAssocDao noticeAssocDao;
 	
 	@Override
-	public NoticeAssocDO get(Long noticeId){
-		return noticeAssocDao.get(noticeId);
+	public NoticeAssocDO get(Long id){
+		return noticeAssocDao.get(id);
 	}
 	
 	@Override
@@ -48,13 +48,13 @@ public class NoticeAssocServiceImpl implements NoticeAssocService {
 	}
 	
 	@Override
-	public int remove(Long noticeId){
-		return noticeAssocDao.remove(noticeId);
+	public int remove(Long id){
+		return noticeAssocDao.remove(id);
 	}
 	
 	@Override
-	public int batchRemove(Long[] noticeIds){
-		return noticeAssocDao.batchRemove(noticeIds);
+	public int batchRemove(Long[] ids){
+		return noticeAssocDao.batchRemove(ids);
 	}
 
 	@Override

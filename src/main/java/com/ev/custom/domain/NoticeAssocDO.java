@@ -22,7 +22,10 @@ import lombok.NoArgsConstructor;
 @ApiModel(value = "")
 public class NoticeAssocDO implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
+	//主键
+	@ApiModelProperty(value = "主键")
+	private Long id;
 	//消息主键
     @ApiModelProperty(value = "消息主键")
 	private Long noticeId;
@@ -39,4 +42,11 @@ public class NoticeAssocDO implements Serializable {
     @ApiModelProperty(value = "状态（0：未读，1：已读）")
 	private Integer signStatus;
 
+	public NoticeAssocDO(Long noticeId, Long userId, String userName, String assocType, Integer signStatus) {
+		this.noticeId = noticeId;
+		this.userId = userId;
+		this.userName = userName;
+		this.assocType = assocType;
+		this.signStatus = signStatus;
+	}
 }
