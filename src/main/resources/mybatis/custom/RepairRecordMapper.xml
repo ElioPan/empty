@@ -4,19 +4,19 @@
 <mapper namespace="com.ev.custom.dao.RepairRecordDao">
 
 	<select id="get" resultType="com.ev.custom.domain.RepairRecordDO">
-		select `id`,`type`,`level`,`usage`,`status`,`create_by`,`create_time`,`start_time`,`end_time`,`man_hour`,`cost`,`content`,`cause`,`solution`,`event_id`,`update_by`,`update_time`,`del_flag`,`off_time`,`off_hour` from cus_repair_record where id = #{value}
+		select `id`,`type`,`level`,`usage`,`status`,`create_by`,`create_time`,`start_time`,`end_time`,`man_hour`,`man_hour_cost`,`spare_parts_cost`, `cost`,`content`,`cause`,`solution`,`event_id`,`update_by`,`update_time`,`del_flag`,`off_time`,`off_hour` from cus_repair_record where id = #{value}
 	</select>
 
 	<select id="getByEventId" resultType="com.ev.custom.domain.RepairRecordDO">
-		select `id`,`type`,`level`,`usage`,`status`,`create_by`,`create_time`,`start_time`,`end_time`,`man_hour`,`cost`,`content`,`cause`,`solution`,`event_id`,`update_by`,`update_time`,`del_flag`,`off_time`,`off_hour` from cus_repair_record 
+		select `id`,`type`,`level`,`usage`,`status`,`create_by`,`create_time`,`start_time`,`end_time`,`man_hour`,`man_hour_cost`,`spare_parts_cost`,`cost`,`content`,`cause`,`solution`,`event_id`,`update_by`,`update_time`,`del_flag`,`off_time`,`off_hour` from cus_repair_record
 		where event_id = #{value}
 		order by id desc
 		LIMIT 1
 	</select>
 
 	<select id="list" resultType="com.ev.custom.domain.RepairRecordDO">
-		select `id`,`type`,`level`,`usage`,`status`,`create_by`,`create_time`,`start_time`,`end_time`,`man_hour`,`cost`,`content`,`cause`,`solution`,`event_id`,`update_by`,`update_time`,`del_flag`,`off_time`,`off_hour` from cus_repair_record
-        <where>  
+		select `id`,`type`,`level`,`usage`,`status`,`create_by`,`create_time`,`start_time`,`end_time`,`man_hour`,`man_hour_cost`,`spare_parts_cost`,`cost`,`content`,`cause`,`solution`,`event_id`,`update_by`,`update_time`,`del_flag`,`off_time`,`off_hour` from cus_repair_record
+        <where>
 		  		  <if test="id != null and id != ''"> and id = #{id} </if>
 		  		  <if test="type != null and type != ''"> and type = #{type} </if>
 		  		  <if test="level != null and level != ''"> and level = #{level} </if>
@@ -24,7 +24,9 @@
 		  		  <if test="startTime != null and startTime != ''"> and start_time = #{startTime} </if>
 		  		  <if test="endTime != null and endTime != ''"> and end_time = #{endTime} </if>
 		  		  <if test="manHour != null and manHour != ''"> and man_hour = #{manHour} </if>
-		  		  <if test="cost != null and cost != ''"> and cost = #{cost} </if>
+			      <if test="manHourCost!= null and manHourCost != ''"> and man_hour_cost = #{manHourCost} </if>
+			<if test="sparePartsCost != null and sparePartsCost != ''"> and spare_parts_cost = #{sparePartsCost} </if>
+				<if test="cost != null and cost != ''"> and cost = #{cost} </if>
 		  		  <if test="content != null and content != ''"> and content = #{content} </if>
 		  		  <if test="cause != null and cause != ''"> and cause = #{cause} </if>
 		  		  <if test="solution != null and solution != ''"> and solution = #{solution} </if>
@@ -71,6 +73,8 @@
 		record.`cause` AS cause,
 		record.`solution` AS solution,
 		record.`man_hour` AS manHour,
+		record.`man_hour_cost` AS manHourCost,
+		record.`spare_parts_cost` AS sparePartsCost,
 		record.`cost` AS cost,
 		engineeruser.`user_id` AS heldPersonId,
 		engineeruser.`name` AS heldPersonName
@@ -119,6 +123,8 @@
 		count(*) AS count,
         SUM(record.`off_hour`) AS offHourTotal,
 		SUM(record.`man_hour`) AS manHourTotal,
+		SUM(record.`man_hour_cost`) AS manHourCostTotal,
+		SUM(record.`spare_parts_cost`) AS sparePartsCostTotal,
 		SUM(record.`cost`) AS costTotal
 		FROM cus_repair_record record
 		LEFT JOIN cus_repair_event repairevent ON repairevent.`id`=record.`event_id`
@@ -162,6 +168,7 @@
 		  		  <if test="startTime != null and startTime != ''"> and start_time = #{startTime} </if>
 		  		  <if test="endTime != null and endTime != ''"> and end_time = #{endTime} </if>
 		  		  <if test="manHour != null and manHour != ''"> and man_hour = #{manHour} </if>
+			 	  <if test="manHourCost != null and manHourCost != ''"> and man_hour_cost = #{manHourCost} </if>
 		  		  <if test="cost != null and cost != ''"> and cost = #{cost} </if>
 		  		  <if test="content != null and content != ''"> and content = #{content} </if>
 		  		  <if test="cause != null and cause != ''"> and cause = #{cause} </if>
@@ -185,17 +192,16 @@
 			`create_time`, 
 			`start_time`, 
 			`end_time`, 
-			`man_hour`, 
+			`man_hour`,
+			`man_hour_cost`,
+			`spare_parts_cost`,
 			`cost`, 
 			`content`, 
 			`cause`, 
 			`solution`, 
-			`event_id`, 
-
-			`update_by`, 
-
-			`update_time`, 
-
+			`event_id`,
+			`update_by`,
+			`update_time`,
 			`del_flag`,
 			`off_time`,
 			`off_hour`
@@ -210,17 +216,16 @@
 			#{createTime}, 
 			#{startTime}, 
 			#{endTime}, 
-			#{manHour}, 
+			#{manHour},
+			#{manHourCost},
+			#{sparePartsCost},
 			#{cost}, 
 			#{content}, 
 			#{cause}, 
 			#{solution}, 
-			#{eventId}, 
-
-			#{updateBy}, 
-
-			#{updateTime}, 
-
+			#{eventId},
+			#{updateBy},
+			#{updateTime},
 			#{delFlag},
 			#{offTime},
 			#{offHour}
@@ -239,6 +244,8 @@
 			<if test="startTime != null">`start_time` = #{startTime}, </if>
 			<if test="endTime != null">`end_time` = #{endTime}, </if>
 			<if test="manHour != null">`man_hour` = #{manHour}, </if>
+			<if test="manHourCost != null">`man_hour_cost` = #{manHourCost}, </if>
+			<if test="sparePartsCost != null">`spare_parts_cost` = #{sparePartsCost}, </if>
 			<if test="cost != null">`cost` = #{cost}, </if>
 			<if test="content != null">`content` = #{content}, </if>
 			<if test="cause != null">`cause` = #{cause}, </if>

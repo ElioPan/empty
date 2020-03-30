@@ -49,6 +49,7 @@
 		`engineer_id`,
 		`down_hour`,
 		`cost`,
+		`upkeep_cost`,
 		`status`,
 		`result`,
 		`closure_reason`,
@@ -77,6 +78,7 @@
 		#{engineerId},
 		#{downHour},
 		#{cost},
+		#{upkeepCost},
 		#{status},
 		#{result},
 		#{closureReason},
@@ -108,6 +110,7 @@
 			<if test="engineerId != null">`engineer_id` = #{engineerId}, </if>
 			<if test="downHour != null">`down_hour` = #{downHour}, </if>
 			<if test="cost != null">`cost` = #{cost}, </if>
+			<if test="upkeepCost != null">`upkeep_cost` = #{upkeepCost}, </if>
 			<if test="status != null">`status` = #{status}, </if>
 			<if test="result != null">`result` = #{result}, </if>
 			<if test="closureReason != null">`closure_reason` = #{closureReason}, </if>
@@ -138,7 +141,7 @@
 	</delete>
 
 	<sql id="sql_column_list">
-		`id`,`man_hour_cost`,`work_orderNo`,`name`,`start_time`,`end_time`,`actual_start_time`,`actual_end_time`,`upkeep_level`,`man_hour`,`engineer_id`,`down_hour`,`cost`,`status`,`result`,`closure_reason`,`content`,`plan_id`,`device_id`,`create_by`,`create_time`,`type`,`message_id`,`update_by`,`update_time`,`del_flag`
+		`id`,`man_hour_cost`,`work_orderNo`,`name`,`start_time`,`end_time`,`actual_start_time`,`actual_end_time`,`upkeep_level`,`man_hour`,`engineer_id`,`down_hour`,`cost`,`upkeep_cost`,`status`,`result`,`closure_reason`,`content`,`plan_id`,`device_id`,`create_by`,`create_time`,`type`,`message_id`,`update_by`,`update_time`,`del_flag`
 	</sql>
 
 	<sql id="sql_condition">
@@ -156,6 +159,7 @@
 			<if test="engineerId != null and engineerId != ''"> and engineer_id = #{engineerId} </if>
 			<if test="downHour != null and downHour != ''"> and down_hour = #{downHour} </if>
 			<if test="cost != null and cost != ''"> and cost = #{cost} </if>
+			<if test="upkeepCost != null and upkeepCost != ''"> and upkeep_cost = #{upkeepCost} </if>
 			<if test="status != null and status != ''"> and status = #{status} </if>
 			<if test="result != null and result != ''"> and result = #{result} </if>
 			<if test="closureReason != null and closureReason != ''"> and closure_reason = #{closureReason} </if>
@@ -176,7 +180,7 @@
 
 
 	<select id="getByPlanId" resultType="com.ev.custom.domain.UpkeepRecordDO">
-		select `id`,`work_orderNo`,`name`,`start_time`,`end_time`,`man_hour`,`engineer_id`,`down_hour`,`cost`,`status`,`result`,`content`,`plan_id`,`device_id`,`create_by`,`create_time`,`type`,`message_id` from cus_upkeep_record where plan_id = #{value}
+		select `id`,`work_orderNo`,`name`,`start_time`,`end_time`,`man_hour`,`engineer_id`,`down_hour`,`cost`,`upkeep_cost`,`status`,`result`,`content`,`plan_id`,`device_id`,`create_by`,`create_time`,`type`,`message_id` from cus_upkeep_record where plan_id = #{value}
 	</select>
 
 
@@ -216,6 +220,7 @@
         cur.down_hour as downHour,
 		cur.start_time as planStarttime,
 		cur.end_time as planendtime,
+		cur.upkeep_cost as upkeepCost,
 		cur.man_hour as plan_man_hour
 		from  cus_upkeep_record cur
 		LEFT JOIN cus_device      cd   ON  cur.device_id=cd.id
@@ -270,6 +275,7 @@
 		IF(cur.down_hour IS NULL,0,cur.down_hour) downHour,
 		cur.start_time as planStarttime,
 		cur.end_time as planendtime,
+		cur.upkeep_cost as upkeepCost,
 		cur.man_hour as plan_man_hour
 		from  cus_upkeep_record cur
 		LEFT JOIN cus_device      cd   ON  cur.device_id=cd.id
@@ -299,6 +305,7 @@
 		cur.cost,
 		cur.man_hour as manHour,
 		cur.man_hour_cost AS manhourCost,
+		cur.upkeep_cost as upkeepCost,
 		cur.plan_id as planId,
   		c.name as proName,
   		c.function as upkeepFunction,
@@ -366,6 +373,7 @@
 		su.username as username,
 		cur.man_hour_cost AS manhourCost,
 		cur.start_time as start_time,
+		cur.upkeep_cost as upkeepCost,
 		cur.end_time   as end_time,
 		cur.man_hour   as man_hour,
 		cur.cost,
@@ -454,6 +462,7 @@
 		IFNULL(cur.end_time,'') as end_time,
 		cur.man_hour   AS man_hour,
 		cur.cost AS cost,
+		cur.upkeep_cost as upkeepCost,
 		CASE  WHEN cuc.result=133 then '待评价'
 		WHEN cuc.result=115 then '通过'
 		WHEN cuc.result=116 then '不通过'
@@ -513,6 +522,7 @@
 		count(*) as count,
 		SUM(alldetail.man_hour) as totalManHour ,
 		SUM(alldetail.manhourCost) as totalManhourCost ,
+		SUM(alldetail.upkeepCost) as totalUpkeepCost ,
 		SUM(alldetail.cost) as totalCost
 		from
 		(
@@ -536,6 +546,7 @@
 		cur.end_time   AS end_time,
 		cur.man_hour   AS man_hour,
 		cur.cost AS cost,
+		cur.upkeep_cost as upkeepCost,
 		CASE  WHEN cuc.result=133 then '待评价'
 		WHEN cuc.result=115 then '通过'
 		WHEN cuc.result=116 then '不通过'
