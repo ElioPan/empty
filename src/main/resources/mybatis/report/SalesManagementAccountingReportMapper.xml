@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.report.dao.SalesManagementAccountingReportDao">
+
+    <select id="salesContractList" resultType="java.util.Map">
+        SELECT
+        item.`id`,
+        sales.`id` AS salesContractId,
+        sales.`contract_code` AS `contractCode`,
+        sales.contract_date AS contractDate,
+        client.`id` AS `clientId`,
+        client.`name` AS clientName,
+        salesUser.`user_id` AS `userId`,
+        salesUser.`name` AS userName,
+        salesUserDept.dept_id AS `deptId`,
+        salesUserDept.name AS deptName,
+        materielType.name AS materielTypeName,
+        materiel.serial_no AS materielSerialNo,
+        materiel.name AS materielName,
+        materiel.specification AS specification,
+        unitUom.name AS unitUomName,
+        item.`count` AS `count`,
+        item.`tax_unit_price` AS taxUnitPrice,
+        item.`tax_amount` AS taxAmount
+        FROM
+        scm_salescontract_item item
+        LEFT JOIN scm_salescontract sales ON sales.id = item.salescontract_id
+        LEFT JOIN cus_client client ON client.id = sales.client_id
+        LEFT JOIN sys_user salesUser ON salesUser.user_id = sales.sales_person
+        LEFT JOIN sys_dept salesUserDept ON salesUserDept.dept_id = sales.sales_person_dept
+        LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
+        LEFT JOIN cus_materiel_type materielType ON materielType.`id`=materiel.`type`
+        LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
+        <where>
+            <if test="id != null and id != ''"> and item.id = #{id} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(sales.contract_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(sales.contract_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="clientName != null and clientName != ''"> and client.`name` LIKE #{clientName} </if>
+            <if test="clientId != null and clientId != ''"> and client.`id` = #{clientId} </if>
+            <if test="materielType != null and materielType != ''"> and materiel.`type` = #{materielType} </if>
+            <if test="userId != null and userId != ''"> and sales.sales_person = #{userId} </if>
+            <if test="auditSign != null and auditSign != ''"> and sales.audit_sign = #{auditSign} </if>
+            <if test="deptId != null and deptId != ''"> and sales.sales_person_dept = #{deptId} </if>
+        </where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by sales.`id` desc,item.`id`
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+    <select id="debtDueList" resultType="java.util.Map">
+        SELECT
+        pay.`id`,
+        sales.`id` AS salesContractId,
+        client.`id` AS clientId,
+        client.`name` AS clientName,
+        salesUser.`name` AS userName,
+        salesUserDept.name AS deptName,
+        sales.`contract_code` AS `contractCode`,
+        sales.contract_date AS contractDate,
+        pay.remarks AS remarks,
+        pay.receivable_date AS receivableDate,
+        pay.receivable_amount AS receivableAmount,
+        pay.received_amount AS receivedAmount,
+        pay.unpay_amount AS unreceivedAmount,
+        DATEDIFF(DATE_FORMAT(pay.receivable_date,'%Y-%m-%d'),DATE_FORMAT(#{endTime},'%Y-%m-%d')) AS expiryDays
+        FROM scm_salescontract_pay pay
+        LEFT JOIN scm_salescontract sales ON sales.id = pay.salescontract_id
+        LEFT JOIN cus_client client ON client.id = sales.client_id
+        LEFT JOIN sys_user salesUser ON salesUser.user_id = sales.sales_person
+        LEFT JOIN sys_dept salesUserDept ON salesUserDept.dept_id = sales.sales_person_dept
+        <where>
+            <if test="id != null and id != ''"> and pay.id = #{id} </if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(pay.receivable_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="clientName != null and clientName != ''"> and client.`name` LIKE #{clientName} </if>
+            <if test="clientId != null and clientId != ''"> and client.`id` = #{clientId} </if>
+            <if test="userId != null and userId != ''"> and sales.sales_person = #{userId} </if>
+            <if test="deptId != null and deptId != ''"> and sales.sales_person_dept = #{deptId} </if>
+            <if test="auditSign != null and auditSign != ''"> and sales.audit_sign = #{auditSign} </if>
+             AND pay.unpay_amount &gt; 0
+        </where>
+        ORDER BY pay.receivable_date
+    </select>
+
+    <select id="summaryList" resultType="java.util.Map">
+        SELECT
+        item.`id`,
+        sales.`id` AS salesContractId,
+        sales.`contract_code` AS `contractCode`,
+        sales.contract_date AS contractDate,
+        IFNULL(client.`id`,'') AS `clientId`,
+        client.`name` AS clientName,
+        IFNULL(salesUser.`user_id`,'') AS `userId`,
+        salesUser.`name` AS userName,
+        IFNULL(salesUserDept.dept_id,'') AS `deptId`,
+        salesUserDept.name AS deptName,
+        materiel.serial_no AS materielSerialNo,
+        materiel.name AS materielName,
+        materiel.specification AS specification,
+        unitUom.name AS unitUomName,
+        SUM(item.`count`) AS `count`,
+        SUM(item.`tax_amount`) AS taxAmount
+        FROM
+        scm_salescontract_item item
+        LEFT JOIN scm_salescontract sales ON sales.id = item.salescontract_id
+        LEFT JOIN cus_client client ON client.id = sales.client_id
+        LEFT JOIN sys_user salesUser ON salesUser.user_id = sales.sales_person
+        LEFT JOIN sys_dept salesUserDept ON salesUserDept.dept_id = sales.sales_person_dept
+        LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
+        LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
+        <where>
+            <if test="id != null and id != ''"> and item.id = #{id} </if>
+            <if test="clientId != null and clientId != ''"> and client.`id` = #{clientId} </if>
+            <if test="clientName != null and clientName != ''"> and client.`name` LIKE #{clientName} </if>
+            <if test="deptId != null and deptId != ''"> and sales.sales_person_dept = #{deptId} </if>
+            <if test="userId != null and userId != ''"> and sales.sales_person = #{userId} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(sales.contract_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(sales.contract_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="auditSign != null and auditSign != ''"> and sales.audit_sign = #{auditSign} </if>
+        </where>
+        GROUP BY item.`materiel_id`
+        ORDER BY sales.`id` DESC
+    </select>
+
+    <select id="balanceList" resultType="java.util.Map">
+        SELECT
+        pay.`id`,
+        sales.`id` AS salesContractId,
+        client.`id` AS clientId,
+        client.`name` AS clientName,
+        salesUser.`name` AS userName,
+        salesUserDept.name AS deptName,
+        sales.`contract_code` AS `contractCode`,
+        sales.contract_date AS contractDate,
+        SUM(pay.receivable_amount) AS receivableAmount,
+        SUM(pay.received_amount) AS receivedAmount,
+        SUM(pay.unpay_amount) AS unreceivedAmount
+        FROM scm_salescontract_pay pay
+        LEFT JOIN scm_salescontract sales ON sales.id = pay.salescontract_id
+        LEFT JOIN cus_client client ON client.id = sales.client_id
+        LEFT JOIN sys_user salesUser ON salesUser.user_id = sales.sales_person
+        LEFT JOIN sys_dept salesUserDept ON salesUserDept.dept_id = sales.sales_person_dept
+        <where>
+            <if test="id != null and id != ''"> and pay.id = #{id} </if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(sales.contract_date,'%Y-%m-%d') &lt;= DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="clientName != null and clientName != ''"> and client.`name` LIKE #{clientName} </if>
+            <if test="clientId != null and clientId != ''"> and client.`id` = #{clientId} </if>
+            <if test="userId != null and userId != ''"> and sales.sales_person = #{userId} </if>
+            <if test="deptId != null and deptId != ''"> and sales.sales_person_dept = #{deptId} </if>
+            <if test="auditSign != null and auditSign != ''"> and sales.audit_sign = #{auditSign} </if>
+        </where>
+        GROUP BY pay.salescontract_id
+        ORDER BY sales.contract_date,unreceivedAmount DESC
+
+    </select>
+
+</mapper>

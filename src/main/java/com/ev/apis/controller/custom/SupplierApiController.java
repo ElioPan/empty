@@ -19,6 +19,7 @@ import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.*;
+import com.ev.scm.vo.StockEntity;
 import com.ev.system.domain.DeptDO;
 import com.ev.system.service.DeptService;
 import com.google.common.collect.Lists;
@@ -323,14 +324,22 @@ public class SupplierApiController {
     @EvApiByToken(value = "/apis/importExcel/supplier", method = RequestMethod.POST, apiTitle = "供应商信息导入")
     @ApiOperation("供应商信息导入")
     @Transactional(rollbackFor = Exception.class)
-    public R readSupplier(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file) throws Exception {
+    public R readSupplier(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file){
         if (file.isEmpty()) {
             return R.error(messageSourceHandler.getMessage("file.nonSelect", null));
         }
         ImportParams params = new ImportParams();
         params.setTitleRows(0);
         params.setHeadRows(1);
-        List<SupplierEntity> supplierEntityList = ExcelImportUtil.importExcel(file.getInputStream(), SupplierEntity.class, params);
+        String[] importFields = {"供应商编码"};
+        params.setImportFields(importFields);
+
+        List<SupplierEntity> supplierEntityList;
+        try {
+            supplierEntityList = ExcelImportUtil.importExcel(file.getInputStream(), SupplierEntity.class, params);
+        } catch (Exception e) {
+            return R.error(messageSourceHandler.getMessage("file.upload.error", null));
+        }
         if (supplierEntityList.size() > 0) {
             List<String> codeNoneEmptyList = supplierEntityList.stream()
                     .filter(supplierEntity -> StringUtils.isNoneEmpty(supplierEntity.getCode()))

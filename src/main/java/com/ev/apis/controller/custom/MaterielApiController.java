@@ -14,6 +14,7 @@ import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.*;
+import com.ev.scm.vo.StockEntity;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
@@ -405,14 +406,21 @@ public class MaterielApiController {
     @EvApiByToken(value = "/apis/importExcel/materiel", method = RequestMethod.POST, apiTitle = "物料信息导入")
     @ApiOperation("物料信息导入")
     @Transactional(rollbackFor = Exception.class)
-    public R readSupplier(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file) throws Exception {
+    public R readSupplier(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
             return R.error(messageSourceHandler.getMessage("file.nonSelect", null));
         }
         ImportParams params = new ImportParams();
         params.setTitleRows(0);
         params.setHeadRows(1);
-        List<MaterielEntity> materielEntityList = ExcelImportUtil.importExcel(file.getInputStream(), MaterielEntity.class, params);
+        String[] importFields = {"物料编码"};
+        params.setImportFields(importFields);
+        List<MaterielEntity> materielEntityList;
+        try {
+            materielEntityList = ExcelImportUtil.importExcel(file.getInputStream(), MaterielEntity.class, params);
+        }catch(Exception e) {
+            return R.error(messageSourceHandler.getMessage("file.upload.error", null));
+        }
         if (materielEntityList.size() > 0) {
             List<String> codeNoneEmptyList = materielEntityList.stream()
                     .filter(materielEntity -> StringUtils.isNoneEmpty(materielEntity.getSerialNo()))

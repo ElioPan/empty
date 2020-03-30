@@ -14,6 +14,7 @@ import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.Constant;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.*;
+import com.ev.scm.vo.StockEntity;
 import com.ev.system.domain.DeptDO;
 import com.ev.system.domain.UserDO;
 import com.ev.system.service.DeptService;
@@ -819,7 +820,15 @@ public class DeviceApiController {
         ImportParams params = new ImportParams();
         params.setTitleRows(0);
         params.setHeadRows(1);
-        List<DeviceEntity> deviceEntityList = ExcelImportUtil.importExcel(file.getInputStream(), DeviceEntity.class, params);
+        String[] importFields = {"设备编号"};
+        params.setImportFields(importFields);
+
+        List<DeviceEntity> deviceEntityList;
+        try {
+            deviceEntityList = ExcelImportUtil.importExcel(file.getInputStream(), DeviceEntity.class, params);
+        }catch(Exception e) {
+            return R.error(messageSourceHandler.getMessage("file.upload.error", null));
+        }
         if (deviceEntityList.size() > 0) {
             List<String> codeNoneEmptyList = deviceEntityList.stream()
                     .filter(deviceEntity -> StringUtils.isNoneEmpty(deviceEntity.getSerialno()))

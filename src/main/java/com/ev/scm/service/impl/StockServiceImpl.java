@@ -128,6 +128,8 @@ public class StockServiceImpl implements StockService {
 		ImportParams params = new ImportParams();
 		params.setTitleRows(0);
 		params.setHeadRows(1);
+		String[] importFields = {"物料编码"};
+		params.setImportFields(importFields);
 		List<StockEntity> stockEntityList;
 		try {
 			stockEntityList  =  ExcelImportUtil.importExcel(file.getInputStream(), StockEntity.class, params);
