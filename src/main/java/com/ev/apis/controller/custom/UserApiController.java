@@ -42,6 +42,7 @@ public class UserApiController extends BaseController {
     public R list(@ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
                   @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize,
                   @ApiParam(value = "用户ID") @RequestParam(value = "userId",defaultValue = "",required = false)  String userId,
+                  @ApiParam(value = "用户名") @RequestParam(value = "loginName",defaultValue = "",required = false)  String loginName,
                   @ApiParam(value = "姓名") @RequestParam(value = "userName",defaultValue = "",required = false)  String userName,
                   @ApiParam(value = "姓名&&手机号码") @RequestParam(value = "query",defaultValue = "",required = false)  String query,
                   @ApiParam(value = "手机号码") @RequestParam(value = "mobile",defaultValue = "",required = false)  String mobile,
@@ -52,6 +53,7 @@ public class UserApiController extends BaseController {
         params.put("status",status);
         params.put("query",query);
         params.put("username",userName);
+        params.put("loginName",loginName);
         params.put("mobile",mobile);
         params.put("deptId",deptId);
         params.put("offset",(pageno-1)*pagesize);
