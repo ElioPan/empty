@@ -19,7 +19,6 @@ import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.*;
-import com.ev.scm.vo.StockEntity;
 import com.ev.system.domain.DeptDO;
 import com.ev.system.domain.UserDO;
 import com.ev.system.service.DeptService;
@@ -103,7 +102,7 @@ public class ClientApiController {
     public R saveChangeClient(ClientDO clientDo,
                               @ApiParam(value = "联系人", required = false) @RequestParam(value = "linkerMan", required = false) String linkerMan) {
 
-        Map<String,Object>  paramy= new HashMap<String,Object>();
+        Map<String,Object>  paramy= new HashMap<>();
         ClientDO clientDO = clientService.get(clientDo.getId());
         if(clientDO!=null){
             if(!Objects.equals(clientDo.getName().trim(),clientDO.getName())){
@@ -139,7 +138,7 @@ public class ClientApiController {
     @ApiOperation("新增保存" )
     @Transactional(rollbackFor = Exception.class)
     public R addDetail(ClientDO clientDo,
-                         @ApiParam(value = "联系人", required = true) @RequestParam(value = "linkerMan", required = true) String linkerMan) {
+                         @ApiParam(value = "联系人") @RequestParam(value = "linkerMan", required = false) String linkerMan) {
 
         Map<String,Object>  paramy= new HashMap<String,Object>();
         paramy.put("name",clientDo.getName().trim());
