@@ -14,7 +14,6 @@ import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.*;
-import com.ev.scm.vo.StockEntity;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
@@ -116,7 +115,7 @@ public class MaterielApiController {
                       @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
                       @ApiParam(value = "物料类型名称") @RequestParam(value = "name", defaultValue = "", required = false) String name) {
         Map<String, Object> params = Maps.newHashMapWithExpectedSize(3);
-        params.put("name", name);
+        params.put("nameSearch", StringUtils.sqlLike(name));
         params.put("offset", (pageno - 1) * pagesize);
         params.put("limit", pagesize);
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
@@ -168,14 +167,20 @@ public class MaterielApiController {
         // 若编号为空 则自动生成
 
         String serialNo = materiel.getSerialNo();
-        if (StringUtils.isEmpty(serialNo) || serialNo.startsWith(Constant.WL)) {
+        Integer type = materiel.getType();
+        if (type == null) {
+            return R.error(messageSourceHandler.getMessage("common.dailyReport.save", null));
+        }
+        MaterielTypeDO materielTypeDO = materielTypeService.get(type);
+        String typeCode = materielTypeDO.getCode();
+        if (StringUtils.isBlank(serialNo) || serialNo.startsWith(typeCode)) {
             Map<String, Object> param = Maps.newHashMap();
-            param.put("maxNo", Constant.WL);
+            param.put("maxNo", typeCode);
             param.put("offset", 0);
             param.put("limit", 1);
 
             List<MaterielDO> list = materielService.list(param);
-            materiel.setSerialNo(DateFormatUtil.getWorkOrderno(Constant.WL, list.size() > 0 ? list.get(0).getSerialNo() : null, 4));
+            materiel.setSerialNo(DateFormatUtil.getWorkOrderno(typeCode, list.size() > 0 ? list.get(0).getSerialNo() : null, 6));
         }else {
             materiel.setSerialNo(serialNo.trim());
         }
@@ -238,7 +243,13 @@ public class MaterielApiController {
     @EvApiByToken(value = "/apis/materiel/addType", method = RequestMethod.POST)
     @ApiOperation("添加物料类型")
     public R addType(MaterielTypeDO materielType) {
-        //  类型不能重复
+        String code = materielType.getCode();
+        // 编号为空或者不为英文大写字母
+        if(StringUtils.isBlank(code) || !code.matches("[A-Z]+")){
+            return R.error(messageSourceHandler.getMessage("common.duplicate.code", null));
+        }
+
+        //  类型名称和编号不能重复
         if (materielTypeService.checkSave(materielType) == 0) {
             if (materielTypeService.save(materielType) > 0) {
                 Map<String, Object> result = Maps.newHashMapWithExpectedSize(1);
@@ -247,7 +258,7 @@ public class MaterielApiController {
             }
             return R.error();
         }
-        return R.error(messageSourceHandler.getMessage("common.duplicate.names", null));
+        return R.error(messageSourceHandler.getMessage("common.duplicate.serialNoOrName", null));
     }
 
     @EvApiByToken(value = "/apis/materiel/detail", method = RequestMethod.POST)
@@ -281,12 +292,10 @@ public class MaterielApiController {
         if(materielTypeDO.getIsSystem()==1){
             return R.error(messageSourceHandler.getMessage("common.system.disable.operate", null));
         }
-        if (materielType.getName().equals(materielTypeService.get(materielType.getId()).getName())) {
-            int update = materielTypeService.update(materielType);
-            if (update > 0) {
-                return R.ok();
-            }
-            return R.error();
+        String code = materielType.getCode();
+        // 编号为空或者不为英文大写字母
+        if(StringUtils.isBlank(code) || !code.matches("[A-Z]+")){
+            return R.error(messageSourceHandler.getMessage("common.duplicate.code", null));
         }
         //  类型不能重复
         if (materielTypeService.checkSave(materielType) == 0) {
@@ -296,7 +305,7 @@ public class MaterielApiController {
             }
             return R.error();
         }
-        return R.error(messageSourceHandler.getMessage("common.duplicate.names", null));
+        return R.error(messageSourceHandler.getMessage("common.duplicate.serialNoOrName", null));
     }
 
     @EvApiByToken(value = "/apis/materiel/remove", method = RequestMethod.POST)

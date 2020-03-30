@@ -26,6 +26,9 @@ public class MaterielTypeDO implements Serializable {
 	//名称
     @ApiModelProperty(value = "名称",required = true)
 	private String name;
+	//代码
+	@ApiModelProperty(value = "编号",required = true)
+	private String code;
 	//上级类型Id
     @ApiModelProperty(value = "上级类型Id",hidden = true)
 	private Long parentId;
