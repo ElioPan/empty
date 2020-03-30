@@ -434,26 +434,26 @@ public class OutsourcedManagementAccountingReportApiController {
                     .collect(Collectors.toList());
 
             // 应付
-            Map<String, Double> receivableAmountMap = balanceList
+            Map<String, Double> payableAmountMap = balanceList
                     .stream()
                     .collect(Collectors.toMap(
                             k -> k.get("supplierId").toString()
-                            , v -> Double.parseDouble(v.get("receivableAmount").toString())
+                            , v -> Double.parseDouble(v.get("payableAmount").toString())
                             , Double::sum));
             // 已付
-            Map<String, Double> receivedAmountMap = balanceList
+            Map<String, Double> paidAmountMap = balanceList
                     .stream()
                     .collect(Collectors.toMap(
                             k -> k.get("supplierId").toString()
-                            , v -> Double.parseDouble(v.get("receivedAmount").toString())
+                            , v -> Double.parseDouble(v.get("paidAmount").toString())
                             , Double::sum));
 
             // 未付
-            Map<String, Double> unreceivedAmountMap = balanceList
+            Map<String, Double> unpaidAmountMap = balanceList
                     .stream()
                     .collect(Collectors.toMap(
                             k -> k.get("supplierId").toString()
-                            , v -> Double.parseDouble(v.get("unreceivedAmount").toString())
+                            , v -> Double.parseDouble(v.get("unpaidAmount").toString())
                             , Double::sum));
 
             Map<String, String> supplierNameMap = balanceList
@@ -469,32 +469,32 @@ public class OutsourcedManagementAccountingReportApiController {
                 map = Maps.newHashMap();
                 map.put("supplierId", s);
                 map.put("supplierName", supplierNameMap.get(s) + "小计");
-                map.put("totalReceivableAmount", receivableAmountMap.get(s));
-                map.put("totalReceivedAmount", receivedAmountMap.get(s));
-                map.put("totalUnreceivedAmount", unreceivedAmountMap.get(s));
+                map.put("totalPayableAmount", payableAmountMap.get(s));
+                map.put("totalPaidAmount", paidAmountMap.get(s));
+                map.put("totalUnpaidAmount", unpaidAmountMap.get(s));
                 data.add(map);
             }
 
             results.put("data", new DsResultResponse(pageno, pagesize, total, data));
 
-            Double totalReceivableAmount = balanceLists
+            Double totalPayableAmount = balanceLists
                     .stream()
-                    .map(v -> Double.parseDouble(v.get("receivableAmount").toString()))
+                    .map(v -> Double.parseDouble(v.get("payableAmount").toString()))
                     .reduce(Double::sum)
                     .orElse(0.0d);
-            Double totalReceivedAmount = balanceLists
+            Double totalPaidAmount = balanceLists
                     .stream()
-                    .map(v -> Double.parseDouble(v.get("receivedAmount").toString()))
+                    .map(v -> Double.parseDouble(v.get("paidAmount").toString()))
                     .reduce(Double::sum)
                     .orElse(0.0d);
-            Double totalUnreceivedAmount = balanceLists
+            Double totalUnpaidAmount = balanceLists
                     .stream()
-                    .map(v -> Double.parseDouble(v.get("unreceivedAmount").toString()))
+                    .map(v -> Double.parseDouble(v.get("unpaidAmount").toString()))
                     .reduce(Double::sum)
                     .orElse(0.0d);
-            results.put("totalReceivableAmount",totalReceivableAmount);
-            results.put("totalReceivedAmount",totalReceivedAmount);
-            results.put("totalUnreceivedAmount",totalUnreceivedAmount);
+            results.put("totalPayableAmount",totalPayableAmount);
+            results.put("totalPaidAmount",totalPaidAmount);
+            results.put("totalUnpaidAmount",totalUnpaidAmount);
         }
         return R.ok(results);
     }
