@@ -130,7 +130,7 @@ public class WorkingProcedurePlanApiController {
 
 		int total = Integer.parseInt(count.getOrDefault("total",0).toString());
 		if (data.size() > 0) {
-			List<Map<String, Object>> datas= data.stream().sorted((v1,v2)->v1.get("serialNumber").toString().compareTo(v2.get("serialNumber").toString())).collect(Collectors.toList());
+			List<Map<String, Object>> datas= data.stream().sorted((v1,v2)->Integer.parseInt(v1.get("serialNumber").toString())>Integer.parseInt(v2.get("serialNumber").toString())?1:-1).collect(Collectors.toList());
 			DsResultResponse dsRet = new DsResultResponse();
 			dsRet.setDatas(datas);
 			dsRet.setPageno(pageno);
