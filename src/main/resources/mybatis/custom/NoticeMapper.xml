@@ -68,6 +68,7 @@
 		fromuser.user_id AS fromUserId,
 		fromuser.`name` AS fromUserName,
 		assoc.user_id as toUserId,
+		assoc.id as assocId,
 		touser.username as toUserName,
 		assoc.sign_status as signStatus,
 		assoc.assoc_type as assocType
