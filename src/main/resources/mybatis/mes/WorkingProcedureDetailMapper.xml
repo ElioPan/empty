@@ -47,6 +47,7 @@
 			process.`code` AS processCode,
 			process.`name` AS processName,
 			detail.`plan_start_time` AS planStartTime,
+			detail.serial_number as serialNumber,
 			detail.`plan_end_time` AS planEndTime,
 			detail.`plan_count` AS planCount,
 			reportcount.`completion_count_total` AS completionCount,
@@ -99,8 +100,8 @@
 		<!-- LEFT JOIN mes_process process ON process.`id` = plan.`tec_route_id` -->
 		LEFT JOIN view_mes_report_count reportcount ON reportcount.`id` =  detail.`id`
 		<where>  
-		  		 	<if test="planId != null and planId != ''"> and detail.plan_id = #{planId} </if>
-		  		</where>
+		  	<if test="planId != null and planId != ''"> and detail.plan_id = #{planId} </if>
+		</where>
 	</sql>
 	
 	<select id="listByPlanId" resultType="map">
