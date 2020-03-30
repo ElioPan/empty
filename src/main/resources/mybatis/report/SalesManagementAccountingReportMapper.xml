@@ -71,7 +71,7 @@
         pay.receivable_amount AS receivableAmount,
         pay.received_amount AS receivedAmount,
         pay.unpay_amount AS unreceivedAmount,
-        DATEDIFF(DATE_FORMAT(pay.receivable_date,'%Y-%m-%d'),DATE_FORMAT(#{endTime},'%Y-%m-%d')) AS expiryDays
+        DATEDIFF(DATE_FORMAT(now(),'%Y-%m-%d'),DATE_FORMAT(pay.receivable_date,'%Y-%m-%d')) AS expiryDays
         FROM scm_salescontract_pay pay
         LEFT JOIN scm_salescontract sales ON sales.id = pay.salescontract_id
         LEFT JOIN cus_client client ON client.id = sales.client_id
