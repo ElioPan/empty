@@ -28,6 +28,7 @@ public class WeChatUtil {
 
 	public static final String KEY_ERROR_CODE = "errcode";
 
+
 	/**
 	通过code获取用户openid
 	*/

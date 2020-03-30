@@ -1,7 +1,9 @@
 package com.ev.apis.controller.custom;
 
 import com.ev.apis.model.DsResultResponse;
+import com.ev.custom.domain.NoticeAssocDO;
 import com.ev.custom.domain.NoticeDO;
+import com.ev.custom.service.NoticeAssocService;
 import com.ev.custom.service.NoticeService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.utils.R;
@@ -25,17 +27,22 @@ public class NoticeApiController {
     @Autowired
     NoticeService noticeService;
 
+    @Autowired
+    NoticeAssocService noticeAssocService;
+
     @EvApiByToken(value = "/apis/notice/list", method = RequestMethod.GET, apiTitle = "获取消息列表")
     @ApiOperation("获取消息列表")
     public R list(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
                   @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
                   @ApiParam(value = "标题") @RequestParam(value = "title", defaultValue = "", required = false) String title,
                   @ApiParam(value = "类型") @RequestParam(value = "type", defaultValue = "", required = false) Integer type,
-                  @ApiParam(value = "接收人") @RequestParam(value = "toUserId", defaultValue = "", required = false) Long toUserId) {
+                  @ApiParam(value = "接收人") @RequestParam(value = "toUserId", defaultValue = "", required = false) Long toUserId,
+                  @ApiParam(value = "状态(0:未读;1:已读") @RequestParam(value = "signStatus", defaultValue = "", required = false) String signStatus) {
         Map<String, Object> params = Maps.newHashMapWithExpectedSize(4);
         params.put("title", title);
         params.put("type", type);
         params.put("toUserId", toUserId);
+        params.put("signStatus", signStatus);
         params.put("offset", (pageno - 1) * pagesize);
         params.put("limit", pagesize);
         Map<String, Object> results = Maps.newHashMap();
@@ -80,10 +87,10 @@ public class NoticeApiController {
     @Transactional(rollbackFor = Exception.class)
     public R audit(@ApiParam(value = "消息id数组", required = true)  @RequestParam(value = "ids", defaultValue = "", required = false) Long[] ids) {
         for(int i=0; i< ids.length;i++){
-            NoticeDO noticeDO = noticeService.get(ids[i]);
-            if(noticeDO.getSignStatus()==null || noticeDO.getSignStatus()==0){
-                noticeDO.setSignStatus(1);
-                noticeService.update(noticeDO);
+            NoticeAssocDO noticeAssocDO = noticeAssocService.get(ids[i]);
+            if(noticeAssocDO.getSignStatus()==null || noticeAssocDO.getSignStatus()==0){
+                noticeAssocDO.setSignStatus(1);
+                noticeAssocService.update(noticeAssocDO);
             }
         }
         return R.ok();

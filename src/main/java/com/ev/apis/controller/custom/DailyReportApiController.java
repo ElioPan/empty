@@ -217,10 +217,9 @@ public class DailyReportApiController {
         JSONObject contentDetail = new JSONObject();
         contentDetail.put("id",dailyReportId);
         contentDetail.put("url","/daily/dailyDetail?id="+dailyReportId);
-
         List<Long> toUsers = new ArrayList<>();
         toUsers.add(dailyReportService.get(dailyReportId).getCreateBy());
-        noticeService.saveAndSendSocket("日志回复信息",comment,contentDetail.toString(),282L,ShiroUtils.getUserId(),toUsers);
+        noticeService.saveAndSendSocket("日志回复信息",comment,dailyReportId,contentDetail.toString(),1L,ShiroUtils.getUserId(),toUsers);
         return R.ok();
     }
 

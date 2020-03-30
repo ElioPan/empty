@@ -9,41 +9,29 @@ import lombok.Data;
 
 
 /**
- * 通知单
+ * 
  * 
  * @author ZhangDong
  * @email 911435330@qq.com
- * @date 2020-03-27 14:40:59
+ * @date 2020-03-27 15:28:16
  */
 @Data
-@ApiModel(value = "通知单")
-public class NoticeDO implements Serializable {
+@ApiModel(value = "")
+public class NoticeTypeDO implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	//主键
     @ApiModelProperty(value = "主键")
 	private Long id;
-	//计划主键
-    @ApiModelProperty(value = "计划主键")
-	private Long type;
-	//计划类型
-    @ApiModelProperty(value = "计划类型")
-	private String title;
-	//开始时间
-    @ApiModelProperty(value = "开始时间")
-	private String content;
-	//消息详情
-    @ApiModelProperty(value = "消息详情")
-	private String contentDetail;
-	//单据主键
-	@ApiModelProperty(value = "单据主键")
-	private Long billId;
-	//发送人
-    @ApiModelProperty(value = "发送人")
-	private Long fromUserId;
-	//过期时间
-    @ApiModelProperty(value = "过期时间")
-	private Date expireDate;
+	//标识
+    @ApiModelProperty(value = "标识")
+	private String code;
+	//名称
+    @ApiModelProperty(value = "名称")
+	private String name;
+	//路由
+    @ApiModelProperty(value = "路由")
+	private String route;
 	//创建人
     @ApiModelProperty(value = "创建人")
 	private Long createBy;

@@ -1,7 +1,8 @@
 package com.ev.custom.rabbit.listener;
 
-import com.ev.custom.domain.NoticeDO;
 import com.ev.custom.service.NoticeService;
+import com.ev.custom.service.WeChatService;
+import com.ev.custom.vo.NoticeEntity;
 import com.ev.framework.socket.CusWebSocket;
 import com.ev.framework.utils.InfluxDbUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,6 +17,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.*;
 
 @Component
@@ -27,6 +29,9 @@ public class MqListener {
 
     @Autowired
     private NoticeService noticeService;
+
+    @Autowired
+    private WeChatService weChatService;
 
     @RabbitListener(queues = "${data.device.queue.name}",containerFactory = "singleListenerContainer")
     public void consumeUserLogQueue(@Payload byte[] message){
@@ -58,10 +63,10 @@ public class MqListener {
         influxDB.batchInsert("sentinel_log", null, InfluxDB.ConsistencyLevel.ALL, records);
     }
 
-    @RabbitListener(queues = "gyhl.data.notice.queue",containerFactory = "singleListenerContainer")
+    @RabbitListener(queues = "gyhl.data.notice.queue2",containerFactory = "singleListenerContainer")
     public void consumeNoticeQueue(@Payload byte[] message){
         try {
-            NoticeDO notice=objectMapper.readValue(message, NoticeDO.class);
+            NoticeEntity notice=objectMapper.readValue(message, NoticeEntity.class);
             saveAndSendNotice(notice);
         }catch (Exception e){
             e.printStackTrace();
@@ -69,10 +74,12 @@ public class MqListener {
     }
 
     /**
-     * 保存数据到时序数据库
+     * 发送微信卡片消息并发送websocket消息
      */
-    private void saveAndSendNotice(NoticeDO notice) throws IOException {
-        noticeService.save(notice);
-        CusWebSocket.sendInfo(notice.toString(),notice.getToUserId().toString());
+    private void saveAndSendNotice(NoticeEntity notice) throws IOException, ParseException {
+        weChatService.sendTextCardMessage(notice.getNoticeDO(),notice.getToUserList());
+        for(Long toUserId: notice.getToUserList()){
+            CusWebSocket.sendInfo(notice.toString(),toUserId.toString());
+        }
     }
 }

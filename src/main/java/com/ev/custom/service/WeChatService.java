@@ -1,8 +1,6 @@
 package com.ev.custom.service;
 
 import com.ev.custom.domain.NoticeDO;
-import com.ev.custom.vo.WxTextMessageEntity;
-import com.ev.custom.vo.WxTextcardMessageEntity;
 import com.ev.system.domain.DeptDO;
 import com.ev.system.domain.UserDO;
 import net.sf.json.JSONObject;
@@ -11,7 +9,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 企业微信接口

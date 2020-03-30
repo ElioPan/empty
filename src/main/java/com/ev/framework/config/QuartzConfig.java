@@ -4,6 +4,7 @@ import com.ev.common.jobs.NoticeJob;
 import org.quartz.CronTrigger;
 import org.quartz.JobDataMap;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;

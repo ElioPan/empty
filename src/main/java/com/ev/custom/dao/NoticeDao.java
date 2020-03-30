@@ -9,9 +9,9 @@ import org.apache.ibatis.annotations.Mapper;
 
 /**
  * 通知单
- * @author ev-monitor
- * @email 286600136@qq.com
- * @date 2020-02-11 17:00:08
+ * @author ZhangDong
+ * @email 911435330@qq.com
+ * @date 2020-03-27 14:40:59
  */
 @Mapper
 public interface NoticeDao {
@@ -29,6 +29,8 @@ public interface NoticeDao {
 	int save(NoticeDO notice);
 	
 	int update(NoticeDO notice);
+
+	int updateAll(NoticeDO notice);
 	
 	int remove(Long id);
 	

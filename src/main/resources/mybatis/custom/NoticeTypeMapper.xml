@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.NoticeTypeDao">
+
+	<select id="get" resultType="com.ev.custom.domain.NoticeTypeDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM cus_notice_type 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.NoticeTypeDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM cus_notice_type
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+			<otherwise>
+                ORDER BY id DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+        SELECT COUNT(*) FROM cus_notice_type
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`code`,`name`,`route`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> AND id = #{id} </if>
+                            <if test="code != null and code != ''"> AND code = #{code} </if>
+                            <if test="name != null and name != ''"> AND name = #{name} </if>
+                            <if test="route != null and route != ''"> AND route = #{route} </if>
+                            <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.NoticeTypeDO">
+		INSERT INTO cus_notice_type
+		(
+			`id`, 
+			`code`, 
+			`name`, 
+			`route`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		VALUES
+		(
+			#{id}, 
+			#{code}, 
+			#{name}, 
+			#{route}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.NoticeTypeDO">
+		UPDATE cus_notice_type
+		<set>
+			<if test="code != null">`code` = #{code}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="route != null">`route` = #{route}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<update id="updateAll" parameterType="com.ev.custom.domain.NoticeTypeDO">
+		UPDATE cus_notice_type SET
+			`code` = #{code}, 
+			`name` = #{name}, 
+			`route` = #{route}, 
+			`create_by` = #{createBy}, 
+			`create_time` = #{createTime}, 
+			`update_by` = #{updateBy}, 
+			`update_time` = #{updateTime}, 
+			`del_flag` = #{delFlag}
+		WHERE id = #{id}
+	</update>
+
+	
+	<delete id="remove">
+		DELETE FROM cus_notice_type WHERE id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+        DELETE FROM cus_notice_type WHERE id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+</mapper>

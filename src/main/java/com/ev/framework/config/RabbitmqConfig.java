@@ -101,17 +101,17 @@ public class RabbitmqConfig {
 
     @Bean(name = "noticeQueue")
     public Queue noticeQueue(){
-        return new Queue("gyhl.data.notice.queue",true);
+        return new Queue("gyhl.data.notice.queue2",true);
     }
 
     @Bean
     public DirectExchange noticeDataExchange(){
-        return new DirectExchange("gyhl.data.notice.exchange",true, false);
+        return new DirectExchange("gyhl.data.notice.exchange2",true, false);
     }
 
     @Bean
     public Binding noticeDataBinding(){
-        return BindingBuilder.bind(noticeQueue()).to(noticeDataExchange()).with("gyhl.data.notice.routing.key");
+        return BindingBuilder.bind(noticeQueue()).to(noticeDataExchange()).with("gyhl.data.notice.routing.key2");
     }
 
 

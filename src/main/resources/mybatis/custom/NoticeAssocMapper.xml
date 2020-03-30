@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.custom.dao.NoticeAssocDao">
+
+	<select id="get" resultType="com.ev.custom.domain.NoticeAssocDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM cus_notice_assoc 
+		WHERE notice_id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.custom.domain.NoticeAssocDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM cus_notice_assoc
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+			<otherwise>
+                ORDER BY notice_id DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+        SELECT COUNT(*) FROM cus_notice_assoc
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`notice_id`,`user_id`,`user_name`,`assoc_type`,`sign_status`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="noticeId != null and noticeId != ''"> AND notice_id = #{noticeId} </if>
+                            <if test="userId != null and userId != ''"> AND user_id = #{userId} </if>
+                            <if test="userName != null and userName != ''"> AND user_name = #{userName} </if>
+                            <if test="assocType != null and assocType != ''"> AND assoc_type = #{assocType} </if>
+                            <if test="signStatus != null and signStatus != ''"> AND sign_status = #{signStatus} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.custom.domain.NoticeAssocDO">
+		INSERT INTO cus_notice_assoc
+		(
+			`notice_id`, 
+			`user_id`, 
+			`user_name`, 
+			`assoc_type`, 
+			`sign_status`
+		)
+		VALUES
+		(
+			#{noticeId}, 
+			#{userId}, 
+			#{userName}, 
+			#{assocType}, 
+			#{signStatus}
+		)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO cus_notice_assoc
+		(
+		`notice_id`,
+		`user_id`,
+		`user_name`,
+		`assoc_type`,
+		`sign_status`
+		)
+		VALUES
+		<foreach collection="list" item="obj" separator=",">
+		(
+		#{obj.noticeId},
+		#{obj.userId},
+		#{obj.userName},
+		#{obj.assocType},
+		#{obj.signStatus}
+		)
+		</foreach>
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.custom.domain.NoticeAssocDO">
+		UPDATE cus_notice_assoc
+		<set>
+			<if test="userId != null">`user_id` = #{userId}, </if>
+			<if test="userName != null">`user_name` = #{userName}, </if>
+			<if test="assocType != null">`assoc_type` = #{assocType}, </if>
+			<if test="signStatus != null">`sign_status` = #{signStatus}</if>
+		</set>
+		WHERE notice_id = #{noticeId}
+	</update>
+
+	<update id="updateAll" parameterType="com.ev.custom.domain.NoticeAssocDO">
+		UPDATE cus_notice_assoc SET
+			`user_id` = #{userId}, 
+			`user_name` = #{userName}, 
+			`assoc_type` = #{assocType}, 
+			`sign_status` = #{signStatus}
+		WHERE notice_id = #{noticeId}
+	</update>
+
+	
+	<delete id="remove">
+		DELETE FROM cus_notice_assoc WHERE notice_id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+        DELETE FROM cus_notice_assoc WHERE notice_id IN
+		<foreach item="noticeId" collection="array" open="(" separator="," close=")">
+			#{noticeId}
+		</foreach>
+	</delete>
+	
+</mapper>

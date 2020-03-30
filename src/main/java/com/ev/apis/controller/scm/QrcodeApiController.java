@@ -1,6 +1,5 @@
 package com.ev.apis.controller.scm;
 
-import com.alibaba.druid.util.StringUtils;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
@@ -12,10 +11,10 @@ import com.ev.scm.domain.PurchasecontractItemDO;
 import com.ev.scm.domain.QrcodeDO;
 import com.ev.scm.domain.QrcodeItemDO;
 import com.ev.scm.service.PurchasecontractItemService;
-import com.ev.scm.service.PurchasecontractService;
 import com.ev.scm.service.QrcodeItemService;
 import com.ev.scm.service.QrcodeService;
 import com.google.common.collect.Maps;
+import com.sun.xml.internal.rngom.digested.DAnnotation;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -219,6 +218,11 @@ public class QrcodeApiController {
         return R.ok(result);
     }
 
+    /**
+     *
+     * @param qrCodeId
+     * @return
+     */
     @EvApiByToken(value = "/apis/scm/qrcode/logDetail",method = RequestMethod.GET,apiTitle = "物料条码追溯查询")
     @ApiOperation("物料条码追溯查询")
     public R logDetail(@ApiParam(value = "二维码主键") @RequestParam(value = "qrCodeId") Long qrCodeId){
@@ -241,4 +245,7 @@ public class QrcodeApiController {
         result.put("body",qrcodeItemService.logDetail(qrCodeId));
         return R.ok(result);
     }
+
+    public static void main(String[] args){
+            }
 }

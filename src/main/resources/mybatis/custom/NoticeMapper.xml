@@ -33,29 +33,57 @@
 		<include refid="sql_condition"/>
 	</select>
 
+    <sql id="sql_column_list">
+		`id`,`type`,`title`,`content`,`content_detail`,`bill_id`,`from_user_id`,`expire_date`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+			<if test="id != null and id != ''"> AND id = #{id} </if>
+			<if test="type != null and type != ''"> AND type = #{type} </if>
+			<if test="title != null and title != ''"> AND title = #{title} </if>
+			<if test="content != null and content != ''"> AND content = #{content} </if>
+			<if test="contentDetail != null and contentDetail != ''"> AND content_detail = #{contentDetail} </if>
+			<if test="billId != null and billId != ''"> AND bill_id = #{billId} </if>
+			<if test="fromUserId != null and fromUserId != ''"> AND from_user_id = #{fromUserId} </if>
+			<if test="expireDate != null and expireDate != ''"> AND expire_date = #{expireDate} </if>
+			<if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+		</where>
+    </sql>
+
 	<select id="listForMap" resultType="map">
 		SELECT
 		notice.id AS id,
-		notice.type as typeId,
-		notice.title as title,
-		notice.content as content,
-		notice.content_detail as contentDetail,
-		notice.sign_status as signStatus,
-		dic.`name` as typeName,
-		fromuser.`name` as fromUserName,
-		touser.`name` as toUserName
+		notice.type AS typeId,
+		type.`code` as typeCode,
+		type.`name` as typeName,
+		notice.title AS title,
+		notice.content AS content,
+		notice.content_detail AS contentDetail,
+		notice.bill_id AS billId,
+		fromuser.user_id AS fromUserId,
+		fromuser.`name` AS fromUserName,
+		assoc.user_id as toUserId,
+		touser.username as toUserName,
+		assoc.sign_status as signStatus,
+		assoc.assoc_type as assocType
 		FROM
 		cus_notice notice
-		LEFT JOIN cus_dictionary dic ON dic.id = notice.type
+		LEFT JOIN cus_notice_type type on type.id = notice.type
 		LEFT JOIN sys_user fromuser ON fromuser.user_id = notice.from_user_id
-		LEFT JOIN sys_user touser ON touser.user_id = notice.to_user_id
+		LEFT JOIN cus_notice_assoc assoc on notice.id = assoc.notice_id
+		LEFT JOIN sys_user touser on touser.user_id = assoc.user_id
 		<include refid="condition_for_map"/>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
 				ORDER BY ${sort} ${order}
 			</when>
 			<otherwise>
-				ORDER BY notice.id DESC
+				ORDER BY id DESC
 			</otherwise>
 		</choose>
 		<if test="offset != null and limit != null">
@@ -64,46 +92,24 @@
 	</select>
 
 	<select id="countForMap" resultType="int">
-        select count(*)
+		select count(notice.id)
 		FROM
 		cus_notice notice
-		LEFT JOIN cus_dictionary dic ON dic.id = notice.type
+		LEFT JOIN cus_notice_type type on type.id = notice.type
 		LEFT JOIN sys_user fromuser ON fromuser.user_id = notice.from_user_id
-		LEFT JOIN sys_user touser ON touser.user_id = notice.to_user_id
+		LEFT JOIN cus_notice_assoc assoc on notice.id = assoc.notice_id
+		LEFT JOIN sys_user touser on touser.user_id = assoc.user_id
 		<include refid="condition_for_map"/>
 	</select>
-
-    <sql id="sql_column_list">
-		`id`,`type`,`title`,`content`,`content_detail`,`from_user_id`,`to_user_id`,`expire_date`,`sign_status`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
-	</sql>
-
-    <sql id="sql_condition">
-        <where>
-                            <if test="id != null and id != ''"> AND id = #{id} </if>
-                            <if test="type != null and type != ''"> AND type = #{type} </if>
-                            <if test="title != null and title != ''"> AND title = #{title} </if>
-                            <if test="content != null and content != ''"> AND content = #{content} </if>
-                            <if test="contentDetail != null and contentDetail != ''"> AND content_detail = #{contentDetail} </if>
-                            <if test="fromUserId != null and fromUserId != ''"> AND from_user_id = #{fromUserId} </if>
-                            <if test="toUserId != null and toUserId != ''"> AND to_user_id = #{toUserId} </if>
-                            <if test="expireDate != null and expireDate != ''"> AND expire_date = #{expireDate} </if>
-                            <if test="signStatus != null and signStatus != ''"> AND sign_status = #{signStatus} </if>
-                            <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
-                            <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
-                            <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
-                            <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
-                            <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
-                    </where>
-    </sql>
 
 	<sql id="condition_for_map">
 		<where>
 			<if test="id != null and id != ''"> AND notice.id = #{id} </if>
 			<if test="type != null and type != ''"> AND notice.type = #{type} </if>
 			<if test="title != null and title != ''"> AND notice.title like CONCAT('%',#{title},'%') </if>
-			<if test="fromUserId != null and fromUserId != ''"> AND notice.from_user_id = #{fromUserId} </if>
-			<if test="toUserId != null and toUserId != ''"> AND notice.to_user_id = #{toUserId} </if>
-			<if test="signStatus != null and signStatus != ''"> AND notice.sign_status = #{signStatus} </if>
+			<if test="fromUserId != null and fromUserId != ''"> AND fromuser.from_user_id = #{fromUserId} </if>
+			<if test="toUserId != null and toUserId != ''"> AND assoc.user_id = #{toUserId} </if>
+			<if test="signStatus != null and signStatus != ''"> AND assoc.sign_status = #{signStatus} </if>
 		</where>
 	</sql>
 	 
@@ -113,11 +119,10 @@
 			`type`, 
 			`title`, 
 			`content`, 
-			`content_detail`, 
+			`content_detail`,
+			`bill_id`,
 			`from_user_id`, 
-			`to_user_id`, 
 			`expire_date`, 
-			`sign_status`, 
 			`create_by`, 
 			`create_time`, 
 			`update_by`, 
@@ -129,11 +134,10 @@
 			#{type}, 
 			#{title}, 
 			#{content}, 
-			#{contentDetail}, 
+			#{contentDetail},
+			#{billId},
 			#{fromUserId}, 
-			#{toUserId}, 
 			#{expireDate}, 
-			#{signStatus}, 
 			#{createBy}, 
 			#{createTime}, 
 			#{updateBy}, 
@@ -149,10 +153,9 @@
 			<if test="title != null">`title` = #{title}, </if>
 			<if test="content != null">`content` = #{content}, </if>
 			<if test="contentDetail != null">`content_detail` = #{contentDetail}, </if>
+			<if test="billId != null">`bill_id` = #{billId}, </if>
 			<if test="fromUserId != null">`from_user_id` = #{fromUserId}, </if>
-			<if test="toUserId != null">`to_user_id` = #{toUserId}, </if>
 			<if test="expireDate != null">`expire_date` = #{expireDate}, </if>
-			<if test="signStatus != null">`sign_status` = #{signStatus}, </if>
 			<if test="createBy != null">`create_by` = #{createBy}, </if>
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
@@ -161,6 +164,24 @@
 		</set>
 		WHERE id = #{id}
 	</update>
+
+	<update id="updateAll" parameterType="com.ev.custom.domain.NoticeDO">
+		UPDATE cus_notice SET
+			`type` = #{type}, 
+			`title` = #{title}, 
+			`content` = #{content}, 
+			`content_detail` = #{contentDetail},
+			`bill_id` = #{billId},
+			`from_user_id` = #{fromUserId}, 
+			`expire_date` = #{expireDate}, 
+			`create_by` = #{createBy}, 
+			`create_time` = #{createTime}, 
+			`update_by` = #{updateBy}, 
+			`update_time` = #{updateTime}, 
+			`del_flag` = #{delFlag}
+		WHERE id = #{id}
+	</update>
+
 	
 	<delete id="remove">
 		DELETE FROM cus_notice WHERE id = #{value}
