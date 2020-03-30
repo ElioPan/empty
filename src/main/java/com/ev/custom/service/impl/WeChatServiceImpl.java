@@ -401,7 +401,7 @@ public class WeChatServiceImpl implements WeChatService {
         JSONObject textcardObject = new JSONObject();
         textcardObject.put("title",noticeDO.getTitle());
         textcardObject.put("description",noticeDO.getContent());
-        textcardObject.put("url",appurl);
+        textcardObject.put("url",appurl+JSONObject.fromObject(noticeDO.getContentDetail()).get("url"));
         textcardObject.put("btntxt","查看详情");
         jsonObject.put("textcard",textcardObject);
         jsonObject.put("safe",0);
