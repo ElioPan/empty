@@ -1,11 +1,12 @@
 package com.ev.custom.domain;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.Date;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
 
 
 /**
@@ -56,6 +57,11 @@ public class RepairRecordDO implements Serializable {
 	//工时
     @ApiModelProperty(value = "工时")
 	private Double manHour;
+	@ApiModelProperty(value = "工时费")
+	private BigDecimal manHourCost;
+
+	@ApiModelProperty(value = "备件总费用")
+	private BigDecimal sparePartsCost;
 	//成本
     @ApiModelProperty(value = "成本")
 	private BigDecimal cost;

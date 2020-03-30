@@ -56,6 +56,8 @@ public class UpkeepRecordDO implements Serializable {
 	//成本
 	@ApiModelProperty(value = "成本")
 	private BigDecimal cost;
+	@ApiModelProperty(value = "保养费用")
+	private BigDecimal upkeepCost;
 	//使用状态
 	@ApiModelProperty(value = "使用状态")
 	private Integer status;

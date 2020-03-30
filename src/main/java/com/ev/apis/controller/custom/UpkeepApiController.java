@@ -350,8 +350,8 @@ public class UpkeepApiController {
     @ApiOperation("无计划保养工单——暂存/修改暂存")
     @Transactional(rollbackFor = Exception.class)
     public R recordOfNoPlan(UpkeepRecordDO upkeepRecordDO,
-                            @ApiParam(value = "保养单下所有保养项目，如[{\"projectId\":3,\"manhour\":5,\"manHourCost\":100,\"result\":1(1正常，0异常),\"remark\":\"备注\"},{\"projectId\":3,\"manhour\":5,\"manHourCost\":100,\"result\":1,\"remark\":\"备注\"}]", required = true) @RequestParam(value = "projectArray", defaultValue = "", required = true) String projectArray,
-                            @ApiParam(value = "所有备件明细，如[{\"partId\":3,\"spartAmount\":5,\"spartUnit\":\"个\",\"spartPrice\":20,\"spartSum\":1000,\"remark\":\"备注\"},{\"partId\":3,\"spartAmount\":5,\"spartUnit\":1,\"spartPrice\":20,\"spartSum\":1000,\"remark\":\"备注\"}]", required = true) @RequestParam(value = "partArray", defaultValue = "", required = true) String partArray) {
+                            @ApiParam(value = "保养单下所有保养项目，如[{\"projectId\":3,\"manhour\":5,\"upkeepCost\":522,\"manHourCost\":100,\"result\":1(1正常，0异常),\"remark\":\"备注\"}]", required = true) @RequestParam(value = "projectArray", defaultValue = "", required = true) String projectArray,
+                            @ApiParam(value = "所有备件明细，如[{\"partId\":3,\"spartAmount\":5,\"spartUnit\":\"个\",\"spartPrice\":20,\"spartSum\":1000,\"remark\":\"备注\"}]", required = true) @RequestParam(value = "partArray", defaultValue = "", required = true) String partArray) {
 
         if (Objects.isNull(upkeepRecordDO.getId())) {
             //新增暂存
@@ -384,7 +384,7 @@ public class UpkeepApiController {
     @ApiOperation("无计划保养工单——提交（新增直接提交；暂存态提交）")
     @Transactional(rollbackFor = Exception.class)
     public R sumitNoPlanOfRecord(UpkeepRecordDO upkeepRecordDO,
-                            @ApiParam(value = "保养单下所有保养项目，如[{\"projectId\":3,\"manhour\":5,\"manHourCost\":100,\"result\":1(1正常，0异常),\"remark\":\"备注\"},{\"projectId\":3,\"manhour\":5,\"manHourCost\":100,\"result\":1,\"remark\":\"备注\"}]", required = true) @RequestParam(value = "projectArray", defaultValue = "", required = true) String projectArray,
+                            @ApiParam(value = "保养单下所有保养项目，如[{\"projectId\":3,\"manhour\":5,\"upkeepCost\":522,\"manHourCost\":100,\"result\":1(1正常，0异常),\"remark\":\"备注\"},{\"projectId\":3,\"manhour\":5,\"manHourCost\":100,\"result\":1,\"remark\":\"备注\"}]", required = true) @RequestParam(value = "projectArray", defaultValue = "", required = true) String projectArray,
                             @ApiParam(value = "所有备件明细，如[{\"partId\":3,\"spartAmount\":5,\"spartUnit\":\"个\",\"spartPrice\":20,\"spartSum\":1000,\"remark\":\"备注\"},{\"partId\":3,\"spartAmount\":5,\"spartUnit\":1,\"spartPrice\":20,\"spartSum\":1000,\"remark\":\"备注\"}]", required = true) @RequestParam(value = "partArray", defaultValue = "", required = true) String partArray) {
 
         if (Objects.isNull(upkeepRecordDO.getId())) {
@@ -489,13 +489,14 @@ public class UpkeepApiController {
         String totalManHour = null;
         String totalCost = null;
         String totalManhourCost=null;
+        String totalUpkeepCost=null;
         if (countListRecords.size() > 0) {
             count+= Integer.parseInt(countListRecords.get("count").toString());
-            totalManHour = (countListRecords.get("totalManHour") == null || countListRecords.get("totalManHour") == "") ? "0.0" : countListRecords.get("totalManHour").toString();
-            totalCost = (countListRecords.get("totalCost") == null || countListRecords.get("totalCost") == "") ? "0.0" : countListRecords.get("totalCost").toString();
-            totalManhourCost=(countListRecords.get("totalManhourCost") == null || countListRecords.get("totalManhourCost") == "") ? "0.0" : countListRecords.get("totalManhourCost").toString();
+            totalManHour = countListRecords.getOrDefault("totalManHour","0").toString();
+            totalUpkeepCost = countListRecords.getOrDefault("totalUpkeepCost","0").toString();
+            totalCost = countListRecords.getOrDefault("totalCost","0").toString();
+            totalManhourCost=countListRecords.getOrDefault("totalManhourCost","0").toString();
         }
-
         //查询明细
         List<Map<String, Object>> recordLists = upkeepRecordService.newOfListRecords(query);
 
@@ -503,6 +504,7 @@ public class UpkeepApiController {
             total.put("totalManHour", totalManHour);
             total.put("totalCost", totalCost);
             total.put("totalManhourCost", totalManhourCost);
+            total.put("totalUpkeepCost", totalUpkeepCost);
             total.put("datas", recordLists);
             total.put("pageno", pageno);
             total.put("totalRows", count);
@@ -782,8 +784,6 @@ public class UpkeepApiController {
 
     /**
      *验证处于暂存态的允许删除，自动生成的工单不允许删除。
-     * @param recordIds
-     * @return
      */
     @EvApiByToken(value = "/apis/upkeepRecord/deletLargeRecord", method = RequestMethod.POST)
     @ApiOperation("批量删除保养工单")

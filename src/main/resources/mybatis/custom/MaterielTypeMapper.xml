@@ -4,19 +4,22 @@
 <mapper namespace="com.ev.custom.dao.MaterielTypeDao">
 
 	<select id="get" resultType="com.ev.custom.domain.MaterielTypeDO">
-		select `id`,`name`,`parent_id`,`is_system`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_materiel_type where id = #{value}
+		select `id`,`code`,`name`,`parent_id`,`is_system`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_materiel_type where id = #{value}
 	</select>
 
 	<select id="list" resultType="com.ev.custom.domain.MaterielTypeDO">
 		select 
 		`id`,
+		`code`,
 		`name`,
 		`parent_id`,
 		`is_system`
 		from cus_materiel_type
         <where>  
 		  		  <if test="id != null and id != ''"> and id = #{id} </if>
-		  		  <if test="name != null and name != ''"> and name LIKE CONCAT(#{name},'%')</if>
+			      <if test="nameSearch != null and nameSearch != ''"> and `name` LIKE #{nameSearch}</if>
+			      <if test="name != null and name != ''"> and `name` = #{name} </if>
+			      <if test="code != null and code != ''"> and `code` = #{code} </if>
 		  		  <if test="parentId != null and parentId != ''"> and parent_id = #{parentId} </if>
 		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
 		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
@@ -41,7 +44,9 @@
 		select count(*) from cus_materiel_type
 		 <where>  
 		  		  <if test="id != null and id != ''"> and id = #{id} </if>
-		  		  <if test="name != null and name != ''"> and name LIKE CONCAT(#{name},'%')</if>
+			      <if test="nameSearch != null and nameSearch != ''"> and `name` LIKE #{nameSearch}</if>
+			      <if test="name != null and name != ''"> and `name` = #{name} </if>
+			      <if test="code != null and code != ''"> and `code` = #{code} </if>
 		  		  <if test="parentId != null and parentId != ''"> and parent_id = #{parentId} </if>
 		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
 		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
@@ -54,7 +59,8 @@
 	<insert id="save" parameterType="com.ev.custom.domain.MaterielTypeDO" useGeneratedKeys="true" keyProperty="id">
 		insert into cus_materiel_type
 		(
-			`name`, 
+			`name`,
+			`code`,
 			`parent_id`,
 			`is_system`,
 			`create_by`, 
@@ -65,7 +71,8 @@
 		)
 		values
 		(
-			#{name}, 
+			#{name},
+			#{code},
 			#{parentId},
 			#{isSystem},
 			#{createBy}, 
@@ -80,6 +87,7 @@
 		update cus_materiel_type 
 		<set>
 			<if test="name != null">`name` = #{name}, </if>
+			<if test="code != null">`code` = #{code}, </if>
 			<if test="parentId != null">`parent_id` = #{parentId}, </if>
 			<if test="isSystem != null">`is_system` = #{isSystem}, </if>
 			<if test="createBy != null">`create_by` = #{createBy}, </if>
@@ -106,8 +114,12 @@
 		select count(*)
 		FROM
 		cus_materiel_type
-		<where>  
-		  	<if test="name != null and name != ''"> and name = #{name}</if>
+		<where>
+			<if test="id != null and id != ''"> AND `id` <![CDATA[<>]]> #{id} AND</if>
+			(
+			`name` = #{name}
+			OR `code` = #{code}
+			)
 		 </where>
 	</select>
 	
@@ -132,7 +144,9 @@
         from cus_materiel_type
         <where>
             <if test="id != null and id != ''"> and id = #{id} </if>
-            <if test="name != null and name != ''"> and name LIKE CONCAT(#{name},'%')</if>
+            <if test="nameSearch != null and nameSearch != ''"> and `name` LIKE #{nameSearch}</if>
+			<if test="name != null and name != ''"> and `name` = #{name} </if>
+			<if test="code != null and code != ''"> and `code` = #{code} </if>
             <if test="parentId != null and parentId != ''"> and parent_id = #{parentId} </if>
             <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
             <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>

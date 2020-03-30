@@ -176,7 +176,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                             stockInItemDO.setExpense(meanValue.multiply(stockInItemDO.getCount()));
                         }else{
                             stockInItemDO.setExpense(meanValue.multiply(stockInItemDO.getAmount()));
-                        }
+                    }
                         stockInItemDO.setId(stockInItemDO.getId());
                         listItemDo.add(stockInItemDO);
                     }

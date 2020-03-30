@@ -300,7 +300,7 @@ public class DateFormatUtil {
             return null;
         }
         //16位工单号的前缀
-        StringBuilder stringBuilder = new StringBuilder("");
+        StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < zeroNum; i++) {
             if (i == 10) {
                 break;
@@ -311,7 +311,7 @@ public class DateFormatUtil {
         if (suffix != null) {
             String[] split = suffix.split("\\D");
             if (split.length > 0) {
-                List<String> collect = Arrays.stream(split).filter(s -> StringUtils.isNoneEmpty(s)).collect(Collectors.toList());
+                List<String> collect = Arrays.stream(split).filter(StringUtils::isNoneEmpty).collect(Collectors.toList());
                 if (collect.size() == 1) {
                     String s = collect.get(0);
                     if (s.length() >= 10) {

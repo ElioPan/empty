@@ -328,6 +328,8 @@ public class RepairApiController {
     	Map<String, Object> totals = this.repairRecordService.countForMap(params);
     	int total = Integer.parseInt(totals.get("count").toString());
     	results.put("manHourTotal",totals.get("manHourTotal"));
+		results.put("manHourCostTotal",totals.getOrDefault("manHourCostTotal",0));
+		results.put("sparePartsCostTotal",totals.getOrDefault("sparePartsCostTotal",0));
     	results.put("costTotal",totals.get("costTotal"));
         results.put("offHourTotal",totals.get("offHourTotal"));
 		return getR(pageno, pagesize, results, data, total);
