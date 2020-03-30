@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 工序计划管理
@@ -129,8 +130,9 @@ public class WorkingProcedurePlanApiController {
 
 		int total = Integer.parseInt(count.getOrDefault("total",0).toString());
 		if (data.size() > 0) {
+			List<Map<String, Object>> datas= data.stream().sorted((v1,v2)->v1.get("serialNumber").toString().compareTo(v2.get("serialNumber").toString())).collect(Collectors.toList());
 			DsResultResponse dsRet = new DsResultResponse();
-			dsRet.setDatas(data);
+			dsRet.setDatas(datas);
 			dsRet.setPageno(pageno);
 			dsRet.setPagesize(pagesize);
 			dsRet.setTotalRows(total);

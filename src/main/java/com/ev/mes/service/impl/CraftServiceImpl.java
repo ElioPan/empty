@@ -274,16 +274,17 @@ public class CraftServiceImpl implements CraftService {
         if(!itemDetal.isEmpty()){
             for (int i = 0; i < itemDetal.size(); i++) {
                 Map<String, Object> listOfOne = itemDetal.get(i);
-                Map<String, Object> map = new HashMap<String, Object>();
+                Map<String, Object> map = new HashMap<>();
                 map.put("foreignId", listOfOne.get("itemId"));
                 map.put("type", ConstantForMES.CRAFT_GYLX);
                 List<Map<String, Object>> detailOfProcess = processCheckService.getDetailByProcessId(map);
                 listOfOne.put("proDetail",detailOfProcess);
             }
         }
+        List<Map<String, Object>> itemDetals= itemDetal.stream().sorted((v1,v2)->v1.get("serialNumber").toString().compareTo(v2.get("serialNumber").toString())).collect(Collectors.toList());
         results.clear();
         results.put("craftDetal",listForMap);
-        results.put("itemDetal",itemDetal);
+        results.put("itemDetal",itemDetals);
         return R.ok(results);
     }
 
