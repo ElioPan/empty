@@ -200,14 +200,13 @@
 		a.business_type as businessType,
 		c.name as businessTypeName,
 		e.account_number as transferAccName,
-		g.name as backName,
+		e.bank as backName,
 		a.transfer_amount as inTransferAmount
 		FROM
 		scm_bank_transfer_item a
 		LEFT JOIN scm_bank_transfer b on a.transfer_id=b.id
 		LEFT JOIN cus_dictionary c on a.business_type=c.id
 		LEFT JOIN scm_fund_initialization e on a.transfer_in_acc=e.id
-		LEFT JOIN cus_dictionary g on e.bank=g.id
 		<where>
 			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(b.transfer_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(b.transfer_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
@@ -237,14 +236,13 @@
 		a.business_type as businessType,
 		c.name as businessTypeName,
 		d.account_number as transferAccName,
-		f.name as  backName,
+		d.bank as  backName,
 		a.transfer_amount as outTransferAmount
 		FROM
 		scm_bank_transfer_item a
 		LEFT JOIN scm_bank_transfer b on a.transfer_id=b.id
 		LEFT JOIN cus_dictionary c on a.business_type=c.id
 		LEFT JOIN scm_fund_initialization d on a.transfer_out_acc=d.id
-		LEFT JOIN cus_dictionary f on d.bank=f.id
 		<where>
 			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(b.transfer_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(b.transfer_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>

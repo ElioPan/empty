@@ -44,10 +44,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Created by wangyupeng on 2019-9-24.
- */
-
 @Api(value = "/",tags = "客户管理")
 @RestController
 public class ClientApiController {
@@ -82,7 +78,7 @@ public class ClientApiController {
     @EvApiByToken(value = "/apis/clients/detalsOneClient", method = RequestMethod.POST, apiTitle = "客户详情")
     @ApiOperation("客户详情")
     public R clientDetals(@ApiParam(value = "主键id", required = false) @RequestParam(value = "Id", required = true) Long id) {
-        Map<String, Object> query = new HashMap<String, Object>();
+        Map<String, Object> query = new HashMap<>();
         query.put("id", id);
         List<Map<String, Object>> listDetals = clientService.checkClientsByparamete(query);
         if (listDetals.size() > 0) {
@@ -164,8 +160,6 @@ public class ClientApiController {
             }
         }
 
-        Map<String, Object> result = new HashMap<String, Object>();
-        Map<String, Object> query = new HashMap<String, Object>();
         ClientLinkmanDO clientLinkmanDO = new ClientLinkmanDO();
         clientDo.setStatus(ConstantForGYL.WAIT_AUDIT.intValue());
         clientDo.setName(clientDo.getName().trim());
@@ -179,7 +173,6 @@ public class ClientApiController {
         } else {
             return R.error();
         }
-
     }
 
 
@@ -220,6 +213,7 @@ public class ClientApiController {
             return R.error(messageSourceHandler.getMessage("common.massge.haveNoThing",null));
         }
     }
+
     @EvApiByToken(value = "/apis/clients/listServiceGroup", method = RequestMethod.POST, apiTitle = "列表查询")
     @ApiOperation("列表查询")
     public R listServices(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1", required = true) int pageno,
