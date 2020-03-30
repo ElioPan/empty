@@ -216,6 +216,18 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 		if (!Objects.equals(ConstantForMES.PLAN, workingProcedurePlanDO.getStatus())) {
             return R.error(messageSourceHandler.getMessage("plan.status.nonPlan.issuedPlan",null));
 		}
+		// 验证生产部门是否为空
+		Map<String,Object> param = Maps.newHashMap();
+		param.put("planId",id);
+		List<WorkingProcedureDetailDO> itemList = detailService.list(param);
+		long deptEmpty = itemList.stream()
+				.filter(e -> e.getDeptId() == null)
+				.count();
+		if (deptEmpty > 0) {
+			return R.error(messageSourceHandler.getMessage("plan.dept.isEmpty",null));
+		}
+		
+
 		// 查看是否需要自动派工的工序
 //		List<Map<String, Object>> plan = detailService.listByPlanId(id);
 //		if (plan.size() > 0) {

@@ -128,6 +128,8 @@ public class StockServiceImpl implements StockService {
 		ImportParams params = new ImportParams();
 		params.setTitleRows(0);
 		params.setHeadRows(1);
+		String[] importFields = {"物料编码"};
+		params.setImportFields(importFields);
 		List<StockEntity> stockEntityList;
 		try {
 			stockEntityList  =  ExcelImportUtil.importExcel(file.getInputStream(), StockEntity.class, params);
@@ -866,15 +868,17 @@ public class StockServiceImpl implements StockService {
 						, (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
 				continue;
 			}
-
-			// 本月未入库，存在上个月的库存
-			if (weightedAverageIdList.contains(Integer.parseInt(materielId))) {
-				materielInUnitPriceMap.put(materielId
-						, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(), Constant.BIGDECIMAL_ZERO));
-			}else {
-				materielInUnitPriceMap.put(materielIdAndBatch
-						, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(), Constant.BIGDECIMAL_ZERO));
+			if (analysisDO.getInitialCount().compareTo(BigDecimal.ZERO)!=0) {
+				// 本月未入库，存在上个月的库存
+				if (weightedAverageIdList.contains(Integer.parseInt(materielId))) {
+					materielInUnitPriceMap.put(materielId
+							, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(), Constant.BIGDECIMAL_ZERO));
+				}else {
+					materielInUnitPriceMap.put(materielIdAndBatch
+							, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(), Constant.BIGDECIMAL_ZERO));
+				}
 			}
+
 			analysisDO.setInAmount(BigDecimal.ZERO);
 			analysisDO.setInCount(BigDecimal.ZERO);
 		}
@@ -1068,6 +1072,12 @@ public class StockServiceImpl implements StockService {
 			args[1] = stockOutUnitPriceEmpty.toString();
 		}
 		if (args[0] != null || args[1] != null) {
+			if(args[1]==null){
+				args[1]="无";
+			}
+			if(args[0]==null){
+				args[0]="无";
+			}
 			return R.error(-1, messageSourceHandler.getMessage("scm.stockOut.unitPriceEmpty", args));
 		}
 		return R.ok();

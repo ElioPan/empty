@@ -251,6 +251,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 		mapCommutation.put("supplierId",parameter.get("supplierId"));
 		List<Map<String, Object>> detail = this.getDetail(mapCommutation);
 		mapCommutation.remove("supplierId");
+		Map<String,Object>  resulst= new HashMap<>();
 		if (detail.size() > 0) {
 			mapCommutation.put("date", DateFormatUtil.getDateByParttern(detail.get(0).get("createTime").toString(), "yyyy-MM-dd"));
 			mapCommutation.put("time", "2000-01-01 00:00:00");
@@ -258,7 +259,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 			mapCommutation.put("typeName", ConstantForGYL.REMANING_AMOUNT);
 			mapCommutation.put("remainingAmount", detail.get(0).get("initialAmount"));
 			allDate.add(mapCommutation);
-		}
+
         if(otherDate.size()>0){
             allDate.addAll(otherDate);
         }
@@ -272,7 +273,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 			allDate.addAll(paymentDate);
 		}
 
-        Map<String,Object>  resulst= new HashMap<>();
+
         //排序   依照时间排序
         if(allDate.size()>0){
 
@@ -311,6 +312,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
             dsRet.put("datas",quoteLists);
             resulst.put("data", dsRet);
         }
+		}
         return R.ok(resulst);
     }
 
@@ -371,7 +373,12 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 				maps.put("code",otherMap.get("code"));
 				maps.put("clientName",otherMap.containsKey("clientName")?otherMap.get("clientName"):null);
                 maps.put("supplierName",otherMap.containsKey("supplierName")?otherMap.get("supplierName"):null);
-				maps.put("typeName",dictionaryDO.getName());
+//				maps.put("typeName",dictionaryDO.getName());
+				if(parameter.containsKey("supplierId")){
+					maps.put("typeName",ConstantForGYL.OTHER_PAYABLE_NAME);
+				}else{
+					maps.put("typeName",ConstantForGYL.OTHER_RECIVEABLE_NAME);
+				}
 				maps.put("oughtAmount",otherMap.get("amount"));
 				otherDate.add(maps);
 			}
@@ -448,10 +455,11 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 
                 if(parameter.containsKey("supplierId")){
 					maps.put("supplierName",paymentMap.get("cusSupName"));
-                }else{
+					maps.put("typeName",ConstantForGYL.PAYMEN_PAIED_NAME);
+				}else{
 					maps.put("clientName",paymentMap.get("cusSupName"));
-                }
-				maps.put("typeName",paymentMap.get("prTypeName"));
+					maps.put("typeName",ConstantForGYL.PAYMEN_RECIVED_NAME);
+				}
 				maps.put("receivedAmount",idAmount.get(paymentMap.get("id")));
 				paymentDates.add(maps);
 			}

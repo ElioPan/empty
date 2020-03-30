@@ -304,10 +304,10 @@ public class SalescontractServiceImpl implements SalescontractService {
                             payVO.setReceivableAmountBefore(receivableAmountBefore.toPlainString());
                             if (receivableAmountAfter.compareTo(receivableAmountBefore) != 0) {
                                 payVO.setReceivableAmountAfter(receivableAmountAfter.toPlainString());
-                                // 差额
-                                BigDecimal difference = receivableAmountAfter.subtract(receivableAmountBefore);
-                                // 修改未付金额
-                                afterPayDO.setUnpayAmount(afterPayDO.getUnpayAmount().add(difference));
+//                                // 差额
+//                                BigDecimal difference = receivableAmountAfter.subtract(receivableAmountBefore);
+//                                // 修改未付金额
+//                                afterPayDO.setUnpayAmount(afterPayDO.getUnpayAmount().add(difference));
 
                                 if (!isUpdate){
                                     isUpdate = true;

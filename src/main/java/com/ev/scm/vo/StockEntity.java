@@ -3,7 +3,6 @@ package com.ev.scm.vo;
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import lombok.Data;
 
-import java.math.BigDecimal;
 
 /**
  * 期初库存导入

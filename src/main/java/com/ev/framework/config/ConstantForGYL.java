@@ -302,5 +302,21 @@ public final class ConstantForGYL {
 	 * 其他应付单
 	 */
 	public static final String OTHER_PAYABLE_NAME= "其他应付单";
+	/**
+	 * 其他应收单
+	 */
+	public static final String OTHER_RECIVEABLE_NAME= "其他应收单";
+
+	/**
+	 * 收款单
+	 */
+	public static final String PAYMEN_RECIVED_NAME = "收款单";
+
+	/**
+	 * 付款单
+	 */
+	public static final String PAYMEN_PAIED_NAME = "付款单";
+
+
 
 }

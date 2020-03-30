@@ -7,10 +7,7 @@ import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
-import com.ev.framework.utils.MathUtils;
-import com.ev.framework.utils.PageUtils;
-import com.ev.framework.utils.R;
-import com.ev.framework.utils.ShiroUtils;
+import com.ev.framework.utils.*;
 import com.ev.scm.domain.StockInDO;
 import com.ev.scm.service.PurchaseInvoiceItemService;
 import com.ev.scm.service.StockInItemService;
@@ -32,10 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -128,7 +122,8 @@ public class ScmPurchaseInStockController {
                                  @ApiParam(value = "制单人id") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
                                  @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
                                  @ApiParam(value = "制单起始日期") @RequestParam(value = "createStartTime", defaultValue = "", required = false) String  createStartTime,
-                                 @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime) {
+                                 @ApiParam(value = "制单结束日期") @RequestParam(value = "createEndTime", defaultValue = "", required = false) String  createEndTime,
+                                 @ApiParam(value = "核算时间") @RequestParam(value = "periodTime", defaultValue = "", required = false) String periodTime) {
         Map<String, Object> resulst = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
         params.put("offset", (pageno - 1) * pagesize);
@@ -147,7 +142,11 @@ public class ScmPurchaseInStockController {
         params.put("createEndTime", createEndTime);
         params.put("supplierId", supplierId);
         params.put("storageType", ConstantForGYL.PURCHASE_INSTOCK);
-
+        if(StringUtils.isNotEmpty(periodTime)){
+            Date periodTimes = DateFormatUtil.getDateByParttern(periodTime, "yyyy-MM-dd");
+            params.put("startPeriodTime", DatesUtil.getSupportBeginDayOfMonth(periodTimes));
+            params.put("endPeriodTime", DatesUtil.getSupportEndDayOfMonth(periodTimes));
+        }
 
         Map<String, Object> totalForMap = stockInService.countForMap(params);
         List<Map<String, Object>> detailList = stockInService.listForMap(params);

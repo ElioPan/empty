@@ -19,6 +19,7 @@ import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.*;
+import com.ev.scm.vo.StockEntity;
 import com.ev.system.domain.DeptDO;
 import com.ev.system.domain.UserDO;
 import com.ev.system.service.DeptService;
@@ -285,14 +286,21 @@ public class ClientApiController {
     @EvApiByToken(value = "/apis/importExcel/client", method = RequestMethod.POST, apiTitle = "客户信息导入")
     @ApiOperation("客户信息导入")
     @Transactional(rollbackFor = Exception.class)
-    public R readSupplier(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file) throws Exception {
+    public R readSupplier(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
             return R.error(messageSourceHandler.getMessage("file.nonSelect", null));
         }
         ImportParams params = new ImportParams();
         params.setTitleRows(0);
         params.setHeadRows(1);
-        List<ClientEntity> clientEntityList = ExcelImportUtil.importExcel(file.getInputStream(), ClientEntity.class, params);
+        String[] importFields = {"客户编码"};
+        params.setImportFields(importFields);
+        List<ClientEntity> clientEntityList;
+        try {
+            clientEntityList  =  ExcelImportUtil.importExcel(file.getInputStream(), ClientEntity.class, params);
+        }catch(Exception e) {
+            return R.error(messageSourceHandler.getMessage("file.upload.error", null));
+        }
         if (clientEntityList.size() > 0) {
             List<String> codeNoneEmptyList = clientEntityList.stream()
                     .filter(clientEntity -> StringUtils.isNoneEmpty(clientEntity.getCode()))

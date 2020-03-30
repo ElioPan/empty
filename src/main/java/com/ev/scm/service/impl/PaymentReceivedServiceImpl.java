@@ -175,6 +175,12 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 	public R audit(Long id,String sign) {
 
 		PaymentReceivedDO paymentReceivedDO = this.get(id);
+
+		if(Objects.nonNull(paymentReceivedDO)){
+			if(!Objects.equals(paymentReceivedDO.getAuditSign(),ConstantForGYL.WAIT_AUDIT)){
+				return R.error(messageSourceHandler.getMessage("common.massge.okAudit",null));
+			}
+		}
 			Map<String,Object>  map= new HashMap<>();
 			map.put("paymentReceivedId",id);
 			map.put("sign",sign);

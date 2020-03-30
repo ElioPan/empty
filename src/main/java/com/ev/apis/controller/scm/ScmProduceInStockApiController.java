@@ -5,8 +5,7 @@ import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
-import com.ev.framework.utils.R;
-import com.ev.framework.utils.ShiroUtils;
+import com.ev.framework.utils.*;
 import com.ev.scm.domain.StockInDO;
 import com.ev.scm.service.StockInItemService;
 import com.ev.scm.service.StockInService;
@@ -25,10 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @Author Kuzi
@@ -111,16 +107,14 @@ public class ScmProduceInStockApiController {
                                  @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
                                  @ApiParam(value = "入库操作员id") @RequestParam(value = "operator", defaultValue = "", required = false) Long operator,
                                  @ApiParam(value = "入库操作员名字") @RequestParam(value = "operatorName", defaultValue = "", required = false) String operatorName,
-
+                                 @ApiParam(value = "核算时间") @RequestParam(value = "periodTime", defaultValue = "", required = false) String periodTime,
                                  @ApiParam(value = "制单人id") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
                                  @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
                                  @ApiParam(value = "制单时间") @RequestParam(value = "createTime", defaultValue = "", required = false) String  createTime  ) {
         Map<String, Object> resulst = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
-
         params.put("offset", (pageno - 1) * pagesize);
         params.put("limit", pagesize);
-
         params.put("inheadCode", inheadCode);
         params.put("materielName",materielName );
         params.put("startTime", startTime);
@@ -135,6 +129,11 @@ public class ScmProduceInStockApiController {
         params.put("createByName", createByName);
         params.put("createTime", createTime);
         params.put("storageType", ConstantForGYL.YDGOODS_WAREHOUSE);
+        if(StringUtils.isNotEmpty(periodTime)){
+            Date periodTimes = DateFormatUtil.getDateByParttern(periodTime, "yyyy-MM-dd");
+            params.put("startPeriodTime", DatesUtil.getSupportBeginDayOfMonth(periodTimes));
+            params.put("endPeriodTime", DatesUtil.getSupportEndDayOfMonth(periodTimes));
+        }
 
         Map<String, Object> totalForMap = stockInService.countForMap(params);
         List<Map<String, Object>> detailList = stockInService.listForMap(params);

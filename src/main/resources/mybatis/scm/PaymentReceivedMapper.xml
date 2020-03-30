@@ -230,7 +230,7 @@
 		a.audit_sign as auditSign,
 		h.name as auditSignName,
 		b.account_number as accountNumber,
-		j.name as accountNumberName,
+		j.account_number as accountNumberName,
 		b.settlement_type as settlementType,
 		k.name as settlementTypeName,
 		b.this_amount as thisAmount,
@@ -249,7 +249,7 @@
 		LEFT JOIN sys_user g on a.payee=g.user_id
 		LEFT JOIN sys_user f on a.payer=f.user_id
 		LEFT JOIN cus_dictionary h on a.audit_sign=h.id
-		LEFT JOIN cus_dictionary j on b.account_number=j.id
+		LEFT JOIN scm_fund_initialization j on b.account_number=j.id
 		LEFT JOIN cus_dictionary k on b.settlement_type=k.id
 		LEFT JOIN cus_dictionary m on b.source_type=m.id
 		)aa
@@ -301,7 +301,7 @@
 		a.audit_sign as auditSign,
 		h.name as auditSignName,
 		b.account_number as accountNumber,
-		j.name as accountNumberName,
+		j.account_number as accountNumberName,
 		b.settlement_type as settlementType,
 		k.name as settlementTypeName,
 		b.this_amount as thisAmount,
@@ -320,7 +320,7 @@
 		LEFT JOIN sys_user g on a.payee=g.user_id
 		LEFT JOIN sys_user f on a.payer=f.user_id
 		LEFT JOIN cus_dictionary h on a.audit_sign=h.id
-		LEFT JOIN cus_dictionary j on b.account_number=j.id
+		LEFT JOIN scm_fund_initialization j on b.account_number=j.id
 		LEFT JOIN cus_dictionary k on b.settlement_type=k.id
 		LEFT JOIN cus_dictionary m on b.source_type=m.id
 		)aa
