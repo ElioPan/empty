@@ -19,8 +19,6 @@ public interface OutsourcedManagementAccountingReportDao {
 
     List<Map<String, Object>> debtDueList(Map<String, Object> params);
 
-    List<Map<String, Object>> summaryList(Map<String, Object> params);
-
     List<Map<String, Object>> balanceList(Map<String, Object> params);
 
     List<Map<String, Object>> inOutReconciliationList(Map<String, Object> params);

@@ -90,46 +90,6 @@
         ORDER BY pay.payable_date
     </select>
 
-    <select id="summaryList" resultType="java.util.Map">
-        SELECT
-        item.`id`,
-        outsourcing.`id` AS outsourcingContractId,
-        outsourcing.`contract_code` AS `contractCode`,
-        outsourcing.contract_date AS contractDate,
-        IFNULL(supplier.`id`,'') AS `supplierId`,
-        supplier.`name` AS supplierName,
-        IFNULL(outsourcingUser.`user_id`,'') AS `userId`,
-        outsourcingUser.`name` AS userName,
-        IFNULL(outsourcingUserDept.dept_id,'') AS `deptId`,
-        outsourcingUserDept.name AS deptName,
-        materiel.serial_no AS materielSerialNo,
-        materiel.name AS materielName,
-        materiel.specification AS specification,
-        unitUom.name AS unitUomName,
-        SUM(item.`count`) AS `count`,
-        SUM(item.`tax_amount`) AS taxAmount
-        FROM
-        scm_outsourcingcontract_item item
-        LEFT JOIN scm_outsourcingcontract outsourcing ON outsourcing.id = item.outsourcingcontract_id
-        LEFT JOIN cus_supplier supplier ON supplier.id = outsourcing.supplier_id
-        LEFT JOIN sys_user outsourcingUser ON outsourcingUser.user_id = outsourcing.outsourcing_person
-        LEFT JOIN sys_dept outsourcingUserDept ON outsourcingUserDept.dept_id = outsourcing.outsourcing_person_dept
-        LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
-        LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
-        <where>
-            <if test="id != null and id != ''"> and item.id = #{id} </if>
-            <if test="supplierId != null and supplierId != ''"> and supplier.`id` = #{supplierId} </if>
-            <if test="supplierName != null and supplierName != ''"> and supplier.`name` LIKE #{supplierName} </if>
-            <if test="deptId != null and deptId != ''"> and outsourcing.outsourcing_person_dept = #{deptId} </if>
-            <if test="userId != null and userId != ''"> and outsourcing.outsourcing_person = #{userId} </if>
-            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(outsourcing.contract_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
-            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(outsourcing.contract_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
-            <if test="auditSign != null and auditSign != ''"> and outsourcing.audit_sign = #{auditSign} </if>
-        </where>
-        GROUP BY item.`materiel_id`
-        ORDER BY outsourcing.`id` DESC
-    </select>
-
     <select id="balanceList" resultType="java.util.Map">
         SELECT
         pay.`id`,

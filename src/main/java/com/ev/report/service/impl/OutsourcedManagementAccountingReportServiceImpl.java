@@ -20,11 +20,6 @@ public class OutsourcedManagementAccountingReportServiceImpl implements Outsourc
     }
 
     @Override
-    public List<Map<String, Object>> summaryList(Map<String, Object> params) {
-        return reportDao.summaryList(params);
-    }
-
-    @Override
     public List<Map<String, Object>> balanceList(Map<String, Object> params) {
         return reportDao.balanceList(params);
     }
