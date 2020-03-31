@@ -296,6 +296,9 @@
             </if>
             <if test="sourceType != null and sourceType != ''"> and item.source_type = #{sourceType} </if>
             <if test="planId != null and planId != ''"> and item.source_id = #{planId} </if>
+            <if test="materielId != null and materielId != ''"> and item.materiel_id = #{materielId} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(stock.in_out_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(stock.in_out_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
         </where>
     </select>
 
@@ -327,6 +330,9 @@
             </if>
             <if test="sourceType != null and sourceType != ''"> and item.source_type = #{sourceType} </if>
             <if test="planId != null and planId != ''"> and feeding.production_plan_id = #{planId} </if>
+            <if test="materielId != null and materielId != ''"> and item.materiel_id = #{materielId} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(stock.out_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(stock.out_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
         </where>
     </select>
 

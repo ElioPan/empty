@@ -343,7 +343,7 @@ public class RepairApiController {
     	if (repairEventService.nonTS(event.getStatus())) {
     		return R.error(messageSourceHandler.getMessage("common.submit.delete.disabled",null));
 		}
-    	if (ShiroUtils.isUser(event.getCreateBy())) {
+    	if (!ShiroUtils.isUser(event.getCreateBy())) {
     		return R.error(messageSourceHandler.getMessage("common.nonCreateUser.delete.disabled",null));
 		}
 		Long[] ids = { id };
@@ -364,7 +364,7 @@ public class RepairApiController {
     		if (repairEventService.nonTS(event.getStatus())) {
 				return R.error(messageSourceHandler.getMessage("common.submit.delete.disabled",null));
     		}
-    		if (ShiroUtils.isUser(event.getCreateBy())) {
+    		if (!ShiroUtils.isUser(event.getCreateBy())) {
 				return R.error(messageSourceHandler.getMessage("common.nonCreateUser.delete.disabled",null));
     		}
 		}
@@ -385,7 +385,7 @@ public class RepairApiController {
     	if (repairEventService.nonTS(record.getStatus())) {
 			return R.error(messageSourceHandler.getMessage("common.submit.delete.disabled",null));
 		}
-    	if (ShiroUtils.isUser(record.getCreateBy())) {
+    	if (!ShiroUtils.isUser(record.getCreateBy())) {
 			return R.error(messageSourceHandler.getMessage("common.nonCreateUser.delete.disabled",null));
 		}
     	if(repairRecordService.remove(id)>0){
@@ -404,7 +404,7 @@ public class RepairApiController {
     		if (repairEventService.nonTS(record.getStatus())) {
 				return R.error(messageSourceHandler.getMessage("common.submit.delete.disabled",null));
     		}
-    		if (ShiroUtils.isUser(record.getCreateBy())) {
+    		if (!ShiroUtils.isUser(record.getCreateBy())) {
 				return R.error(messageSourceHandler.getMessage("common.nonCreateUser.delete.disabled",null));
     		}
 		}
