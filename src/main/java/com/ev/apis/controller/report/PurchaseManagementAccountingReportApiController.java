@@ -392,18 +392,18 @@ public class PurchaseManagementAccountingReportApiController {
         // 获取采购合同列表
         List<PurchaseContractVO> priceAnalysisLists = reportService.priceAnalysisList(params);
         if (priceAnalysisLists.size() > 0) {
-            List<Long> supplierIds = priceAnalysisLists
+            List<String> supplierIds = priceAnalysisLists
                     .stream()
-                    .map(PurchaseContractVO::getSupplierId)
+                    .map(e->e.getMaterielId()+"&"+e.getSupplierId())
                     .distinct()
                     .collect(Collectors.toList());
             int total = supplierIds.size();
             // 将供应商分页
-            List<Long> supplierIdsPage = PageUtils.startPage(supplierIds, pageno, pagesize);
+            List<String> supplierIdsPage = PageUtils.startPage(supplierIds, pageno, pagesize);
             // 获取分页后的供应商
             List<PurchaseContractVO> priceAnalysisList = priceAnalysisLists
                     .stream()
-                    .filter(e -> supplierIdsPage.contains(e.getSupplierId()))
+                    .filter(e -> supplierIdsPage.contains(e.getMaterielId()+"&"+e.getSupplierId()))
                     .collect(Collectors.toList());
             // 统计供应商物料总数量
             Map<Long, Map<Long, Double>> countMap = priceAnalysisList
@@ -425,7 +425,7 @@ public class PurchaseManagementAccountingReportApiController {
                     .collect(
                             Collectors.groupingBy(PurchaseContractVO::getSupplierId
                                     , Collectors.groupingBy(PurchaseContractVO::getMaterielId
-                                            , Collectors.summarizingDouble(PurchaseContractVO::getCount))));
+                                            , Collectors.summarizingDouble(PurchaseContractVO::getTaxUnitPrice))));
             // 最新价格
             Map<Long, Map<Long, Optional<PurchaseContractVO>>> latestPriceMap = priceAnalysisList
                     .stream()
@@ -446,11 +446,12 @@ public class PurchaseManagementAccountingReportApiController {
                         Long materielId1 = purchaseContractVO.getMaterielId();
                         if(supplier.equals(supplierId1)){
                             if(materiel.equals(materielId1)){
+                                DoubleSummaryStatistics doubleSummaryStatistics = materielMapForPrice.get(materiel);
                                 purchaseContractVO.setCount(materielMapForCount.get(materiel));
                                 purchaseContractVO.setTaxAmount(materielMapForAmount.get(materiel));
-                                purchaseContractVO.setMaxUnitPrice(materielMapForPrice.get(materiel).getMax());
-                                purchaseContractVO.setMinUnitPrice(materielMapForPrice.get(materiel).getMin());
-                                purchaseContractVO.setAvgUnitPrice(materielMapForPrice.get(materiel).getAverage());
+                                purchaseContractVO.setMaxUnitPrice(doubleSummaryStatistics.getMax());
+                                purchaseContractVO.setMinUnitPrice(doubleSummaryStatistics.getMin());
+                                purchaseContractVO.setAvgUnitPrice(doubleSummaryStatistics.getAverage());
                                 purchaseContractVO.setLatestUnitPrice(materielMapForLatestPrice.get(materiel).orElse(new PurchaseContractVO()).getTaxUnitPrice());
                                 resultList.add(purchaseContractVO);
                                 break;
