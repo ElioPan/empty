@@ -233,10 +233,10 @@ public class ProcessReportServiceImpl implements ProcessReportService {
 	public R reworkRepair(Long id,int sign ) {
 
 		//关联查出工序计划的id，及此条报工单关联的明细计划下明细的id  +++ 报工单的返工数量
-		Map<String,Object>  msgForSynthesize= new HashMap<String,Object>();
-		Map<String,Object>  signs= new HashMap<String,Object>();
+		Map<String,Object>  msgForSynthesize= new HashMap<>();
+		Map<String,Object>  signs= new HashMap<>();
 		int reworkCount;
-		Map<String, Object> map = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<>();
 		if(sign==0){
 			map.put("reportId", id);
 			signs.put("type",ConstantForMES.REWORK_REPORT_YPE);
@@ -248,7 +248,11 @@ public class ProcessReportServiceImpl implements ProcessReportService {
 			}
 			msgForSynthesize = processReportDao.getMsgForSynthesize(map);
 			if(msgForSynthesize!=null){
-				reworkCount=Integer.parseInt(msgForSynthesize.get("reportReworkCount").toString());
+				if(Objects.equals("0",msgForSynthesize.get("reportReworkCount").toString())){
+					reworkCount=Integer.parseInt(msgForSynthesize.get("checkReworkCount").toString());
+				}else{
+					reworkCount=Integer.parseInt(msgForSynthesize.get("reportReworkCount").toString());
+				}
 			}else{
 				return R.error(messageSourceHandler.getMessage("common.massge.haveNoThing", null));
 			}
