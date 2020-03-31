@@ -233,4 +233,9 @@ public class MeasurePointServiceImpl implements MeasurePointService {
 		}
 		return count;
 	}
+
+	@Override
+	public List<Map<String, Object>> listForDevice(Map<String, Object> params) {
+		return measurePointDao.listForDevice(params);
+	}
 }

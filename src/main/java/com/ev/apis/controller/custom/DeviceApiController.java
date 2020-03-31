@@ -73,6 +73,8 @@ public class DeviceApiController {
     @Autowired
     private ContentAssocService contentAssocService;
     @Autowired
+    private MeasurePointService measurePointService;
+    @Autowired
     private MessageSourceHandler messageSourceHandler;
 
 
@@ -977,4 +979,28 @@ public class DeviceApiController {
         }
         return R.ok();
     }
+
+    /**
+     * 提供所有设备的信息（设备联网实时数据，历史数据）
+     */
+    @EvApiByToken(value = "/apis/device/listForData",method = RequestMethod.POST,apiTitle = "提供所有设备的信息（设备联网实时数据，历史数据")
+    @ApiOperation("提供所有设备的信息（设备联网实时数据，历史数据")
+    public R listForData(@ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
+                  @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize,
+                  @ApiParam(value = "设备类型id") @RequestParam(value = "type", required = false) Integer type,
+                  @ApiParam(value = "设备名称") @RequestParam(value = "name",defaultValue = "",required = false)  String name){
+        Map<String,Object> params = Maps.newHashMap();
+        params.put("type",type);
+        params.put("name",name);
+        List<Map<String, Object>> totalCount = measurePointService.listForDevice(params);
+        params.put("offset",(pageno-1)*pagesize);
+        params.put("limit",pagesize);
+        List<Map<String, Object>> data = measurePointService.listForDevice(params);
+        Map<String,Object> results = Maps.newHashMap();
+        if (data.size() > 0) {
+            results.put("data", new DsResultResponse(pageno,pagesize,totalCount.size(),data));
+        }
+        return R.ok(results);
+    }
+
 }
