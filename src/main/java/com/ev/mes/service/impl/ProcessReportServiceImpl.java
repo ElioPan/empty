@@ -295,6 +295,7 @@ public class ProcessReportServiceImpl implements ProcessReportService {
 				map.put("headInfo",headInfo);
 				map.put("bodyInfo",bodyInfo);
 				map.put("sourceInfo",signs);
+				map.put("planId",msgForSynthesize.get("planId"));
 				return R.ok(map);
 			} else {
 				return R.error(messageSourceHandler.getMessage("apis.mes.reportAndCheck.haveNoUpstream", null));
