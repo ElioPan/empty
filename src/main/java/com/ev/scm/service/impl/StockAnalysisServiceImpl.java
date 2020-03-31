@@ -73,6 +73,11 @@ public class StockAnalysisServiceImpl implements StockAnalysisService {
 	}
 
 	@Override
+	public Map<String, Object> countForTotal(Map<String, Object> params) {
+		return stockAnalysisDao.countForTotal(params);
+	}
+
+	@Override
 	public void batchRemoveById(Long id) {
 		stockAnalysisDao.batchRemoveById(id);
 	}
