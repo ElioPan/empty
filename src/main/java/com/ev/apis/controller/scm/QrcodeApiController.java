@@ -245,7 +245,4 @@ public class QrcodeApiController {
         result.put("body",qrcodeItemService.logDetail(qrCodeId));
         return R.ok(result);
     }
-
-    public static void main(String[] args){
-            }
 }
