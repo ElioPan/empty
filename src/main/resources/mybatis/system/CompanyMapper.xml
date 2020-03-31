@@ -22,6 +22,8 @@
 		company.`fax`,
 		company.`job`,
 		company.`qq`,
+		company.`code`,
+		company.`version`,
 		company.`url`,
 		company.`service_start_time`,
 		company.`service_code`,
@@ -42,7 +44,7 @@
 	</select>
 
 	<select id="list" resultType="com.ev.system.domain.CompanyDO">
-		select `id`,`name`,`province`,`city`,`district`,`address`,`telephone`,`linkman`,`mobile`,`email`,`zip_code`,`fax`,`job`,`qq`,`url`,`company_introduction`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from sys_company
+		select `id`,`name`,`province`,`city`,`district`,`address`,`telephone`,`linkman`,`mobile`,`email`,`zip_code`,`fax`,`job`,`qq`,`url`,`company_introduction`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`code`,`version` from sys_company
         <where>  
 		  		  <if test="id != null and id != ''"> and id = #{id} </if>
 		  		  <if test="name != null and name != ''"> and name = #{name} </if>
@@ -55,6 +57,8 @@
 		  		  <if test="fax != null and fax != ''"> and fax = #{fax} </if>
 		  		  <if test="job != null and job != ''"> and job = #{job} </if>
 		  		  <if test="qq != null and qq != ''"> and qq = #{qq} </if>
+			<if test="code != null and job != ''"> and `code` = #{code} </if>
+			<if test="version != null and version != ''"> and version = #{version} </if>
 		  		  <if test="url != null and url != ''"> and url = #{url} </if>
 		  		  <if test="companyIntroduction != null and companyIntroduction != ''"> and company_introduction = #{companyIntroduction} </if>
 		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
@@ -91,6 +95,8 @@
 		  		  <if test="job != null and job != ''"> and job = #{job} </if>
 		  		  <if test="qq != null and qq != ''"> and qq = #{qq} </if>
 		  		  <if test="url != null and url != ''"> and url = #{url} </if>
+			 <if test="code != null and job != ''"> and `code` = #{code} </if>
+			 <if test="version != null and version != ''"> and version = #{version} </if>
 		  		  <if test="companyIntroduction != null and companyIntroduction != ''"> and company_introduction = #{companyIntroduction} </if>
 		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
 		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
@@ -115,7 +121,9 @@
 			`job`, 
 			`qq`, 
 			`url`, 
-			`company_introduction`, 
+			`company_introduction`,
+			`code`,
+			`version`,
 			`service_code`,
 			`service_start_time`,
 			`service_end_time`, 
@@ -139,7 +147,9 @@
 			#{job}, 
 			#{qq}, 
 			#{url}, 
-			#{companyIntroduction}, 
+			#{companyIntroduction},
+			#{code},
+			#{version},
 			#{serviceCode},
 			#{serviceStartTime},
 			#{serviceEndTime},
@@ -165,6 +175,8 @@
 			<if test="job != null">`job` = #{job}, </if>
 			<if test="qq != null">`qq` = #{qq}, </if>
 			<if test="url != null">`url` = #{url}, </if>
+			<if test="code != null">`code` = #{code}, </if>
+			<if test="version != null">`version` = #{version}, </if>
 			<if test="serviceCode != null">`service_code` = #{serviceCode}, </if>
 			<if test="serviceStartTime != null">`service_start_time` = #{serviceStartTime}, </if>
 			<if test="serviceEndTime != null">`service_end_time` = #{serviceEndTime}, </if>
