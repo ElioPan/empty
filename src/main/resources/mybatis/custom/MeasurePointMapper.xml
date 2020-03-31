@@ -75,8 +75,8 @@
 		SELECT
 		device.`id`,
 		device.serialno,
-		device.type,
-		dic.name AS typeName,
+		device.type AS typeId,
+		dic.name AS `type`,
 		device.`name`
 		FROM
 		cus_measure_point point
