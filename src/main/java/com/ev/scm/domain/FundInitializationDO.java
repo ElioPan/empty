@@ -29,7 +29,7 @@ public class FundInitializationDO implements Serializable {
 	private Date period;
 	//开户行
     @ApiModelProperty(value = "开户行")
-	private Long bank;
+	private String bank;
 	//银行账号
     @ApiModelProperty(value = "银行账号")
 	private String accountNumber;

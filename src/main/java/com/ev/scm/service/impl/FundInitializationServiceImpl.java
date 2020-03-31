@@ -256,10 +256,7 @@ public class FundInitializationServiceImpl implements FundInitializationService 
             initiaData.put("remainingAmount", fundInitializationDO.getInitialAmount());
             initiaData.put("companyName", ConstantForGYL.company_ame);
             initiaData.put("transferAccName", fundInitializationDO.getAccountNumber());
-            DictionaryDO dictionaryDO = dictionaryService.get(fundInitializationDO.getBank().intValue());
-            if (dictionaryDO != null) {
-                initiaData.put("backName", dictionaryDO.getName());
-            }
+            initiaData.put("backName", fundInitializationDO.getBank());
             balanceDetails.add(initiaData);
 
             //收支
@@ -341,9 +338,6 @@ public class FundInitializationServiceImpl implements FundInitializationService 
         }
         return R.ok(resulst);
     }
-
-
-
 
     private   List<Map<String, Object>> disposeInAmount(List<Map<String, Object>> inDetails){
         List<Map<String, Object>> inMapDetails=new ArrayList<>();

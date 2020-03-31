@@ -30,7 +30,7 @@ import java.util.Map;
  * @Author Kuzi
  * @Date 2020-2-7 17:19
  **/
-@Api(value = "/",tags = "银行转账单")
+@Api(value = "/",tags = "银行转账单(资金存取)")
 @RestController
 public class ScmBankTransferApiController {
     @Autowired

@@ -281,7 +281,7 @@ public class CraftServiceImpl implements CraftService {
                 listOfOne.put("proDetail",detailOfProcess);
             }
         }
-        List<Map<String, Object>> itemDetals= itemDetal.stream().sorted((v1,v2)->v1.get("serialNumber").toString().compareTo(v2.get("serialNumber").toString())).collect(Collectors.toList());
+        List<Map<String, Object>> itemDetals= itemDetal.stream().sorted((v1,v2)->Integer.parseInt(v1.get("serialNumber").toString())>Integer.parseInt(v2.get("serialNumber").toString())?1:-1).collect(Collectors.toList());
         results.clear();
         results.put("craftDetal",listForMap);
         results.put("itemDetal",itemDetals);

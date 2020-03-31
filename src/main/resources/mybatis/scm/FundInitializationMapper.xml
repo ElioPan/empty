@@ -144,7 +144,7 @@
 		a.id,
 		a.period,
 		a.bank,
-		b.name as bankName,
+		a.bank as bankName,
 		a.account_number as accountNumber,
 		a.initial_amount AS  initialAmount,
 		a.using_start as usingStart,
@@ -153,7 +153,6 @@
 		       END as usingStartName
 		from
 		scm_fund_initialization a
-		LEFT JOIN cus_dictionary b on a.bank=b.id
 		<where>
 			<if test="id != null and id != ''"> AND a.id = #{id} </if>
 			<!--<if test="usingStart != null and usingStart !=''"> AND a.using_start = #{usingStart} </if>-->
@@ -181,7 +180,6 @@
 		IF(SUM(a.initial_amount)is null ,0,SUM(a.initial_amount)) AS  totailInitialAmount
 		from
 		scm_fund_initialization a
-		LEFT JOIN cus_dictionary b on a.bank=b.id
 		<where>
 			<if test="id != null and id != ''"> AND a.id = #{id} </if>
 			<!--<if test="usingStart != null and usingStart !=''"> AND a.using_start = #{usingStart} </if>-->
