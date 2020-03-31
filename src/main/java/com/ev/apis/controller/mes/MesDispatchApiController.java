@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -190,17 +192,24 @@ public class MesDispatchApiController {
         List<Map<String, Object>> list = dispatchItemService.listForMapOfDispatch(params);
         int count = dispatchItemService.countForMapOfDispatch(params);
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(2);
+        BigDecimal allPlanCount=BigDecimal.ZERO;
+        BigDecimal allCompletionCount=BigDecimal.ZERO;
         if (!list.isEmpty()) {
-            DsResultResponse dsRet = new DsResultResponse();
-            dsRet.setDatas(list);
-            dsRet.setPageno(pageno);
-            dsRet.setPagesize(pagesize);
-            dsRet.setTotalRows(count);
-            dsRet.setTotalPages((count + pagesize - 1) / pagesize);
+            for(Map<String, Object> map:list){
+                 allPlanCount=allPlanCount.add(new BigDecimal(map.getOrDefault("planCount","0").toString()));
+                 allCompletionCount=allCompletionCount.add(new BigDecimal(map.getOrDefault("completionCount","0").toString()));
+            }
+            Map<String,Object>  dsRet= new HashMap<>();
+            dsRet.put("datas",list);
+            dsRet.put("pageno",pageno);
+            dsRet.put("pagesize",pagesize);
+            dsRet.put("totalRows",count);
+            dsRet.put("totalPages",(count + pagesize - 1) / pagesize);
+            dsRet.put("allPlanCount",allPlanCount);
+            dsRet.put("allCompletionCount",allCompletionCount);
             results.put("data", dsRet);
         }
         return R.ok(results);
-
     }
 
 
@@ -315,14 +324,18 @@ public class MesDispatchApiController {
         List<Map<String, Object>> list = dispatchWorkingHungService.listForMap(params);
         int count = dispatchWorkingHungService.countForMap(params);
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(2);
-
+        BigDecimal totalManHour= BigDecimal.ZERO;
         if (!list.isEmpty()) {
-            DsResultResponse dsRet = new DsResultResponse();
-            dsRet.setDatas(list);
-            dsRet.setPageno(pageno);
-            dsRet.setPagesize(pagesize);
-            dsRet.setTotalRows(count);
-            dsRet.setTotalPages( (count + pagesize - 1) / pagesize);
+            for(Map<String, Object> map:list){
+                totalManHour=totalManHour.add(new BigDecimal(map.getOrDefault("manHour","0").toString()));
+            }
+            Map<String,Object>  dsRet= new HashMap<>();
+            dsRet.put("datas",list);
+            dsRet.put("pageno",pageno);
+            dsRet.put("pagesize",pagesize);
+            dsRet.put("totalRows",count);
+            dsRet.put("totalPages",(count + pagesize - 1) / pagesize);
+            dsRet.put("totalManHour",totalManHour);
             results.put("data", dsRet);
         }
         return R.ok(results);

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.report.dao.WarehouseAccountingReportDao">
+    <select id="inOutStockItem" resultType="com.ev.report.vo.InOutStockItemVO">
+        SELECT
+        *
+        FROM (
+        SELECT
+        stock.in_out_time AS `inOutTime`,
+        item.`batch`,
+        stock.inhead_code AS `code`,
+        dic.`name` AS storageTypeName,
+        item.`count`,
+        item.`unit_price` AS unitPrice,
+        0 AS sign,
+        item.`amount`
+        FROM
+        scm_stock_in_item item
+        LEFT JOIN scm_stock_in stock ON stock.id=item.inhead_id
+        LEFT JOIN cus_dictionary dic ON dic.id=stock.storage_type
+        <where>
+            <if test="materielId != null and materielId != ''"> and item.materiel_id = #{materielId} </if>
+            <if test="auditSign != null and auditSign != ''"> and stock.audit_sign = #{auditSign} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(stock.in_out_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(stock.in_out_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+        </where>
+        UNION ALL
+        SELECT
+        stock.out_time AS `inOutTime`,
+        item.`batch`,
+        stock.out_code AS `code`,
+        dic.`name` AS storageTypeName,
+        item.`count`,
+        item.`unit_price` AS unitPrice,
+        1 AS sign,
+        item.`amount`
+        FROM
+        scm_stock_out_item item
+        LEFT JOIN scm_stock_out stock ON stock.id=item.out_id
+        LEFT JOIN cus_dictionary dic ON dic.id=stock.outbound_type
+        <where>
+            <if test="materielId != null and materielId != ''"> and item.materiel_id = #{materielId} </if>
+            <if test="auditSign != null and auditSign != ''"> and stock.audit_sign = #{auditSign} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(stock.out_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(stock.out_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+        </where>
+        )a
+        ORDER BY inOutTime
+    </select>
+
+
+</mapper>

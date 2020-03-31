@@ -70,8 +70,40 @@
 		COUNT(*)
 		<include refid="sql_condition_formap"/>
 	</select>
-	
-	<insert id="save" parameterType="com.ev.custom.domain.MeasurePointDO" useGeneratedKeys="true" keyProperty="id">
+
+    <select id="listForDevice" resultType="java.util.Map">
+		SELECT
+		device.`id`,
+		device.serialno,
+		device.type AS typeId,
+		dic.name AS `type`,
+		device.`name`
+		FROM
+		cus_measure_point point
+		LEFT JOIN cus_device device ON device.id=point.device_id
+		LEFT JOIN cus_dictionary dic ON dic.id=device.type
+
+		<where>
+			<if test="id != null and id != ''"> and device.id = #{id} </if>
+			<if test="serialNo != null and serialNo != ''"> and device.serialno LIKE CONCAT('%',#{serialNo},'%')</if>
+			<if test="name != null and name != ''"> and device.name LIKE CONCAT('%',#{name},'%') </if>
+			<if test="deviceId != null and deviceId != ''"> and device.`id` = #{deviceId} </if>
+		</where>
+		GROUP BY device_id
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by device.id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+    <insert id="save" parameterType="com.ev.custom.domain.MeasurePointDO" useGeneratedKeys="true" keyProperty="id">
 		insert into cus_measure_point
 		(
 			`serial_no`, 

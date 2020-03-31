@@ -404,6 +404,19 @@
 		COUNT(*)
 		<include refid="sql_map_condition"/>
 	</select>
+	<select id="countForTotal" resultType="java.util.Map">
+		SELECT
+		COUNT(*) AS total,
+		SUM(analysis.`initial_count`) AS totalInitialCount,
+		SUM(analysis.`initial_amount`) AS totalInitialAmount,
+		SUM(analysis.`in_count`) AS totalInCount,
+		SUM(analysis.`in_amount`) AS totalInAmount,
+		SUM(analysis.`out_count`) AS totalOutCount,
+		SUM(analysis.`out_amount`) AS totalOutAmount,
+		SUM(analysis.`final_count`) AS totalFinalCount,
+		SUM(analysis.`final_amount`) AS totalFinalAmount
+		<include refid="sql_map_condition"/>
+	</select>
 
 	<sql id="sql_map_condition">
 		FROM scm_stock_analysis analysis
@@ -413,6 +426,7 @@
 			<if test="id != null and id != ''"> AND analysis.id = #{id} </if>
 			<if test="period != null and period != ''"> AND DATE_FORMAT(analysis.period,'%Y-%m-%d') = DATE_FORMAT(#{period},'%Y-%m-%d') </if>
 			<if test="materielId != null and materielId != ''"> AND analysis.materiel_id = #{materielId} </if>
+			<if test="materielType != null and materielType != ''"> AND materiel.type = #{materielType} </if>
 			<if test="materielName != null and materielName != ''"> AND materiel.`name` LIKE #{materielName} </if>
 			<if test="batch != null and batch != ''"> AND analysis.batch = #{batch} </if>
 			<if test="initialCount != null and initialCount != ''"> AND analysis.initial_count = #{initialCount} </if>

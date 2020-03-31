@@ -418,11 +418,16 @@ public class StockServiceImpl implements StockService {
 			Map<String, Object> param = Maps.newHashMap();
 			StockStartDO stockStartDO = list.get(0);
 			startStatus = stockStartDO.getStatus();
+			List<Map<String, Object>> data;
+			Map<String, Object> countForMap;
 			if (startStatus == 1) {
-				param.put("endTime", DateFormatUtil.getFormateDate(stockStartDO.getUpdateTime()));
+				data = stockDao.listForMapForCopy(param);
+				countForMap = stockDao.countForMapForCopy(param);
+			}else {
+				data = this.listForMap(param);
+				countForMap = this.countForMap(param);
 			}
-			List<Map<String, Object>> data = this.listForMap(param);
-			Map<String, Object> countForMap = this.countForMap(param);
+
 			results.put("data", data);
 			results.put("total", countForMap);
 		}
@@ -432,7 +437,7 @@ public class StockServiceImpl implements StockService {
 
 	@Override
 	public R endInitial() {
-		//TODO 保存一份初始化数据
+
 		Map<String, Object> emptyMap = Maps.newHashMap();
 		List<StockStartDO> list = stockStartService.list(emptyMap);
 		if (list.size() == 0) {
@@ -443,6 +448,9 @@ public class StockServiceImpl implements StockService {
 		}
 
 		List<StockDO> stockDOList = this.list(emptyMap);
+		// 保存一份初始化数据
+		this.batchSaveForCopy(stockDOList);
+
 		StockStartDO stockStartDO = list.get(0);
 		Calendar instance = Calendar.getInstance();
 		instance.setTime(stockStartDO.getStartTime());
@@ -570,6 +578,11 @@ public class StockServiceImpl implements StockService {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public int batchSaveForCopy(List<StockDO> stockDOList) {
+		return stockDao.batchSaveForCopy(stockDOList);
 	}
 
 	@Override

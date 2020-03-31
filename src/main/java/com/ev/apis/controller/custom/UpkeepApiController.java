@@ -439,9 +439,9 @@ public class UpkeepApiController {
                             @ApiParam(value = "需排序字段") @RequestParam(value = "sort",defaultValue = "",required = false)  String sort,
                             @ApiParam(value = "升（asc）降(desc)序") @RequestParam(value = "order",defaultValue = "",required = false)  String order) {
 
-        Map<String, Object> query = new HashMap<String, Object>();
+        Map<String, Object> query = new HashMap<>();
         Map<String, Object> results = Maps.newHashMap();
-        Map<String, Object> total = new HashMap<String, Object>();
+        Map<String, Object> total = new HashMap<>();
             Long manId=ShiroUtils.getUserId();
         //2.查询record工单列表
         String idPath = null;

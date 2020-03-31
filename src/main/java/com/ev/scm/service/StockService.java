@@ -66,4 +66,6 @@ public interface StockService {
     R endingClose(String period);
 
     Date getPeriodTime();
+
+    int batchSaveForCopy(List<StockDO> stockDOList);
 }

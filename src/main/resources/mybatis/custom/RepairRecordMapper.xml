@@ -25,8 +25,8 @@
 		  		  <if test="endTime != null and endTime != ''"> and end_time = #{endTime} </if>
 		  		  <if test="manHour != null and manHour != ''"> and man_hour = #{manHour} </if>
 			      <if test="manHourCost!= null and manHourCost != ''"> and man_hour_cost = #{manHourCost} </if>
-			<if test="sparePartsCost != null and sparePartsCost != ''"> and spare_parts_cost = #{sparePartsCost} </if>
-				<if test="cost != null and cost != ''"> and cost = #{cost} </if>
+				  <if test="sparePartsCost != null and sparePartsCost != ''"> and spare_parts_cost = #{sparePartsCost} </if>
+				  <if test="cost != null and cost != ''"> and cost = #{cost} </if>
 		  		  <if test="content != null and content != ''"> and content = #{content} </if>
 		  		  <if test="cause != null and cause != ''"> and cause = #{cause} </if>
 		  		  <if test="solution != null and solution != ''"> and solution = #{solution} </if>

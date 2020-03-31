@@ -1,6 +1,6 @@
-package com.ev.report.dao;
+package com.ev.report.service;
 
-import org.apache.ibatis.annotations.Mapper;
+import com.ev.report.vo.PurchaseContractVO;
 
 import java.util.List;
 import java.util.Map;
@@ -12,14 +12,14 @@ import java.util.Map;
  * @email 286600136@qq.com
  * @date 2020-03-18 17:22:16
  */
-@Mapper
-public interface OutsourcedManagementAccountingReportDao {
+public interface PurchaseManagementAccountingReportService {
 
-    List<Map<String, Object>> outsourcedContractList(Map<String, Object> params);
+    List<Map<String, Object>> purchaseContractList(Map<String, Object> params);
 
     List<Map<String, Object>> debtDueList(Map<String, Object> params);
 
+    List<PurchaseContractVO> priceAnalysisList(Map<String, Object> params);
+
     List<Map<String, Object>> balanceList(Map<String, Object> params);
 
-    List<Map<String, Object>> inOutReconciliationList(Map<String, Object> params);
 }

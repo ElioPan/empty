@@ -2,6 +2,7 @@ package com.ev.custom.service;
 
 import com.ev.custom.domain.MeasurePointDO;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,4 +46,6 @@ public interface MeasurePointService {
 	int logicRemove(Long id);
 
 	int logicBatchRemove(Long[] ids);
+
+	List<Map<String, Object>> listForDevice(Map<String, Object> params);
 }

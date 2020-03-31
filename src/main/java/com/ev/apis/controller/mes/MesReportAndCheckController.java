@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -167,13 +168,27 @@ public class MesReportAndCheckController {
         List<Map<String, Object>> list = processReportService.listForMap(params);
         int count = processReportService.countForMap(params);
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
+        BigDecimal allCompletionCount=BigDecimal.ZERO;
+        BigDecimal allConformityCount=BigDecimal.ZERO;
+        BigDecimal allReworkCount=BigDecimal.ZERO;
+        BigDecimal allScrapCount=BigDecimal.ZERO;
         if (!(list.isEmpty())) {
-            DsResultResponse dsRet = new DsResultResponse();
-            dsRet.setDatas(list);
-            dsRet.setPageno(pageno);
-            dsRet.setPagesize(pagesize);
-            dsRet.setTotalRows(count);
-            dsRet.setTotalPages( (count + pagesize - 1) / pagesize);
+            for(Map<String, Object> map :list){
+                allCompletionCount=allCompletionCount.add(new BigDecimal(map.getOrDefault("completionCount","0").toString()));
+                allConformityCount=allConformityCount.add(new BigDecimal(map.getOrDefault("conformityCount","0").toString()));
+                allReworkCount=allReworkCount.add(new BigDecimal(map.getOrDefault("reworkCount","0").toString()));
+                allScrapCount=allScrapCount.add(new BigDecimal(map.getOrDefault("scrapCount","0").toString()));
+            }
+            Map<String,Object>  dsRet= new HashMap<>();
+            dsRet.put("pageno",pageno);
+            dsRet.put("pagesize",pagesize);
+            dsRet.put("totalRows",count);
+            dsRet.put("totalPages",(count + pagesize - 1) / pagesize);
+            dsRet.put("allCompletionCount",allCompletionCount);
+            dsRet.put("allConformityCount",allConformityCount);
+            dsRet.put("allReworkCount",allReworkCount);
+            dsRet.put("allScrapCount",allScrapCount);
+            dsRet.put("datas",list);
             results.put("data", dsRet);
         }
         return R.ok(results);

@@ -37,4 +37,6 @@ public interface MeasurePointDao {
 	int batchEdit(List<MeasurePointDO> parseArray);
 	
 	List<MeasurePointDO> listGroupByDevice(Map<String,Object> map);
+
+    List<Map<String, Object>> listForDevice(Map<String, Object> params);
 }

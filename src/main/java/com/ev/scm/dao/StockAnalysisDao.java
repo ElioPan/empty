@@ -38,4 +38,6 @@ public interface StockAnalysisDao {
 	int countForMap(Map<String, Object> params);
 
 	void batchRemoveById(Long id);
+
+	Map<String, Object> countForTotal(Map<String, Object> params);
 }

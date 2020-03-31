@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.report.dao.PurchaseManagementAccountingReportDao">
+
+    <select id="purchaseContractList" resultType="java.util.Map">
+        SELECT
+        item.`id`,
+        purchase.`id` AS purchaseContractId,
+        purchase.`contract_code` AS `contractCode`,
+        purchase.contract_date AS contractDate,
+        supplier.`id` AS `supplierId`,
+        supplier.`name` AS supplierName,
+        purchaseUser.`user_id` AS `userId`,
+        purchaseUser.`name` AS userName,
+        purchaseUserDept.dept_id AS `deptId`,
+        purchaseUserDept.name AS deptName,
+        materielType.name AS materielTypeName,
+        materiel.serial_no AS materielSerialNo,
+        materiel.name AS materielName,
+        materiel.specification AS specification,
+        unitUom.name AS unitUomName,
+        item.`count` AS `count`,
+        item.`tax_unit_price` AS taxUnitPrice,
+        item.`tax_amount` AS taxAmount
+        FROM
+        scm_purchasecontract_item item
+        LEFT JOIN scm_purchasecontract purchase ON purchase.id = item.purchasecontract_id
+        LEFT JOIN cus_supplier supplier ON supplier.id = purchase.supplier_id
+        LEFT JOIN sys_user purchaseUser ON purchaseUser.user_id = purchase.purchase_person
+        LEFT JOIN sys_dept purchaseUserDept ON purchaseUserDept.dept_id = purchase.purchase_person_dept
+        LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
+        LEFT JOIN cus_materiel_type materielType ON materielType.`id`=materiel.`type`
+        LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
+        <where>
+            <if test="id != null and id != ''"> and item.id = #{id} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(purchase.contract_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(purchase.contract_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="supplierName != null and supplierName != ''"> and supplier.`name` LIKE #{supplierName} </if>
+            <if test="supplierId != null and supplierId != ''"> and supplier.`id` = #{supplierId} </if>
+            <if test="materielType != null and materielType != ''"> and materiel.`type` = #{materielType} </if>
+            <if test="userId != null and userId != ''"> and purchase.purchase_person = #{userId} </if>
+            <if test="auditSign != null and auditSign != ''"> and purchase.audit_sign = #{auditSign} </if>
+            <if test="deptId != null and deptId != ''"> and purchase.purchase_person_dept = #{deptId} </if>
+        </where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by purchase.`id` desc,item.`id`
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+    <select id="debtDueList" resultType="java.util.Map">
+        SELECT
+        pay.`id`,
+        purchase.`id` AS purchaseContractId,
+        supplier.`id` AS supplierId,
+        supplier.`name` AS supplierName,
+        purchaseUser.`name` AS userName,
+        purchaseUserDept.name AS deptName,
+        purchase.`contract_code` AS `contractCode`,
+        purchase.contract_date AS contractDate,
+        pay.remarks AS remarks,
+        pay.due_date AS dueDate,
+        pay.pay_amount AS payAmount,
+        pay.amount_paid AS amountPaid,
+        pay.unpay_amount AS unPayAmount,
+        DATEDIFF(DATE_FORMAT(now(),'%Y-%m-%d'),DATE_FORMAT(pay.due_date,'%Y-%m-%d')) AS expiryDays
+        FROM scm_purchasecontract_pay pay
+        LEFT JOIN scm_purchasecontract purchase ON purchase.id = pay.purchase_contract_id
+        LEFT JOIN cus_supplier supplier ON supplier.id = purchase.supplier_id
+        LEFT JOIN sys_user purchaseUser ON purchaseUser.user_id = purchase.buyer
+        LEFT JOIN sys_dept purchaseUserDept ON purchaseUserDept.dept_id = purchase.dept_id
+        <where>
+            <if test="id != null and id != ''"> and pay.id = #{id} </if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(pay.due_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="supplierName != null and supplierName != ''"> and supplier.`name` LIKE #{supplierName} </if>
+            <if test="supplierId != null and supplierId != ''"> and supplier.`id` = #{supplierId} </if>
+            <if test="userId != null and userId != ''"> and purchase.buyer = #{userId} </if>
+            <if test="deptId != null and deptId != ''"> and purchase.dept_id = #{deptId} </if>
+            <if test="auditSign != null and auditSign != ''"> and purchase.audit_sign = #{auditSign} </if>
+             AND pay.unpay_amount &gt; 0
+        </where>
+        ORDER BY pay.due_date
+    </select>
+
+    <select id="priceAnalysisList" resultType="com.ev.report.vo.PurchaseContractVO">
+        SELECT
+        item.`id`,
+        purchase.`id` AS purchaseContractId,
+        purchase.`contract_code` AS `contractCode`,
+        purchase.contract_date AS contractDate,
+        supplier.`id` AS `supplierId`,
+        supplier.`name` AS supplierName,
+        materiel.`id` AS materielId,
+        materiel.serial_no AS materielSerialNo,
+        materiel.name AS materielName,
+        materiel.specification AS specification,
+        unitUom.name AS unitUomName,
+        item.`count` AS `count`,
+        item.`tax_unit_price` AS taxUnitPrice,
+        item.`tax_amount` AS taxAmount
+        FROM
+        scm_purchasecontract_item item
+        LEFT JOIN scm_purchasecontract purchase ON purchase.id = item.purchase_contract_id
+        LEFT JOIN cus_supplier supplier ON supplier.id = purchase.supplier_id
+        LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
+        LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
+        <where>
+            <if test="id != null and id != ''"> and item.id = #{id} </if>
+            <if test="supplierId != null and supplierId != ''"> and supplier.`id` = #{supplierId} </if>
+            <if test="supplierName != null and supplierName != ''"> and supplier.`name` LIKE #{supplierName} </if>
+            <if test="deptId != null and deptId != ''"> and purchase.dept_id = #{deptId} </if>
+            <if test="userId != null and userId != ''"> and purchase.buyer = #{userId} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(purchase.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(purchase.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="auditSign != null and auditSign != ''"> and purchase.audit_sign = #{auditSign} </if>
+        </where>
+    </select>
+
+    <select id="balanceList" resultType="java.util.Map">
+        SELECT
+        pay.`id`,
+        purchase.`id` AS purchaseContractId,
+        supplier.`id` AS supplierId,
+        supplier.`name` AS supplierName,
+        purchaseUser.`name` AS userName,
+        purchaseUserDept.name AS deptName,
+        purchase.`contract_code` AS `contractCode`,
+        purchase.contract_date AS contractDate,
+        SUM(pay.pay_amount) AS payAmount,
+        SUM(pay.amount_paid) AS amountPaid,
+        SUM(pay.unpay_amount) AS unPayAmount
+        FROM scm_purchasecontract_pay pay
+        LEFT JOIN scm_purchasecontract purchase ON purchase.id = pay.purchase_contract_id
+        LEFT JOIN cus_supplier supplier ON supplier.id = purchase.supplier_id
+        LEFT JOIN sys_user purchaseUser ON purchaseUser.user_id = purchase.buyer
+        LEFT JOIN sys_dept purchaseUserDept ON purchaseUserDept.dept_id = purchase.dept_id
+        <where>
+            <if test="id != null and id != ''"> and pay.id = #{id} </if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(purchase.contract_date,'%Y-%m-%d') &lt;= DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            <if test="supplierName != null and supplierName != ''"> and supplier.`name` LIKE #{supplierName} </if>
+            <if test="supplierId != null and supplierId != ''"> and supplier.`id` = #{supplierId} </if>
+            <if test="userId != null and userId != ''"> and purchase.buyer = #{userId} </if>
+            <if test="deptId != null and deptId != ''"> and purchase.dept_id = #{deptId} </if>
+            <if test="auditSign != null and auditSign != ''"> and purchase.audit_sign = #{auditSign} </if>
+        </where>
+        GROUP BY pay.purchase_contract_id
+        ORDER BY purchase.contract_date,unPayAmount DESC
+
+    </select>
+
+</mapper>

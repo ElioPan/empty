@@ -14,9 +14,9 @@ public interface OutsourcedManagementAccountingReportService {
 
     List<Map<String, Object>> debtDueList(Map<String, Object> params);
 
-    List<Map<String, Object>> summaryList(Map<String, Object> params);
-
     List<Map<String, Object>> balanceList(Map<String, Object> params);
 
     List<Map<String, Object>> outsourcedContractList(Map<String, Object> params);
+
+    List<Map<String, Object>> inOutReconciliationList(Map<String, Object> params);
 }

@@ -13,6 +13,7 @@ import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
+import com.ev.framework.utils.ShiroUtils;
 import com.ev.framework.utils.StringUtils;
 import com.ev.mes.dao.BomDao;
 import com.ev.mes.domain.BomDO;
@@ -217,6 +218,7 @@ public class BomServiceImpl implements BomService {
 	public int audit(Long id) {
 		BomDO bomDO = new BomDO();
 		bomDO.setId(id);
+		bomDO.setAuditor(ShiroUtils.getUserId());
 		bomDO.setAuditSign(ConstantForMES.OK_AUDITED);
 		return this.update(bomDO);
 	}
@@ -225,6 +227,7 @@ public class BomServiceImpl implements BomService {
 	public int reverseAudit(Long id) {
 		BomDO bomDO = new BomDO();
 		bomDO.setId(id);
+		bomDO.setAuditor(0L);
 		bomDO.setAuditSign(ConstantForMES.WAIT_AUDIT);
 		return this.update(bomDO);
 	}
