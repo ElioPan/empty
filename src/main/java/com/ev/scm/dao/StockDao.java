@@ -36,4 +36,10 @@ public interface StockDao {
 	Map<String, Object> countForMap(Map<String, Object> results);
 
 	int batchUpdate(List<StockDO> batchUpdate);
+
+	int batchSaveForCopy(List<StockDO> stockDOList);
+
+	List<Map<String, Object>> listForMapForCopy(Map<String, Object> param);
+
+	Map<String, Object> countForMapForCopy(Map<String, Object> param);
 }

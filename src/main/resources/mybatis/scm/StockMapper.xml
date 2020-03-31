@@ -191,6 +191,51 @@
         </foreach>
     </insert>
 
+	<insert id="batchSaveForCopy" parameterType="List" useGeneratedKeys="true" keyProperty="id">
+		insert into scm_stock_init
+		(
+		`entering_time`,
+		`materiel_id`,
+		`code`,
+		`batch`,
+		`available_count`,
+		`count`,
+		`unit_price`,
+		`amount`,
+		`source_company`,
+		`warehouse`,
+		`wareh_location`,
+		`qrcode_id`,
+		`create_by`,
+		`create_time`,
+		`update_by`,
+		`update_time`,
+		`del_flag`
+		)
+		values
+		<foreach collection="list" item="obj" separator=",">
+			(
+			#{obj.enteringTime},
+			#{obj.materielId},
+			#{obj.code},
+			#{obj.batch},
+			#{obj.availableCount},
+			#{obj.count},
+			#{obj.unitPrice},
+			#{obj.amount},
+			#{obj.sourceCompany},
+			#{obj.warehouse},
+			#{obj.warehLocation},
+			#{obj.qrcodeId},
+			#{obj.createBy},
+			#{obj.createTime},
+			#{obj.updateBy},
+			#{obj.updateTime},
+			#{obj.delFlag}
+			)
+		</foreach>
+	</insert>
+
 	<select id="listForMap" resultType="java.util.Map">
 		SELECT
 			stock.`id` AS id,
@@ -207,7 +252,7 @@
 			fl. NAME AS warehLocationName,
 			stock.`wareh_location` AS warehLocation,
 			stock.`unit_price` AS unitPrice,
-			stock.`count` AS count,
+			stock.`count` AS `count`,
 			stock.`amount` AS amount
 		FROM
 			scm_stock stock
@@ -215,18 +260,43 @@
 		LEFT JOIN cus_dictionary dic ON dic.`id` = materiel.`unit_uom`
 		LEFT JOIN cus_facility_location fl ON fl.`id` = stock.`wareh_location`
 		LEFT JOIN cus_facility facility ON facility.`id` = stock.`warehouse`
-		<where>
-			<if test="endTime != null and endTime != ''">  and stock.create_time &lt; #{endTime}</if>
-		</where>
 	</select>
 	<select id="countForMap" resultType="java.util.Map" parameterType="List">
 		SELECT
 		SUM(stock.`count`) AS totalCount,
 		SUM(stock.`amount`) AS totalAmount
 		FROM scm_stock stock
-		<where>
-			<if test="endTime != null and endTime != ''">  and stock.create_time &lt; #{endTime}</if>
-		</where>
+	</select>
+	<select id="listForMapForCopy" resultType="java.util.Map">
+		SELECT
+		stock.`id` AS id,
+		stock.`materiel_id` AS materielId,
+		materiel.`name` AS materielName,
+		materiel.`specification` AS specification,
+		materiel.`serial_no` AS serialNo,
+		materiel.`is_lot` AS isLot,
+		dic.`id` AS unitUom,
+		dic.`name` AS unitUomName,
+		stock.`batch` AS batch,
+		facility.`name` AS warehouseName,
+		facility.`id` AS warehouse,
+		fl. NAME AS warehLocationName,
+		stock.`wareh_location` AS warehLocation,
+		stock.`unit_price` AS unitPrice,
+		stock.`count` AS `count`,
+		stock.`amount` AS amount
+		FROM
+		scm_stock_init stock
+		LEFT JOIN cus_materiel materiel ON materiel.id = stock.`materiel_id`
+		LEFT JOIN cus_dictionary dic ON dic.`id` = materiel.`unit_uom`
+		LEFT JOIN cus_facility_location fl ON fl.`id` = stock.`wareh_location`
+		LEFT JOIN cus_facility facility ON facility.`id` = stock.`warehouse`
+	</select>
+	<select id="countForMapForCopy" resultType="java.util.Map" parameterType="List">
+		SELECT
+		SUM(stock.`count`) AS totalCount,
+		SUM(stock.`amount`) AS totalAmount
+		FROM scm_stock_init stock
 	</select>
 
 	<update id="batchUpdate" parameterType="List">
