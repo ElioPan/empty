@@ -389,31 +389,33 @@ public class WeChatServiceImpl implements WeChatService {
     }
 
     @Override
-    public JSONObject sendTextCardMessage(NoticeDO noticeDO,List<Long> userId) throws IOException, ParseException {
-        String userIds = userService.selectByIdSet(userId);
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("touser",userIds);
-        jsonObject.put("msgtype","textcard");
-        jsonObject.put("agentid",agentid);
-        /**
-         * 卡片内容封装
-         */
-        JSONObject textcardObject = new JSONObject();
-        textcardObject.put("title",noticeDO.getTitle());
-        textcardObject.put("description",noticeDO.getContent());
-        textcardObject.put("url",appurl+JSONObject.fromObject(noticeDO.getContentDetail()).get("url"));
-        textcardObject.put("btntxt","查看详情");
-        jsonObject.put("textcard",textcardObject);
-        jsonObject.put("safe",0);
-        jsonObject.put("enable_id_trans",0);
-        jsonObject.put("enable_duplicate_check",0);
-        String accessToken = getAccessToken(new Date()).optString("access_token");
-        String url = SEND_MESSAGE.replace("ACCESS_TOKEN", accessToken);
-        String json = HttpClientUtils.sendJsonStr(url,JSON.toJSONString(jsonObject));
-        if(!OK_CODE.equals(JSONObject.fromObject(json).get(KEY_ERROR_CODE).toString())){
-            throw new WorkWxException(json);
+    public JSONObject sendTextCardMessage(NoticeDO noticeDO,List<Long> userIds) throws IOException, ParseException {
+        for(Long userId: userIds){
+            UserDO userDO = userService.get(userId);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("touser",userDO.getUsername());
+            jsonObject.put("msgtype","textcard");
+            jsonObject.put("agentid",agentid);
+            /**
+             * 卡片内容封装
+             */
+            JSONObject textcardObject = new JSONObject();
+            textcardObject.put("title",noticeDO.getTitle());
+            textcardObject.put("description",noticeDO.getContent());
+            textcardObject.put("url",appurl+JSONObject.fromObject(noticeDO.getContentDetail()).get("url"));
+            textcardObject.put("btntxt","查看详情");
+            jsonObject.put("textcard",textcardObject);
+            jsonObject.put("safe",0);
+            jsonObject.put("enable_id_trans",0);
+            jsonObject.put("enable_duplicate_check",0);
+            String accessToken = getAccessToken(new Date()).optString("access_token");
+            String url = SEND_MESSAGE.replace("ACCESS_TOKEN", accessToken);
+            String json = HttpClientUtils.sendJsonStr(url,JSON.toJSONString(jsonObject));
+            if(!OK_CODE.equals(JSONObject.fromObject(json).get(KEY_ERROR_CODE).toString())){
+                continue;
+            }
         }
-        return JSONObject.fromObject(json);
+        return null;
     }
 
     private static String byteToHex(final byte[] hash) {

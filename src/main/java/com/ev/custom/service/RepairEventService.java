@@ -4,6 +4,8 @@ import com.ev.framework.utils.R;
 import com.ev.custom.domain.RepairEventDO;
 import com.ev.custom.domain.RepairRecordDO;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -60,10 +62,10 @@ public interface RepairEventService {
 	void removeAndSaveRecordSatellite(RepairEventDO event, RepairRecordDO record, String partIdArray,
 			String[] taglocationappearanceRecordImage, Long recordId);
 
-	R saveRepairInfo(RepairEventDO event, String[] taglocationappearanceImage, Long[] carbonCopyRecipients);
+	R saveRepairInfo(RepairEventDO event, String[] taglocationappearanceImage, Long[] carbonCopyRecipients) throws IOException, ParseException;
 
 	R saveProactiveRepairInfo(RepairEventDO event, RepairRecordDO record, String[] taglocationappearanceEventImage,
-			Long[] carbonCopyRecipients, String partIdArray, String[] taglocationappearanceRecordImage);
+			Long[] carbonCopyRecipients, String partIdArray, String[] taglocationappearanceRecordImage) throws IOException, ParseException;
 
 	R saveRepairInfo(Long eventId, String partIdArray, String[] taglocationappearanceImage, RepairRecordDO record,
 			RepairEventDO repairEventDO);

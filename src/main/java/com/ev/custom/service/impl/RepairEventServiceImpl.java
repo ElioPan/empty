@@ -1,10 +1,11 @@
 package com.ev.custom.service.impl;
 
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.*;
 
+import com.ev.custom.service.*;
 import com.ev.framework.il8n.MessageSourceHandler;
 import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +22,6 @@ import com.ev.custom.domain.ContentAssocDO;
 import com.ev.custom.domain.RepairEventDO;
 import com.ev.custom.domain.RepairRecordDO;
 import com.ev.custom.domain.TaskEmployeeDO;
-import com.ev.custom.service.ContentAssocService;
-import com.ev.custom.service.RepairCheckService;
-import com.ev.custom.service.RepairEventPartService;
-import com.ev.custom.service.RepairEventService;
-import com.ev.custom.service.RepairRecordService;
-import com.ev.custom.service.TaskEmployeeService;
-import com.ev.custom.service.TaskMainService;
 import com.ev.system.domain.UserDO;
 import com.ev.system.service.DeptService;
 import com.ev.system.service.UserService;
@@ -54,6 +48,8 @@ public class RepairEventServiceImpl implements RepairEventService {
 	private TaskMainService taskMainService;
 	@Autowired
 	private DeptService deptService;
+	@Autowired
+	private NoticeService noticeService;
 	@Autowired
 	private MessageSourceHandler messageSourceHandler;
 	
@@ -232,7 +228,7 @@ public class RepairEventServiceImpl implements RepairEventService {
 	}
 	
 	@Override
-	public R saveRepairInfo(RepairEventDO event, String[] taglocationappearanceImage, Long[] carbonCopyRecipients) {
+	public R saveRepairInfo(RepairEventDO event, String[] taglocationappearanceImage, Long[] carbonCopyRecipients) throws IOException, ParseException {
 		// 若事件为新添事件则执行保存操作
     	Long eventId = event.getId();
     	if (eventId==null) {
@@ -242,6 +238,17 @@ public class RepairEventServiceImpl implements RepairEventService {
     		if (eventId!=null) {
     			this.saveEventSatellite(taglocationappearanceImage, carbonCopyRecipients, eventId);
     			if (map.containsKey("id")) {
+					/**
+					 * 发送消息
+					 */
+					Long repairId = Long.parseLong(map.get("id").toString());
+					JSONObject contentDetail = new JSONObject();
+					contentDetail.put("id",repairId);
+					contentDetail.put("url","/eqRepair/repairDetail?id="+repairId);
+					List<Long> toUsers = new ArrayList<>();
+					toUsers.addAll(Arrays.asList(carbonCopyRecipients));
+					String content = "单号为“"+repairId+"”的维修单据抄送了您，请及时关注！";
+					noticeService.saveAndSendSocket("@我的维修单", content, repairId, contentDetail.toString(),5L, ShiroUtils.getUserId(),toUsers);
     				return R.ok(map);
     			}
     		}
@@ -253,6 +260,16 @@ public class RepairEventServiceImpl implements RepairEventService {
         	Long [] eventIds = {eventId};
         	// 删除事件附属信息增加新的附属信息
         	this.removeAndSaveEventSatellite(taglocationappearanceImage, carbonCopyRecipients, eventId, eventIds);
+			/**
+			 * 发送消息
+			 */
+			JSONObject contentDetail = new JSONObject();
+			contentDetail.put("id",eventId);
+			contentDetail.put("url","/eqRepair/repairDetail?id="+eventId);
+			List<Long> toUsers = new ArrayList<>();
+			toUsers.addAll(Arrays.asList(carbonCopyRecipients));
+			String content = "单号为“"+eventId+"”的维修单据抄送了您，请及时关注！";
+			noticeService.saveAndSendSocket("@我的维修单", content, eventId, contentDetail.toString(),5L, ShiroUtils.getUserId(),toUsers);
         	return R.ok();
 		}
 		return R.error();
@@ -287,7 +304,7 @@ public class RepairEventServiceImpl implements RepairEventService {
 	@Override
 	public R saveProactiveRepairInfo(RepairEventDO event, RepairRecordDO record,
 			String[] taglocationappearanceEventImage, Long[] carbonCopyRecipients, String partIdArray,
-			String[] taglocationappearanceRecordImage) {
+			String[] taglocationappearanceRecordImage) throws IOException, ParseException {
 		Map<String,Object> result = Maps.newHashMapWithExpectedSize(1);
 		Long eventId = event.getId();
 		// 若为新增事件则为保存逻辑
@@ -301,6 +318,14 @@ public class RepairEventServiceImpl implements RepairEventService {
 				this.saveEventSatellite(taglocationappearanceEventImage, carbonCopyRecipients, eventId);
 				// 将图片地址和事件ID一起保存至content_assoc
 				if (map.containsKey("id")) {
+					Long repairId = Long.parseLong(map.get("id").toString());
+					JSONObject contentDetail = new JSONObject();
+					contentDetail.put("id",repairId);
+					contentDetail.put("url","/eqRepair/repairDetail?id="+repairId);
+					List<Long> toUsers = new ArrayList<>();
+					toUsers.addAll(Arrays.asList(carbonCopyRecipients));
+					String content = "单号为“"+repairId+"”的维修单据抄送了您，请及时关注！";
+					noticeService.saveAndSendSocket("@我的维修单", content, repairId, contentDetail.toString(),5L, ShiroUtils.getUserId(),toUsers);
 					return R.ok(result);
 				}
 			}
@@ -318,6 +343,13 @@ public class RepairEventServiceImpl implements RepairEventService {
     			this.repairRecordService.update(record);
     			this.removeAndSaveRecordSatellite(event, record, partIdArray, taglocationappearanceRecordImage, recordId);
 			}
+			JSONObject contentDetail = new JSONObject();
+			contentDetail.put("id",eventId);
+			contentDetail.put("url","/eqRepair/repairDetail?id="+eventId);
+			List<Long> toUsers = new ArrayList<>();
+			toUsers.addAll(Arrays.asList(carbonCopyRecipients));
+			String content = "单号为“"+eventId+"”的维修单据抄送了您，请及时关注！";
+			noticeService.saveAndSendSocket("@我的维修单", content, eventId, contentDetail.toString(),5L, ShiroUtils.getUserId(),toUsers);
     		return R.ok();
 		}
     	

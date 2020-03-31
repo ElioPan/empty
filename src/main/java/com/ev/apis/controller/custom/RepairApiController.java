@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -49,7 +51,7 @@ public class RepairApiController {
     @ApiOperation("提交故障报修事件")
     public R addRepairEvent(RepairEventDO event,
                             @ApiParam(value = "上传图片") @RequestParam(value = "taglocationappearanceImage", defaultValue = "", required = false) String[] taglocationappearanceImage,
-                            @ApiParam(value = "抄送人") @RequestParam(value = "carbonCopyRecipients", defaultValue = "", required = false) Long[] carbonCopyRecipients) {
+                            @ApiParam(value = "抄送人") @RequestParam(value = "carbonCopyRecipients", defaultValue = "", required = false) Long[] carbonCopyRecipients) throws IOException, ParseException {
     	event.setStatus(Constant.WAITING_DEAL);
     	return repairEventService.saveRepairInfo(event, taglocationappearanceImage, carbonCopyRecipients);
     }
@@ -59,7 +61,7 @@ public class RepairApiController {
     @ApiOperation("暂存故障报修事件")
     public R addRepairEventTS(RepairEventDO event,
                             @ApiParam(value = "上传图片") @RequestParam(value = "taglocationappearanceImage", defaultValue = "", required = false) String[] taglocationappearanceImage,
-                            @ApiParam(value = "抄送人") @RequestParam(value = "carbonCopyRecipients", defaultValue = "", required = false) Long[] carbonCopyRecipients) {
+                            @ApiParam(value = "抄送人") @RequestParam(value = "carbonCopyRecipients", defaultValue = "", required = false) Long[] carbonCopyRecipients) throws IOException, ParseException {
     	if(repairEventService.nonTS(event.getStatus())) {
     		return R.error(messageSourceHandler.getMessage("repair.status.nonTs",null));
     	}
@@ -76,7 +78,7 @@ public class RepairApiController {
                             @ApiParam(value = "抄送人") @RequestParam(value = "carbonCopyRecipients", defaultValue = "", required = false) Long[] carbonCopyRecipients,
                             @ApiParam(value = "备品备件ID数组，如[{'partId':3,'amount':5,'price':2,'content':'测试备件'}]") @RequestParam(value = "partIdArray",defaultValue = "",required = false)  String partIdArray,
                             @ApiParam(value = "上传完工图片") @RequestParam(value = "taglocationappearanceRecordImage",defaultValue = "",required = false) String[] taglocationappearanceRecordImage
-                           	) {
+                           	) throws IOException, ParseException {
     	if(repairEventService.nonTS(event.getStatus())||repairEventService.nonTS(record.getStatus())) {
     		return R.error(messageSourceHandler.getMessage("repair.status.nonTs",null));
     	}
@@ -96,7 +98,7 @@ public class RepairApiController {
                             @ApiParam(value = "抄送人") @RequestParam(value = "carbonCopyRecipients", defaultValue = "", required = false) Long[] carbonCopyRecipients,
                             @ApiParam(value = "备品备件ID数组，如[{'partId':3,'amount':5,'price':29,'content':'测试备件'}]") @RequestParam(value = "partIdArray",defaultValue = "",required = false)  String partIdArray,
                             @ApiParam(value = "上传完工图片") @RequestParam(value = "taglocationappearanceRecordImage",defaultValue = "",required = false) String[] taglocationappearanceRecordImage
-                           	) {
+                           	) throws IOException, ParseException {
     	if(repairEventService.nonTS(event.getStatus())||repairEventService.nonTS(record.getStatus())) {
     		return R.error(messageSourceHandler.getMessage("repair.status.nonTs",null));
     	}

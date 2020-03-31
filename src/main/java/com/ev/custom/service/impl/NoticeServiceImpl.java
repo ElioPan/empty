@@ -147,8 +147,8 @@ public class NoticeServiceImpl implements NoticeService{
 	 */
 	private void sendMessage(NoticeEntity message) throws JsonProcessingException {
 		rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
-		rabbitTemplate.setExchange("gyhl.data.notice.exchange2");
-		rabbitTemplate.setRoutingKey("gyhl.data.notice.routing.key2");
+		rabbitTemplate.setExchange("gyhl.data.notice.exchange");
+		rabbitTemplate.setRoutingKey("gyhl.data.notice.routing.key");
 		Message messageObj= MessageBuilder.withBody(objectMapper.writeValueAsBytes(message)).setDeliveryMode(MessageDeliveryMode.PERSISTENT).build();
 		messageObj.getMessageProperties().setHeader(AbstractJavaTypeMapper.DEFAULT_CONTENT_CLASSID_FIELD_NAME, MessageProperties.CONTENT_TYPE_JSON);
 		rabbitTemplate.convertAndSend(messageObj);

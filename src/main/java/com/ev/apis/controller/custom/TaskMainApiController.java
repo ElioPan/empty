@@ -28,10 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Api(value = "/",tags = "任务管理API")
 @RestController
@@ -166,7 +163,7 @@ public class TaskMainApiController {
                   @ApiParam(value = "关联单号") @RequestParam(value = "linkOrderNo",defaultValue = "",required = false) String linkOrderNo,
                   @ApiParam(value = "关联单据类型") @RequestParam(value = "linkOrderType",defaultValue = "",required = false) Integer linkOrderType,
                   @ApiParam(value = "关联单据阶段类型") @RequestParam(value = "linkStageType",defaultValue = "",required = false) Integer linkStageType,
-                  @ApiParam(value = "上传图片") @RequestParam(value = "taglocationappearanceImage",defaultValue = "",required = false) String[] taglocationappearanceImage){
+                  @ApiParam(value = "上传图片") @RequestParam(value = "taglocationappearanceImage",defaultValue = "",required = false) String[] taglocationappearanceImage) throws IOException, ParseException {
         	taskMain.setStatus(Constant.WAITING_DEAL);
         	return taskMainService.saveTaskInfo(taskMain, ccList, heldPerson, checkPerson, linkOrderNo, linkOrderType, linkStageType,
 					taglocationappearanceImage);
@@ -182,7 +179,7 @@ public class TaskMainApiController {
                   @ApiParam(value = "关联单号") @RequestParam(value = "linkOrderNo",defaultValue = "",required = false) String linkOrderNo,
                   @ApiParam(value = "关联单据类型") @RequestParam(value = "linkOrderType",defaultValue = "",required = false) Integer linkOrderType,
                   @ApiParam(value = "关联单据阶段类型") @RequestParam(value = "linkStageType",defaultValue = "",required = false) Integer linkStageType,
-                  @ApiParam(value = "上传图片") @RequestParam(value = "taglocationappearanceImage",defaultValue = "",required = false) String[] taglocationappearanceImage){
+                  @ApiParam(value = "上传图片") @RequestParam(value = "taglocationappearanceImage",defaultValue = "",required = false) String[] taglocationappearanceImage) throws IOException, ParseException {
          	// 状态设置为暂存
          	taskMain.setStatus(Constant.TS);
          	return taskMainService.saveTaskInfo(taskMain, ccList, heldPerson, checkPerson, linkOrderNo, linkOrderType, linkStageType,
@@ -288,6 +285,7 @@ public class TaskMainApiController {
 		contentDetail.put("url","/task/taskDetail?id="+taskMainDO.getId());
 		List<Long> toUsers = new ArrayList<>();
 		toUsers.add(taskMainDO.getCreateBy());
+		toUsers.addAll(Arrays.asList(ccList));
 		String content = "原因分析："+taskReplyDO.getReason()+"\r\n解决方案："+taskReplyDO.getSolution();
 		noticeService.saveAndSendSocket("任务回复信息", content, taskMainDO.getId(), contentDetail.toString(),4L, ShiroUtils.getUserId(),toUsers);
 		if (replySave > 0) {

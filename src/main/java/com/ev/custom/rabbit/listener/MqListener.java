@@ -63,7 +63,7 @@ public class MqListener {
         influxDB.batchInsert("sentinel_log", null, InfluxDB.ConsistencyLevel.ALL, records);
     }
 
-    @RabbitListener(queues = "gyhl.data.notice.queue2",containerFactory = "singleListenerContainer")
+    @RabbitListener(queues = "gyhl.data.notice.queue",containerFactory = "singleListenerContainer")
     public void consumeNoticeQueue(@Payload byte[] message){
         try {
             NoticeEntity notice=objectMapper.readValue(message, NoticeEntity.class);

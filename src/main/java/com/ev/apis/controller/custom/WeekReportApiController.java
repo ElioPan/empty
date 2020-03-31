@@ -147,11 +147,6 @@ public class WeekReportApiController {
 
                 weekReport.setStatus(Constant.TS);//146暂存
                 weekReportService.add(weekReport, newWeekReportItems, targetList, taglocationappearanceImage);
-                JSONObject contentDetail = new JSONObject();
-                contentDetail.put("id",weekReport.getId());
-                contentDetail.put("url","/week/weekDetail?id="+weekReport.getId());
-                List<Long> toUsers = Arrays.asList(targetList);
-                noticeService.saveAndSendSocket("周报查看提醒","您有新的周报待处理（回复）信息!", weekReport.getId(), contentDetail.toString(),2L,ShiroUtils.getUserId(),toUsers);
                 return R.ok();
             }else{
                 //"本周周报已写！请勿重复新建！"
@@ -165,11 +160,6 @@ public class WeekReportApiController {
                     if (!(Objects.equals(Constant.APPLY_APPROED, weekReportDoOne.getStatus()))) {  //148已提交不允许修改
                         //更新
                         weekReportService.saveWeekChangeAndSbmit(weekReport, newWeekReportItems, targetList,  taglocationappearanceImage,0);
-                        JSONObject contentDetail = new JSONObject();
-                        contentDetail.put("id",weekReport.getId());
-                        contentDetail.put("url","/week/weekDetail?id="+weekReport.getId());
-                        List<Long> toUsers = Arrays.asList(targetList);
-                        noticeService.saveAndSendSocket("周报查看提醒","您有新的周报待处理（回复）信息!", weekReport.getId(), contentDetail.toString(),2L,ShiroUtils.getUserId(),toUsers);
                         return R.ok();
                     } else {
                         //"已提交不允许修改！"

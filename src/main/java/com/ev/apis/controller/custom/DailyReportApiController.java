@@ -181,11 +181,6 @@ public class DailyReportApiController {
             if(dailyReportService.duplicateDetectionOrNot()){
                 dailyReport.setStatus(Constant.APPLY_APPROED);//148状态 已提交
                 dailyReportService.add(dailyReport, targetList, taglocationappearanceImage);
-                JSONObject contentDetail = new JSONObject();
-                contentDetail.put("id",dailyReport.getId());
-                contentDetail.put("url","/daily/dailyDetail?id="+dailyReport.getId());
-                List<Long> toUsers = Arrays.asList(targetList);
-                noticeService.saveAndSendSocket("日志查看提醒","您有新的日志处理（回复）信息!",dailyReport.getId(),contentDetail.toString(),1L,ShiroUtils.getUserId(),toUsers);
                 return R.ok();
             }else{
                 //今天日报已写！请勿重复
@@ -198,11 +193,6 @@ public class DailyReportApiController {
                 if (!(Objects.equals(Constant.APPLY_APPROED, dailyReportDO.getStatus()))) {  //148 已提交    允许修改并提交
                     //更新
                     dailyReportService.allPowerfulMelthod(dailyReport, targetList, taglocationappearanceImage, 1);
-                    JSONObject contentDetail = new JSONObject();
-                    contentDetail.put("id",dailyReport.getId());
-                    contentDetail.put("url","/daily/dailyDetail?id="+dailyReport.getId());
-                    List<Long> toUsers = Arrays.asList(targetList);
-                    noticeService.saveAndSendSocket("日志查看提醒","您有新的日志待处理（回复）信息!",dailyReport.getId(),contentDetail.toString(),1L,ShiroUtils.getUserId(),toUsers);
                     return R.ok();
                 } else {
                     //请勿重复提交
@@ -238,16 +228,8 @@ public class DailyReportApiController {
         Map<String, Object> query = new HashMap<String, Object>();
         query.put("id", ids);
         query.put("status", Constant.TS);//146暂存
-
-            R r = dailyReportService.listOfCanDelet(query,ids);
-            return r;
-    }
-
-    private void sendMessage(Long dailyReportId,List<Long> targetList) throws IOException, ParseException {
-        JSONObject contentDetail = new JSONObject();
-        contentDetail.put("id",dailyReportId);
-        contentDetail.put("url","/daily/dailyDetail?id="+dailyReportId);
-        noticeService.saveAndSendSocket("日志查看提醒","您有新的日报需要处理（回复）！",dailyReportId,contentDetail.toString(),1L,ShiroUtils.getUserId(),targetList);
+        R r = dailyReportService.listOfCanDelet(query,ids);
+        return r;
     }
 
 

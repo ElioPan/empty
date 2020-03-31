@@ -16,6 +16,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.*;
 
 import com.ev.custom.dao.TaskMainDao;
@@ -229,7 +231,7 @@ public class TaskMainServiceImpl implements TaskMainService {
 	
 	@Override
 	public R saveTaskInfo(TaskMainDO taskMain, Long[] ccList, Long heldPerson, Long checkPerson, String linkOrderNo,
-			Integer linkOrderType, Integer linkStageType, String[] taglocationappearanceImage) {
+			Integer linkOrderType, Integer linkStageType, String[] taglocationappearanceImage) throws IOException, ParseException {
 		Long taskId = taskMain.getId();
 		if (taskId==null) {
 			Map<String,Object> result = Maps.newHashMapWithExpectedSize(1);
@@ -244,6 +246,16 @@ public class TaskMainServiceImpl implements TaskMainService {
 				ReportTaskDO reportTask = new ReportTaskDO(taskId,linkOrderNo,linkOrderType,linkStageType);
 				reportTaskService.save(reportTask);
 			}
+			/**
+			 * 发送消息
+			 */
+			JSONObject contentDetail = new JSONObject();
+			contentDetail.put("id",taskId);
+			contentDetail.put("url","/task/taskDetail?id="+taskId);
+			List<Long> toUsers = new ArrayList<>();
+			toUsers.addAll(Arrays.asList(ccList));
+			String content = "单号为“"+taskMain.getTaskNo()+"”的任务单据抄送了您，请及时关注！";
+			noticeService.saveAndSendSocket("@我的任务", content, taskId, contentDetail.toString(),4L, ShiroUtils.getUserId(),toUsers);
 			result.put("taskId",taskId);
 			return R.ok(result);
 		}
@@ -257,6 +269,16 @@ public class TaskMainServiceImpl implements TaskMainService {
 			this.removeSatellite(taskIds, assocTypes, Constant.TASK_APPEARANCE_IMAGE);
 		
 			this.add(taskId,ccList,heldPerson,checkPerson,taglocationappearanceImage);
+			/**
+			 * 发送消息
+			 */
+			JSONObject contentDetail = new JSONObject();
+			contentDetail.put("id",taskId);
+			contentDetail.put("url","/task/taskDetail?id="+taskId);
+			List<Long> toUsers = new ArrayList<>();
+			toUsers.addAll(Arrays.asList(ccList));
+			String content = "单号为“"+taskMain.getTaskNo()+"”的任务单据抄送了您，请及时关注！";
+			noticeService.saveAndSendSocket("@我的任务", content, taskId, contentDetail.toString(),4L, ShiroUtils.getUserId(),toUsers);
 			return R.ok();
 		}
 		return R.error();

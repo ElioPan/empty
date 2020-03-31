@@ -155,11 +155,6 @@ public class MonthReportApiController {
             if(monthReportService.duplicateDetectionOrNot()){
                 monthReport.setStatus(Constant.TS);
                 monthReportService.add(monthReport, newTargetList, taglocationappearanceImage);
-                JSONObject contentDetail = new JSONObject();
-                contentDetail.put("id",monthReport.getId());
-                contentDetail.put("url","/month/monthDetail?id="+monthReport.getId());
-                List<Long> toUsers = Arrays.asList(newTargetList);
-                noticeService.saveAndSendSocket("月报查看提醒","您有新的月报待处理（回复）信息!", monthReport.getId(), contentDetail.toString(),3L,ShiroUtils.getUserId(),toUsers);
                 return R.ok();
             }else{
                 //"本月月报已建立，请勿重复创建！！"
@@ -173,11 +168,6 @@ public class MonthReportApiController {
                 if (!(Objects.equals(Constant.APPLY_APPROED, monthReportDO.getStatus()))) {  //148 已提交   允许修改
                     //更新
                     monthReportService.allPowerfulMelthod(monthReport,newTargetList,taglocationappearanceImage,0);
-                    JSONObject contentDetail = new JSONObject();
-                    contentDetail.put("id",monthReport.getId());
-                    contentDetail.put("url","/month/monthDetail?id="+monthReport.getId());
-                    List<Long> toUsers = Arrays.asList(newTargetList);
-                    noticeService.saveAndSendSocket("月报查看提醒","您有新的月报待处理（回复）信息!", monthReport.getId(), contentDetail.toString(),3L,ShiroUtils.getUserId(),toUsers);
                     return R.ok();
                 } else {
                     //已提交不允许修改！
