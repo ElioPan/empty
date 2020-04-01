@@ -830,6 +830,10 @@ public class DeviceApiController {
         List<DeviceEntity> deviceEntityList;
         try {
             deviceEntityList = ExcelImportUtil.importExcel(file.getInputStream(), DeviceEntity.class, params);
+            deviceEntityList = deviceEntityList
+                    .stream()
+                    .filter(e->StringUtils.isNoneEmpty(e.getName()))
+                    .collect(Collectors.toList());
         }catch(Exception e) {
             return R.error(messageSourceHandler.getMessage("file.upload.error", null));
         }

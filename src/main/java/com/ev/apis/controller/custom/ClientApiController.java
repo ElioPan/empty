@@ -320,6 +320,10 @@ public class ClientApiController {
         List<ClientEntity> clientEntityList;
         try {
             clientEntityList  =  ExcelImportUtil.importExcel(file.getInputStream(), ClientEntity.class, params);
+            clientEntityList = clientEntityList
+                    .stream()
+                    .filter(e->StringUtils.isNoneEmpty(e.getName()))
+                    .collect(Collectors.toList());
         }catch(Exception e) {
             return R.error(messageSourceHandler.getMessage("file.upload.error", null));
         }

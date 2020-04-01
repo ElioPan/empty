@@ -364,6 +364,10 @@ public class SupplierApiController {
         List<SupplierEntity> supplierEntityList;
         try {
             supplierEntityList = ExcelImportUtil.importExcel(file.getInputStream(), SupplierEntity.class, params);
+            supplierEntityList = supplierEntityList
+                    .stream()
+                    .filter(e->StringUtils.isNoneEmpty(e.getName()))
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             return R.error(messageSourceHandler.getMessage("file.upload.error", null));
         }

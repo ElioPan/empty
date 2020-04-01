@@ -456,6 +456,10 @@ public class MaterielApiController {
         List<MaterielEntity> materielEntityList;
         try {
             materielEntityList = ExcelImportUtil.importExcel(file.getInputStream(), MaterielEntity.class, params);
+            materielEntityList = materielEntityList
+                    .stream()
+                    .filter(e->StringUtils.isNoneEmpty(e.getName()))
+                    .collect(Collectors.toList());
         }catch(Exception e) {
             return R.error(messageSourceHandler.getMessage("file.upload.error", null));
         }
