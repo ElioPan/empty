@@ -481,6 +481,7 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 
 		// 保存拆分后的工序计划工序列表
 		Map<String, Object> checkParam;
+		Map<String, Object> fileParam;
 		Long newProcedurePlanId = newProcedurePlanDO.getId();
 		for (int i = 0; i < workingProcedureDetailDOList.size(); i++) {
 			WorkingProcedureDetailDO procedureDetailDO = workingProcedureDetailDOList.get(i);
@@ -497,7 +498,8 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 
 			// 查看该工序有无检验配置
 			checkParam = Maps.newHashMap();
-			checkParam.put("foreignId", Objects.isNull(beforeSplitId) ? oldProcedureDetailId : beforeSplitId);
+			Long detailId = Objects.isNull(beforeSplitId) ? oldProcedureDetailId : beforeSplitId;
+			checkParam.put("foreignId", detailId);
 			checkParam.put("type", ConstantForMES.GXJH_GYLX);
 			List<ProcessCheckDO> checkList = checkService.list(checkParam);
 			// 若有将原单的配置复制一份保存
@@ -507,7 +509,18 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 					checkService.save(processCheckDO);
 				}
 			}
-
+			// 查看有无SOP文件
+			fileParam = Maps.newHashMapWithExpectedSize(2);
+			fileParam.put("assocId", detailId);
+			fileParam.put("assocType", ConstantForMES.SOP_FILE);
+			List<ContentAssocDO> sopFileList = contentAssocService.list(fileParam);
+			// 若有SOP将原单的配置复制一份保存
+			if (sopFileList.size() > 0) {
+				for (ContentAssocDO contentAssocDO : sopFileList) {
+					contentAssocDO.setAssocId(procedureDetailDO.getId().intValue());
+					contentAssocService.save(contentAssocDO);
+				}
+			}
 		}
 		Map<String, Object> result = Maps.newHashMap();
 		result.put("id", newProcedurePlanId);
