@@ -97,7 +97,7 @@ public class ProductionPlanApiController {
         // 产品检验单关联生产计划选单时，生产计划必须是设定必须检验且状态是下达状态的单据
         if (isDiaLog){
             params.put("status",ConstantForMES.ISSUED);
-            params.put("isCheck",1);
+//            params.put("isCheck",1);
             data = productionPlanService.listDialogMap(params);
         }else{
             data = productionPlanService.listForMap(params);
