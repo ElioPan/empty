@@ -701,6 +701,7 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 			// SOP 文件先删后增
 			Long[] detailIds = parseArray
 					.stream()
+					.filter(e->e.getId()!=null)
 					.map(WorkingProcedureDetailDO::getId).toArray(Long[]::new);
 			if (detailIds.length > 0) {
 				contentAssocService.removeByAssocIdAndType(detailIds, ConstantForMES.SOP_FILE);
