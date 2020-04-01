@@ -702,7 +702,9 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 			Long[] detailIds = parseArray
 					.stream()
 					.map(WorkingProcedureDetailDO::getId).toArray(Long[]::new);
-			contentAssocService.removeByAssocIdAndType(detailIds, ConstantForMES.SOP_FILE);
+			if (detailIds.length > 0) {
+				contentAssocService.removeByAssocIdAndType(detailIds, ConstantForMES.SOP_FILE);
+			}
 
 			ProcessCheckDO checkDO;
 			Long planId = planDO.getId();

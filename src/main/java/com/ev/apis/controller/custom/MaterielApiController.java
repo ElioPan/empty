@@ -411,8 +411,8 @@ public class MaterielApiController {
 
     }
 
-    @EvApiByToken(value = "/apis/materiel/batchAudit", method = RequestMethod.POST, apiTitle = "批量审核客户")
-    @ApiOperation("批量审核客户")
+    @EvApiByToken(value = "/apis/materiel/batchAudit", method = RequestMethod.POST, apiTitle = "批量审核物料")
+    @ApiOperation("批量审核物料")
     @Transactional(rollbackFor = Exception.class)
     public R batchAudit(@ApiParam(value = "供应商id", required = true) @RequestParam(value = "ids", defaultValue = "")Integer[] ids ){
         if (ids.length > 0) {
@@ -469,7 +469,7 @@ public class MaterielApiController {
                     .map(MaterielEntity::getSerialNo)
                     .collect(Collectors.toList());
             List<String> nameList = materielEntityList.stream()
-                    .map(MaterielEntity::getName)
+                    .map(e -> e.getName() + (e.getSpecification() == null ? "" : "," + e.getSpecification()))
                     .collect(Collectors.toList());
             List<String> allCode = materielService.getAllCode();
             List<String> allName = materielService.getAllName();

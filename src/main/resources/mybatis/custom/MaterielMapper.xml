@@ -470,6 +470,7 @@
 			(serial_no = #{serialNo}
 			OR (`name` = #{name}
 			<if test="specification != null and specification != ''">and specification = #{specification}</if>
+			<if test="specification == null or specification == ''">and specification IS NULL</if>
 			))
 			<if test="id != null and id != ''">and id <![CDATA[<>]]> #{id}</if>
 		</where>
@@ -739,7 +740,7 @@
     </select>
     <select id="getAllName" resultType="java.lang.String">
 		SELECT
-        `name`
+        CONCAT_WS(',',`name`,`specification`)
         from
         cus_materiel
         WHERE
