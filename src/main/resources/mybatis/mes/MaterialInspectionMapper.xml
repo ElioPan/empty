@@ -100,8 +100,19 @@
 		select count(*) from mes_material_inspection
 		<include refid="sql_condition"/>
 	</select>
-	 
-	<insert id="save" parameterType="com.ev.mes.domain.MaterialInspectionDO" useGeneratedKeys="true" keyProperty="id">
+    <select id="getCountBySource" resultType="java.math.BigDecimal">
+		SELECT
+		SUM(`send_count`)
+		FROM mes_material_inspection
+		<where>
+			<if test="id != null and id != ''"> and id <![CDATA[<>]]> #{id} </if>
+			<if test="inspectionType != null and inspectionType != ''"> and inspection_type = #{inspectionType} </if>
+			<if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
+			<if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+		</where>
+	</select>
+
+    <insert id="save" parameterType="com.ev.mes.domain.MaterialInspectionDO" useGeneratedKeys="true" keyProperty="id">
 		insert into mes_material_inspection
 		(
 			`inspection_type`, 

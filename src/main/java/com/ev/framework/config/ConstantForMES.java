@@ -174,5 +174,9 @@ public final class ConstantForMES{
 	 * 来料检验
 	 */
 	public static final Integer LLJY = 216;
+	/**
+	 * 发货检验
+	 */
+	public static final Integer FHJY = 218;
 
 }

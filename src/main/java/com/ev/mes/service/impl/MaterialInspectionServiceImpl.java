@@ -1,5 +1,6 @@
 package com.ev.mes.service.impl;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -128,6 +129,11 @@ public class MaterialInspectionServiceImpl implements MaterialInspectionService 
             materialInspectionDetailService.save(materialInspectionDetailDO);
         }
         return update > 0 ? R.ok() : R.error();
+	}
+
+	@Override
+	public BigDecimal getCountBySource(Map<String, Object> sourceParam) {
+		return materialInspectionDao.getCountBySource(sourceParam);
 	}
 
 	@Override
