@@ -118,6 +118,9 @@ public class NoticeServiceImpl implements NoticeService{
 	 * @param toUsers 接收人/抄送人
 	 */
 	private NoticeEntity saveNotice(String title, String content, Long billId,String contentDetail, Long type, Long fromUser, List<Long> toUsers){
+		if(toUsers.size()==0){
+			return null;
+		}
 		//1.保存消息主体信息
 		NoticeEntity noticeEntity = new NoticeEntity();
 		NoticeDO notice =new NoticeDO();
