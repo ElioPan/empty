@@ -740,7 +740,7 @@
     </select>
     <select id="getAllName" resultType="java.lang.String">
 		SELECT
-        CONCAT_WS(',',`name`,`specification`)
+        CONCAT_WS('-',`name`,`specification`)
         from
         cus_materiel
         WHERE

@@ -164,8 +164,10 @@ public class MaterielApiController {
     @EvApiByToken(value = "/apis/materiel/add", method = RequestMethod.POST)
     @ApiOperation("添加物料")
     public R add(MaterielDO materiel) {
+        if(StringUtils.isBlank(materiel.getSpecification())){
+            materiel.setSpecification(null);
+        }
         // 若编号为空 则自动生成
-
         String serialNo = materiel.getSerialNo();
         Integer type = materiel.getType();
         if (type == null) {
@@ -274,6 +276,9 @@ public class MaterielApiController {
     @EvApiByToken(value = "/apis/materiel/update", method = RequestMethod.POST)
     @ApiOperation("修改物料")
     public R update(MaterielDO materiel) {
+        if(StringUtils.isBlank(materiel.getSpecification())){
+            materiel.setSpecification(null);
+        }
         //  编号不能重复和不能重复名称+规格型号的物料
         if (materielService.checkSave(materiel) == 0) {
             int update = materielService.update(materiel);
@@ -469,7 +474,7 @@ public class MaterielApiController {
                     .map(MaterielEntity::getSerialNo)
                     .collect(Collectors.toList());
             List<String> nameList = materielEntityList.stream()
-                    .map(e -> e.getName() + (e.getSpecification() == null ? "" : "," + e.getSpecification()))
+                    .map(e -> e.getName() + (e.getSpecification() == null ? "" : "-" + e.getSpecification()))
                     .collect(Collectors.toList());
             List<String> allCode = materielService.getAllCode();
             List<String> allName = materielService.getAllName();
@@ -530,6 +535,9 @@ public class MaterielApiController {
             for (MaterielEntity materielEntity : materielEntityList) {
                 materielDO = new MaterielDO();
                 BeanUtils.copyProperties(materielEntity, materielDO);
+                if(StringUtils.isBlank(materielDO.getSpecification())){
+                    materielDO.setSpecification(null);
+                }
                 // 物料类别
                 typeName = materielEntity.getTypeName();
                 for (MaterielTypeDO materielTypeDO : typeDOs) {
