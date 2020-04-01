@@ -1,6 +1,5 @@
 package com.ev.apis.controller.mes;
 
-import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
@@ -327,12 +326,28 @@ public class MesReportAndCheckController {
         int count = processReportCheckService.countForMap(params);
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
         if (!(list.isEmpty())) {
-            DsResultResponse dsRet = new DsResultResponse();
-            dsRet.setDatas(list);
-            dsRet.setPageno(pageno);
-            dsRet.setPagesize(pagesize);
-            dsRet.setTotalRows(count);
-            dsRet.setTotalPages((count + pagesize - 1) / pagesize);
+
+            BigDecimal allCheckCount=BigDecimal.ZERO;
+            BigDecimal allConformityCount=BigDecimal.ZERO;
+            BigDecimal allReworkCount=BigDecimal.ZERO;
+            BigDecimal allRcrapCount=BigDecimal.ZERO;
+            for(Map<String, Object> map:list){
+                allCheckCount=allCheckCount.add(new BigDecimal(map.getOrDefault("checkCount","0").toString()));
+                allConformityCount=allConformityCount.add(new BigDecimal(map.getOrDefault("conformityCount","0").toString()));
+                allReworkCount=allReworkCount.add(new BigDecimal(map.getOrDefault("reworkCount","0").toString()));
+                allRcrapCount=allRcrapCount.add(new BigDecimal(map.getOrDefault("scrapCount","0").toString()));
+             }
+
+            Map<String,Object>  dsRet= new HashMap<>(10);
+            dsRet.put("datas",list);
+            dsRet.put("pageno",pageno);
+            dsRet.put("pagesize",pagesize);
+            dsRet.put("totalRows",count);
+            dsRet.put("totalPages",(count + pagesize - 1) / pagesize);
+            dsRet.put("allCheckCount",allCheckCount);
+            dsRet.put("allConformityCount",allConformityCount);
+            dsRet.put("allReworkCount",allReworkCount);
+            dsRet.put("allRcrapCount",allRcrapCount);
             results.put("data", dsRet);
         }
         return R.ok(results);
