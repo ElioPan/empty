@@ -54,7 +54,24 @@ public class UpkeepApiController {
     private MessageSourceHandler messageSourceHandler;
 
 
-    @EvApiByToken(value = "/apis/upkeepPlan/newPlanAndChangePlan", method = RequestMethod.POST)
+    @EvApiByToken(value = "/apis/upkeepPlan/startUsing", method = RequestMethod.POST)
+    @ApiOperation("启用——设备保养计划")
+    @Transactional(rollbackFor = Exception.class)
+    public R startUsing(@ApiParam(value = "保养计划id", required = true) @RequestParam(value = "ids", defaultValue = "", required = true) Long[] ids) {
+        return upkeepPlanService.disposeStartUsing(ids);
+    }
+
+    @EvApiByToken(value = "/apis/upkeepPlan/forbidden", method = RequestMethod.POST)
+    @ApiOperation("禁用——设备保养计划")
+    @Transactional(rollbackFor = Exception.class)
+    public R forbidden(@ApiParam(value = "保养计划id", required = true) @RequestParam(value = "ids", defaultValue = "", required = true) Long[] ids) {
+        return upkeepPlanService.disposeForbidden(ids);
+    }
+
+
+
+
+        @EvApiByToken(value = "/apis/upkeepPlan/newPlanAndChangePlan", method = RequestMethod.POST)
     @ApiOperation("设备保养计划——暂存/修改暂存")
     @Transactional(rollbackFor = Exception.class)
     public R addNewPlanAndChangePlan(UpkeepPlanDO planDo,
@@ -101,7 +118,7 @@ public class UpkeepApiController {
             //验证是否能够修改
             UpkeepPlanDO upkeepPlanDO = upkeepPlanService.get(planDo.getId());
             if (upkeepPlanDO != null) {
-                if (Objects.equals(Constant.TS, upkeepPlanDO.getStatus())) { //146计划暂存
+                if (Objects.equals(Constant.TS, upkeepPlanDO.getStatus())) {
                     upkeepPlanService.savePlanChangeAndSbmit( planDo,  projectIds,  partIdArray, 1);
                     return  R.ok();
                 }

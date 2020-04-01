@@ -2,11 +2,13 @@ package com.ev.custom.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.ev.apis.model.DsResultResponse;
-import com.ev.framework.config.Constant;
-import com.ev.framework.utils.DateFormatUtil;
 import com.ev.custom.dao.UpkeepPlanDao;
 import com.ev.custom.domain.*;
 import com.ev.custom.service.*;
+import com.ev.framework.config.Constant;
+import com.ev.framework.il8n.MessageSourceHandler;
+import com.ev.framework.utils.DateFormatUtil;
+import com.ev.framework.utils.R;
 import com.ev.system.service.UserService;
 import com.google.common.collect.Maps;
 import net.sf.json.JSONObject;
@@ -45,7 +47,8 @@ public class UpkeepPlanServiceImpl implements UpkeepPlanService {
     private UpkeepRecordProjectService upkeepRecordProjectService;
     @Autowired
     private UpkeepCheckService upkeepCheckService;
-
+    @Autowired
+    private MessageSourceHandler messageSourceHandler;
 
     @Override
     public UpkeepPlanDO get(Long id) {
@@ -568,6 +571,54 @@ public class UpkeepPlanServiceImpl implements UpkeepPlanService {
     public int deletOfPlan(Map<String, Object> map) {
         return upkeepPlanDao.deletOfPlan( map);
     }
+
+    @Override
+    public int canChangeStatus(Map<String, Object> map) {
+        return upkeepPlanDao.canChangeStatus(map);
+    }
+
+
+    @Override
+    public R disposeStartUsing(Long[]ids){
+        Map<String,Object>  map= new HashMap<>();
+        map.put("ids",ids);
+        map.put("status",Constant.STATE_STOP_OVER);
+        int counts= this.canChangeStatus(map);
+        if(counts>0){
+            return R.error(messageSourceHandler.getMessage("scm.plan.statusIsOver.prohibitToEnable",null));
+        }
+        map.put("status",Constant.FORBIDDEN);
+        map.put("endTime",1);
+        int rows= this.canChangeStatus(map);
+        if(rows>0){
+            return R.error(messageSourceHandler.getMessage("scm.plan.statusIsOver.timeISOver",null));
+        }
+        for(Long id :ids){
+            UpkeepPlanDO updatePlanDO=new UpkeepPlanDO();
+            updatePlanDO.setStatus(Constant.STATE_START);
+            this.update(updatePlanDO);
+        }
+        return  R.ok();
+    }
+
+    @Override
+    public R disposeForbidden(Long[]ids){
+
+        Map<String,Object>  map= new HashMap<>();
+        map.put("ids",ids);
+        map.put("status",Constant.STATE_STOP_OVER);
+        int counts= this.canChangeStatus(map);
+        if(counts>0){
+            return R.error(messageSourceHandler.getMessage("scm.plan.statusIsOver.prohibitToDisable",null));
+        }
+        for(Long id :ids){
+            UpkeepPlanDO updatePlanDO=new UpkeepPlanDO();
+            updatePlanDO.setStatus(Constant.FORBIDDEN);
+            this.update(updatePlanDO);
+        }
+        return  R.ok();
+    }
+
 
 
 }

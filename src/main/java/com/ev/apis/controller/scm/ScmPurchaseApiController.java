@@ -248,7 +248,6 @@ public class ScmPurchaseApiController {
 
             Map<String,Object>  map= new HashMap<>();
             map.put("sourceType",ConstantForGYL.PURCHASE);
-//            map.put("contractId",purchaseContractId);
             for(int i=0;i<list.size();i++){
                 Map<String, Object> mapDo =list.get(i);
                 map.put("purchaseItemId",mapDo.get("purchaseItemId"));

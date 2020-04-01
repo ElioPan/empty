@@ -289,7 +289,6 @@ public class MesReportAndCheckController {
 
                                @ApiParam(value = "开始日期") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
                                @ApiParam(value = "截止日期") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
-                               @ApiParam(value = "检验时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String createTime,
                                 @ApiParam(value = "需排序字段") @RequestParam(value = "sort",defaultValue = "",required = false)  String sort,
                                @ApiParam(value = "升（asc）降(desc)序") @RequestParam(value = "order",defaultValue = "",required = false)  String order) {
 
