@@ -127,7 +127,7 @@ public class DeviceApiController {
 
     @EvApiByToken(value = "/apis/device/advancedQuery", method = RequestMethod.POST, apiTitle = "设备台账-查询/高级查询")
     @ApiOperation("设备台账-查询/高级查询")
-    public R advancedQueryList(@ApiParam(value = "设备名字或编码", required = false) @RequestParam(value = "nameAndType", defaultValue = "", required = false) String name,
+    public R advancedQueryList(@ApiParam(value = "设备名字或编码") @RequestParam(value = "nameAndType", defaultValue = "", required = false) String name,
                                @ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
                                @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
                                @ApiParam(value = "部门id") @RequestParam(value = "deptId", required = false) Long deptId,
@@ -328,7 +328,7 @@ public class DeviceApiController {
     @EvApiByToken(value = "/apis/deviceArg/addDeviceArg",method = RequestMethod.POST)
     @ApiOperation("新增设备参数信息")
     public R addDeviceArg(DeviceArgDO deviceArg){
-        Map<String,Object> results = Maps.newHashMap();
+        Map<String,Object> results ;
         String code="SBCS"+DateFormatUtil.getWorkOrderno();
         deviceArg.setCode(code);
         results = this.deviceArgService.addDeviceArg(deviceArg);
@@ -338,7 +338,7 @@ public class DeviceApiController {
     @EvApiByToken(value = "/apis/deviceArg/delDeviceArg",method = RequestMethod.POST)
     @ApiOperation("删除设备参数信息")
     @Transactional
-    public R delDeviceArg(@ApiParam(value = "ID",required = true) @RequestParam(value = "id",defaultValue = "",required = true) Long id){
+    public R delDeviceArg(@ApiParam(value = "ID",required = true) @RequestParam(value = "id",defaultValue = "") Long id){
         Map<String,Object> results ;
         results = this.deviceArgService.delDeviceArg(id);
         return R.ok(results);
@@ -519,7 +519,7 @@ public class DeviceApiController {
     @ApiOperation("获取设备文档资料列表")
     public R list(@ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
                   @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize,
-                  @ApiParam(value = "设备id") @RequestParam(value = "device_id",defaultValue = "",required = true)  String device_id,
+                  @ApiParam(value = "设备id") @RequestParam(value = "device_id",defaultValue = "")  String device_id,
                   @ApiParam(value = "文档类型") @RequestParam(value = "type",defaultValue = "",required = false)  Long type){
         Map<String, Object> params = new HashMap<>();
         params.put("deviceId",device_id);
@@ -689,8 +689,8 @@ public class DeviceApiController {
      */
     @EvApiByToken(value = "/apis/sparePart:sparePartList", method = RequestMethod.POST, apiTitle = "当前主设备下备件列表")
     @ApiOperation("当前主设备下备件列表")
-    public R relevanceSpareList(@ApiParam(value = "当前第几页", required = false) @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
-                                @ApiParam(value = "一页多少条", required = false) @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
+    public R relevanceSpareList(@ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
+                                @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
                                 @ApiParam(value = "主设备ID", required = true) @RequestParam(value = "id") Long id) {
 
         Map<String, Object> query = new HashMap<String, Object>() {{
@@ -711,7 +711,7 @@ public class DeviceApiController {
             Map<Long,BigDecimal> materialCounts;
             materialCounts=spartPartsCount.stream().collect(Collectors.toMap(StockDO::getMaterielId,StockDO::getCount,BigDecimal::add));
             for(Map<String, Object> listMap:sparePartList ){
-                listMap.put("partCount",materialCounts.get(Long.parseLong(listMap.get("id").toString())));
+                listMap.put("partCount",materialCounts.getOrDefault(Long.parseLong(listMap.get("id").toString()),BigDecimal.ZERO));
             }
             DsResultResponse resultPonse = new DsResultResponse();
             resultPonse.setDatas(sparePartList);
@@ -724,8 +724,6 @@ public class DeviceApiController {
         }
             return R.ok(resultListMaps);
     }
-
-
 
     /**
      * 添加备件（单条/多条）
