@@ -50,4 +50,6 @@ public interface MaterielDao {
     List<String> getAllCode();
 
     void batchSave(List<MaterielDO> materielDOs);
+
+    List<String> getAllName();
 }

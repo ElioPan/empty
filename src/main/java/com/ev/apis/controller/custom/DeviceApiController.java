@@ -765,8 +765,8 @@ public class DeviceApiController {
 
     /*导入导出*/
     @ResponseBody
-    @EvApiByToken(value = "/apis/exportExcel/device", method = RequestMethod.GET, apiTitle = "导出物料")
-    @ApiOperation("导出物料")
+    @EvApiByToken(value = "/apis/exportExcel/device", method = RequestMethod.GET, apiTitle = "导出设备")
+    @ApiOperation("导出设备")
     public void exportExcel(
             @ApiParam(value = "设备名字或编码") @RequestParam(value = "nameAndType", defaultValue = "", required = false) String name,
             @ApiParam(value = "部门id") @RequestParam(value = "deptId", required = false) Long deptId,
@@ -817,7 +817,7 @@ public class DeviceApiController {
     @EvApiByToken(value = "/apis/importExcel/device", method = RequestMethod.POST, apiTitle = "设备信息导入")
     @ApiOperation("设备信息导入")
     @Transactional(rollbackFor = Exception.class)
-    public R readSupplier(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file) throws Exception {
+    public R readDevice(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file)  {
         if (file.isEmpty()) {
             return R.error(messageSourceHandler.getMessage("file.nonSelect", null));
         }
@@ -838,7 +838,11 @@ public class DeviceApiController {
                     .filter(deviceEntity -> StringUtils.isNoneEmpty(deviceEntity.getSerialno()))
                     .map(DeviceEntity::getSerialno)
                     .collect(Collectors.toList());
+            List<String> nameList = deviceEntityList.stream()
+                    .map(DeviceEntity::getName)
+                    .collect(Collectors.toList());
             List<String> allCode = deviceService.getAllCode();
+            List<String> allName = deviceService.getAllName();
             if (allCode.size() > 0 && codeNoneEmptyList.size() > 0) {
                 allCode.addAll(codeNoneEmptyList);
                 List<String> duplicateElements = ListUtils.getDuplicateElements(allCode);
@@ -847,7 +851,16 @@ public class DeviceApiController {
                     String[] arg = {StringUtils.join(duplicateElements.toArray(), ",")};
                     return R.error(messageSourceHandler.getMessage("basicInfo.code.isPresence", arg));
                 }
-    }
+            }
+            if (allName.size() > 0 && nameList.size() > 0) {
+                allName.addAll(nameList);
+                List<String> duplicateElements = ListUtils.getDuplicateElements(allName);
+                // 若存在重复的元素提示用户
+                if (duplicateElements.size() > 0) {
+                    String[] arg = {StringUtils.join(duplicateElements.toArray(), ",")};
+                    return R.error(messageSourceHandler.getMessage("basicInfo.name.isPresence", arg));
+                }
+            }
 
             Map<String, Object> param = Maps.newHashMap();
             param.put("maxNo", Constant.SB);

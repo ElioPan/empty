@@ -410,12 +410,41 @@ public class MaterielApiController {
                 TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
 
     }
+
+    @EvApiByToken(value = "/apis/materiel/batchAudit", method = RequestMethod.POST, apiTitle = "批量审核客户")
+    @ApiOperation("批量审核客户")
+    @Transactional(rollbackFor = Exception.class)
+    public R batchAudit(@ApiParam(value = "供应商id", required = true) @RequestParam(value = "ids", defaultValue = "")Integer[] ids ){
+        if (ids.length > 0) {
+            List<MaterielDO> materielDOList=Lists.newArrayList();
+            Long userId = ShiroUtils.getUserId();
+            for (Integer id : ids) {
+                MaterielDO materielDO= materielService.get(id);
+                if(Objects.isNull(materielDO)){
+                    return R.error(messageSourceHandler.getMessage("common.massge.haveNoThing",null));
+                }
+                if(!Objects.equals(materielDO.getAuditSign(),ConstantForMES.WAIT_AUDIT)){
+                    return R.error(messageSourceHandler.getMessage("common.massge.okAudit",null));
+                }
+                materielDOList.add(materielDO);
+            }
+
+            for (MaterielDO materielDO : materielDOList) {
+                materielDO.setAuditSign(ConstantForMES.OK_AUDITED);
+                materielDO.setAuditor(userId);
+                materielService.update(materielDO);
+            }
+            return R.ok();
+        }
+        return R.error();
+
+    }
     /*导入*/
     @ResponseBody
     @EvApiByToken(value = "/apis/importExcel/materiel", method = RequestMethod.POST, apiTitle = "物料信息导入")
     @ApiOperation("物料信息导入")
     @Transactional(rollbackFor = Exception.class)
-    public R readSupplier(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file) {
+    public R readMateriel(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
             return R.error(messageSourceHandler.getMessage("file.nonSelect", null));
         }
@@ -435,7 +464,11 @@ public class MaterielApiController {
                     .filter(materielEntity -> StringUtils.isNoneEmpty(materielEntity.getSerialNo()))
                     .map(MaterielEntity::getSerialNo)
                     .collect(Collectors.toList());
+            List<String> nameList = materielEntityList.stream()
+                    .map(MaterielEntity::getName)
+                    .collect(Collectors.toList());
             List<String> allCode = materielService.getAllCode();
+            List<String> allName = materielService.getAllName();
             if (allCode.size() > 0 && codeNoneEmptyList.size() > 0) {
                 allCode.addAll(codeNoneEmptyList);
                 List<String> duplicateElements = ListUtils.getDuplicateElements(allCode);
@@ -443,6 +476,15 @@ public class MaterielApiController {
                 if (duplicateElements.size() > 0) {
                     String[] arg = {StringUtils.join(duplicateElements.toArray(), ",")};
                     return R.error(messageSourceHandler.getMessage("basicInfo.code.isPresence", arg));
+                }
+            }
+            if (allName.size() > 0 && nameList.size() > 0) {
+                allName.addAll(nameList);
+                List<String> duplicateElements = ListUtils.getDuplicateElements(allName);
+                // 若存在重复的元素提示用户
+                if (duplicateElements.size() > 0) {
+                    String[] arg = {StringUtils.join(duplicateElements.toArray(), ",")};
+                    return R.error(messageSourceHandler.getMessage("basicInfo.name.isPresence", arg));
                 }
             }
 

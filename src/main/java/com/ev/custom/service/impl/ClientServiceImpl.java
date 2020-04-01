@@ -114,5 +114,10 @@ public class ClientServiceImpl implements ClientService {
         clientDao.batchSave(clientDOs);
     }
 
+	@Override
+	public List<String> getAllName() {
+		return clientDao.getAllName();
+	}
+
 
 }

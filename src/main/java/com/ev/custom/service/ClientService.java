@@ -47,4 +47,6 @@ public interface ClientService {
     List<String> getAllCode();
 
     void batchSave(List<ClientDO> clientDOs);
+
+	List<String> getAllName();
 }

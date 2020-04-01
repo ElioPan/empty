@@ -737,4 +737,12 @@
         WHERE
         `del_flag`=0
     </select>
+    <select id="getAllName" resultType="java.lang.String">
+		SELECT
+        `name`
+        from
+        cus_materiel
+        WHERE
+        `del_flag`=0
+	</select>
 </mapper>
