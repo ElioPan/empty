@@ -6,8 +6,7 @@ package com.ev.framework.config;
  */
 public final class ConstantForMES{
 
-
-	private ConstantForMES() {
+    private ConstantForMES() {
 	}
 	/**
 	 * 待审核
@@ -21,7 +20,10 @@ public final class ConstantForMES{
 	 * BOM文件
 	 */
 	public static final String BOM_FILE = "BOM_FILE";
-
+	/**
+	 * SOP文件
+	 */
+	public static final String SOP_FILE = "SOP_FILE";
 	/**
 	 * 检验项目前缀
 	 */
