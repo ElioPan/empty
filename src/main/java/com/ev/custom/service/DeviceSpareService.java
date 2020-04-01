@@ -1,6 +1,7 @@
 package com.ev.custom.service;
 
 import com.ev.custom.domain.DeviceSpareDO;
+import com.ev.scm.domain.StockDO;
 
 import java.util.List;
 import java.util.Map;
@@ -37,4 +38,7 @@ public interface DeviceSpareService {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+	List<StockDO> getSpartPartsCount(Long[] ids);
+
 }

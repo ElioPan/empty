@@ -353,4 +353,9 @@ public class DeviceServiceImpl implements DeviceService {
         deviceDao.batchSave(deviceDOs);
     }
 
+	@Override
+	public int countOfDeviceChildren(Map<String, Object> map) {
+		return deviceDao.countOfDeviceChildren(map);
+	}
+
 }

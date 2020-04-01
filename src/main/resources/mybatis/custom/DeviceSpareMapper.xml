@@ -129,6 +129,20 @@
 		</foreach>
 	</delete>
 
+	<select id="getSpartPartsCount" resultType="com.ev.scm.domain.StockDO">
+		select
+		a.materiel_id,
+		a.available_count
+		FROM
+		scm_stock a
+		WHERE
+		a.materiel_id   in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+
+
      <!--查询已关联主设备的备件-->
 	<select id="getRelatedSpareParts" resultType="map">
 	select

@@ -359,6 +359,20 @@
 		</if>
 	</select>
 
+	<select id="countOfDeviceChildren" resultType="int">
+		select
+		count(*)
+		from cus_device cusd
+		LEFT JOIN cus_dictionary cusdaa ON cusd.type=cusdaa.id
+		LEFT JOIN cus_dictionary cusdab ON cusd.using_status=cusdab.id
+		LEFT JOIN sys_dept cusdac ON cusd.dept_id=cusdac.dept_id
+		LEFT JOIN sys_user  users ON cusd.user_id=users.user_id
+		<where>
+			<if test="parentId != null and parentId != ''"> and cusd.parent_id = #{parentId}</if>
+		</where>
+
+	</select>
+
 
 	<!--设备详情-->
 	<select id="oneDeviceDetail" resultType="map">

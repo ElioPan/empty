@@ -1,6 +1,7 @@
 package com.ev.custom.dao;
 
 import com.ev.custom.domain.DeviceSpareDO;
+import com.ev.scm.domain.StockDO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -37,4 +38,8 @@ public interface DeviceSpareDao {
 	int batchRemove(Long[] ids);
 
 	int countRelatedSpareParts(Map<String, Object> map);
+
+	List<StockDO> getSpartPartsCount(Long[] ids);
+
+
 }
