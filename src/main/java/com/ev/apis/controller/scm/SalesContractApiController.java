@@ -10,6 +10,7 @@ import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.StringUtils;
+import com.ev.mes.service.ProductionPlanService;
 import com.ev.scm.domain.SalescontractDO;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.utils.R;
@@ -55,6 +56,8 @@ public class SalesContractApiController {
     private SalesbillService salesbillService;
     @Autowired
     private PurchaseItemService purchaseItemService;
+    @Autowired
+    private ProductionPlanService planService;
     @Autowired
     private ContractAlterationService contractAlterationService;
 	
@@ -301,6 +304,10 @@ public class SalesContractApiController {
                     case 3:
                         // 采购申请引用
                         bySource = purchaseItemService.getInCountOfPurchase(sourceParam);
+                        break;
+                    case 4:
+                        // 生产计划引用
+                        bySource = planService.getCountBySource(sourceParam);
                         break;
                     default:
                         break;

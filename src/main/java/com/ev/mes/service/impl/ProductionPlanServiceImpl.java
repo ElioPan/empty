@@ -361,6 +361,11 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
         return productionPlanDao.listDialogMap(params);
     }
 
+    @Override
+    public BigDecimal getCountBySource(Map<String, Object> sourceParam) {
+        return productionPlanDao.getCountBySource(sourceParam);
+    }
+
     private List<ProductionFeedingDO> getFeedingList(Long id, Map<String, Object> param) {
         param.put("productionPlanId", id);
         return feedingService.list(param);

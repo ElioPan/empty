@@ -363,6 +363,16 @@
     AND plan.`id` = #{value}
     ) a
 	</select>
+    <select id="getCountBySource" resultType="java.math.BigDecimal">
+		SELECT
+		SUM(`plan_count`)
+		FROM mes_production_plan
+		<where>
+			<if test="id != null and id != ''"> and id <![CDATA[<>]]> #{id} </if>
+			<if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
+			<if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+		</where>
+	</select>
 
 
 </mapper>
