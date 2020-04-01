@@ -132,6 +132,7 @@
 	<select id="getSpartPartsCount" resultType="com.ev.scm.domain.StockDO">
 		select
 		a.materiel_id,
+		a.count,
 		a.available_count
 		FROM
 		scm_stock a

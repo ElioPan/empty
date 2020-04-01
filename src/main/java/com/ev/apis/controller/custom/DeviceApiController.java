@@ -709,7 +709,7 @@ public class DeviceApiController {
             }
             List<StockDO> spartPartsCount = deviceSpareService.getSpartPartsCount(ids);
             Map<Long,BigDecimal> materialCounts;
-            materialCounts=spartPartsCount.stream().collect(Collectors.toMap(StockDO::getMaterielId,StockDO::getAvailableCount,BigDecimal::add));
+            materialCounts=spartPartsCount.stream().collect(Collectors.toMap(StockDO::getMaterielId,StockDO::getCount,BigDecimal::add));
             for(Map<String, Object> listMap:sparePartList ){
                 listMap.put("partCount",materialCounts.get(Long.parseLong(listMap.get("id").toString())));
             }

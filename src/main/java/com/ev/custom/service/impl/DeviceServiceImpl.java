@@ -77,7 +77,7 @@ public class DeviceServiceImpl implements DeviceService {
 
 	@Override
 	public R apiDelete(Long[] deviceId) {
-		Map<String,Object> query=new HashMap<String,Object>();
+		Map<String,Object> query=new HashMap<>();
 		//查询设备是否有子设备，有子设备不可删除，无子设备可删除
 		Long ids[]=new Long[deviceId.length];
 		for (int i=0;i<deviceId.length ;i++){
@@ -179,7 +179,7 @@ public class DeviceServiceImpl implements DeviceService {
 
 	@Override
 	public Map<String, Object> getDeviceMap() {
-		List<DeviceDO> devices = deviceDao.list(new HashMap<String,Object>(16));
+		List<DeviceDO> devices = deviceDao.list(new HashMap<>(16));
 		Map<String,Object> map = new HashMap<>();
 		if(devices!=null && devices.size()>0){
 			for (DeviceDO device:devices) {
@@ -194,17 +194,16 @@ public class DeviceServiceImpl implements DeviceService {
 		Map<String,Object> results = Maps.newHashMap();
 		UserDO user = this.userService.get(userId);
 
-		Map<String, Object> params = new HashMap<String, Object>();
+		Map<String, Object> params = new HashMap<>(2);
 		boolean isAdmin = this.userService.checkAdmin(user);
 
 		if(isAdmin){
 			//admin看所有部门下的设备
 		}else{
 			//非admin看
-			DeptDO dept = this.deptService.get(user.getDeptId());//(params.get("deptId).toString())
+			DeptDO dept = this.deptService.get(user.getDeptId());
 			params.put("deptId",dept.getDeptId());
-//			System.out.println("==========dept.getDeptId()======="+dept.getDeptId().toString()+"====================");
-//			System.out.println("==========params======="+params.get("deptId").toString()+"====================");
+
 		}
 
 		List<Map<String, Object>> deviceListByDeptId = deviceDao.listByDeptId(params);
