@@ -20,7 +20,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.parser.Entity;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -180,7 +179,8 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
             }
         }
 		List<Map<String, Object>> workingDetailLists=workingDetailList.stream()
-				.sorted((V1,V2)->Integer.parseInt(V1.get("serialNumber").toString())>Integer.parseInt(V2.get("serialNumber").toString())?1:-1).collect(Collectors.toList());
+				.sorted((V1,V2)->Integer.parseInt(V1.get("serialNumber").toString())>Integer.parseInt(V2.get("serialNumber")
+                .toString())?1:-1).collect(Collectors.toList());
 
         results.put("bodyInfo", workingDetailLists);
 		return results;
@@ -198,7 +198,6 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
         param.put("type",ConstantForMES.GXJH_GYLX);
         List<Map<String, Object>> checkProject = detailService.getDetailByPlanId(param);
         map.put("checkProject", checkProject);
-        List<Map.Entry<String,Object>>  lstEntry=new ArrayList<>(map.entrySet());
         results.put("bodyInfo",map);
 //                .stream()
 //                .filter(stringObjectMap -> stringObjectMap.get("id").toString().equals(bodyId.toString()))
