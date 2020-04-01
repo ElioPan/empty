@@ -461,8 +461,8 @@
     <select id="canChangeStatus" resultType="int">
 		select
 		count(*)
-		from cus_upkeep_plan
-        where
+		from
+		cus_upkeep_plan
         <where>
             <if test="status != null and status != ''"> and status= #{status} </if>
             <if test="endTime != null and endTime != ''"> and end_time &lt;(select date_format(now(),'%Y-%m-%d %H-%I-%S')) </if>

@@ -1,18 +1,5 @@
 package com.ev.custom.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.ev.framework.config.Constant;
-import com.ev.framework.utils.DateFormatUtil;
 import com.ev.common.vo.PlanVo;
 import com.ev.custom.dao.PatrolPlanDao;
 import com.ev.custom.domain.PatrolPlanDO;
@@ -21,7 +8,17 @@ import com.ev.custom.domain.PatrolProjectDO;
 import com.ev.custom.service.PatrolPlanDetailService;
 import com.ev.custom.service.PatrolPlanService;
 import com.ev.custom.service.PatrolProjectService;
+import com.ev.framework.config.Constant;
+import com.ev.framework.il8n.MessageSourceHandler;
+import com.ev.framework.utils.DateFormatUtil;
+import com.ev.framework.utils.R;
 import com.google.common.collect.Maps;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 @Service
 public class PatrolPlanServiceImpl implements PatrolPlanService {
@@ -31,6 +28,8 @@ public class PatrolPlanServiceImpl implements PatrolPlanService {
 	private PatrolPlanDetailService patrolPlanDetailService;
 	@Autowired
 	private PatrolProjectService patrolProjectService;
+	@Autowired
+	private MessageSourceHandler messageSourceHandler;
 
 	@Override
 	public PatrolPlanDO get(Long id) {
@@ -65,6 +64,11 @@ public class PatrolPlanServiceImpl implements PatrolPlanService {
 	@Override
 	public int batchRemove(Long[] ids) {
 		return patrolPlanDao.batchRemove(ids);
+	}
+
+	@Override
+	public int canChangeStatus(Map<String, Object> map) {
+		return patrolPlanDao.canChangeStatus(map);
 	}
 
 	@Override
@@ -201,5 +205,51 @@ public class PatrolPlanServiceImpl implements PatrolPlanService {
 		params.put("nowTime", DateFormatUtil.getFormateDate(new Date()));
 		return patrolPlanDao.getNoticeListCount(params);
 	}
-	
+
+
+	@Override
+	public R disposeStartUsing(Long[]ids){
+		Map<String,Object>  map= new HashMap<>();
+		map.put("ids",ids);
+		map.put("status",Constant.STATE_STOP_OVER);
+		int counts= this.canChangeStatus(map);
+		if(counts>0){
+			return R.error(messageSourceHandler.getMessage("scm.plan.statusIsOver.prohibitToEnable",null));
+		}
+		map.put("status",Constant.FORBIDDEN);
+		map.put("endTime",1);
+		int rows= this.canChangeStatus(map);
+		if(rows>0){
+			return R.error(messageSourceHandler.getMessage("scm.plan.statusIsOver.timeISOver",null));
+		}
+		for(Long id :ids){
+			PatrolPlanDO patrolPlanDO=new PatrolPlanDO();
+			patrolPlanDO.setStatus(Constant.STATE_START);
+			this.update(patrolPlanDO);
+		}
+		return  R.ok();
+	}
+
+	@Override
+	public R disposeForbidden(Long[]ids){
+
+		Map<String,Object>  map= new HashMap<>();
+		map.put("ids",ids);
+		map.put("status",Constant.STATE_STOP_OVER);
+		int counts= this.canChangeStatus(map);
+		if(counts>0){
+			return R.error(messageSourceHandler.getMessage("scm.plan.statusIsOver.prohibitToDisable",null));
+		}
+		for(Long id :ids){
+			PatrolPlanDO patrolPlanDO=new PatrolPlanDO();
+			patrolPlanDO.setStatus(Constant.FORBIDDEN);
+			this.update(patrolPlanDO);
+		}
+		return  R.ok();
+	}
+
+
+
+
+
 }

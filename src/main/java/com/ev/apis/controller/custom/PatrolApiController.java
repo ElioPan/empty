@@ -125,6 +125,21 @@ public class PatrolApiController {
     }
 
 
+    @EvApiByToken(value = "/apis/patrolPlan/startUsing", method = RequestMethod.POST)
+    @ApiOperation("启用——巡点检计划")
+    @Transactional(rollbackFor = Exception.class)
+    public R startUsing(@ApiParam(value = "计划id", required = true) @RequestParam(value = "ids", defaultValue = "", required = true) Long[] ids) {
+        return patrolPlanService.disposeStartUsing(ids);
+    }
+
+    @EvApiByToken(value = "/apis/patrolPlan/forbidden", method = RequestMethod.POST)
+    @ApiOperation("禁用——巡点检计划")
+    @Transactional(rollbackFor = Exception.class)
+    public R forbidden(@ApiParam(value = "计划id", required = true) @RequestParam(value = "ids", defaultValue = "", required = true) Long[] ids) {
+        return patrolPlanService.disposeForbidden(ids);
+    }
+
+
     @EvApiByToken(value = "/apis/patrolPlan/planList",method = RequestMethod.POST)
     @ApiOperation("获取用户的巡点检计划列表")
     public R planList(@ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
