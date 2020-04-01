@@ -249,7 +249,7 @@ public class SalesContractApiController {
             @ApiParam(value = "单据结束时间") @RequestParam(value = "createEndTime",defaultValue = "",required = false)  String createEndTime,
 
             @ApiParam(value = "客户Id") @RequestParam(value = "clientId",defaultValue = "",required = false)  Long clientId,
-            @ApiParam(value = "dialog类型：委外合同0，销售票据1，销售出库2，采购申请3",required = true) @RequestParam(value = "dialogType",defaultValue = "")  Integer dialogType,
+            @ApiParam(value = "dialog类型：委外合同0，销售票据1，销售出库2，采购申请3，生产计划4",required = true) @RequestParam(value = "dialogType",defaultValue = "")  Integer dialogType,
             @ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
             @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize) {
         Map<String, Object> map = Maps.newHashMap();

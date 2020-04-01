@@ -182,6 +182,7 @@
 		<set>
 			<if test="sourceType != null">`source_type` = #{sourceType}, </if>
 			<if test="sourceId != null">`source_id` = #{sourceId}, </if>
+			<if test="sourceNo != null">`source_no` = #{sourceNo}, </if>
 			<if test="planNo != null">`plan_no` = #{planNo}, </if>
 			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
 			<if test="proDept != null">`pro_dept` = #{proDept}, </if>
