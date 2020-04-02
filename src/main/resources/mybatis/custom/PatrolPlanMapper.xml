@@ -337,8 +337,8 @@
 		<where>
 			<if test="status != null and status != ''"> and status= #{status} </if>
 			<if test="endTime != null and endTime != ''"> and end_time &lt;(select date_format(now(),'%Y-%m-%d %H-%I-%S')) </if>
-			<if test="ids != null and ids != ''"> and ids in
-				<foreach item="id" collection="id" open="(" separator="," close=")">
+			<if test="ids != null and ids != ''"> and id in
+				<foreach item="id" collection="ids" open="(" separator="," close=")">
 					#{id}
 				</foreach>
 			</if>
