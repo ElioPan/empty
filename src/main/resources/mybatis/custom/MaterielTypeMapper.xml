@@ -138,6 +138,7 @@
     <select id="listForMap" resultType="map">
         select
         `id`,
+        `code`,
         `name`,
         `parent_id` AS parentId,
 		`is_system` AS isSystem
