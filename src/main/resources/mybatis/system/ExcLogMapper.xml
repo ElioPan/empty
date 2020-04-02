@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.system.dao.ExcLogDao">
+
+	<select id="get" resultType="com.ev.system.domain.ExcLogDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM sys_exc_log 
+		WHERE exc_requ_param = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.system.domain.ExcLogDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM sys_exc_log
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+			<otherwise>
+                ORDER BY exc_requ_param DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+        SELECT COUNT(*) FROM sys_exc_log
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`exc_requ_param`,`exc_name`,`exc_message`,`op_user_id`,`op_user_name`,`op_method`,`op_uri`,`op_machine`,`op_dns_ip`,`op_ip`,`op_ver`,`create_time`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="excRequParam != null and excRequParam != ''"> AND exc_requ_param = #{excRequParam} </if>
+                            <if test="excName != null and excName != ''"> AND exc_name = #{excName} </if>
+                            <if test="excMessage != null and excMessage != ''"> AND exc_message = #{excMessage} </if>
+                            <if test="opUserId != null and opUserId != ''"> AND op_user_id = #{opUserId} </if>
+                            <if test="opUserName != null and opUserName != ''"> AND op_user_name = #{opUserName} </if>
+                            <if test="opMethod != null and opMethod != ''"> AND op_method = #{opMethod} </if>
+                            <if test="opUri != null and opUri != ''"> AND op_uri = #{opUri} </if>
+                            <if test="opMachine != null and opMachine != ''"> AND op_machine = #{opMachine} </if>
+                            <if test="opDnsIp != null and opDnsIp != ''"> AND op_dns_ip = #{opDnsIp} </if>
+                            <if test="opIp != null and opIp != ''"> AND op_ip = #{opIp} </if>
+                            <if test="opVer != null and opVer != ''"> AND op_ver = #{opVer} </if>
+                            <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.system.domain.ExcLogDO">
+		INSERT INTO sys_exc_log
+		(
+			`exc_requ_param`, 
+			`exc_name`, 
+			`exc_message`, 
+			`op_user_id`, 
+			`op_user_name`, 
+			`op_method`, 
+			`op_uri`, 
+			`op_machine`, 
+			`op_dns_ip`, 
+			`op_ip`, 
+			`op_ver`, 
+			`create_time`
+		)
+		VALUES
+		(
+			#{excRequParam}, 
+			#{excName}, 
+			#{excMessage}, 
+			#{opUserId}, 
+			#{opUserName}, 
+			#{opMethod}, 
+			#{opUri}, 
+			#{opMachine}, 
+			#{opDnsIp}, 
+			#{opIp}, 
+			#{opVer}, 
+			#{createTime}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.system.domain.ExcLogDO">
+		UPDATE sys_exc_log
+		<set>
+			<if test="excName != null">`exc_name` = #{excName}, </if>
+			<if test="excMessage != null">`exc_message` = #{excMessage}, </if>
+			<if test="opUserId != null">`op_user_id` = #{opUserId}, </if>
+			<if test="opUserName != null">`op_user_name` = #{opUserName}, </if>
+			<if test="opMethod != null">`op_method` = #{opMethod}, </if>
+			<if test="opUri != null">`op_uri` = #{opUri}, </if>
+			<if test="opMachine != null">`op_machine` = #{opMachine}, </if>
+			<if test="opDnsIp != null">`op_dns_ip` = #{opDnsIp}, </if>
+			<if test="opIp != null">`op_ip` = #{opIp}, </if>
+			<if test="opVer != null">`op_ver` = #{opVer}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}</if>
+		</set>
+		WHERE exc_requ_param = #{excRequParam}
+	</update>
+
+	<update id="updateAll" parameterType="com.ev.system.domain.ExcLogDO">
+		UPDATE sys_exc_log SET
+			`exc_name` = #{excName}, 
+			`exc_message` = #{excMessage}, 
+			`op_user_id` = #{opUserId}, 
+			`op_user_name` = #{opUserName}, 
+			`op_method` = #{opMethod}, 
+			`op_uri` = #{opUri}, 
+			`op_machine` = #{opMachine}, 
+			`op_dns_ip` = #{opDnsIp}, 
+			`op_ip` = #{opIp}, 
+			`op_ver` = #{opVer}, 
+			`create_time` = #{createTime}
+		WHERE exc_requ_param = #{excRequParam}
+	</update>
+
+	
+	<delete id="remove">
+		DELETE FROM sys_exc_log WHERE exc_requ_param = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+        DELETE FROM sys_exc_log WHERE exc_requ_param IN
+		<foreach item="excRequParam" collection="array" open="(" separator="," close=")">
+			#{excRequParam}
+		</foreach>
+	</delete>
+	
+</mapper>

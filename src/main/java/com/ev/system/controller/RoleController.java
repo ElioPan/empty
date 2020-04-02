@@ -35,14 +35,12 @@ public class RoleController extends BaseController {
 		return roles;
 	}
 
-	@Log("添加角色")
 	@RequiresPermissions("sys:role:add")
 	@GetMapping("/add")
 	String add() {
 		return prefix + "/add";
 	}
 
-	@Log("编辑角色")
 	@RequiresPermissions("sys:role:edit")
 	@GetMapping("/edit/{id}")
 	String edit(@PathVariable("id") Long id, Model model) {
@@ -51,7 +49,6 @@ public class RoleController extends BaseController {
 		return prefix + "/edit";
 	}
 
-	@Log("保存角色")
 	@RequiresPermissions("sys:role:add")
 	@PostMapping("/save")
 	@ResponseBody()
@@ -66,7 +63,6 @@ public class RoleController extends BaseController {
 		}
 	}
 
-	@Log("更新角色")
 	@RequiresPermissions("sys:role:edit")
 	@PostMapping("/update")
 	@ResponseBody()
@@ -81,7 +77,6 @@ public class RoleController extends BaseController {
 		}
 	}
 
-	@Log("删除角色")
 	@RequiresPermissions("sys:role:remove")
 	@PostMapping("/remove")
 	@ResponseBody()
@@ -97,7 +92,6 @@ public class RoleController extends BaseController {
 	}
 	
 	@RequiresPermissions("sys:role:batchRemove")
-	@Log("批量删除角色")
 	@PostMapping("/batchRemove")
 	@ResponseBody
 	R batchRemove(@RequestParam("ids") Long[] ids) {

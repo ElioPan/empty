@@ -3,6 +3,7 @@ package com.ev.apis.controller.custom;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.common.controller.BaseController;
+import com.ev.framework.annotation.Log;
 import com.ev.framework.config.Constant;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.MD5Utils;
@@ -73,6 +74,7 @@ public class UserApiController extends BaseController {
         return  R.ok(results);
     }
 
+    @Log(operModule = "用户管理",operType = "增加",operDesc = "添加用户信息")
     @EvApiByToken(value = "/apis/user/add",method = RequestMethod.POST,apiTitle = "添加用户信息")
     @ApiOperation("添加用户信息")
     public R save(UserDO user) throws IOException, ParseException {

@@ -247,7 +247,7 @@ public class RepairEventServiceImpl implements RepairEventService {
 					contentDetail.put("url","/eqRepair/repairDetail?id="+repairId);
 					List<Long> toUsers = new ArrayList<>();
 					toUsers.addAll(Arrays.asList(carbonCopyRecipients));
-					String content = "单号为“"+repairId+"”的维修单据抄送了您，请及时关注！";
+					String content = "单号为“"+event.getWorkOrderno()+"”的维修单据抄送了您，请及时关注！";
 					noticeService.saveAndSendSocket("@我的维修单", content, repairId, contentDetail.toString(),5L, ShiroUtils.getUserId(),toUsers);
     				return R.ok(map);
     			}
@@ -268,7 +268,7 @@ public class RepairEventServiceImpl implements RepairEventService {
 			contentDetail.put("url","/eqRepair/repairDetail?id="+eventId);
 			List<Long> toUsers = new ArrayList<>();
 			toUsers.addAll(Arrays.asList(carbonCopyRecipients));
-			String content = "单号为“"+eventId+"”的维修单据抄送了您，请及时关注！";
+			String content = "单号为“"+event.getWorkOrderno()+"”的维修单据抄送了您，请及时关注！";
 			noticeService.saveAndSendSocket("@我的维修单", content, eventId, contentDetail.toString(),5L, ShiroUtils.getUserId(),toUsers);
         	return R.ok();
 		}
@@ -324,7 +324,7 @@ public class RepairEventServiceImpl implements RepairEventService {
 					contentDetail.put("url","/eqRepair/repairDetail?id="+repairId);
 					List<Long> toUsers = new ArrayList<>();
 					toUsers.addAll(Arrays.asList(carbonCopyRecipients));
-					String content = "单号为“"+repairId+"”的维修单据抄送了您，请及时关注！";
+					String content = "单号为“"+event.getWorkOrderno()+"”的维修单据抄送了您，请及时关注！";
 					noticeService.saveAndSendSocket("@我的维修单", content, repairId, contentDetail.toString(),5L, ShiroUtils.getUserId(),toUsers);
 					return R.ok(result);
 				}
@@ -348,7 +348,7 @@ public class RepairEventServiceImpl implements RepairEventService {
 			contentDetail.put("url","/eqRepair/repairDetail?id="+eventId);
 			List<Long> toUsers = new ArrayList<>();
 			toUsers.addAll(Arrays.asList(carbonCopyRecipients));
-			String content = "单号为“"+eventId+"”的维修单据抄送了您，请及时关注！";
+			String content = "单号为“"+event.getWorkOrderno()+"”的维修单据抄送了您，请及时关注！";
 			noticeService.saveAndSendSocket("@我的维修单", content, eventId, contentDetail.toString(),5L, ShiroUtils.getUserId(),toUsers);
     		return R.ok();
 		}
