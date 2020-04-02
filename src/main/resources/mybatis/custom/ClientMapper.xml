@@ -76,14 +76,13 @@
         client.address AS address,
         dic.name AS typeName,
         client.`tax_number` AS taxNumber,
-        dicb.`name` AS bankName,
+		client.`bank` AS bankName,
         client.`account`,
         dept.`name` AS belongDeptName,
         users.`name` AS belongSalesmanName
         FROM
         cus_client client
         LEFT JOIN cus_dictionary dic ON dic.id = client.type
-        LEFT JOIN cus_dictionary dicb ON dicb.id = client.bank
         LEFT JOIN cus_client_linkman link ON link.client_id = client.id
         LEFT JOIN sys_user users ON users.user_id = client.belong_salesman
         LEFT JOIN sys_dept dept ON dept.dept_id = client.belong_dept
@@ -261,7 +260,7 @@
 			client.address as address,
 			client.desc  as client_desc,
 		client.bank	,
-		client.name as bankName,
+		client.bank as bankName,
 		client.account,
 		client.status,
 		b.name as statusName,
