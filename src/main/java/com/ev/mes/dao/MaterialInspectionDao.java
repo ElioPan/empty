@@ -37,4 +37,6 @@ public interface MaterialInspectionDao {
 	Map<String, Object> countForMap(Map<String, Object> params);
 
     BigDecimal getCountBySource(Map<String, Object> sourceParam);
+
+    int updateAll(MaterialInspectionDO materialInspectionDO);
 }

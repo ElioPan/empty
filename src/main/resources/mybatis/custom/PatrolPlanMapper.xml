@@ -87,7 +87,7 @@
         <where>  
 		  		  <if test="id != null and id != ''"> and patrolplan.id = #{id} </if>
 		  		  <if test="workOrderno != null and workOrderno != ''"> and patrolplan.work_orderNo = #{workOrderno} </if>
-		  		  <if test="planName != null and planName != ''"> and patrolplan.name LIKE CONCAT(#{planName},'%')</if>
+		  		  <if test="planName != null and planName != ''"> and patrolplan.name LIKE #{planName}</if>
 		  		  <if test="engineerId != null and engineerId != ''"> and patrolplan.engineer_id = #{engineerId} </if>
 		  		  <if test="cellphone != null and cellphone != ''"> and patrolplan.cellphone = #{cellphone} </if>
 		  		  <if test="content != null and content != ''"> and patrolplan.content = #{content} </if>
@@ -139,7 +139,7 @@
         <where>  
 		  		  <if test="id != null and id != ''"> and patrolplan.id = #{id} </if>
 		  		  <if test="workOrderno != null and workOrderno != ''"> and patrolplan.work_orderNo = #{workOrderno} </if>
-		  		  <if test="planName != null and planName != ''"> and patrolplan.name LIKE CONCAT(#{planName},'%')</if>
+			      <if test="planName != null and planName != ''"> and patrolplan.name LIKE #{planName}</if>
 		  		  <if test="engineerId != null and engineerId != ''"> and patrolplan.engineer_id = #{engineerId} </if>
 		  		  <if test="status != null and status != ''"> and patrolplan.status = #{status} </if>
 		  		  <if test="delFlag != null and delFlag != ''"> and patrolplan.del_flag = #{delFlag} </if>
@@ -179,8 +179,9 @@
         <where>  
 		  		  <if test="id != null and id != ''"> and patrolplan.id = #{id} </if>
 		  		  <if test="workOrderno != null and workOrderno != ''"> and patrolplan.work_orderNo = #{workOrderno} </if>
-		  		  <if test="planName != null and planName != ''"> and patrolplan.name LIKE CONCAT(#{planName},'%')</if>
-		  		  <if test="engineerId != null and engineerId != ''"> and patrolplan.engineer_id = #{engineerId} </if>
+					<if test="planName != null and planName != ''"> and patrolplan.name LIKE #{planName}</if>
+
+			<if test="engineerId != null and engineerId != ''"> and patrolplan.engineer_id = #{engineerId} </if>
 		  		  <if test="status != null and status != ''"> and patrolplan.status = #{status} </if>
 		  		  <if test="delFlag != null and delFlag != ''"> and patrolplan.del_flag = #{delFlag} </if>
 		  		  <if test="nowTime != null and nowTime != ''">  and  DATE_FORMAT(notice.begin_time,'%Y-%m-%d %H:%i:%s') &lt;= DATE_FORMAT(#{nowTime},'%Y-%m-%d %H:%i:%s') AND DATE_FORMAT(notice.end_time,'%Y-%m-%d %H:%i:%s') &gt;= DATE_FORMAT(#{nowTime},'%Y-%m-%d %H:%i:%s') AND patrolrecord.`id` is NULL</if>
@@ -204,8 +205,9 @@
         <where>  
 		  		  <if test="id != null and id != ''"> and patrolplan.id = #{id} </if>
 		  		  <if test="workOrderno != null and workOrderno != ''"> and patrolplan.work_orderNo = #{workOrderno} </if>
-		  		  <if test="planName != null and planName != ''"> and patrolplan.name LIKE CONCAT(#{planName},'%')</if>
-		  		  <if test="engineerId != null and engineerId != ''"> and patrolplan.engineer_id = #{engineerId} </if>
+					<if test="planName != null and planName != ''"> and patrolplan.name LIKE #{planName}</if>
+
+					<if test="engineerId != null and engineerId != ''"> and patrolplan.engineer_id = #{engineerId} </if>
 		  		  <if test="cellphone != null and cellphone != ''"> and patrolplan.cellphone = #{cellphone} </if>
 		  		  <if test="content != null and content != ''"> and patrolplan.content = #{content} </if>
 		  		  <if test="status != null and status != ''"> and patrolplan.status = #{status} </if>

@@ -211,8 +211,40 @@
 		</set>
 		where id = #{id}
 	</update>
-	
-	<delete id="remove">
+    <update id="updateAll" parameterType="com.ev.mes.domain.MaterialInspectionDO">
+		update mes_material_inspection SET
+		    `inspection_type` = #{inspectionType},
+			`source_no` = #{sourceNo},
+			`source_id` = #{sourceId},
+			`source_type` = #{sourceType},
+			`supplier_id` = #{supplierId},
+			`client_id` = #{clientId},
+			`dept_id` = #{deptId},
+			`inspector` = #{inspector},
+			`materiel_id` = #{materielId},
+			`batch_no` = #{batchNo},
+			`inspection_scheme` = #{inspectionScheme},
+			`send_count` = #{sendCount},
+			`inspection_count` = #{inspectionCount},
+			`qualified_count` = #{qualifiedCount},
+			`unqualified_count` = #{unqualifiedCount},
+			`inspection_no` = #{inspectionNo},
+			`industrial_waste_count` = #{industrialWasteCount},
+			`scrap_waste_count` = #{scrapWasteCount},
+			`auditor` = #{auditor},
+			`status` = #{status},
+			`is_printed_qrcode` = #{isPrintedQrcode},
+			`unit_code_count` = #{unitCodeCount},
+			`remarks` = #{remarks},
+			`create_by` = #{createBy},
+			`create_time` = #{createTime},
+			`update_by` = #{updateBy},
+			`update_time` = #{updateTime},
+			`del_flag` = #{delFlag}
+		where id = #{id}
+	</update>
+
+    <delete id="remove">
 		delete from mes_material_inspection where id = #{value}
 	</delete>
 	
