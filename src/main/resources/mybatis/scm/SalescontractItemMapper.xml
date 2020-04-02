@@ -150,8 +150,9 @@
 			materiel.name AS materielName,
 			materiel.specification AS specification,
 			unitUom.name AS unitUomName,
-			IF(item.is_check=1,'是','否') AS isCheck,
-			item.`count` AS count,
+		    item.is_check AS isCheck,
+		/*	IF(item.is_check=1,'是','否') AS isCheck,*/
+			item.`count` AS `count`,
 			item.tax_amount AS taxAmount,
 			item.tax_rate AS taxRate,
 			item.unit_price AS unitPrice,
