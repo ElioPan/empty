@@ -10,7 +10,7 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://120.132.9.188:3306/xinsoft-gyhl?useUnicode=true&characterEncoding=utf8
+    url: jdbc:mysql://120.132.31.35:3306/xinsoft-gyhl?useUnicode=true&characterEncoding=utf8
     username: xinsoft
     password: xinsoft411
     initialSize: 1
@@ -36,7 +36,7 @@ spring:
     # 合并多个DruidDataSource的监控数据
     #useGlobalDataSourceStat: true
   redis:
-    host: 120.132.9.188
+    host: 120.132.31.35
     port: 6379
     password: 1q2w3e4r!@#$
     # 连接超时时间（毫秒）
@@ -51,12 +51,12 @@ spring:
       # 连接池最大阻塞等待时间（使用负值表示没有限制）
       max-wait: -1
   influx:
-    url: http://120.132.9.188:8086
+    url: http://120.132.31.35:8086
     user: xinsoft
     password: xinsoft
     database: sentinel_log
   rabbitmq:
-    host: 120.132.9.188
+    host: 120.132.31.35
     port: 5672
     username: admin
     password: admin
@@ -74,7 +74,7 @@ feign:
 
 org:
   ftp:
-    address: 120.132.9.188
+    address: 120.132.31.35
     port: 21
     userName: ftpuser
     password: 1q2w3e4r!@
@@ -106,4 +106,4 @@ wechat:
   corpid: wwdbb5009f5f925427
   corpsecret: RPOdtM5G9zl9CjQQXcJcUbWFmE61vC4hDdbLNMglPss
   mobilesecret: SpYP6nmUBfpJqGpt2h28bIjYg6uYhigIUx6WrfJjJQQ
-  appurl: http://120.132.9.188:18090/gyhl-app/#/pages
+  appurl: http://120.132.31.35:18090/gyhl-app/#/pages
