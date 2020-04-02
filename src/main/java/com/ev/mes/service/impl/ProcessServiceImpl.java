@@ -3,7 +3,6 @@ package com.ev.mes.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.ev.custom.domain.ContentAssocDO;
-import com.ev.custom.domain.SupplierDO;
 import com.ev.custom.service.ContentAssocService;
 import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
@@ -23,7 +22,10 @@ import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 
 @Service
@@ -151,7 +153,7 @@ public class ProcessServiceImpl implements ProcessService {
                 List<ProcessCheckDO> bodys = JSON.parseArray(processCheck, ProcessCheckDO.class);
                 for (ProcessCheckDO checkDO : bodys) {
                     checkDO.setForeignId(processDO.getId());
-                    checkDO.setType(ConstantForMES.PROCESS_GXPZ);//标记区分
+                    checkDO.setType(ConstantForMES.PROCESS_GXPZ);
                     processCheckDao.save(checkDO);
                 }
             }

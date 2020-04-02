@@ -298,7 +298,7 @@
 		client.create_time as createTime,
 		csl.name as linkman_name,
 		client.bank	,
-		a.name as bankName,
+		client.name as bankName,
 		client.account,
 		client.status,
 		b.name as statusName,
@@ -314,7 +314,6 @@
 		LEFT JOIN cus_supplier_linkman csl ON client.id=csl.supplier_id
 		LEFT JOIN sys_user  users  ON client.create_by=users.user_id
 		LEFT JOIN sys_dept  dept   ON users.dept_id=dept.dept_id
-		LEFT JOIN cus_dictionary a ON  client.bank=a.id
 		LEFT JOIN cus_dictionary b ON  client.status=b.id
 		LEFT JOIN sys_user  c      ON client.audit_id=c.user_id
 
@@ -363,7 +362,6 @@
 		LEFT JOIN cus_supplier_linkman csl ON client.id=csl.supplier_id
 		LEFT JOIN sys_user  users  ON client.create_by=users.user_id
 		LEFT JOIN sys_dept  dept   ON users.dept_id=dept.dept_id
-		LEFT JOIN cus_dictionary a ON  client.bank=a.id
 		LEFT JOIN cus_dictionary b ON  client.status=b.id
 		LEFT JOIN sys_user  c      ON client.audit_id=c.user_id
 		<where>

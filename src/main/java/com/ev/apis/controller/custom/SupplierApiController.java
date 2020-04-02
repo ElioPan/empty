@@ -19,7 +19,6 @@ import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.*;
-import com.ev.scm.vo.StockEntity;
 import com.ev.system.domain.DeptDO;
 import com.ev.system.service.DeptService;
 import com.google.common.collect.Lists;
@@ -110,7 +109,7 @@ public class SupplierApiController {
     public R changedetail(SupplierDO supplierDO,
                           @ApiParam(value = "联系人", required = false) @RequestParam(value = "linkname", defaultValue = "", required = false) String linkname) {
 
-        Map<String,Object>  paramy= new HashMap<String,Object>();
+        Map<String,Object>  paramy= new HashMap<>();
         SupplierDO getSupplierDo = supplierService.get(supplierDO.getId());
         if(getSupplierDo!=null){
             if(!Objects.equals(getSupplierDo.getName().trim(),supplierDO.getName())){
@@ -271,7 +270,7 @@ public class SupplierApiController {
     public R supplierList(
             @ApiParam(value = "供应商名称", required = false) @RequestParam(value = "name", defaultValue = "", required = false) String name) {
 
-        Map<String,Object> query =new HashMap<String,Object>();
+        Map<String,Object> query =new HashMap<>();
         query.put("name",name);
 
         List<Map<String, Object>> proList = supplierService.oneTypeGroupList(query);
@@ -428,15 +427,10 @@ public class SupplierApiController {
             for (SupplierEntity supplierEntity : supplierEntityList) {
                 supplierDO = new SupplierDO();
                 supplierLinkmanDO = new SupplierLinkmanDO();
+
                 BeanUtils.copyProperties(supplierEntity, supplierDO);
-                String bank;
-                for (DictionaryDO dictionaryDO : dictionaryDOS) {
-                    bank = supplierEntity.getBank();
-                    if (Objects.equals(dictionaryDO.getName(),bank)) {
-                        supplierDO.setBank(dictionaryDO.getId());
-                        break;
-                    }
-                }
+                supplierDO.setBank(supplierEntity.getBank());
+
                 supplierDO.setStatus(ConstantForMES.WAIT_AUDIT);
                 // 使用状态(1是0否)
                 supplierDO.setDelFlag(0);
