@@ -179,7 +179,7 @@ public class UpkeepApiController {
                              @ApiParam(value = "计划状态") @RequestParam(value = "status", defaultValue = "", required = false) Long status,
                              @ApiParam(value = "需排序字段") @RequestParam(value = "sort",defaultValue = "",required = false)  String sort,
                              @ApiParam(value = "升（asc）降(desc)序") @RequestParam(value = "order",defaultValue = "",required = false)  String order) {
-        Map<String, Object> query = new HashMap<String, Object>();
+        Map<String, Object> query = new HashMap<>();
         String idPath=null;
         if (null != deptId) {
             DeptDO deptDO = deptService.get(deptId);
@@ -223,7 +223,7 @@ public class UpkeepApiController {
                 setPageno(pageno);
                 setPagesize(pagesize);
                 setTotalRows(count);
-                setTotalPages((Integer) ((count + pagesize - 1) / pagesize));
+                setTotalPages( ((count + pagesize - 1) / pagesize));
             }};
             resultList.put("data", resultPonse);
             return R.ok(resultList);

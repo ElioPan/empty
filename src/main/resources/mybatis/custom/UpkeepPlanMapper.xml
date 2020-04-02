@@ -230,7 +230,7 @@
 
             <if test="lodwnUserId != null and lodwnUserId != ''"> and (cup.create_by=#{lodwnUserId} OR (cup.engineer_id=#{lodwnUserId} AND cup.status <![CDATA[<>]]> 146))</if>
 
-            and (cup.delet_status  is null)
+            and (cup.delet_status is null)
         </where>
         <choose>
             <when test="sort != null and sort.trim() != ''">
