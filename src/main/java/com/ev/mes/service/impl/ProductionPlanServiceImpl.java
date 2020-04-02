@@ -234,6 +234,7 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
         for (CraftItemDO craftItemDO : list) {
             craftItemMap = Maps.newHashMap();
             craftItemMap.put("processId", craftItemDO.getProcessId());
+            craftItemMap.put("serialNumber", craftItemDO.getSerialNumber());
             craftItemMap.put("processType", craftItemDO.getType());
             craftItemMap.put("deptId", craftItemDO.getDeptId());
             craftItemMap.put("demand", craftItemDO.getDemand());

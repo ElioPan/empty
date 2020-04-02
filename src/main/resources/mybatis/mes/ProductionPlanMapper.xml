@@ -355,7 +355,7 @@
     FROM
     (
     SELECT
-    outi.id
+    ini.id
     FROM
     mes_production_plan plan
     LEFT JOIN scm_stock_in_item ini ON ini.source_id = plan.id
