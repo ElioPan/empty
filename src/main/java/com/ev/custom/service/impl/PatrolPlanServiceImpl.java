@@ -225,6 +225,7 @@ public class PatrolPlanServiceImpl implements PatrolPlanService {
 		for(Long id :ids){
 			PatrolPlanDO patrolPlanDO=new PatrolPlanDO();
 			patrolPlanDO.setStatus(Constant.STATE_START);
+			patrolPlanDO.setId(id);
 			this.update(patrolPlanDO);
 		}
 		return  R.ok();
@@ -243,6 +244,7 @@ public class PatrolPlanServiceImpl implements PatrolPlanService {
 		for(Long id :ids){
 			PatrolPlanDO patrolPlanDO=new PatrolPlanDO();
 			patrolPlanDO.setStatus(Constant.FORBIDDEN);
+			patrolPlanDO.setId(id);
 			this.update(patrolPlanDO);
 		}
 		return  R.ok();

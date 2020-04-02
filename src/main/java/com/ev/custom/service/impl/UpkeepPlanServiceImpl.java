@@ -596,6 +596,7 @@ public class UpkeepPlanServiceImpl implements UpkeepPlanService {
         for(Long id :ids){
             UpkeepPlanDO updatePlanDO=new UpkeepPlanDO();
             updatePlanDO.setStatus(Constant.STATE_START);
+            updatePlanDO.setId(id);
             this.update(updatePlanDO);
         }
         return  R.ok();
@@ -614,6 +615,7 @@ public class UpkeepPlanServiceImpl implements UpkeepPlanService {
         for(Long id :ids){
             UpkeepPlanDO updatePlanDO=new UpkeepPlanDO();
             updatePlanDO.setStatus(Constant.FORBIDDEN);
+            updatePlanDO.setId(id);
             this.update(updatePlanDO);
         }
         return  R.ok();
