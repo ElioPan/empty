@@ -103,7 +103,7 @@ upload:
     path: D:/Program Files/jenkins/workspace/gyhl-local-zd/target/classes/fdfs_client.conf
 wechat:
   agentid: 1000002
-  corpid: wwdbb5009f5f925427
-  corpsecret: RPOdtM5G9zl9CjQQXcJcUbWFmE61vC4hDdbLNMglPss
-  mobilesecret: SpYP6nmUBfpJqGpt2h28bIjYg6uYhigIUx6WrfJjJQQ
+  corpid: ww0297923f041fb926
+  corpsecret: wN9EGBsL_DEmD8AbPxPMC2bCBefN3y32yTEjfqOEzfo
+  mobilesecret: iJN-itG62OVNBketSDSIOUYiTf5XBwoH25RwGka4EwY
   appurl: http://120.132.31.35:18090/gyhl-app/#/pages
