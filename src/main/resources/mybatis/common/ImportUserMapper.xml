@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.common.dao.ImportUserDao">
+
+	<select id="getDeptList" resultType="com.ev.system.domain.DeptDO">
+		SELECT
+	CONCAT_WS(
+	'/',
+	three.`name`,
+	two.`name`,
+	one.`name`
+	) AS `name`,
+	one.dept_id AS deptId
+	FROM
+	sys_dept one
+	LEFT JOIN sys_dept two ON two.dept_id = one.parent_id
+	LEFT JOIN sys_dept three ON three.dept_id = two.parent_id
+	</select>
+</mapper>

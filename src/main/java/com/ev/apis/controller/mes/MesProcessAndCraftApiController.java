@@ -8,9 +8,8 @@ import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.mes.domain.CraftDO;
 import com.ev.mes.domain.ProcessDO;
-import com.ev.mes.service.CraftService;
-import com.ev.mes.service.ProcessCheckService;
-import com.ev.mes.service.ProcessService;
+import com.ev.mes.domain.WorkingProcedureDetailDO;
+import com.ev.mes.service.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
@@ -45,7 +44,10 @@ public class MesProcessAndCraftApiController {
     private ProcessCheckService processCheckService;
     @Autowired
     private MessageSourceHandler messageSourceHandler;
-
+    @Autowired
+    private WorkingProcedurePlanService workingProcedurePlanService;
+    @Autowired
+    private WorkingProcedureDetailService workingProcedureDetailService;
 
     @EvApiByToken(value = "/apis/mes/process/addAndChange", method = RequestMethod.POST, apiTitle = "添加/修改 工序配置")
     @ApiOperation("添加/修改 工序配置")
@@ -114,6 +116,7 @@ public class MesProcessAndCraftApiController {
                          @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
                          @ApiParam(value = "状态") @RequestParam(value = "useStatus", required = false) Integer useStatus,
                          @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Integer auditSign,
+                         @ApiParam(value = "工序计划id") @RequestParam(value = "planId", defaultValue = "", required = false) Long planId,
                          @ApiParam(value = "工序名称") @RequestParam(value = "name", defaultValue = "", required = false) String name) {
 
         Map<String, Object> params = Maps.newHashMapWithExpectedSize(5);
@@ -123,10 +126,20 @@ public class MesProcessAndCraftApiController {
 //        params.put("useStatus", useStatus);
         params.put("auditSign", auditSign);
 
+        //返工返修
+        if(Objects.nonNull(planId)){
+            Map<String,Object>  map= new HashMap<>();
+            map.put("planId",planId);
+            List<WorkingProcedureDetailDO> planDetails = workingProcedureDetailService.list(map);
+            List<Long>  ids=planDetails.stream().map(WorkingProcedureDetailDO::getProcessId).distinct().collect(Collectors.toList());
+            params.put("ids", ids);
+        }
+
         List<Map<String, Object>> list = processService.listForMap(params);
         int count = processService.countListForMap(params);
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
         if (!list.isEmpty()) {
+
             for (Map<String, Object> listOfOne : list) {
                 Map<String, Object> map = new HashMap<>();
                 map.put("foreignId", listOfOne.get("id"));

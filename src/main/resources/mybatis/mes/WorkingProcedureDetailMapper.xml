@@ -416,7 +416,7 @@
 		  		  <if test="id != null and id != ''"> and id = #{id} </if>
 		  		  <if test="planId != null and planId != ''"> and plan_id = #{planId} </if>
 		  		  <if test="processId != null and processId != ''"> and process_id = #{processId} </if>
-                    <if test="processType != null and processType != ''"> and process_type = #{processType} </if>
+                  <if test="processType != null and processType != ''"> and process_type = #{processType} </if>
 		  		  <if test="demand != null and demand != ''"> and demand = #{demand} </if>
 		  		  <if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
 		  		  <if test="operator != null and operator != ''"> and operator = #{operator} </if>
