@@ -74,12 +74,11 @@
         supplier.`create_time` as createTime,
         supplier.provider_id as providerId,
         supplier.`tax_number` AS taxNumber,
-        dic.name as bank,
+		supplier.bank as bank,
         supplier.`account` AS account,
         csl.`phone` AS linkPhone,
         csl.`name` AS linkName
 		from cus_supplier supplier
-		left join cus_dictionary dic on dic.id = supplier.bank
         LEFT JOIN cus_supplier_linkman csl ON supplier.id=csl.supplier_id
 		<where>
 			<if test="id != null and id != ''"> and supplier.id = #{id} </if>
@@ -298,7 +297,7 @@
 		client.create_time as createTime,
 		csl.name as linkman_name,
 		client.bank	,
-		a.name as bankName,
+		client.bank as bankName,
 		client.account,
 		client.status,
 		b.name as statusName,
@@ -314,7 +313,6 @@
 		LEFT JOIN cus_supplier_linkman csl ON client.id=csl.supplier_id
 		LEFT JOIN sys_user  users  ON client.create_by=users.user_id
 		LEFT JOIN sys_dept  dept   ON users.dept_id=dept.dept_id
-		LEFT JOIN cus_dictionary a ON  client.bank=a.id
 		LEFT JOIN cus_dictionary b ON  client.status=b.id
 		LEFT JOIN sys_user  c      ON client.audit_id=c.user_id
 
@@ -363,7 +361,6 @@
 		LEFT JOIN cus_supplier_linkman csl ON client.id=csl.supplier_id
 		LEFT JOIN sys_user  users  ON client.create_by=users.user_id
 		LEFT JOIN sys_dept  dept   ON users.dept_id=dept.dept_id
-		LEFT JOIN cus_dictionary a ON  client.bank=a.id
 		LEFT JOIN cus_dictionary b ON  client.status=b.id
 		LEFT JOIN sys_user  c      ON client.audit_id=c.user_id
 		<where>

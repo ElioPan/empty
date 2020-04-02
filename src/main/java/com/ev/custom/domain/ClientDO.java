@@ -66,7 +66,7 @@ public class ClientDO implements Serializable {
 	private Integer delFlag;
 	//开户行
 	@ApiModelProperty(value = "开户行")
-	private Integer bank;
+	private String bank;
 	//账号
 	@ApiModelProperty(value = "账号")
 	private String account;
@@ -271,10 +271,10 @@ public class ClientDO implements Serializable {
 	public Integer getDelFlag() {
 		return delFlag;
 	}
-	public void setBank(Integer bank) {
+	public void setBank(String bank) {
 		this.bank= bank;
 	}
-	public Integer getBank() {
+	public String getBank() {
 		return bank;
 	}
 	public void setAccount(String account) {

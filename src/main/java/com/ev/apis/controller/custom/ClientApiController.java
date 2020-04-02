@@ -136,7 +136,7 @@ public class ClientApiController {
     public R addDetail(ClientDO clientDo,
                          @ApiParam(value = "联系人") @RequestParam(value = "linkerMan", required = false) String linkerMan) {
 
-        Map<String,Object>  paramy= new HashMap<String,Object>();
+        Map<String,Object>  paramy= new HashMap<>();
         paramy.put("name",clientDo.getName().trim());
         int lines = clientService.checkSave(paramy);
         if(lines>0){
@@ -373,7 +373,6 @@ public class ClientApiController {
             }
 
             Map<String,Object> emptyMap = Maps.newHashMap();
-            List<DictionaryDO> bankDOs = dictionaryService.listByType(Constant.BANK);
             List<DictionaryDO> clientTypeDOs = dictionaryService.listByType(Constant.CLIENT_TYPE);
             List<DeptDO> deptDOs = deptService.list(emptyMap);
             List<UserDO> userDOs = userService.list(emptyMap);
@@ -395,12 +394,7 @@ public class ClientApiController {
                 BeanUtils.copyProperties(clientEntity, clientDO);
 
                 bankName = clientEntity.getBankName();
-                for (DictionaryDO bankDO : bankDOs) {
-                    if (Objects.equals(bankDO.getName(),bankName)) {
-                        clientDO.setBank(bankDO.getId());
-                        break;
-                    }
-                }
+                clientDO.setBank(bankName);
 
                 typeName = clientEntity.getTypeName();
                 for (DictionaryDO clientTypeDO : clientTypeDOs) {

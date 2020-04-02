@@ -1,12 +1,9 @@
 package com.ev.custom.vo;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
 
 
 /**
@@ -27,10 +24,10 @@ public class ClientEntity implements Serializable {
     @Excel(name = "客户名称")
     private String name;
     //电话
-    @Excel(name = "联系人")
-    private String linkPhone;
-    //传真
     @Excel(name = "联系电话")
+    private String linkPhone;
+    //联系人
+    @Excel(name = "联系人")
     private String linkName;
     //地址
     @Excel(name = "地址")

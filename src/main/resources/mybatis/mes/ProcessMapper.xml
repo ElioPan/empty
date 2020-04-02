@@ -272,6 +272,13 @@
 			<!--<if test="useStatus != null"> and a.use_status = #{useStatus} </if>-->
 			<if test="auditSign != null and auditSign != ''"> and a.audit_sign = #{auditSign} </if>
 			<if test="deviceType != null and deviceType != ''"> and a.device_type = #{deviceType} </if>
+			<if test="ids != null and ids.size()>0"> and a.id IN
+				<foreach item="item" collection="ids" open="(" separator="," close=")" index="index">
+					<if test="item!=null">
+						#{item}
+					</if>
+				</foreach>
+			</if>
 			and a.del_flag = 0
 		</where>
 	</select>
