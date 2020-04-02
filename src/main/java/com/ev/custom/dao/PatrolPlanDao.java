@@ -2,11 +2,10 @@ package com.ev.custom.dao;
 
 import com.ev.common.vo.PlanVo;
 import com.ev.custom.domain.PatrolPlanDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 import java.util.Map;
-
-import org.apache.ibatis.annotations.Mapper;
 
 /**
  * 巡检计划表
@@ -42,4 +41,7 @@ public interface PatrolPlanDao {
 	List<PlanVo> getPlanView(Map<String,Object> map);
 	
 	int getNoticeListCount(Map<String, Object> params);
+
+	int canChangeStatus(Map<String, Object> map);
+
 }

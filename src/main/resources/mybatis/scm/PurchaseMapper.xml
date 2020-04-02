@@ -179,6 +179,7 @@
 			e.serial_no as serialNo,
 			e.specification,
 			e.unit_uom as unitUom,
+			IF(e.tax_percent is null,0,e.tax_percent) as taxPercent,
 			f.name as unitUomName,
 			d.count,
 			d.unit_price as unitPrice,

@@ -532,6 +532,14 @@
 			<if test="code != null and code != ''"> and code = #{code}</if>
 		</where>
 	</select>
+    <select id="getAllName" resultType="java.lang.String">
+		SELECT
+        `name`
+        from
+        cus_supplier
+        WHERE
+        `del_flag`=0
+	</select>
 
 
 </mapper>

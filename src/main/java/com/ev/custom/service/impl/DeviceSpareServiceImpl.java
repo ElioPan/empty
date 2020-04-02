@@ -1,13 +1,15 @@
 package com.ev.custom.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import com.ev.custom.dao.DeviceSpareDao;
 import com.ev.custom.domain.DeviceSpareDO;
 import com.ev.custom.service.DeviceSpareService;
+import com.ev.scm.domain.StockDO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 
@@ -66,6 +68,11 @@ public class DeviceSpareServiceImpl implements DeviceSpareService {
 	@Override
 	public int batchRemove(Long[] ids){
 		return deviceSpareDao.batchRemove(ids);
+	}
+
+	@Override
+	public List<StockDO> getSpartPartsCount(Long[] ids) {
+		return deviceSpareDao.getSpartPartsCount(ids);
 	}
 
 	@Override

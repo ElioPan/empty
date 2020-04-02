@@ -14,7 +14,7 @@ import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.Constant;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.*;
-import com.ev.scm.vo.StockEntity;
+import com.ev.scm.domain.StockDO;
 import com.ev.system.domain.DeptDO;
 import com.ev.system.domain.UserDO;
 import com.ev.system.service.DeptService;
@@ -37,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -126,20 +127,20 @@ public class DeviceApiController {
 
     @EvApiByToken(value = "/apis/device/advancedQuery", method = RequestMethod.POST, apiTitle = "设备台账-查询/高级查询")
     @ApiOperation("设备台账-查询/高级查询")
-    public R advancedQueryList(@ApiParam(value = "设备名字或编码", required = false) @RequestParam(value = "nameAndType", defaultValue = "", required = false) String name,
-                               @ApiParam(value = "当前第几页", required = false) @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
-                               @ApiParam(value = "一页多少条", required = false) @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
-                               @ApiParam(value = "部门id", required = false) @RequestParam(value = "deptId", required = false) Long deptId,
-                               @ApiParam(value = "设备类型id", required = false) @RequestParam(value = "type", required = false) Integer type,
-                               @ApiParam(value = "使用状况id", required = false) @RequestParam(value = "using_status", required = false) Integer usingStatus,
-                               @ApiParam(value = "安装地点", required = false) @RequestParam(value = "site", required = false) String site,
-                               @ApiParam(value = "规格型号", required = false) @RequestParam(value = "model", required = false) String model,
-                               @ApiParam(value = "生产厂商id", required = false) @RequestParam(value = "factoryId", required = false) Long factoryId,
-                               @ApiParam(value = "负责人id", required = false) @RequestParam(value = "userId", required = false) Long userId,
-                               @ApiParam(value = "供应商id", required = false) @RequestParam(value = "supplierId", required = false) Long supplierId,
-                               @ApiParam(value = "购置时间Start", required = false) @RequestParam(value = "buyTimeStart", required = false) String buyTimeStart,
-                               @ApiParam(value = "购置时间End", required = false) @RequestParam(value = "buyTimeEnd", required = false) String buyTimeEnd) {
-        Map<String, Object> resuls = new HashMap<String, Object>();
+    public R advancedQueryList(@ApiParam(value = "设备名字或编码") @RequestParam(value = "nameAndType", defaultValue = "", required = false) String name,
+                               @ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
+                               @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
+                               @ApiParam(value = "部门id") @RequestParam(value = "deptId", required = false) Long deptId,
+                               @ApiParam(value = "设备类型id") @RequestParam(value = "type", required = false) Integer type,
+                               @ApiParam(value = "使用状况id") @RequestParam(value = "using_status", required = false) Integer usingStatus,
+                               @ApiParam(value = "安装地点") @RequestParam(value = "site", required = false) String site,
+                               @ApiParam(value = "规格型号") @RequestParam(value = "model", required = false) String model,
+                               @ApiParam(value = "生产厂商id") @RequestParam(value = "factoryId", required = false) Long factoryId,
+                               @ApiParam(value = "负责人id") @RequestParam(value = "userId", required = false) Long userId,
+                               @ApiParam(value = "供应商id") @RequestParam(value = "supplierId", required = false) Long supplierId,
+                               @ApiParam(value = "购置时间Start") @RequestParam(value = "buyTimeStart", required = false) String buyTimeStart,
+                               @ApiParam(value = "购置时间End") @RequestParam(value = "buyTimeEnd", required = false) String buyTimeEnd) {
+        Map<String, Object> resuls = new HashMap<>();
         String idPath=null;
         if(Objects.nonNull(deptId)){
             DeptDO deptDO = deptService.get(deptId);
@@ -172,7 +173,7 @@ public class DeviceApiController {
             resultResponse.setPageno(pageno);
             resultResponse.setPagesize(pagesize);
             resultResponse.setTotalRows(counts);
-            resultResponse.setTotalPages((Integer) ((counts + pagesize - 1) / pagesize));
+            resultResponse.setTotalPages(((counts + pagesize - 1) / pagesize));
             resuls.put("data", resultResponse);
             return R.ok(resuls);
         } else {
@@ -257,7 +258,7 @@ public class DeviceApiController {
      */
     @EvApiByToken(value = "/apis/device/delete", method = RequestMethod.POST, apiTitle = "删除设备信息")
     @ApiOperation("删除设备信息")
-    public R delete(@ApiParam(value = "设备ID", required = true) @RequestParam(value = "deviceId", defaultValue = "", required = true) Long deviceId) {
+    public R delete(@ApiParam(value = "设备ID", required = true) @RequestParam(value = "deviceId", defaultValue = "") Long deviceId) {
 
             Long id[]=new Long[]{deviceId};
             R r = deviceService.apiDelete(id);
@@ -269,7 +270,7 @@ public class DeviceApiController {
     @EvApiByToken(value = "/apis/device/allDelete", method = RequestMethod.POST, apiTitle = "批量删除设备信息")
     @ApiOperation("批量删除设备信息")
     @Transactional(rollbackFor = Exception.class)
-    public R deleteAll(@ApiParam(value = "设备IDs:Long[]", required = true) @RequestParam(value = "deviceId", defaultValue = "", required = true) Long[] deviceId) {
+    public R deleteAll(@ApiParam(value = "设备IDs:Long[]", required = true) @RequestParam(value = "deviceId", defaultValue = "") Long[] deviceId) {
         if (deviceId.length>0) {
             R r = deviceService.apiDelete(deviceId);
 
@@ -280,8 +281,8 @@ public class DeviceApiController {
 
     @EvApiByToken(value = "/apis/device/getDeviceQRCode",method = RequestMethod.POST,apiTitle = "获取设备二维码页面信息")
     @ApiOperation("获取设备二维码页面信息")
-    public R getDeviceQRCode(@ApiParam(value = "设备ID",required = true) @RequestParam(value = "deviceId",defaultValue = "",required = true) Long deviceId){
-        Map<String,Object> results = Maps.newHashMap();
+    public R getDeviceQRCode(@ApiParam(value = "设备ID",required = true) @RequestParam(value = "deviceId",defaultValue = "") Long deviceId){
+        Map<String,Object> results ;
         results = this.deviceService.getDeviceQRCode(deviceId);
         return R.ok(results);
     }
@@ -291,16 +292,16 @@ public class DeviceApiController {
      */
     @EvApiByToken(value = "/apis/device/list",method = RequestMethod.POST,apiTitle = "获取设备列表信息")
     @ApiOperation("获取设备列表信息")
-    public R list(@ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1",required = true) int pageno,
-                  @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20",required = true) int pagesize,
-                  @ApiParam(value = "设备类型id", required = false) @RequestParam(value = "type", required = false) Integer type,
-                  @ApiParam(value = "设备名称",required = false) @RequestParam(value = "name",defaultValue = "",required = true)  String name){
+    public R list(@ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
+                  @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize,
+                  @ApiParam(value = "设备类型id") @RequestParam(value = "type", required = false) Integer type,
+                  @ApiParam(value = "设备名称") @RequestParam(value = "name",defaultValue = "")  String name){
         return R.ok(this.deviceService.listApi(pageno,pagesize,name,type));
     }
 
     @EvApiByToken(value = "/apis/device/detail", method = RequestMethod.POST, apiTitle = "获取设备详情页信息")
     @ApiOperation("获取设备详情页信息")
-    public R getDeviceDetail(@ApiParam(value = "设备ID", required = true) @RequestParam(value = "deviceId", defaultValue = "", required = true) Long deviceId) {
+    public R getDeviceDetail(@ApiParam(value = "设备ID", required = true) @RequestParam(value = "deviceId", defaultValue = "") Long deviceId) {
 
         Map<String, Object> results = Maps.newHashMap();
         results.put("id", deviceId);
@@ -318,7 +319,7 @@ public class DeviceApiController {
     @EvApiByToken(value = "/apis/device/getDevicesByUser",method = RequestMethod.POST)
     @ApiOperation("获取该人员权限的设备列表信息")
     public R getDevicesByUser(@ApiParam(value = "用户ID",required = true) @RequestParam(value = "userId",defaultValue = "",required = true) Long userId){
-        Map<String,Object> results = Maps.newHashMap();
+        Map<String,Object> results;
         results = this.deviceService.getDevicesByUser(userId);
         return R.ok(results);
     }
@@ -327,7 +328,7 @@ public class DeviceApiController {
     @EvApiByToken(value = "/apis/deviceArg/addDeviceArg",method = RequestMethod.POST)
     @ApiOperation("新增设备参数信息")
     public R addDeviceArg(DeviceArgDO deviceArg){
-        Map<String,Object> results = Maps.newHashMap();
+        Map<String,Object> results ;
         String code="SBCS"+DateFormatUtil.getWorkOrderno();
         deviceArg.setCode(code);
         results = this.deviceArgService.addDeviceArg(deviceArg);
@@ -337,18 +338,18 @@ public class DeviceApiController {
     @EvApiByToken(value = "/apis/deviceArg/delDeviceArg",method = RequestMethod.POST)
     @ApiOperation("删除设备参数信息")
     @Transactional
-    public R delDeviceArg(@ApiParam(value = "ID",required = true) @RequestParam(value = "id",defaultValue = "",required = true) Long id){
-        Map<String,Object> results = Maps.newHashMap();
+    public R delDeviceArg(@ApiParam(value = "ID",required = true) @RequestParam(value = "id",defaultValue = "") Long id){
+        Map<String,Object> results ;
         results = this.deviceArgService.delDeviceArg(id);
         return R.ok(results);
     }
 
     @EvApiByToken(value = "/apis/deviceArg/deviceArgList",method = RequestMethod.POST)
     @ApiOperation("查询该设备参数列表信息")
-    public R deviceArgList(@ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1",required = true) int pageno,
-                           @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20",required = true) int pagesize,
-                           @ApiParam(value = "设备ID",required = false) @RequestParam(value = "deviceId",defaultValue = "",required = true)  Long deviceId){
-        Map<String,Object> results = Maps.newHashMap();
+    public R deviceArgList(@ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
+                           @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize,
+                           @ApiParam(value = "设备ID") @RequestParam(value = "deviceId",defaultValue = "")  Long deviceId){
+        Map<String,Object> results ;
         results = this.deviceArgService.deviceArgList(pageno,pagesize,deviceId);
         return R.ok(results);
     }
@@ -363,23 +364,23 @@ public class DeviceApiController {
                          @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
                          @ApiParam(value = "设备ID") @RequestParam(value = "deviceid", defaultValue = "", required = false) long deviceid) {
         //查询列表数据
-        Map<String, Object> params = new HashMap<String, Object>() {{
-            put("deviceid", deviceid);
-            put("offset", (pageno - 1) * pagesize);
-            put("limit", pagesize);
-        }};
+        Map<String, Object> params = new HashMap<>() ;
+        params.put("deviceid", deviceid);
+        params.put("offset", (pageno - 1) * pagesize);
+        params.put("limit", pagesize);
+
         List<Map<String, Object>> maps = deviceSuperviseService.listPageMap(params);
         int total = deviceSuperviseService.count(params);
         Map<String, Object> results = Maps.newHashMap();
 
         if (maps != null && maps.size() > 0) {
-            DsResultResponse resultResponse = new DsResultResponse() {{
-                setDatas(maps);
-                setPageno(pageno);
-                setPagesize(pagesize);
-                setTotalRows(total);
-                setTotalPages((Integer) ((total + pagesize - 1) / pagesize));
-            }};
+            DsResultResponse resultResponse = new DsResultResponse();
+            resultResponse.setDatas(maps);
+            resultResponse.setPageno(pageno);
+            resultResponse.setPagesize(pagesize);
+            resultResponse.setTotalRows(total);
+            resultResponse.setTotalPages(((total + pagesize - 1) / pagesize));
+
             results.put("data", resultResponse);
             return R.ok(results);
         }else{
@@ -402,11 +403,10 @@ public class DeviceApiController {
     @EvApiByToken(value = "/apis/deviceSupervise/remove",method = RequestMethod.POST,apiTitle = "删除/批量删除 安监管理记录")
     @ApiOperation("删除/批量删除 安监管理记录")
     @Transactional
-    public R removeSupervi( @ApiParam(value = "安监信息主键IDs")@RequestParam(value = "deviceid",defaultValue = "",required = true)Long[] id){
+    public R removeSupervi( @ApiParam(value = "安监信息主键IDs")@RequestParam(value = "deviceid",defaultValue = "")Long[] id){
         if(deviceSuperviseService.batchRemove(id)>0){
             return R.ok();
         }
-        //"删除失败，检查参数是否正确"
         return R.error();
     }
 
@@ -458,7 +458,7 @@ public class DeviceApiController {
     @EvApiByToken(value = "/apis/deviceInsurance/deleteone",method = RequestMethod.POST,apiTitle = "删除单条保险记录")
     @ApiOperation("删除单条保险记录")
     @Transactional
-    public R removeOneInturan( @ApiParam(value = "保险记录主键ID")@RequestParam(value = "id",defaultValue = "",required = true)long id){
+    public R removeOneInturan( @ApiParam(value = "保险记录主键ID")@RequestParam(value = "id",defaultValue = "")long id){
         if(deviceInsuranceService.remove(id)>0){
             return R.ok();
         }else{
@@ -470,7 +470,7 @@ public class DeviceApiController {
     @EvApiByToken(value = "/apis/deviceInsurance/deleteMore",method = RequestMethod.POST,apiTitle = "批量删除保险记录")
     @ApiOperation("批量删除保险记录")
     @Transactional
-    public R addBanchDelet( @ApiParam(value = "保险记录主键:Long[]")@RequestParam(value = "id",defaultValue = "",required = true)Long[] id){
+    public R addBanchDelet( @ApiParam(value = "保险记录主键:Long[]")@RequestParam(value = "id",defaultValue = "" )Long[] id){
 
         int rows = deviceInsuranceService.batchRemove(id);
         if(rows==id.length){
@@ -483,27 +483,26 @@ public class DeviceApiController {
 
     @EvApiByToken(value = "/apis/deviceInsurance/listPage", method = RequestMethod.POST, apiTitle = "获取保险记录列表")
     @ApiOperation("获取保险记录列表")
-    public R list(@ApiParam(value = "当前第几页", required = false) @RequestParam(value = "pageno", defaultValue = "1",required = false) int pageno,
-                  @ApiParam(value = "一页多少条", required = false) @RequestParam(value = "pagesize", defaultValue = "20",required = false) int pagesize,
+    public R list(@ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1",required = false) int pageno,
+                  @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20",required = false) int pagesize,
                   @ApiParam(value = "设备ID") @RequestParam(value = "deviceid", defaultValue = "", required = false) Long deviceid) {
-        Map<String, Object> params = new HashMap<String, Object>() {{
-            put("deviceid", deviceid);
-            put("offset", (pageno - 1) * pagesize);
-            put("limit", pagesize);
-        }};
+        Map<String, Object> params = new HashMap<>() ;
+        params.put("deviceid", deviceid);
+        params.put("offset", (pageno - 1) * pagesize);
+        params.put("limit", pagesize);
 
         List<Map<String, Object>> insturanceMaps = deviceInsuranceService.listPageMap(params);
         int count = deviceInsuranceService.count(params);
 
         Map<String, Object> result = Maps.newHashMap();
         if (insturanceMaps != null ) {
-            DsResultResponse resultPonse = new DsResultResponse() {{
-                setDatas(insturanceMaps);
-                setPageno(pageno);
-                setPagesize(pagesize);
-                setTotalRows(count);
-                setTotalPages((Integer) ((count + pagesize - 1) / pagesize));
-            }};
+            DsResultResponse resultPonse = new DsResultResponse();
+            resultPonse.setDatas(insturanceMaps);
+            resultPonse.setPageno(pageno);
+            resultPonse.setPagesize(pagesize);
+            resultPonse.setTotalRows(count);
+            resultPonse.setTotalPages( ((count + pagesize - 1) / pagesize));
+
             result.put("data", resultPonse);
             return R.ok(result);
         }else{
@@ -518,11 +517,11 @@ public class DeviceApiController {
 
     @EvApiByToken(value = "/apis/deviceDocument/listDocPage",method = RequestMethod.POST,apiTitle = "获取设备文档资料列表")
     @ApiOperation("获取设备文档资料列表")
-    public R list(@ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1",required = true) int pageno,
-                  @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20",required = true) int pagesize,
-                  @ApiParam(value = "设备id") @RequestParam(value = "device_id",defaultValue = "",required = true)  String device_id,
+    public R list(@ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
+                  @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize,
+                  @ApiParam(value = "设备id") @RequestParam(value = "device_id",defaultValue = "")  String device_id,
                   @ApiParam(value = "文档类型") @RequestParam(value = "type",defaultValue = "",required = false)  Long type){
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("deviceId",device_id);
         params.put("type",type);
         params.put("offset",(pageno-1)*pagesize);
@@ -536,7 +535,7 @@ public class DeviceApiController {
             dsRet.setPageno(pageno);
             dsRet.setPagesize(pagesize);
             dsRet.setTotalRows(total);
-            dsRet.setTotalPages((int) (total  +  pagesize  - 1) / pagesize);
+            dsRet.setTotalPages( (total  +  pagesize  - 1) / pagesize);
             results.put("data",dsRet);
         }
         return  R.ok(results);
@@ -544,17 +543,15 @@ public class DeviceApiController {
 
     @EvApiByToken(value = "/apis/deviceDocument/addDoc", method = RequestMethod.POST, apiTitle = "增加文档资料")
     @ApiOperation("增加文档资料")
-    public R save(//@ApiParam(value = "文档信息",required = true) DocumentDO document,
-                  @ApiParam(value = "文档名称 ", required = true) @RequestParam(value = "name", defaultValue = "", required = true) String name,
-                  @ApiParam(value = "文档类型 ", required = true) @RequestParam(value = "type", defaultValue = "", required = true) long type,
-                  @ApiParam(value = "上传人", required = true) @RequestParam(value = "up_user", defaultValue = "", required = true) long upUser,
-                  @ApiParam(value = "所属设备id", required = true) @RequestParam(value = "device_id", defaultValue = "", required = true) long deviceId,
-                  @ApiParam(value = "所属部门id", required = true) @RequestParam(value = "deptid", defaultValue = "", required = true) String deptid,
-                  @ApiParam(value = "来源id", required = true) @RequestParam(value = "source", defaultValue = "", required = true) long source,
-                  @ApiParam(value = "上传时间", required = false) @RequestParam(value = "up_time", defaultValue = "", required = false) String  upTime,
-                  @ApiParam(value = "版本号", required = false) @RequestParam(value = "version", defaultValue = "", required = false) String version,
-                  @ApiParam(value = "备注说明", required = false) @RequestParam(value = "description", defaultValue = "", required = false) String description,
-                  @ApiParam(value = "上传文档[{\"fileName\":\"文件名\",\"filePath\":\"文件路径\"},{\"fileName\":\"文件名\",\"filePath\":\"文件路径\"}]", required = false) @RequestParam(value = "taglocationappearanceImage", defaultValue = "", required = false) String taglocationappearanceDoc) {
+    public R save(
+                  @ApiParam(value = "文档名称 ", required = true) @RequestParam(value = "name", defaultValue = "") String name,
+                  @ApiParam(value = "文档类型 ", required = true) @RequestParam(value = "type", defaultValue = "") long type,
+                  @ApiParam(value = "上传人", required = true) @RequestParam(value = "up_user", defaultValue = "") long upUser,
+                  @ApiParam(value = "所属设备id", required = true) @RequestParam(value = "device_id", defaultValue = "") long deviceId,
+                  @ApiParam(value = "来源id", required = true) @RequestParam(value = "source", defaultValue = "") long source,
+                  @ApiParam(value = "版本号") @RequestParam(value = "version", defaultValue = "", required = false) String version,
+                  @ApiParam(value = "备注说明") @RequestParam(value = "description", defaultValue = "", required = false) String description,
+                  @ApiParam(value = "上传文档[{\"fileName\":\"文件名\",\"filePath\":\"文件路径\"},{\"fileName\":\"文件名\",\"filePath\":\"文件路径\"}]" ) @RequestParam(value = "taglocationappearanceImage", defaultValue = "", required = false) String taglocationappearanceDoc) {
 
         DocumentDO document = new DocumentDO();
         document.setName(name);
@@ -588,18 +585,17 @@ public class DeviceApiController {
 
     @EvApiByToken(value = "/apis/deviceChilden/listChild", method = RequestMethod.POST, apiTitle = "当前主设备下子设备列表")
     @ApiOperation("当前主设备下子设备列表")
-    public R listChildDevice(@ApiParam(value = "主设备id", required = true) @RequestParam(value = "id", defaultValue = "", required = true) Long id,
-                             @ApiParam(value = "当前第几页", required = false) @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
-                             @ApiParam(value = "一页多少条", required = false) @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize) {
-        Map<String, Object> query = new HashMap<String, Object>() {{
-            put("parentId", id);
-            put("offset", (pageno - 1) * pagesize);
-            put("limit", pagesize);
-        }};
-        int count = deviceService.count(query);
-        Integer totalPages = (Integer) ((count + pagesize - 1) / pagesize);
+    public R listChildDevice(@ApiParam(value = "主设备id", required = true) @RequestParam(value = "id", defaultValue = "") Long id,
+                             @ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
+                             @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize) {
+        Map<String, Object> query = new HashMap<>() ;
+        query.put("parentId", id);
+        query.put("offset", (pageno - 1) * pagesize);
+        query.put("limit", pagesize);
+
+        int count = deviceService.countOfDeviceChildren(query);
         List<Map<String, Object>> childList = deviceService.childrenDevice(query);
-        Map<String, Object> resultList = new HashMap<String, Object>();
+        Map<String, Object> resultList = new HashMap<>();
         DsResultResponse resultPonse = new DsResultResponse();
         if (!childList.isEmpty()) {
 
@@ -607,7 +603,7 @@ public class DeviceApiController {
             resultPonse.setPageno(pageno);
             resultPonse.setPagesize(pagesize);
             resultPonse.setTotalRows(count);
-            resultPonse.setTotalPages((Integer) ((count + pagesize - 1) / pagesize));
+            resultPonse.setTotalPages( ((count + pagesize - 1) / pagesize));
         }
         resultList.put("data", resultPonse);
         return R.ok(resultList);
@@ -616,33 +612,32 @@ public class DeviceApiController {
 
     @EvApiByToken(value = "/apis/deviceChilden/childDevice", method = RequestMethod.POST, apiTitle = "选择子设备列表/子设备查询")
     @ApiOperation("选择子设备列表/子设备查询")
-    public R ChildenList(@ApiParam(value = "设备名字或编码", required = false) @RequestParam(value = "name", defaultValue = "", required = false) String name,
-                         @ApiParam(value = "当前第几页", required = false) @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
-                         @ApiParam(value = "一页多少条", required = false) @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
-                         @ApiParam(value = "部门id", required = false) @RequestParam(value = "deptId", required = false) Integer dept_id,
-                         @ApiParam(value = "当前设备id", required = false) @RequestParam(value = "deviceId", required = false) Long deviceId,
-                         @ApiParam(value = "设备类型id", required = false) @RequestParam(value = "type", required = false) Integer type) {
-        Map<String, Object> query = new HashMap<String, Object>() {{
-            put("offset", (pageno - 1) * pagesize);
-            put("limit", pagesize);
-            put("name", name);
-            put("serialno", name);  //设备编码
-            put("deptId", dept_id);
-            put("type", type);      //设备类型
-            put("parentId", null);
-            put("deviceId",deviceId);
-        }};
+    public R ChildenList(@ApiParam(value = "设备名字或编码") @RequestParam(value = "name", defaultValue = "", required = false) String name,
+                         @ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
+                         @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
+                         @ApiParam(value = "部门id") @RequestParam(value = "deptId", required = false) Integer deptId,
+                         @ApiParam(value = "当前设备id") @RequestParam(value = "deviceId", required = false) Long deviceId,
+                         @ApiParam(value = "设备类型id") @RequestParam(value = "type", required = false) Integer type) {
+        Map<String, Object> query = new HashMap<>();
+        query.put("offset", (pageno - 1) * pagesize);
+        query.put("limit", pagesize);
+        query.put("name", name);
+        query.put("serialno", name);
+        query.put("deptId", deptId);
+        query.put("type", type);
+        query.put("parentId", null);
+        query.put("deviceId",deviceId);
+
         int count = deviceService.countOfChildList(query);
         List<Map<String, Object>> childList = this.deviceService.childListDev(query);
-        Map<String, Object> resultList = new HashMap<String, Object>();
+        Map<String, Object> resultList = new HashMap<>();
         if (childList != null) {
-            DsResultResponse resultPonse = new DsResultResponse() {{
-                setDatas(childList);
-                setPageno(pageno);
-                setPagesize(pagesize);
-                setTotalRows(count);
-                setTotalPages((Integer) ((count + pagesize - 1) / pagesize));
-            }};
+            DsResultResponse resultPonse = new DsResultResponse();
+            resultPonse.setDatas(childList);
+            resultPonse.setPageno(pageno);
+            resultPonse.setPagesize(pagesize);
+            resultPonse.setTotalRows(count);
+            resultPonse.setTotalPages( ((count + pagesize - 1) / pagesize));
             resultList.put("data", resultPonse);
         } else {
             resultList.put("data", "");
@@ -658,8 +653,8 @@ public class DeviceApiController {
       */
     @EvApiByToken(value = "/apis/devicechild/fatherAddChilds", method = RequestMethod.POST, apiTitle = "添加子设备")
     @ApiOperation("添加子设备")
-    public R addChilds(@ApiParam(value = "子设备IDs", required = true) @RequestParam(value = "ids", required = true) Long[] ids,
-                       @ApiParam(value = "主设备id", required = true) @RequestParam(value = "id", required = true) long id) {
+    public R addChilds(@ApiParam(value = "子设备IDs", required = true) @RequestParam(value = "ids") Long[] ids,
+                       @ApiParam(value = "主设备id", required = true) @RequestParam(value = "id") long id) {
         int counts = deviceService.updateParentId(id, ids);
         if (counts==(ids.length)) {
             return R.ok();
@@ -694,43 +689,50 @@ public class DeviceApiController {
      */
     @EvApiByToken(value = "/apis/sparePart:sparePartList", method = RequestMethod.POST, apiTitle = "当前主设备下备件列表")
     @ApiOperation("当前主设备下备件列表")
-    public R relevanceSpareList(@ApiParam(value = "当前第几页", required = false) @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
-                                @ApiParam(value = "一页多少条", required = false) @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
-                                @ApiParam(value = "主设备ID", required = true) @RequestParam(value = "id", required = true) Long id) {
+    public R relevanceSpareList(@ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
+                                @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
+                                @ApiParam(value = "主设备ID", required = true) @RequestParam(value = "id") Long id) {
 
         Map<String, Object> query = new HashMap<String, Object>() {{
             put("offset",(pageno - 1) * pagesize);
             put("limit",pagesize);
             put("deviceId", id);
         }};
-        List<Map<String, Object>> idNameListType = deviceSpareService.RelatedSpareParts(query);
+        List<Map<String, Object>> sparePartList = deviceSpareService.RelatedSpareParts(query);
         int count = deviceSpareService.countRelatedSpareParts(query);
         Map<String, Object> resultListMaps = Maps.newHashMap();
 
-        if (idNameListType.size()>0) {
-                DsResultResponse resultPonse = new DsResultResponse() {{
-                    setDatas(idNameListType);
-                    setPageno(pageno);
-                    setPagesize(pagesize);
-                    setTotalRows(count);
-                    setTotalPages((Integer) ((count + pagesize - 1) / pagesize));
-                }};
+        if (sparePartList.size()>0) {
+            Long[] ids=new Long[sparePartList.size()];
+            for(int i=0;i<sparePartList.size();i++){
+                ids[i]=Long.parseLong(sparePartList.get(i).get("id").toString());
+            }
+            List<StockDO> spartPartsCount = deviceSpareService.getSpartPartsCount(ids);
+            Map<Long,BigDecimal> materialCounts;
+            materialCounts=spartPartsCount.stream().collect(Collectors.toMap(StockDO::getMaterielId,StockDO::getCount,BigDecimal::add));
+            for(Map<String, Object> listMap:sparePartList ){
+                listMap.put("partCount",materialCounts.getOrDefault(Long.parseLong(listMap.get("id").toString()),BigDecimal.ZERO));
+            }
+            DsResultResponse resultPonse = new DsResultResponse();
+            resultPonse.setDatas(sparePartList);
+            resultPonse.setPageno(pageno);
+            resultPonse.setPagesize(pagesize);
+            resultPonse.setTotalRows(count);
+            resultPonse.setTotalPages(((count + pagesize - 1) / pagesize));
+
             resultListMaps.put("data", resultPonse);
-            return R.ok(resultListMaps);
         }
             return R.ok(resultListMaps);
     }
-
-
 
     /**
      * 添加备件（单条/多条）
      */
     @EvApiByToken(value = "/apis/sparePart/fatherAddchilds", method = RequestMethod.POST, apiTitle = "添加子备件")
     @ApiOperation("添加子备件")
-    public R addSpareChilds(@ApiParam(value = "子备件IDs", required = true) @RequestParam(value = "ids", required = true) Long[] ids,
-                            @ApiParam(value = "主设备id", required = true) @RequestParam(value = "id", required = true) long id,
-                            @ApiParam(value = "仓库ID", required = false) @RequestParam(value = "waerhouse", required = false) Integer  waerhouse) {
+    public R addSpareChilds(@ApiParam(value = "子备件IDs", required = true) @RequestParam(value = "ids") Long[] ids,
+                            @ApiParam(value = "主设备id", required = true) @RequestParam(value = "id") long id,
+                            @ApiParam(value = "仓库ID") @RequestParam(value = "waerhouse", required = false) Integer  waerhouse) {
 
         int counts= deviceSpareService.saveSparesPart(ids,id,null);
         if (counts == (ids.length)) {
@@ -746,8 +748,8 @@ public class DeviceApiController {
     @EvApiByToken(value = "/apis/sparePart/deletchilds", method = RequestMethod.POST, apiTitle = "删除/批量删除 子备件")
     @ApiOperation("删除/批量删除 子备件")
     @Transactional
-    public R deletSpareChilds(@ApiParam(value = "子备件IDs", required = true) @RequestParam(value = "ids", required = true) Long[] ids,
-                            @ApiParam(value = "主设备id", required = true) @RequestParam(value = "id", required = true) long id) {
+    public R deletSpareChilds(@ApiParam(value = "子备件IDs", required = true) @RequestParam(value = "ids") Long[] ids,
+                            @ApiParam(value = "主设备id", required = true) @RequestParam(value = "id") long id) {
 
         int counts= deviceSpareService.removeSpareChilden(ids,id);
         if (counts == (ids.length)) {
@@ -763,8 +765,8 @@ public class DeviceApiController {
 
     /*导入导出*/
     @ResponseBody
-    @EvApiByToken(value = "/apis/exportExcel/device", method = RequestMethod.GET, apiTitle = "导出物料")
-    @ApiOperation("导出物料")
+    @EvApiByToken(value = "/apis/exportExcel/device", method = RequestMethod.GET, apiTitle = "导出设备")
+    @ApiOperation("导出设备")
     public void exportExcel(
             @ApiParam(value = "设备名字或编码") @RequestParam(value = "nameAndType", defaultValue = "", required = false) String name,
             @ApiParam(value = "部门id") @RequestParam(value = "deptId", required = false) Long deptId,
@@ -815,7 +817,7 @@ public class DeviceApiController {
     @EvApiByToken(value = "/apis/importExcel/device", method = RequestMethod.POST, apiTitle = "设备信息导入")
     @ApiOperation("设备信息导入")
     @Transactional(rollbackFor = Exception.class)
-    public R readSupplier(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file) throws Exception {
+    public R readDevice(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file)  {
         if (file.isEmpty()) {
             return R.error(messageSourceHandler.getMessage("file.nonSelect", null));
         }
@@ -828,6 +830,10 @@ public class DeviceApiController {
         List<DeviceEntity> deviceEntityList;
         try {
             deviceEntityList = ExcelImportUtil.importExcel(file.getInputStream(), DeviceEntity.class, params);
+            deviceEntityList = deviceEntityList
+                    .stream()
+                    .filter(e->StringUtils.isNoneEmpty(e.getName()))
+                    .collect(Collectors.toList());
         }catch(Exception e) {
             return R.error(messageSourceHandler.getMessage("file.upload.error", null));
         }
@@ -836,7 +842,11 @@ public class DeviceApiController {
                     .filter(deviceEntity -> StringUtils.isNoneEmpty(deviceEntity.getSerialno()))
                     .map(DeviceEntity::getSerialno)
                     .collect(Collectors.toList());
+            List<String> nameList = deviceEntityList.stream()
+                    .map(DeviceEntity::getName)
+                    .collect(Collectors.toList());
             List<String> allCode = deviceService.getAllCode();
+            List<String> allName = deviceService.getAllName();
             if (allCode.size() > 0 && codeNoneEmptyList.size() > 0) {
                 allCode.addAll(codeNoneEmptyList);
                 List<String> duplicateElements = ListUtils.getDuplicateElements(allCode);
@@ -845,7 +855,16 @@ public class DeviceApiController {
                     String[] arg = {StringUtils.join(duplicateElements.toArray(), ",")};
                     return R.error(messageSourceHandler.getMessage("basicInfo.code.isPresence", arg));
                 }
-    }
+            }
+            if (allName.size() > 0 && nameList.size() > 0) {
+                allName.addAll(nameList);
+                List<String> duplicateElements = ListUtils.getDuplicateElements(allName);
+                // 若存在重复的元素提示用户
+                if (duplicateElements.size() > 0) {
+                    String[] arg = {StringUtils.join(duplicateElements.toArray(), ",")};
+                    return R.error(messageSourceHandler.getMessage("basicInfo.name.isPresence", arg));
+                }
+            }
 
             Map<String, Object> param = Maps.newHashMap();
             param.put("maxNo", Constant.SB);

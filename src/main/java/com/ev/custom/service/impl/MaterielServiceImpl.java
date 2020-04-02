@@ -176,4 +176,9 @@ public class MaterielServiceImpl implements MaterielService {
         materielDao.batchSave(materielDOs);
     }
 
+	@Override
+	public List<String> getAllName() {
+		return materielDao.getAllName();
+	}
+
 }

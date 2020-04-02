@@ -48,4 +48,5 @@ public interface ClientDao {
 
     List<String> getAllCode();
 
+    List<String> getAllName();
 }

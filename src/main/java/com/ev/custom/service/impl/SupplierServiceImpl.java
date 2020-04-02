@@ -132,5 +132,10 @@ public class SupplierServiceImpl implements SupplierService {
 		return supplierDao.checkSave(map);
 	}
 
+	@Override
+	public List<String> getAllName() {
+		return supplierDao.getAllName();
+	}
+
 
 }

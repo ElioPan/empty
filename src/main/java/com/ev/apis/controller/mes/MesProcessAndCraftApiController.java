@@ -11,6 +11,7 @@ import com.ev.mes.domain.ProcessDO;
 import com.ev.mes.service.CraftService;
 import com.ev.mes.service.ProcessCheckService;
 import com.ev.mes.service.ProcessService;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -322,7 +323,40 @@ public class MesProcessAndCraftApiController {
         return craftService.importExcel(file);
     }
 
+    /**
+     *
+     * Created by gumingjie on 2020-03-12.
+     */
+    @EvApiByToken(value = "/apis/mes/craft/batchAuditOfCraft", method = RequestMethod.POST, apiTitle = "批量审核——工艺路线")
+    @ApiOperation("批量审核——工艺路线")
+    @Transactional(rollbackFor = Exception.class)
+    public R batchAuditOfCraft( @ApiParam(value = "工艺路线ids", required = true) @RequestParam(value = "ids") Long[] craftId){
+        if (craftId.length > 0) {
+            Long userId = ShiroUtils.getUserId();
+            List<CraftDO> craftDOList = Lists.newArrayList();
+            for (Long id : craftId) {
+                CraftDO craftDO = craftService.get(id);
+                if (craftDO == null) {
+                    return R.error(messageSourceHandler.getMessage("common.massge.haveNoThing", null));
+                }
+                if (Objects.equals(craftDO.getAuditSign(), ConstantForMES.OK_AUDITED)) {
+                    //已审核请勿重复操作！
+                    return R.error(messageSourceHandler.getMessage("common.massge.okAudit", null));
+                }
+                craftDOList.add(craftDO);
+            }
 
+            for (CraftDO craftDO : craftDOList) {
+                craftDO.setAuditSign(ConstantForMES.OK_AUDITED);
+                craftDO.setAuditId(userId);
+                craftService.update(craftDO);
+            }
+
+            return R.ok();
+        }
+        return R.error();
+
+    }
 
 
 }

@@ -56,4 +56,7 @@ public interface UpkeepPlanDao {
 	int countOfList(Map<String, Object> map);
 
 	int deletOfPlan(Map<String, Object> map);
+
+	int canChangeStatus(Map<String, Object> map);
+
 }

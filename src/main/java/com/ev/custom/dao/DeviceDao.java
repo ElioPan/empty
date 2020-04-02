@@ -70,4 +70,10 @@ public interface DeviceDao {
     List<String> getAllCode();
 
     int batchSave(List<DeviceDO> deviceDOs);
+
+    List<String> getAllName();
+
+	int countOfDeviceChildren(Map<String,Object> map);
+
+
 }

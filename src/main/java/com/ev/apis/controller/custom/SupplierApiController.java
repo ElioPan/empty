@@ -317,7 +317,34 @@ public class SupplierApiController {
 //        }
 //    }
 
+    @EvApiByToken(value = "/apis/supplier/batchAudit", method = RequestMethod.POST, apiTitle = "批量审核供应商")
+    @ApiOperation("批量审核供应商")
+    @Transactional(rollbackFor = Exception.class)
+    public R batchAudit(@ApiParam(value = "供应商id", required = true) @RequestParam(value = "ids", defaultValue = "")Long[] ids ){
+        if (ids.length > 0) {
+            List<SupplierDO> supplierDOList=Lists.newArrayList();
+            Long userId = ShiroUtils.getUserId();
+            for (Long id : ids) {
+                SupplierDO supplierDO= supplierService.get(id);
+                if(Objects.isNull(supplierDO)){
+                    return R.error(messageSourceHandler.getMessage("common.massge.haveNoThing",null));
+                }
+                if(!Objects.equals(supplierDO.getStatus(),ConstantForMES.WAIT_AUDIT)){
+                    return R.error(messageSourceHandler.getMessage("common.massge.okAudit",null));
+                }
+                supplierDOList.add(supplierDO);
+            }
 
+            for (SupplierDO supplierDO : supplierDOList) {
+                supplierDO.setStatus(ConstantForMES.OK_AUDITED);
+                supplierDO.setAuditId(userId);
+                supplierService.update(supplierDO);
+            }
+            return R.ok();
+        }
+      return R.error();
+
+    }
 
     /*导入导出*/
     @ResponseBody
@@ -337,6 +364,10 @@ public class SupplierApiController {
         List<SupplierEntity> supplierEntityList;
         try {
             supplierEntityList = ExcelImportUtil.importExcel(file.getInputStream(), SupplierEntity.class, params);
+            supplierEntityList = supplierEntityList
+                    .stream()
+                    .filter(e->StringUtils.isNoneEmpty(e.getName()))
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             return R.error(messageSourceHandler.getMessage("file.upload.error", null));
         }
@@ -345,7 +376,12 @@ public class SupplierApiController {
                     .filter(supplierEntity -> StringUtils.isNoneEmpty(supplierEntity.getCode()))
                     .map(SupplierEntity::getCode)
                     .collect(Collectors.toList());
+            List<String> nameList = supplierEntityList.stream()
+                    .map(SupplierEntity::getName)
+                    .collect(Collectors.toList());
             List<String> allCode = supplierService.getAllCode();
+            List<String> allName = supplierService.getAllName();
+            // 编号验重
             if (allCode.size() > 0 && codeNoneEmptyList.size() > 0) {
                 allCode.addAll(codeNoneEmptyList);
                 List<String> duplicateElements = ListUtils.getDuplicateElements(allCode);
@@ -353,6 +389,16 @@ public class SupplierApiController {
                 if (duplicateElements.size() > 0) {
                     String[] arg = {StringUtils.join(duplicateElements.toArray(), ",")};
                     return R.error(messageSourceHandler.getMessage("basicInfo.code.isPresence", arg));
+                }
+            }
+            // 名称验重
+            if (allName.size() > 0 && nameList.size() > 0) {
+                allName.addAll(nameList);
+                List<String> duplicateElements = ListUtils.getDuplicateElements(allName);
+                // 若存在重复的元素提示用户
+                if (duplicateElements.size() > 0) {
+                    String[] arg = {StringUtils.join(duplicateElements.toArray(), ",")};
+                    return R.error(messageSourceHandler.getMessage("basicInfo.name.isPresence", arg));
                 }
             }
 

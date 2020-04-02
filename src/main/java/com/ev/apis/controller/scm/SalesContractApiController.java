@@ -7,9 +7,12 @@ import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.config.ConstantForGYL;
+import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.StringUtils;
+import com.ev.mes.service.MaterialInspectionService;
+import com.ev.mes.service.ProductionPlanService;
 import com.ev.scm.domain.SalescontractDO;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.utils.R;
@@ -55,6 +58,10 @@ public class SalesContractApiController {
     private SalesbillService salesbillService;
     @Autowired
     private PurchaseItemService purchaseItemService;
+    @Autowired
+    private ProductionPlanService planService;
+    @Autowired
+    private MaterialInspectionService materialInspectionService;
     @Autowired
     private ContractAlterationService contractAlterationService;
 	
@@ -246,7 +253,7 @@ public class SalesContractApiController {
             @ApiParam(value = "单据结束时间") @RequestParam(value = "createEndTime",defaultValue = "",required = false)  String createEndTime,
 
             @ApiParam(value = "客户Id") @RequestParam(value = "clientId",defaultValue = "",required = false)  Long clientId,
-            @ApiParam(value = "dialog类型：委外合同0，销售票据1，销售出库2，采购申请3",required = true) @RequestParam(value = "dialogType",defaultValue = "")  Integer dialogType,
+            @ApiParam(value = "dialog类型：委外合同0，销售票据1，销售出库2，采购申请3，生产计划4，发货检验5",required = true) @RequestParam(value = "dialogType",defaultValue = "")  Integer dialogType,
             @ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
             @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize) {
         Map<String, Object> map = Maps.newHashMap();
@@ -281,6 +288,8 @@ public class SalesContractApiController {
         if (data.size() > 0) {
             Map<String, Object> sourceParam;
             BigDecimal bySource = null;
+            boolean nonFilter = dialogType == 4 || dialogType == 5;
+
             for (Map<String, Object> datum : data) {
                 sourceParam = Maps.newHashMap();
                 sourceParam.put("sourceId", datum.get("id"));
@@ -302,12 +311,21 @@ public class SalesContractApiController {
                         // 采购申请引用
                         bySource = purchaseItemService.getInCountOfPurchase(sourceParam);
                         break;
+                    case 4:
+                        // 生产计划引用
+                        bySource = planService.getCountBySource(sourceParam);
+                        break;
+                    case 5:
+                        // 发货检验引用
+                        sourceParam.put("inspectionType", ConstantForMES.FHJY);
+                        bySource = materialInspectionService.getCountBySource(sourceParam);
+                        break;
                     default:
                         break;
                 }
                 BigDecimal countByOutSource = bySource == null ? BigDecimal.ZERO : bySource;
                 BigDecimal count = MathUtils.getBigDecimal(datum.get("count")).subtract(countByOutSource);
-                if (count.compareTo(BigDecimal.ZERO) <= 0) {
+                if (count.compareTo(BigDecimal.ZERO) <= 0 && !nonFilter) {
                     datum.put("quoteCount", 0);
                 } else {
                     datum.put("quoteCount", count);

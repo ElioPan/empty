@@ -322,11 +322,28 @@
 	</delete>
 	
 	<delete id="batchRemove">
-		delete from cus_patrol_plan where id in 
+		delete from cus_patrol_plan where id in
 		<foreach item="id" collection="array" open="(" separator="," close=")">
 			#{id}
 		</foreach>
 	</delete>
-	
+
+
+	<select id="canChangeStatus" resultType="int">
+		select
+		count(*)
+		from
+		cus_patrol_plan
+		<where>
+			<if test="status != null and status != ''"> and status= #{status} </if>
+			<if test="endTime != null and endTime != ''"> and end_time &lt;(select date_format(now(),'%Y-%m-%d %H-%I-%S')) </if>
+			<if test="ids != null and ids != ''"> and id in
+				<foreach item="id" collection="ids" open="(" separator="," close=")">
+					#{id}
+				</foreach>
+			</if>
+		</where>
+	</select>
+
 	
 </mapper>
