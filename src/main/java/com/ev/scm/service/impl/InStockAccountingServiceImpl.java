@@ -483,7 +483,8 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 BigDecimal cost=inItemDo.getCost()==null?BigDecimal.ZERO:inItemDo.getCost();
                 BigDecimal expense=inItemDo.getExpense()==null?BigDecimal.ZERO:inItemDo.getExpense();
 
-                BigDecimal totailAmout = inItemDo.getAmount().add(cost.add(expense));
+                BigDecimal totailAmout = cost.add(expense);
+//                BigDecimal totailAmout = inItemDo.getAmount().add(cost.add(expense));
                 BigDecimal unitPrice = totailAmout.divide(inItemDo.getCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
                 inItemDo.setUnitPrice(unitPrice);
                 inItemDo.setAmount(totailAmout);
