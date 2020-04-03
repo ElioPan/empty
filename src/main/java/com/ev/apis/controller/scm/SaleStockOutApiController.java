@@ -174,6 +174,7 @@ public class SaleStockOutApiController {
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
             // 高级查询
+            @ApiParam(value = "部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
             @ApiParam(value = "销售方式(0现销/1赊销)") @RequestParam(value = "salesType", defaultValue = "", required = false) Integer salesType,
             @ApiParam(value = "规格型号") @RequestParam(value = "specification", defaultValue = "", required = false) String specification,
             @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
@@ -194,6 +195,7 @@ public class SaleStockOutApiController {
         params.put("startTime", startTime);
         params.put("endTime", endTime);
         // 高级查询
+        params.put("deptId", deptId);
         params.put("auditSign", auditSign);
         params.put("salesType", salesType);
         params.put("specification", StringUtils.sqlLike(specification));
@@ -307,6 +309,7 @@ public class SaleStockOutApiController {
     @EvApiByToken(value = "/apis/exportExcel/salesOutStock", method = RequestMethod.GET, apiTitle = "导出销售出库")
     @ApiOperation("导出销售出库")
     public void exportExcel(
+            @ApiParam(value = "部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
             @ApiParam(value = "出库单号") @RequestParam(value = "outCode", defaultValue = "", required = false) String outCode,
             @ApiParam(value = "客户名称") @RequestParam(value = "clientName", defaultValue = "", required = false) String clientName,
             @ApiParam(value = "物料名称") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
@@ -323,6 +326,7 @@ public class SaleStockOutApiController {
             HttpServletRequest request, HttpServletResponse response, ModelMap modelMap) {
         Map<String, Object> param = Maps.newHashMap();
 
+        param.put("deptId", deptId);
         param.put("outCode", outCode);
         param.put("clientName", StringUtils.sqlLike(clientName));
         param.put("materielName", StringUtils.sqlLike(materielName));

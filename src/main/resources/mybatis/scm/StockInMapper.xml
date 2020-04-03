@@ -411,6 +411,7 @@
 		<where>
 			<if test="storageType != null and storageType != ''"> and storageType = #{storageType} </if>
 			<if test="inheadCode != null and inheadCode != ''"> and inheadCode = #{inheadCode} </if>
+			<if test="deptId != null and deptId != ''"> and deptId = #{deptId} </if>
 			<if test="storageTypeName != null and storageTypeName != ''"> AND storageTypeName like  CONCAT('%',#{storageTypeName},'%')  </if>
 			<if test="sourceCompany != null and sourceCompany != ''"> and sourceCompany = #{sourceCompany} </if>
 			<if test="sourceCompanyName != null and sourceCompanyName != ''"> AND sourceCompanyName like  CONCAT('%',#{sourceCompanyName},'%')  </if>
@@ -529,6 +530,7 @@
 		<where>
 			<if test="storageType != null and storageType != ''"> and storageType = #{storageType} </if>
 			<if test="inheadCode != null and inheadCode != ''"> and inheadCode = #{inheadCode} </if>
+			<if test="deptId != null and deptId != ''"> and deptId = #{deptId} </if>
 			<if test="storageTypeName != null and storageTypeName != ''"> AND storageTypeName like  CONCAT('%',#{storageTypeName},'%')  </if>
 			<if test="sourceCompany != null and sourceCompany != ''"> and sourceCompany = #{sourceCompany} </if>
 			<if test="sourceCompanyName != null and sourceCompanyName != ''"> AND sourceCompanyName like  CONCAT('%',#{sourceCompanyName},'%')  </if>
