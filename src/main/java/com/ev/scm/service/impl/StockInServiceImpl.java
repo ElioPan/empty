@@ -611,7 +611,7 @@ public class StockInServiceImpl implements StockInService {
 		Long[] stockInId={id};
 		boolean b = inStockAccountingService.disposeIsClose(stockInId, false);
 		if(!b){
-			return R.error(messageSourceHandler.getMessage("scm.checkCount.isCloce", null));
+			return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", null));
 		}
 
 		//更改主表审核状态为11已审核-->179已审核  178待审核；
@@ -647,7 +647,7 @@ public class StockInServiceImpl implements StockInService {
 			Long[] stockInId={inHeadId};
 			boolean b = inStockAccountingService.disposeIsClose(stockInId, false);
 			if(!b){
-				return R.error(messageSourceHandler.getMessage("scm.checkCount.isCloce", null));
+				return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", null));
 			}
 
 

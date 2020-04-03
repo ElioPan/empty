@@ -342,8 +342,8 @@ public class StockOutServiceImpl implements StockOutService {
         }
         Date periodTime = stockService.getPeriodTime();
         if (stockOutDO.getOutTime().before(periodTime)) {
-            String[] args = {DateFormatUtil.getFormateDate(periodTime)};
-            return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", args));
+//            String[] args = {DateFormatUtil.getFormateDate(periodTime)};
+            return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", null));
         }
         
         Long auditSignId = stockOutDO.getAuditSign();
@@ -453,8 +453,8 @@ public class StockOutServiceImpl implements StockOutService {
         StockOutDO stockOutDO = get(id);
         Date periodTime = stockService.getPeriodTime();
         if (stockOutDO.getOutTime().before(periodTime)) {
-            String[] args = {DateFormatUtil.getFormateDate(periodTime)};
-            return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", args));
+//            String[] args = {DateFormatUtil.getFormateDate(periodTime)};
+            return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", null));
         }
 
         Long auditSignId = stockOutDO.getAuditSign();
