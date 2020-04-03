@@ -6,6 +6,7 @@ import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.service.MaterielService;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
@@ -277,15 +278,29 @@ public class StockApiController {
     ) {
         Map<String, Object> results = Maps.newHashMap();
         Map<String, Object> params = Maps.newHashMap();
-        params.put("offset", (pageno - 1) * pagesize);
-        params.put("limit", pagesize);
+//        params.put("offset", (pageno - 1) * pagesize);
+//        params.put("limit", pagesize);
         params.put("period", period);
         params.put("isClose", isClose);
+        List<Map<String, Object>> data = Lists.newArrayList();
+        // 分批认定 列表
+        params.put("valuationMethod", ConstantForGYL.BATCH_FINDS);
         params.put("materielName", StringUtils.sqlLike(materielName));
-        List<Map<String, Object>> data = stockAnalysisService.listForMap(params);
-        int total = stockAnalysisService.countForMap(params);
+        List<Map<String, Object>> batchData = stockAnalysisService.listForMap(params);
+        if (batchData.size() > 0) {
+            data.addAll(batchData);
+        }
+        // 加权平局 列表
+        params.put("valuationMethod", ConstantForGYL.WEIGHTED_AVERAGE);
+        List<Map<String, Object>> groupData = stockAnalysisService.listForMapGroupMateriel(params);
+        if (groupData.size() > 0) {
+            data.addAll(groupData);
+        }
+        Map<String, Object> map = stockAnalysisService.countForTotal(params);
         if (data.size() > 0) {
-            results.put("data", new DsResultResponse(pageno, pagesize, total, data));
+            List<Map<String, Object>> maps = PageUtils.startPage(data, pageno, pagesize);
+            results.put("total", map);
+            results.put("data", new DsResultResponse(pageno, pagesize, data.size(), maps));
         }
         return R.ok(results);
     }

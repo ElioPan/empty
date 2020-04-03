@@ -82,4 +82,9 @@ public class StockAnalysisServiceImpl implements StockAnalysisService {
 		stockAnalysisDao.batchRemoveById(id);
 	}
 
+	@Override
+	public List<Map<String, Object>> listForMapGroupMateriel(Map<String, Object> params) {
+		return stockAnalysisDao.listForMapGroupMateriel(params);
+	}
+
 }

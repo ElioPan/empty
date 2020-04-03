@@ -1218,6 +1218,7 @@ public class StockServiceImpl implements StockService {
 					}
 					continue;
 				}
+
 				// 若不存则添加
 				newAnalysisDO = new StockAnalysisDO();
 				newAnalysisDO.setMaterielId(materielId);
@@ -1231,6 +1232,7 @@ public class StockServiceImpl implements StockService {
 				newAnalysisDO.setDelFlag(0);
 				newAnalysisDO.setPeriod(periodTime);
 				stockAnalysisList.add(newAnalysisDO);
+				materielNowIdList.add(materielId);
 				continue;
 			}
 			// 批次管理
@@ -1242,6 +1244,7 @@ public class StockServiceImpl implements StockService {
 					if (Objects.equals(materielIdAndBatchNow,materielIdAndBatch)){
 						analysisDO.setInCount(analysisDO.getInCount().add(MathUtils.getBigDecimal(map.get("count"))));
 						analysisDO.setInAmount(analysisDO.getInAmount().add(MathUtils.getBigDecimal(map.get("amount"))));
+						// 不要新加
 						isFlag = false;
 						break;
 					}
@@ -1264,6 +1267,7 @@ public class StockServiceImpl implements StockService {
 				newAnalysisDO.setPeriod(periodTime);
 				stockAnalysisList.add(newAnalysisDO);
 				materielNowIdList.add(materielId);
+
 			}
 
 		}

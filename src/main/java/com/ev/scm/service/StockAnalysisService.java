@@ -39,4 +39,6 @@ public interface StockAnalysisService {
 	Map<String, Object> countForTotal(Map<String, Object> params);
 
     void batchRemoveById(Long id);
+
+	List<Map<String, Object>> listForMapGroupMateriel(Map<String, Object> params);
 }
