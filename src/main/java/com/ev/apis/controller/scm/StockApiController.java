@@ -282,10 +282,12 @@ public class StockApiController {
 //        params.put("limit", pagesize);
         params.put("period", period);
         params.put("isClose", isClose);
+        params.put("materielName", StringUtils.sqlLike(materielName));
+        Map<String, Object> map = stockAnalysisService.countForTotal(params);
+
         List<Map<String, Object>> data = Lists.newArrayList();
         // 分批认定 列表
         params.put("valuationMethod", ConstantForGYL.BATCH_FINDS);
-        params.put("materielName", StringUtils.sqlLike(materielName));
         List<Map<String, Object>> batchData = stockAnalysisService.listForMap(params);
         if (batchData.size() > 0) {
             data.addAll(batchData);
@@ -296,7 +298,7 @@ public class StockApiController {
         if (groupData.size() > 0) {
             data.addAll(groupData);
         }
-        Map<String, Object> map = stockAnalysisService.countForTotal(params);
+
         if (data.size() > 0) {
             List<Map<String, Object>> maps = PageUtils.startPage(data, pageno, pagesize);
             results.put("total", map);
