@@ -285,7 +285,7 @@ public class StockServiceImpl implements StockService {
 				stockDO.setCount(count);
 				BigDecimal amount = BigDecimal.valueOf(Double.parseDouble(stockEntity.getAmount()));
 				stockDO.setAmount(amount);
-				stockDO.setUnitPrice(amount.divide(count, Constant.BIGDECIMAL_ZERO));
+				stockDO.setUnitPrice(amount.divide(count,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
 				stockDO.setDelFlag(0);
 				stockDO.setCreateBy(userId);
 				stockDO.setCreateTime(now);
@@ -387,7 +387,7 @@ public class StockServiceImpl implements StockService {
 							itemDO.setBatch(null);
 						}
 						itemDO.setAvailableCount(count);
-						itemDO.setUnitPrice(amount.divide(count, Constant.BIGDECIMAL_ZERO));
+						itemDO.setUnitPrice(amount.divide(count,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
 						itemDO.setEnteringTime(now);
 						itemDO.setCreateTime(now);
 						itemDO.setDelFlag(0);
@@ -867,7 +867,7 @@ public class StockServiceImpl implements StockService {
 				analysisDO.setInCount(inCount);
 				analysisDO.setInAmount(inAmount);
 				materielInUnitPriceMap.put(materielId
-						, (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
+						, (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
 				continue;
 			}
 			// 计算批次管理出库新入物料成本单价
@@ -878,17 +878,17 @@ public class StockServiceImpl implements StockService {
 				analysisDO.setInCount(inCount);
 				analysisDO.setInAmount(inAmount);
 				materielInUnitPriceMap.put(materielIdAndBatch
-						, (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
+						, (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
 				continue;
 			}
 			if (analysisDO.getInitialCount().compareTo(BigDecimal.ZERO)!=0) {
 				// 本月未入库，存在上个月的库存
 				if (weightedAverageIdList.contains(Integer.parseInt(materielId))) {
 					materielInUnitPriceMap.put(materielId
-							, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(), Constant.BIGDECIMAL_ZERO));
+							, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
 				}else {
 					materielInUnitPriceMap.put(materielIdAndBatch
-							, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(), Constant.BIGDECIMAL_ZERO));
+							, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
 				}
 			}
 

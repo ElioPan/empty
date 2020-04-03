@@ -280,7 +280,7 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
             BigDecimal wasteRate = bomDetailDO.getWasteRate();
             BigDecimal standardCount = bomDetailDO.getStandardCount();
             BigDecimal planCount = planDO.getPlanCount();
-            BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100), Constant.BIGDECIMAL_ZERO)
+            BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP)
                     .multiply(planCount);
             feedingDetail.put("planFeeding", planFeeding);
             feedingDetailList.add(feedingDetail);
