@@ -208,7 +208,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 			});
 			BigDecimal totailOughtAmount=BigDecimal.ZERO;
 			BigDecimal totailReceivedAmount=BigDecimal.ZERO;
-			BigDecimal remainingAmount=new BigDecimal(allDate.get(0).get("remainingAmount").toString());
+			BigDecimal remainingAmount=new BigDecimal(allDate.get(0).getOrDefault("remainingAmount","0").toString());
 			for(Map<String, Object> oneDate:allDate){
 				oneDate.remove("time");
 				BigDecimal oughtAmount=new BigDecimal(oneDate.containsKey("oughtAmount")?oneDate.get("oughtAmount").toString():"0");
@@ -259,6 +259,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 			mapCommutation.put("typeName", ConstantForGYL.REMANING_AMOUNT);
 			mapCommutation.put("remainingAmount", detail.get(0).get("initialAmount"));
 			allDate.add(mapCommutation);
+		}
 
         if(otherDate.size()>0){
             allDate.addAll(otherDate);
@@ -269,9 +270,6 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
         if(paymentDate.size()>0){
             allDate.addAll(paymentDate);
         }
-		if(paymentDate.size()>0){
-			allDate.addAll(paymentDate);
-		}
 
 
         //排序   依照时间排序
@@ -288,7 +286,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
             });
             BigDecimal totailOughtAmount=BigDecimal.ZERO;
             BigDecimal totailReceivedAmount=BigDecimal.ZERO;
-            BigDecimal remainingAmount=new BigDecimal(allDate.get(0).get("remainingAmount").toString());
+            BigDecimal remainingAmount=new BigDecimal(allDate.get(0).getOrDefault("remainingAmount","0").toString());
             for(Map<String, Object> oneDate:allDate){
                 oneDate.remove("time");
                 BigDecimal oughtAmount=new BigDecimal(oneDate.containsKey("oughtAmount")?oneDate.get("oughtAmount").toString():"0");
@@ -312,7 +310,6 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
             dsRet.put("datas",quoteLists);
             resulst.put("data", dsRet);
         }
-		}
         return R.ok(resulst);
     }
 
