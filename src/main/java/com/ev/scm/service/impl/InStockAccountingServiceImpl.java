@@ -671,7 +671,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 }
                 peramy.put("period", maps.get("inOutTime"));
                 int counts = this.getAnalysisDate(peramy);
-                if(counts==0){
+                if(counts > 0){
                     return false;
                 }
             }

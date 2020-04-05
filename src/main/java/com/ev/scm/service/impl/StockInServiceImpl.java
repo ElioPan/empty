@@ -608,14 +608,19 @@ public class StockInServiceImpl implements StockInService {
 			return R.error(messageSourceHandler.getMessage("scm.stock.nonUse",null));
 		}
 
-		Long[] stockInId={id};
+/*		Long[] stockInId={id};
 		boolean b = inStockAccountingService.disposeIsClose(stockInId, false);
 		if(!b){
 			return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", null));
-		}
+		}*/
 
 		//更改主表审核状态为11已审核-->179已审核  178待审核；
 		StockInDO pInheadDO = stockInDao.get(id);
+		Date periodTime = stockService.getPeriodTime();
+		if (pInheadDO.getInOutTime().before(periodTime)) {
+//            String[] args = {DateFormatUtil.getFormateDate(periodTime)};
+			return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", null));
+		}
 		if (Objects.nonNull(pInheadDO)) {
 			if (!(Objects.equals(pInheadDO.getAuditSign(),ConstantForGYL.OK_AUDITED))) {
 				StockInDO stockInDO=new StockInDO();
@@ -644,9 +649,14 @@ public class StockInServiceImpl implements StockInService {
 		StockInDO inheadDO = stockInDao.get(inHeadId);
 		if (inheadDO != null) {
 
-			Long[] stockInId={inHeadId};
+/*			Long[] stockInId={inHeadId};
 			boolean b = inStockAccountingService.disposeIsClose(stockInId, false);
 			if(!b){
+				return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", null));
+			}*/
+			Date periodTime = stockService.getPeriodTime();
+			if (inheadDO.getInOutTime().before(periodTime)) {
+//            String[] args = {DateFormatUtil.getFormateDate(periodTime)};
 				return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", null));
 			}
 
