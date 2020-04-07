@@ -101,6 +101,7 @@
 		  		  <if test="id != null and id != ''"> and id = #{id} </if>
 		  		  <if test="serialNo != null and serialNo != ''"> and serial_no = #{serialNo} </if>
 		  		  <if test="name != null and name != ''"> and  CONCAT(name,serial_no) LIKE CONCAT('%',#{name},'%') </if>
+			 <if test="nameSearch != null and nameSearch != ''"> and name = #{nameSearch} </if>
 		  		  <if test="description != null and description != ''"> and description = #{description} </if>
 		  		  <if test="facilityId != null and facilityId != ''"> and facility_id = #{facilityId} </if>
 		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
