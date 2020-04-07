@@ -95,6 +95,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
             map = Maps.newHashMap();
             String userId = userForReportVO.getUserId().toString();
             Double totalCount = itemGroup.get(userId);
+            map.put("userId", userForReportVO.getUserId());
             map.put("userName", userForReportVO.getUserName() + "小计");
             map.put("totalCount", totalCount == null ? 0 : totalCount);
             userDOsList.add(map);
