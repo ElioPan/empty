@@ -5,6 +5,7 @@ import com.ev.custom.domain.PaymentTypeDO;
 import com.ev.custom.service.PaymentTypeService;
 import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
+import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
 import com.google.common.collect.Maps;
@@ -21,6 +22,8 @@ import java.util.Objects;
 public class PaymentTypeServiceImpl implements PaymentTypeService {
 	@Autowired
 	private PaymentTypeDao paymentTypeDao;
+	@Autowired
+	private MessageSourceHandler messageSourceHandler;
 	
 	@Override
 	public PaymentTypeDO get(Long id){
@@ -65,11 +68,22 @@ public class PaymentTypeServiceImpl implements PaymentTypeService {
 	@Override
 	public R disposeAddAndChage(PaymentTypeDO paymentTypeDO ){
 		Map<String,Object>  maps= new HashMap<>();
+		Map<String,Object>  paremy= new HashMap<>();
 		if(Objects.nonNull(paymentTypeDO.getId())){
+			paremy.put("newName",paymentTypeDO.getName());
+			paremy.put("haveId",paymentTypeDO.getId());
+			if(this.countForMap(paremy)>0){
+				return R.error(messageSourceHandler.getMessage("apis.mes.clientSupplier.duplicationOfName",null));
+			}
 			this.update(paymentTypeDO);
 			maps.put("id",paymentTypeDO.getId());
 			return R.ok(maps);
 		}else{
+
+			paremy.put("newName",paymentTypeDO.getName());
+			if(this.countForMap(paremy)>0){
+				return R.error(messageSourceHandler.getMessage("apis.mes.clientSupplier.duplicationOfName",null));
+			}
 			Map<String,Object> map = Maps.newHashMap();
 			map.put("maxNo", Constant.SZRX);
 			map.put("offset", 0);
@@ -86,6 +100,11 @@ public class PaymentTypeServiceImpl implements PaymentTypeService {
 	@Override
 	public List<Map<String, Object>> listOfMap(Map<String, Object> map) {
 		return paymentTypeDao.listOfMap(map);
+	}
+
+	@Override
+	public int countForMap(Map<String, Object> map) {
+		return paymentTypeDao.countForMap(map);
 	}
 
 

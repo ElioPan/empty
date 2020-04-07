@@ -35,4 +35,7 @@ public interface PaymentTypeService {
 
 	List<Map<String, Object>> listOfMap(Map<String, Object> map);
 
+	int countForMap(Map<String, Object> map);
+
+
 }

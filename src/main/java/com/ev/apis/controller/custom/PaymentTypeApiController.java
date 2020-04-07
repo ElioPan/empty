@@ -35,8 +35,8 @@ public class PaymentTypeApiController {
     @Autowired
     private PaymentTypeService paymentTypeService;
 
-    @EvApiByToken(value = "/apis/paymentType/addAndChage",method = RequestMethod.POST,apiTitle = "添加付款单")
-    @ApiOperation("添加付款单")
+    @EvApiByToken(value = "/apis/paymentType/addAndChage",method = RequestMethod.POST,apiTitle = "收支类型")
+    @ApiOperation("收支类型")
     @Transactional(rollbackFor = Exception.class)
     public R addAndChage(PaymentTypeDO paymentTypeDO){
         return paymentTypeService.disposeAddAndChage(paymentTypeDO);
@@ -92,7 +92,7 @@ public class PaymentTypeApiController {
             PaymentTypeDO paymentTypeDO= paymentTypeService.get(id);
             if(paymentTypeDO!=null){
                 if(paymentTypeDO.getAuditSign().equals(ConstantForGYL.OK_AUDITED)){
-                    return R.ok(messageSourceHandler.getMessage("common.massge.okAudit", null));
+                    return R.error(messageSourceHandler.getMessage("apis.mes.scrapt.auditOk", null));
                 }
             }
         }

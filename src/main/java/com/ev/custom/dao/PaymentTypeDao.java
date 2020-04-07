@@ -32,5 +32,5 @@ public interface PaymentTypeDao {
 	int batchRemove(Long[] ids);
 	List<Map<String, Object>> listOfMap(Map<String, Object> map);
 
-
+	int countForMap(Map<String, Object> map);
 }

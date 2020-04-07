@@ -390,7 +390,7 @@
 		DATE_FORMAT(b.pr_date,'%Y-%m-%d') as  transferDate,
 		b.pr_code as transferCode,
 		c.account_number as transferAccName,
-		d.name as backName,
+		c.bank as backName,
 		a.this_amount AS thisAmount,
 		CASE WHEN  b.sign='SK' THEN a.this_amount
 		END inTransferAmount,
@@ -402,7 +402,6 @@
 		scm_payment_received_item a
 		LEFT  JOIN  scm_payment_received b on b.id=a.payment_received_id
 		LEFT JOIN scm_fund_initialization c on a.account_number=c.id
-		LEFT JOIN cus_dictionary d on c.bank=d.id
 		LEFT JOIN cus_dictionary e on b.pr_type=e.id
 		<where>
 			<if test="startTime != null and startTime != ''"> and  DATE_FORMAT(b.pr_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>

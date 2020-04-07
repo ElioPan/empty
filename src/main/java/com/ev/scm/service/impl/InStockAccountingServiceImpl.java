@@ -393,10 +393,12 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
             if (stockInDO.getSign() == 3) {
                 //已核算  将金额和单价还原，并将成本和费用更新为0.
-               BigDecimal totailAmout = stockInItemDO.getAmount().subtract(stockInItemDO.getCost().add(stockInItemDO.getExpense()));
-               BigDecimal unitPrice = totailAmout.divide(stockInItemDO.getCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
-                stockInItemDO.setAmount(totailAmout);
-                stockInItemDO.setUnitPrice(unitPrice);
+//               BigDecimal totailAmout = stockInItemDO.getAmount().subtract(stockInItemDO.getCost().add(stockInItemDO.getExpense()));
+//               BigDecimal unitPrice = totailAmout.divide(stockInItemDO.getCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+//                stockInItemDO.setAmount(totailAmout);
+//                stockInItemDO.setUnitPrice(unitPrice);
+                stockInItemDO.setAmount(BigDecimal.ZERO);
+                stockInItemDO.setUnitPrice(BigDecimal.ZERO);
                 stockInItemDO.setExpense(BigDecimal.ZERO);
             }
 
@@ -497,7 +499,6 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
             //未经分配的 sign==0，初始0
             return  R.error(messageSourceHandler.getMessage("scm.accounting.bussenissAccounting", null));
         }
-
         map.clear();
         for(Long id:stockInIds) {
 
@@ -615,7 +616,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 }
 
             }
-            //记录否存在未分配完的物料
+            //记录存在未分配完的物料
 //                if (!Objects.equals(BigDecimal.ZERO, standardCount)) {
 //                    Map<String, Object> map = new HashMap<>();
 //                    map.put("materialId", materielId);
@@ -623,13 +624,13 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 //                    leaveOverMaterials.add(map);
 //                }
         }
-//            //处理遗留未分配的组件物料------后期作为bug排查吧
-//            if (Objects.nonNull(leaveOverMaterials)) {
-//                StockInItemDO stockInItemDO = new StockInItemDO();
-//                stockInItemDO.setMaterialIdCount(leaveOverMaterials.toString());
-//                stockInItemDO.setId(stockInItemId);
-//                stockIntemService.update(stockInItemDO);
-//            }
+//            //处理遗留未分配的组件物料
+////            if (Objects.nonNull(leaveOverMaterials)) {
+////                StockInItemDO stockInItemDO = new StockInItemDO();
+////                stockInItemDO.setMaterialIdCount(leaveOverMaterials.toString());
+////                stockInItemDO.setId(stockInItemId);
+////                stockIntemService.update(stockInItemDO);
+////            }
         Map<String, Object> result = new HashMap<>();
         result.put("data", stockOutItemDoList);
         return R.ok(result);
@@ -674,11 +675,6 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 if(Objects.isNull(maps)||!maps.containsKey("inOutTime")){
                     continue;
                 }
-//                peramy.put("period", maps.get("inOutTime"));
-//                int counts = this.getAnalysisDate(peramy);
-//                if(counts > 0){
-//                    return false;
-//                }
                 Date inOutTime = DateFormatUtil.getDateByParttern(maps.get("inOutTime").toString(), "yyyy-MM-dd HH:mm:ss");
                 if (inOutTime.before(periodTime)) {
                     return false;
