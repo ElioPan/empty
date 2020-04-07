@@ -448,89 +448,91 @@ public class StockServiceImpl implements StockService {
 		}
 
 		List<StockDO> stockDOList = this.list(emptyMap);
-		// 保存一份初始化数据
-		this.batchSaveForCopy(stockDOList);
-
 		StockStartDO stockStartDO = list.get(0);
 		Calendar instance = Calendar.getInstance();
 		instance.setTime(stockStartDO.getStartTime());
 		instance.set(Calendar.DAY_OF_MONTH,1);
 		Date period = instance.getTime();
 
-		List<StockAnalysisDO> stockAnalysisDOS = Lists.newArrayList();
-		List<Long> materielIds = stockDOList
-				.stream()
-				.map(StockDO::getMaterielId)
-				.collect(Collectors.toList());
-		Map<String,Object> params = Maps.newHashMap();
-		params.put("materielIdList", materielIds);
-		List<MaterielDO> materielDOList = materielService.list(params);
-		List<Integer> idList = Lists.newArrayList();
-		if (materielDOList.size() > 0) {
-			// 非批次管理的入库物料
-			idList = materielDOList.stream()
-					.filter(materielDO -> materielDO.getIsLot()!=1)
-					.map(MaterielDO::getId)
+		if (stockDOList.size() > 0) {
+			// 保存一份初始化数据
+			this.batchSaveForCopy(stockDOList);
+			List<StockAnalysisDO> stockAnalysisDOS = Lists.newArrayList();
+			List<Long> materielIds = stockDOList
+					.stream()
+					.map(StockDO::getMaterielId)
 					.collect(Collectors.toList());
-		}
+			Map<String,Object> params = Maps.newHashMap();
+			params.put("materielIdList", materielIds);
+			List<MaterielDO> materielDOList = materielService.list(params);
+			List<Integer> idList = Lists.newArrayList();
+			if (materielDOList.size() > 0) {
+				// 非批次管理的入库物料
+				idList = materielDOList.stream()
+						.filter(materielDO -> materielDO.getIsLot()!=1)
+						.map(MaterielDO::getId)
+						.collect(Collectors.toList());
+			}
 
-		Map<String, BigDecimal> materielCountMap = Maps.newHashMap();
-		Map<String, BigDecimal> materielAmountMap = Maps.newHashMap();
-		for (StockDO stockDO : stockDOList) {
-			int materielId = stockDO.getMaterielId().intValue();
-			// 无批次管理的物料
-			if (idList.contains(materielId)) {
-				String materielIdToString = String.valueOf(materielId);
-				if (materielCountMap.containsKey(materielIdToString)) {
-					materielCountMap.put(materielIdToString, materielCountMap.get(materielIdToString).add(stockDO.getCount()));
-					materielAmountMap.put(materielIdToString, materielCountMap.get(materielIdToString).add(stockDO.getAmount()));
+			Map<String, BigDecimal> materielCountMap = Maps.newHashMap();
+			Map<String, BigDecimal> materielAmountMap = Maps.newHashMap();
+			for (StockDO stockDO : stockDOList) {
+				int materielId = stockDO.getMaterielId().intValue();
+				// 无批次管理的物料
+				if (idList.contains(materielId)) {
+					String materielIdToString = String.valueOf(materielId);
+					if (materielCountMap.containsKey(materielIdToString)) {
+						materielCountMap.put(materielIdToString, materielCountMap.get(materielIdToString).add(stockDO.getCount()));
+						materielAmountMap.put(materielIdToString, materielCountMap.get(materielIdToString).add(stockDO.getAmount()));
+						continue;
+					}
+					materielCountMap.put(materielIdToString, stockDO.getCount());
+					materielAmountMap.put(materielIdToString, stockDO.getAmount());
 					continue;
 				}
-				materielCountMap.put(materielIdToString, stockDO.getCount());
-				materielAmountMap.put(materielIdToString, stockDO.getAmount());
-				continue;
-			}
-			// 有批次管理的物料
-			String materielIdAndBatchToString = materielId + "&" + stockDO.getBatch();
-			if (materielCountMap.containsKey(materielIdAndBatchToString)) {
-				materielCountMap.put(materielIdAndBatchToString, materielCountMap.get(materielIdAndBatchToString).add(stockDO.getCount()));
-				materielAmountMap.put(materielIdAndBatchToString, materielCountMap.get(materielIdAndBatchToString).add(stockDO.getAmount()));
-				continue;
-			}
-			materielCountMap.put(materielIdAndBatchToString, stockDO.getCount());
-			materielAmountMap.put(materielIdAndBatchToString, stockDO.getAmount());
-		}
-		if (materielCountMap.size() > 0) {
-			Date now = new Date();
-			StockAnalysisDO stockAnalysis;
-			String[] split;
-			int materielId;
-			String batch;
-			for (String s : materielCountMap.keySet()) {
-				stockAnalysis = new StockAnalysisDO();
-				split = s.split("&");
-				materielId = Integer.parseInt(split[0]);
-				if (split.length == 2) {
-					batch = split[1];
-				}else {
-					batch = null;
+				// 有批次管理的物料
+				String materielIdAndBatchToString = materielId + "&" + stockDO.getBatch();
+				if (materielCountMap.containsKey(materielIdAndBatchToString)) {
+					materielCountMap.put(materielIdAndBatchToString, materielCountMap.get(materielIdAndBatchToString).add(stockDO.getCount()));
+					materielAmountMap.put(materielIdAndBatchToString, materielCountMap.get(materielIdAndBatchToString).add(stockDO.getAmount()));
+					continue;
 				}
-				stockAnalysis.setMaterielId(materielId);
-				stockAnalysis.setBatch(batch);
-				stockAnalysis.setInitialCount(materielCountMap.get(s));
-				stockAnalysis.setInitialAmount(materielAmountMap.get(s));
-				stockAnalysis.setInCount(BigDecimal.ZERO);
-				stockAnalysis.setInAmount(BigDecimal.ZERO);
-				stockAnalysis.setOutAmount(BigDecimal.ZERO);
-				stockAnalysis.setOutCount(BigDecimal.ZERO);
-				stockAnalysis.setPeriod(period);
-				stockAnalysis.setIsClose(0);
-				stockAnalysis.setDelFlag(0);
-				stockAnalysis.setCreateTime(now);
-				stockAnalysisDOS.add(stockAnalysis);
+				materielCountMap.put(materielIdAndBatchToString, stockDO.getCount());
+				materielAmountMap.put(materielIdAndBatchToString, stockDO.getAmount());
 			}
+			if (materielCountMap.size() > 0) {
+				Date now = new Date();
+				StockAnalysisDO stockAnalysis;
+				String[] split;
+				int materielId;
+				String batch;
+				for (String s : materielCountMap.keySet()) {
+					stockAnalysis = new StockAnalysisDO();
+					split = s.split("&");
+					materielId = Integer.parseInt(split[0]);
+					if (split.length == 2) {
+						batch = split[1];
+					}else {
+						batch = null;
+					}
+					stockAnalysis.setMaterielId(materielId);
+					stockAnalysis.setBatch(batch);
+					stockAnalysis.setInitialCount(materielCountMap.get(s));
+					stockAnalysis.setInitialAmount(materielAmountMap.get(s));
+					stockAnalysis.setInCount(BigDecimal.ZERO);
+					stockAnalysis.setInAmount(BigDecimal.ZERO);
+					stockAnalysis.setOutAmount(BigDecimal.ZERO);
+					stockAnalysis.setOutCount(BigDecimal.ZERO);
+					stockAnalysis.setPeriod(period);
+					stockAnalysis.setIsClose(0);
+					stockAnalysis.setDelFlag(0);
+					stockAnalysis.setCreateTime(now);
+					stockAnalysisDOS.add(stockAnalysis);
+				}
+			}
+			stockAnalysisService.batchInsert(stockAnalysisDOS);
 		}
-		stockAnalysisService.batchInsert(stockAnalysisDOS);
+
 		stockStartDO.setStatus(1);
 		stockStartService.update(stockStartDO);
 		// 将库存启用时间写入redis中
@@ -770,6 +772,7 @@ public class StockServiceImpl implements StockService {
 		}
 
 		// 分析表中现有的物料
+
 		List<Integer> materielIdList = stockAnalysisList.stream()
 				.map(StockAnalysisDO::getMaterielId)
 				.collect(Collectors.toList());
