@@ -132,7 +132,6 @@ public class PaymentTypeApiController {
         }
         return  R.ok(results);
 
-
     }
 
 
