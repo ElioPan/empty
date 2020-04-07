@@ -1,6 +1,7 @@
 package com.ev.custom.service;
 
 import com.ev.custom.domain.UpkeepPlanDO;
+import com.ev.framework.utils.R;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -69,6 +70,13 @@ public interface UpkeepPlanService {
 	void makeWorkOrder(Long planId, Date startTime, Date endTime);
 
 	int deletOfPlan(Map<String, Object> map);
+
+	int canChangeStatus(Map<String, Object> map);
+
+	R disposeForbidden(Long[]ids);
+
+	R disposeStartUsing(Long[]ids);
+
 
 
 }

@@ -1,5 +1,6 @@
 package com.ev.mes.dao;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -34,4 +35,6 @@ public interface MaterialInspectionDao {
 	List<Map<String, Object>> listForMap(Map<String, Object> params);
 
 	Map<String, Object> countForMap(Map<String, Object> params);
+
+    BigDecimal getCountBySource(Map<String, Object> sourceParam);
 }

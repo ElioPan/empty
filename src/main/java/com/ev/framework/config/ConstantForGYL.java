@@ -273,7 +273,7 @@ public final class ConstantForGYL {
 	/**
 	 * 资金余额 列表中的公司
 	 */
-	public static final String company_ame = "芯软质控系统有限公司";
+	public static final String company_ame = "芯软智控系统有限公司";
 
 	/**
 	 * 其他应收 单前缀

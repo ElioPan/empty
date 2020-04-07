@@ -75,4 +75,8 @@ public interface DeviceService {
     List<String> getAllCode();
 
     void batchSave(List<DeviceDO> deviceDOs);
+
+    List<String> getAllName();
+
+	int countOfDeviceChildren(Map<String,Object> map);
 }

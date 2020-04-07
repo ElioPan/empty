@@ -285,7 +285,7 @@ public class StockServiceImpl implements StockService {
 				stockDO.setCount(count);
 				BigDecimal amount = BigDecimal.valueOf(Double.parseDouble(stockEntity.getAmount()));
 				stockDO.setAmount(amount);
-				stockDO.setUnitPrice(amount.divide(count, Constant.BIGDECIMAL_ZERO));
+				stockDO.setUnitPrice(amount.divide(count,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
 				stockDO.setDelFlag(0);
 				stockDO.setCreateBy(userId);
 				stockDO.setCreateTime(now);
@@ -387,7 +387,7 @@ public class StockServiceImpl implements StockService {
 							itemDO.setBatch(null);
 						}
 						itemDO.setAvailableCount(count);
-						itemDO.setUnitPrice(amount.divide(count, Constant.BIGDECIMAL_ZERO));
+						itemDO.setUnitPrice(amount.divide(count,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
 						itemDO.setEnteringTime(now);
 						itemDO.setCreateTime(now);
 						itemDO.setDelFlag(0);
@@ -782,6 +782,11 @@ public class StockServiceImpl implements StockService {
 		HashMap<String, BigDecimal> materielInAmountMap = Maps.newHashMap();
 		HashMap<String, BigDecimal> materielInUnitPriceMap = Maps.newHashMap();
 
+		// 总数量
+		HashMap<String, BigDecimal> totalCountMap = Maps.newHashMap();
+		// 总金额
+		HashMap<String, BigDecimal> totalAmountMap = Maps.newHashMap();
+
 		// 加权平均入库
 		if (stockInBatchEmpty.size() > 0) {
 			// 获取入库列表的总数量
@@ -802,6 +807,7 @@ public class StockServiceImpl implements StockService {
 			// 获取入库列表的总数量
 			for (Map<String, Object> stockInBatch : stockInBatchNonEmpty) {
 				String materielIdAndBatch = stockInBatch.get("materielId").toString() + "&" + stockInBatch.get("batch").toString();
+
 				if (materielInCountMap.containsKey(materielIdAndBatch)) {
 					materielInCountMap.put(materielIdAndBatch, materielInCountMap.get(materielIdAndBatch).add(MathUtils.getBigDecimal(stockInBatch.get("count"))));
 					materielInAmountMap.put(materielIdAndBatch, materielInAmountMap.get(materielIdAndBatch).add(MathUtils.getBigDecimal(stockInBatch.get("amount"))));
@@ -866,8 +872,12 @@ public class StockServiceImpl implements StockService {
 				BigDecimal inCount = materielInCountMap.get(materielId);
 				analysisDO.setInCount(inCount);
 				analysisDO.setInAmount(inAmount);
+
+				totalAmountMap.put(materielId,analysisDO.getInitialAmount().add(inAmount));
+				totalCountMap.put(materielId,analysisDO.getInitialCount().add(inCount));
+
 				materielInUnitPriceMap.put(materielId
-						, (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
+						, (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
 				continue;
 			}
 			// 计算批次管理出库新入物料成本单价
@@ -877,18 +887,28 @@ public class StockServiceImpl implements StockService {
 				BigDecimal inCount = materielInCountMap.get(materielIdAndBatch);
 				analysisDO.setInCount(inCount);
 				analysisDO.setInAmount(inAmount);
+
+				totalAmountMap.put(materielIdAndBatch,analysisDO.getInitialAmount().add(inAmount));
+				totalCountMap.put(materielIdAndBatch,analysisDO.getInitialCount().add(inCount));
+
 				materielInUnitPriceMap.put(materielIdAndBatch
-						, (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO));
+						, (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
 				continue;
 			}
 			if (analysisDO.getInitialCount().compareTo(BigDecimal.ZERO)!=0) {
 				// 本月未入库，存在上个月的库存
 				if (weightedAverageIdList.contains(Integer.parseInt(materielId))) {
+					totalAmountMap.put(materielId,analysisDO.getInitialAmount());
+					totalCountMap.put(materielId,analysisDO.getInitialCount());
+
 					materielInUnitPriceMap.put(materielId
-							, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(), Constant.BIGDECIMAL_ZERO));
+							, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
 				}else {
+					totalAmountMap.put(materielIdAndBatch,analysisDO.getInitialAmount());
+					totalCountMap.put(materielIdAndBatch,analysisDO.getInitialCount());
+
 					materielInUnitPriceMap.put(materielIdAndBatch
-							, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(), Constant.BIGDECIMAL_ZERO));
+							, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
 				}
 			}
 
@@ -901,12 +921,18 @@ public class StockServiceImpl implements StockService {
 		if (stockOutBatchEmpty.size() > 0) {
 			for (StockOutItemDO itemDO : stockOutBatchEmpty) {
 				String materielId = itemDO.getMaterielId().toString();
-				if (materielInUnitPriceMap.containsKey(materielId)) {
+				if (totalAmountMap.containsKey(materielId)) {
 					// 写入出库成本单价成本金额
 					BigDecimal unitPrice = materielInUnitPriceMap.get(materielId);
+					BigDecimal totalCount = totalCountMap.get(materielId);
+					BigDecimal totalAmount = totalAmountMap.get(materielId);
+
 					itemDO.setUnitPrice(unitPrice);
 					BigDecimal count = itemDO.getCount();
-					BigDecimal amount = count.multiply(unitPrice);
+					// 数量比
+					BigDecimal ratio = count.divide(totalCount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+
+					BigDecimal amount = totalAmount.multiply(ratio);
 					itemDO.setAmount(amount);
 
 					// 保存出库的总数量
@@ -929,9 +955,16 @@ public class StockServiceImpl implements StockService {
 				if (materielInUnitPriceMap.containsKey(materielIdAndBatch)) {
 					// 写入出库成本单价成本金额
 					BigDecimal unitPrice = materielInUnitPriceMap.get(materielIdAndBatch);
+					BigDecimal totalCount = totalCountMap.get(materielIdAndBatch);
+					BigDecimal totalAmount = totalAmountMap.get(materielIdAndBatch);
+
 					itemDO.setUnitPrice(unitPrice);
 					BigDecimal count = itemDO.getCount();
-					BigDecimal amount = count.multiply(unitPrice);
+					// 数量比
+
+					BigDecimal ratio = count.divide(totalCount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+
+					BigDecimal amount = totalAmount.multiply(ratio);
 					itemDO.setAmount(amount);
 
 					// 保存出库的总数量
@@ -1218,6 +1251,7 @@ public class StockServiceImpl implements StockService {
 					}
 					continue;
 				}
+
 				// 若不存则添加
 				newAnalysisDO = new StockAnalysisDO();
 				newAnalysisDO.setMaterielId(materielId);
@@ -1231,6 +1265,7 @@ public class StockServiceImpl implements StockService {
 				newAnalysisDO.setDelFlag(0);
 				newAnalysisDO.setPeriod(periodTime);
 				stockAnalysisList.add(newAnalysisDO);
+				materielNowIdList.add(materielId);
 				continue;
 			}
 			// 批次管理
@@ -1242,6 +1277,7 @@ public class StockServiceImpl implements StockService {
 					if (Objects.equals(materielIdAndBatchNow,materielIdAndBatch)){
 						analysisDO.setInCount(analysisDO.getInCount().add(MathUtils.getBigDecimal(map.get("count"))));
 						analysisDO.setInAmount(analysisDO.getInAmount().add(MathUtils.getBigDecimal(map.get("amount"))));
+						// 不要新加
 						isFlag = false;
 						break;
 					}
@@ -1264,6 +1300,7 @@ public class StockServiceImpl implements StockService {
 				newAnalysisDO.setPeriod(periodTime);
 				stockAnalysisList.add(newAnalysisDO);
 				materielNowIdList.add(materielId);
+
 			}
 
 		}

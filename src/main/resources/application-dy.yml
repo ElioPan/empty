@@ -55,19 +55,19 @@ spring:
     user: xinsoft
     password: xinsoft
     database: sentinel_log
-    rabbitmq:
-      host: localhost
-      port: 5672
-      username: admin
-      password: admin
-      listener:
-        simple:
-          #acknowledge-mode: auto
-          concurrency: 10
-          max-concurrency: 50
-          retry:
-            enabled: true
-          prefetch: 5
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: admin
+    listener:
+      simple:
+        #acknowledge-mode: auto
+        concurrency: 10
+        max-concurrency: 50
+        retry:
+          enabled: true
+        prefetch: 5
 feign:
   hystrix:
     enabled: false

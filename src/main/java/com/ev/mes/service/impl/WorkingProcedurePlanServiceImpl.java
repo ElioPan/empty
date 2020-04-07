@@ -3,6 +3,8 @@ package com.ev.mes.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.ev.custom.domain.ContentAssocDO;
+import com.ev.custom.service.ContentAssocService;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -34,6 +36,8 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 	private ProcessCheckService checkService;
 	@Autowired
 	private DispatchItemService dispatchItemService;
+	@Autowired
+	private ContentAssocService contentAssocService;
     @Autowired
     private MessageSourceHandler messageSourceHandler;
     @Autowired
@@ -98,24 +102,29 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 				detailDO.setIsDispatching(ConstantForMES.PLAN);
 				detailDO.setAlreadyCount(BigDecimal.ZERO);
 				detailService.save(detailDO);
+				Long detailId = detailDO.getId();
 				// 是否需要检验
+				JSONObject jsonObject = jsonArray.getJSONObject(i);
 				if (detailDO.getIsExamine() == 1) {
-					Long detailId = detailDO.getId();
-					JSONObject jsonObject = jsonArray.getJSONObject(i);
 					JSONArray array = jsonObject.containsKey("pro")?jsonObject.getJSONArray("pro"):null;
-					if (Objects.isNull(array)) {
-						continue;
+					if (Objects.nonNull(array)) {
+						for (int j = 0; j < array.size(); j++) {
+							JSONObject jsonObject2 = array.getJSONObject(j);
+							checkDO = new ProcessCheckDO();
+							checkDO.setForeignId(detailId);
+							checkDO.setType(ConstantForMES.GXJH_GYLX);
+							checkDO.setRemark(jsonObject2.getOrDefault("remark", "").toString());
+							checkDO.setProId(Long.parseLong(jsonObject2.getOrDefault("proId", 0L).toString()));
+							checkDO.setWhetherCheck(Integer.parseInt(jsonObject2.getOrDefault("whetherCheck", 0).toString()));
+							checkService.save(checkDO);
+						}
 					}
-					for (int j = 0; j < array.size(); j++) {
-						JSONObject jsonObject2 = array.getJSONObject(j);
-						checkDO = new ProcessCheckDO();
-						checkDO.setForeignId(detailId);
-						checkDO.setType(ConstantForMES.GXJH_GYLX);
-                        checkDO.setRemark(jsonObject2.getOrDefault("remark","").toString());
-						checkDO.setProId(Long.parseLong(jsonObject2.getOrDefault("proId",0L).toString()));
-						checkDO.setWhetherCheck(Integer.parseInt(jsonObject2.getOrDefault("whetherCheck",0).toString()));
-						checkService.save(checkDO);
-					}
+				}
+
+				// sop上传
+				JSONArray sopArray = jsonObject.containsKey("uploadAttachment")?jsonObject.getJSONArray("uploadAttachment"):null;
+				if (Objects.nonNull(sopArray)) {
+					contentAssocService.saveList(detailId, sopArray, ConstantForMES.SOP_FILE);
 				}
 			}
             Map<String,Object> result = Maps.newHashMap();
@@ -156,6 +165,27 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
         param.put("planId",id);
         param.put("type",ConstantForMES.GXJH_GYLX);
         List<Map<String, Object>> checkProjectList = detailService.getDetailByPlanId(param);
+
+        // 获取SOP文件
+		if (workingDetailList.size() > 0) {
+			List<Object> detailIds = workingDetailList.stream()
+					.map(e -> e.get("id"))
+					.collect(Collectors.toList());
+			// 获取附件
+			Map<String, Object> fileParam = Maps.newHashMapWithExpectedSize(2);
+			fileParam.put("assocIds", detailIds);
+			fileParam.put("assocType", ConstantForMES.SOP_FILE);
+			List<ContentAssocDO> sopFileList = contentAssocService.list(fileParam);
+			if (sopFileList.size() > 0) {
+				for (Map<String, Object> map : workingDetailList) {
+					map.put("uploadAttachment", sopFileList
+							.stream()
+							.filter(e->e.getAssocId().toString().equals(map.get("id").toString()))
+							.collect(Collectors.toList()));
+				}
+			}
+		}
+
 //        List<Map<String, Object>> checkProject;
 //        if(workingDetailList.size()>0){
 //            for (Map<String, Object> map : workingDetailList) {
@@ -178,8 +208,12 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
                         .collect(Collectors.toList()));
             }
         }
+		List<Map<String, Object>> workingDetailLists=workingDetailList
+				.stream()
+				.sorted(Comparator.comparing(e->Integer.parseInt(e.get("serialNumber").toString())))
+				.collect(Collectors.toList());
 
-        results.put("bodyInfo", workingDetailList);
+        results.put("bodyInfo", workingDetailLists);
 		return results;
 	}
 
@@ -447,6 +481,7 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 
 		// 保存拆分后的工序计划工序列表
 		Map<String, Object> checkParam;
+		Map<String, Object> fileParam;
 		Long newProcedurePlanId = newProcedurePlanDO.getId();
 		for (int i = 0; i < workingProcedureDetailDOList.size(); i++) {
 			WorkingProcedureDetailDO procedureDetailDO = workingProcedureDetailDOList.get(i);
@@ -463,7 +498,8 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 
 			// 查看该工序有无检验配置
 			checkParam = Maps.newHashMap();
-			checkParam.put("foreignId", Objects.isNull(beforeSplitId) ? oldProcedureDetailId : beforeSplitId);
+			Long detailId = Objects.isNull(beforeSplitId) ? oldProcedureDetailId : beforeSplitId;
+			checkParam.put("foreignId", detailId);
 			checkParam.put("type", ConstantForMES.GXJH_GYLX);
 			List<ProcessCheckDO> checkList = checkService.list(checkParam);
 			// 若有将原单的配置复制一份保存
@@ -473,7 +509,18 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 					checkService.save(processCheckDO);
 				}
 			}
-
+			// 查看有无SOP文件
+			fileParam = Maps.newHashMapWithExpectedSize(2);
+			fileParam.put("assocId", detailId);
+			fileParam.put("assocType", ConstantForMES.SOP_FILE);
+			List<ContentAssocDO> sopFileList = contentAssocService.list(fileParam);
+			// 若有SOP将原单的配置复制一份保存
+			if (sopFileList.size() > 0) {
+				for (ContentAssocDO contentAssocDO : sopFileList) {
+					contentAssocDO.setAssocId(procedureDetailDO.getId().intValue());
+					contentAssocService.save(contentAssocDO);
+				}
+			}
 		}
 		Map<String, Object> result = Maps.newHashMap();
 		result.put("id", newProcedurePlanId);
@@ -663,20 +710,31 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 		if (update > 0) {
             JSONArray jsonArray = JSON.parseArray(childArray);
 			List<WorkingProcedureDetailDO> parseArray = JSON.parseArray(childArray, WorkingProcedureDetailDO.class);
+
+			// SOP 文件先删后增
+			Long[] detailIds = parseArray
+					.stream()
+					.filter(e->e.getId()!=null)
+					.map(WorkingProcedureDetailDO::getId).toArray(Long[]::new);
+			if (detailIds.length > 0) {
+				contentAssocService.removeByAssocIdAndType(detailIds, ConstantForMES.SOP_FILE);
+			}
+
 			ProcessCheckDO checkDO;
 			Long planId = planDO.getId();
 			for (int i = 0; i < parseArray.size(); i++) {
 				WorkingProcedureDetailDO detailDO = parseArray.get(i);
-				if (detailDO.getId() == null) {
+				Long id = detailDO.getId();
+				if (id == null) {
 					detailDO.setPlanId(planId);
 					detailService.save(detailDO);
 				}
-				if (detailDO.getId() != null) {
+				if (id != null) {
 					detailService.update(detailDO);
 				}
+				Long detailId = detailDO.getId();
+				JSONObject jsonObject = jsonArray.getJSONObject(i);
 				if (detailDO.getIsExamine() == 1) {
-					Long detailId = detailDO.getId();
-					JSONObject jsonObject = jsonArray.getJSONObject(i);
 					JSONArray array = jsonObject.containsKey("pro")?jsonObject.getJSONArray("pro"):null;
 					if (Objects.isNull(array)) {
 						continue;
@@ -698,6 +756,12 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 						checkService.update(checkDO);
 					}
 				}
+
+				// sop上传
+				JSONArray sopArray = jsonObject.containsKey("uploadAttachment")?jsonObject.getJSONArray("uploadAttachment"):null;
+				if (Objects.nonNull(sopArray)) {
+					contentAssocService.saveList(detailId, sopArray, ConstantForMES.SOP_FILE);
+				}
 			}
 		}
 		return update;
@@ -712,9 +776,14 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 			for (Map<String, Object> map : listByPlanId) {
 				ids.add(Long.parseLong(map.get("id").toString()));
 			}
-			param.put("foreignId", ids.toArray(new Long[0]));
+			Long[] detailIds = ids.toArray(new Long[0]);
+			param.put("foreignId", detailIds);
 			param.put("type", ConstantForMES.GXJH_GYLX);
 			checkService.removeBacthByforeignId(param);
+
+			// 删除SOP文件
+			contentAssocService.removeByAssocIdAndType(detailIds, ConstantForMES.SOP_FILE);
+
 		}
 		this.remove(id);
 		detailService.removeByHeadId(id);

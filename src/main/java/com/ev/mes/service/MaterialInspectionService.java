@@ -1,5 +1,6 @@
 package com.ev.mes.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -50,4 +51,6 @@ public interface MaterialInspectionService {
 	R add(MaterialInspectionDO inspectionDO, String childArray);
 
 	R edit(MaterialInspectionDO inspectionDO, String childArray, Long[] ids);
+
+    BigDecimal getCountBySource(Map<String, Object> sourceParam);
 }

@@ -105,7 +105,7 @@ public class ScmOutsourcingInStockApiController {
     public R otherHeadDetailList(@ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
                                  @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
                                  @ApiParam(value = "单据编号") @RequestParam(value = "inheadCode", defaultValue = "", required = false) String inheadCode,
-                                 @ApiParam(value = "供应商（模糊）") @RequestParam(value = "clientName", defaultValue = "", required = false) String clientName,
+                                 @ApiParam(value = "供应商（模糊）") @RequestParam(value = "supplierName", defaultValue = "", required = false) String supplierName,
                                  @ApiParam(value = "物料名（模糊）") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
                                  @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
                                  @ApiParam(value = "入库起始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
@@ -121,7 +121,7 @@ public class ScmOutsourcingInStockApiController {
         Map<String, Object> params = new HashMap<>();
 
         params.put("inheadCode", inheadCode);
-        params.put("sourceCompanyName", clientName);
+        params.put("sourceCompanyName", supplierName);
         params.put("materielName", materielName);
         params.put("auditSign", auditSign);
         params.put("startTime", startTime);

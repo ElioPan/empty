@@ -2,6 +2,7 @@ package com.ev.mes.dao;
 
 import com.ev.mes.domain.ProductionPlanDO;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -38,4 +39,6 @@ public interface ProductionPlanDao {
     List<Map<String, Object>> listDialogMap(Map<String, Object> params);
 
     int productionStockInCount(Long id);
+
+    BigDecimal getCountBySource(Map<String, Object> sourceParam);
 }

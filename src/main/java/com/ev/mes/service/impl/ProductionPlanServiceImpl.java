@@ -234,6 +234,7 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
         for (CraftItemDO craftItemDO : list) {
             craftItemMap = Maps.newHashMap();
             craftItemMap.put("processId", craftItemDO.getProcessId());
+            craftItemMap.put("serialNumber", craftItemDO.getSerialNumber());
             craftItemMap.put("processType", craftItemDO.getType());
             craftItemMap.put("deptId", craftItemDO.getDeptId());
             craftItemMap.put("demand", craftItemDO.getDemand());
@@ -279,7 +280,7 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
             BigDecimal wasteRate = bomDetailDO.getWasteRate();
             BigDecimal standardCount = bomDetailDO.getStandardCount();
             BigDecimal planCount = planDO.getPlanCount();
-            BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100), Constant.BIGDECIMAL_ZERO)
+            BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP)
                     .multiply(planCount);
             feedingDetail.put("planFeeding", planFeeding);
             feedingDetailList.add(feedingDetail);
@@ -359,6 +360,11 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
     @Override
     public List<Map<String, Object>> listDialogMap(Map<String, Object> params) {
         return productionPlanDao.listDialogMap(params);
+    }
+
+    @Override
+    public BigDecimal getCountBySource(Map<String, Object> sourceParam) {
+        return productionPlanDao.getCountBySource(sourceParam);
     }
 
     private List<ProductionFeedingDO> getFeedingList(Long id, Map<String, Object> param) {

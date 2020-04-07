@@ -1,5 +1,6 @@
 package com.ev.mes.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -137,4 +138,6 @@ public interface ProductionPlanService {
     List<WorkingProcedurePlanDO> getWorkingProcedurePlanList(Long id, Map<String, Object> param);
 
     List<Map<String, Object>> listDialogMap(Map<String, Object> params);
+
+    BigDecimal getCountBySource(Map<String, Object> sourceParam);
 }

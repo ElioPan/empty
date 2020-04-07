@@ -453,4 +453,9 @@ public class Constant {
 	 */
 	public static final String SZRX = "SZRX";
 
+	/**
+	 * 计划禁用
+	 */
+	public static final Integer FORBIDDEN = 130;
+
 }

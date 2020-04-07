@@ -53,4 +53,5 @@ public interface SupplierService {
 
 	int checkSave(Map<String,Object>map);
 
+    List<String> getAllName();
 }

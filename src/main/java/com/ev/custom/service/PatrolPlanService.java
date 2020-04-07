@@ -2,6 +2,7 @@ package com.ev.custom.service;
 
 import com.ev.common.vo.PlanVo;
 import com.ev.custom.domain.PatrolPlanDO;
+import com.ev.framework.utils.R;
 
 import java.util.List;
 import java.util.Map;
@@ -44,4 +45,12 @@ public interface PatrolPlanService {
     Map<String,Object> params(Map<String,Object> params);
     
     int getNoticeListCount(Map<String, Object> params);
+
+	R disposeForbidden(Long[]ids);
+
+	R disposeStartUsing(Long[]ids);
+
+	int canChangeStatus(Map<String, Object> map);
+
+
 }

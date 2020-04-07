@@ -165,7 +165,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
             // 合格率(4位小数) 合格率=合格数量/检验数量
             BigDecimal passRate = BigDecimal.ZERO;
             if (checkCount.compareTo(BigDecimal.ZERO) > 0) {
-                passRate = conformityCount.divide(checkCount, Constant.BIGDECIMAL_ZERO);
+                passRate = conformityCount.divide(checkCount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
             }
             map.put("passRate", passRate);
         }
@@ -332,7 +332,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
             // 合格率(4位小数) 合格率=合格数量/检验数量
             BigDecimal passRate = BigDecimal.ZERO;
             if (checkCount.compareTo(BigDecimal.ZERO) > 0) {
-                passRate = conformityCount.divide(checkCount, Constant.BIGDECIMAL_ZERO);
+                passRate = conformityCount.divide(checkCount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
             }
             map.put("passRate", passRate);
 
@@ -343,7 +343,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
             // 完工率(4位小数) 完工率=完工数量/计划生产数量
             BigDecimal completionRate = BigDecimal.ZERO;
             if (completionCount.compareTo(BigDecimal.ZERO) > 0) {
-                completionRate = completionCount.divide(planCount, Constant.BIGDECIMAL_ZERO);
+                completionRate = completionCount.divide(planCount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
             }
             map.put("completionRate", completionRate);
 

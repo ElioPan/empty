@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
+import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.dao.InStockAccountingDao;
@@ -145,9 +146,9 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
                 //某个采购单关联的所有费用总和
                 int totailExprnseAmount = purchaseExpenseItemService.getTotailCountAmount(stockInheadIds[j]);
-
                 if(!Objects.equals(0,totailExprnseAmount)){
-
+                    // 已记录的金额
+                    BigDecimal recordAllocatedAmount = BigDecimal.ZERO;
                     BigDecimal totailExprnseAmountBig=new BigDecimal(totailExprnseAmount);
                     Map<String,Object>  map= new HashMap<>();
                     map.put("inheadId",stockInheadIds[j]);
@@ -159,24 +160,44 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
                     //某个采购单关联的子表totailAmount,totailCount
                     Map<String, Object> totailCountAmount = stockIntemService.getTotailCountAmount(stockInheadIds[j]);
+                    BigDecimal totalCount = MathUtils.getBigDecimal(totailCountAmount.get("totailCount"));
+                    BigDecimal totalAmount = MathUtils.getBigDecimal(totailCountAmount.get("totailAmount"));
 
-                    BigDecimal meanValue;
-                    if(sign){
-                        BigDecimal totailCount= new BigDecimal(String.valueOf(totailCountAmount.get("totailCount")));
-                        meanValue=totailExprnseAmountBig.divide(totailCount, Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
-                    }else{
-                        BigDecimal totailAmount= new BigDecimal(String.valueOf(totailCountAmount.get("totailAmount")));
-                        meanValue=totailExprnseAmountBig.divide(totailAmount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
-                    }
+//                    BigDecimal meanValue;
+//                    if(sign){
+//                        BigDecimal totailCount= new BigDecimal(String.valueOf(totailCountAmount.get("totailCount")));
+//                        meanValue=totailExprnseAmountBig.divide(totailCount, Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+//                    }else{
+//                        BigDecimal totailAmount= new BigDecimal(String.valueOf(totailCountAmount.get("totailAmount")));
+//                        meanValue=totailExprnseAmountBig.divide(totailAmount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+//                    }
                     map.clear();
                     List<StockInItemDO> listItemDo=new ArrayList<>();
-                    for (StockInItemDO stockInItemDO:listSotockInItem){
 
-                        if(sign){
-                            stockInItemDO.setExpense(meanValue.multiply(stockInItemDO.getCount()));
-                        }else{
-                            stockInItemDO.setExpense(meanValue.multiply(stockInItemDO.getAmount()));
-                    }
+                    StockInItemDO stockInItemDO;
+                    int size = listSotockInItem.size();
+                    BigDecimal allocatedAmount;
+                    for (int i = 0; i < size; i++) {
+                        stockInItemDO = listSotockInItem.get(i);
+                        // 最后一个分配的取剩下所有的金额
+                        if (i == size - 1) {
+                            stockInItemDO.setExpense(totailExprnseAmountBig.subtract(recordAllocatedAmount));
+                        }
+
+                        if (sign) {
+                            // 按数量占总数比例
+                            BigDecimal count = stockInItemDO.getCount();
+                            BigDecimal meanValue = count.divide(totalCount, Constant.BIGDECIMAL_ZERO, BigDecimal.ROUND_HALF_UP);
+                            allocatedAmount = meanValue.multiply(totailExprnseAmountBig);
+                            stockInItemDO.setExpense(allocatedAmount);
+                        } else {
+                            // 按金额占总数比例
+                            BigDecimal amount = stockInItemDO.getAmount();
+                            BigDecimal meanValue = amount.divide(totalAmount, Constant.BIGDECIMAL_ZERO, BigDecimal.ROUND_HALF_UP);
+                            allocatedAmount = meanValue.multiply(totailExprnseAmountBig);
+                            stockInItemDO.setExpense(allocatedAmount);
+                        }
+                        recordAllocatedAmount = recordAllocatedAmount.add(allocatedAmount);
                         stockInItemDO.setId(stockInItemDO.getId());
                         listItemDo.add(stockInItemDO);
                     }
@@ -483,7 +504,8 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 BigDecimal cost=inItemDo.getCost()==null?BigDecimal.ZERO:inItemDo.getCost();
                 BigDecimal expense=inItemDo.getExpense()==null?BigDecimal.ZERO:inItemDo.getExpense();
 
-                BigDecimal totailAmout = inItemDo.getAmount().add(cost.add(expense));
+                BigDecimal totailAmout = cost.add(expense);
+//                BigDecimal totailAmout = inItemDo.getAmount().add(cost.add(expense));
                 BigDecimal unitPrice = totailAmout.divide(inItemDo.getCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
                 inItemDo.setUnitPrice(unitPrice);
                 inItemDo.setAmount(totailAmout);
@@ -544,7 +566,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 Map<String, Object> map = bomItem.get(i);
                 BigDecimal standardCount = new BigDecimal(map.get("standardCount").toString());
                 BigDecimal wasteRate=new BigDecimal(map.get("wasteRate").toString());
-                BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100), Constant.BIGDECIMAL_ZERO);
+                BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
                 BigDecimal needAccountCount = planFeeding.multiply(count);
                 map.put("standardCount", needAccountCount);
                 bomItems.add(map);
@@ -649,7 +671,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 }
                 peramy.put("period", maps.get("inOutTime"));
                 int counts = this.getAnalysisDate(peramy);
-                if(counts==0){
+                if(counts > 0){
                     return false;
                 }
             }

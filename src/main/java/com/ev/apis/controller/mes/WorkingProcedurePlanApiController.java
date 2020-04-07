@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -130,7 +131,11 @@ public class WorkingProcedurePlanApiController {
 
 		int total = Integer.parseInt(count.getOrDefault("total",0).toString());
 		if (data.size() > 0) {
-			List<Map<String, Object>> datas= data.stream().sorted((v1,v2)->Integer.parseInt(v1.get("serialNumber").toString())>Integer.parseInt(v2.get("serialNumber").toString())?1:-1).collect(Collectors.toList());
+//			(v1,v2)->Integer.parseInt(v1.get("serialNumber").toString())>Integer.parseInt(v2.get("serialNumber").toString())?1:-1
+			List<Map<String, Object>> datas= data
+					.stream()
+					.sorted(Comparator.comparing(e->Integer.parseInt(e.get("serialNumber").toString())))
+					.collect(Collectors.toList());
 			DsResultResponse dsRet = new DsResultResponse();
 			dsRet.setDatas(datas);
 			dsRet.setPageno(pageno);
@@ -188,7 +193,8 @@ public class WorkingProcedurePlanApiController {
             "                \"whetherCheck\":0,\r\n" +
             "                \"remark\":\"这里是备注\"\r\n" +
 			"            }\r\n" + 
-			"        ]\r\n" + 
+			"        ],\r\n" +
+			"        \"uploadAttachment\":\"uploadAttachment\"\r\n" +
 			"    }\r\n" + 
 			"]"
 			, required = true) @RequestParam(value = "childArray", defaultValue = "") String childArray,

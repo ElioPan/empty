@@ -138,6 +138,34 @@ public class BomApiController {
 	}
 
 	/**
+	 * 批量审核BOM
+	 *
+	 * @date 2020-04-01
+	 * @author gumingjie
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	@EvApiByToken(value = "/apis/bom/batchAudit", method = RequestMethod.POST, apiTitle = "批量审核BOM")
+	@ApiOperation("批量审核BOM")
+	public R batchAudit(
+			@ApiParam(value = "BOM主键", required = true) @RequestParam(value = "ids", defaultValue = "") Long[] ids) {
+		for (Long id : ids) {
+			if (bomService.isAudit(id)) {
+				return R.error(messageSourceHandler.getMessage("common.duplicate.approved",null));
+			}
+		}
+
+		int successCount = 0;
+		for (Long id : ids) {
+			successCount += bomService.audit(id);
+		}
+
+		if (successCount == ids.length) {
+			return R.ok();
+		}
+		return R.error();
+	}
+
+	/**
 	 * 反审核BOM
 	 * 
 	 * @date 2019-12-03

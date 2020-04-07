@@ -182,6 +182,7 @@
 		<set>
 			<if test="sourceType != null">`source_type` = #{sourceType}, </if>
 			<if test="sourceId != null">`source_id` = #{sourceId}, </if>
+			<if test="sourceNo != null">`source_no` = #{sourceNo}, </if>
 			<if test="planNo != null">`plan_no` = #{planNo}, </if>
 			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
 			<if test="proDept != null">`pro_dept` = #{proDept}, </if>
@@ -354,7 +355,7 @@
     FROM
     (
     SELECT
-    outi.id
+    ini.id
     FROM
     mes_production_plan plan
     LEFT JOIN scm_stock_in_item ini ON ini.source_id = plan.id
@@ -362,6 +363,16 @@
     ini.source_type = 278
     AND plan.`id` = #{value}
     ) a
+	</select>
+    <select id="getCountBySource" resultType="java.math.BigDecimal">
+		SELECT
+		SUM(`plan_count`)
+		FROM mes_production_plan
+		<where>
+			<if test="id != null and id != ''"> and id <![CDATA[<>]]> #{id} </if>
+			<if test="sourceId != null and sourceId != ''"> and source_id = #{sourceId} </if>
+			<if test="sourceType != null and sourceType != ''"> and source_type = #{sourceType} </if>
+		</where>
 	</select>
 
 

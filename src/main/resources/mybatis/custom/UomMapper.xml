@@ -12,7 +12,7 @@
 	<select id="getByName" resultType="com.ev.custom.domain.UomDO">
 		select 
 		<include refid="sql_column_list"/>  
-		from cus_uom where `short_name` = #{value}
+		from cus_uom where `name` = #{value}
 	</select>
 	
 	<select id="list" resultType="com.ev.custom.domain.UomDO">

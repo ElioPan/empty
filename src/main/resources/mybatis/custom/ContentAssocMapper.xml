@@ -20,6 +20,13 @@
 			<if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
 			<if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
 			<if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+			<if test="assocIds != null and assocIds.size()>0"> and assoc_id IN
+				<foreach item="item" collection="assocIds" open="(" separator="," close=")" index="index">
+					<if test="item!=null">
+						#{item}
+					</if>
+				</foreach>
+			</if>
 		</where>
         <choose>
             <when test="sort != null and sort.trim() != ''">

@@ -76,14 +76,13 @@
         client.address AS address,
         dic.name AS typeName,
         client.`tax_number` AS taxNumber,
-        dicb.`name` AS bankName,
+		client.`bank` AS bankName,
         client.`account`,
         dept.`name` AS belongDeptName,
         users.`name` AS belongSalesmanName
         FROM
         cus_client client
         LEFT JOIN cus_dictionary dic ON dic.id = client.type
-        LEFT JOIN cus_dictionary dicb ON dicb.id = client.bank
         LEFT JOIN cus_client_linkman link ON link.client_id = client.id
         LEFT JOIN sys_user users ON users.user_id = client.belong_salesman
         LEFT JOIN sys_dept dept ON dept.dept_id = client.belong_dept
@@ -261,7 +260,7 @@
 			client.address as address,
 			client.desc  as client_desc,
 		client.bank	,
-		a.name as bankName,
+		client.bank as bankName,
 		client.account,
 		client.status,
 		b.name as statusName,
@@ -283,7 +282,6 @@
 		LEFT JOIN cus_client_linkman csl ON client.id=csl.client_id
 		LEFT JOIN sys_user  users       ON client.create_by=users.user_id
 		LEFT JOIN sys_dept  dept     ON users.dept_id=dept.dept_id
-		LEFT JOIN cus_dictionary a ON  client.bank=a.id
 		LEFT JOIN cus_dictionary b ON  client.status=b.id
 		LEFT JOIN sys_user  c      ON client.audit_id=c.user_id
 		LEFT JOIN sys_dept  d    ON client.`belong_dept`=d.dept_id
@@ -324,7 +322,6 @@
 		LEFT JOIN cus_client_linkman csl ON client.id=csl.client_id
 		LEFT JOIN sys_user  users       ON client.create_by=users.user_id
 		LEFT JOIN sys_dept  dept     ON users.dept_id=dept.dept_id
-		LEFT JOIN cus_dictionary a ON  client.bank=a.id
 		LEFT JOIN cus_dictionary b ON  client.status=b.id
 		LEFT JOIN sys_user  c      ON client.audit_id=c.user_id
 		LEFT JOIN sys_dept  d    ON client.`belong_dept`=d.dept_id
@@ -387,6 +384,14 @@
         WHERE
         `del_flag`=0
     </select>
+    <select id="getAllName" resultType="java.lang.String">
+		  SELECT
+        `name`
+        from
+        cus_client
+        WHERE
+        `del_flag`=0
+	</select>
 
     <insert id="batchSave" parameterType="List" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO cus_client(

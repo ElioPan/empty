@@ -104,6 +104,8 @@ public class ScmSalesReturnInStockApiController {
     public R otherHeadDetailList(@ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
                                  @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
                                  @ApiParam(value = "单据编号") @RequestParam(value = "inheadCode", defaultValue = "", required = false) String inheadCode,
+
+                                 @ApiParam(value = "部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
                                  @ApiParam(value = "客户（模糊）") @RequestParam(value = "clientName", defaultValue = "", required = false) String clientName,
                                  @ApiParam(value = "物料名（模糊）") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
                                  @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
@@ -116,6 +118,7 @@ public class ScmSalesReturnInStockApiController {
         Map<String, Object> resulst = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
 
+        params.put("deptId", deptId);
         params.put("inheadCode", inheadCode);
         params.put("clientName", clientName);
         params.put("materielName", materielName);
@@ -174,13 +177,14 @@ public class ScmSalesReturnInStockApiController {
     public void exportExcel(
             @ApiParam(value = "单据编号") @RequestParam(value = "inheadCode", defaultValue = "", required = false) String inheadCode,
             @ApiParam(value = "客户（模糊）") @RequestParam(value = "clientName", defaultValue = "", required = false) String clientName,
+            @ApiParam(value = "部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
             @ApiParam(value = "物料名（模糊）") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
             @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
             @ApiParam(value = "退货起始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
             @ApiParam(value = "退货截止时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
             @ApiParam(value = "规格型号") @RequestParam(value = "materielSpecification", defaultValue = "", required = false) String materielSpecification,
             @ApiParam(value = "制单人id") @RequestParam(value = "createBy", defaultValue = "", required = false) Long createBy,
-            @ApiParam(value = "制单人名字",required = false) @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
+            @ApiParam(value = "制单人名字") @RequestParam(value = "createByName", defaultValue = "", required = false) String createByName,
             @ApiParam(value = "制单日期") @RequestParam(value = "createTime", defaultValue = "", required = false) String  createTime,
             HttpServletRequest request,
             HttpServletResponse response,
@@ -188,6 +192,7 @@ public class ScmSalesReturnInStockApiController {
 
         Map<String, Object> params = new HashMap<>();
 
+        params.put("deptId", deptId);
         params.put("inheadCode", inheadCode);
         params.put("clientName", clientName);
         params.put("materielName", materielName);

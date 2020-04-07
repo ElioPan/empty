@@ -369,10 +369,11 @@
 		    analysis.`id` AS id,
 		    analysis.`period` AS period,
 			analysis.`materiel_id` AS materielId,
-			 materiel.serial_no AS materielSerialNo,
-        	 materiel.name AS materielName,
-        	 materiel.specification AS specification,
-        	 unitUom.name AS unitUomName,
+			materiel.serial_no AS materielSerialNo,
+        	materiel.name AS materielName,
+			materiel.specification AS specification,
+			unitUom.name AS unitUomName,
+			materiel.valuation_method AS valuationMethod,
 			analysis.`batch` AS batch,
 			analysis.`initial_count` AS initialCount,
 			analysis.`initial_amount` AS initialAmount,
@@ -389,7 +390,7 @@
 					ORDER BY ${sort} ${order}
 				</when>
 				<otherwise>
-					ORDER BY id DESC
+					ORDER BY analysis.`materiel_id`,analysis.`initial_count` DESC
 				</otherwise>
 			</choose>
 			<if test="offset != null and limit != null">
@@ -397,7 +398,6 @@
 			</if>
 
 	</select>
-
 
 	<select id="countForMap" resultType="java.lang.Integer">
 		SELECT
@@ -418,12 +418,47 @@
 		<include refid="sql_map_condition"/>
 	</select>
 
+	<select id="listForMapGroupMateriel" resultType="java.util.Map">
+		SELECT
+		analysis.`id` AS id,
+		analysis.`period` AS period,
+		analysis.`materiel_id` AS materielId,
+		materiel.serial_no AS materielSerialNo,
+		materiel.name AS materielName,
+		materiel.specification AS specification,
+		unitUom.name AS unitUomName,
+		materiel.valuation_method AS valuationMethod,
+		SUM(analysis.`initial_count`) AS initialCount,
+		SUM(analysis.`initial_amount`) AS initialAmount,
+		SUM(analysis.`in_count`) AS inCount,
+		SUM(analysis.`in_amount`) AS inAmount,
+		SUM(analysis.`out_count`) AS outCount,
+		SUM(analysis.`out_amount`) AS outAmount,
+		SUM(analysis.`final_count`) AS finalCount,
+		SUM(analysis.`final_amount`) AS finalAmount,
+		analysis.`is_close` AS isClose
+		<include refid="sql_map_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY ${sort} ${order}
+			</when>
+			<otherwise>
+				GROUP BY analysis.`materiel_id`
+				ORDER BY analysis.`materiel_id`,analysis.`initial_count` DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
 	<sql id="sql_map_condition">
 		FROM scm_stock_analysis analysis
 		LEFT JOIN cus_materiel materiel ON materiel.`id`=analysis.`materiel_id`
 		LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
 		<where>
 			<if test="id != null and id != ''"> AND analysis.id = #{id} </if>
+			<if test="valuationMethod != null and valuationMethod != ''"> AND materiel.valuation_method = #{valuationMethod} </if>
 			<if test="period != null and period != ''"> AND DATE_FORMAT(analysis.period,'%Y-%m-%d') = DATE_FORMAT(#{period},'%Y-%m-%d') </if>
 			<if test="materielId != null and materielId != ''"> AND analysis.materiel_id = #{materielId} </if>
 			<if test="materielType != null and materielType != ''"> AND materiel.type = #{materielType} </if>

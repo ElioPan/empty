@@ -3,7 +3,9 @@ package com.ev.scm.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.domain.DictionaryDO;
+import com.ev.custom.domain.MaterielDO;
 import com.ev.custom.service.DictionaryService;
+import com.ev.custom.service.MaterielService;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @EnableTransactionManagement
 @Service
@@ -63,6 +66,8 @@ public class StockInServiceImpl implements StockInService {
 	private OutsourcingContractItemService outsourcingContractItemService;
 	@Autowired
 	private StockOutItemService stockOutItemService;
+	@Autowired
+	private MaterielService materielService;
 
 	@Override
 	public List<Map<String, Object>> listForHead(Map<String, Object> map) {
@@ -387,6 +392,33 @@ public class StockInServiceImpl implements StockInService {
 			if(StringUtils.isNotEmpty(bodyDetail)){
 				List<StockInItemDO> inbodyCDos = JSON.parseArray(bodyDetail, StockInItemDO.class);
 
+				// 验证批次是否正确
+				List<Long> materielIdList = inbodyCDos.stream()
+						.map(StockInItemDO::getMaterielId)
+						.collect(Collectors.toList());
+				Map<String,Object> param = Maps.newHashMap();
+				param.put("materielIdList",materielIdList);
+				List<MaterielDO> materielDOS = materielService.list(param);
+				Map<Integer, Integer> isLotMap = materielDOS.stream()
+						.collect(Collectors.toMap(MaterielDO::getId, MaterielDO::getIsLot));
+				List<StockInItemDO> errorList = inbodyCDos.stream()
+						.filter(e -> (e.getBatch() == null && isLotMap.get(e.getMaterielId().intValue()) == 1)
+								|| (e.getBatch() != null && isLotMap.get(e.getMaterielId().intValue()) == 0))
+						.collect(Collectors.toList());
+				if (errorList.size() > 0) {
+					List<Long> errorIds = errorList
+							.stream()
+							.map(StockInItemDO::getMaterielId)
+							.collect(Collectors.toList());
+					String join = StringUtils.join(materielDOS
+							.stream()
+							.filter(e -> errorIds.contains(e.getId().longValue()))
+							.map(MaterielDO::getName).toArray(), ",");
+					String []args ={join};
+					return R.error(messageSourceHandler.getMessage("basicInfo.materiel.isLotError",args));
+				}
+
+
 				Boolean qR=Objects.nonNull(inbodyCDos.get(0).getQrcodeId());
 
 				//保寸主表信息
@@ -576,14 +608,19 @@ public class StockInServiceImpl implements StockInService {
 			return R.error(messageSourceHandler.getMessage("scm.stock.nonUse",null));
 		}
 
-		Long[] stockInId={id};
+/*		Long[] stockInId={id};
 		boolean b = inStockAccountingService.disposeIsClose(stockInId, false);
 		if(!b){
-			return R.error(messageSourceHandler.getMessage("scm.checkCount.isCloce", null));
-		}
+			return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", null));
+		}*/
 
 		//更改主表审核状态为11已审核-->179已审核  178待审核；
 		StockInDO pInheadDO = stockInDao.get(id);
+		Date periodTime = stockService.getPeriodTime();
+		if (pInheadDO.getInOutTime().before(periodTime)) {
+//            String[] args = {DateFormatUtil.getFormateDate(periodTime)};
+			return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", null));
+		}
 		if (Objects.nonNull(pInheadDO)) {
 			if (!(Objects.equals(pInheadDO.getAuditSign(),ConstantForGYL.OK_AUDITED))) {
 				StockInDO stockInDO=new StockInDO();
@@ -612,10 +649,15 @@ public class StockInServiceImpl implements StockInService {
 		StockInDO inheadDO = stockInDao.get(inHeadId);
 		if (inheadDO != null) {
 
-			Long[] stockInId={inHeadId};
+/*			Long[] stockInId={inHeadId};
 			boolean b = inStockAccountingService.disposeIsClose(stockInId, false);
 			if(!b){
-				return R.error(messageSourceHandler.getMessage("scm.checkCount.isCloce", null));
+				return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", null));
+			}*/
+			Date periodTime = stockService.getPeriodTime();
+			if (inheadDO.getInOutTime().before(periodTime)) {
+//            String[] args = {DateFormatUtil.getFormateDate(periodTime)};
+				return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", null));
 			}
 
 

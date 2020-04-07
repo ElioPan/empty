@@ -52,4 +52,5 @@ public interface SupplierDao {
 
 	int checkSave(Map<String,Object>map);
 
+	List<String> getAllName();
 }

@@ -78,4 +78,6 @@ public interface MaterielService {
     List<String> getAllCode();
 
     void batchSave(List<MaterielDO> materielDOs);
+
+	List<String> getAllName();
 }

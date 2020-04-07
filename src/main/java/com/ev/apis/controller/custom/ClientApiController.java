@@ -136,7 +136,7 @@ public class ClientApiController {
     public R addDetail(ClientDO clientDo,
                          @ApiParam(value = "联系人") @RequestParam(value = "linkerMan", required = false) String linkerMan) {
 
-        Map<String,Object>  paramy= new HashMap<String,Object>();
+        Map<String,Object>  paramy= new HashMap<>();
         paramy.put("name",clientDo.getName().trim());
         int lines = clientService.checkSave(paramy);
         if(lines>0){
@@ -274,12 +274,41 @@ public class ClientApiController {
         return clientService.deletOfDevices(id);
     }
 
+    @EvApiByToken(value = "/apis/clients/batchAudit", method = RequestMethod.POST, apiTitle = "批量审核客户")
+    @ApiOperation("批量审核客户")
+    @Transactional(rollbackFor = Exception.class)
+    public R batchAudit(@ApiParam(value = "供应商id", required = true) @RequestParam(value = "ids", defaultValue = "")Long[] ids ){
+        if (ids.length > 0) {
+            List<ClientDO> clientDOList=Lists.newArrayList();
+            Long userId = ShiroUtils.getUserId();
+            for (Long id : ids) {
+                ClientDO clientDO= clientService.get(id);
+                if(Objects.isNull(clientDO)){
+                    return R.error(messageSourceHandler.getMessage("common.massge.haveNoThing",null));
+                }
+                if(!Objects.equals(clientDO.getStatus(),ConstantForMES.WAIT_AUDIT)){
+                    return R.error(messageSourceHandler.getMessage("common.massge.okAudit",null));
+                }
+                clientDOList.add(clientDO);
+            }
+
+            for (ClientDO clientDO : clientDOList) {
+                clientDO.setStatus(ConstantForMES.OK_AUDITED);
+                clientDO.setAuditId(userId);
+               clientService.update(clientDO);
+            }
+            return R.ok();
+        }
+        return R.error();
+
+    }
+
     /*导入导出*/
     @ResponseBody
     @EvApiByToken(value = "/apis/importExcel/client", method = RequestMethod.POST, apiTitle = "客户信息导入")
     @ApiOperation("客户信息导入")
     @Transactional(rollbackFor = Exception.class)
-    public R readSupplier(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file) {
+    public R readClient(@ApiParam(value = "文件信息", required = true) @RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
             return R.error(messageSourceHandler.getMessage("file.nonSelect", null));
         }
@@ -291,6 +320,10 @@ public class ClientApiController {
         List<ClientEntity> clientEntityList;
         try {
             clientEntityList  =  ExcelImportUtil.importExcel(file.getInputStream(), ClientEntity.class, params);
+            clientEntityList = clientEntityList
+                    .stream()
+                    .filter(e->StringUtils.isNoneEmpty(e.getName()))
+                    .collect(Collectors.toList());
         }catch(Exception e) {
             return R.error(messageSourceHandler.getMessage("file.upload.error", null));
         }
@@ -299,7 +332,11 @@ public class ClientApiController {
                     .filter(clientEntity -> StringUtils.isNoneEmpty(clientEntity.getCode()))
                     .map(ClientEntity::getCode)
                     .collect(Collectors.toList());
+            List<String> nameList = clientEntityList.stream()
+                    .map(ClientEntity::getName)
+                    .collect(Collectors.toList());
             List<String> allCode = clientService.getAllCode();
+            List<String> allName = clientService.getAllName();
             if (allCode.size() > 0 && codeNoneEmptyList.size() > 0) {
                 allCode.addAll(codeNoneEmptyList);
                 List<String> duplicateElements = ListUtils.getDuplicateElements(allCode);
@@ -307,6 +344,15 @@ public class ClientApiController {
                 if (duplicateElements.size() > 0) {
                     String[] arg = {StringUtils.join(duplicateElements.toArray(), ",")};
                     return R.error(messageSourceHandler.getMessage("basicInfo.code.isPresence", arg));
+                }
+            }
+            if (allName.size() > 0 && nameList.size() > 0) {
+                allName.addAll(nameList);
+                List<String> duplicateElements = ListUtils.getDuplicateElements(allName);
+                // 若存在重复的元素提示用户
+                if (duplicateElements.size() > 0) {
+                    String[] arg = {StringUtils.join(duplicateElements.toArray(), ",")};
+                    return R.error(messageSourceHandler.getMessage("basicInfo.name.isPresence", arg));
                 }
             }
 
@@ -327,7 +373,6 @@ public class ClientApiController {
             }
 
             Map<String,Object> emptyMap = Maps.newHashMap();
-            List<DictionaryDO> bankDOs = dictionaryService.listByType(Constant.BANK);
             List<DictionaryDO> clientTypeDOs = dictionaryService.listByType(Constant.CLIENT_TYPE);
             List<DeptDO> deptDOs = deptService.list(emptyMap);
             List<UserDO> userDOs = userService.list(emptyMap);
@@ -349,12 +394,7 @@ public class ClientApiController {
                 BeanUtils.copyProperties(clientEntity, clientDO);
 
                 bankName = clientEntity.getBankName();
-                for (DictionaryDO bankDO : bankDOs) {
-                    if (Objects.equals(bankDO.getName(),bankName)) {
-                        clientDO.setBank(bankDO.getId());
-                        break;
-                    }
-                }
+                clientDO.setBank(bankName);
 
                 typeName = clientEntity.getTypeName();
                 for (DictionaryDO clientTypeDO : clientTypeDOs) {

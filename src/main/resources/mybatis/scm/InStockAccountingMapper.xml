@@ -111,7 +111,7 @@
         WHERE
          DATE_FORMAT(a.period,'%Y-%m') = DATE_FORMAT(#{period},'%Y-%m')
          and
-          a.is_close=0 <!--未关账-->
+          a.is_close=1 <!--已关帐-->
     </select>
 
 
