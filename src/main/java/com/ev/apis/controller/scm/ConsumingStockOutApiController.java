@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -232,7 +233,10 @@ public class ConsumingStockOutApiController {
         params.put("outCode", outCode);
         params.put("deptId", deptId);
         params.put("materielName", StringUtils.sqlLike(materielName));
-        params.put("startTime", DateFormatUtil.getFormateDate(stockService.getPeriodTime()));
+        Date periodTime = stockService.getPeriodTime();
+        if (periodTime != null) {
+            params.put("startTime", DateFormatUtil.getFormateDate(periodTime));
+        }
         params.put("endTime", endTime);
 
         /*高级查询*/

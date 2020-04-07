@@ -577,7 +577,22 @@ public class StockServiceImpl implements StockService {
 				return period;
 			}
 		}
-		return null;
+
+		String stockStartTime = stringRedisTemplate.opsForValue().get("stockStartTime");
+		Map<String, Object> map = Maps.newHashMap();
+		if (StringUtils.isEmpty(stockStartTime)) {
+			// 是否为修改
+			List<StockStartDO> stockStartDOList = stockStartService.list(map);
+			if (stockStartDOList.size() > 0) {
+				Date startTime = stockStartDOList.get(0).getStartTime();
+				// 将库存启用时间写入redis中
+				stringRedisTemplate.opsForValue().set("stockStartTime", DateFormatUtil.getFormateDate(startTime));
+				return startTime;
+			}else {
+				return null;
+			}
+		}
+		return  DateFormatUtil.getDateByParttern(stockStartTime);
 	}
 
 	@Override
