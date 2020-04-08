@@ -10,6 +10,7 @@
 	<select id="list" resultType="com.ev.custom.domain.UpkeepProjectDO">
 		select `id`,`code`,`type`,`name`,`function`,`device_tepy`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_upkeep_project
 		<where>
+			<if test="maxNo != null and maxNo != ''"> and LEFT(code,CHAR_LENGTH(#{maxNo})) = #{maxNo} </if>
 			<if test="id != null and id != ''"> and id = #{id} </if>
 			<if test="code != null and code != ''"> and code = #{code} </if>
 			<if test="type != null and type != ''"> and type = #{type} </if>

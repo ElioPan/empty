@@ -4,8 +4,11 @@ import com.ev.custom.dao.UpkeepProjectDao;
 import com.ev.custom.domain.UpkeepProjectDO;
 import com.ev.custom.service.UpkeepPlanProjectService;
 import com.ev.custom.service.UpkeepProjectService;
+import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
+import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
+import com.ev.framework.utils.StringUtils;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -106,23 +109,35 @@ public class UpkeepProjectServiceImpl implements UpkeepProjectService {
 		if(Objects.nonNull(upkeepProjectDO.getId())){
 			map.put("haveId",upkeepProjectDO.getId());
 			map.put("code",upkeepProjectDO.getCode());
-
 			int ii=this.countOfCode(map);
 			if(this.countOfCode(map)>0){
 				return R.error(messageSourceHandler.getMessage("common.duplicate.serialNo",null));
+			}else{
+				savesPro=this.update(upkeepProjectDO);
 			}
-			savesPro=this.update(upkeepProjectDO);
 		}else{
-			map.put("code",upkeepProjectDO.getCode());
-			if(this.countOfCode(map)>0){
-				return R.error(messageSourceHandler.getMessage("common.duplicate.serialNo",null));
+			if(!StringUtils.isEmpty(upkeepProjectDO.getCode())){
+				map.put("code",upkeepProjectDO.getCode());
+				if(this.countOfCode(map)>0){
+					return R.error(messageSourceHandler.getMessage("common.duplicate.serialNo",null));
+				}
+			}
+				//<if test="maxNo != null and maxNo != ''"> and LEFT(work_orderNo,12) = #{maxNo} </if>
+			if(StringUtils.isEmpty(upkeepProjectDO.getCode()) || upkeepProjectDO.getCode().startsWith(ConstantForMES.BYXM)){
+				Map<String,Object> param = Maps.newHashMap();
+				param.put("maxNo",ConstantForMES.BYXM);
+				param.put("offset", 0);
+				param.put("limit", 1);
+				List<UpkeepProjectDO> list = this.list(param);
+				upkeepProjectDO.setCode(DateFormatUtil.getWorkOrderno(ConstantForMES.BYXM,list.size()>0?list.get(0).getCode():null,4));
 			}
 			savesPro=this.save(upkeepProjectDO);
 		}
 		if (savesPro > 0) {
 			return R.ok();
+		}else{
+			return R.error(messageSourceHandler.getMessage("common.dailyReport.save",null));
 		}
-		return R.error(messageSourceHandler.getMessage("common.dailyReport.save",null));
 	}
 
 
