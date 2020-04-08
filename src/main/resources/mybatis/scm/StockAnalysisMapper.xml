@@ -12,15 +12,14 @@
 
 	<select id="list" resultType="com.ev.scm.domain.StockAnalysisDO">
 		SELECT 
-		<include refid="sql_column_list"/>
-		FROM scm_stock_analysis
+		analysis.*
 		<include refid="sql_condition"/>
         <choose>
             <when test="sort != null and sort.trim() != ''">
                 ORDER BY ${sort} ${order}
             </when>
 			<otherwise>
-                ORDER BY id DESC
+                ORDER BY analysis.id DESC
 			</otherwise>
         </choose>
 		<if test="offset != null and limit != null">
@@ -29,7 +28,7 @@
 	</select>
 	
  	<select id="count" resultType="int">
-        SELECT COUNT(*) FROM scm_stock_analysis
+        SELECT COUNT(*)
 		<include refid="sql_condition"/>
 	</select>
 
@@ -38,27 +37,66 @@
 	</sql>
 
     <sql id="sql_condition">
+		FROM scm_stock_analysis analysis
+		LEFT JOIN cus_materiel materiel ON materiel.id=analysis.materiel_id
         <where>
-                            <if test="id != null and id != ''"> AND id = #{id} </if>
-                            <if test="period != null and period != ''"> AND DATE_FORMAT(period,'%Y-%m-%d') = DATE_FORMAT(#{period},'%Y-%m-%d') </if>
-                            <if test="materielId != null and materielId != ''"> AND materiel_id = #{materielId} </if>
-                            <if test="batch != null and batch != ''"> AND batch = #{batch} </if>
-                            <if test="initialCount != null and initialCount != ''"> AND initial_count = #{initialCount} </if>
-                            <if test="initialAmount != null and initialAmount != ''"> AND initial_amount = #{initialAmount} </if>
-                            <if test="inCount != null and inCount != ''"> AND in_count = #{inCount} </if>
-                            <if test="inAmount != null and inAmount != ''"> AND in_amount = #{inAmount} </if>
-                            <if test="outCount != null and outCount != ''"> AND out_count = #{outCount} </if>
-                            <if test="outAmount != null and outAmount != ''"> AND out_amount = #{outAmount} </if>
-                            <if test="finalCount != null and finalCount != ''"> AND final_count = #{finalCount} </if>
-                            <if test="finalAmount != null and finalAmount != ''"> AND final_amount = #{finalAmount} </if>
-							<if test="isClose != null"> AND is_close = #{isClose} </if>
-                            <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
-                            <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
-                            <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
-                            <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
-                            <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+                            <if test="id != null and id != ''"> AND analysis.id = #{id} </if>
+                            <if test="period != null and period != ''"> AND DATE_FORMAT(analysis.period,'%Y-%m-%d') = DATE_FORMAT(#{period},'%Y-%m-%d') </if>
+                            <if test="materielId != null and materielId != ''"> AND analysis.materiel_id = #{materielId} </if>
+                            <if test="batch != null and batch != ''"> AND analysis.batch = #{batch} </if>
+                            <if test="initialCount != null and initialCount != ''"> AND analysis.initial_count = #{initialCount} </if>
+                            <if test="initialAmount != null and initialAmount != ''"> AND analysis.initial_amount = #{initialAmount} </if>
+                            <if test="inCount != null and inCount != ''"> AND analysis.in_count = #{inCount} </if>
+                            <if test="inAmount != null and inAmount != ''"> AND analysis.in_amount = #{inAmount} </if>
+                            <if test="outCount != null and outCount != ''"> AND analysis.out_count = #{outCount} </if>
+                            <if test="outAmount != null and outAmount != ''"> AND analysis.out_amount = #{outAmount} </if>
+                            <if test="finalCount != null and finalCount != ''"> AND analysis.final_count = #{finalCount} </if>
+                            <if test="finalAmount != null and finalAmount != ''"> AND analysis.final_amount = #{finalAmount} </if>
+							<if test="isClose != null"> AND analysis.is_close = #{isClose} </if>
+                            <if test="createBy != null and createBy != ''"> AND analysis.create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> AND analysis.create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> AND analysis.update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> AND analysis.update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> AND analysis.del_flag = #{delFlag} </if>
+
+							<if test="valuationMethod != null and valuationMethod != ''"> AND materiel.valuation_method = #{valuationMethod} </if>
                     </where>
     </sql>
+
+	<select id="listGroup" resultType="com.ev.scm.domain.StockAnalysisDO">
+		SELECT
+		analysis.`id`,
+		analysis.`period`,
+		analysis.`materiel_id`,
+		analysis.`batch`,
+		SUM(analysis.`initial_count`) AS initial_count,
+		SUM(analysis.`initial_amount`) AS initial_amount,
+		SUM(analysis.`in_count`) AS in_count,
+		SUM(analysis.`in_amount`) AS in_amount,
+		SUM(analysis.`out_count`) AS out_count,
+		SUM(analysis.`out_amount`) AS out_amount,
+		SUM(analysis.`final_count`) AS final_count,
+		SUM(analysis.`final_amount`) AS final_amount,
+		analysis.`is_close`,
+		analysis.`create_by`,
+		analysis.`create_time`,
+		analysis.`update_by`,
+		analysis.`update_time`,
+		analysis.`del_flag`
+		<include refid="sql_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY ${sort} ${order}
+			</when>
+			<otherwise>
+			    GROUP BY analysis.materiel_id
+				ORDER BY analysis.id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
 	 
 	<insert id="save" parameterType="com.ev.scm.domain.StockAnalysisDO" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO scm_stock_analysis

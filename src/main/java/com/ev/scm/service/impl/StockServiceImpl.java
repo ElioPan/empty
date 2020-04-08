@@ -496,7 +496,7 @@ public class StockServiceImpl implements StockService {
 				String materielIdAndBatchToString = materielId + "&" + stockDO.getBatch();
 				if (materielCountMap.containsKey(materielIdAndBatchToString)) {
 					materielCountMap.put(materielIdAndBatchToString, materielCountMap.get(materielIdAndBatchToString).add(stockDO.getCount()));
-					materielAmountMap.put(materielIdAndBatchToString, materielCountMap.get(materielIdAndBatchToString).add(stockDO.getAmount()));
+					materielAmountMap.put(materielIdAndBatchToString, materielAmountMap.get(materielIdAndBatchToString).add(stockDO.getAmount()));
 					continue;
 				}
 				materielCountMap.put(materielIdAndBatchToString, stockDO.getCount());
@@ -699,7 +699,20 @@ public class StockServiceImpl implements StockService {
 
 		// 获取本期已存在物料列表
 		params.put("period", period);
-		List<StockAnalysisDO> stockAnalysisList = stockAnalysisService.list(params);
+		List<StockAnalysisDO> stockAnalysisList = Lists.newArrayList();
+		params.put("valuationMethod", ConstantForGYL.BATCH_FINDS);
+		// 分批认定的期初
+		List<StockAnalysisDO> stockAnalysisListNonGroup = stockAnalysisService.list(params);
+		if (stockAnalysisListNonGroup.size() > 0) {
+			stockAnalysisList.addAll(stockAnalysisListNonGroup);
+		}
+		// 加权平均的期初
+		params.put("valuationMethod", ConstantForGYL.WEIGHTED_AVERAGE);
+		List<StockAnalysisDO> stockAnalysisListGroup = stockAnalysisService.listGroup(params);
+		if (stockAnalysisListGroup.size() > 0) {
+			stockAnalysisList.addAll(stockAnalysisListGroup);
+		}
+		params.remove("valuationMethod");
 
 		// 先将本期入库的新的物料加入分析表中
 		List<StockAnalysisDO> insertStockAnalysisList = Lists.newArrayList();
