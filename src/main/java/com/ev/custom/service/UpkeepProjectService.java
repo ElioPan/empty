@@ -41,6 +41,5 @@ public interface UpkeepProjectService {
 
 	int countOfCode(Map<String,Object> map);
 
-
-	R addProject(UpkeepProjectDO upkeepProject;
+	R addProject(UpkeepProjectDO upkeepProject);
 }
