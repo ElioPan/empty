@@ -210,9 +210,14 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Override
     public R deteBatchProcess(Long[] ids) {
-
+        //验证是否已审核
+        for(Long id:ids){
+             ProcessDO processDO = processDao.get(id);
+            if(Objects.equals(processDO.getAuditSign(),Constant.OK_AUDITED)){
+                return R.error(messageSourceHandler.getMessage("apis.mes.scrapt.auditOk",null));
+            }
+        }
         //去工艺路线的子表中查询是否已经有了此工序id，
-
         Map<String, Object> param = Maps.newHashMap();
         param.put("id", ids);
         int i= craftItemService.canDeletaByProcessId(param);
