@@ -134,12 +134,14 @@
         SELECT
         sd.name AS deptName,
         su.name AS `name`,
-        apply.create_by AS createBy,
+        apply.create_by AS userId,
         apply.type AS type,
         cd.name AS typeName,
         apply.begin_time AS beginTime,
         apply.reason AS reason,
-        apply.time_area AS totalCount
+        apply.time_area AS totalCount,
+        0 AS sortNo,
+        0 AS sign
         FROM
         cus_leave_apply apply
         LEFT JOIN cus_dictionary cd ON cd.id=apply.type
@@ -185,9 +187,12 @@
     <select id="leaveForItemGroupType" resultType="java.util.Map">
         SELECT
         apply.create_by AS userId,
-        apply.type AS type,
+        su.`name` AS `name`,
+        apply.type AS `type`,
+        apply.type AS sortNo,
         CONCAT(cd.name,'小计') AS typeName,
-        SUM(apply.time_area) AS typeTotalCount
+        1 AS sign,
+        SUM(apply.time_area) AS totalCount
         FROM
         cus_leave_apply apply
         LEFT JOIN cus_dictionary cd ON cd.id=apply.type
@@ -352,7 +357,8 @@
         cd.name AS typeName,
         apply.begin_time AS beginTime,
         apply.reason AS reason,
-        apply.time_area AS totalCount
+        apply.time_area AS totalCount,
+        0 AS sortNo,
         FROM
         cus_leave_apply apply
         LEFT JOIN cus_dictionary cd ON cd.id=apply.type
@@ -372,7 +378,6 @@
                 </foreach>
             </if>
         </where>
-        ORDER BY apply.create_by,apply.type
     </select>
 
 

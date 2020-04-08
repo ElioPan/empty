@@ -31,5 +31,7 @@ public class AgendaAccountingReportVO implements Serializable {
 	private String reason;
 	// 总数
 	private Double totalCount;
+	// 总数
+	private Integer sortNo;
 
 }

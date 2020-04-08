@@ -11,7 +11,6 @@ import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
 import com.ev.report.dao.AgendaAccountingReportDao;
 import com.ev.report.service.AgendaAccountingReportService;
-import com.ev.report.vo.AgendaAccountingReportVO;
 import com.ev.report.vo.CommonVO;
 import com.ev.report.vo.UserForReportVO;
 import com.google.common.collect.Lists;
@@ -20,10 +19,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -296,7 +292,6 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         }
         List<Long> userIds = userInfo.getMiddle();
         List<Long> userAllIds = userInfo.getRight();
-        List<UserForReportVO> userForReportVOS = userInfo.getLeft();
 
         Map<String, Object> param = Maps.newHashMap();
         String startTime = commonVO.getStartTime();
@@ -305,32 +300,54 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         param.put("startTime", startTime);
         param.put("endTime", endTime);
         param.put("userIds", userIds);
-        List<AgendaAccountingReportVO> leaveForItem = reportDao.leaveItemList(param);
-        // 所查询的全部用户
-        param.put("userIds", userAllIds);
-        Double total = reportDao.leaveItemTotal(param);
 
-//        int size = userAllIds.size();
-        //  用户分组
-        Map<Long, Double> itemGroupByUser = leaveForItem
-                .stream()
-                .collect(Collectors.groupingBy(AgendaAccountingReportVO::getCreateBy
-                        , Collectors.summingDouble(AgendaAccountingReportVO::getTotalCount))
-                );
-        // 用户和类型分组
-        Map<Long, Map<Long, Double>> itemGroupByUserAndType = leaveForItem
-                .stream()
-                .collect(Collectors.groupingBy(AgendaAccountingReportVO::getCreateBy
-                        , Collectors.groupingBy(AgendaAccountingReportVO::getType
-                                , Collectors.summingDouble(AgendaAccountingReportVO::getTotalCount)))
-                );
-        for (AgendaAccountingReportVO reportVO : leaveForItem) {
+        List<Map<String, Object>> leaveForItem = reportDao.leaveItem(param);
+        Map<String,Object> result = Maps.newHashMap();
+        if (leaveForItem.size() > 0) {
+            List<Map<String, Object>> leaveForItemGroupType = reportDao.leaveForItemGroupType(param);
+            // 所查询的全部用户
+            param.put("userIds", userAllIds);
+            Double total = reportDao.leaveItemTotal(param);
 
+            List<DictionaryDO> dictionaryDOS = dictionaryService.listByType(Constant.LEAVE_APPLY_TYPE);
+            Integer typeMax = dictionaryDOS
+                    .stream()
+                    .max(Comparator.comparing(DictionaryDO::getId))
+                    .orElse(new DictionaryDO())
+                    .getId();
+            typeMax = typeMax == null ? 0 : typeMax + 1;
+
+            Map<String, Double> itemGroup = leaveForItem
+                    .stream()
+                    .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> Double.parseDouble(v.get("totalCount").toString()), Double::sum));
+            Map<String, String> userMap = leaveForItem
+                    .stream()
+                    .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("name").toString(), (v1,v2)->v1));
+
+            Map<String, Object> map;
+            for (String userId : itemGroup.keySet()) {
+                map = Maps.newHashMap();
+                Double totalCount = itemGroup.get(userId);
+                map.put("userId",userId);
+                // 颜色标记明细为0 类型合计1, 人员合计2
+                map.put("sign",2);
+                map.put("name", userMap.get(userId) + "小计");
+                map.put("sortNo", typeMax);
+                map.put("type", typeMax);
+                map.put("totalCount", totalCount == null ? 0 : totalCount);
+                leaveForItem.add(map);
+            }
+            leaveForItem.addAll(leaveForItemGroupType);
+
+            List<Map<String, Object>> collect = leaveForItem.stream()
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("type").toString())))
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("userId").toString())))
+                    .collect(Collectors.toList());
+            result.put("data",collect);
+            result.put("total",total);
         }
-
-
-
-        return R.ok();
+        return R.ok(result);
     }
 
     @Override
