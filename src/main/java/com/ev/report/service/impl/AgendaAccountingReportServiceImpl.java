@@ -11,6 +11,7 @@ import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
 import com.ev.report.dao.AgendaAccountingReportDao;
 import com.ev.report.service.AgendaAccountingReportService;
+import com.ev.report.vo.AgendaAccountingReportVO;
 import com.ev.report.vo.CommonVO;
 import com.ev.report.vo.UserForReportVO;
 import com.google.common.collect.Lists;
@@ -304,13 +305,32 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         param.put("startTime", startTime);
         param.put("endTime", endTime);
         param.put("userIds", userIds);
-        List<Map<String, Object>> leaveForItem = reportDao.leaveItem(param);
+        List<AgendaAccountingReportVO> leaveForItem = reportDao.leaveItemList(param);
         // 所查询的全部用户
         param.put("userIds", userAllIds);
         Double total = reportDao.leaveItemTotal(param);
 
-        int size = userAllIds.size();
-        return R.ok(this.getResult(userForReportVOS, leaveForItem, total, size, pageNo, pageSize));
+//        int size = userAllIds.size();
+        //  用户分组
+        Map<Long, Double> itemGroupByUser = leaveForItem
+                .stream()
+                .collect(Collectors.groupingBy(AgendaAccountingReportVO::getCreateBy
+                        , Collectors.summingDouble(AgendaAccountingReportVO::getTotalCount))
+                );
+        // 用户和类型分组
+        Map<Long, Map<Long, Double>> itemGroupByUserAndType = leaveForItem
+                .stream()
+                .collect(Collectors.groupingBy(AgendaAccountingReportVO::getCreateBy
+                        , Collectors.groupingBy(AgendaAccountingReportVO::getType
+                                , Collectors.summingDouble(AgendaAccountingReportVO::getTotalCount)))
+                );
+        for (AgendaAccountingReportVO reportVO : leaveForItem) {
+
+        }
+
+
+
+        return R.ok();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.ev.report.dao;
 
+import com.ev.report.vo.AgendaAccountingReportVO;
 import com.ev.report.vo.UserForReportVO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -43,4 +44,6 @@ public interface AgendaAccountingReportDao {
     Double paymentItemTotal(Map<String, Object> param);
 
     List<UserForReportVO> userList(Map<String, Object> params);
+
+    List<AgendaAccountingReportVO> leaveItemList(Map<String, Object> param);
 }

@@ -10,10 +10,10 @@ import java.io.Serializable;
 @ApiModel(value = "共通参数")
 public class CommonVO implements Serializable {
     //当前第几页
-    @ApiModelProperty(value = "当前第几页", required = true)
+    @ApiModelProperty(value = "当前第几页")
     private int pageno = 1;
     //一页多少条
-    @ApiModelProperty(value = "一页多少条", required = true)
+    @ApiModelProperty(value = "一页多少条")
     private int pagesize = 20;
     //开始时间
     @ApiModelProperty(value = "开始时间")
