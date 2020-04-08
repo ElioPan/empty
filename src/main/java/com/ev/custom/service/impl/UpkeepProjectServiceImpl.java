@@ -10,9 +10,10 @@ import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Objects;
 
 
 @Service
@@ -91,5 +92,38 @@ public class UpkeepProjectServiceImpl implements UpkeepProjectService {
         }
         return this.batchRemove(ids)>0?R.ok():R.error();
     }
+
+	@Override
+	public int countOfCode(Map<String, Object> map) {
+		return upkeepProjectDao.countOfCode(map);
+	}
+
+	@Override
+	public R addProject(UpkeepProjectDO upkeepProjectDO) {
+
+		Map<String,Object>  map= new HashMap<>();
+		int savesPro=0;
+		if(Objects.nonNull(upkeepProjectDO.getId())){
+			map.put("haveId",upkeepProjectDO.getId());
+			map.put("code",upkeepProjectDO.getCode());
+
+			int ii=this.countOfCode(map);
+			if(this.countOfCode(map)>0){
+				return R.error(messageSourceHandler.getMessage("common.duplicate.serialNo",null));
+			}
+			savesPro=this.update(upkeepProjectDO);
+		}else{
+			map.put("code",upkeepProjectDO.getCode());
+			if(this.countOfCode(map)>0){
+				return R.error(messageSourceHandler.getMessage("common.duplicate.serialNo",null));
+			}
+			savesPro=this.save(upkeepProjectDO);
+		}
+		if (savesPro > 0) {
+			return R.ok();
+		}
+		return R.error(messageSourceHandler.getMessage("common.dailyReport.save",null));
+	}
+
 
 }

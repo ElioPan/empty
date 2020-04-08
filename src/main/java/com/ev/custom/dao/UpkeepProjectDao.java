@@ -38,4 +38,7 @@ public interface UpkeepProjectDao {
 	List<Map<String,Object>> findListsPro(Map<String,Object> map);
 
 	int countOfList(Map<String,Object> map);
+
+	int countOfCode(Map<String,Object> map);
+
 }

@@ -158,6 +158,7 @@
 		cus_upkeep_project  cap
 		LEFT  JOIN  cus_dictionary cd ON cap.device_tepy=cd.id
 		<where>
+			<if test="haveId != null and haveId != ''"> and cap.id &lt;&gt; #{haveId} </if>
 			<if test="id != null and id != ''"> and cap.id = #{id} </if>
 			<if test="code != null and code != ''"> and cap.code = #{code} </if>
 			<if test="type != null and type != ''"> and cap.type = #{type} </if>
@@ -167,7 +168,16 @@
 		</where>
 	</select>
 
-
+	<select id="countOfCode" resultType="int">
+		select
+		count(*)
+		from
+		cus_upkeep_project
+		<where>
+			<if test="haveId != null and haveId != ''"> and id &lt;&gt; #{haveId} </if>
+			<if test="code != null and code != ''"> and code = #{code} </if>
+		</where>
+	</select>
 
 
 </mapper>
