@@ -1,14 +1,15 @@
 package com.ev.common.jobs;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
-import java.io.InputStream;
-import java.util.LinkedHashMap;
 
 @Component
 public class BackupsDBJob {
+    @Autowired
+    Environment env;
 
 
 //    @Scheduled(cron="0/59 * * * * ? ")
@@ -27,11 +28,11 @@ public class BackupsDBJob {
 //        String dbName="xinsoft-gyhl";
 //        String username="xinsoft";
 //        String password="xinsoft411";
-        String filePath=disposeYamal("backups.db.filePath");
-        String url=disposeYamal("backups.db.dbUrl");
-        String dbName=disposeYamal("backups.db.dbName");
-        String username=disposeYamal("backups.db.dbUsername");
-        String password=disposeYamal("backups.db.dbPassword");
+        String filePath=env.getProperty("backups.db.filePath");
+        String url=env.getProperty("backups.db.dbUrl");
+        String dbName=env.getProperty("backups.db.dbName");
+        String username=env.getProperty("backups.db.dbUsername");
+        String password=env.getProperty("backups.db.dbPassword");
 
         File uploadDir = new File(filePath);
         if (!uploadDir.exists()) {
@@ -47,39 +48,6 @@ public class BackupsDBJob {
             e.printStackTrace();
         }
     }
-
-    public String  disposeYamal(String str){
-        Yaml yaml=new Yaml();
-        InputStream in = BackupsDBJob.class.getResourceAsStream("/application-dev.yml");
-
-        LinkedHashMap<String, Object> sourceMap = (LinkedHashMap<String, Object>) yaml.load(in);
-//        System.out.println("读取到的内容："+sourceMap);
-        String strResult = getString(sourceMap, str);
-//        System.out.println("dbUrl："+strResult);
-        return strResult;
-    }
-
-    public static String getString(LinkedHashMap<String, Object> sourceMap, String key) {
-        String[] keys = key.split("[.]");
-        LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) sourceMap.clone();
-        int length = keys.length;
-        Object resultValue = null;
-        for (int i = 0; i < length; i++) {
-            Object value = map.get(keys[i]);
-            if (i < length - 1) {
-                map = ((LinkedHashMap<String, Object>) value);
-            } else if (value == null) {
-                throw new RuntimeException("key is not exists!");
-            } else {
-                resultValue = value;
-            }
-        }
-        return resultValue.toString();
-    }
-
-
-
-
-
+    
 
 }
