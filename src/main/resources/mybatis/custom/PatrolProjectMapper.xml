@@ -19,7 +19,9 @@
 		select `id`,`code`,`name`,`function` from cus_patrol_project
         <where>  
 		  		  <if test="id != null and id != ''"> and id = #{id} </if>
-		  		  <if test="code != null and code != ''"> and code = #{code} </if>
+			<if test="maxNo != null and maxNo != ''"> and LEFT(`code`,CHAR_LENGTH(#{maxNo})) = #{maxNo} </if>
+
+			<if test="code != null and code != ''"> and code = #{code} </if>
 		  		  <if test="name != null and name != ''"> and name = #{name} </if>
 		  		  <if test="function != null and function != ''"> and function = #{function} </if>
 		  		  <if test="fuzzySearch != null and fuzzySearch != ''"> and CONCAT(name,function) LIKE CONCAT('%',CONCAT(#{fuzzySearch},'%')) </if>
