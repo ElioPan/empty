@@ -59,9 +59,9 @@ public class PatrolApiController {
         if(code>0){
             return R.ok();
         }else if(code == -1){
-            return R.error(messageSourceHandler.getMessage("common.duplicate.names",null));
-        }else if(code == -2){
             return R.error(messageSourceHandler.getMessage("common.duplicate.serialNo",null));
+        }else if(code == -2){
+            return R.error(messageSourceHandler.getMessage("common.duplicate.names",null));
         }
         return R.error();
     }
