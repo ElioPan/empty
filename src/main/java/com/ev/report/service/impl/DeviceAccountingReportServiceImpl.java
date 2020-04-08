@@ -30,7 +30,7 @@ public class DeviceAccountingReportServiceImpl implements DeviceAccountingReport
     public R analysis(DeviceVO deviceVO) {
         deviceVO.setNameAndCode(StringUtils.sqlLike(deviceVO.getNameAndCode()));
         List<Map<String, Object>> deviceDOList = reportDao.deviceList(deviceVO);
-        if (deviceDOList == null) {
+        if (deviceDOList.size() == 0) {
             return R.ok();
         }
         int pageNo = deviceVO.getPageno();
