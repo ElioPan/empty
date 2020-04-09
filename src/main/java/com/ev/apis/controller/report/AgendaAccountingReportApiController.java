@@ -75,20 +75,20 @@ public class AgendaAccountingReportApiController {
         return reportService.applyForReimbursementGroup(commonVO);
     }
 
-    @EvApiByToken(value = "/apis/agenda/applyForReimbursementTypeGroup", method = RequestMethod.POST, apiTitle = "报销统计分析(类型汇总)")
-    @ApiOperation("报销统计分析(类型汇总)")
-    public R applyForReimbursementTypeGroup(CommonVO commonVO) {
-        // 查询列表数据
-        return reportService.applyForReimbursementTypeGroup(commonVO);
-    }
-
-    @EvApiByToken(value = "/apis/agenda/applyForReimbursement", method = RequestMethod.POST, apiTitle = "报销统计分析(详细)")
-    @ApiOperation("报销统计分析(详细)")
-    public R applyForReimbursement(CommonVO commonVO,
-                                   @ApiParam(value = "报销类型") @RequestParam(value = "typeId", defaultValue = "", required = false) Long typeId) {
-        // 查询列表数据
-        return reportService.applyForReimbursement(commonVO,typeId);
-    }
+//    @EvApiByToken(value = "/apis/agenda/applyForReimbursementTypeGroup", method = RequestMethod.POST, apiTitle = "报销统计分析(类型汇总)")
+//    @ApiOperation("报销统计分析(类型汇总)")
+//    public R applyForReimbursementTypeGroup(CommonVO commonVO) {
+//        // 查询列表数据
+//        return reportService.applyForReimbursementTypeGroup(commonVO);
+//    }
+//
+//    @EvApiByToken(value = "/apis/agenda/applyForReimbursement", method = RequestMethod.POST, apiTitle = "报销统计分析(详细)")
+//    @ApiOperation("报销统计分析(详细)")
+//    public R applyForReimbursement(CommonVO commonVO,
+//                                   @ApiParam(value = "报销类型") @RequestParam(value = "typeId", defaultValue = "", required = false) Long typeId) {
+//        // 查询列表数据
+//        return reportService.applyForReimbursement(commonVO,typeId);
+//    }
 
     @EvApiByToken(value = "/apis/agenda/paymentGroup", method = RequestMethod.POST, apiTitle = "付款统计分析(汇总)")
     @ApiOperation("付款统计分析(汇总)")

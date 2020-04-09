@@ -324,7 +324,6 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         boolean showItem = commonVO.getShowItem() == 1;
         boolean showType = commonVO.getShowType() == 1;
         boolean showUser = commonVO.getShowUser() == 1;
-
         Long userIdInfo = commonVO.getUserId();
         Long deptIdInfo = commonVO.getDeptId();
 //        Triple<List<UserForReportVO>, List<Long>, List<Long>> userInfo = this.getUserInfo(pageNo, pageSize, userIdInfo, deptIdInfo);
@@ -478,17 +477,20 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
 
     @Override
     public R applyForReimbursementGroup(CommonVO commonVO) {
-        int pageNo = commonVO.getPageno();
-        int pageSize = commonVO.getPagesize();
+//        int pageNo = commonVO.getPageno();
+//        int pageSize = commonVO.getPagesize();
+        boolean showItem = commonVO.getShowItem() == 1;
+        boolean showType = commonVO.getShowType() == 1;
+        boolean showUser = commonVO.getShowUser() == 1;
         Long userIdInfo = commonVO.getUserId();
         Long deptIdInfo = commonVO.getDeptId();
-        Triple<List<UserForReportVO>, List<Long>, List<Long>> userInfo = this.getUserInfo(pageNo, pageSize, userIdInfo, deptIdInfo);
-        if (userInfo == null) {
-            return R.ok();
-        }
-        List<Long> userIds = userInfo.getMiddle();
-        List<Long> userAllIds = userInfo.getRight();
-        List<UserForReportVO> userForReportVOS = userInfo.getLeft();
+//        Triple<List<UserForReportVO>, List<Long>, List<Long>> userInfo = this.getUserInfo(pageNo, pageSize, userIdInfo, deptIdInfo);
+//        if (userInfo == null) {
+//            return R.ok();
+//        }
+//        List<Long> userIds = userInfo.getMiddle();
+//        List<Long> userAllIds = userInfo.getRight();
+//        List<UserForReportVO> userForReportVOS = userInfo.getLeft();
 
         Map<String, Object> param = Maps.newHashMap();
         String startTime = commonVO.getStartTime();
@@ -496,14 +498,79 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         param.put("status", Constant.APPLY_COMPLETED);
         param.put("startTime", startTime);
         param.put("endTime", endTime);
-        param.put("userIds", userIds);
-        List<Map<String, Object>> applyForReimbursementItem = reportDao.applyForReimbursementItem(param);
-        // 所查询的全部用户
-        param.put("userIds", userAllIds);
-        Double total = reportDao.leaveItemTotal(param);
+        param.put("userId", userIdInfo);
+        param.put("deptId", deptIdInfo);
 
-        int size = userAllIds.size();
-        return R.ok(this.getResult(userForReportVOS, applyForReimbursementItem, total, size, pageNo, pageSize));
+        List<Map<String, Object>> applyForReimbursementItem = reportDao.applyForReimbursementItem(param);
+
+        List<Map<String, Object>> applyForReimbursementGroupType = reportDao.applyForReimbursementGroupType(param);
+
+        List<Map<String, Object>> showList = Lists.newArrayList();
+
+        Map<String,Object> result = Maps.newHashMap();
+        if (applyForReimbursementItem.size() > 0) {
+
+            // 所查询的全部用户
+            Double total = reportDao.applyForReimbursementItemTotal(param);
+
+            List<DictionaryDO> dictionaryDOS = dictionaryService.listByType(Constant.REIM_APPLY_TYPE);
+            Integer typeMax = dictionaryDOS
+                    .stream()
+                    .max(Comparator.comparing(DictionaryDO::getId))
+                    .orElse(new DictionaryDO())
+                    .getId();
+            typeMax = typeMax == null ? 0 : typeMax + 1;
+
+            if(showUser){
+                Map<String, Double> itemGroup = applyForReimbursementItem
+                        .stream()
+                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> Double.parseDouble(v.get("totalCount").toString()), Double::sum));
+                Map<String, String> userMap = applyForReimbursementItem
+                        .stream()
+                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("name").toString(), (v1,v2)->v1));
+                Map<String, String> deptNameMap = applyForReimbursementItem
+                        .stream()
+                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("deptName").toString(), (v1,v2)->v1));
+                Map<String, String> deptIdMap = applyForReimbursementItem
+                        .stream()
+                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("deptId").toString(), (v1,v2)->v1));
+
+                Map<String, Object> map;
+                for (String userId : itemGroup.keySet()) {
+                    map = Maps.newHashMap();
+                    Double totalCount = itemGroup.get(userId);
+                    map.put("userId",userId);
+                    // 颜色标记明细为0 类型合计1, 人员合计2
+                    map.put("sign",2);
+                    map.put("name", userMap.get(userId) + "小计");
+                    map.put("sortNo", typeMax);
+                    map.put("deptName", deptNameMap.get(userId));
+                    map.put("deptId", deptIdMap.get(userId));
+                    map.put("type", typeMax);
+                    map.put("totalCount", totalCount == null ? 0 : totalCount);
+                    showList.add(map);
+                }
+            }
+
+            if (applyForReimbursementGroupType.size() > 0 && showType) {
+                showList.addAll(applyForReimbursementGroupType);
+            }
+
+            if (showItem) {
+                showList.addAll(applyForReimbursementItem);
+            }
+
+            List<Map<String, Object>> collect = showList.stream()
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("type").toString())))
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("userId").toString())))
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("deptId").toString())))
+                    .collect(Collectors.toList());
+            result.put("data",collect);
+            result.put("total",total);
+        }
+
+        return R.ok(result);
     }
 
     @Override

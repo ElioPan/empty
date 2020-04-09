@@ -100,7 +100,7 @@
         <where>
             <if test="status != null and status != ''"> and apply.status = #{status} </if>
             <if test="userId != null and userId != ''"> and apply.over_time_user = #{userId} </if>
-            <if test="deptId != null and status != ''"> and su.dept_id = #{deptId} </if>
+            <if test="deptId != null and deptId != ''"> and su.dept_id = #{deptId} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
             <if test="userIds != null and userIds.size()>0"> and apply.over_time_user IN
@@ -122,6 +122,8 @@
         LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
         <where>
             <if test="status != null and status != ''"> and apply.status = #{status} </if>
+            <if test="userId != null and userId != ''"> and apply.over_time_user = #{userId} </if>
+            <if test="deptId != null and deptId != ''"> and su.dept_id = #{deptId} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
             <if test="userIds != null and userIds.size()>0"> and apply.over_time_user IN
@@ -154,8 +156,8 @@
         LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
         <where>
             <if test="createBy != null and status != ''"> and apply.create_by = #{createBy} </if>
-            <if test="userId != null and status != ''"> and apply.create_by = #{userId} </if>
-            <if test="deptId != null and status != ''"> and su.dept_id = #{deptId} </if>
+            <if test="userId != null and userId != ''"> and apply.create_by = #{userId} </if>
+            <if test="deptId != null and deptId != ''"> and su.dept_id = #{deptId} </if>
             <if test="status != null and status != ''"> and apply.status = #{status} </if>
             <if test="type != null and type != ''"> and apply.type = #{type} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
@@ -179,8 +181,8 @@
         LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
         <where>
             <if test="status != null and status != ''"> and apply.status = #{status} </if>
-            <if test="userId != null and status != ''"> and apply.create_by = #{userId} </if>
-            <if test="deptId != null and status != ''"> and su.dept_id = #{deptId} </if>
+            <if test="userId != null and userId != ''"> and apply.create_by = #{userId} </if>
+            <if test="deptId != null and deptId != ''"> and su.dept_id = #{deptId} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
             <if test="userIds != null and userIds.size()>0"> and apply.create_by IN
@@ -211,8 +213,8 @@
         LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
         <where>
             <if test="createBy != null and createBy != ''"> and apply.create_by = #{createBy} </if>
-            <if test="userId != null and status != ''"> and apply.create_by = #{userId} </if>
-            <if test="deptId != null and status != ''"> and su.dept_id = #{deptId} </if>
+            <if test="userId != null and userId != ''"> and apply.create_by = #{userId} </if>
+            <if test="deptId != null and deptId != ''"> and su.dept_id = #{deptId} </if>
             <if test="status != null and status != ''"> and apply.status = #{status} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
@@ -229,14 +231,17 @@
 
     <select id="applyForReimbursementItem" resultType="java.util.Map">
         SELECT
+        sd.dept_id AS deptId,
         sd.name AS deptName,
         su.name AS `name`,
-        item.create_by AS createBy,
+        item.create_by AS userId,
         item.type AS type,
         cd.name AS typeName,
         item.rei_date AS reiDate,
         item.rei_count AS totalCount,
-        item.rei_item_description AS reiItemDescription
+        item.rei_item_description AS reiItemDescription,
+        0 AS sortNo,
+        0 AS sign
         FROM
         cus_reim_apply_item item
         LEFT JOIN cus_reim_apply cra ON cra.id=item.reim_apply_id
@@ -245,6 +250,8 @@
         LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
         <where>
             <if test="status != null and status != ''"> and cra.status = #{status} </if>
+            <if test="userId != null and userId != ''"> and item.create_by = #{userId} </if>
+            <if test="deptId != null and deptId != ''"> and su.dept_id = #{deptId} </if>
             <if test="createBy != null and status != ''"> and item.create_by = #{createBy} </if>
             <if test="type != null and type != ''"> and item.type = #{type} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT( item.rei_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
@@ -270,6 +277,8 @@
         LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
         <where>
             <if test="status != null and status != ''"> and cra.status = #{status} </if>
+            <if test="userId != null and userId != ''"> and item.create_by = #{userId} </if>
+            <if test="deptId != null and deptId != ''"> and su.dept_id = #{deptId} </if>
             <if test="type != null and type != ''"> and item.type = #{type} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT( item.rei_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT( item.rei_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
@@ -285,10 +294,15 @@
 
     <select id="applyForReimbursementGroupType" resultType="java.util.Map">
         SELECT
+        sd.name AS deptName,
+        sd.dept_id AS deptId,
         item.create_by AS userId,
+        su.`name` AS `name`,
         item.type AS type,
+        item.type AS sortNo,
         CONCAT(cd.name,'小计') AS typeName,
-        SUM(item.rei_count) AS typeTotalCount
+        1 AS sign,
+        SUM(item.rei_count) AS totalCount
         FROM
         cus_reim_apply_item item
         LEFT JOIN cus_reim_apply cra ON cra.id=item.reim_apply_id
@@ -297,6 +311,8 @@
         LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
         <where>
             <if test="status != null and status != ''"> and cra.status = #{status} </if>
+            <if test="userId != null and userId != ''"> and item.create_by = #{userId} </if>
+            <if test="deptId != null and deptId != ''"> and su.dept_id = #{deptId} </if>
             <if test="createBy != null and status != ''"> and item.create_by = #{createBy} </if>
             <if test="type != null and type != ''"> and item.type = #{type} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT( item.rei_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
