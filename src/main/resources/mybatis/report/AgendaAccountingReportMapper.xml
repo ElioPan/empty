@@ -84,12 +84,15 @@
 
     <select id="overtimeForItem" resultType="java.util.Map">
         SELECT
+        su.dept_id AS deptId,
         sd.name AS deptName,
         su.name AS `name`,
-        apply.over_time_user AS createBy,
+        apply.over_time_user AS userId,
         apply.begin_time AS beginTime,
         apply.reason AS reason,
-        apply.time_area AS totalCount
+        apply.time_area AS totalCount,
+        0 AS sortNo,
+        0 AS sign
         FROM
         cus_over_time_apply apply
         LEFT JOIN sys_user su ON su.user_id=apply.over_time_user
@@ -97,6 +100,7 @@
         <where>
             <if test="status != null and status != ''"> and apply.status = #{status} </if>
             <if test="userId != null and userId != ''"> and apply.over_time_user = #{userId} </if>
+            <if test="deptId != null and status != ''"> and su.dept_id = #{deptId} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
             <if test="userIds != null and userIds.size()>0"> and apply.over_time_user IN

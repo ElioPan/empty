@@ -32,41 +32,41 @@ public class AgendaAccountingReportApiController {
         return reportService.execute(commonVO);
     }
 
-    @EvApiByToken(value = "/apis/agenda/overtimeGroup", method = RequestMethod.POST, apiTitle = "加班统计分析(汇总)")
-    @ApiOperation("加班统计分析(汇总)")
+    @EvApiByToken(value = "/apis/agenda/overtimeGroup", method = RequestMethod.POST, apiTitle = "加班统计分析")
+    @ApiOperation("加班统计分析")
     public R overtime(CommonVO commonVO) {
         // 查询列表数据
         return reportService.overtime(commonVO);
     }
 
-    @EvApiByToken(value = "/apis/agenda/overtime", method = RequestMethod.POST, apiTitle = "加班统计分析（详细）")
-    @ApiOperation("加班统计分析（详细）")
-    public R overtimeItem(CommonVO commonVO) {
-        // 查询列表数据
-        return reportService.overtimeItem(commonVO);
-    }
+//    @EvApiByToken(value = "/apis/agenda/overtime", method = RequestMethod.POST, apiTitle = "加班统计分析（详细）")
+//    @ApiOperation("加班统计分析（详细）")
+//    public R overtimeItem(CommonVO commonVO) {
+//        // 查询列表数据
+//        return reportService.overtimeItem(commonVO);
+//    }
 
-    @EvApiByToken(value = "/apis/agenda/leaveGroup", method = RequestMethod.POST, apiTitle = "请假统计分析（总汇总）")
-    @ApiOperation("请假统计分析（总汇总）")
+    @EvApiByToken(value = "/apis/agenda/leaveGroup", method = RequestMethod.POST, apiTitle = "请假统计分析")
+    @ApiOperation("请假统计分析")
     public R leaveGroup(CommonVO commonVO) {
         // 查询列表数据
         return reportService.leaveGroup(commonVO);
     }
 
-    @EvApiByToken(value = "/apis/agenda/leaveTypeGroup", method = RequestMethod.POST, apiTitle = "请假统计分析（类型汇总）")
-    @ApiOperation("请假统计分析（类型汇总）")
-    public R leaveTypeGroup(CommonVO commonVO) {
-        // 查询列表数据
-        return reportService.leaveTypeGroup(commonVO);
-    }
-
-    @EvApiByToken(value = "/apis/agenda/leave", method = RequestMethod.POST, apiTitle = "请假统计分析（详细）")
-    @ApiOperation("请假统计分析（详细）")
-    public R leaveItem(CommonVO commonVO,
-                       @ApiParam(value = "请假类型") @RequestParam(value = "typeId", defaultValue = "", required = false) Long typeId) {
-        // 查询列表数据
-        return reportService.leave(commonVO,typeId);
-    }
+//    @EvApiByToken(value = "/apis/agenda/leaveTypeGroup", method = RequestMethod.POST, apiTitle = "请假统计分析（类型汇总）")
+//    @ApiOperation("请假统计分析（类型汇总）")
+//    public R leaveTypeGroup(CommonVO commonVO) {
+//        // 查询列表数据
+//        return reportService.leaveTypeGroup(commonVO);
+//    }
+//
+//    @EvApiByToken(value = "/apis/agenda/leave", method = RequestMethod.POST, apiTitle = "请假统计分析（详细）")
+//    @ApiOperation("请假统计分析（详细）")
+//    public R leaveItem(CommonVO commonVO,
+//                       @ApiParam(value = "请假类型") @RequestParam(value = "typeId", defaultValue = "", required = false) Long typeId) {
+//        // 查询列表数据
+//        return reportService.leave(commonVO,typeId);
+//    }
 
     @EvApiByToken(value = "/apis/agenda/applyForReimbursement/group", method = RequestMethod.POST, apiTitle = "报销统计分析(汇总)")
     @ApiOperation("报销统计分析(汇总)")
