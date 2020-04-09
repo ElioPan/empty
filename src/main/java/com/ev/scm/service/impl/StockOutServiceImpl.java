@@ -341,6 +341,10 @@ public class StockOutServiceImpl implements StockOutService {
             return R.error(messageSourceHandler.getMessage("scm.stock.code.operateError", null));
         }
         Date periodTime = stockService.getPeriodTime();
+        if (periodTime == null) {
+            return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
+        }
+
         if (stockOutDO.getOutTime().before(periodTime)) {
 //            String[] args = {DateFormatUtil.getFormateDate(periodTime)};
             return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", null));
@@ -452,6 +456,9 @@ public class StockOutServiceImpl implements StockOutService {
     public R audit(Long id, Long outType) {
         StockOutDO stockOutDO = get(id);
         Date periodTime = stockService.getPeriodTime();
+        if (periodTime == null) {
+            return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
+        }
         if (stockOutDO.getOutTime().before(periodTime)) {
 //            String[] args = {DateFormatUtil.getFormateDate(periodTime)};
             return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", null));

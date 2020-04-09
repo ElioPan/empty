@@ -480,4 +480,29 @@
 
 	</update>
 
+	<select id="getPeriodTimeForMysql" resultType="com.ev.scm.domain.StockPeriodDO">
+		SELECT
+		*
+		FROM scm_stock_period
+		LIMIT 0,1
+	</select>
+
+	<update id="updatePeriodTime" parameterType="com.ev.scm.domain.StockPeriodDO">
+		UPDATE
+		scm_stock_period
+		SET
+		period =#{period}
+		WHERE
+		id=#{id}
+	</update>
+	<insert id="savePeriodTime"  parameterType="com.ev.scm.domain.StockPeriodDO" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO scm_stock_period
+		(
+		period
+		)
+		VALUES
+		(
+		#{period}
+		)
+	</insert>
 </mapper>

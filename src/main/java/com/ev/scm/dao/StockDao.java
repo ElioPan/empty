@@ -1,6 +1,7 @@
 package com.ev.scm.dao;
 
 import com.ev.scm.domain.StockDO;
+import com.ev.scm.domain.StockPeriodDO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -42,4 +43,10 @@ public interface StockDao {
 	List<Map<String, Object>> listForMapForCopy(Map<String, Object> param);
 
 	Map<String, Object> countForMapForCopy(Map<String, Object> param);
+
+    StockPeriodDO getPeriodTimeForMysql();
+
+	void savePeriodTime(StockPeriodDO stockPeriodDO);
+
+	void updatePeriodTime(StockPeriodDO periodTimeForMysql);
 }

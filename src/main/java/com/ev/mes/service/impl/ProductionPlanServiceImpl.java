@@ -592,32 +592,32 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
         if (oldPlanCount.compareTo(newPlanCount) != 0) {
             productionPlanAlteration = new ProductionPlanAlterationDO();
             productionPlanAlteration.setProductionPlanId(planId);
-            productionPlanAlteration.setAfterAlteration(oldPlanCount.toPlainString());
-            productionPlanAlteration.setBeforeAlteration(newPlanCount.toPlainString());
+            productionPlanAlteration.setAfterAlteration(newPlanCount.toPlainString());
+            productionPlanAlteration.setBeforeAlteration(oldPlanCount.toPlainString());
             productionPlanAlteration.setAlterationProject("计划生产数量");
             alterationService.save(productionPlanAlteration);
         }
         if (!oldPlanStartTime.equals(newPlanStartTime)) {
             productionPlanAlteration = new ProductionPlanAlterationDO();
             productionPlanAlteration.setProductionPlanId(planId);
-            productionPlanAlteration.setAfterAlteration(DateFormatUtil.getFormateDate(oldPlanStartTime));
-            productionPlanAlteration.setBeforeAlteration(DateFormatUtil.getFormateDate(newPlanStartTime));
+            productionPlanAlteration.setAfterAlteration(DateFormatUtil.getFormateDate(newPlanStartTime));
+            productionPlanAlteration.setBeforeAlteration(DateFormatUtil.getFormateDate(oldPlanStartTime));
             productionPlanAlteration.setAlterationProject("计划开工时间");
             alterationService.save(productionPlanAlteration);
         }
         if (!oldPlanEndTime.equals(newPlanEndTime)) {
             productionPlanAlteration = new ProductionPlanAlterationDO();
             productionPlanAlteration.setProductionPlanId(planId);
-            productionPlanAlteration.setAfterAlteration(DateFormatUtil.getFormateDate(oldPlanEndTime));
-            productionPlanAlteration.setBeforeAlteration(DateFormatUtil.getFormateDate(newPlanEndTime));
+            productionPlanAlteration.setAfterAlteration(DateFormatUtil.getFormateDate(newPlanEndTime));
+            productionPlanAlteration.setBeforeAlteration(DateFormatUtil.getFormateDate(oldPlanEndTime));
             productionPlanAlteration.setAlterationProject("计划完工时间");
             alterationService.save(productionPlanAlteration);
         }
         if (!Objects.equals(oldProDept, newProDept)) {
             productionPlanAlteration = new ProductionPlanAlterationDO();
             productionPlanAlteration.setProductionPlanId(planId);
-            productionPlanAlteration.setAfterAlteration(sysDeptService.get(oldProDept).getName());
-            productionPlanAlteration.setBeforeAlteration(sysDeptService.get(newProDept).getName());
+            productionPlanAlteration.setAfterAlteration(sysDeptService.get(newProDept).getName());
+            productionPlanAlteration.setBeforeAlteration(sysDeptService.get(oldProDept).getName());
             productionPlanAlteration.setAlterationProject("生产部门");
             alterationService.save(productionPlanAlteration);
         }

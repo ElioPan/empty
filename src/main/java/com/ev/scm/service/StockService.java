@@ -2,6 +2,7 @@ package com.ev.scm.service;
 
 import com.ev.framework.utils.R;
 import com.ev.scm.domain.StockDO;
+import com.ev.scm.domain.StockPeriodDO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
@@ -67,5 +68,9 @@ public interface StockService {
 
     Date getPeriodTime();
 
-    int batchSaveForCopy(List<StockDO> stockDOList);
+    StockPeriodDO getPeriodTimeForMysql();
+
+    void batchSaveForCopy(List<StockDO> stockDOList);
+
+    void savePeriodTime(Date period);
 }

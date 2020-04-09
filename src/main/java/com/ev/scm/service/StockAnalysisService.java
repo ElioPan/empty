@@ -17,6 +17,8 @@ public interface StockAnalysisService {
 	StockAnalysisDO get(Long id);
 	
 	List<StockAnalysisDO> list(Map<String, Object> map);
+
+	List<StockAnalysisDO> listGroup(Map<String, Object> map);
 	
 	int count(Map<String, Object> map);
 	

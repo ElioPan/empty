@@ -1,5 +1,6 @@
 package com.ev.mes.service.impl;
 
+import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.mes.dao.ShiftDao;
 import com.ev.mes.domain.ShiftDO;
@@ -7,6 +8,7 @@ import com.ev.mes.service.ShiftService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -16,6 +18,8 @@ import java.util.Objects;
 public class ShiftServiceImpl implements ShiftService {
 	@Autowired
 	private ShiftDao shiftDao;
+	@Autowired
+	private MessageSourceHandler messageSourceHandler;
 	
 	@Override
 	public ShiftDO get(Long id){
@@ -54,7 +58,14 @@ public class ShiftServiceImpl implements ShiftService {
 
 	@Override
 	public R saveAddChangeShift(ShiftDO  shiftDO){
+		Map<String,Object>  map= new HashMap<>();
+
 		if(Objects.nonNull(shiftDO.getId())){
+			map.put("haveId",shiftDO.getId());
+			map.put("code",shiftDO.getCode());
+			if(this.countOfCode(map)>0){
+				return R.error(messageSourceHandler.getMessage("common.duplicate.serialNo",null));
+			}
 			//修改
 			shiftDao.update(shiftDO);
 			return R.ok();
@@ -72,6 +83,11 @@ public class ShiftServiceImpl implements ShiftService {
 //				suffix = list.get(0).getCode();
 //			}
 //			shiftDO.setCode(DateFormatUtil.getWorkOrderno(prefix, suffix));
+			map.put("code",shiftDO.getCode());
+			int ii=this.countOfCode(map);
+			if(this.countOfCode(map)>0){
+				return R.error(messageSourceHandler.getMessage("common.duplicate.serialNo",null));
+			}
 			shiftDao.save(shiftDO);
 			return R.ok();
 		}
@@ -85,6 +101,11 @@ public class ShiftServiceImpl implements ShiftService {
 	@Override
 	public int deletOfShift(Map<String, Object> map) {
 		return shiftDao.deletOfShift(map);
+	}
+
+	@Override
+	public int countOfCode(Map<String, Object> map) {
+		return shiftDao.countOfCode(map);
 	}
 
 

@@ -63,18 +63,12 @@ public class ExpenseServiceImpl implements ExpenseService {
 
 	@Override
 	public R add(ExpenseDO ExpenseDO){
-
+		Map<String,Object>  map= new HashMap<>();
 		if (Objects.isNull(ExpenseDO.getId())) {
-//			String prefix = DateFormatUtil.getWorkOrderno(Constant.FY, new Date());
-//			Map<String, Object> params = Maps.newHashMapWithExpectedSize(3);
-//			params.put("maxNo", prefix);
-//			params.put("offset", 0);
-//			params.put("limit", 1);
-//			List<ExpenseDO> list = expenseDao.list(params);
-//			String suffix = null;
-//			if (list.size() > 0) {
-//				suffix = list.get(0).getCode();
-//			}
+			map.put("newName",ExpenseDO.getName());
+			if(this.countForMap(map)>0){
+				return R.error(messageSourceHandler.getMessage("apis.mes.clientSupplier.duplicationOfName",null));
+			}
 
 			Map<String, Object> param = Maps.newHashMapWithExpectedSize(3);
 			param.put("offset", 0);
@@ -95,6 +89,11 @@ public class ExpenseServiceImpl implements ExpenseService {
 				return R.error();
 			}
 		} else {
+			map.put("newName",ExpenseDO.getName());
+			map.put("haveId",ExpenseDO.getId());
+			if(this.countForMap(map)>0){
+				return R.error(messageSourceHandler.getMessage("apis.mes.clientSupplier.duplicationOfName",null));
+			}
 			int rows = expenseDao.update(ExpenseDO);
 			if (rows > 0) {
 				return R.ok();

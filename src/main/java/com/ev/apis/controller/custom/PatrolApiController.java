@@ -59,9 +59,25 @@ public class PatrolApiController {
         if(code>0){
             return R.ok();
         }else if(code == -1){
-            return R.error(messageSourceHandler.getMessage("common.duplicate.names",null));
-        }else if(code == -2){
             return R.error(messageSourceHandler.getMessage("common.duplicate.serialNo",null));
+        }else if(code == -2){
+            return R.error(messageSourceHandler.getMessage("common.duplicate.names",null));
+        }
+        return R.error();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @EvApiByToken(value = "/apis/patrolProject/updateProject",method = RequestMethod.POST)
+    @ApiOperation("修改巡检标准信息")
+    public R updateProject(PatrolProjectDO project){
+        if(project.getId()!=null){
+            int code = patrolProjectService.update(project);
+            if(code>0){
+                return R.ok();
+            }
+            if(code == -1){
+                return R.error(messageSourceHandler.getMessage("common.duplicate.names",null));
+            }
         }
         return R.error();
     }
@@ -128,14 +144,14 @@ public class PatrolApiController {
     @EvApiByToken(value = "/apis/patrolPlan/startUsing", method = RequestMethod.POST)
     @ApiOperation("启用——巡点检计划")
     @Transactional(rollbackFor = Exception.class)
-    public R startUsing(@ApiParam(value = "计划id", required = true) @RequestParam(value = "ids", defaultValue = "", required = true) Long[] ids) {
+    public R startUsing(@ApiParam(value = "计划id", required = true) @RequestParam(value = "ids", defaultValue = "") Long[] ids) {
         return patrolPlanService.disposeStartUsing(ids);
     }
 
     @EvApiByToken(value = "/apis/patrolPlan/forbidden", method = RequestMethod.POST)
     @ApiOperation("禁用——巡点检计划")
     @Transactional(rollbackFor = Exception.class)
-    public R forbidden(@ApiParam(value = "计划id", required = true) @RequestParam(value = "ids", defaultValue = "", required = true) Long[] ids) {
+    public R forbidden(@ApiParam(value = "计划id", required = true) @RequestParam(value = "ids", defaultValue = "") Long[] ids) {
         return patrolPlanService.disposeForbidden(ids);
     }
 

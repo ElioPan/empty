@@ -35,5 +35,6 @@ public interface ShiftService {
 
 	int deletOfShift(Map<String, Object> map);
 
+	int countOfCode(Map<String, Object> map);
 
 }

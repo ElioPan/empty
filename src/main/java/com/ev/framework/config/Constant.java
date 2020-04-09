@@ -458,4 +458,9 @@ public class Constant {
 	 */
 	public static final Integer FORBIDDEN = 130;
 
+	/**
+	 * 巡检标准
+	 */
+	public static final String XJBZ = "XJBZ";
+
 }

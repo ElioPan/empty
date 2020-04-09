@@ -42,4 +42,6 @@ public interface StockAnalysisDao {
 	Map<String, Object> countForTotal(Map<String, Object> params);
 
 	List<Map<String, Object>> listForMapGroupMateriel(Map<String, Object> params);
+
+	List<StockAnalysisDO> listGroup(Map<String, Object> map);
 }

@@ -165,6 +165,16 @@
 		</foreach>
 	</update>
 
+	<select id="countOfCode" resultType="int">
+		select
+		count(*)
+		from
+		mes_shift
+		<where>
+			<if test="haveId != null and haveId != ''"> and id &lt;&gt; #{haveId} </if>
+			<if test="code != null and code != ''"> and code = #{code} </if>
+		</where>
+	</select>
 
-	
+
 </mapper>

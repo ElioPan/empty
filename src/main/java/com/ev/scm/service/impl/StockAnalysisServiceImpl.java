@@ -26,7 +26,12 @@ public class StockAnalysisServiceImpl implements StockAnalysisService {
 	public List<StockAnalysisDO> list(Map<String, Object> map){
 		return stockAnalysisDao.list(map);
 	}
-	
+
+	@Override
+	public List<StockAnalysisDO> listGroup(Map<String, Object> map) {
+		return stockAnalysisDao.listGroup(map);
+	}
+
 	@Override
 	public int count(Map<String, Object> map){
 		return stockAnalysisDao.count(map);

@@ -1,9 +1,10 @@
 package com.ev.custom.service.impl;
 
 import com.ev.apis.model.DsResultResponse;
-import com.ev.custom.service.PatrolDetailService;
 import com.ev.custom.service.PatrolPlanDetailService;
+import com.ev.framework.config.Constant;
 import com.ev.framework.il8n.MessageSourceHandler;
+import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.google.common.collect.Maps;
@@ -11,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,12 +47,24 @@ public class PatrolProjectServiceImpl implements PatrolProjectService {
 	@Override
 	public int save(PatrolProjectDO patrolProject){
 		Map<String,Object> param= Maps.newHashMapWithExpectedSize(2);
+		String code = patrolProject.getCode();
+		if (StringUtils.isBlank(code) || code.startsWith(Constant.XJBZ)) {
+			param.put("maxNo", Constant.XJBZ);
+			param.put("offset", 0);
+			param.put("limit", 1);
+
+			List<PatrolProjectDO> list = this.list(param);
+			patrolProject.setCode(DateFormatUtil.getWorkOrderno(Constant.XJBZ, list.size() > 0 ? list.get(0).getCode() : null, 6));
+		}else {
+			patrolProject.setCode(code.trim());
+		}
+
 		param.put("code", patrolProject.getCode());
-		param.put("deFlag", patrolProject.getDelFlag());
 		List<PatrolProjectDO> list = this.list(param);
 		if(list.size()>0){
 			return -1;
 		}
+
 //		PatrolProjectDO projectName = this.patrolProjectDao.getByName(patrolProject.getName());
 		param.put("name", patrolProject.getName());
 		List<PatrolProjectDO> lists = this.list(param);
@@ -64,6 +76,15 @@ public class PatrolProjectServiceImpl implements PatrolProjectService {
 	
 	@Override
 	public int update(PatrolProjectDO patrolProject){
+		Map<String,Object> param= Maps.newHashMapWithExpectedSize(2);
+		PatrolProjectDO patrolProjectDO = this.get(patrolProject.getId());
+		if(!patrolProjectDO.getName().equals(patrolProject.getName())){
+			param.put("name", patrolProject.getName());
+			List<PatrolProjectDO> lists = this.list(param);
+			if(lists.size()>0){
+				return -1;
+			}
+		}
 		return patrolProjectDao.update(patrolProject);
 	}
 	

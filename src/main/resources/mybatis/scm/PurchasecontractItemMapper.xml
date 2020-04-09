@@ -236,7 +236,7 @@
 		scm_purchasecontract_item a
 		LEFT JOIN scm_purchasecontract b on a.purchase_contract_id=b.id
 		<where>
-			<if test="purchaseItemId != null and purchaseItemId != ''"> and b.id<![CDATA[<>]]>#{contractId}</if>
+			<if test="contractId != null and contractId != ''"> and b.id &lt;&gt; #{contractId}</if>
 			<if test="sourceId != null and sourceId != ''"> and a.source_id = #{sourceId} </if>
 			<if test="sourceType != null and sourceType != ''"> and a.source_type = #{sourceType} </if>
 		</where>
