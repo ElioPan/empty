@@ -406,7 +406,9 @@
         process.`name`  AS processName,
         IFNULL(report.conformity_count,0) AS conformityCount,
         IFNULL(detail.labour_price,0) AS labourPrice,
-        IFNULL(report.conformity_count,0)*IFNULL(detail.labour_price,0) AS totalPrice
+        IFNULL(report.conformity_count,0)*IFNULL(detail.labour_price,0) AS totalPrice,
+        0 AS sign,
+        report.`create_by` AS sortNo
         FROM mes_process_report report
         LEFT JOIN mes_dispatch_item dispatch ON dispatch.id = report.dispatch_item_id
         LEFT JOIN mes_working_procedure_detail detail ON detail.id = dispatch.foriegn_id

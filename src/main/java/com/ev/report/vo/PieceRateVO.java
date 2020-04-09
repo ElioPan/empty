@@ -3,7 +3,6 @@ package com.ev.report.vo;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -43,10 +42,15 @@ public class PieceRateVO implements Serializable {
 	// 工序名称
 	private String processName;
 	// 完工数量
-	private BigDecimal conformityCount;
+	private Double conformityCount;
 	// 单件工资
-	private BigDecimal labourPrice;
+	private Double labourPrice;
 	// 计件工资合计
-	private BigDecimal totalPrice;
+	private Double totalPrice;
+
+	// 标记 部门总计标2 用户总计标1 详情标0
+	private int sign;
+	// 排序号
+	private long sortNo;
 
 }

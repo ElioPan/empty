@@ -115,32 +115,32 @@ public class SmartManufacturingAccountingReportApiController {
         return R.ok(results);
     }
 
-    @EvApiByToken(value = "/apis/smartManufacturing/pieceRate/groupByDept", method = RequestMethod.POST, apiTitle = "计件工资统计(部门汇总)")
+    @EvApiByToken(value = "/apis/smartManufacturing/pieceRate", method = RequestMethod.POST, apiTitle = "计件工资统计(部门汇总)")
     @ApiOperation("计件工资统计(部门汇总)")
     public R pieceRateGroupByDept(
             CommonVO commonVO
     ) {
         // 查询列表数据
-        return reportService.pieceRateGroupByDept(commonVO);
+        return reportService.pieceRateGroup(commonVO);
     }
 
-    @EvApiByToken(value = "/apis/smartManufacturing/pieceRate/groupByUser", method = RequestMethod.POST, apiTitle = "计件工资统计(人员汇总)")
-    @ApiOperation("计件工资统计(人员汇总)")
-    public R pieceRateGroupByUser(
-            CommonVO commonVO
-    ) {
-        // 查询列表数据
-        return reportService.pieceRateGroupByUser(commonVO);
-    }
-
-    @EvApiByToken(value = "/apis/smartManufacturing/pieceRate", method = RequestMethod.POST, apiTitle = "计件工资统计(详细列表)")
-    @ApiOperation("计件工资统计(详细列表)")
-    public R pieceRate(
-            CommonVO commonVO
-    ) {
-        // 查询列表数据
-        return reportService.pieceRate(commonVO);
-    }
+//    @EvApiByToken(value = "/apis/smartManufacturing/pieceRate/groupByUser", method = RequestMethod.POST, apiTitle = "计件工资统计(人员汇总)")
+//    @ApiOperation("计件工资统计(人员汇总)")
+//    public R pieceRateGroupByUser(
+//            CommonVO commonVO
+//    ) {
+//        // 查询列表数据
+//        return reportService.pieceRateGroupByUser(commonVO);
+//    }
+//
+//    @EvApiByToken(value = "/apis/smartManufacturing/pieceRate", method = RequestMethod.POST, apiTitle = "计件工资统计(详细列表)")
+//    @ApiOperation("计件工资统计(详细列表)")
+//    public R pieceRate(
+//            CommonVO commonVO
+//    ) {
+//        // 查询列表数据
+//        return reportService.pieceRate(commonVO);
+//    }
 
     @EvApiByToken(value = "/apis/smartManufacturing/productionBatch", method = RequestMethod.POST, apiTitle = "生产批次跟踪（生产计划列表）")
     @ApiOperation("生产批次跟踪（生产计划列表）")

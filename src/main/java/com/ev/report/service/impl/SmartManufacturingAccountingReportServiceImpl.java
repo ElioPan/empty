@@ -1,10 +1,8 @@
 package com.ev.report.service.impl;
 
-import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.utils.MathUtils;
-import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
 import com.ev.report.dao.SmartManufacturingAccountingReportDao;
 import com.ev.report.service.SmartManufacturingAccountingReportService;
@@ -16,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -371,55 +370,106 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
     }
 
     @Override
-    public R pieceRateGroupByDept(CommonVO commonVO) {
-        int pageNo = commonVO.getPageno();
-        int pageSize = commonVO.getPagesize();
+    public R pieceRateGroup(CommonVO commonVO) {
+//        int pageNo = commonVO.getPageno();
+////        int pageSize = commonVO.getPagesize();
+        boolean showItem = commonVO.getShowItem() == 1;
+        boolean showUser = commonVO.getShowType() == 1;
+        boolean showDept = commonVO.getShowUser() == 1;
         Long userIdInfo = commonVO.getUserId();
         Long deptIdInfo = commonVO.getDeptId();
-        // 获取所有的报工单
+
         Map<String, Object> param = Maps.newHashMap();
         param.put("userId", userIdInfo);
         param.put("deptId", deptIdInfo);
-        List<PieceRateVO> pieceRateVOLists = reportDao.pieceRateItem(param);
-        if (pieceRateVOLists.size() == 0) {
-            return R.ok();
-        }
-        List<PieceRateVO> pieceRateVOList = PageUtils.startPage(pieceRateVOLists, pageNo, pageSize);
-        // 各个部门工资小计
-        Map<Long, BigDecimal> deptTotal = pieceRateVOList
-                .stream()
-                .collect(Collectors.toMap(PieceRateVO::getDeptId, PieceRateVO::getTotalPrice, BigDecimal::add));
-        Map<Long, String> deptNameMap = pieceRateVOList
-                .stream()
-                .collect(Collectors.toMap(PieceRateVO::getDeptId, PieceRateVO::getDeptName, (v1, v2) -> v1));
-        List<Map<String, Object>> data = Lists.newArrayList();
-        Map<String, Object> map;
-        for (Long s : deptTotal.keySet()) {
-            map = Maps.newHashMap();
-            map.put("deptId", s);
-            map.put("deptName", deptNameMap.get(s) + "小计");
-            map.put("totalPieceRate", deptTotal.get(s));
-            data.add(map);
-        }
-        // 获取不分页的总合计
-        BigDecimal total = pieceRateVOLists
-                .stream()
-                .map(PieceRateVO::getTotalPrice)
-                .reduce(BigDecimal::add)
-                .orElse(BigDecimal.ZERO);
 
-        Map<String, Object> results = Maps.newHashMap();
-        // 获取部门个数
-        int size = (int) pieceRateVOLists
-                .stream()
-                .map(PieceRateVO::getDeptId)
-                .distinct()
-                .count();
-        if (data.size() > 0) {
-            results.put("total", total);
-            results.put("data", new DsResultResponse(pageNo, pageSize, size, data));
+        List<PieceRateVO> showList = Lists.newArrayList();
+        // 获取所有的报工单
+        List<PieceRateVO> pieceRateVOLists = reportDao.pieceRateItem(param);
+
+        Map<String,Object> result = Maps.newHashMap();
+        if (pieceRateVOLists.size() > 0) {
+            // 各个部门工资小计
+            Long typeMax = pieceRateVOLists
+                    .stream()
+                    .max(Comparator.comparing(PieceRateVO::getOperator))
+                    .orElse(new PieceRateVO())
+                    .getId();
+            typeMax = typeMax == null ? 0 : typeMax + 1;
+
+            Map<Long, String> deptNameMap = pieceRateVOLists
+                    .stream()
+                    .collect(Collectors.toMap(PieceRateVO::getDeptId, PieceRateVO::getDeptName, (v1, v2) -> v1));
+
+            // 展示部门合计
+            if (showDept) {
+                Map<Long, Double> deptTotal = pieceRateVOLists
+                        .stream()
+                        .collect(Collectors.toMap(PieceRateVO::getDeptId, PieceRateVO::getTotalPrice, Double::sum));
+                                PieceRateVO pieceRateVO;
+                for (Long s : deptTotal.keySet()) {
+                    pieceRateVO = new PieceRateVO();
+                    Double totalPieceRate = deptTotal.get(s);
+                    // 部门总计标2 用户总计标1 详情标0
+                    pieceRateVO.setSign(2);
+                    pieceRateVO.setDeptId(s);
+                    pieceRateVO.setDeptName(deptNameMap.get(s) + "小计");
+                    pieceRateVO.setOperator(typeMax);
+                    pieceRateVO.setSortNo(typeMax);
+                    pieceRateVO.setTotalPrice( totalPieceRate == null ? 0.0d : totalPieceRate);
+                    showList.add(pieceRateVO);
+                }
+            }
+
+            // 展示用户合计
+            if (showUser) {
+                Map<Long, Map<Long, Double>> priceGroupByDeptAndUser = pieceRateVOLists
+                        .stream()
+                        .collect(
+                                Collectors.groupingBy(PieceRateVO::getDeptId
+                                        , Collectors.groupingBy(PieceRateVO::getOperator
+                                                , Collectors.summingDouble(PieceRateVO::getTotalPrice))));
+                PieceRateVO pieceRateVO;
+                Map<Long, Double> groupByUser;
+                for (Long s : priceGroupByDeptAndUser.keySet()) {
+                    groupByUser = priceGroupByDeptAndUser.get(s);
+                    for (Long userId : groupByUser.keySet()) {
+                        pieceRateVO = new PieceRateVO();
+                        Double totalPieceRate = groupByUser.get(userId);
+                        // 部门总计标2 用户总计标1 详情标0
+                        pieceRateVO.setSign(1);
+                        pieceRateVO.setDeptId(s);
+                        pieceRateVO.setDeptName(deptNameMap.get(s) + "小计");
+                        pieceRateVO.setOperator(userId);
+                        pieceRateVO.setSortNo(userId);
+                        pieceRateVO.setTotalPrice( totalPieceRate == null ? 0.0d : totalPieceRate);
+                        showList.add(pieceRateVO);
+                    }
+                }
+            }
+            if (showItem) {
+                showList.addAll(pieceRateVOLists);
+            }
+
+            // 总合计
+            double total = pieceRateVOLists
+                    .stream()
+                    .map(PieceRateVO::getTotalPrice)
+                    .reduce(Double::sum)
+                    .orElse(0.0d);
+
+            // 排序
+            List<PieceRateVO> collect = showList.stream()
+                    .sorted(Comparator.comparing(PieceRateVO::getSortNo))
+                    .sorted(Comparator.comparing(PieceRateVO::getOperator))
+                    .sorted(Comparator.comparing(PieceRateVO::getDeptId))
+                    .collect(Collectors.toList());
+
+            result.put("data", collect);
+            result.put("total", total);
+
         }
-        return R.ok(results);
+        return R.ok(result);
     }
 
     @Override
@@ -435,9 +485,9 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
             return R.ok();
         }
         // 各个部门工资小计
-        Map<Long, BigDecimal> userTotal = pieceRateVOLists
+        Map<Long, Double> userTotal = pieceRateVOLists
                 .stream()
-                .collect(Collectors.toMap(PieceRateVO::getOperator, PieceRateVO::getTotalPrice, BigDecimal::add));
+                .collect(Collectors.toMap(PieceRateVO::getOperator, PieceRateVO::getTotalPrice, Double::sum));
         Map<Long, String> userNameMap = pieceRateVOLists
                 .stream()
                 .collect(Collectors.toMap(PieceRateVO::getOperator, PieceRateVO::getOperatorName, (v1, v2) -> v1));
