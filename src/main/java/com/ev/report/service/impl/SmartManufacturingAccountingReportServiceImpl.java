@@ -371,8 +371,6 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
 
     @Override
     public R pieceRateGroup(CommonVO commonVO) {
-//        int pageNo = commonVO.getPageno();
-////        int pageSize = commonVO.getPagesize();
         boolean showItem = commonVO.getShowItem() == 1;
         boolean showUser = commonVO.getShowType() == 1;
         boolean showDept = commonVO.getShowUser() == 1;
@@ -400,6 +398,10 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
             Map<Long, String> deptNameMap = pieceRateVOLists
                     .stream()
                     .collect(Collectors.toMap(PieceRateVO::getDeptId, PieceRateVO::getDeptName, (v1, v2) -> v1));
+
+            Map<Long, String> userNameMap = pieceRateVOLists
+                    .stream()
+                    .collect(Collectors.toMap(PieceRateVO::getOperator, PieceRateVO::getOperatorName, (v1, v2) -> v1));
 
             // 展示部门合计
             if (showDept) {
@@ -439,7 +441,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                         // 部门总计标2 用户总计标1 详情标0
                         pieceRateVO.setSign(1);
                         pieceRateVO.setDeptId(s);
-                        pieceRateVO.setDeptName(deptNameMap.get(s) + "小计");
+                        pieceRateVO.setDeptName(userNameMap.get(userId) + "小计");
                         pieceRateVO.setOperator(userId);
                         pieceRateVO.setSortNo(userId);
                         pieceRateVO.setTotalPrice( totalPieceRate == null ? 0.0d : totalPieceRate);
