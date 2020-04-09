@@ -68,8 +68,8 @@ public class AgendaAccountingReportApiController {
 //        return reportService.leave(commonVO,typeId);
 //    }
 
-    @EvApiByToken(value = "/apis/agenda/applyForReimbursement/group", method = RequestMethod.POST, apiTitle = "报销统计分析(汇总)")
-    @ApiOperation("报销统计分析(汇总)")
+    @EvApiByToken(value = "/apis/agenda/applyForReimbursement/group", method = RequestMethod.POST, apiTitle = "报销统计分析")
+    @ApiOperation("报销统计分析")
     public R applyForReimbursementGroup(CommonVO commonVO) {
         // 查询列表数据
         return reportService.applyForReimbursementGroup(commonVO);
@@ -97,10 +97,10 @@ public class AgendaAccountingReportApiController {
         return reportService.payment(commonVO);
     }
 
-    @EvApiByToken(value = "/apis/agenda/payment", method = RequestMethod.POST, apiTitle = "付款统计分析(详细)")
-    @ApiOperation("付款统计分析(详细)")
-    public R paymentItem(CommonVO commonVO) {
-        // 查询列表数据
-        return reportService.paymentItem(commonVO);
-    }
+//    @EvApiByToken(value = "/apis/agenda/payment", method = RequestMethod.POST, apiTitle = "付款统计分析(详细)")
+//    @ApiOperation("付款统计分析(详细)")
+//    public R paymentItem(CommonVO commonVO) {
+//        // 查询列表数据
+//        return reportService.paymentItem(commonVO);
+//    }
 }

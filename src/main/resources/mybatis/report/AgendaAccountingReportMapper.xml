@@ -330,13 +330,16 @@
 
     <select id="paymentForItem" resultType="java.util.Map">
         SELECT
+        su.dept_id AS deptId,
         sd.name AS deptName,
         su.name AS `name`,
-        apply.create_by AS createBy,
+        apply.create_by AS userId,
         apply.pay_user AS payUser,
         apply.pay_date AS payDate,
         apply.total_number AS totalCount,
-        apply.pay_reason AS payReason
+        apply.pay_reason AS payReason,
+        0 AS sortNo,
+        0 AS sign
         FROM
         cus_pay_apply apply
         LEFT JOIN sys_user su ON su.user_id=apply.create_by
@@ -344,6 +347,7 @@
         <where>
             <if test="status != null and status != ''"> and apply.status = #{status} </if>
             <if test="userId != null and userId != ''"> and apply.create_by = #{userId} </if>
+            <if test="deptId != null and deptId != ''"> and su.dept_id = #{deptId} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(apply.pay_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(apply.pay_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
             <if test="userIds != null and userIds.size()>0"> and apply.create_by IN
@@ -366,6 +370,7 @@
         <where>
             <if test="status != null and status != ''"> and apply.status = #{status} </if>
             <if test="userId != null and userId != ''"> and apply.create_by = #{userId} </if>
+            <if test="deptId != null and deptId != ''"> and su.dept_id = #{deptId} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(apply.pay_date,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(apply.pay_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
             <if test="userIds != null and userIds.size()>0"> and apply.create_by IN
@@ -377,6 +382,7 @@
             </if>
         </where>
     </select>
+
     <select id="leaveItemList" resultType="com.ev.report.vo.AgendaAccountingReportVO">
         SELECT
         sd.name AS deptName,
