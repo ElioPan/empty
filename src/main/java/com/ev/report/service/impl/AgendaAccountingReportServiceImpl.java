@@ -305,6 +305,8 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         Map<String,Object> result = Maps.newHashMap();
         if (leaveForItem.size() > 0) {
             List<Map<String, Object>> leaveForItemGroupType = reportDao.leaveForItemGroupType(param);
+            leaveForItem.addAll(leaveForItemGroupType);
+
             // 所查询的全部用户
             param.put("userIds", userAllIds);
             Double total = reportDao.leaveItemTotal(param);
@@ -323,6 +325,9 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
             Map<String, String> userMap = leaveForItem
                     .stream()
                     .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("name").toString(), (v1,v2)->v1));
+            Map<String, String> deptMap = leaveForItem
+                    .stream()
+                    .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("deptName").toString(), (v1,v2)->v1));
 
             Map<String, Object> map;
             for (String userId : itemGroup.keySet()) {
@@ -333,11 +338,11 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                 map.put("sign",2);
                 map.put("name", userMap.get(userId) + "小计");
                 map.put("sortNo", typeMax);
+                map.put("deptName", deptMap.get(userId));
                 map.put("type", typeMax);
                 map.put("totalCount", totalCount == null ? 0 : totalCount);
                 leaveForItem.add(map);
             }
-            leaveForItem.addAll(leaveForItemGroupType);
 
             List<Map<String, Object>> collect = leaveForItem.stream()
                     .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))

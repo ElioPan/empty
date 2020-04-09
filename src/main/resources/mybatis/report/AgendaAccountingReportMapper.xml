@@ -186,6 +186,7 @@
 
     <select id="leaveForItemGroupType" resultType="java.util.Map">
         SELECT
+        sd.name AS deptName,
         apply.create_by AS userId,
         su.`name` AS `name`,
         apply.type AS `type`,
