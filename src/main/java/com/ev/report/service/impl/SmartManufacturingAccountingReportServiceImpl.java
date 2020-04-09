@@ -193,10 +193,10 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
         param.put("sourceType", ConstantForMES.SCJH);
         List<StockInItemVO> stockInItemList = reportDao.stockInItem(param);
 
-        // TODO 完工数量(现为检验数量)
-        Map<Long, BigDecimal> completionCountMap = materielInspectionList
-                .stream()
-                .collect(Collectors.toMap(MaterialInspectionVO::getSourceId, MaterialInspectionVO::getInspectionCount, BigDecimal::add));
+        // 完工数量(为入库数量)
+//        Map<Long, BigDecimal> completionCountMap = materielInspectionList
+//                .stream()
+//                .collect(Collectors.toMap(MaterialInspectionVO::getSourceId, MaterialInspectionVO::getInspectionCount, BigDecimal::add));
 
         // 检验数量（产品检验内的报检数量）
         Map<Long, BigDecimal> checkCountMap = materielInspectionList
@@ -236,8 +236,8 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
             );
             totalMap.put("totalPlanCount", totalPlanCount);
 
-            // TODO 完工数量合计
-            BigDecimal totalCompletionCount = completionCountMap
+            // 完工数量(为入库数量)
+            BigDecimal totalCompletionCount = stockInCountMap
                     .values()
                     .stream()
                     .reduce(BigDecimal::add)
@@ -301,8 +301,8 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
             // 计划生产数量
             BigDecimal planCount = MathUtils.getBigDecimal(map.get("planCount"));
 
-            // TODO 完工数量
-            BigDecimal completionCount = completionCountMap.getOrDefault(planId, BigDecimal.ZERO);
+            // 完工数量(为入库数量)
+            BigDecimal completionCount = stockInCountMap.getOrDefault(planId, BigDecimal.ZERO);
             map.put("completionCount", completionCount);
 
             // 差异数量 差异数量= 计划数量-完工数量
