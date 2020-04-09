@@ -305,7 +305,6 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         Map<String,Object> result = Maps.newHashMap();
         if (leaveForItem.size() > 0) {
             List<Map<String, Object>> leaveForItemGroupType = reportDao.leaveForItemGroupType(param);
-            leaveForItem.addAll(leaveForItemGroupType);
 
             // 所查询的全部用户
             param.put("userIds", userAllIds);
@@ -343,6 +342,8 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                 map.put("totalCount", totalCount == null ? 0 : totalCount);
                 leaveForItem.add(map);
             }
+
+            leaveForItem.addAll(leaveForItemGroupType);
 
             List<Map<String, Object>> collect = leaveForItem.stream()
                     .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
