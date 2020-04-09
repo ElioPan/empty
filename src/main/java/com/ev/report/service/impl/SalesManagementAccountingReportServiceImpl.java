@@ -2,6 +2,8 @@ package com.ev.report.service.impl;
 
 import com.ev.report.dao.SalesManagementAccountingReportDao;
 import com.ev.report.service.SalesManagementAccountingReportService;
+import com.ev.report.vo.ContractPayItemVO;
+import com.ev.report.vo.ContractBillItemVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,5 +35,15 @@ public class SalesManagementAccountingReportServiceImpl implements SalesManageme
     @Override
     public List<Map<String, Object>> balanceList(Map<String, Object> params) {
         return reportDao.balanceList(params);
+    }
+
+    @Override
+    public List<ContractBillItemVO> stockBillItem(Map<String, Object> params) {
+        return reportDao.stockBillItem(params);
+    }
+
+    @Override
+    public List<ContractPayItemVO> contractPayItem(Map<String, Object> params) {
+        return reportDao.contractPayItem(params);
     }
 }

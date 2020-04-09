@@ -294,6 +294,14 @@
                     </if>
                 </foreach>
             </if>
+            <if test="sourceIds != null and sourceIds.size()>0"> and item.source_id IN
+                <foreach item="item" collection="sourceIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+            <if test="auditSign != null and auditSign != ''"> and stock.audit_sign = #{auditSign} </if>
             <if test="sourceType != null and sourceType != ''"> and item.source_type = #{sourceType} </if>
             <if test="planId != null and planId != ''"> and item.source_id = #{planId} </if>
             <if test="materielId != null and materielId != ''"> and item.materiel_id = #{materielId} </if>
@@ -312,6 +320,9 @@
         materiel.`specification` AS specification,
         dic.`name` AS unitUomName,
         item.`batch`,
+        item.`source_id`,
+        item.`source_code`,
+        item.`amount`,
         item.`count`
         FROM
         scm_stock_out_item item
@@ -328,7 +339,15 @@
                     </if>
                 </foreach>
             </if>
+            <if test="sourceIds != null and sourceIds.size()>0"> and item.source_id IN
+                <foreach item="item" collection="sourceIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
             <if test="sourceType != null and sourceType != ''"> and item.source_type = #{sourceType} </if>
+            <if test="auditSign != null and auditSign != ''"> and stock.audit_sign = #{auditSign} </if>
             <if test="planId != null and planId != ''"> and feeding.production_plan_id = #{planId} </if>
             <if test="materielId != null and materielId != ''"> and item.materiel_id = #{materielId} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(stock.out_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>

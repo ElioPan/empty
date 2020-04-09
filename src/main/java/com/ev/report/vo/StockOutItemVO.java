@@ -34,6 +34,12 @@ public class StockOutItemVO implements Serializable {
 	//批号
 	private String batch;
 	//领用数量
-	private BigDecimal count;
+	private Double count;
+	//领用金额
+	private Double amount;
+	// 源单ID
+	private Long sourceId;
+	// 源单单号
+	private String sourceCode;
 
 }

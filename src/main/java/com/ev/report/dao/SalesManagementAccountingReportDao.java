@@ -1,5 +1,7 @@
 package com.ev.report.dao;
 
+import com.ev.report.vo.ContractPayItemVO;
+import com.ev.report.vo.ContractBillItemVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -22,4 +24,8 @@ public interface SalesManagementAccountingReportDao {
     List<Map<String, Object>> summaryList(Map<String, Object> params);
 
     List<Map<String, Object>> balanceList(Map<String, Object> params);
+
+    List<ContractBillItemVO> stockBillItem(Map<String, Object> params);
+
+    List<ContractPayItemVO> contractPayItem(Map<String, Object> params);
 }

@@ -22,7 +22,8 @@
         unitUom.name AS unitUomName,
         item.`count` AS `count`,
         item.`tax_unit_price` AS taxUnitPrice,
-        item.`tax_amount` AS taxAmount
+        item.`tax_amount` AS taxAmount,
+        0 AS sortNo
         FROM
         scm_salescontract_item item
         LEFT JOIN scm_salescontract sales ON sales.id = item.salescontract_id
@@ -160,6 +161,46 @@
         GROUP BY pay.salescontract_id
         ORDER BY sales.contract_date,unreceivedAmount DESC
 
+    </select>
+    <select id="stockBillItem" resultType="com.ev.report.vo.ContractBillItemVO">
+        SELECT
+        item.`id`,
+        bill.bill_code AS `code`,
+        item.`source_id`,
+        item.`source_code`,
+        item.amount,
+        item.`count`
+        FROM
+        scm_salesbill_item item
+        LEFT JOIN scm_salesbill bill ON bill.id=item.salesbill_id
+        <where>
+        <if test="sourceIds != null and sourceIds.size()>0"> and item.source_id IN
+            <foreach item="item" collection="sourceIds" open="(" separator="," close=")" index="index">
+                <if test="item!=null">
+                    #{item}
+                </if>
+            </foreach>
+        </if>
+        <if test="sourceType != null and sourceType != ''"> and item.source_type = #{sourceType} </if>
+        <if test="auditSign != null and auditSign != ''"> and bill.audit_sign = #{auditSign} </if>
+        </where>
+    </select>
+    <select id="contractPayItem" resultType="com.ev.report.vo.ContractPayItemVO">
+        SELECT
+        id,
+        received_amount,
+        unpay_amount AS unReceivedAmount,
+        salescontract_id AS sourceId
+        FROM scm_salescontract_pay
+        <where>
+            <if test="sourceIds != null and sourceIds.size()>0"> and salescontract_id IN
+                <foreach item="item" collection="sourceIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
     </select>
 
 </mapper>

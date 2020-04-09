@@ -513,6 +513,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
         // 查询领料单
         param.put("planId", id);
         param.put("sourceType", ConstantForMES.SCTL);
+        param.put("auditSign", ConstantForMES.OK_AUDITED);
         List<StockOutItemVO> stockOutItemList = reportDao.stockOutItem(param);
         // 查询入库单
         param.put("sourceType", ConstantForMES.SCJH);
