@@ -184,7 +184,7 @@ public class PatrolApiController {
             }
         }
 		params.put("engineerId", engineerId);
-		params.put("planName", planName);
+		params.put("planName", StringUtils.sqlLike(planName));
 		params.put("startTime", startTime);
 		params.put("endTime", endTime);
 		params.put("status", status);
