@@ -23,11 +23,6 @@ public class BackupsDBJob {
 
     protected void executeInternal()throws Exception {
 
-//        String filePath="D:\\db_backups";
-//        String url="120.132.17.220";
-//        String dbName="xinsoft-gyhl";
-//        String username="xinsoft";
-//        String password="xinsoft411";
         String filePath=env.getProperty("backups.db.filePath");
         String url=env.getProperty("backups.db.dbUrl");
         String dbName=env.getProperty("backups.db.dbName");
@@ -38,9 +33,21 @@ public class BackupsDBJob {
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
         }
-
         StringBuilder cmds =new StringBuilder();
-        cmds.append("cmd /c mysqldump").append(" -u").append(username).append(" -p").append(password).append(" -h").append(url).append(" ").append(dbName).append(" > ").append(filePath).append("\\").append(dbName+new java.util.Date().getTime()).append(".sql");
+        cmds.append("cmd /c mysqldump")
+            .append(" -u")
+            .append(username)
+            .append(" -p")
+            .append(password)
+            .append(" -h")
+            .append(url)
+            .append(" ")
+            .append(dbName)
+            .append(" > ")
+            .append(filePath)
+            .append("\\")
+            .append(dbName+new java.util.Date().getTime())
+            .append(".sql");
         try {
             Process process = Runtime.getRuntime().exec(cmds.toString());
 //            System.out.println("备份数据库成功!!!"+new Date());
@@ -48,6 +55,5 @@ public class BackupsDBJob {
             e.printStackTrace();
         }
     }
-    
 
 }
