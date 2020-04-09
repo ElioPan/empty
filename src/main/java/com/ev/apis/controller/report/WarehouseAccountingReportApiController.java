@@ -7,8 +7,6 @@ import com.ev.framework.utils.DatesUtil;
 import com.ev.framework.utils.R;
 import com.ev.report.service.WarehouseAccountingReportService;
 import com.ev.report.vo.InOutStockItemVO;
-import com.ev.report.vo.StockInItemVO;
-import com.ev.report.vo.StockOutItemVO;
 import com.ev.scm.service.StockAnalysisService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
@@ -68,14 +66,23 @@ public class WarehouseAccountingReportApiController {
     @ApiOperation("仓库收发明细")
     public R inOutStockItem(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
                             @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
-                            @ApiParam(value = "计算时间") @RequestParam(value = "period", defaultValue = "", required = false) String period,
+                            @ApiParam(value = "开始时间", required = true) @RequestParam(value = "startTime", defaultValue = "") String startTime,
+                            @ApiParam(value = "结束时间", required = true) @RequestParam(value = "endTime", defaultValue = "") String endTime,
                             @ApiParam(value = "物料类型") @RequestParam(value = "materielType", defaultValue = "", required = false) Long materielType,
                             @ApiParam(value = "物料ID", required = true) @RequestParam(value = "materielId", defaultValue = "") Long materielId) {
 
-        Map<String, Object> results = Maps.newHashMap();
+
         Map<String, Object> params = Maps.newHashMap();
+        Date startPeriod = DateFormatUtil.getDateByParttern(startTime);
+        Date endPeriod = DateFormatUtil.getDateByParttern(endTime);
+        if (materielId == null || endPeriod == null || startPeriod == null) {
+            return R.ok();
+        }
+
         params.put("materielId", materielId);
-        params.put("period", period);
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+
         List<Map<String, Object>> initData = stockAnalysisService.listForMap(params);
         double initialCount = initData
                 .stream()
@@ -96,7 +103,7 @@ public class WarehouseAccountingReportApiController {
         initInOutStockItemVO.setBalanceAmount(BigDecimal.valueOf(initialAmount));
         initInOutStockItemVO.setBalanceCount(BigDecimal.valueOf(initialCount));
         initInOutStockItemVO.setBalanceUnitPrice(BigDecimal.valueOf(initialUnitPrice));
-
+        String period = null;
         Date periodTime = DateFormatUtil.getDateByParttern(period);
         params.put("startTime",DatesUtil.getSupportBeginDayOfMonth(periodTime));
         params.put("endTime",  DatesUtil.getSupportEndDayOfMonth(periodTime));
@@ -105,8 +112,7 @@ public class WarehouseAccountingReportApiController {
         inOutStockItemVOS.add(0,initInOutStockItemVO);
         // TODO 待确认
 
-
-
+        Map<String, Object> results = Maps.newHashMap();
         Map<String, Object> map = stockAnalysisService.countForTotal(params);
         int total = Integer.parseInt(map.get("total").toString());
         if (inOutStockItemVOS.size() > 0) {

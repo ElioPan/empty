@@ -282,16 +282,20 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
 
     @Override
     public R leaveGroup(CommonVO commonVO) {
-        int pageNo = commonVO.getPageno();
-        int pageSize = commonVO.getPagesize();
+//        int pageNo = commonVO.getPageno();
+//        int pageSize = commonVO.getPagesize();
+        boolean showItem = commonVO.getShowItem() == 1;
+        boolean showType = commonVO.getShowType() == 1;
+        boolean showUser = commonVO.getShowUser() == 1;
+
         Long userIdInfo = commonVO.getUserId();
         Long deptIdInfo = commonVO.getDeptId();
-        Triple<List<UserForReportVO>, List<Long>, List<Long>> userInfo = this.getUserInfo(pageNo, pageSize, userIdInfo, deptIdInfo);
-        if (userInfo == null) {
-            return R.ok();
-        }
-        List<Long> userIds = userInfo.getMiddle();
-        List<Long> userAllIds = userInfo.getRight();
+//        Triple<List<UserForReportVO>, List<Long>, List<Long>> userInfo = this.getUserInfo(pageNo, pageSize, userIdInfo, deptIdInfo);
+//        if (userInfo == null) {
+//            return R.ok();
+//        }
+//        List<Long> userIds = userInfo.getMiddle();
+//        List<Long> userAllIds = userInfo.getRight();
 
         Map<String, Object> param = Maps.newHashMap();
         String startTime = commonVO.getStartTime();
@@ -299,15 +303,19 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         param.put("status", Constant.APPLY_COMPLETED);
         param.put("startTime", startTime);
         param.put("endTime", endTime);
-        param.put("userIds", userIds);
+        param.put("userId", userIdInfo);
+        param.put("deptId", deptIdInfo);
+
+        List<Map<String, Object>> showList = Lists.newArrayList();
 
         List<Map<String, Object>> leaveForItem = reportDao.leaveItem(param);
+
+        List<Map<String, Object>> leaveForItemGroupType = reportDao.leaveForItemGroupType(param);
+
         Map<String,Object> result = Maps.newHashMap();
-        if (leaveForItem.size() > 0) {
-            List<Map<String, Object>> leaveForItemGroupType = reportDao.leaveForItemGroupType(param);
+        if (leaveForItem.size() > 0 ) {
 
             // 所查询的全部用户
-            param.put("userIds", userAllIds);
             Double total = reportDao.leaveItemTotal(param);
 
             List<DictionaryDO> dictionaryDOS = dictionaryService.listByType(Constant.LEAVE_APPLY_TYPE);
@@ -318,37 +326,50 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                     .getId();
             typeMax = typeMax == null ? 0 : typeMax + 1;
 
-            Map<String, Double> itemGroup = leaveForItem
-                    .stream()
-                    .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> Double.parseDouble(v.get("totalCount").toString()), Double::sum));
-            Map<String, String> userMap = leaveForItem
-                    .stream()
-                    .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("name").toString(), (v1,v2)->v1));
-            Map<String, String> deptMap = leaveForItem
-                    .stream()
-                    .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("deptName").toString(), (v1,v2)->v1));
+            if(showUser){
+                Map<String, Double> itemGroup = leaveForItem
+                        .stream()
+                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> Double.parseDouble(v.get("totalCount").toString()), Double::sum));
+                Map<String, String> userMap = leaveForItem
+                        .stream()
+                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("name").toString(), (v1,v2)->v1));
+                Map<String, String> deptNameMap = leaveForItem
+                        .stream()
+                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("deptName").toString(), (v1,v2)->v1));
+                Map<String, String> deptIdMap = leaveForItem
+                        .stream()
+                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("deptId").toString(), (v1,v2)->v1));
 
-            Map<String, Object> map;
-            for (String userId : itemGroup.keySet()) {
-                map = Maps.newHashMap();
-                Double totalCount = itemGroup.get(userId);
-                map.put("userId",userId);
-                // 颜色标记明细为0 类型合计1, 人员合计2
-                map.put("sign",2);
-                map.put("name", userMap.get(userId) + "小计");
-                map.put("sortNo", typeMax);
-                map.put("deptName", deptMap.get(userId));
-                map.put("type", typeMax);
-                map.put("totalCount", totalCount == null ? 0 : totalCount);
-                leaveForItem.add(map);
+                Map<String, Object> map;
+                for (String userId : itemGroup.keySet()) {
+                    map = Maps.newHashMap();
+                    Double totalCount = itemGroup.get(userId);
+                    map.put("userId",userId);
+                    // 颜色标记明细为0 类型合计1, 人员合计2
+                    map.put("sign",2);
+                    map.put("name", userMap.get(userId) + "小计");
+                    map.put("sortNo", typeMax);
+                    map.put("deptName", deptNameMap.get(userId));
+                    map.put("deptId", deptIdMap.get(userId));
+                    map.put("type", typeMax);
+                    map.put("totalCount", totalCount == null ? 0 : totalCount);
+                    showList.add(map);
+                }
             }
 
-            leaveForItem.addAll(leaveForItemGroupType);
+            if (leaveForItemGroupType.size() > 0 && showType) {
+                showList.addAll(leaveForItemGroupType);
+            }
 
-            List<Map<String, Object>> collect = leaveForItem.stream()
+            if (showItem) {
+                showList.addAll(leaveForItem);
+            }
+
+            List<Map<String, Object>> collect = showList.stream()
                     .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
                     .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("type").toString())))
                     .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("userId").toString())))
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("deptId").toString())))
                     .collect(Collectors.toList());
             result.put("data",collect);
             result.put("total",total);

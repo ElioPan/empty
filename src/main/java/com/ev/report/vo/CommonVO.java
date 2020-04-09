@@ -14,7 +14,7 @@ public class CommonVO implements Serializable {
     private int pageno = 1;
     //一页多少条
     @ApiModelProperty(value = "一页多少条")
-    private int pagesize = 20;
+    private int pagesize = 5;
     //开始时间
     @ApiModelProperty(value = "开始时间")
     private String startTime;
@@ -27,7 +27,14 @@ public class CommonVO implements Serializable {
     //职员
     @ApiModelProperty(value = "员工")
     private Long userId;
-
-
+    // 显示明细(0不显示，1显示)
+    @ApiModelProperty(value = "显示明细", required = true)
+    private int showItem = 1;
+    //显示类型合计(0不显示，1显示)
+    @ApiModelProperty(value = "显示类型合计", required = true)
+    private int showType = 1;
+    //显示用户合计(0不显示，1显示)
+    @ApiModelProperty(value = "显示用户合计", required = true)
+    private int showUser = 1;
 
 }

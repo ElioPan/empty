@@ -498,6 +498,8 @@
 			<if test="id != null and id != ''"> AND analysis.id = #{id} </if>
 			<if test="valuationMethod != null and valuationMethod != ''"> AND materiel.valuation_method = #{valuationMethod} </if>
 			<if test="period != null and period != ''"> AND DATE_FORMAT(analysis.period,'%Y-%m-%d') = DATE_FORMAT(#{period},'%Y-%m-%d') </if>
+			<if test="startTime != null and startTime != ''">  and  DATE_FORMAT(stockOut.out_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(stockOut.out_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
 			<if test="materielId != null and materielId != ''"> AND analysis.materiel_id = #{materielId} </if>
 			<if test="materielType != null and materielType != ''"> AND materiel.type = #{materielType} </if>
 			<if test="materielName != null and materielName != ''"> AND materiel.`name` LIKE #{materielName} </if>

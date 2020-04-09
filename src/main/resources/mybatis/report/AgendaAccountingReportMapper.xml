@@ -133,6 +133,7 @@
     <select id="leaveItem" resultType="java.util.Map">
         SELECT
         sd.name AS deptName,
+        sd.`dept_id` AS deptId,
         su.name AS `name`,
         apply.create_by AS userId,
         apply.type AS type,
@@ -149,6 +150,8 @@
         LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
         <where>
             <if test="createBy != null and status != ''"> and apply.create_by = #{createBy} </if>
+            <if test="userId != null and status != ''"> and apply.create_by = #{userId} </if>
+            <if test="deptId != null and status != ''"> and su.dept_id = #{deptId} </if>
             <if test="status != null and status != ''"> and apply.status = #{status} </if>
             <if test="type != null and type != ''"> and apply.type = #{type} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
@@ -172,6 +175,8 @@
         LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
         <where>
             <if test="status != null and status != ''"> and apply.status = #{status} </if>
+            <if test="userId != null and status != ''"> and apply.create_by = #{userId} </if>
+            <if test="deptId != null and status != ''"> and su.dept_id = #{deptId} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
             <if test="userIds != null and userIds.size()>0"> and apply.create_by IN
@@ -187,6 +192,7 @@
     <select id="leaveForItemGroupType" resultType="java.util.Map">
         SELECT
         sd.name AS deptName,
+        sd.dept_id AS deptId,
         apply.create_by AS userId,
         su.`name` AS `name`,
         apply.type AS `type`,
@@ -201,6 +207,8 @@
         LEFT JOIN sys_dept sd ON sd.dept_id=su.dept_id
         <where>
             <if test="createBy != null and createBy != ''"> and apply.create_by = #{createBy} </if>
+            <if test="userId != null and status != ''"> and apply.create_by = #{userId} </if>
+            <if test="deptId != null and status != ''"> and su.dept_id = #{deptId} </if>
             <if test="status != null and status != ''"> and apply.status = #{status} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(apply.begin_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
