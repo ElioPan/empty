@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -58,8 +59,14 @@ public class PoorServiceImpl implements PoorService {
 	@Override
 	public R savePoor(PoorDO poorDO){
 		if(Objects.nonNull(poorDO)){
+			Map<String,Object>  map= new HashMap<>();
+			map.put("code",poorDO.getCode());
+			if(this.countForMap(map)>0){
+				return R.error(messageSourceHandler.getMessage("common.duplicate.serialNo",null));
+			}else{
 				poorDao.save(poorDO);
-			return R.ok();
+				return R.ok();
+			}
 		}else{
 			//"所传明细为空！"
 			return R.error(messageSourceHandler.getMessage("apis.mes.process.detaiNoull",null));
