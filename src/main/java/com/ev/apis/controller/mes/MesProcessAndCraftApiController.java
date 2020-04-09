@@ -173,7 +173,7 @@ public class MesProcessAndCraftApiController {
     @ApiOperation("删除工序配置")
     @Transactional(rollbackFor = Exception.class)
     public R batchDelete(@ApiParam(value = "工序配置Id", required = true) @RequestParam(value = "ids") Long[] ids) {
-        //若被工艺引用则不能被删除
+        //若被工艺引用则不能被删除++审核不能删除
         //逻辑删除
         return processService.deteBatchProcess(ids);
     }

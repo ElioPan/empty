@@ -10,6 +10,7 @@
 	<select id="list" resultType="com.ev.custom.domain.UpkeepProjectDO">
 		select `id`,`code`,`type`,`name`,`function`,`device_tepy`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag` from cus_upkeep_project
 		<where>
+			<if test="maxNo != null and maxNo != ''"> and LEFT(code,CHAR_LENGTH(#{maxNo})) = #{maxNo} </if>
 			<if test="id != null and id != ''"> and id = #{id} </if>
 			<if test="code != null and code != ''"> and code = #{code} </if>
 			<if test="type != null and type != ''"> and type = #{type} </if>
@@ -158,6 +159,7 @@
 		cus_upkeep_project  cap
 		LEFT  JOIN  cus_dictionary cd ON cap.device_tepy=cd.id
 		<where>
+			<if test="haveId != null and haveId != ''"> and cap.id &lt;&gt; #{haveId} </if>
 			<if test="id != null and id != ''"> and cap.id = #{id} </if>
 			<if test="code != null and code != ''"> and cap.code = #{code} </if>
 			<if test="type != null and type != ''"> and cap.type = #{type} </if>
@@ -167,7 +169,16 @@
 		</where>
 	</select>
 
-
+	<select id="countOfCode" resultType="int">
+		select
+		count(*)
+		from
+		cus_upkeep_project
+		<where>
+			<if test="haveId != null and haveId != ''"> and id &lt;&gt; #{haveId} </if>
+			<if test="code != null and code != ''"> and code = #{code} </if>
+		</where>
+	</select>
 
 
 </mapper>

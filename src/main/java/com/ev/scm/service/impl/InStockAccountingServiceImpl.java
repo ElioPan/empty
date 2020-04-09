@@ -6,22 +6,21 @@ import com.alibaba.fastjson.JSONObject;
 import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
+import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.dao.InStockAccountingDao;
+import com.ev.scm.dao.StockInDao;
 import com.ev.scm.domain.OutsourcingContractItemDO;
 import com.ev.scm.domain.StockInDO;
 import com.ev.scm.domain.StockInItemDO;
 import com.ev.scm.domain.StockOutItemDO;
 import com.ev.scm.service.*;
-
-import org.apache.velocity.runtime.directive.Foreach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -45,6 +44,12 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
     private PurchaseExpenseItemService purchaseExpenseItemService;
     @Autowired
     private InStockAccountingDao  inStockAccountingDao;
+
+    @Autowired
+    private StockInDao stockInDao;
+
+    @Autowired
+    private  StockService  stockService;
 
     @Override
     public int getCountOfSignIsO(Map<String, Object> map) {
@@ -90,7 +95,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         }
         boolean b = this.disposeIsClose(itemIds,true);
         if (!b){
-            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver.inventoryNotEnabled", null));
         }
 
         if(stockInItemDOs.isEmpty()){
@@ -108,7 +113,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
         boolean b = this.disposeIsClose(stockInIds,false);
         if (!b){
-            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver.inventoryNotEnabled", null));
         }
         List nowList=new ArrayList();
         for (int i = 0; i < stockInIds.length; i++) {
@@ -242,7 +247,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
         boolean b = this.disposeIsClose(stockInIds,false);
         if (!b){
-            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver.inventoryNotEnabled", null));
         }
         //判断主表sign是否为1,就略去；为0就计算金额单价回写，并更新主表sign为1
         for(int j=0;j<stockInIds.length;j++){
@@ -286,7 +291,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         Long[] ids={stockInItemId};
         boolean b = this.disposeIsClose(ids,true);
         if (!b){
-            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver.inventoryNotEnabled", null));
         }
         StockInItemDO itemDO=stockIntemService.get(stockInItemId);
         if(itemDO!=null){
@@ -364,7 +369,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
         boolean b = this.disposeIsClose(stockInIds,false);
         if (!b){
-            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver.inventoryNotEnabled", null));
         }
 
         //取出所有明细
@@ -388,10 +393,12 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
             if (stockInDO.getSign() == 3) {
                 //已核算  将金额和单价还原，并将成本和费用更新为0.
-               BigDecimal totailAmout = stockInItemDO.getAmount().subtract(stockInItemDO.getCost().add(stockInItemDO.getExpense()));
-               BigDecimal unitPrice = totailAmout.divide(stockInItemDO.getCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
-                stockInItemDO.setAmount(totailAmout);
-                stockInItemDO.setUnitPrice(unitPrice);
+//               BigDecimal totailAmout = stockInItemDO.getAmount().subtract(stockInItemDO.getCost().add(stockInItemDO.getExpense()));
+//               BigDecimal unitPrice = totailAmout.divide(stockInItemDO.getCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+//                stockInItemDO.setAmount(totailAmout);
+//                stockInItemDO.setUnitPrice(unitPrice);
+                stockInItemDO.setAmount(BigDecimal.ZERO);
+                stockInItemDO.setUnitPrice(BigDecimal.ZERO);
                 stockInItemDO.setExpense(BigDecimal.ZERO);
             }
 
@@ -440,7 +447,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
         boolean b = this.disposeIsClose(stockInIds,false);
         if (!b){
-            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver.inventoryNotEnabled", null));
         }
 
         for(Long stockInId:stockInIds){
@@ -483,7 +490,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
         boolean b = this.disposeIsClose(stockInIds,false);
         if (!b){
-            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver.inventoryNotEnabled", null));
         }
 
         Map<String,Object>  map= new HashMap<>();
@@ -492,7 +499,6 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
             //未经分配的 sign==0，初始0
             return  R.error(messageSourceHandler.getMessage("scm.accounting.bussenissAccounting", null));
         }
-
         map.clear();
         for(Long id:stockInIds) {
 
@@ -526,7 +532,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         Long[] ids = {stockInItemId};
         boolean b = this.disposeIsClose(ids, true);
         if (!b) {
-            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver", null));
+            return R.error(messageSourceHandler.getMessage("scm.stock.haveCarryOver.inventoryNotEnabled", null));
         }
         List<Map<String, Object>> stockOutItemDoList = new ArrayList<>();
         JSONArray stockOutItemDos ;
@@ -610,7 +616,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 }
 
             }
-            //记录否存在未分配完的物料
+            //记录存在未分配完的物料
 //                if (!Objects.equals(BigDecimal.ZERO, standardCount)) {
 //                    Map<String, Object> map = new HashMap<>();
 //                    map.put("materialId", materielId);
@@ -618,13 +624,13 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 //                    leaveOverMaterials.add(map);
 //                }
         }
-//            //处理遗留未分配的组件物料------后期作为bug排查吧
-//            if (Objects.nonNull(leaveOverMaterials)) {
-//                StockInItemDO stockInItemDO = new StockInItemDO();
-//                stockInItemDO.setMaterialIdCount(leaveOverMaterials.toString());
-//                stockInItemDO.setId(stockInItemId);
-//                stockIntemService.update(stockInItemDO);
-//            }
+//            //处理遗留未分配的组件物料
+////            if (Objects.nonNull(leaveOverMaterials)) {
+////                StockInItemDO stockInItemDO = new StockInItemDO();
+////                stockInItemDO.setMaterialIdCount(leaveOverMaterials.toString());
+////                stockInItemDO.setId(stockInItemId);
+////                stockIntemService.update(stockInItemDO);
+////            }
         Map<String, Object> result = new HashMap<>();
         result.put("data", stockOutItemDoList);
         return R.ok(result);
@@ -637,6 +643,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
      */
     @Override
     public boolean disposeIsClose(Long[] itemOrHaedIds,Boolean sign) {
+
         //  表id去重
         List nowList = new ArrayList();
         for (int i = 0; i < itemOrHaedIds.length; i++) {
@@ -659,19 +666,17 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
         if (inOutTimeMap.isEmpty()) {
             return false;
         } else {
-            Map<String, Object> peramy = new HashMap<>();
+            Date periodTime = stockService.getPeriodTime();
+            if(Objects.equals(periodTime,null)){
+                return false;
+            }
             for (Map<String, Object> maps : inOutTimeMap) {
-                peramy.clear();
-                if(Objects.isNull(maps)){
+
+                if(Objects.isNull(maps)||!maps.containsKey("inOutTime")){
                     continue;
                 }
-                Boolean boo=maps.containsKey("inOutTime");
-                if(!boo){
-                    continue;
-                }
-                peramy.put("period", maps.get("inOutTime"));
-                int counts = this.getAnalysisDate(peramy);
-                if(counts > 0){
+                Date inOutTime = DateFormatUtil.getDateByParttern(maps.get("inOutTime").toString(), "yyyy-MM-dd HH:mm:ss");
+                if (inOutTime.before(periodTime)) {
                     return false;
                 }
             }

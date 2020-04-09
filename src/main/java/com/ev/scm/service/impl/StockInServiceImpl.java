@@ -19,7 +19,6 @@ import com.ev.scm.dao.StockInDao;
 import com.ev.scm.domain.*;
 import com.ev.scm.service.*;
 import com.google.common.collect.Maps;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -421,7 +420,7 @@ public class StockInServiceImpl implements StockInService {
 
 				Boolean qR=Objects.nonNull(inbodyCDos.get(0).getQrcodeId());
 
-				//保寸主表信息
+				//保存主表信息
 				stockInDO.setInheadCode(code);
 				stockInDO.setAuditSign(ConstantForGYL.WAIT_AUDIT );
 				stockInDO.setStorageType(storageType);
@@ -608,19 +607,21 @@ public class StockInServiceImpl implements StockInService {
 			return R.error(messageSourceHandler.getMessage("scm.stock.nonUse",null));
 		}
 
-/*		Long[] stockInId={id};
-		boolean b = inStockAccountingService.disposeIsClose(stockInId, false);
-		if(!b){
-			return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", null));
-		}*/
-
-		//更改主表审核状态为11已审核-->179已审核  178待审核；
+//		Long[] stockInId={id};
+////		boolean b = inStockAccountingService.disposeIsClose(stockInId, false);
+////		if(!b){
+////			return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", null));
+////		}
 		StockInDO pInheadDO = stockInDao.get(id);
 		Date periodTime = stockService.getPeriodTime();
+		if(periodTime==null){
+			return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
+		}
 		if (pInheadDO.getInOutTime().before(periodTime)) {
-//            String[] args = {DateFormatUtil.getFormateDate(periodTime)};
 			return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", null));
 		}
+
+		//更改主表审核状态为11已审核-->179已审核  178待审核；
 		if (Objects.nonNull(pInheadDO)) {
 			if (!(Objects.equals(pInheadDO.getAuditSign(),ConstantForGYL.OK_AUDITED))) {
 				StockInDO stockInDO=new StockInDO();
@@ -640,7 +641,6 @@ public class StockInServiceImpl implements StockInService {
 			return R.error(messageSourceHandler.getMessage("common.massge.haveNoId",null));
 		}
 	}
-
 
 	@Override
 	public R disAuditInStock(Long inHeadId,Long type){

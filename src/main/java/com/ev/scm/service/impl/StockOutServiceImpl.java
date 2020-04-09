@@ -344,6 +344,7 @@ public class StockOutServiceImpl implements StockOutService {
         if (periodTime == null) {
             return R.error(messageSourceHandler.getMessage("scm.stock.nonUse", null));
         }
+
         if (stockOutDO.getOutTime().before(periodTime)) {
 //            String[] args = {DateFormatUtil.getFormateDate(periodTime)};
             return R.error(messageSourceHandler.getMessage("scm.operate.isCarryOver", null));

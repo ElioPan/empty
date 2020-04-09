@@ -1,10 +1,11 @@
 package com.ev.system.domain;
 
-import java.io.Serializable;
-import java.util.Date;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
 
 
 /**
@@ -80,7 +81,7 @@ public class CompanyDO implements Serializable {
     @ApiModelProperty(value = "服务结束时间",hidden = true)
 	private String serviceEndTime;
     //服务开始时间
-    @ApiModelProperty(value = "服务开始时间",hidden = true)
+	@ApiModelProperty(value = "服务开始时间",hidden = true)
 	private String serviceStartTime;
 	//创建人
     @ApiModelProperty(value = "创建人",hidden = true)
@@ -97,5 +98,18 @@ public class CompanyDO implements Serializable {
 	//删除标志
     @ApiModelProperty(value = "删除标志",hidden = true)
 	private Integer delFlag;
+
+	@ApiModelProperty(value = "是否启用企业微信(1是，0否）")
+	private String usingStatus;
+	@ApiModelProperty(value = "应用id")
+	private String useId;
+	@ApiModelProperty(value = "企业id")
+	private String enterpriseId;
+	@ApiModelProperty(value = "应用程序秘密")
+	private String appSecrect;
+	@ApiModelProperty(value = "同步通讯录Secrect")
+	private String addressBook;
+	@ApiModelProperty(value = "手机端URL")
+	private String mobileUrl;
 
 }

@@ -33,4 +33,6 @@ public interface ShiftDao {
 
 	int deletOfShift(Map<String, Object> map);
 
+	int countOfCode(Map<String, Object> map);
+
 }

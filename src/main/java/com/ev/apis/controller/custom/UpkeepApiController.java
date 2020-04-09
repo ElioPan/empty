@@ -306,14 +306,9 @@ public class UpkeepApiController {
 
     @EvApiByToken(value = "/apis/upkeepPlan/addProjects", method = RequestMethod.POST)
     @ApiOperation("新增设备保养项目和方法")
-    public R addProjectMotheed(UpkeepProjectDO planProDo) {
-
-        Map<String, Object> results = Maps.newHashMap();
-        int savesPro = upkeepProjectService.save(planProDo);
-        if (savesPro > 0) {
-            return R.ok();
-        }
-        return R.error(messageSourceHandler.getMessage("common.dailyReport.save",null));
+    @Transactional
+    public R addProjectMotheed(UpkeepProjectDO upkeepProjectDO) {
+        return upkeepProjectService.addProject(upkeepProjectDO);
     }
 
     /*

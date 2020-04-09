@@ -38,4 +38,8 @@ public interface UpkeepProjectService {
 	int countOfList(Map<String,Object> map);
 
     R delete(Long[] ids);
+
+	int countOfCode(Map<String,Object> map);
+
+	R addProject(UpkeepProjectDO upkeepProject);
 }

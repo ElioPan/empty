@@ -50,7 +50,7 @@ public class FacilityLocationServiceImpl implements FacilityLocationService {
 		Map<String, Object> param = Maps.newHashMap();
 		facilityLocation.setSerialNo(this.setSerialNo(facilityLocation.getFacilityId()));
 
-		param.put("name", facilityLocation.getName());
+		param.put("nameSearch", facilityLocation.getName());
 		int count = this.count(param);
 		if (count > 0) {
 			return -1;
@@ -67,7 +67,7 @@ public class FacilityLocationServiceImpl implements FacilityLocationService {
 			return facilityLocationDao.update(facilityLocation);
 		}
 		Map<String, Object> param = Maps.newHashMap();
-		param.put("name", facilityLocation.getName());
+		param.put("nameSearch", facilityLocation.getName());
 		int count = this.count(param);
 		if (count > 0) {
 			return -1;

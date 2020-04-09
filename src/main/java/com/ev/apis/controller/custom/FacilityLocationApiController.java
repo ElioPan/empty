@@ -106,8 +106,14 @@ public class FacilityLocationApiController {
     @EvApiByToken(value = "/apis/facilityLocation/remove",method = RequestMethod.POST,apiTitle = "删除库位信息")
     @ApiOperation("删除库位信息")
     public R remove(@ApiParam(value = "库位主键",required = true) @RequestParam(value="id",defaultValue = "") Integer id){
-        if(facilityLocationService.logicRemove(id)>0){
-            return R.ok();
+        FacilityLocationDO facilityLocationDO = facilityLocationService.get(id);
+        if (facilityLocationDO != null) {
+            if(Objects.equals(facilityLocationDO.getAuditSign(),ConstantForMES.OK_AUDITED)){
+                return R.error(messageSourceHandler.getMessage("common.approved.delete.disabled", null));
+            }
+            if(facilityLocationService.logicRemove(id)>0){
+                return R.ok();
+            }
         }
         return R.error();
     }
@@ -116,6 +122,15 @@ public class FacilityLocationApiController {
     @EvApiByToken(value = "/apis/facilityLocation/batchRemove",method = RequestMethod.POST,apiTitle = "批量删除库位信息")
     @ApiOperation("批量删除库位信息")
     public R remove(@ApiParam(value = "库位主键数组",required = true, example = "[1,2,3,4]") @RequestParam(value="ids",defaultValue = "") Integer[] ids){
+        for (Integer id : ids) {
+            FacilityLocationDO facilityLocationDO = facilityLocationService.get(id);
+            if(facilityLocationDO == null){
+                return R.error();
+            }
+            if (Objects.equals(facilityLocationDO.getAuditSign(), ConstantForMES.OK_AUDITED)) {
+                return R.error(messageSourceHandler.getMessage("common.approved.delete.disabled", null));
+            }
+        }
         facilityLocationService.logicBatchRemove(ids);
         return R.ok();
     }

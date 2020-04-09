@@ -179,4 +179,10 @@ public final class ConstantForMES{
 	 */
 	public static final Integer FHJY = 218;
 
+
+	/**
+	 * 班制配置前缀
+	 */
+	public static final String BYXM = "BYXM";
+
 }

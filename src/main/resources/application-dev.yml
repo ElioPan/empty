@@ -82,3 +82,13 @@ wechat:
   corpsecret: vkYNZGHLSccDUTm5pD1GJD04PwmXcS_TfluwmT8i8aY
   mobilesecret: UdsiLfdVT3OVmuo94IbTqZv8BVGkJ2iuyQZCDAi3ELI
   appurl: http://120.132.17.220:18090/gyhl-app/#/pages
+
+
+#数据库备份java类读取字段
+backups:
+  db:
+    dbUrl: 120.132.17.220
+    dbName: xinsoft-gyhl
+    dbUsername: xinsoft
+    dbPassword: xinsoft411
+    filePath: D:\db_backups

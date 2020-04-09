@@ -158,5 +158,19 @@
 		</if>
 	</select>
 
+	<select id="countForMap" resultType="int">
+		select
+		count(*)
+		FROM
+		cus_payment_type a
+		<where>
+			<if test="name != null and name != ''"> and a.name like CONCAT('%',#{name},'%') </if>
+			<if test="newName != null and newName != ''"> and a.name = #{newName} </if>
+			<if test="auditSign != null and auditSign != ''"> and a.audit_sign =#{auditSign}</if>
+			<if test="haveId != null and haveId != ''"> and a.id &lt;&gt; #{haveId} </if>
+			<if test="id != null and id != ''"> and a.id = #{id} </if>
+			and a.del_flag=0
+		</where>
+	</select>
 
 </mapper>
