@@ -1487,8 +1487,11 @@ public class StockServiceImpl implements StockService {
 
 			if (thisTermOld.size() > 0) {
 				List<StockAnalysisDO> thisTerm = thisTermOld.stream()
-						.filter(stockAnalysis -> stockAnalysis.getFinalCount()
-								.compareTo(BigDecimal.ZERO) > 0)
+						.filter(e -> e.getFinalCount()
+								.compareTo(BigDecimal.ZERO) != 0
+								&&
+								e.getFinalAmount()
+								.compareTo(BigDecimal.ZERO) != 0)
 						.collect(Collectors.toList());
 				List<StockAnalysisDO> stockAnalysisInsertDOS = Lists.newArrayList();
 				if (thisTerm.size() > 0) {

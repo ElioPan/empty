@@ -469,13 +469,15 @@ public class SalescontractServiceImpl implements SalescontractService {
             JSONObject head = alterationContentJSON.getJSONObject("head");
             result.put("payArray", payArray);
             result.put("head",head);
+            SalescontractItemDO salescontractItemDO;
             if (itemArray.size() > 0) {
                 Map<String, Object> param;
                 Map<String, Object> materiel;
                 for (int i = 0; i < itemArray.size(); i++) {
                     JSONObject itemJSONObject = itemArray.getJSONObject(i);
+                    salescontractItemDO = salesContractItemDao.get(Long.parseLong(itemJSONObject.get("id").toString()));
                     param = Maps.newHashMap();
-                    param.put("id", itemJSONObject.get("materielId"));
+                    param.put("id", salescontractItemDO.getMaterielId());
                     param.put("offset", 0);
                     param.put("limit", 1);
                     materiel = materielService.listForMap(param).get(0);

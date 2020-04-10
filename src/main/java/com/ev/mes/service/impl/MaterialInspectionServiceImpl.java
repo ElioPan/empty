@@ -88,7 +88,12 @@ public class MaterialInspectionServiceImpl implements MaterialInspectionService 
 	public int reverseAudit(Long id) {
 		MaterialInspectionDO materialInspectionDO = get(id);
 		materialInspectionDO.setStatus(ConstantForMES.WAIT_AUDIT);
-		return this.update(materialInspectionDO);
+		materialInspectionDO.setAuditor(null);
+		return this.updateAll(materialInspectionDO);
+	}
+	@Override
+	public int updateAll(MaterialInspectionDO materialInspectionDO) {
+		return materialInspectionDao.updateAll(materialInspectionDO);
 	}
 
 	@Override

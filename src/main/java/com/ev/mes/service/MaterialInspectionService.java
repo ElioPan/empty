@@ -26,6 +26,8 @@ public interface MaterialInspectionService {
 
 	int update(MaterialInspectionDO materialInspection);
 
+	int updateAll(MaterialInspectionDO materialInspection);
+
 	int remove(Long id);
 
 	int batchRemove(Long[] ids);
