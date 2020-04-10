@@ -272,7 +272,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                     Double totalCount = itemGroup.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
-                    map.put("sign",2);
+                    map.put("sign","end");
                     map.put("name", userMap.get(userId) + "小计");
                     map.put("sortNo", 1);
                     map.put("deptName", deptNameMap.get(userId));
@@ -382,7 +382,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                     Double totalCount = itemGroup.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
-                    map.put("sign",2);
+                    map.put("sign","end");
                     map.put("name", userMap.get(userId) + "小计");
                     map.put("sortNo", typeMax);
                     map.put("deptName", deptNameMap.get(userId));
@@ -541,7 +541,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                     Double totalCount = itemGroup.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
-                    map.put("sign",2);
+                    map.put("sign","end");
                     map.put("name", userMap.get(userId) + "小计");
                     map.put("sortNo", typeMax);
                     map.put("deptName", deptNameMap.get(userId));
@@ -634,7 +634,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                     Double totalCount = itemGroup.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
-                    map.put("sign",2);
+                    map.put("sign","end");
                     map.put("name", userMap.get(userId) + "小计");
                     // 详情内为1
                     map.put("sortNo", 1);

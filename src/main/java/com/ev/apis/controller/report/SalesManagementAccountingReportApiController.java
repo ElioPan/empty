@@ -187,7 +187,7 @@ public class SalesManagementAccountingReportApiController {
                         totalMap.put("totalUnReceivedAmount",totalUnReceivedAmountGroup.getOrDefault(sourceId,0.0d));
 
                         totalMap.put("sortNo",1);
-                        totalMap.put("sign",1);
+                        totalMap.put("sign","end");
                         showList.add(totalMap);
                         copyContractIds.remove(sourceId);
                     }
@@ -314,7 +314,7 @@ public class SalesManagementAccountingReportApiController {
                     map = Maps.newHashMap();
                     map.put("clientId", s);
                     // 标记颜色
-                    map.put("sign",1);
+                    map.put("sign","end");
                     // 排序号
                     map.put("sortNo",1);
                     map.put("clientName", clientNameMap.get(s) + "小计");
@@ -460,7 +460,7 @@ public class SalesManagementAccountingReportApiController {
                     map.put("count", countMap.get(s));
                     map.put("taxAmount", amountMap.get(s));
                     map.put("sortNo",1);
-                    map.put("sign",1);
+                    map.put("sign","end");
                     showList.add(map);
                 }
             }
@@ -604,7 +604,7 @@ public class SalesManagementAccountingReportApiController {
                     map = Maps.newHashMap();
                     map.put("clientId", s);
                     // 标记颜色
-                    map.put("sign",1);
+                    map.put("sign","end");
                     // 排序号
                     map.put("sortNo",1);
                     map.put("clientName", clientNameMap.get(s) + "小计");
