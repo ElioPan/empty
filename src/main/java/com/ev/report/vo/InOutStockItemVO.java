@@ -17,8 +17,10 @@ import java.util.Date;
 @Data
 public class InOutStockItemVO implements Serializable {
 	private static final long serialVersionUID = 1L;
+	// 期间
+	private String period;
 	// 标记（入库0，出库1）
-	private Integer sign;
+	private Integer type;
 	// 出入库日期
 	private Date inOutTime;
 	// 物料批次
@@ -28,29 +30,35 @@ public class InOutStockItemVO implements Serializable {
 	// 单据类型
 	private String storageTypeName;
 	// 数量
-	private BigDecimal count;
+	private Double count;
 	// 单价
 	private BigDecimal unitPrice;
 	// 金额
-	private BigDecimal amount;
+	private Double amount;
 	// 收入数量
-	private BigDecimal inCount;
+	private Double inCount;
 	// 收入单价
 	private BigDecimal inUnitPrice;
 	// 收入金额
-	private BigDecimal inAmount;
+	private Double inAmount;
 	// 发出数量
-	private BigDecimal outCount;
+	private Double outCount;
 	// 发出单价
 	private BigDecimal outUnitPrice;
 	// 发出金额
-	private BigDecimal outAmount;
+	private Double outAmount;
 	// 结存数量b
-	private BigDecimal balanceCount;
+	private Double balanceCount;
 	// 结存单价
 	private BigDecimal balanceUnitPrice;
 	// 结存金额
-	private BigDecimal balanceAmount;
+	private Double balanceAmount;
+
+	// 排序号 0为期初 1为中间详情 2为垫底
+	private int sortNo;
+	// 颜色区分
+	private String sign;
+
 
 
 }

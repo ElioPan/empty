@@ -502,6 +502,18 @@ public class DatesUtil {
 
 	}
 
+	public static Date getSupportBeginDayOfMonthToDate(Date date) {
+		Calendar startDate = Calendar.getInstance();
+		startDate.setTime(date);
+		startDate.set(Calendar.DAY_OF_MONTH, startDate.getActualMaximum(Calendar.DAY_OF_MONTH));
+		startDate.set(Calendar.HOUR_OF_DAY, 23);
+		startDate.set(Calendar.MINUTE, 59);
+		startDate.set(Calendar.SECOND, 59);
+		startDate.set(Calendar.MILLISECOND, 999);
+		return startDate.getTime();
+
+	}
+
 	/**
 	 * 根据提供的年月获取该月份的最后一天
 	 */

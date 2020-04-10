@@ -94,6 +94,7 @@ public class SalesManagementAccountingReportApiController {
             // 合同收款条件表
             List<ContractPayItemVO> contractPayItemVOS = reportService.contractPayItem(params);
 
+            // 销售数量
             Map<Long, Double> stockCountGroup = stockOutItemVOS
                     .stream()
                     .collect(Collectors.groupingBy(StockOutItemVO::getSourceId
@@ -143,6 +144,7 @@ public class SalesManagementAccountingReportApiController {
                     .stream()
                     .collect(Collectors.groupingBy(e->e.get("contractCode").toString()
                             , Collectors.summingDouble(e->Double.parseDouble(e.get("taxAmount").toString()))));
+
             // 已收款金额 未收金额
             Map<Long, Double> totalReceivedAmountGroup = contractPayItemVOS
                     .stream()
@@ -176,10 +178,12 @@ public class SalesManagementAccountingReportApiController {
                         totalMap.put("contractDate",map.getOrDefault("contractDate",""));
                         totalMap.put("deptName",map.getOrDefault("deptName",""));
                         totalMap.put("clientName",map.getOrDefault("clientName",""));
-
-                        totalMap.put("count",totalSalesCountGroup.getOrDefault(sourceCode,0.0d));
+                        Double count = totalSalesCountGroup.getOrDefault(sourceCode, 0.0d);
+                        totalMap.put("count",count);
                         totalMap.put("taxAmount",totalSalesAmountGroup.getOrDefault(sourceCode,0.0d));
-                        totalMap.put("outCount",totalStockCountGroup.getOrDefault(sourceCode,0.0d));
+                        Double outCount = totalStockCountGroup.getOrDefault(sourceCode, 0.0d);
+                        totalMap.put("outCount",outCount);
+                        totalMap.put("unOutCount",count-outCount);
                         totalMap.put("outAmount",totalStockAmountGroup.getOrDefault(sourceCode,0.0d));
                         totalMap.put("billCount",totalBillCountGroup.getOrDefault(sourceCode,0.0d));
                         totalMap.put("billAmount",totalBillAmountGroup.getOrDefault(sourceCode,0.0d));
@@ -203,21 +207,24 @@ public class SalesManagementAccountingReportApiController {
                     .collect(Collectors.toList());
             results.put("data",collect);
             Map<String,Object> totalResult = Maps.newHashMap();
-            totalResult.put("count",totalSalesCountGroup
+            Double count = totalSalesCountGroup
                     .values()
                     .stream()
                     .reduce(Double::sum)
-                    .orElse(0.0d));
+                    .orElse(0.0d);
+            totalResult.put("count",count);
             totalResult.put("taxAmount",totalSalesAmountGroup
                     .values()
                     .stream()
                     .reduce(Double::sum)
                     .orElse(0.0d));
-            totalResult.put("outCount",totalStockCountGroup
+            Double outCount = totalStockCountGroup
                     .values()
                     .stream()
                     .reduce(Double::sum)
-                    .orElse(0.0d));
+                    .orElse(0.0d);
+            totalResult.put("outCount",outCount);
+            totalResult.put("unOutCount",count-outCount);
             totalResult.put("outAmount",totalStockAmountGroup
                     .values()
                     .stream()

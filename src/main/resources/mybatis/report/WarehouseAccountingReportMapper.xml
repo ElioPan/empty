@@ -8,12 +8,15 @@
         FROM (
         SELECT
         stock.in_out_time AS `inOutTime`,
+        LEFT(stock.in_out_time,7) AS period,
         item.`batch`,
         stock.inhead_code AS `code`,
         dic.`name` AS storageTypeName,
         item.`count`,
         item.`unit_price` AS unitPrice,
         0 AS sign,
+        0 AS `type`,
+        1 AS sortNo,
         item.`amount`
         FROM
         scm_stock_in_item item
@@ -28,12 +31,15 @@
         UNION ALL
         SELECT
         stock.out_time AS `inOutTime`,
+        LEFT(stock.out_time,7) AS period,
         item.`batch`,
         stock.out_code AS `code`,
         dic.`name` AS storageTypeName,
         item.`count`,
         item.`unit_price` AS unitPrice,
-        1 AS sign,
+        0 AS sign,
+        1 AS `type`,
+        1 AS sortNo,
         item.`amount`
         FROM
         scm_stock_out_item item
@@ -46,7 +52,7 @@
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(stock.out_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
         </where>
         )a
-        ORDER BY inOutTime
+
     </select>
 
 
