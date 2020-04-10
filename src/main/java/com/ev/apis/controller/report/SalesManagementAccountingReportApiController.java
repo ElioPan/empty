@@ -188,6 +188,7 @@ public class SalesManagementAccountingReportApiController {
                         totalMap.put("totalUnReceivedAmount",totalUnReceivedAmountGroup.getOrDefault(sourceId,0.0d));
 
                         totalMap.put("sortNo",1);
+                        totalMap.put("sign",1);
                         showList.add(totalMap);
                         copyContractIds.remove(sourceId);
                     }
@@ -248,54 +249,61 @@ public class SalesManagementAccountingReportApiController {
         return R.ok(results);
     }
 
-    @EvApiByToken(value = "/apis/salesManagement/debtDue", method = RequestMethod.POST, apiTitle = "销售到期债务(客户小计)")
-    @ApiOperation("销售到期债务(客户小计)")
+    @EvApiByToken(value = "/apis/salesManagement/debtDue", method = RequestMethod.POST, apiTitle = "销售到期债务")
+    @ApiOperation("销售到期债务")
     public R debtDue(
-            @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
-            @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+//            @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+//            @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
 //            @ApiParam(value = "客户") @RequestParam(value = "clientName", defaultValue = "", required = false) String clientName,
             @ApiParam(value = "客户Id") @RequestParam(value = "clientId", defaultValue = "", required = false) Long clientId,
-
+            @ApiParam(value = "显示小计", required = true) @RequestParam(value = "showTotal", defaultValue = "1") int showTotalInt,
+            @ApiParam(value = "显示详细", required = true) @RequestParam(value = "showItem", defaultValue = "1") int showItemInt,
             @ApiParam(value = "部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
             @ApiParam(value = "销售员") @RequestParam(value = "userId", defaultValue = "", required = false) Long userId,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime
     ) {
         // 查询列表数据
         Map<String, Object> params = Maps.newHashMap();
+        boolean showItem = showItemInt == 1;
+        boolean showTotal = showTotalInt == 1;
 
-//        params.put("clientName", StringUtils.sqlLike(clientName));
         params.put("clientId", clientId);
         params.put("deptId", deptId);
         params.put("userId", userId);
         params.put("endTime", endTime);
         Map<String, Object> results = Maps.newHashMap();
         List<Map<String, Object>> debtDueLists = reportService.debtDueList(params);
+
+
         if (debtDueLists.size() > 0) {
-            // 获取所有的客户
-            List<String> clientIds = debtDueLists
-                    .stream()
-                    .map(e -> e.get("clientId").toString())
-                    .distinct()
-                    .collect(Collectors.toList());
-            int total = clientIds.size();
-            // 将客户分页
-            List<String> clientIdsPage = PageUtils.startPage(clientIds, pageno, pagesize);
+
+//            // 获取所有的客户
+//            List<String> clientIds = debtDueLists
+//                    .stream()
+//                    .map(e -> e.get("clientId").toString())
+//                    .distinct()
+//                    .collect(Collectors.toList());
+//            int total = clientIds.size();
+//            // 将客户分页
+//            List<String> clientIdsPage = PageUtils.startPage(clientIds, pageno, pagesize);
 
             // 获取分页下的部门的所有产品检验单
-            List<Map<String, Object>> debtDueList = debtDueLists
-                    .stream()
-                    .filter(e -> clientIdsPage.contains(e.get("clientId").toString()))
-                    .collect(Collectors.toList());
+//            List<Map<String, Object>> debtDueList = debtDueLists
+//                    .stream()
+//                    .filter(e -> clientIdsPage.contains(e.get("clientId").toString()))
+//                    .collect(Collectors.toList());
+
+            List<Map<String, Object>> showList = Lists.newArrayList();
 
             // 应收
-            Map<String, Double> receivableAmountMap = debtDueList
+            Map<String, Double> receivableAmountMap = debtDueLists
                     .stream()
                     .collect(Collectors.toMap(
                             k -> k.get("clientId").toString()
                             , v -> Double.parseDouble(v.get("receivableAmount").toString())
                             , Double::sum));
             // 已收
-            Map<String, Double> receivedAmountMap = debtDueList
+            Map<String, Double> receivedAmountMap = debtDueLists
                     .stream()
                     .collect(Collectors.toMap(
                             k -> k.get("clientId").toString()
@@ -303,33 +311,46 @@ public class SalesManagementAccountingReportApiController {
                             , Double::sum));
 
             // 未收
-            Map<String, Double> unreceivedAmountMap = debtDueList
+            Map<String, Double> unreceivedAmountMap = debtDueLists
                     .stream()
                     .collect(Collectors.toMap(
                             k -> k.get("clientId").toString()
                             , v -> Double.parseDouble(v.get("unreceivedAmount").toString())
                             , Double::sum));
 
-            Map<String, String> clientNameMap = debtDueList
+            Map<String, String> clientNameMap = debtDueLists
                     .stream()
                     .collect(Collectors.toMap(
                             k -> k.get("clientId").toString()
                             , v -> v.get("clientName").toString()
                             , (v1, v2) -> v1));
 
-            List<Map<String, Object>> data = Lists.newArrayList();
-            Map<String, Object> map;
-            for (String s : clientNameMap.keySet()) {
-                map = Maps.newHashMap();
-                map.put("clientId", s);
-                map.put("clientName", clientNameMap.get(s) + "小计");
-                map.put("totalReceivableAmount", receivableAmountMap.get(s));
-                map.put("totalReceivedAmount", receivedAmountMap.get(s));
-                map.put("totalUnreceivedAmount", unreceivedAmountMap.get(s));
-                data.add(map);
+            if (showTotal) {
+                Map<String, Object> map;
+                for (String s : clientNameMap.keySet()) {
+                    map = Maps.newHashMap();
+                    map.put("clientId", s);
+                    // 标记颜色
+                    map.put("sign",1);
+                    // 排序号
+                    map.put("sortNo",1);
+                    map.put("clientName", clientNameMap.get(s) + "小计");
+                    map.put("receivableAmount", receivableAmountMap.get(s));
+                    map.put("receivedAmount", receivedAmountMap.get(s));
+                    map.put("unreceivedAmount", unreceivedAmountMap.get(s));
+                    showList.add(map);
+                }
             }
-            results.put("data", new DsResultResponse(pageno, pagesize, total, data));
+            if (showItem) {
+                showList.addAll(debtDueLists);
+            }
+            List<Map<String, Object>> collect = showList.stream()
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("clientId").toString())))
+                    .collect(Collectors.toList());
+            results.put("data",collect);
 
+            // 合计项
             Double totalReceivableAmount = debtDueLists
                     .stream()
                     .map(v -> Double.parseDouble(v.get("receivableAmount").toString()))
@@ -345,36 +366,38 @@ public class SalesManagementAccountingReportApiController {
                     .map(v -> Double.parseDouble(v.get("unreceivedAmount").toString()))
                     .reduce(Double::sum)
                     .orElse(0.0d);
-            results.put("totalReceivableAmount",totalReceivableAmount);
-            results.put("totalReceivedAmount",totalReceivedAmount);
-            results.put("totalUnreceivedAmount",totalUnreceivedAmount);
+            Map<String,Object> totalResult = Maps.newHashMap();
+            totalResult.put("totalReceivableAmount",totalReceivableAmount);
+            totalResult.put("totalReceivedAmount",totalReceivedAmount);
+            totalResult.put("totalUnreceivedAmount",totalUnreceivedAmount);
+            results.put("total",totalResult);
         }
         return R.ok(results);
     }
 
-    @EvApiByToken(value = "/apis/salesManagement/debtDue/item", method = RequestMethod.POST, apiTitle = "销售到期债务(详细)")
-    @ApiOperation("销售到期债务(详细)")
-    public R debtDueItem(
-            @ApiParam(value = "客户ID", required = true) @RequestParam(value = "clientId", defaultValue = "") Long clientId,
-            @ApiParam(value = "部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
-            @ApiParam(value = "销售员") @RequestParam(value = "userId", defaultValue = "", required = false) Long userId,
-            @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime
-    ) {
-        // 查询列表数据
-        Map<String, Object> params = Maps.newHashMap();
-
-        params.put("clientId", clientId);
-        params.put("deptId", deptId);
-        params.put("userId", userId);
-        params.put("endTime", endTime);
-
-        Map<String, Object> results = Maps.newHashMap();
-        List<Map<String, Object>> debtDueLists = reportService.debtDueList(params);
-        if (debtDueLists.size() > 0) {
-            results.put("data", debtDueLists);
-        }
-        return R.ok(results);
-    }
+//    @EvApiByToken(value = "/apis/salesManagement/debtDue/item", method = RequestMethod.POST, apiTitle = "销售到期债务(详细)")
+//    @ApiOperation("销售到期债务(详细)")
+//    public R debtDueItem(
+//            @ApiParam(value = "客户ID", required = true) @RequestParam(value = "clientId", defaultValue = "") Long clientId,
+//            @ApiParam(value = "部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
+//            @ApiParam(value = "销售员") @RequestParam(value = "userId", defaultValue = "", required = false) Long userId,
+//            @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime
+//    ) {
+//        // 查询列表数据
+//        Map<String, Object> params = Maps.newHashMap();
+//
+//        params.put("clientId", clientId);
+//        params.put("deptId", deptId);
+//        params.put("userId", userId);
+//        params.put("endTime", endTime);
+//
+//        Map<String, Object> results = Maps.newHashMap();
+//        List<Map<String, Object>> debtDueLists = reportService.debtDueList(params);
+//        if (debtDueLists.size() > 0) {
+//            results.put("data", debtDueLists);
+//        }
+//        return R.ok(results);
+//    }
 
     @EvApiByToken(value = "/apis/salesManagement/summary", method = RequestMethod.POST, apiTitle = "销售汇总统计(小计)")
     @ApiOperation("销售汇总统计(小计)")

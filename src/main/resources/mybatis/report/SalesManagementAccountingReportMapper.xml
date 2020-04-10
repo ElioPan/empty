@@ -23,7 +23,8 @@
         item.`count` AS `count`,
         item.`tax_unit_price` AS taxUnitPrice,
         item.`tax_amount` AS taxAmount,
-        0 AS sortNo
+        0 AS sortNo,
+        0 AS sign
         FROM
         scm_salescontract_item item
         LEFT JOIN scm_salescontract sales ON sales.id = item.salescontract_id
@@ -72,6 +73,8 @@
         pay.receivable_amount AS receivableAmount,
         pay.received_amount AS receivedAmount,
         pay.unpay_amount AS unreceivedAmount,
+        0 AS sign,
+        0 AS sortNo,
         DATEDIFF(DATE_FORMAT(now(),'%Y-%m-%d'),DATE_FORMAT(pay.receivable_date,'%Y-%m-%d')) AS expiryDays
         FROM scm_salescontract_pay pay
         LEFT JOIN scm_salescontract sales ON sales.id = pay.salescontract_id
