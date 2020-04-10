@@ -100,17 +100,19 @@
         sales.`id` AS salesContractId,
         sales.`contract_code` AS `contractCode`,
         sales.contract_date AS contractDate,
-        IFNULL(client.`id`,'') AS `clientId`,
+        IFNULL(client.`id`,0) AS `clientId`,
         client.`name` AS clientName,
-        IFNULL(salesUser.`user_id`,'') AS `userId`,
+        IFNULL(salesUser.`user_id`,0) AS `userId`,
         salesUser.`name` AS userName,
-        IFNULL(salesUserDept.dept_id,'') AS `deptId`,
+        IFNULL(salesUserDept.dept_id,0) AS `deptId`,
         salesUserDept.name AS deptName,
         materiel.serial_no AS materielSerialNo,
         materiel.name AS materielName,
         materiel.specification AS specification,
         unitUom.name AS unitUomName,
         SUM(item.`count`) AS `count`,
+        0 AS sign,
+        0 AS sortNo,
         SUM(item.`tax_amount`) AS taxAmount
         FROM
         scm_salescontract_item item
@@ -144,6 +146,8 @@
         salesUserDept.name AS deptName,
         sales.`contract_code` AS `contractCode`,
         sales.contract_date AS contractDate,
+        0 AS sign,
+        0 AS sortNo,
         SUM(pay.receivable_amount) AS receivableAmount,
         SUM(pay.received_amount) AS receivedAmount,
         SUM(pay.unpay_amount) AS unreceivedAmount
