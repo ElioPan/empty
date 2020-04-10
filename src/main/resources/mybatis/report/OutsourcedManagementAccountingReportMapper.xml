@@ -22,13 +22,15 @@
         unitUom.name AS unitUomName,
         item.`count` AS `count`,
         item.`tax_unit_price` AS taxUnitPrice,
-        item.`tax_amount` AS taxAmount
+        item.`tax_amount` AS taxAmount,
+        0 AS sign,
+        0 AS sortNo
         FROM
-        scm_outsourcingcontract_item item
-        LEFT JOIN scm_outsourcingcontract outsourcing ON outsourcing.id = item.outsourcingcontract_id
+        scm_outsourcing_contract_item item
+        LEFT JOIN scm_outsourcing_contract outsourcing ON outsourcing.id = item.contract_id
         LEFT JOIN cus_supplier supplier ON supplier.id = outsourcing.supplier_id
-        LEFT JOIN sys_user outsourcingUser ON outsourcingUser.user_id = outsourcing.outsourcing_person
-        LEFT JOIN sys_dept outsourcingUserDept ON outsourcingUserDept.dept_id = outsourcing.outsourcing_person_dept
+        LEFT JOIN sys_user outsourcingUser ON outsourcingUser.user_id = outsourcing.purchase_person
+        LEFT JOIN sys_dept outsourcingUserDept ON outsourcingUserDept.dept_id = outsourcingUser.dept_id
         LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
         LEFT JOIN cus_materiel_type materielType ON materielType.`id`=materiel.`type`
         LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
@@ -39,16 +41,16 @@
             <if test="supplierName != null and supplierName != ''"> and supplier.`name` LIKE #{supplierName} </if>
             <if test="supplierId != null and supplierId != ''"> and supplier.`id` = #{supplierId} </if>
             <if test="materielType != null and materielType != ''"> and materiel.`type` = #{materielType} </if>
-            <if test="userId != null and userId != ''"> and outsourcing.outsourcing_person = #{userId} </if>
+            <if test="userId != null and userId != ''"> and outsourcing.purchase_person = #{userId} </if>
             <if test="auditSign != null and auditSign != ''"> and outsourcing.audit_sign = #{auditSign} </if>
-            <if test="deptId != null and deptId != ''"> and outsourcing.outsourcing_person_dept = #{deptId} </if>
+            <if test="deptId != null and deptId != ''"> and outsourcingUserDept.dept_id = #{deptId} </if>
         </where>
         <choose>
             <when test="sort != null and sort.trim() != ''">
                 order by ${sort} ${order}
             </when>
             <otherwise>
-                order by outsourcing.`id` desc,item.`id`
+                order by outsourcing.`id` desc
             </otherwise>
         </choose>
         <if test="offset != null and limit != null">
@@ -163,6 +165,46 @@
         <if test="offset != null and limit != null">
             limit #{offset}, #{limit}
         </if>
+    </select>
+    <select id="contractPayItem" resultType="com.ev.report.vo.ContractPayItemVO">
+        SELECT
+        id,
+        paid_amount AS receivedAmount,
+        unpaid_amount AS unReceivedAmount,
+        contract_id AS sourceId
+        FROM scm_outsourcing_contract_pay
+        <where>
+            <if test="sourceIds != null and sourceIds.size()>0"> and contract_id IN
+                <foreach item="item" collection="sourceIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
+    </select>
+    <select id="billItem" resultType="com.ev.report.vo.ContractBillItemVO">
+        SELECT
+        item.`id`,
+        bill.bill_code AS `code`,
+        item.`source_id`,
+        item.`source_code`,
+        item.amount,
+        item.`count`
+        FROM
+        scm_processing_charge_item item
+        LEFT JOIN scm_processing_charge bill ON bill.id=item.charge_id
+        <where>
+            <if test="sourceIds != null and sourceIds.size()>0"> and item.source_id IN
+                <foreach item="item" collection="sourceIds" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+            <if test="sourceType != null and sourceType != ''"> and item.source_type = #{sourceType} </if>
+            <if test="auditSign != null and auditSign != ''"> and bill.audit_sign = #{auditSign} </if>
+        </where>
     </select>
 
 </mapper>

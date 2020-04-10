@@ -1,5 +1,8 @@
 package com.ev.report.service;
 
+import com.ev.report.vo.ContractBillItemVO;
+import com.ev.report.vo.ContractPayItemVO;
+
 import java.util.List;
 import java.util.Map;
 
@@ -19,4 +22,8 @@ public interface OutsourcedManagementAccountingReportService {
     List<Map<String, Object>> outsourcedContractList(Map<String, Object> params);
 
     List<Map<String, Object>> inOutReconciliationList(Map<String, Object> params);
+
+    List<ContractPayItemVO> contractPayItem(Map<String, Object> params);
+
+    List<ContractBillItemVO> billItem(Map<String, Object> params);
 }
