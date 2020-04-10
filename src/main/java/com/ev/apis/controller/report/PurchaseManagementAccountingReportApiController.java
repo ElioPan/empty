@@ -70,12 +70,13 @@ public class PurchaseManagementAccountingReportApiController {
             @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
 //            @ApiParam(value = "供应商") @RequestParam(value = "supplierName", defaultValue = "", required = false) String supplierName,
             @ApiParam(value = "供应商Id") @RequestParam(value = "supplierId", defaultValue = "", required = false) Long supplierId,
-
             @ApiParam(value = "部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
             @ApiParam(value = "采购员") @RequestParam(value = "userId", defaultValue = "", required = false) Long userId,
+            @ApiParam(value = "要显示详情 1是0否", required = true) @RequestParam(value = "showItem", defaultValue ="1") Integer showItem,
+            @ApiParam(value = "要显示小计 1是0否", required = true) @RequestParam(value = "showUser", defaultValue = "1") Integer showUser,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime
     ) {
-        // 查询列表数据
+
         Map<String, Object> params = Maps.newHashMap();
 
 //        params.put("supplierName", StringUtils.sqlLike(supplierName));
@@ -83,88 +84,8 @@ public class PurchaseManagementAccountingReportApiController {
         params.put("deptId", deptId);
         params.put("userId", userId);
         params.put("endTime", endTime);
-        Map<String, Object> results = Maps.newHashMap();
-        List<Map<String, Object>> debtDueLists = reportService.debtDueList(params);
-        if (debtDueLists.size() > 0) {
-            // 获取所有的供应商
-            List<String> supplierIds = debtDueLists
-                    .stream()
-                    .map(e -> e.get("supplierId").toString())
-                    .distinct()
-                    .collect(Collectors.toList());
-            int total = supplierIds.size();
-            // 将供应商分页
-            List<String> supplierIdsPage = PageUtils.startPage(supplierIds, pageno, pagesize);
+        return  reportService.disposeDebtDue(params,showItem, showUser);
 
-            // 获取分页下的部门的所有产品检验单
-            List<Map<String, Object>> debtDueList = debtDueLists
-                    .stream()
-                    .filter(e -> supplierIdsPage.contains(e.get("supplierId").toString()))
-                    .collect(Collectors.toList());
-
-            // 应付
-            Map<String, Double> payAmountMap = debtDueList
-                    .stream()
-                    .collect(Collectors.toMap(
-                            k -> k.get("supplierId").toString()
-                            , v -> Double.parseDouble(v.get("payAmount").toString())
-                            , Double::sum));
-            // 已付
-            Map<String, Double> amountPaidMap = debtDueList
-                    .stream()
-                    .collect(Collectors.toMap(
-                            k -> k.get("supplierId").toString()
-                            , v -> Double.parseDouble(v.get("amountPaid").toString())
-                            , Double::sum));
-
-            // 未付
-            Map<String, Double> unPayAmountMap = debtDueList
-                    .stream()
-                    .collect(Collectors.toMap(
-                            k -> k.get("supplierId").toString()
-                            , v -> Double.parseDouble(v.get("unPayAmount").toString())
-                            , Double::sum));
-
-            Map<String, String> supplierNameMap = debtDueList
-                    .stream()
-                    .collect(Collectors.toMap(
-                            k -> k.get("supplierId").toString()
-                            , v -> v.get("supplierName").toString()
-                            , (v1, v2) -> v1));
-
-            List<Map<String, Object>> data = Lists.newArrayList();
-            Map<String, Object> map;
-            for (String s : supplierNameMap.keySet()) {
-                map = Maps.newHashMap();
-                map.put("supplierId", s);
-                map.put("supplierName", supplierNameMap.get(s) + "小计");
-                map.put("totalPayAmount", payAmountMap.get(s));
-                map.put("totalAmountPaid", amountPaidMap.get(s));
-                map.put("totalUnPayAmount", unPayAmountMap.get(s));
-                data.add(map);
-            }
-            results.put("data", new DsResultResponse(pageno, pagesize, total, data));
-
-            Double totalReceivableAmount = debtDueLists
-                    .stream()
-                    .map(v -> Double.parseDouble(v.get("payAmount").toString()))
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
-            Double totalReceivedAmount = debtDueLists
-                    .stream()
-                    .map(v -> Double.parseDouble(v.get("amountPaid").toString()))
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
-            Double totalUnreceivedAmount = debtDueLists
-                    .stream()
-                    .map(v -> Double.parseDouble(v.get("unPayAmount").toString()))
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
-            results.put("totalPayAmount",totalReceivableAmount);
-            results.put("totalAmountPaid",totalReceivedAmount);
-            results.put("totalUnPayAmount",totalUnreceivedAmount);
-        }
-        return R.ok(results);
     }
 
     @EvApiByToken(value = "/apis/purchaseManagement/debtDue/item", method = RequestMethod.POST, apiTitle = "采购到期债务(详细)")

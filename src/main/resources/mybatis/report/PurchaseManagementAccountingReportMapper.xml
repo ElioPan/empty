@@ -62,6 +62,8 @@
 
     <select id="debtDueList" resultType="java.util.Map">
         SELECT
+        0 as sign,
+        0 as sortNo,
         pay.`id`,
         purchase.`id` AS purchaseContractId,
         supplier.`id` AS supplierId,
@@ -72,9 +74,19 @@
         purchase.contract_date AS contractDate,
         pay.remarks AS remarks,
         pay.due_date AS dueDate,
-        pay.pay_amount AS payAmount,
+        <!--pay.pay_amount AS payAmount,
         pay.amount_paid AS amountPaid,
-        pay.unpay_amount AS unPayAmount,
+        pay.unpay_amount AS unPayAmount,-->
+        CASE WHEN pay.pay_amount is null then 0
+                 WHEN  pay.pay_amount is not null then pay.pay_amount
+                   end as payAmount,
+        CASE WHEN pay.amount_paid is null then 0
+                WHEN  pay.amount_paid is not null then pay.amount_paid
+                 end as amountPaid,
+        CASE WHEN pay.unpay_amount is null then 0
+                WHEN  pay.unpay_amount is not null then pay.unpay_amount
+                  end as unPayAmount,
+
         DATEDIFF(DATE_FORMAT(now(),'%Y-%m-%d'),DATE_FORMAT(pay.due_date,'%Y-%m-%d')) AS expiryDays
         FROM scm_purchasecontract_pay pay
         LEFT JOIN scm_purchasecontract purchase ON purchase.id = pay.purchase_contract_id
@@ -89,6 +101,7 @@
             <if test="userId != null and userId != ''"> and purchase.buyer = #{userId} </if>
             <if test="deptId != null and deptId != ''"> and purchase.dept_id = #{deptId} </if>
             <if test="auditSign != null and auditSign != ''"> and purchase.audit_sign = #{auditSign} </if>
+             AND DATEDIFF(DATE_FORMAT(now(),'%Y-%m-%d'),DATE_FORMAT(pay.due_date,'%Y-%m-%d')) &gt; 0
              AND pay.unpay_amount &gt; 0
         </where>
         ORDER BY pay.due_date

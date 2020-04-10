@@ -56,7 +56,6 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
     }
 
 
-
     @Override
     public R disposeTracking(Map<String, Object> params, int showItem,int showUser) {
 
@@ -225,7 +224,6 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
             total.put("totailUnpayAmounts", totailUnpayAmounts);
 
             List<Map<String, Object>> ultimatelyDate = Lists.newArrayList();
-            //showItem,int showUser
             if(Objects.equals(0,showItem)&&Objects.equals(1,showUser)){
                 ultimatelyDate.addAll(totailList);
             }else if(Objects.equals(1,showItem)&&Objects.equals(0,showUser)){
@@ -234,7 +232,6 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
                 totailList.addAll(purchaseContractList);
                 ultimatelyDate.addAll(totailList);
             }
-
             List<Map<String, Object>> collect = ultimatelyDate.stream()
                     .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
                     .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("purchaseContractId").toString())))
@@ -244,6 +241,119 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
         }
         return R.ok(results);
     }
+
+
+    @Override
+    public R disposeDebtDue(Map<String, Object> params, int showItem,int showUser) {
+        Map<String, Object> results = Maps.newHashMap();
+
+        if(Objects.equals(0,showItem)&&Objects.equals(0,showUser)){
+            return R.ok(results);
+        }
+        List<Map<String, Object>> debtDueLists = this.debtDueList(params);
+        if (debtDueLists.size() > 0) {
+            // 获取所有的供应商
+            List<String> supplierIds = debtDueLists
+                    .stream()
+                    .map(e -> e.get("supplierId").toString())
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            // 应付
+            Map<String, Double> payAmountMap = debtDueLists
+                    .stream()
+                    .collect(Collectors.toMap(
+                            k -> k.get("supplierId").toString()
+                            , v -> Double.parseDouble(v.get("payAmount").toString())
+                            , Double::sum));
+            // 已付
+            Map<String, Double> amountPaidMap = debtDueLists
+                    .stream()
+                    .collect(Collectors.toMap(
+                            k -> k.get("supplierId").toString()
+                            , v -> Double.parseDouble(v.get("amountPaid").toString())
+                            , Double::sum));
+
+            // 未付
+            Map<String, Double> unPayAmountMap = debtDueLists
+                    .stream()
+                    .collect(Collectors.toMap(
+                            k -> k.get("supplierId").toString()
+                            , v -> Double.parseDouble(v.get("unPayAmount").toString())
+                            , Double::sum));
+
+            Map<String, String> supplierNameMap = debtDueLists
+                    .stream()
+                    .collect(Collectors.toMap(
+                            k -> k.get("supplierId").toString()
+                            , v -> v.get("supplierName").toString()
+                            , (v1, v2) -> v1));
+            Map<String, Double> expiryDays = debtDueLists
+                    .stream()
+                    .collect(Collectors.toMap(
+                            k -> k.get("supplierId").toString()
+                            , v -> Double.parseDouble(v.get("expiryDays").toString())
+                            , Double::sum));
+
+            List<Map<String, Object>> totalList = Lists.newArrayList();
+            Map<String, Object> totalMap;
+            for (String supplierId : supplierNameMap.keySet()) {
+                totalMap = Maps.newHashMap();
+                totalMap.put("sign","end");
+                totalMap.put("sortNo", 1);
+                totalMap.put("supplierId", supplierId);
+                totalMap.put("supplierName", supplierNameMap.get(supplierId) + "小计");
+                totalMap.put("payAmount", payAmountMap.get(supplierId));
+                totalMap.put("amountPaid", amountPaidMap.get(supplierId));
+                totalMap.put("unPayAmount", unPayAmountMap.get(supplierId));
+                totalMap.put("expiryDays", expiryDays.get(supplierId));
+
+                totalList.add(totalMap);
+            }
+            List<Map<String, Object>> ultimatelyDate = Lists.newArrayList();
+
+            if(Objects.equals(0,showItem)&&Objects.equals(1,showUser)){
+                ultimatelyDate.addAll(totalList);
+            }else if(Objects.equals(1,showItem)&&Objects.equals(0,showUser)){
+                ultimatelyDate.addAll(debtDueLists);
+            }else if(Objects.equals(1,showItem)&&Objects.equals(1,showUser)){
+                totalList.addAll(debtDueLists);
+                ultimatelyDate.addAll(totalList);
+            }
+            List<Map<String, Object>> collect = ultimatelyDate.stream()
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("supplierId").toString())))
+                    .collect(Collectors.toList());
+
+            Double totalReceivableAmount = collect
+                    .stream()
+                    .map(v -> Double.parseDouble(v.get("payAmount").toString()))
+                    .reduce(Double::sum)
+                    .orElse(0.0d);
+            Double totalReceivedAmount = collect
+                    .stream()
+                    .map(v -> Double.parseDouble(v.get("amountPaid").toString()))
+                    .reduce(Double::sum)
+                    .orElse(0.0d);
+            Double totalUnreceivedAmount = collect
+                    .stream()
+                    .map(v -> Double.parseDouble(v.get("unPayAmount").toString()))
+                    .reduce(Double::sum)
+                    .orElse(0.0d);
+            Double totalExpiryDays = collect
+                    .stream()
+                    .map(v -> Double.parseDouble(v.get("expiryDays").toString()))
+                    .reduce(Double::sum)
+                    .orElse(0.0d);
+            results.put("ultimatelyDate",collect);
+            results.put("totalPayAmount",totalReceivableAmount);
+            results.put("totalAmountPaid",totalReceivedAmount);
+            results.put("totalUnPayAmount",totalUnreceivedAmount);
+            results.put("totalExpiryDays",totalExpiryDays);
+        }
+        return R.ok(results);
+    }
+
 
 
 

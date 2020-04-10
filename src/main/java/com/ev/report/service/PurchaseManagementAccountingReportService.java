@@ -31,5 +31,5 @@ public interface PurchaseManagementAccountingReportService {
 
     List<Map<String, Object>> getPayAmount(Map<String, Object> params);
 
-
+    R disposeDebtDue(Map<String, Object> params, int showItem,int showUser);
 }
