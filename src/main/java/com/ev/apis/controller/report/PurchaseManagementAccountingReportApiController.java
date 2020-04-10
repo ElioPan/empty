@@ -44,13 +44,14 @@ public class PurchaseManagementAccountingReportApiController {
             @ApiParam(value = "部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
             @ApiParam(value = "采购员") @RequestParam(value = "userId", defaultValue = "", required = false) Long userId,
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
+            @ApiParam(value = "要显示详情 1是0否", required = true) @RequestParam(value = "showItem", defaultValue ="1") Integer showItem,
+            @ApiParam(value = "要显示小计 1是0否", required = true) @RequestParam(value = "showUser", defaultValue = "1") Integer showUser,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime
     ) {
         // 查询列表数据
         Map<String, Object> params = Maps.newHashMap();
 //        params.put("offset", (pageno - 1) * pagesize);
 //        params.put("limit", pagesize);
-
         params.put("supplierName", StringUtils.sqlLike(supplierName));
         params.put("materielType", materielType);
         params.put("deptId", deptId);
@@ -59,7 +60,7 @@ public class PurchaseManagementAccountingReportApiController {
         params.put("endTime", endTime);
         params.put("auditSign", ConstantForMES.OK_AUDITED);
 
-       return  reportService.disposeTracking(params,pageno, pagesize);
+       return  reportService.disposeTracking(params,showItem, showUser);
     }
 
     @EvApiByToken(value = "/apis/purchaseManagement/debtDue", method = RequestMethod.POST, apiTitle = "采购到期债务(供应商小计)")

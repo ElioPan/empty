@@ -11,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -61,10 +58,13 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
 
 
     @Override
-    public R disposeTracking(Map<String, Object> params, int pageno,int pagesize) {
+    public R disposeTracking(Map<String, Object> params, int showItem,int showUser) {
 
         Map<String, Object> results = Maps.newHashMap();
         // 采购合同
+        if(Objects.equals(0,showItem)&&Objects.equals(0,showUser)){
+            return R.ok(results);
+        }
         List<Map<String, Object>> purchaseContractList = this.purchaseContractList(params);
         if (purchaseContractList.size() > 0) {
 
@@ -197,7 +197,7 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
                 totailMap.put("sortNo", 1);
                 totailMap.put("contractCode", "合同" + contractCode.get(contractId) + "小计");
                 totailMap.put("count", totailPurchseCount.get(contractId));
-                totailCount = totailCount.add(new BigDecimal(totailPurchseCount.getOrDefault("contractId",0.0).toString()));
+                totailCount = totailCount.add(new BigDecimal(totailPurchseCount.getOrDefault(contractId,0.0).toString()));
                 totailMap.put("taxAmount", totailPurchseAmount.get(contractId));
                 totailTaxAmount = totailTaxAmount.add(new BigDecimal(totailPurchseAmount.getOrDefault(contractId,0.0).toString()));
                 totailMap.put("inStockCount", totailInStoredCount.get(contractId));
@@ -224,9 +224,18 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
             total.put("totailAmountPaids",totailAmountPaids );
             total.put("totailUnpayAmounts", totailUnpayAmounts);
 
-            totailList.addAll(purchaseContractList);
+            List<Map<String, Object>> ultimatelyDate = Lists.newArrayList();
+            //showItem,int showUser
+            if(Objects.equals(0,showItem)&&Objects.equals(1,showUser)){
+                ultimatelyDate.addAll(totailList);
+            }else if(Objects.equals(1,showItem)&&Objects.equals(0,showUser)){
+                ultimatelyDate.addAll(purchaseContractList);
+            }else if(Objects.equals(1,showItem)&&Objects.equals(1,showUser)){
+                totailList.addAll(purchaseContractList);
+                ultimatelyDate.addAll(totailList);
+            }
 
-            List<Map<String, Object>> collect = totailList.stream()
+            List<Map<String, Object>> collect = ultimatelyDate.stream()
                     .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
                     .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("purchaseContractId").toString())))
                     .collect(Collectors.toList());
