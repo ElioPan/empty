@@ -269,7 +269,10 @@ public class SalesManagementAccountingReportApiController {
         params.put("endTime", endTime);
         Map<String, Object> results = Maps.newHashMap();
         List<Map<String, Object>> debtDueLists = reportService.debtDueList(params);
-
+        debtDueLists = debtDueLists
+                .stream()
+                .filter(e->Integer.parseInt(e.get("expiryDays").toString())>0)
+                .collect(Collectors.toList());
 
         if (debtDueLists.size() > 0) {
 
