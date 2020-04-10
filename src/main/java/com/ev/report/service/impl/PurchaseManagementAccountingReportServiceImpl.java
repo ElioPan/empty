@@ -1,6 +1,8 @@
 package com.ev.report.service.impl;
 
+import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.config.ConstantForGYL;
+import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
 import com.ev.report.dao.PurchaseManagementAccountingReportDao;
 import com.ev.report.service.PurchaseManagementAccountingReportService;
@@ -252,12 +254,6 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
         }
         List<Map<String, Object>> debtDueLists = this.debtDueList(params);
         if (debtDueLists.size() > 0) {
-            // 获取所有的供应商
-            List<String> supplierIds = debtDueLists
-                    .stream()
-                    .map(e -> e.get("supplierId").toString())
-                    .distinct()
-                    .collect(Collectors.toList());
 
             // 应付
             Map<String, Double> payAmountMap = debtDueLists
@@ -288,12 +284,12 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
                             k -> k.get("supplierId").toString()
                             , v -> v.get("supplierName").toString()
                             , (v1, v2) -> v1));
-            Map<String, Double> expiryDays = debtDueLists
-                    .stream()
-                    .collect(Collectors.toMap(
-                            k -> k.get("supplierId").toString()
-                            , v -> Double.parseDouble(v.get("expiryDays").toString())
-                            , Double::sum));
+//            Map<String, Double> expiryDays = debtDueLists
+//                    .stream()
+//                    .collect(Collectors.toMap(
+//                            k -> k.get("supplierId").toString()
+//                            , v -> Double.parseDouble(v.get("expiryDays").toString())
+//                            , Double::sum));
 
             List<Map<String, Object>> totalList = Lists.newArrayList();
             Map<String, Object> totalMap;
@@ -306,7 +302,7 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
                 totalMap.put("payAmount", payAmountMap.get(supplierId));
                 totalMap.put("amountPaid", amountPaidMap.get(supplierId));
                 totalMap.put("unPayAmount", unPayAmountMap.get(supplierId));
-                totalMap.put("expiryDays", expiryDays.get(supplierId));
+//                totalMap.put("expiryDays", expiryDays.get(supplierId));
 
                 totalList.add(totalMap);
             }
@@ -340,23 +336,96 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
                     .map(v -> Double.parseDouble(v.get("unPayAmount").toString()))
                     .reduce(Double::sum)
                     .orElse(0.0d);
-            Double totalExpiryDays = collect
-                    .stream()
-                    .map(v -> Double.parseDouble(v.get("expiryDays").toString()))
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
+//            Double totalExpiryDays = collect
+//                    .stream()
+//                    .map(v -> Double.parseDouble(v.get("expiryDays").toString()))
+//                    .reduce(Double::sum)
+//                    .orElse(0.0d);
             results.put("ultimatelyDate",collect);
             results.put("totalPayAmount",totalReceivableAmount);
             results.put("totalAmountPaid",totalReceivedAmount);
             results.put("totalUnPayAmount",totalUnreceivedAmount);
-            results.put("totalExpiryDays",totalExpiryDays);
+//            results.put("totalExpiryDays",totalExpiryDays);
         }
         return R.ok(results);
     }
 
 
 
+    @Override
+    public R disposePriceAnalysis(Map<String, Object> params,int pageno,int pagesize ){
 
+        Map<String, Object> results = Maps.newHashMap();
+        // 获取采购合同列表
+        List<PurchaseContractVO> priceAnalysisLists = this.priceAnalysisList(params);
+        if (priceAnalysisLists.size() > 0) {
+            List<String> supplierIds = priceAnalysisLists
+                    .stream()
+                    .map(e->e.getMaterielId()+"&"+e.getSupplierId())
+                    .distinct()
+                    .collect(Collectors.toList());
+            int total = supplierIds.size();
+            // 将供应商分页
+            List<String> supplierIdsPage = PageUtils.startPage(supplierIds, pageno, pagesize);
+            // 获取分页后的供应商
+            List<PurchaseContractVO> priceAnalysisList = priceAnalysisLists
+                    .stream()
+                    .filter(e -> supplierIdsPage.contains(e.getMaterielId()+"&"+e.getSupplierId()))
+                    .collect(Collectors.toList());
+            // 统计供应商物料总数量
+            Map<Long, Map<Long, Double>> countMap = priceAnalysisList
+                    .stream()
+                    .collect(Collectors.groupingBy(PurchaseContractVO::getSupplierId,Collectors.groupingBy(PurchaseContractVO::getMaterielId
+                                            , Collectors.summingDouble(PurchaseContractVO::getCount))));
+            // 统计供应商物料总金额
+            Map<Long, Map<Long, Double>> amountMap = priceAnalysisList
+                    .stream()
+                    .collect(Collectors.groupingBy(PurchaseContractVO::getSupplierId
+                                    , Collectors.groupingBy(PurchaseContractVO::getMaterielId
+                                            , Collectors.summingDouble(PurchaseContractVO::getTaxAmount))));
+            // 统计供应商最高价格 最低价格 平均价格
+            Map<Long, Map<Long, DoubleSummaryStatistics>> priceMap = priceAnalysisList
+                    .stream()
+                    .collect(Collectors.groupingBy(PurchaseContractVO::getSupplierId
+                                    , Collectors.groupingBy(PurchaseContractVO::getMaterielId
+                                            , Collectors.summarizingDouble(PurchaseContractVO::getTaxUnitPrice))));
+            // 最新价格
+            Map<Long, Map<Long, Optional<PurchaseContractVO>>> latestPriceMap = priceAnalysisList
+                    .stream()
+                    .collect(Collectors.groupingBy(PurchaseContractVO::getSupplierId
+                                    , Collectors.groupingBy(PurchaseContractVO::getMaterielId
+                                            , Collectors.maxBy(Comparator.comparing(PurchaseContractVO::getId)))));
+            List<PurchaseContractVO> resultList = Lists.newArrayList();
+            for (Long supplier : amountMap.keySet()) {
+                Map<Long, Double> materielMapForCount = countMap.get(supplier);
+                Map<Long, Double> materielMapForAmount = amountMap.get(supplier);
+                Map<Long, DoubleSummaryStatistics> materielMapForPrice = priceMap.get(supplier);
+                Map<Long, Optional<PurchaseContractVO>> materielMapForLatestPrice = latestPriceMap.get(supplier);
+
+                for (Long materiel : materielMapForAmount.keySet()) {
+                    for (PurchaseContractVO purchaseContractVO : priceAnalysisList) {
+                        Long supplierId1 = purchaseContractVO.getSupplierId();
+                        Long materielId1 = purchaseContractVO.getMaterielId();
+                        if(supplier.equals(supplierId1)){
+                            if(materiel.equals(materielId1)){
+                                DoubleSummaryStatistics doubleSummaryStatistics = materielMapForPrice.get(materiel);
+                                purchaseContractVO.setCount(materielMapForCount.get(materiel));
+                                purchaseContractVO.setTaxAmount(materielMapForAmount.get(materiel));
+                                purchaseContractVO.setMaxUnitPrice(doubleSummaryStatistics.getMax());
+                                purchaseContractVO.setMinUnitPrice(doubleSummaryStatistics.getMin());
+                                purchaseContractVO.setAvgUnitPrice(doubleSummaryStatistics.getAverage());
+                                purchaseContractVO.setLatestUnitPrice(materielMapForLatestPrice.get(materiel).orElse(new PurchaseContractVO()).getTaxUnitPrice());
+                                resultList.add(purchaseContractVO);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            results.put("data", new DsResultResponse(pageno, pagesize, total, resultList));
+        }
+        return R.ok(results);
+    }
 
 
 

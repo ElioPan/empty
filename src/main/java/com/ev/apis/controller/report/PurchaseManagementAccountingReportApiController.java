@@ -7,7 +7,6 @@ import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.report.service.PurchaseManagementAccountingReportService;
-import com.ev.report.vo.PurchaseContractVO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
@@ -18,7 +17,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -78,7 +78,6 @@ public class PurchaseManagementAccountingReportApiController {
     ) {
 
         Map<String, Object> params = Maps.newHashMap();
-
 //        params.put("supplierName", StringUtils.sqlLike(supplierName));
         params.put("supplierId", supplierId);
         params.put("deptId", deptId);
@@ -88,29 +87,7 @@ public class PurchaseManagementAccountingReportApiController {
 
     }
 
-    @EvApiByToken(value = "/apis/purchaseManagement/debtDue/item", method = RequestMethod.POST, apiTitle = "采购到期债务(详细)")
-    @ApiOperation("采购到期债务(详细)")
-    public R debtDueItem(
-            @ApiParam(value = "供应商ID", required = true) @RequestParam(value = "supplierId", defaultValue = "") Long supplierId,
-            @ApiParam(value = "部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
-            @ApiParam(value = "采购员") @RequestParam(value = "userId", defaultValue = "", required = false) Long userId,
-            @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime
-    ) {
-        // 查询列表数据
-        Map<String, Object> params = Maps.newHashMap();
 
-        params.put("supplierId", supplierId);
-        params.put("deptId", deptId);
-        params.put("userId", userId);
-        params.put("endTime", endTime);
-
-        Map<String, Object> results = Maps.newHashMap();
-        List<Map<String, Object>> debtDueLists = reportService.debtDueList(params);
-        if (debtDueLists.size() > 0) {
-            results.put("data", debtDueLists);
-        }
-        return R.ok(results);
-    }
 
     @EvApiByToken(value = "/apis/purchaseManagement/balance", method = RequestMethod.POST, apiTitle = "采购合同余额(供应商小计)")
     @ApiOperation("采购合同余额(供应商小计)")
@@ -259,88 +236,62 @@ public class PurchaseManagementAccountingReportApiController {
         params.put("supplierId", supplierId);
         params.put("deptId", deptId);
         params.put("materielId", materielId);
-
         params.put("startTime", startTime);
         params.put("endTime", endTime);
-
         params.put("auditSign", ConstantForMES.OK_AUDITED);
-        Map<String, Object> results = Maps.newHashMap();
 
-        // 获取采购合同列表
-        List<PurchaseContractVO> priceAnalysisLists = reportService.priceAnalysisList(params);
-        if (priceAnalysisLists.size() > 0) {
-            List<String> supplierIds = priceAnalysisLists
-                    .stream()
-                    .map(e->e.getMaterielId()+"&"+e.getSupplierId())
-                    .distinct()
-                    .collect(Collectors.toList());
-            int total = supplierIds.size();
-            // 将供应商分页
-            List<String> supplierIdsPage = PageUtils.startPage(supplierIds, pageno, pagesize);
-            // 获取分页后的供应商
-            List<PurchaseContractVO> priceAnalysisList = priceAnalysisLists
-                    .stream()
-                    .filter(e -> supplierIdsPage.contains(e.getMaterielId()+"&"+e.getSupplierId()))
-                    .collect(Collectors.toList());
-            // 统计供应商物料总数量
-            Map<Long, Map<Long, Double>> countMap = priceAnalysisList
-                    .stream()
-                    .collect(
-                            Collectors.groupingBy(PurchaseContractVO::getSupplierId
-                                    , Collectors.groupingBy(PurchaseContractVO::getMaterielId
-                                            , Collectors.summingDouble(PurchaseContractVO::getCount))));
-            // 统计供应商物料总金额
-            Map<Long, Map<Long, Double>> amountMap = priceAnalysisList
-                    .stream()
-                    .collect(
-                            Collectors.groupingBy(PurchaseContractVO::getSupplierId
-                                    , Collectors.groupingBy(PurchaseContractVO::getMaterielId
-                                            , Collectors.summingDouble(PurchaseContractVO::getTaxAmount))));
-            // 统计供应商最高价格 最低价格 平均价格
-            Map<Long, Map<Long, DoubleSummaryStatistics>> priceMap = priceAnalysisList
-                    .stream()
-                    .collect(
-                            Collectors.groupingBy(PurchaseContractVO::getSupplierId
-                                    , Collectors.groupingBy(PurchaseContractVO::getMaterielId
-                                            , Collectors.summarizingDouble(PurchaseContractVO::getTaxUnitPrice))));
-            // 最新价格
-            Map<Long, Map<Long, Optional<PurchaseContractVO>>> latestPriceMap = priceAnalysisList
-                    .stream()
-                    .collect(
-                            Collectors.groupingBy(PurchaseContractVO::getSupplierId
-                                    , Collectors.groupingBy(PurchaseContractVO::getMaterielId
-                                            , Collectors.maxBy(Comparator.comparing(PurchaseContractVO::getId)))));
-            List<PurchaseContractVO> resultList = Lists.newArrayList();
-            for (Long supplier : amountMap.keySet()) {
-                Map<Long, Double> materielMapForCount = countMap.get(supplier);
-                Map<Long, Double> materielMapForAmount = amountMap.get(supplier);
-                Map<Long, DoubleSummaryStatistics> materielMapForPrice = priceMap.get(supplier);
-                Map<Long, Optional<PurchaseContractVO>> materielMapForLatestPrice = latestPriceMap.get(supplier);
-
-                for (Long materiel : materielMapForAmount.keySet()) {
-                    for (PurchaseContractVO purchaseContractVO : priceAnalysisList) {
-                        Long supplierId1 = purchaseContractVO.getSupplierId();
-                        Long materielId1 = purchaseContractVO.getMaterielId();
-                        if(supplier.equals(supplierId1)){
-                            if(materiel.equals(materielId1)){
-                                DoubleSummaryStatistics doubleSummaryStatistics = materielMapForPrice.get(materiel);
-                                purchaseContractVO.setCount(materielMapForCount.get(materiel));
-                                purchaseContractVO.setTaxAmount(materielMapForAmount.get(materiel));
-                                purchaseContractVO.setMaxUnitPrice(doubleSummaryStatistics.getMax());
-                                purchaseContractVO.setMinUnitPrice(doubleSummaryStatistics.getMin());
-                                purchaseContractVO.setAvgUnitPrice(doubleSummaryStatistics.getAverage());
-                                purchaseContractVO.setLatestUnitPrice(materielMapForLatestPrice.get(materiel).orElse(new PurchaseContractVO()).getTaxUnitPrice());
-                                resultList.add(purchaseContractVO);
-                                break;
-                            }
-                        }
-
-                    }
-                }
-
-            }
-            results.put("data", new DsResultResponse(pageno, pagesize, total, resultList));
-        }
-        return R.ok(results);
+        return reportService.disposePriceAnalysis(params,pageno,pagesize);
     }
+
+
+
+//    @EvApiByToken(value = "/apis/purchaseManagement/balance/item", method = RequestMethod.POST, apiTitle = "采购合同余额(详细)")
+//    @ApiOperation("采购合同余额(详细)")
+//    public R balanceItem(
+//            @ApiParam(value = "供应商ID", required = true) @RequestParam(value = "supplierId", defaultValue = "") Long supplierId,
+//            @ApiParam(value = "部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
+//            @ApiParam(value = "采购员") @RequestParam(value = "userId", defaultValue = "", required = false) Long userId,
+//            @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime
+//    ) {
+//        // 查询列表数据
+//        Map<String, Object> params = Maps.newHashMap();
+//
+//        params.put("supplierId", supplierId);
+//        params.put("deptId", deptId);
+//        params.put("userId", userId);
+//        params.put("endTime", endTime);
+//
+//        Map<String, Object> results = Maps.newHashMap();
+//        List<Map<String, Object>> balanceLists = reportService.balanceList(params);
+//        if (balanceLists.size() > 0) {
+//            results.put("data", balanceLists);
+//        }
+//        return R.ok(results);
+//    }
+
+//    @EvApiByToken(value = "/apis/purchaseManagement/debtDue/item", method = RequestMethod.POST, apiTitle = "采购到期债务(详细)")
+//    @ApiOperation("采购到期债务(详细)")
+//    public R debtDueItem(
+//            @ApiParam(value = "供应商ID", required = true) @RequestParam(value = "supplierId", defaultValue = "") Long supplierId,
+//            @ApiParam(value = "部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
+//            @ApiParam(value = "采购员") @RequestParam(value = "userId", defaultValue = "", required = false) Long userId,
+//            @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime
+//    ) {
+//        // 查询列表数据
+//        Map<String, Object> params = Maps.newHashMap();
+//
+//        params.put("supplierId", supplierId);
+//        params.put("deptId", deptId);
+//        params.put("userId", userId);
+//        params.put("endTime", endTime);
+//
+//        Map<String, Object> results = Maps.newHashMap();
+//        List<Map<String, Object>> debtDueLists = reportService.debtDueList(params);
+//        if (debtDueLists.size() > 0) {
+//            results.put("data", debtDueLists);
+//        }
+//        return R.ok(results);
+//    }
+
+
 }
