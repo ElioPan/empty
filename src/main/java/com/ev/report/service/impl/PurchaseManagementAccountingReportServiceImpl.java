@@ -192,6 +192,7 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
             for (int i=0;i< contractIds.size();i++) {
                 Map<String, Object> totailMap = new HashMap<>();
                 String contractId=contractIds.get(i);
+                totailMap.put("sign", 1);
                 totailMap.put("purchaseContractId", contractId);
                 totailMap.put("sortNo", 1);
                 totailMap.put("contractCode", "合同" + contractCode.get(contractId) + "小计");

@@ -5,6 +5,7 @@
 
     <select id="purchaseContractList" resultType="java.util.Map">
         SELECT
+        0 as sign,
         item.`id`,
         0 as sortNo,
         purchase.`id` AS purchaseContractId,
