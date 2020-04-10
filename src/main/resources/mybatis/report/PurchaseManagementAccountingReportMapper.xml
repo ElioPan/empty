@@ -143,6 +143,8 @@
 
     <select id="balanceList" resultType="java.util.Map">
         SELECT
+        0 as sign,
+        0 as sortNo,
         pay.`id`,
         purchase.`id` AS purchaseContractId,
         supplier.`id` AS supplierId,

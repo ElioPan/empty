@@ -35,5 +35,7 @@ public interface PurchaseManagementAccountingReportService {
 
     R  disposePriceAnalysis(Map<String, Object>params,int pageno,int pagesize );
 
+    R  disposeBalance(Map<String, Object>  params,int showItem,int showUser);
+
 
 }
