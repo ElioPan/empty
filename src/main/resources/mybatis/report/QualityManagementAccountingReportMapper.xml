@@ -18,6 +18,8 @@
         poor.`name` AS poorName,
         inspection.dept_id AS deptId,
         dept.`name` AS deptName,
+        0 AS sign,
+        0 AS sortNo,
         SUM(detail.unqualified_count) AS unqualifiedCount
         FROM mes_material_inspection_detail detail
         LEFT JOIN mes_material_inspection inspection ON detail.`head_id`=inspection.id
