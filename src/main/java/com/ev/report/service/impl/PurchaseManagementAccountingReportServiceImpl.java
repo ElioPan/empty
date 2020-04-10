@@ -64,7 +64,7 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
     public R disposeTracking(Map<String, Object> params, int pageno,int pagesize) {
 
         Map<String, Object> results = Maps.newHashMap();
-        // 获取采购合同列表
+        // 采购合同
         List<Map<String, Object>> purchaseContractList = this.purchaseContractList(params);
         if (purchaseContractList.size() > 0) {
 
@@ -89,7 +89,7 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
             peramy.put("storageType", ConstantForGYL.PURCHASE_INSTOCK);
             peramy.put("sourceId", sourceIds);
 
-            //购入库数量（itemId）
+            //入库（itemId）
             List<Map<String, Object>> inStockCount = this.getInCount(peramy);
             Map<String, Double> inStockCountMap = inStockCount
                     .stream()
@@ -97,7 +97,7 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
                             k -> k.get("sourceId").toString()
                             , v -> Double.parseDouble(v.get("count").toString())
                             , Double::sum));
-            //采购发票信息（itemId）
+            //采购发票（itemId）
             List<Map<String, Object>> invoiceCountAndAmount = this.getInvoiceCountAndAmount(peramy);
             Map<String, Double> invoiceCountMap = invoiceCountAndAmount
                     .stream()
@@ -124,7 +124,7 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
                 purchaseContract.put("invoicedCount", invoicedCount);
             }
 
-            //付款条件信息(contractIds)
+            //付款(contractIds)
             peramy.put("contractId", contractIds);
             List<Map<String, Object>> payAmount = this.getPayAmount(peramy);
 
@@ -140,8 +140,7 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
                             k -> k.get("purchaseContractId").toString()
                             , v -> Double.parseDouble(v.get("unpayAmount").toString())
                             , Double::sum));
-
-            //组装小计
+            //小计
             Map<String, Double> totailPurchseCount = purchaseContractList
                     .stream()
                     .collect(Collectors.toMap(
