@@ -67,6 +67,8 @@
         unituom.name AS unitUomName,
         mpo.id AS poorId,
         mpo.name AS poorName,
+        0 AS sign,
+        0 AS sortNo,
         item.rejects_count AS rejectsCount
         FROM
         mes_process_report_check_item item

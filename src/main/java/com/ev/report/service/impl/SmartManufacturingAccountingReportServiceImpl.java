@@ -441,7 +441,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                         // 部门总计标2 用户总计标1 详情标0
                         pieceRateVO.setSign(1);
                         pieceRateVO.setDeptId(s);
-                        pieceRateVO.setDeptName(userNameMap.get(userId) + "小计");
+                        pieceRateVO.setOperatorName(userNameMap.get(userId) + "小计");
                         pieceRateVO.setOperator(userId);
                         pieceRateVO.setSortNo(userId);
                         pieceRateVO.setTotalPrice( totalPieceRate == null ? 0.0d : totalPieceRate);
