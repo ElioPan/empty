@@ -9,8 +9,8 @@ import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.report.service.SalesManagementAccountingReportService;
 import com.ev.report.service.WarehouseAccountingReportService;
-import com.ev.report.vo.ContractPayItemVO;
 import com.ev.report.vo.ContractBillItemVO;
+import com.ev.report.vo.ContractPayItemVO;
 import com.ev.report.vo.StockOutItemVO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -22,9 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -81,9 +79,10 @@ public class SalesManagementAccountingReportApiController {
                     .map(e -> e.get("id"))
                     .collect(Collectors.toList());
 
-            List<Object> contractIds = salesContractList
+            List<Long> contractIds = salesContractList
                     .stream()
-                    .map(e -> e.get("salesContractId"))
+                    .map(e -> Long.parseLong(e.get("salesContractId").toString()))
+                    .distinct()
                     .collect(Collectors.toList());
 
             params.clear();
@@ -158,6 +157,8 @@ public class SalesManagementAccountingReportApiController {
             List<Map<String, Object>> showList = Lists.newArrayList();
 
             Map<String,Object> totalMap;
+            List<Long> copyContractIds = new ArrayList<>(contractIds);
+
             for (Map<String, Object> map : salesContractList) {
                 long itemId = Long.parseLong(map.get("id").toString());
                 map.put("outCount",stockCountGroup.getOrDefault(itemId,0.0d));
@@ -169,7 +170,7 @@ public class SalesManagementAccountingReportApiController {
                 if(showTotal){
                     String sourceCode = map.get("contractCode").toString();
                     Long sourceId = Long.parseLong(map.get("salesContractId").toString());
-                    if (totalStockCountGroup.containsKey(sourceCode)) {
+                    if (copyContractIds.contains(sourceId)) {
                         totalMap = Maps.newHashMap();
                         totalMap.put("salesContractId",sourceId);
                         totalMap.put("contractCode",sourceCode+"小计");
@@ -188,7 +189,7 @@ public class SalesManagementAccountingReportApiController {
 
                         totalMap.put("sortNo",1);
                         showList.add(totalMap);
-                        totalStockCountGroup.remove(sourceCode);
+                        copyContractIds.remove(sourceId);
                     }
                 }
             }
@@ -201,7 +202,48 @@ public class SalesManagementAccountingReportApiController {
                     .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("salesContractId").toString())))
                     .collect(Collectors.toList());
             results.put("data",collect);
-
+            Map<String,Object> totalResult = Maps.newHashMap();
+            totalResult.put("count",totalSalesCountGroup
+                    .values()
+                    .stream()
+                    .reduce(Double::sum)
+                    .orElse(0.0d));
+            totalResult.put("taxAmount",totalSalesAmountGroup
+                    .values()
+                    .stream()
+                    .reduce(Double::sum)
+                    .orElse(0.0d));
+            totalResult.put("outCount",totalStockCountGroup
+                    .values()
+                    .stream()
+                    .reduce(Double::sum)
+                    .orElse(0.0d));
+            totalResult.put("outAmount",totalStockAmountGroup
+                    .values()
+                    .stream()
+                    .reduce(Double::sum)
+                    .orElse(0.0d));
+            totalResult.put("billCount",totalBillCountGroup
+                    .values()
+                    .stream()
+                    .reduce(Double::sum)
+                    .orElse(0.0d));
+            totalResult.put("billAmount",totalBillAmountGroup
+                    .values()
+                    .stream()
+                    .reduce(Double::sum)
+                    .orElse(0.0d));
+            totalResult.put("totalReceivedAmount",totalReceivedAmountGroup
+                    .values()
+                    .stream()
+                    .reduce(Double::sum)
+                    .orElse(0.0d));
+            totalResult.put("totalUnReceivedAmount",totalUnReceivedAmountGroup
+                    .values()
+                    .stream()
+                    .reduce(Double::sum)
+                    .orElse(0.0d));
+            results.put("total",totalResult);
         }
         return R.ok(results);
     }
