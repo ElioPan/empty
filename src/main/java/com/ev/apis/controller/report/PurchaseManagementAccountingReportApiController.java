@@ -48,8 +48,8 @@ public class PurchaseManagementAccountingReportApiController {
     ) {
         // 查询列表数据
         Map<String, Object> params = Maps.newHashMap();
-        params.put("offset", (pageno - 1) * pagesize);
-        params.put("limit", pagesize);
+//        params.put("offset", (pageno - 1) * pagesize);
+//        params.put("limit", pagesize);
 
         params.put("supplierName", StringUtils.sqlLike(supplierName));
         params.put("materielType", materielType);
@@ -57,54 +57,9 @@ public class PurchaseManagementAccountingReportApiController {
         params.put("userId", userId);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
-
         params.put("auditSign", ConstantForMES.OK_AUDITED);
-        Map<String, Object> results = Maps.newHashMap();
 
-        // 获取采购合同列表
-        List<Map<String, Object>> purchaseContractList = reportService.purchaseContractList(params);
-        if (purchaseContractList.size() > 0) {
-            List<String> supplierIds = purchaseContractList
-                    .stream()
-                    .map(e -> e.get("supplierId").toString())
-                    .distinct()
-                    .collect(Collectors.toList());
-            int total = supplierIds.size();
-            // 将供应商分页
-            List<String> supplierIdsPage = PageUtils.startPage(supplierIds, pageno, pagesize);
-            // 获取分页后的供应商检验单
-            List<Map<String, Object>> badPurchaseList = purchaseContractList
-                    .stream()
-                    .filter(e -> supplierIdsPage.contains(e.get("supplierId").toString()))
-                    .collect(Collectors.toList());
-
-            Map<String, Double> unqualifiedCountMap = badPurchaseList
-                    .stream()
-                    .collect(Collectors.toMap(
-                            k -> k.get("supplierId").toString()
-                            , v -> Double.parseDouble(v.get("unqualifiedCount").toString())
-                            , Double::sum));
-
-            Map<String, String> supplierNameMap = badPurchaseList
-                    .stream()
-                    .collect(Collectors.toMap(
-                            k -> k.get("supplierId").toString()
-                            , v -> v.get("supplierName").toString()
-                            , (v1, v2) -> v1));
-
-            List<Map<String, Object>> data = Lists.newArrayList();
-            Map<String, Object> map;
-            for (String s : supplierNameMap.keySet()) {
-                map = Maps.newHashMap();
-                map.put("supplierId", s);
-                map.put("supplierName", supplierNameMap.get(s) + "小计");
-                map.put("count", unqualifiedCountMap.get(s));
-                data.add(map);
-            }
-
-            results.put("data", new DsResultResponse(pageno, pagesize, total, data));
-        }
-        return R.ok(results);
+       return  reportService.disposeTracking(params,pageno, pagesize);
     }
 
     @EvApiByToken(value = "/apis/purchaseManagement/debtDue", method = RequestMethod.POST, apiTitle = "采购到期债务(供应商小计)")

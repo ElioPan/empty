@@ -23,4 +23,12 @@ public interface PurchaseManagementAccountingReportDao {
     List<PurchaseContractVO> priceAnalysisList(Map<String, Object> params);
 
     List<Map<String, Object>> balanceList(Map<String, Object> params);
+
+    List<Map<String, Object>> getInCount(Map<String, Object> params);
+
+    List<Map<String, Object>> getInvoiceCountAndAmount(Map<String, Object> params);
+
+    List<Map<String, Object>> getPayAmount(Map<String, Object> params);
+
+
 }

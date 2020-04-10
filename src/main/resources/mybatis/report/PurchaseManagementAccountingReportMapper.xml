@@ -6,15 +6,18 @@
     <select id="purchaseContractList" resultType="java.util.Map">
         SELECT
         item.`id`,
+        0 as sortNo,
         purchase.`id` AS purchaseContractId,
         purchase.`contract_code` AS `contractCode`,
         purchase.contract_date AS contractDate,
+        purchase.create_time as createTime,
         supplier.`id` AS `supplierId`,
         supplier.`name` AS supplierName,
         purchaseUser.`user_id` AS `userId`,
         purchaseUser.`name` AS userName,
         purchaseUserDept.dept_id AS `deptId`,
         purchaseUserDept.name AS deptName,
+        item.`materiel_id` as materielId,
         materielType.name AS materielTypeName,
         materiel.serial_no AS materielSerialNo,
         materiel.name AS materielName,
@@ -25,10 +28,10 @@
         item.`tax_amount` AS taxAmount
         FROM
         scm_purchasecontract_item item
-        LEFT JOIN scm_purchasecontract purchase ON purchase.id = item.purchasecontract_id
+        LEFT JOIN scm_purchasecontract purchase ON purchase.id = item.purchase_contract_id
         LEFT JOIN cus_supplier supplier ON supplier.id = purchase.supplier_id
-        LEFT JOIN sys_user purchaseUser ON purchaseUser.user_id = purchase.purchase_person
-        LEFT JOIN sys_dept purchaseUserDept ON purchaseUserDept.dept_id = purchase.purchase_person_dept
+        LEFT JOIN sys_user purchaseUser ON purchaseUser.user_id = purchase.buyer
+        LEFT JOIN sys_dept purchaseUserDept ON purchaseUserDept.dept_id = purchase.dept_id
         LEFT JOIN cus_materiel materiel ON materiel.`id`=item.`materiel_id`
         LEFT JOIN cus_materiel_type materielType ON materielType.`id`=materiel.`type`
         LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
@@ -39,9 +42,9 @@
             <if test="supplierName != null and supplierName != ''"> and supplier.`name` LIKE #{supplierName} </if>
             <if test="supplierId != null and supplierId != ''"> and supplier.`id` = #{supplierId} </if>
             <if test="materielType != null and materielType != ''"> and materiel.`type` = #{materielType} </if>
-            <if test="userId != null and userId != ''"> and purchase.purchase_person = #{userId} </if>
+            <if test="userId != null and userId != ''"> and purchase.buyer = #{userId} </if>
             <if test="auditSign != null and auditSign != ''"> and purchase.audit_sign = #{auditSign} </if>
-            <if test="deptId != null and deptId != ''"> and purchase.purchase_person_dept = #{deptId} </if>
+            <if test="deptId != null and deptId != ''"> and purchase.dept_id = #{deptId} </if>
         </where>
         <choose>
             <when test="sort != null and sort.trim() != ''">
@@ -155,5 +158,73 @@
         ORDER BY purchase.contract_date,unPayAmount DESC
 
     </select>
+
+    <select id="getInCount" resultType="java.util.Map"  >
+        SELECT
+        a.source_id as sourceId,
+        a.materiel_id as  materielId,
+        a.count
+        FROM
+        scm_stock_in_item  a
+        LEFT JOIN scm_stock_in b on  a.inhead_id=b.id
+        <where>
+            <if test="auditSign != null and auditSign != ''"> and  b.audit_sign = #{auditSign} </if>
+            <if test="storageType != null and storageType != ''"> and b.storage_type = #{storageType} </if>
+            <if test="sourceId != null and sourceId.size()>0"> and a.source_id  in
+                <foreach item="item" collection="sourceId" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+             </if>
+            <if test="materielId != null and materielId != ''"> and a.materiel_id = #{materielId} </if>
+        </where>
+    </select>
+
+
+
+    <select id="getInvoiceCountAndAmount" resultType="java.util.Map"  >
+        SELECT
+        a.source_id as sourceId,
+        a.materiel_id as  materielId,
+        a.tax_amount as  taxAmount,
+        a.count
+        FROM
+        scm_purchase_invoice_item  a
+        LEFT JOIN scm_purchase_invoice b on  a.purchasebill_id=b.id
+        <where>
+            <if test="auditSign != null and auditSign != ''"> and  b.audit_sign = #{auditSign} </if>
+            <if test="sourceId != null and sourceId.size()>0"> and a.source_id  in
+                <foreach item="item" collection="sourceId" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+            <if test="materielId != null and materielId != ''"> and a.materiel_id = #{materielId} </if>
+        </where>
+    </select>
+
+    <select id="getPayAmount" resultType="java.util.Map"  >
+        SELECT
+        a.purchase_contract_id as purchaseContractId,
+        a.amount_paid as amountPaid,
+        a.unpay_amount as  unpayAmount
+        FROM
+        scm_purchasecontract_pay  a
+        LEFT JOIN scm_purchasecontract b on  a.purchase_contract_id=b.id
+        <where>
+            <if test="auditSign != null and auditSign != ''"> and  b.audit_sign = #{auditSign} </if>
+            <if test="contractId != null and contractId.size()>0"> and a.purchase_contract_id  in
+                <foreach item="item" collection="contractId" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+
 
 </mapper>

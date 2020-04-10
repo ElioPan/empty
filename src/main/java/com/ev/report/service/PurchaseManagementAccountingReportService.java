@@ -1,5 +1,6 @@
 package com.ev.report.service;
 
+import com.ev.framework.utils.R;
 import com.ev.report.vo.PurchaseContractVO;
 
 import java.util.List;
@@ -21,5 +22,14 @@ public interface PurchaseManagementAccountingReportService {
     List<PurchaseContractVO> priceAnalysisList(Map<String, Object> params);
 
     List<Map<String, Object>> balanceList(Map<String, Object> params);
+
+    R disposeTracking(Map<String, Object> params, int pageno, int pagesize);
+
+    List<Map<String, Object>> getInCount(Map<String, Object> params);
+
+    List<Map<String, Object>> getInvoiceCountAndAmount(Map<String, Object> params);
+
+    List<Map<String, Object>> getPayAmount(Map<String, Object> params);
+
 
 }
