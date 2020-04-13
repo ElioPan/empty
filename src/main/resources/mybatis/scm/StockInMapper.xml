@@ -410,6 +410,7 @@
 		)aa
 		<where>
 			<if test="storageType != null and storageType != ''"> and storageType = #{storageType} </if>
+			<if test="deptId != null and deptId != ''"> and deptId = #{deptId} </if>
 			<if test="inheadCode != null and inheadCode != ''"> and inheadCode = #{inheadCode} </if>
 			<if test="deptId != null and deptId != ''"> and deptId = #{deptId} </if>
 			<if test="storageTypeName != null and storageTypeName != ''"> AND storageTypeName like  CONCAT('%',#{storageTypeName},'%')  </if>
@@ -428,7 +429,7 @@
 			<if test="materielSpecification != null and materielSpecification != ''"> and specification like  CONCAT('%',#{materielSpecification},'%') </if>
 			<if test="auditSign != null and auditSign != ''"> and auditSign = #{auditSign} </if>
 			<if test="createBy != null and createBy != ''"> and createBy = #{createBy} </if>
-			<if test="createByName != null and createByName != ''"> AND createByName like  CONCAT('%',#{createByName},'%')  </if>
+			<if test="createByName != null and createByName != ''"> AND crateByName like  CONCAT('%',#{createByName},'%')  </if>
 			<if test="supplierName != null and supplierName != ''"> AND sourceCompanyName like  CONCAT('%',#{supplierName},'%')  </if>
 			<if test="deptName != null and deptName != ''"> AND deptName like  CONCAT('%',#{deptName},'%')  </if>
 			<if test="batch != null and batch != ''"> and batch = #{batch} </if>
@@ -529,6 +530,7 @@
 		)aa
 		<where>
 			<if test="storageType != null and storageType != ''"> and storageType = #{storageType} </if>
+			<if test="deptId != null and deptId != ''"> and deptId = #{deptId} </if>
 			<if test="inheadCode != null and inheadCode != ''"> and inheadCode = #{inheadCode} </if>
 			<if test="deptId != null and deptId != ''"> and deptId = #{deptId} </if>
 			<if test="storageTypeName != null and storageTypeName != ''"> AND storageTypeName like  CONCAT('%',#{storageTypeName},'%')  </if>
@@ -547,7 +549,7 @@
 			<if test="materielSpecification != null and materielSpecification != ''"> and specification like  CONCAT('%',#{materielSpecification},'%') </if>
 			<if test="auditSign != null and auditSign != ''"> and auditSign = #{auditSign} </if>
 			<if test="createBy != null and createBy != ''"> and createBy = #{createBy} </if>
-			<if test="createByName != null and createByName != ''"> AND createByName like  CONCAT('%',#{createByName},'%')  </if>
+			<if test="createByName != null and createByName != ''"> AND crateByName like  CONCAT('%',#{createByName},'%')  </if>
 			<if test="supplierName != null and supplierName != ''"> AND sourceCompanyName like  CONCAT('%',#{supplierName},'%')  </if>
 			<if test="deptName != null and deptName != ''"> AND deptName like  CONCAT('%',#{deptName},'%')  </if>
 			<if test="batch != null and batch != ''"> and batch = #{batch} </if>

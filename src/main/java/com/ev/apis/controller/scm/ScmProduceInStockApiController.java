@@ -102,6 +102,7 @@ public class ScmProduceInStockApiController {
                                  @ApiParam(value = "入库起始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
                                  @ApiParam(value = "入库截止时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
                                  @ApiParam(value = "生产部门名字") @RequestParam(value = "deptName", defaultValue = "", required = false) String deptName,
+                                 @ApiParam(value = "生产部门id") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
                                  @ApiParam(value = "规格型号") @RequestParam(value = "specification", defaultValue = "", required = false) String specification,
                                  @ApiParam(value = "批次") @RequestParam(value = "batch", defaultValue = "", required = false) String batch,
                                  @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
@@ -120,6 +121,7 @@ public class ScmProduceInStockApiController {
         params.put("startTime", startTime);
         params.put("endTime", endTime);
         params.put("deptName",deptName );
+        params.put("deptId",deptId);
         params.put("materielSpecification",specification );
         params.put("batch", batch);
         params.put("auditSign",auditSign);
