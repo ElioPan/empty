@@ -244,7 +244,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
             totalMap.put("totalCompletionCount", totalCompletionCount);
 
             // 差异数量合计 差异数量合计= 完工数量合计-计划生产数量合计
-            BigDecimal totalDifferenceCount = totalCompletionCount.subtract(totalPlanCount);
+            BigDecimal totalDifferenceCount = totalPlanCount.subtract(totalCompletionCount);
             totalMap.put("totalDifferenceCount", totalDifferenceCount);
 
             // 检验数量（产品检验内的检验数量）
