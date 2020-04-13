@@ -132,7 +132,7 @@ public class ScmReturnMaterieInStockApiController {
         params.put("operator", operator);
         params.put("operatorName",operatorName);
         params.put("createBy",createBy );
-        params.put("createByName", createByName);
+//        params.put("createByName", createByName);
         params.put("createTime", createTime);
         params.put("storageType", ConstantForGYL.TLRK);
 
@@ -204,7 +204,7 @@ public class ScmReturnMaterieInStockApiController {
         params.put("operator", operator);
         params.put("operatorName",operatorName);
         params.put("createBy",createBy );
-        params.put("createByName", createByName);
+//        params.put("createByName", createByName);
         params.put("createTime", createTime);
         params.put("storageType", ConstantForGYL.TLRK);
 
