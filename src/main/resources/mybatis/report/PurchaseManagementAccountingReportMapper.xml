@@ -115,6 +115,7 @@
         purchase.contract_date AS contractDate,
         supplier.`id` AS `supplierId`,
         supplier.`name` AS supplierName,
+        supplier.`code` AS supplierCode,
         materiel.`id` AS materielId,
         materiel.serial_no AS materielSerialNo,
         materiel.name AS materielName,
