@@ -55,5 +55,82 @@
 
     </select>
 
+    <select id="stockList" resultType="java.util.Map">
+        SELECT
+        *
+        FROM
+        (
+        SELECT
+        ty.`name` AS typeName,
+        stock.`materiel_id` AS materielId,
+        materiel.`serial_no` AS serialNo,
+        materiel.`name` AS materielName,
+        dic.`name` AS unitUomName,
+        materiel.`specification` AS specification,
+        materiel.sec_inven_count AS secInvenCount,
+        IFNULL(SUM(stock.`count`),0) AS `stockCount`,
+        materiel.sec_inven_count -  IFNULL(SUM(stock.`count`),0) AS differenceCount,
+        '库存不足' AS statusName
+        FROM
+        scm_stock stock
+        LEFT JOIN cus_materiel materiel ON materiel.id = stock.`materiel_id`
+        LEFT JOIN cus_materiel_type ty ON ty.id = materiel.`type`
+        LEFT JOIN cus_dictionary dic ON dic.`id` = materiel.`unit_uom`
+        <where>
+            <if test="materielId != null and materielId != ''"> and stock.materiel_id = #{materielId} </if>
+            <if test="materielType != null and materielType != ''"> and materiel.`type` = #{materielType} </if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(stock.entering_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            AND IFNULL(materiel.sec_inven_count,0)>0
+        </where>
+        GROUP BY stock.materiel_id
+        ) a
+        WHERE differenceCount>0
+    </select>
+
+        <select id="pickingSummary" resultType="java.util.Map">
+                SELECT
+                dept.`name` AS deptName,
+                headm.`id` AS productId,
+                headm.`serial_no` AS productSerialNo,
+                headm.`name` AS productName,
+                headm.`specification` AS productSpecification,
+                dich.`name` AS productUnitUomName,
+                itemm.`id` AS materielId,
+                itemm.`serial_no` AS serialNo,
+                itemm.`name` AS materielName,
+                itemm.`specification` AS specification,
+                dici.`name` AS unitUomName,
+                SUM(item.count) AS `count`,
+                SUM(item.amount) AS amount,
+                0 AS sign,
+                0 AS sortNo
+                FROM
+                scm_stock_out_item item
+                LEFT JOIN scm_stock_out out ON out.id = item.out_id
+                LEFT JOIN mes_production_feeding_detail feedt ON feedt.id = item.`source_id`
+                LEFT JOIN mes_production_feeding feed ON feed.id = feedt.head_id
+                LEFT JOIN cus_materiel itemm ON itemm.id = item.`materiel_id`
+                LEFT JOIN cus_dictionary dici ON dici.`id` = itemm.`unit_uom`
+                LEFT JOIN cus_materiel headm ON headm.id = feed.`materiel_id`
+                LEFT JOIN cus_dictionary dich ON dich.`id` = headm.`unit_uom`
+                LEFT JOIN sys_dept dept ON dept.`dept_id` = feed.pro_dept
+
+                <where>
+                    <if test="sourceType != null and sourceType != ''"> and item.source_type = #{sourceType} </if>
+                    <if test="sourceTypes != null and sourceTypes.size()>0"> and item.source_type IN
+                        <foreach item="item" collection="sourceTypes" open="(" separator="," close=")" index="index">
+                            <if test="item!=null">
+                                #{item}
+                            </if>
+                        </foreach>
+                    </if>
+                    <if test="outboundType != null and outboundType != ''"> and out.outbound_type = #{outboundType} </if>
+                    <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(feed.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+                    <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(feed.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+                </where>
+                GROUP BY item.`source_id`
+            </select>
+
+
 
 </mapper>

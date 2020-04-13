@@ -21,26 +21,49 @@ public class StockInItemVO implements Serializable {
 	private Long id;
 	//主表主键
 	private Long inheadId;
+	// 入库时间
+	private Date inOutTime;
+	// 入库单号
+	private String stockInCode;
+	// 单据类型
+	private String documentType;
 	//商品/产品id
 	private Long materielId;
-	//批次
-	private String batch;
+	// 产品编号
+	private String serialNo;
+	// 产品名称
+	private String materielName;
+	// 规格型号
+	private String specification;
+	//单位
+	private String unitUomName;
 	//数量
 	private BigDecimal count;
 	//单价
 	private BigDecimal unitPrice;
 	//金额
 	private BigDecimal amount;
+	//批次
+	private String batch;
 	//仓库
 	private Long warehouse;
+	//仓库名
+	private String facilityName;
 	//库位
 	private Long warehLocation;
-	//退料原因
-	private String returnReason;
+	//库位名
+	private String locationName;
+	//操作人员名
+	private String operatorName;
 	//源单类型
 	private Long sourceType;
+	//源单类型名
+	private String sourceTypeName;
 	//来源单号
 	private String sourceCode;
+
+	//退料原因
+	private String returnReason;
 	//来源单据明细id
 	private Long sourceId;
 	//费用
@@ -63,9 +86,11 @@ public class StockInItemVO implements Serializable {
 	private Long qrcodeId;
 	//记录已被核销的出库id及核销数量
 	private String accountSource;
-	// 入库单号
-	private String stockInCode;
-	// 入库事件
-	private String inOutTime;
+
+	// 排序号
+	private int sortNo;
+	// 标记颜色
+	private String sign;
+
 
 }

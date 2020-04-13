@@ -23,4 +23,8 @@ public interface WarehouseAccountingReportService {
     List<StockInItemVO> stockInItem(Map<String, Object> params);
 
     List<InOutStockItemVO> inOutStockItem(Map<String, Object> params);
+
+    List<Map<String, Object>> stockList(Map<String, Object> params);
+
+    List<Map<String, Object>> pickingSummary(Map<String, Object> params);
 }

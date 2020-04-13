@@ -261,16 +261,27 @@
         SELECT
         item.`id`,
         item.`inhead_id`,
+        stock.in_out_time,
+        stock.inhead_code AS stockInCode,
+        dict.name AS documentType,
         item.`materiel_id`,
-        item.`batch`,
+        materiel.`serial_no` AS serialNo,
+        materiel.`name` AS materielName,
+        materiel.`specification` AS specification,
+        dicu.`name` AS unitUomName,
         item.`count`,
         item.`unit_price`,
         item.`amount`,
+        item.`batch`,
         item.`warehouse`,
+        fa.`name` AS facilityName,
         item.`wareh_location`,
-        item.`return_reason`,
+        lo.`name` AS locationName,
+        u.`name` AS operatorName,
         item.`source_type`,
+        dics.name AS sourceTypeName,
         item.`source_code`,
+        item.`return_reason`,
         item.`source_id`,
         item.`expense`,
         item.`cost`,
@@ -280,12 +291,20 @@
         item.`update_time`,
         item.`del_flag`,
         item.`qrcode_id`,
-        item.`account_source`,
-        stock.inhead_code AS stockInCode,
-        stock.in_out_time
+        0 AS sign,
+        0 AS sortNo,
+        item.`account_source`
         FROM
         scm_stock_in_item item
         LEFT JOIN scm_stock_in stock ON stock.id=item.inhead_id
+        LEFT JOIN cus_dictionary dics ON dics.id=item.source_type
+        LEFT JOIN cus_dictionary dict ON dict.id=stock.storage_type
+        LEFT JOIN cus_materiel materiel ON materiel.id=item.`materiel_id`
+        LEFT JOIN cus_dictionary dicu ON dicu.`id`=materiel.unit_uom
+        LEFT JOIN cus_facility fa ON fa.id=item.warehouse
+        LEFT JOIN cus_facility_location lo ON lo.id=item.wareh_location
+        LEFT JOIN sys_user u ON u.user_id=stock.operator
+
         <where>
             <if test="planIds != null and planIds.size()>0"> and item.source_id IN
                 <foreach item="item" collection="planIds" open="(" separator="," close=")" index="index">
@@ -305,6 +324,7 @@
             <if test="sourceType != null and sourceType != ''"> and item.source_type = #{sourceType} </if>
             <if test="planId != null and planId != ''"> and item.source_id = #{planId} </if>
             <if test="materielId != null and materielId != ''"> and item.materiel_id = #{materielId} </if>
+            <if test="materielType != null and materielType != ''"> and materiel.`type` = #{materielType} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(stock.in_out_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(stock.in_out_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
         </where>
@@ -313,24 +333,40 @@
     <select id="stockOutItem" resultType="com.ev.report.vo.StockOutItemVO">
         SELECT
         item.`id`,
-        stock.out_code AS stockOutCode,
         stock.out_time AS outTime,
+        stock.out_code AS stockOutCode,
+        dict.name AS documentType,
+        item.`materiel_id`,
         materiel.`serial_no` AS serialNo,
         materiel.`name` AS materielName,
         materiel.`specification` AS specification,
         dic.`name` AS unitUomName,
-        item.`batch`,
-        item.`source_id`,
-        item.`source_code`,
+        item.`count`,
+        item.`unit_price`,
         item.`amount`,
-        item.`count`
+        item.`batch`,
+        fa.`name` AS facilityName,
+        lo.`name` AS locationName,
+        u.`name` AS operatorName,
+        dics.name AS sourceTypeName,
+        item.`source_code`,
+        0 AS sign,
+        0 AS sortNo,
+        item.`source_id`
         FROM
         scm_stock_out_item item
         LEFT JOIN scm_stock_out stock ON stock.id=item.out_id
+        LEFT JOIN scm_stock st ON st.id=item.stock_id
+        LEFT JOIN cus_facility fa ON fa.id=st.warehouse
+        LEFT JOIN cus_facility_location lo ON lo.id=st.wareh_location
         LEFT JOIN cus_materiel materiel ON materiel.id=item.`materiel_id`
         LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.unit_uom
         LEFT JOIN mes_production_feeding_detail detail ON detail.id=item.source_id
         LEFT JOIN mes_production_feeding feeding ON feeding.id=detail.head_id
+        LEFT JOIN cus_dictionary dics ON dics.id=item.source_type
+        LEFT JOIN cus_dictionary dict ON dict.id=stock.outbound_type
+        LEFT JOIN sys_user u ON u.user_id=stock.operator
+
         <where>
             <if test="planIds != null and planIds.size()>0"> and feeding.production_plan_id IN
                 <foreach item="item" collection="planIds" open="(" separator="," close=")" index="index">
@@ -350,6 +386,7 @@
             <if test="auditSign != null and auditSign != ''"> and stock.audit_sign = #{auditSign} </if>
             <if test="planId != null and planId != ''"> and feeding.production_plan_id = #{planId} </if>
             <if test="materielId != null and materielId != ''"> and item.materiel_id = #{materielId} </if>
+            <if test="materielType != null and materielType != ''"> and materiel.`type` = #{materielType} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(stock.out_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(stock.out_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
         </where>

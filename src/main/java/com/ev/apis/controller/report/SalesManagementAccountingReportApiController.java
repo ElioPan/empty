@@ -55,6 +55,7 @@ public class SalesManagementAccountingReportApiController {
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime
 
     ) {
+        // TODO 未出数量
         // 查询列表数据
         Map<String, Object> params = Maps.newHashMap();
         boolean showItem = showItemInt == 1;
@@ -402,7 +403,7 @@ public class SalesManagementAccountingReportApiController {
             @ApiParam(value = "业务员") @RequestParam(value = "userId", defaultValue = "", required = false) Long userId,
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
-            @ApiParam(value = "分类汇总条件:0客户，1部门，2销售员", required = true) @RequestParam(value = "type", defaultValue = "1") Integer type
+            @ApiParam(value = "分类汇总条件:1客户，2部门，3销售员", required = true) @RequestParam(value = "type", defaultValue = "1") Integer type
     ) {
         // 查询列表数据
         Map<String, Object> params = Maps.newHashMap();
@@ -423,13 +424,13 @@ public class SalesManagementAccountingReportApiController {
 
             String typePrefix = "";
             switch (type) {
-                case 0:
+                case 1:
                     typePrefix = "client";
                     break;
-                case 1:
+                case 2:
                     typePrefix = "dept";
                     break;
-                case 2:
+                case 3:
                     typePrefix = "user";
                     break;
                 default:

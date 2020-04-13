@@ -1,15 +1,18 @@
 package com.ev.apis.controller.report;
 
-import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.DatesUtil;
 import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.R;
 import com.ev.report.service.WarehouseAccountingReportService;
 import com.ev.report.vo.InOutStockItemVO;
+import com.ev.report.vo.StockInItemVO;
+import com.ev.report.vo.StockOutItemVO;
 import com.ev.scm.service.StockAnalysisService;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -41,56 +44,149 @@ public class WarehouseAccountingReportApiController {
 
     @EvApiByToken(value = "/apis/warehouse/inOutSummary", method = RequestMethod.POST, apiTitle = "仓库收发汇总")
     @ApiOperation("仓库收发汇总")
-    public R inOutSummary(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
-                          @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
-                          @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
-                          @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
-                          @ApiParam(value = "物料类型") @RequestParam(value = "materielType", defaultValue = "", required = false) Long materielType,
-                          @ApiParam(value = "物料ID") @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId) {
+    public R inOutSummary(
+            @ApiParam(value = "显示小计", required = true) @RequestParam(value = "showTotal", defaultValue = "1") int showTotalInt,
+            @ApiParam(value = "显示详细", required = true) @RequestParam(value = "showItem", defaultValue = "1") int showItemInt,
+            @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
+            @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
+            @ApiParam(value = "物料类型") @RequestParam(value = "materielType", defaultValue = "", required = false) Long materielType,
+            @ApiParam(value = "物料ID") @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId) {
 
         Map<String, Object> results = Maps.newHashMap();
         Map<String, Object> params = Maps.newHashMap();
+        boolean showItem = showItemInt == 1;
+        boolean showTotal = showTotalInt == 1;
+
         params.put("startTime", startTime);
         params.put("endTime", endTime);
-        params.put("offset", (pageno - 1) * pagesize);
-        params.put("limit", pagesize);
         params.put("materielId", materielId);
         params.put("materielType", materielType);
-        List<Map<String, Object>> data = stockAnalysisService.listForMap(params);
-        Map<String, Object> map = stockAnalysisService.countForTotal(params);
-        int total = Integer.parseInt(map.get("total").toString());
-        if (data.size() > 0) {
-            results.put("total", map);
-            results.put("data", new DsResultResponse(pageno, pagesize, total, data));
+        List<Map<String, Object>> stockList = stockAnalysisService.listForMap(params);
+        Map<String, Object> totalResult = stockAnalysisService.countForTotal(params);
+        if (stockList.size() > 0) {
+            List<Map<String, Object>> showList = Lists.newArrayList();
+            if (showTotal) {
+                Map<String, String> materielIdMap = stockList
+                        .stream()
+                        .collect(Collectors.toMap(k -> k.get("materielId").toString(),
+                                v -> v.get("materielName").toString(), (v1, v2) -> v1));
+
+                // 期初数量
+                Map<String, BigDecimal> initialCountMap = stockList
+                        .stream()
+                        .collect(Collectors.toMap(
+                                k->k.get("materielId").toString()
+                                , v -> MathUtils.getBigDecimal(v.get("initialCount"))
+                                , BigDecimal::add));
+                // 期初金额
+                Map<String, BigDecimal> initialAmountMap = stockList
+                        .stream()
+                        .collect(Collectors.toMap(
+                                k->k.get("materielId").toString()
+                                , v -> MathUtils.getBigDecimal(v.get("initialAmount"))
+                                , BigDecimal::add));
+                // 本期入库数量
+                Map<String, BigDecimal> inCountMap = stockList
+                        .stream()
+                        .collect(Collectors.toMap(
+                                k->k.get("materielId").toString()
+                                , v -> MathUtils.getBigDecimal(v.get("inCount"))
+                                , BigDecimal::add));
+                // 入库金额
+                Map<String, BigDecimal> inAmountMap = stockList
+                        .stream()
+                        .collect(Collectors.toMap(
+                                k->k.get("materielId").toString()
+                                , v -> MathUtils.getBigDecimal(v.get("inAmount"))
+                                , BigDecimal::add));
+                // 本期出库数量
+                Map<String, BigDecimal> outCountMap = stockList
+                        .stream()
+                        .collect(Collectors.toMap(
+                                k->k.get("materielId").toString()
+                                , v -> MathUtils.getBigDecimal(v.get("outCount"))
+                                , BigDecimal::add));
+                // 出库金额
+                Map<String, BigDecimal> outAmountMap = stockList
+                        .stream()
+                        .collect(Collectors.toMap(
+                                k->k.get("materielId").toString()
+                                , v -> MathUtils.getBigDecimal(v.get("outAmount"))
+                                , BigDecimal::add));
+                // 结存数量
+                Map<String, BigDecimal> finalCountMap = stockList
+                        .stream()
+                        .collect(Collectors.toMap(
+                                k->k.get("materielId").toString()
+                                , v -> MathUtils.getBigDecimal(v.get("finalCount"))
+                                , BigDecimal::add));
+                // 结存金额
+                Map<String, BigDecimal> finalAmountMap = stockList
+                        .stream()
+                        .collect(Collectors.toMap(
+                                k->k.get("materielId").toString()
+                                , v -> MathUtils.getBigDecimal(v.get("finalAmount"))
+                                , BigDecimal::add));
+
+                Map<String,Object> map;
+                for (String materielIdParam : materielIdMap.keySet()) {
+                    map = Maps.newHashMap();
+                    map.put("materielId", materielIdParam);
+                    // 标记颜色
+                    map.put("sign","end");
+                    // 排序号
+                    map.put("sortNo",1);
+                    map.put("materielName", materielIdMap.get(materielIdParam) + "小计");
+                    map.put("initialCount", initialCountMap.get(materielIdParam));
+                    map.put("initialAmount",initialAmountMap.get(materielIdParam));
+                    map.put("inCount", inCountMap.get(materielIdParam));
+                    map.put("inAmount", inAmountMap.get(materielIdParam));
+                    map.put("outCount", outCountMap.get(materielIdParam));
+                    map.put("outAmount", outAmountMap.get(materielIdParam));
+                    map.put("finalCount", finalCountMap.get(materielIdParam));
+                    map.put("finalAmount", finalAmountMap.get(materielIdParam));
+
+                    showList.add(map);
+
+                }
+
+            }
+            if (showItem) {
+                showList.addAll(stockList);
+            }
+
+            List<Map<String, Object>> collect = showList.stream()
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("materielId").toString())))
+                    .collect(Collectors.toList());
+            results.put("data",collect);
+
+            results.put("total", totalResult);
         }
         return R.ok(results);
     }
 
     @EvApiByToken(value = "/apis/warehouse/inOutStockItem", method = RequestMethod.POST, apiTitle = "仓库收发明细")
     @ApiOperation("仓库收发明细")
-    public R inOutStockItem(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
-                            @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
-                            @ApiParam(value = "开始时间", required = true) @RequestParam(value = "startTime", defaultValue = "") String startTime,
-                            @ApiParam(value = "结束时间", required = true) @RequestParam(value = "endTime", defaultValue = "") String endTime,
-                            @ApiParam(value = "物料类型") @RequestParam(value = "materielType", defaultValue = "", required = false) Long materielType,
-                            @ApiParam(value = "物料ID", required = true) @RequestParam(value = "materielId", defaultValue = "") Long materielId) {
-
+    public R inOutStockItem(
+            @ApiParam(value = "开始时间", required = true) @RequestParam(value = "startTime", defaultValue = "") String startTime,
+            @ApiParam(value = "结束时间", required = true) @RequestParam(value = "endTime", defaultValue = "") String endTime,
+            @ApiParam(value = "物料类型") @RequestParam(value = "materielType", defaultValue = "", required = false) Long materielType,
+            @ApiParam(value = "物料ID", required = true) @RequestParam(value = "materielId", defaultValue = "") Long materielId) {
 
         Map<String, Object> params = Maps.newHashMap();
-        Date startPeriod = DateFormatUtil.getDateByParttern(startTime);
-        Date endPeriod = DateFormatUtil.getDateByParttern(endTime);
+        Date startPeriod = DateFormatUtil.getDateByParttern(startTime, "yyyy-MM-dd");
+        Date endPeriod = DateFormatUtil.getDateByParttern(endTime, "yyyy-MM-dd");
         if (materielId == null || endPeriod == null || startPeriod == null) {
             return R.ok();
         }
         params.put("materielType", materielType);
         params.put("materielId", materielId);
-        Date startTimeParam = DateFormatUtil.getDateByParttern(startTime);
-        Date endTimeParam = DateFormatUtil.getDateByParttern(endTime);
 
-        params.put("startTime",DatesUtil.getSupportBeginDayOfMonth(startTimeParam));
-        params.put("endTime",  DatesUtil.getSupportEndDayOfMonth(endTimeParam));
+        params.put("startTime", DatesUtil.getSupportBeginDayOfMonth(startPeriod));
+        params.put("endTime", DatesUtil.getSupportEndDayOfMonth(endPeriod));
 
-        List<Map<String, Object>> initData = stockAnalysisService.listForMap(params);
+        List<Map<String, Object>> initData = stockAnalysisService.listForMapGroupMateriel(params);
         Map<String, Double> initialCountMap = initData.stream()
                 .collect(Collectors.groupingBy(k -> k.get("period").toString()
                         , Collectors.summingDouble(v -> Double.parseDouble(v.get("initialCount").toString()))));
@@ -100,20 +196,22 @@ public class WarehouseAccountingReportApiController {
                         , Collectors.summingDouble(v -> Double.parseDouble(v.get("initialAmount").toString()))));
 
         Map<String, String> initialPeriodMap = initData.stream()
-                .collect(Collectors.toMap(k->k.get("period").toString()
-                        ,v->v.get("period").toString().substring(0,7)));
+                .collect(Collectors.toMap(k -> k.get("period").toString()
+                        , v -> v.get("period").toString().substring(0, 7)));
 
-        Map<String,BigDecimal> initialUnitPriceMap = Maps.newHashMap();
+        Map<String, BigDecimal> initialUnitPriceMap = Maps.newHashMap();
         for (String k : initialAmountMap.keySet()) {
             Double amount = initialAmountMap.get(k);
             Double count = initialCountMap.get(k);
-            if(count==0.0d){
-                initialUnitPriceMap.put(k,BigDecimal.ZERO);
-            }else {
-                initialUnitPriceMap.put(k, BigDecimal.valueOf(amount).divide(BigDecimal.valueOf(count), Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
+            if (count == 0.0d) {
+                initialUnitPriceMap.put(k, BigDecimal.ZERO);
+            } else {
+                initialUnitPriceMap.put(k, BigDecimal.valueOf(amount).divide(BigDecimal.valueOf(count), Constant.BIGDECIMAL_ZERO, BigDecimal.ROUND_HALF_UP));
             }
 
         }
+        List<InOutStockItemVO> totalList = Lists.newArrayList();
+
         InOutStockItemVO initInOutStockItemVO;
         for (String k : initialUnitPriceMap.keySet()) {
             initInOutStockItemVO = new InOutStockItemVO();
@@ -124,15 +222,15 @@ public class WarehouseAccountingReportApiController {
             // 0 置顶
             initInOutStockItemVO.setSortNo(0);
             initInOutStockItemVO.setPeriod(initialPeriodMap.get(k));
-            initInOutStockItemVO.setInOutTime(DateFormatUtil.getDateByParttern(k));
-
+            initInOutStockItemVO.setInOutTime(DateFormatUtil.getDateByParttern(k,"yyyy-MM-dd"));
+            totalList.add(initInOutStockItemVO);
         }
 
         List<InOutStockItemVO> inOutStockItemVOS = reportService.inOutStockItem(params);
 
         Map<String, List<InOutStockItemVO>> groupByPeriod = inOutStockItemVOS
                 .stream()
-                .collect(Collectors.groupingBy(InOutStockItemVO::getPeriod));
+                .collect(Collectors.groupingBy(e -> e.getPeriod() + "-01"));
         List<InOutStockItemVO> groupByStockVOS;
         Double initialCount;
         Double initialAmount;
@@ -169,7 +267,7 @@ public class WarehouseAccountingReportApiController {
                     groupByStockVO.setOutCount(count);
                     groupByStockVO.setOutAmount(amount);
                     groupByStockVO.setUnitPrice(unitPrice);
-                }else{
+                } else {
                     newInitialCount = initialCount + count;
                     newInitialAmount = initialAmount + amount;
                     groupByStockVO.setInCount(count);
@@ -178,13 +276,13 @@ public class WarehouseAccountingReportApiController {
                 }
                 groupByStockVO.setBalanceCount(newInitialCount);
                 groupByStockVO.setBalanceAmount(newInitialAmount);
-                newInitialUnitPrice = BigDecimal.valueOf(newInitialAmount).divide(BigDecimal.valueOf(newInitialCount), Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+                newInitialUnitPrice = BigDecimal.valueOf(newInitialAmount).divide(BigDecimal.valueOf(newInitialCount), Constant.BIGDECIMAL_ZERO, BigDecimal.ROUND_HALF_UP);
                 groupByStockVO.setBalanceUnitPrice(newInitialUnitPrice);
 
             }
             InOutStockItemVO inOutStockItem = groupByStockVOS.get(groupByStockVOS.size() - 1);
             inOutStockItemVO = new InOutStockItemVO();
-            BeanUtils.copyProperties(inOutStockItemVO,inOutStockItem);
+            BeanUtils.copyProperties(inOutStockItem, inOutStockItemVO);
             inOutStockItemVO.setStorageTypeName("本期合计");
             // 日期
             inOutStockItemVO.setInOutTime(DatesUtil.getSupportBeginDayOfMonthToDate(inOutStockItemVO.getInOutTime()));
@@ -226,142 +324,317 @@ public class WarehouseAccountingReportApiController {
             inOutStockItemVO.setSortNo(2);
             groupByStockVOS.add(inOutStockItemVO);
 
-
         }
 
+        for (List<InOutStockItemVO> value : groupByPeriod.values()) {
+            totalList.addAll(value);
+        }
+        List<InOutStockItemVO> collect = totalList
+                .stream()
+                .sorted(Comparator.comparing(InOutStockItemVO::getSortNo))
+                .sorted(Comparator.comparing(InOutStockItemVO::getInOutTime))
+                .collect(Collectors.toList());
 
 
         Map<String, Object> results = Maps.newHashMap();
-        Map<String, Object> map = stockAnalysisService.countForTotal(params);
-        int total = Integer.parseInt(map.get("total").toString());
-        if (inOutStockItemVOS.size() > 0) {
-            results.put("total", map);
-            results.put("data", new DsResultResponse(pageno, pagesize, total, inOutStockItemVOS));
+        if (collect.size() > 0) {
+            results.put("total", collect);
         }
         return R.ok(results);
     }
 
     @EvApiByToken(value = "/apis/warehouse/inStockItem", method = RequestMethod.POST, apiTitle = "仓库入库明细")
     @ApiOperation("仓库入库明细")
-    public R inStockItem(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
-                         @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
-                         @ApiParam(value = "计算时间") @RequestParam(value = "period", defaultValue = "", required = false) String period,
-                         @ApiParam(value = "物料类型") @RequestParam(value = "materielType", defaultValue = "", required = false) Long materielType,
-                         @ApiParam(value = "物料ID") @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId) {
+    public R inStockItem(
+            @ApiParam(value = "显示小计", required = true) @RequestParam(value = "showTotal", defaultValue = "1") int showTotalInt,
+            @ApiParam(value = "显示详细", required = true) @RequestParam(value = "showItem", defaultValue = "1") int showItemInt,
+            @ApiParam(value = "开始时间", required = true) @RequestParam(value = "startTime", defaultValue = "") String startTime,
+            @ApiParam(value = "结束时间", required = true) @RequestParam(value = "endTime", defaultValue = "") String endTime,
+            @ApiParam(value = "物料类型") @RequestParam(value = "materielType", defaultValue = "", required = false) Long materielType,
+            @ApiParam(value = "物料ID") @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId) {
 
         Map<String, Object> results = Maps.newHashMap();
         Map<String, Object> params = Maps.newHashMap();
-        params.put("offset", (pageno - 1) * pagesize);
-        params.put("limit", pagesize);
-        params.put("period", period);
+        boolean showItem = showItemInt == 1;
+        boolean showTotal = showTotalInt == 1;
+
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
         params.put("materielId", materielId);
         params.put("materielType", materielType);
-        List<Map<String, Object>> data = stockAnalysisService.listForMap(params);
-        Map<String, Object> map = stockAnalysisService.countForTotal(params);
-        int total = Integer.parseInt(map.get("total").toString());
-        if (data.size() > 0) {
-            results.put("total", map);
-            results.put("data", new DsResultResponse(pageno, pagesize, total, data));
+        params.put("auditSign", ConstantForMES.OK_AUDITED);
+
+        List<StockInItemVO> stockInItemVOS = reportService.stockInItem(params);
+        if (stockInItemVOS.size() > 0) {
+
+            List<StockInItemVO> showList = Lists.newArrayList();
+
+            // 入库数量
+            Map<String, BigDecimal> countMap = stockInItemVOS
+                    .stream()
+                    .collect(Collectors.toMap(
+                            StockInItemVO::getMaterielName
+                            , StockInItemVO::getCount
+                            , BigDecimal::add));
+            // 入库金额
+            Map<String, BigDecimal> amountMap = stockInItemVOS
+                    .stream()
+                    .collect(Collectors.toMap(
+                            StockInItemVO::getMaterielName
+                            , StockInItemVO::getAmount
+                            , BigDecimal::add));
+            // 获取最大一个时间
+            long maxTime = Objects.requireNonNull(DateFormatUtil.getDateByParttern(endTime, "yyyy-MM-dd")).getTime();
+
+            maxTime = maxTime + (24*3600*1000);
+
+            if (showTotal) {
+                StockInItemVO stockInItemVO;
+                for (String materielName : amountMap.keySet()) {
+                    stockInItemVO = new StockInItemVO();
+                    stockInItemVO.setCount(countMap.get(materielName));
+                    stockInItemVO.setAmount(amountMap.get(materielName));
+                    stockInItemVO.setInOutTime(new Date(maxTime));
+                    // 标记颜色
+                    stockInItemVO.setSign("end");
+                    stockInItemVO.setMaterielName(materielName + "小计");
+                    // 排序号
+                    stockInItemVO.setSortNo(1);
+
+                    showList.add(stockInItemVO);
+                }
+            }
+            if (showItem) {
+                showList.addAll(stockInItemVOS);
+            }
+            List<StockInItemVO> collect = showList.stream()
+                    .sorted(Comparator.comparing(StockInItemVO::getSortNo))
+                    .sorted(Comparator.comparing(StockInItemVO::getInOutTime))
+                    .sorted(Comparator.comparing(StockInItemVO::getMaterielName))
+                    .collect(Collectors.toList());
+
+            for (StockInItemVO stockInItemVO : collect) {
+                long time = stockInItemVO.getInOutTime().getTime();
+                if (time == maxTime) {
+                    stockInItemVO.setInOutTime(null);
+                }
+            }
+
+            results.put("data", collect);
+
+            // 合计项
+            BigDecimal totalCount = countMap
+                    .values()
+                    .stream()
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
+            BigDecimal totalAmount = amountMap
+                    .values()
+                    .stream()
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
+
+            Map<String, Object> totalResult = Maps.newHashMap();
+            totalResult.put("totalCount", totalCount);
+            totalResult.put("totalAmount", totalAmount);
+            results.put("total", totalResult);
         }
+
         return R.ok(results);
     }
 
     @EvApiByToken(value = "/apis/warehouse/outStockItem", method = RequestMethod.POST, apiTitle = "仓库出库明细")
     @ApiOperation("仓库出库明细")
-    public R outStockItem(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
-                          @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
-                          @ApiParam(value = "计算时间") @RequestParam(value = "period", defaultValue = "", required = false) String period,
+    public R outStockItem(@ApiParam(value = "显示小计", required = true) @RequestParam(value = "showTotal", defaultValue = "1") int showTotalInt,
+                          @ApiParam(value = "显示详细", required = true) @RequestParam(value = "showItem", defaultValue = "1") int showItemInt,
+                          @ApiParam(value = "开始时间", required = true) @RequestParam(value = "startTime", defaultValue = "") String startTime,
+                          @ApiParam(value = "结束时间", required = true) @RequestParam(value = "endTime", defaultValue = "") String endTime,
                           @ApiParam(value = "物料类型") @RequestParam(value = "materielType", defaultValue = "", required = false) Long materielType,
                           @ApiParam(value = "物料ID") @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId) {
 
         Map<String, Object> results = Maps.newHashMap();
         Map<String, Object> params = Maps.newHashMap();
-        params.put("offset", (pageno - 1) * pagesize);
-        params.put("limit", pagesize);
-        params.put("period", period);
+        boolean showItem = showItemInt == 1;
+        boolean showTotal = showTotalInt == 1;
+
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
         params.put("materielId", materielId);
         params.put("materielType", materielType);
-        List<Map<String, Object>> data = stockAnalysisService.listForMap(params);
-        Map<String, Object> map = stockAnalysisService.countForTotal(params);
-        int total = Integer.parseInt(map.get("total").toString());
-        if (data.size() > 0) {
-            results.put("total", map);
-            results.put("data", new DsResultResponse(pageno, pagesize, total, data));
+        List<StockOutItemVO> StockOutItemVOS = reportService.stockOutItem(params);
+
+        if (StockOutItemVOS.size() > 0) {
+
+            List<StockOutItemVO> showList = Lists.newArrayList();
+
+            // 出库数量
+            Map<String, Double> countMap = StockOutItemVOS
+                    .stream()
+                    .collect(Collectors.toMap(
+                            StockOutItemVO::getMaterielName
+                            , StockOutItemVO::getCount
+                            , Double::sum));
+            // 出库金额
+            Map<String, Double> amountMap = StockOutItemVOS
+                    .stream()
+                    .collect(Collectors.toMap(
+                            StockOutItemVO::getMaterielName
+                            , StockOutItemVO::getAmount
+                            , Double::sum));
+            // 获取最大一个时间
+            long maxTime = Objects.requireNonNull(DateFormatUtil.getDateByParttern(endTime, "yyyy-MM-dd")).getTime();
+
+            maxTime = maxTime + (24*3600*1000);
+
+            if (showTotal) {
+                StockOutItemVO StockOutItemVO;
+                for (String materielName : amountMap.keySet()) {
+                    StockOutItemVO = new StockOutItemVO();
+                    StockOutItemVO.setCount(countMap.get(materielName));
+                    StockOutItemVO.setAmount(amountMap.get(materielName));
+                    StockOutItemVO.setOutTime(new Date(maxTime));
+                    // 标记颜色
+                    StockOutItemVO.setSign("end");
+                    StockOutItemVO.setMaterielName(materielName + "小计");
+                    // 排序号
+                    StockOutItemVO.setSortNo(1);
+
+                    showList.add(StockOutItemVO);
+                }
+            }
+            if (showItem) {
+                showList.addAll(StockOutItemVOS);
+            }
+            List<StockOutItemVO> collect = showList.stream()
+                    .sorted(Comparator.comparing(StockOutItemVO::getSortNo))
+                    .sorted(Comparator.comparing(StockOutItemVO::getOutTime))
+                    .sorted(Comparator.comparing(StockOutItemVO::getMaterielName))
+                    .collect(Collectors.toList());
+
+            for (StockOutItemVO StockOutItemVO : collect) {
+                long time = StockOutItemVO.getOutTime().getTime();
+                if (time == maxTime) {
+                    StockOutItemVO.setOutTime(null);
+                }
+            }
+
+            results.put("data", collect);
+
+            // 合计项
+            Double totalCount = countMap
+                    .values()
+                    .stream()
+                    .reduce(Double::sum)
+                    .orElse(0.0d);
+            Double totalAmount = amountMap
+                    .values()
+                    .stream()
+                    .reduce(Double::sum)
+                    .orElse(0.0d);
+
+            Map<String, Object> totalResult = Maps.newHashMap();
+            totalResult.put("totalCount", totalCount);
+            totalResult.put("totalAmount", totalAmount);
+            results.put("total", totalResult);
         }
         return R.ok(results);
     }
 
     @EvApiByToken(value = "/apis/warehouse/safetyStockWarning", method = RequestMethod.POST, apiTitle = "安全库存预警")
-    @ApiOperation("仓库出库明细")
-    public R safetyStockWarning(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
-                                @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
-                                @ApiParam(value = "计算时间") @RequestParam(value = "period", defaultValue = "", required = false) String period,
-                                @ApiParam(value = "物料类型") @RequestParam(value = "materielType", defaultValue = "", required = false) Long materielType,
-                                @ApiParam(value = "物料ID") @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId) {
+    @ApiOperation("安全库存预警")
+    public R safetyStockWarning(
+            @ApiParam(value = "结束时间", required = true) @RequestParam(value = "endTime", defaultValue = "") String endTime,
+            @ApiParam(value = "物料类型") @RequestParam(value = "materielType", defaultValue = "", required = false) Long materielType,
+            @ApiParam(value = "物料ID") @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId) {
 
         Map<String, Object> results = Maps.newHashMap();
         Map<String, Object> params = Maps.newHashMap();
-        params.put("offset", (pageno - 1) * pagesize);
-        params.put("limit", pagesize);
-        params.put("period", period);
+        params.put("endTime", endTime);
         params.put("materielId", materielId);
         params.put("materielType", materielType);
-        List<Map<String, Object>> data = stockAnalysisService.listForMap(params);
-        Map<String, Object> map = stockAnalysisService.countForTotal(params);
-        int total = Integer.parseInt(map.get("total").toString());
+        List<Map<String, Object>> data = reportService.stockList(params);
         if (data.size() > 0) {
-            results.put("total", map);
-            results.put("data", new DsResultResponse(pageno, pagesize, total, data));
+            results.put("total", data);
         }
         return R.ok(results);
     }
 
-    @EvApiByToken(value = "/apis/warehouse/pickingSummary", method = RequestMethod.POST, apiTitle = "生产领料汇总表(汇总)")
-    @ApiOperation("生产领料汇总表（汇总）")
-    public R pickingSummary(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
-                            @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
-                            @ApiParam(value = "计算时间") @RequestParam(value = "period", defaultValue = "", required = false) String period,
-                            @ApiParam(value = "物料类型") @RequestParam(value = "materielType", defaultValue = "", required = false) Long materielType,
-                            @ApiParam(value = "物料ID") @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId) {
+    @EvApiByToken(value = "/apis/warehouse/pickingSummary", method = RequestMethod.POST, apiTitle = "生产领料汇总表")
+    @ApiOperation("生产领料汇总表")
+    public R pickingSummary(
+            @ApiParam(value = "显示小计", required = true) @RequestParam(value = "showTotal", defaultValue = "1") int showTotalInt,
+            @ApiParam(value = "显示详细", required = true) @RequestParam(value = "showItem", defaultValue = "1") int showItemInt,
+            @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
+            @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
+            @ApiParam(value = "生产部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId) {
 
         Map<String, Object> results = Maps.newHashMap();
         Map<String, Object> params = Maps.newHashMap();
-        params.put("offset", (pageno - 1) * pagesize);
-        params.put("limit", pagesize);
-        params.put("period", period);
-        params.put("materielId", materielId);
-        params.put("materielType", materielType);
-        List<Map<String, Object>> data = stockAnalysisService.listForMap(params);
-        Map<String, Object> map = stockAnalysisService.countForTotal(params);
-        int total = Integer.parseInt(map.get("total").toString());
-        if (data.size() > 0) {
-            results.put("total", map);
-            results.put("data", new DsResultResponse(pageno, pagesize, total, data));
-        }
-        return R.ok(results);
-    }
+        boolean showItem = showItemInt == 1;
+        boolean showTotal = showTotalInt == 1;
+        params.put("deptId", deptId);
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+        List<Map<String, Object>> pickingSummary = reportService.pickingSummary(params);
+        if (pickingSummary.size() > 0) {
+            List<Map<String, Object>> showList = Lists.newArrayList();
+            // 出库数量
+            Map<String, BigDecimal> countMap = pickingSummary
+                    .stream()
+                    .collect(Collectors.toMap(
+                            k->k.get("productId").toString()
+                            , v->MathUtils.getBigDecimal(v.get("count"))
+                            , BigDecimal::add));
+            // 出库金额
+            Map<String, BigDecimal> amountMap = pickingSummary
+                    .stream()
+                    .collect(Collectors.toMap(
+                            k->k.get("productId").toString()
+                            , v->MathUtils.getBigDecimal(v.get("amount"))
+                            , BigDecimal::add));
+            // 产品名
+            Map<String, String > productMap = pickingSummary
+                    .stream()
+                    .collect(Collectors.toMap(
+                            k->k.get("productId").toString()
+                            , v->v.get("productName").toString()
+                            , (v1,v2)->v1));
+            if (showTotal) {
+                Map<String,Object> map;
+                for (String productId : amountMap.keySet()) {
+                    map = Maps.newHashMap();
+                    map.put("productId", productId);
+                    map.put("productName", productMap.get(productId) + "小计");
+                    map.put("count", countMap.get(productId));
+                    map.put("amount", amountMap.get(productId));
+                    map.put("sortNo",1);
+                    map.put("sign","end");
+                    showList.add(map);
+                }
+            }
+            if (showItem) {
+                showList.addAll(pickingSummary);
+            }
+            List<Map<String, Object>> collect = showList.stream()
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("productId").toString())))
+                    .collect(Collectors.toList());
+            results.put("data",collect);
 
-    @EvApiByToken(value = "/apis/warehouse/pickingItem", method = RequestMethod.POST, apiTitle = "生产领料汇总表(详细)")
-    @ApiOperation("生产领料汇总表（详细）")
-    public R pickingItem(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
-                         @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
-                         @ApiParam(value = "计算时间") @RequestParam(value = "period", defaultValue = "", required = false) String period,
-                         @ApiParam(value = "物料类型") @RequestParam(value = "materielType", defaultValue = "", required = false) Long materielType,
-                         @ApiParam(value = "物料ID") @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId) {
-
-        Map<String, Object> results = Maps.newHashMap();
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("offset", (pageno - 1) * pagesize);
-        params.put("limit", pagesize);
-        params.put("period", period);
-        params.put("materielId", materielId);
-        params.put("materielType", materielType);
-        List<Map<String, Object>> data = stockAnalysisService.listForMap(params);
-        Map<String, Object> map = stockAnalysisService.countForTotal(params);
-        int total = Integer.parseInt(map.get("total").toString());
-        if (data.size() > 0) {
-            results.put("total", map);
-            results.put("data", new DsResultResponse(pageno, pagesize, total, data));
+            Map<String,Object> totalResult = Maps.newHashMap();
+            BigDecimal totalCount = countMap
+                    .values()
+                    .stream()
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
+            BigDecimal totalAmount = amountMap
+                    .values()
+                    .stream()
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
+            totalResult.put("totalCount",totalCount);
+            totalResult.put("totalAmount",totalAmount);
+            results.put("total",totalResult);
         }
         return R.ok(results);
     }

@@ -34,4 +34,14 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
     public List<InOutStockItemVO> inOutStockItem(Map<String, Object> params) {
         return reportDao.inOutStockItem(params);
     }
+
+    @Override
+    public List<Map<String, Object>> stockList(Map<String, Object> params) {
+        return reportDao.stockList(params);
+    }
+
+    @Override
+    public List<Map<String, Object>> pickingSummary(Map<String, Object> params) {
+        return reportDao.pickingSummary(params);
+    }
 }

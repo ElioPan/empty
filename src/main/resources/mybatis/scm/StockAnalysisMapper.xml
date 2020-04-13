@@ -413,14 +413,16 @@
 			unitUom.name AS unitUomName,
 			materiel.valuation_method AS valuationMethod,
 			analysis.`batch` AS batch,
-			analysis.`initial_count` AS initialCount,
-			analysis.`initial_amount` AS initialAmount,
-			analysis.`in_count` AS inCount,
-			analysis.`in_amount` AS inAmount,
-			analysis.`out_count` AS outCount,
-			analysis.`out_amount` AS outAmount,
-			analysis.`final_count` AS finalCount,
-			analysis.`final_amount` AS finalAmount,
+		    IFNULL(analysis.`initial_count`,0) AS initialCount,
+			IFNULL(analysis.`initial_amount`,0) AS initialAmount,
+			IFNULL(analysis.`in_count`,0) AS inCount,
+			IFNULL(analysis.`in_amount`,0) AS inAmount,
+			IFNULL(analysis.`out_count`,0) AS outCount,
+			IFNULL(analysis.`out_amount`,0) AS outAmount,
+			IFNULL(analysis.`final_count`,0) AS finalCount,
+			IFNULL(analysis.`final_amount`,0) AS finalAmount,
+			0 AS sign,
+			0 AS sortNo,
 			analysis.`is_close` AS isClose
 			<include refid="sql_map_condition"/>
 			<choose>
@@ -498,8 +500,8 @@
 			<if test="id != null and id != ''"> AND analysis.id = #{id} </if>
 			<if test="valuationMethod != null and valuationMethod != ''"> AND materiel.valuation_method = #{valuationMethod} </if>
 			<if test="period != null and period != ''"> AND DATE_FORMAT(analysis.period,'%Y-%m-%d') = DATE_FORMAT(#{period},'%Y-%m-%d') </if>
-			<if test="startTime != null and startTime != ''">  and  DATE_FORMAT((analysis.period,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
-			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT((analysis.period,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="startTime != null and startTime != ''">  and  DATE_FORMAT(analysis.period,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(analysis.period,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
 			<if test="materielId != null and materielId != ''"> AND analysis.materiel_id = #{materielId} </if>
 			<if test="materielType != null and materielType != ''"> AND materiel.type = #{materielType} </if>
 			<if test="materielName != null and materielName != ''"> AND materiel.`name` LIKE #{materielName} </if>
