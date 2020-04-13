@@ -413,7 +413,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                     pieceRateVO = new PieceRateVO();
                     Double totalPieceRate = deptTotal.get(s);
                     // 部门总计标2 用户总计标1 详情标0
-                    pieceRateVO.setSign(2);
+                    pieceRateVO.setSign("end");
                     pieceRateVO.setDeptId(s);
                     pieceRateVO.setDeptName(deptNameMap.get(s) + "小计");
                     pieceRateVO.setOperator(typeMax);
@@ -439,7 +439,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                         pieceRateVO = new PieceRateVO();
                         Double totalPieceRate = groupByUser.get(userId);
                         // 部门总计标2 用户总计标1 详情标0
-                        pieceRateVO.setSign(1);
+                        pieceRateVO.setSign("1");
                         pieceRateVO.setDeptId(s);
                         pieceRateVO.setOperatorName(userNameMap.get(userId) + "小计");
                         pieceRateVO.setOperator(userId);

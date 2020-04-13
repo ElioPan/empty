@@ -49,7 +49,7 @@ public class PieceRateVO implements Serializable {
 	private Double totalPrice;
 
 	// 标记 部门总计标2 用户总计标1 详情标0
-	private int sign;
+	private String sign;
 	// 排序号
 	private long sortNo;
 

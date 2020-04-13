@@ -168,9 +168,9 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         d2.setTime(dateEnd);
         // 日志应填天数
         int workingNum = DateUtils.getWorkingDay(d1, d2);
+        d1.set(Calendar.DAY_OF_MONTH, d1.get(Calendar.DAY_OF_MONTH) + 1);
         // 周报应填天数
         int weekNum = DateUtils.getWeekNum(d1, d2);
-        d1.set(Calendar.DAY_OF_MONTH, d1.get(Calendar.DAY_OF_MONTH) + 1);
         // 月报应填天数
         int monthNum = DateUtils.getMonthNum(d1, d2);
 
