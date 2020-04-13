@@ -305,21 +305,6 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
 //                totalMap.put("expiryDays", expiryDays.get(supplierId));
                 totalList.add(totalMap);
             }
-            List<Map<String, Object>> ultimatelyDate = Lists.newArrayList();
-
-            if(Objects.equals(0,showItem)&&Objects.equals(1,showUser)){
-                ultimatelyDate.addAll(totalList);
-            }else if(Objects.equals(1,showItem)&&Objects.equals(0,showUser)){
-                ultimatelyDate.addAll(debtDueLists);
-            }else if(Objects.equals(1,showItem)&&Objects.equals(1,showUser)){
-                totalList.addAll(debtDueLists);
-                ultimatelyDate.addAll(totalList);
-            }
-            List<Map<String, Object>> collect = ultimatelyDate.stream()
-                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
-                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("supplierId").toString())))
-                    .collect(Collectors.toList());
-
             Double totalReceivableAmount = totalList
                     .stream()
                     .map(v -> Double.parseDouble(v.get("payAmount").toString()))
@@ -340,6 +325,21 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
 //                    .map(v -> Double.parseDouble(v.get("expiryDays").toString()))
 //                    .reduce(Double::sum)
 //                    .orElse(0.0d);
+            List<Map<String, Object>> ultimatelyDate = Lists.newArrayList();
+
+            if(Objects.equals(0,showItem)&&Objects.equals(1,showUser)){
+                ultimatelyDate.addAll(totalList);
+            }else if(Objects.equals(1,showItem)&&Objects.equals(0,showUser)){
+                ultimatelyDate.addAll(debtDueLists);
+            }else if(Objects.equals(1,showItem)&&Objects.equals(1,showUser)){
+                totalList.addAll(debtDueLists);
+                ultimatelyDate.addAll(totalList);
+            }
+            List<Map<String, Object>> collect = ultimatelyDate.stream()
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("supplierId").toString())))
+                    .collect(Collectors.toList());
+
             results.put("ultimatelyDate",collect);
             results.put("totalPayAmount",totalReceivableAmount);
             results.put("totalAmountPaid",totalReceivedAmount);
@@ -486,20 +486,6 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
                 totalMap.put("unPayAmount", unPayAmountMap.get(supplierId));
                 totalList.add(totalMap);
             }
-        List<Map<String, Object>> ultimatelyDate = Lists.newArrayList();
-
-        if(Objects.equals(0,showItem)&&Objects.equals(1,showUser)){
-            ultimatelyDate.addAll(totalList);
-        }else if(Objects.equals(1,showItem)&&Objects.equals(0,showUser)){
-            ultimatelyDate.addAll(balanceLists);
-        }else if(Objects.equals(1,showItem)&&Objects.equals(1,showUser)){
-            totalList.addAll(balanceLists);
-            ultimatelyDate.addAll(totalList);
-        }
-        List<Map<String, Object>> collect = ultimatelyDate.stream()
-                .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
-                .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("supplierId").toString())))
-                .collect(Collectors.toList());
 
             Double totalPayAmount = totalList
                     .stream()
@@ -516,6 +502,22 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
                     .map(v -> Double.parseDouble(v.get("unPayAmount").toString()))
                     .reduce(Double::sum)
                     .orElse(0.0d);
+
+        List<Map<String, Object>> ultimatelyDate = Lists.newArrayList();
+
+        if(Objects.equals(0,showItem)&&Objects.equals(1,showUser)){
+            ultimatelyDate.addAll(totalList);
+        }else if(Objects.equals(1,showItem)&&Objects.equals(0,showUser)){
+            ultimatelyDate.addAll(balanceLists);
+        }else if(Objects.equals(1,showItem)&&Objects.equals(1,showUser)){
+            totalList.addAll(balanceLists);
+            ultimatelyDate.addAll(totalList);
+        }
+        List<Map<String, Object>> collect = ultimatelyDate.stream()
+                .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
+                .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("supplierId").toString())))
+                .collect(Collectors.toList());
+
             results.put("ultimatelyDate",collect);
             results.put("totalPayAmount",totalPayAmount);
             results.put("totalAmountPaid",totalReceivedAmount);
