@@ -55,7 +55,6 @@ public class SalesManagementAccountingReportApiController {
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime
 
     ) {
-        // TODO 未出数量
         // 查询列表数据
         Map<String, Object> params = Maps.newHashMap();
         boolean showItem = showItemInt == 1;
@@ -95,15 +94,20 @@ public class SalesManagementAccountingReportApiController {
             // 合同收款条件表
             List<ContractPayItemVO> contractPayItemVOS = reportService.contractPayItem(params);
 
-            // 销售数量
+            // 出库数量
             Map<Long, Double> stockCountGroup = stockOutItemVOS
                     .stream()
                     .collect(Collectors.groupingBy(StockOutItemVO::getSourceId
                             , Collectors.summingDouble(StockOutItemVO::getCount)));
-            Map<Long, Double> stockAmountGroup = stockOutItemVOS
+            // 销售数量
+            Map<Long, Double> salesCountGroup = salesContractList
                     .stream()
-                    .collect(Collectors.groupingBy(StockOutItemVO::getSourceId
-                            , Collectors.summingDouble(StockOutItemVO::getAmount)));
+                    .collect(Collectors.toMap(k->Long.parseLong(k.get("id").toString()),v->Double.parseDouble(v.get("count").toString())));
+            // 未出库数量
+            Map<Long, Double> unStockCountGroup = Maps.newHashMap();
+            for (Long id : salesCountGroup.keySet()) {
+                unStockCountGroup.put(id,salesCountGroup.get(id)-stockCountGroup.getOrDefault(id,0.0d));
+            }
 
             // 销售发票表
             List<ContractBillItemVO> contractBillItemVO = reportService.stockBillItem(params);
@@ -164,7 +168,7 @@ public class SalesManagementAccountingReportApiController {
             for (Map<String, Object> map : salesContractList) {
                 long itemId = Long.parseLong(map.get("id").toString());
                 map.put("outCount",stockCountGroup.getOrDefault(itemId,0.0d));
-                map.put("outAmount",stockAmountGroup.getOrDefault(itemId,0.0d));
+                map.put("unOutCount",unStockCountGroup.getOrDefault(itemId,0.0d));
                 map.put("billCount",billCountGroup.getOrDefault(itemId,0.0d));
                 map.put("billAmount",billAmountGroup.getOrDefault(itemId,0.0d));
 

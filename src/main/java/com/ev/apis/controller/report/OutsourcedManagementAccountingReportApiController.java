@@ -3,6 +3,7 @@ package com.ev.apis.controller.report;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
+import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.report.service.OutsourcedManagementAccountingReportService;
@@ -88,22 +89,27 @@ public class OutsourcedManagementAccountingReportApiController {
             params.put("sourceIds", itemIds);
             params.put("sourceType", ConstantForGYL.XSHT);
             params.put("auditSign", ConstantForMES.OK_AUDITED);
-            // 出库表
+            // 入库表
             List<StockInItemVO> stockInItemVOS = stockService.stockInItem(params);
             params.put("sourceIds", contractIds);
             // 合同收款条件表
             List<ContractPayItemVO> contractPayItemVOS = reportService.contractPayItem(params);
 
+            // 入库数量
             Map<Long, BigDecimal> stockCountGroup = stockInItemVOS
                     .stream()
                     .collect(Collectors.toMap(StockInItemVO::getSourceId
                             , StockInItemVO::getCount
                             , BigDecimal::add));
-            Map<Long, BigDecimal> stockAmountGroup = stockInItemVOS
+            // 委外数量
+            Map<Long, BigDecimal> outsourceCountGroup = outsourcedContractList
                     .stream()
-                    .collect(Collectors.toMap(StockInItemVO::getSourceId
-                            , StockInItemVO::getAmount
-                            , BigDecimal::add));
+                    .collect(Collectors.toMap(k->Long.parseLong(k.get("id").toString()),v-> MathUtils.getBigDecimal(v.get("count").toString())));
+            // 未入库数量
+            Map<Long, BigDecimal> unStockCountGroup = Maps.newHashMap();
+            for (Long id : outsourceCountGroup.keySet()) {
+                unStockCountGroup.put(id,outsourceCountGroup.get(id).subtract(stockCountGroup.getOrDefault(id,BigDecimal.ZERO)));
+            }
 
             // 加工费用表
             List<ContractBillItemVO> contractBillItemVO = reportService.billItem(params);
@@ -165,7 +171,7 @@ public class OutsourcedManagementAccountingReportApiController {
             for (Map<String, Object> map : outsourcedContractList) {
                 long itemId = Long.parseLong(map.get("id").toString());
                 map.put("inCount", stockCountGroup.getOrDefault(itemId, BigDecimal.ZERO));
-                map.put("inAmount", stockAmountGroup.getOrDefault(itemId, BigDecimal.ZERO));
+                map.put("unInCount", unStockCountGroup.getOrDefault(itemId, BigDecimal.ZERO));
                 map.put("billCount", billCountGroup.getOrDefault(itemId, 0.0d));
                 map.put("billAmount", billAmountGroup.getOrDefault(itemId, 0.0d));
 
@@ -180,10 +186,11 @@ public class OutsourcedManagementAccountingReportApiController {
                         totalMap.put("contractDate", map.getOrDefault("contractDate", ""));
                         totalMap.put("deptName", map.getOrDefault("deptName", ""));
                         totalMap.put("supplierName", map.getOrDefault("supplierName", ""));
-
-                        totalMap.put("count", totalSalesCountGroup.getOrDefault(sourceCode, 0.0d));
-                        totalMap.put("taxAmount", totalSalesAmountGroup.getOrDefault(sourceCode, 0.0d));
-                        totalMap.put("inCount", totalStockCountGroup.getOrDefault(sourceCode, BigDecimal.ZERO));
+                        Double count = totalSalesCountGroup.getOrDefault(sourceCode, 0.0d);
+                        totalMap.put("count", count);
+                        BigDecimal inCount = totalStockCountGroup.getOrDefault(sourceCode, BigDecimal.ZERO);
+                        totalMap.put("inCount", inCount);
+                        totalMap.put("unInCount", BigDecimal.valueOf(count).subtract(inCount));
                         totalMap.put("inAmount", totalStockAmountGroup.getOrDefault(sourceCode, BigDecimal.ZERO));
                         totalMap.put("billCount", totalBillCountGroup.getOrDefault(sourceCode, 0.0d));
                         totalMap.put("billAmount", totalBillAmountGroup.getOrDefault(sourceCode, 0.0d));
@@ -207,21 +214,24 @@ public class OutsourcedManagementAccountingReportApiController {
                     .collect(Collectors.toList());
             results.put("data", collect);
             Map<String, Object> totalResult = Maps.newHashMap();
-            totalResult.put("count", totalSalesCountGroup
+            Double count = totalSalesCountGroup
                     .values()
                     .stream()
                     .reduce(Double::sum)
-                    .orElse(0.0d));
+                    .orElse(0.0d);
+            totalResult.put("count", count);
             totalResult.put("taxAmount", totalSalesAmountGroup
                     .values()
                     .stream()
                     .reduce(Double::sum)
                     .orElse(0.0d));
-            totalResult.put("inCount", totalStockCountGroup
+            BigDecimal inCount = totalStockCountGroup
                     .values()
                     .stream()
                     .reduce(BigDecimal::add)
-                    .orElse(BigDecimal.ZERO));
+                    .orElse(BigDecimal.ZERO);
+            totalResult.put("inCount", inCount);
+            totalResult.put("unInCount",BigDecimal.valueOf(count).subtract(inCount));
             totalResult.put("inAmount", totalStockAmountGroup
                     .values()
                     .stream()
