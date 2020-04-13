@@ -4,6 +4,7 @@ import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForReport;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.DateUtils;
@@ -93,7 +94,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
             String userId = userForReportVO.getUserId().toString();
             Double totalCount = itemGroup.get(userId);
             map.put("userId", userForReportVO.getUserId());
-            map.put("userName", userForReportVO.getUserName() + "小计");
+            map.put("userName", userForReportVO.getUserName() + ConstantForReport.TOTAL_SUFFIX);
             map.put("totalCount", totalCount == null ? 0 : totalCount);
             userDOsList.add(map);
         }
@@ -115,7 +116,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         Map<String, Object> result = Maps.newHashMap();
         List<String> typeNameList = dictionaryDOS
                 .stream()
-                .map(dictionaryDO -> dictionaryDO.getName() + "小计")
+                .map(dictionaryDO -> dictionaryDO.getName() + ConstantForReport.TOTAL_SUFFIX)
                 .collect(Collectors.toList());
         if (applyForReimbursementGroupType.size() != typeNameList.size()) {
             List<String> typeName = applyForReimbursementGroupType
@@ -272,8 +273,8 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                     Double totalCount = itemGroup.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
-                    map.put("sign","end");
-                    map.put("name", userMap.get(userId) + "小计");
+                    map.put("sign",ConstantForReport.COLOUR_END);
+                    map.put("name", userMap.get(userId) + ConstantForReport.TOTAL_SUFFIX);
                     map.put("sortNo", 1);
                     map.put("deptName", deptNameMap.get(userId));
                     map.put("deptId", deptIdMap.get(userId));
@@ -382,8 +383,8 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                     Double totalCount = itemGroup.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
-                    map.put("sign","end");
-                    map.put("name", userMap.get(userId) + "小计");
+                    map.put("sign",ConstantForReport.COLOUR_END);
+                    map.put("name", userMap.get(userId) + ConstantForReport.TOTAL_SUFFIX);
                     map.put("sortNo", typeMax);
                     map.put("deptName", deptNameMap.get(userId));
                     map.put("deptId", deptIdMap.get(userId));
@@ -541,8 +542,8 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                     Double totalCount = itemGroup.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
-                    map.put("sign","end");
-                    map.put("name", userMap.get(userId) + "小计");
+                    map.put("sign",ConstantForReport.COLOUR_END);
+                    map.put("name", userMap.get(userId) + ConstantForReport.TOTAL_SUFFIX);
                     map.put("sortNo", typeMax);
                     map.put("deptName", deptNameMap.get(userId));
                     map.put("deptId", deptIdMap.get(userId));
@@ -634,8 +635,8 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                     Double totalCount = itemGroup.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
-                    map.put("sign","end");
-                    map.put("name", userMap.get(userId) + "小计");
+                    map.put("sign",ConstantForReport.COLOUR_END);
+                    map.put("name", userMap.get(userId) + ConstantForReport.TOTAL_SUFFIX);
                     // 详情内为1
                     map.put("sortNo", 1);
                     map.put("deptName", deptNameMap.get(userId));

@@ -2,6 +2,7 @@ package com.ev.report.service.impl;
 
 import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
+import com.ev.framework.config.ConstantForReport;
 import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.R;
 import com.ev.report.dao.SmartManufacturingAccountingReportDao;
@@ -413,9 +414,9 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                     pieceRateVO = new PieceRateVO();
                     Double totalPieceRate = deptTotal.get(s);
                     // 部门总计标2 用户总计标1 详情标0
-                    pieceRateVO.setSign("end");
+                    pieceRateVO.setSign(ConstantForReport.COLOUR_END);
                     pieceRateVO.setDeptId(s);
-                    pieceRateVO.setDeptName(deptNameMap.get(s) + "小计");
+                    pieceRateVO.setDeptName(deptNameMap.get(s) + ConstantForReport.TOTAL_SUFFIX);
                     pieceRateVO.setOperator(typeMax);
                     pieceRateVO.setSortNo(typeMax);
                     pieceRateVO.setTotalPrice( totalPieceRate == null ? 0.0d : totalPieceRate);
@@ -441,7 +442,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                         // 部门总计标2 用户总计标1 详情标0
                         pieceRateVO.setSign("1");
                         pieceRateVO.setDeptId(s);
-                        pieceRateVO.setOperatorName(userNameMap.get(userId) + "小计");
+                        pieceRateVO.setOperatorName(userNameMap.get(userId) + ConstantForReport.TOTAL_SUFFIX);
                         pieceRateVO.setOperator(userId);
                         pieceRateVO.setSortNo(userId);
                         pieceRateVO.setTotalPrice( totalPieceRate == null ? 0.0d : totalPieceRate);
@@ -498,7 +499,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
         for (Long s : userTotal.keySet()) {
             map = Maps.newHashMap();
             map.put("userId", s);
-            map.put("userName", userNameMap.get(s) + "小计");
+            map.put("userName", userNameMap.get(s) + ConstantForReport.TOTAL_SUFFIX);
             map.put("totalPieceRate", userTotal.get(s));
             data.add(map);
         }

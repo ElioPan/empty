@@ -2,6 +2,7 @@ package com.ev.report.service.impl;
 
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.config.ConstantForGYL;
+import com.ev.framework.config.ConstantForReport;
 import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
 import com.ev.report.dao.PurchaseManagementAccountingReportDao;
@@ -193,10 +194,10 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
             for (int i=0;i< contractIds.size();i++) {
                 Map<String, Object> totailMap = new HashMap<>();
                 String contractId=contractIds.get(i);
-                totailMap.put("sign","end");
+                totailMap.put("sign",ConstantForReport.COLOUR_END);
                 totailMap.put("purchaseContractId", contractId);
                 totailMap.put("sortNo", 1);
-                totailMap.put("contractCode", "合同" + contractCode.get(contractId) + "小计");
+                totailMap.put("contractCode", "合同" + contractCode.get(contractId) + ConstantForReport.TOTAL_SUFFIX);
                 totailMap.put("count", totailPurchseCount.get(contractId));
                 totailCount = totailCount.add(new BigDecimal(totailPurchseCount.getOrDefault(contractId,0.0).toString()));
                 totailMap.put("taxAmount", totailPurchseAmount.get(contractId));
@@ -295,10 +296,10 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
             Map<String, Object> totalMap;
             for (String supplierId : supplierNameMap.keySet()) {
                 totalMap = Maps.newHashMap();
-                totalMap.put("sign","end");
+                totalMap.put("sign",ConstantForReport.COLOUR_END);
                 totalMap.put("sortNo", 1);
                 totalMap.put("supplierId", supplierId);
-                totalMap.put("supplierName", supplierNameMap.get(supplierId) + "小计");
+                totalMap.put("supplierName", supplierNameMap.get(supplierId) + ConstantForReport.TOTAL_SUFFIX);
                 totalMap.put("payAmount", payAmountMap.get(supplierId));
                 totalMap.put("amountPaid", amountPaidMap.get(supplierId));
                 totalMap.put("unPayAmount", unPayAmountMap.get(supplierId));
@@ -477,10 +478,10 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
             Map<String, Object> totalMap;
             for (String supplierId : supplierNameMap.keySet()) {
                 totalMap = Maps.newHashMap();
-                totalMap.put("sign","end");
+                totalMap.put("sign",ConstantForReport.COLOUR_END);
                 totalMap.put("sortNo", 1);
                 totalMap.put("supplierId", supplierId);
-                totalMap.put("supplierName", supplierNameMap.get(supplierId) + "小计");
+                totalMap.put("supplierName", supplierNameMap.get(supplierId) + ConstantForReport.TOTAL_SUFFIX);
                 totalMap.put("payAmount", payAmountMap.get(supplierId));
                 totalMap.put("amountPaid", amountPaidMap.get(supplierId));
                 totalMap.put("unPayAmount", unPayAmountMap.get(supplierId));

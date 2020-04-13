@@ -4,6 +4,7 @@ import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
+import com.ev.framework.config.ConstantForReport;
 import com.ev.framework.utils.R;
 import com.ev.report.service.QualityManagementAccountingReportService;
 import com.google.common.collect.Lists;
@@ -82,10 +83,10 @@ public class QualityManagementAccountingReportApiController {
                     map = Maps.newHashMap();
                     map.put("supplierId", s);
                     // 标记颜色
-                    map.put("sign", "end");
+                    map.put("sign", ConstantForReport.COLOUR_END);
                     // 排序号
                     map.put("sortNo", 1);
-                    map.put("supplierName", supplierNameMap.get(s) + "小计");
+                    map.put("supplierName", supplierNameMap.get(s) + ConstantForReport.TOTAL_SUFFIX);
                     map.put("unqualifiedCount", unqualifiedCountMap.get(s));
                     showList.add(map);
                 }
@@ -204,9 +205,9 @@ public class QualityManagementAccountingReportApiController {
                 for (String s : deptNameMap.keySet()) {
                     map = Maps.newHashMap();
                     map.put("deptId", s);
-                    map.put("deptName", deptNameMap.get(s) + "小计");
+                    map.put("deptName", deptNameMap.get(s) + ConstantForReport.TOTAL_SUFFIX);
                     // 最后一层小计赋end
-                    map.put("sign","end");
+                    map.put("sign",ConstantForReport.COLOUR_END);
                     map.put("sortNo", max);
                     map.put("rejectsCount", unqualifiedCountMap.get(s));
                     map.put("processId", max);
@@ -232,7 +233,7 @@ public class QualityManagementAccountingReportApiController {
                         totalMap.put("sign",1);
                         totalMap.put("sortNo",processIdParam);
                         totalMap.put("deptId",deptIdParam);
-                        totalMap.put("processName", processNameMap.get(processIdParam)+"小计");
+                        totalMap.put("processName", processNameMap.get(processIdParam)+ConstantForReport.TOTAL_SUFFIX);
                         totalMap.put("processId",processIdParam);
                         totalMap.put("rejectsCount",rejectsCount);
                         showList.add(totalMap);
@@ -417,11 +418,11 @@ public class QualityManagementAccountingReportApiController {
                 for (String s : deptNameMap.keySet()) {
                     map = Maps.newHashMap();
                     // 最后一层小计赋end
-                    map.put("sign","end");
+                    map.put("sign",ConstantForReport.COLOUR_END);
                     map.put("sortNo", max);
 
                     map.put("deptId", s);
-                    map.put("deptName", deptNameMap.get(s) + "小计");
+                    map.put("deptName", deptNameMap.get(s) + ConstantForReport.TOTAL_SUFFIX);
                     map.put("unqualifiedCount", unqualifiedCountMap.get(s));
                     map.put("materielId", max);
                     showList.add(map);
@@ -445,7 +446,7 @@ public class QualityManagementAccountingReportApiController {
                         totalMap.put("sign",1);
                         totalMap.put("sortNo",materielIdParam);
                         totalMap.put("deptId",deptIdParam);
-                        totalMap.put("materielName", materielNameMap.get(materielIdParam)+"小计");
+                        totalMap.put("materielName", materielNameMap.get(materielIdParam)+ConstantForReport.TOTAL_SUFFIX);
                         totalMap.put("materielId",materielIdParam);
                         totalMap.put("unqualifiedCount",unqualifiedCount);
                         showList.add(totalMap);
@@ -521,7 +522,7 @@ public class QualityManagementAccountingReportApiController {
             for (String s : materielNameMap.keySet()) {
                 map = Maps.newHashMap();
                 map.put("materielId", s);
-                map.put("materielName", materielNameMap.get(s) + "小计");
+                map.put("materielName", materielNameMap.get(s) + ConstantForReport.TOTAL_SUFFIX);
                 map.put("count", unqualifiedCountMap.get(s));
                 data.add(map);
             }

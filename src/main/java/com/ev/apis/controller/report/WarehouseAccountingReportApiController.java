@@ -5,6 +5,7 @@ import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
+import com.ev.framework.config.ConstantForReport;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.DatesUtil;
 import com.ev.framework.utils.MathUtils;
@@ -137,10 +138,10 @@ public class WarehouseAccountingReportApiController {
                     map = Maps.newHashMap();
                     map.put("materielId", materielIdParam);
                     // 标记颜色
-                    map.put("sign","end");
+                    map.put("sign",ConstantForReport.COLOUR_END);
                     // 排序号
                     map.put("sortNo",1);
-                    map.put("materielName", materielIdMap.get(materielIdParam) + "小计");
+                    map.put("materielName", materielIdMap.get(materielIdParam) + ConstantForReport.TOTAL_SUFFIX);
                     map.put("initialCount", initialCountMap.get(materielIdParam));
                     map.put("initialAmount",initialAmountMap.get(materielIdParam));
                     map.put("inCount", inCountMap.get(materielIdParam));
@@ -408,8 +409,8 @@ public class WarehouseAccountingReportApiController {
                     stockInItemVO.setAmount(amountMap.get(materiel));
                     stockInItemVO.setInOutTime(new Date(maxTime));
                     // 标记颜色
-                    stockInItemVO.setSign("end");
-                    stockInItemVO.setMaterielName(materielMap.get(materiel) + "小计");
+                    stockInItemVO.setSign(ConstantForReport.COLOUR_END);
+                    stockInItemVO.setMaterielName(materielMap.get(materiel) + ConstantForReport.TOTAL_SUFFIX);
                     // 排序号
                     stockInItemVO.setSortNo(1);
 
@@ -514,9 +515,9 @@ public class WarehouseAccountingReportApiController {
                     stockOutItemVO.setAmount(amountMap.get(materiel));
                     stockOutItemVO.setOutTime(new Date(maxTime));
                     // 标记颜色
-                    stockOutItemVO.setSign("end");
+                    stockOutItemVO.setSign(ConstantForReport.COLOUR_END);
 
-                    stockOutItemVO.setMaterielName(materielMap.get(materiel) + "小计");
+                    stockOutItemVO.setMaterielName(materielMap.get(materiel) + ConstantForReport.TOTAL_SUFFIX);
                     stockOutItemVO.setMaterielId(materiel);
                     // 排序号
                     stockOutItemVO.setSortNo(1);
@@ -632,11 +633,11 @@ public class WarehouseAccountingReportApiController {
                 for (String productId : amountMap.keySet()) {
                     map = Maps.newHashMap();
                     map.put("productId", productId);
-                    map.put("productName", productMap.get(productId) + "小计");
+                    map.put("productName", productMap.get(productId) + ConstantForReport.TOTAL_SUFFIX);
                     map.put("count", countMap.get(productId));
                     map.put("amount", amountMap.get(productId));
                     map.put("sortNo",1);
-                    map.put("sign","end");
+                    map.put("sign",ConstantForReport.COLOUR_END);
                     showList.add(map);
                 }
             }

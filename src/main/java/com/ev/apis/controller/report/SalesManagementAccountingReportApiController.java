@@ -3,6 +3,7 @@ package com.ev.apis.controller.report;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
+import com.ev.framework.config.ConstantForReport;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.report.service.SalesManagementAccountingReportService;
@@ -179,7 +180,7 @@ public class SalesManagementAccountingReportApiController {
                     if (copyContractIds.contains(sourceId)) {
                         totalMap = Maps.newHashMap();
                         totalMap.put("salesContractId",sourceId);
-                        totalMap.put("contractCode",sourceCode+"小计");
+                        totalMap.put("contractCode",sourceCode+ ConstantForReport.TOTAL_SUFFIX);
                         totalMap.put("contractDate",map.getOrDefault("contractDate",""));
                         totalMap.put("deptName",map.getOrDefault("deptName",""));
                         totalMap.put("clientName",map.getOrDefault("clientName",""));
@@ -196,7 +197,7 @@ public class SalesManagementAccountingReportApiController {
                         totalMap.put("totalUnReceivedAmount",totalUnReceivedAmountGroup.getOrDefault(sourceId,0.0d));
 
                         totalMap.put("sortNo",1);
-                        totalMap.put("sign","end");
+                        totalMap.put("sign",ConstantForReport.COLOUR_END);
                         showList.add(totalMap);
                         copyContractIds.remove(sourceId);
                     }
@@ -326,10 +327,10 @@ public class SalesManagementAccountingReportApiController {
                     map = Maps.newHashMap();
                     map.put("clientId", s);
                     // 标记颜色
-                    map.put("sign","end");
+                    map.put("sign",ConstantForReport.COLOUR_END);
                     // 排序号
                     map.put("sortNo",1);
-                    map.put("clientName", clientNameMap.get(s) + "小计");
+                    map.put("clientName", clientNameMap.get(s) + ConstantForReport.TOTAL_SUFFIX);
                     map.put("receivableAmount", receivableAmountMap.get(s));
                     map.put("receivedAmount", receivedAmountMap.get(s));
                     map.put("unreceivedAmount", unreceivedAmountMap.get(s));
@@ -468,11 +469,11 @@ public class SalesManagementAccountingReportApiController {
                 for (String s : typeNameMap.keySet()) {
                     map = Maps.newHashMap();
                     map.put(finalTypeIdForMap, s);
-                    map.put(finalTypeNameForMap, typeNameMap.get(s) + "小计");
+                    map.put(finalTypeNameForMap, typeNameMap.get(s) + ConstantForReport.TOTAL_SUFFIX);
                     map.put("count", countMap.get(s));
                     map.put("taxAmount", amountMap.get(s));
                     map.put("sortNo",1);
-                    map.put("sign","end");
+                    map.put("sign",ConstantForReport.COLOUR_END);
                     showList.add(map);
                 }
             }
@@ -616,10 +617,10 @@ public class SalesManagementAccountingReportApiController {
                     map = Maps.newHashMap();
                     map.put("clientId", s);
                     // 标记颜色
-                    map.put("sign","end");
+                    map.put("sign",ConstantForReport.COLOUR_END);
                     // 排序号
                     map.put("sortNo",1);
-                    map.put("clientName", clientNameMap.get(s) + "小计");
+                    map.put("clientName", clientNameMap.get(s) + ConstantForReport.TOTAL_SUFFIX);
                     map.put("receivableAmount", receivableAmountMap.get(s));
                     map.put("receivedAmount", receivedAmountMap.get(s));
                     map.put("unreceivedAmount", unreceivedAmountMap.get(s));
