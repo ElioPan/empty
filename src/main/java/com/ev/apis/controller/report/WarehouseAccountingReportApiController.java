@@ -1,5 +1,7 @@
 package com.ev.apis.controller.report;
 
+import com.ev.custom.domain.DictionaryDO;
+import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
@@ -41,6 +43,8 @@ public class WarehouseAccountingReportApiController {
     private WarehouseAccountingReportService reportService;
     @Autowired
     private StockAnalysisService stockAnalysisService;
+    @Autowired
+    private DictionaryService dictionaryService;
 
     @EvApiByToken(value = "/apis/warehouse/inOutSummary", method = RequestMethod.POST, apiTitle = "仓库收发汇总")
     @ApiOperation("仓库收发汇总")
@@ -561,13 +565,13 @@ public class WarehouseAccountingReportApiController {
     @EvApiByToken(value = "/apis/warehouse/safetyStockWarning", method = RequestMethod.POST, apiTitle = "安全库存预警")
     @ApiOperation("安全库存预警")
     public R safetyStockWarning(
-            @ApiParam(value = "结束时间", required = true) @RequestParam(value = "endTime", defaultValue = "") String endTime,
+//            @ApiParam(value = "结束时间", required = true) @RequestParam(value = "endTime", defaultValue = "") String endTime,
             @ApiParam(value = "物料类型") @RequestParam(value = "materielType", defaultValue = "", required = false) Long materielType,
             @ApiParam(value = "物料ID") @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId) {
 
         Map<String, Object> results = Maps.newHashMap();
         Map<String, Object> params = Maps.newHashMap();
-        params.put("endTime", endTime);
+//        params.put("endTime", endTime);
         params.put("materielId", materielId);
         params.put("materielType", materielType);
         List<Map<String, Object>> data = reportService.stockList(params);
@@ -593,6 +597,12 @@ public class WarehouseAccountingReportApiController {
         params.put("deptId", deptId);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
+        List<DictionaryDO> feedingTypes = dictionaryService.listByType(ConstantForMES.FEEDING);
+        List<Integer> sourceTypes = feedingTypes
+                .stream()
+                .map(DictionaryDO::getId)
+                .collect(Collectors.toList());
+        params.put("sourceTypes",sourceTypes);
         List<Map<String, Object>> pickingSummary = reportService.pickingSummary(params);
         if (pickingSummary.size() > 0) {
             List<Map<String, Object>> showList = Lists.newArrayList();

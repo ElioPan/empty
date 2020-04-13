@@ -106,7 +106,7 @@
                 0 AS sortNo
                 FROM
                 scm_stock_out_item item
-                LEFT JOIN scm_stock_out out ON out.id = item.out_id
+                LEFT JOIN scm_stock_out sto ON sto.id = item.out_id
                 LEFT JOIN mes_production_feeding_detail feedt ON feedt.id = item.`source_id`
                 LEFT JOIN mes_production_feeding feed ON feed.id = feedt.head_id
                 LEFT JOIN cus_materiel itemm ON itemm.id = item.`materiel_id`
@@ -124,7 +124,8 @@
                             </if>
                         </foreach>
                     </if>
-                    <if test="outboundType != null and outboundType != ''"> and out.outbound_type = #{outboundType} </if>
+                     <if test="deptId != null and deptId != ''"> and feed.pro_dept = #{deptId} </if>
+                    <if test="outboundType != null and outboundType != ''"> and sto.outbound_type = #{outboundType} </if>
                     <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(feed.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
                     <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(feed.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
                 </where>

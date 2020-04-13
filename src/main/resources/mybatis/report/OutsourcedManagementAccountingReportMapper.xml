@@ -110,6 +110,8 @@
         outsourcingUserDept.name AS deptName,
         outsourcing.`contract_code` AS `contractCode`,
         outsourcing.contract_date AS contractDate,
+        0 AS sign,
+        0 AS sortNo,
         SUM(pay.payable_amount) AS payableAmount,
         SUM(pay.paid_amount) AS paidAmount,
         SUM(pay.unpaid_amount) AS unpaidAmount
