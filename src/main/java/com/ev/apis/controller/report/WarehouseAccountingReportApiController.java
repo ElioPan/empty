@@ -266,14 +266,13 @@ public class WarehouseAccountingReportApiController {
                     newInitialAmount = initialAmount - amount;
                     groupByStockVO.setOutCount(count);
                     groupByStockVO.setOutAmount(amount);
-                    groupByStockVO.setUnitPrice(unitPrice);
                 } else {
                     newInitialCount = initialCount + count;
                     newInitialAmount = initialAmount + amount;
                     groupByStockVO.setInCount(count);
                     groupByStockVO.setInAmount(amount);
-                    groupByStockVO.setUnitPrice(unitPrice);
                 }
+                groupByStockVO.setUnitPrice(unitPrice);
                 groupByStockVO.setBalanceCount(newInitialCount);
                 groupByStockVO.setBalanceAmount(newInitialAmount);
                 newInitialUnitPrice = BigDecimal.valueOf(newInitialAmount).divide(BigDecimal.valueOf(newInitialCount), Constant.BIGDECIMAL_ZERO, BigDecimal.ROUND_HALF_UP);
@@ -370,19 +369,27 @@ public class WarehouseAccountingReportApiController {
             List<StockInItemVO> showList = Lists.newArrayList();
 
             // 入库数量
-            Map<String, BigDecimal> countMap = stockInItemVOS
+            Map<Long, BigDecimal> countMap = stockInItemVOS
                     .stream()
                     .collect(Collectors.toMap(
-                            StockInItemVO::getMaterielName
+                            StockInItemVO::getMaterielId
                             , StockInItemVO::getCount
                             , BigDecimal::add));
             // 入库金额
-            Map<String, BigDecimal> amountMap = stockInItemVOS
+            Map<Long, BigDecimal> amountMap = stockInItemVOS
                     .stream()
                     .collect(Collectors.toMap(
-                            StockInItemVO::getMaterielName
+                            StockInItemVO::getMaterielId
                             , StockInItemVO::getAmount
                             , BigDecimal::add));
+
+            // 物料名
+            Map<Long, String> materielMap = stockInItemVOS
+                    .stream()
+                    .collect(Collectors.toMap(
+                            StockInItemVO::getMaterielId
+                            , StockInItemVO::getMaterielName
+                            , (v1,v2)->v1));
             // 获取最大一个时间
             long maxTime = Objects.requireNonNull(DateFormatUtil.getDateByParttern(endTime, "yyyy-MM-dd")).getTime();
 
@@ -390,14 +397,15 @@ public class WarehouseAccountingReportApiController {
 
             if (showTotal) {
                 StockInItemVO stockInItemVO;
-                for (String materielName : amountMap.keySet()) {
+                for (Long materiel : amountMap.keySet()) {
                     stockInItemVO = new StockInItemVO();
-                    stockInItemVO.setCount(countMap.get(materielName));
-                    stockInItemVO.setAmount(amountMap.get(materielName));
+                    stockInItemVO.setMaterielId(materiel);
+                    stockInItemVO.setCount(countMap.get(materiel));
+                    stockInItemVO.setAmount(amountMap.get(materiel));
                     stockInItemVO.setInOutTime(new Date(maxTime));
                     // 标记颜色
                     stockInItemVO.setSign("end");
-                    stockInItemVO.setMaterielName(materielName + "小计");
+                    stockInItemVO.setMaterielName(materielMap.get(materiel) + "小计");
                     // 排序号
                     stockInItemVO.setSortNo(1);
 
@@ -410,7 +418,7 @@ public class WarehouseAccountingReportApiController {
             List<StockInItemVO> collect = showList.stream()
                     .sorted(Comparator.comparing(StockInItemVO::getSortNo))
                     .sorted(Comparator.comparing(StockInItemVO::getInOutTime))
-                    .sorted(Comparator.comparing(StockInItemVO::getMaterielName))
+                    .sorted(Comparator.comparing(StockInItemVO::getMaterielId))
                     .collect(Collectors.toList());
 
             for (StockInItemVO stockInItemVO : collect) {
@@ -468,38 +476,48 @@ public class WarehouseAccountingReportApiController {
             List<StockOutItemVO> showList = Lists.newArrayList();
 
             // 出库数量
-            Map<String, Double> countMap = StockOutItemVOS
+            Map<Long, Double> countMap = StockOutItemVOS
                     .stream()
                     .collect(Collectors.toMap(
-                            StockOutItemVO::getMaterielName
+                            StockOutItemVO::getMaterielId
                             , StockOutItemVO::getCount
                             , Double::sum));
             // 出库金额
-            Map<String, Double> amountMap = StockOutItemVOS
+            Map<Long, Double> amountMap = StockOutItemVOS
                     .stream()
                     .collect(Collectors.toMap(
-                            StockOutItemVO::getMaterielName
+                            StockOutItemVO::getMaterielId
                             , StockOutItemVO::getAmount
                             , Double::sum));
+
+            // 物料名
+            Map<Long, String> materielMap = StockOutItemVOS
+                    .stream()
+                    .collect(Collectors.toMap(
+                            StockOutItemVO::getMaterielId
+                            , StockOutItemVO::getMaterielName
+                            , (v1,v2)->v1));
             // 获取最大一个时间
             long maxTime = Objects.requireNonNull(DateFormatUtil.getDateByParttern(endTime, "yyyy-MM-dd")).getTime();
 
             maxTime = maxTime + (24*3600*1000);
 
             if (showTotal) {
-                StockOutItemVO StockOutItemVO;
-                for (String materielName : amountMap.keySet()) {
-                    StockOutItemVO = new StockOutItemVO();
-                    StockOutItemVO.setCount(countMap.get(materielName));
-                    StockOutItemVO.setAmount(amountMap.get(materielName));
-                    StockOutItemVO.setOutTime(new Date(maxTime));
+                StockOutItemVO stockOutItemVO;
+                for (Long materiel : amountMap.keySet()) {
+                    stockOutItemVO = new StockOutItemVO();
+                    stockOutItemVO.setCount(countMap.get(materiel));
+                    stockOutItemVO.setAmount(amountMap.get(materiel));
+                    stockOutItemVO.setOutTime(new Date(maxTime));
                     // 标记颜色
-                    StockOutItemVO.setSign("end");
-                    StockOutItemVO.setMaterielName(materielName + "小计");
-                    // 排序号
-                    StockOutItemVO.setSortNo(1);
+                    stockOutItemVO.setSign("end");
 
-                    showList.add(StockOutItemVO);
+                    stockOutItemVO.setMaterielName(materielMap.get(materiel) + "小计");
+                    stockOutItemVO.setMaterielId(materiel);
+                    // 排序号
+                    stockOutItemVO.setSortNo(1);
+
+                    showList.add(stockOutItemVO);
                 }
             }
             if (showItem) {
@@ -508,7 +526,7 @@ public class WarehouseAccountingReportApiController {
             List<StockOutItemVO> collect = showList.stream()
                     .sorted(Comparator.comparing(StockOutItemVO::getSortNo))
                     .sorted(Comparator.comparing(StockOutItemVO::getOutTime))
-                    .sorted(Comparator.comparing(StockOutItemVO::getMaterielName))
+                    .sorted(Comparator.comparing(StockOutItemVO::getMaterielId))
                     .collect(Collectors.toList());
 
             for (StockOutItemVO StockOutItemVO : collect) {
