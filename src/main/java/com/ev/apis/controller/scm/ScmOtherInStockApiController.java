@@ -44,7 +44,7 @@ public class ScmOtherInStockApiController {
     @EvApiByToken(value = "/apis/scm/otherInStock/saveAndChange", method = RequestMethod.POST, apiTitle = "新增/修改—其他入库")
     @ApiOperation("新增/修改—其他入库")
     @Transactional(rollbackFor = Exception.class)
-    public R getMenus(StockInDO stockInDO,
+    public R addAndEdit(StockInDO stockInDO,
 //                      @ApiParam(value = "入库类型id:", required = true) @RequestParam(value = "inStockTypeId", required = true) int  inStockTypeId,
                       @ApiParam(value = "产品/物料明细行[\n" +
                               "{\"materielId\":2,\n" +

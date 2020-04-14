@@ -48,7 +48,7 @@ public class ScmReturnMaterieInStockApiController {
     @EvApiByToken(value = "/apis/scm/returnMaterielnStock/saveAndChange", method = RequestMethod.POST, apiTitle = "新增/修改—生产退料入库")
     @ApiOperation("新增/修改—生产退料入库")
     @Transactional(rollbackFor = Exception.class)
-    public R getMenus(StockInDO stockInDO,
+    public R addAndEdit(StockInDO stockInDO,
                       @ApiParam(value = "产品/物料明细行[{" +
                               "\"id\":\"明细主键（修改时必传）\",\n" +
                               "\"materielId\":1," +
