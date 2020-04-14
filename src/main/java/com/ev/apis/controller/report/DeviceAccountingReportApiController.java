@@ -4,10 +4,10 @@ import cn.afterturn.easypoi.entity.vo.TemplateExcelConstants;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.apis.model.DsResultResponse;
-import com.ev.report.service.DeviceAccountingReportService;
-import com.ev.report.vo.DeviceVO;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.utils.R;
+import com.ev.report.service.DeviceAccountingReportService;
+import com.ev.report.vo.DeviceVO;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -15,11 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,7 +47,9 @@ public class DeviceAccountingReportApiController {
         result.put("data",analysis);
         return R.ok(result);
     }
-    @EvApiByToken(value = "/apis/exportExcel/device/accountingReport", method = RequestMethod.POST, apiTitle = "设备管理分析(导出)")
+
+    @ResponseBody
+    @EvApiByToken(value = "/apis/exportExcel/deviceAccountingReport", method = RequestMethod.GET, apiTitle = "设备管理分析(导出)")
     @ApiOperation("设备管理分析(导出)")
     public void analysis(DeviceVO deviceVO,
     HttpServletRequest request, HttpServletResponse response, ModelMap modelMap) {

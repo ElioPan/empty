@@ -153,11 +153,11 @@ public class DeviceAccountingReportServiceImpl implements DeviceAccountingReport
 
             // 累计维修费用
             BigDecimal repairCost = repairCostMap.getOrDefault(id, BigDecimal.ZERO);
-            map.put("repairCost", repairCost.stripTrailingZeros());
+            map.put("repairCost", repairCost.stripTrailingZeros().toPlainString());
 
             // 累计保养费用
             BigDecimal upkeepCost = upkeepCostMap.getOrDefault(id, BigDecimal.ZERO);
-            map.put("upkeepCost", upkeepCost.stripTrailingZeros());
+            map.put("upkeepCost", upkeepCost.stripTrailingZeros().toPlainString());
 
             // 巡检次数
             Long patrolFrequency = patrolFrequencyMap.getOrDefault(id, 0L);
