@@ -94,7 +94,7 @@ public class QualityManagementAccountingReportServiceImpl implements QualityMana
 
             List<Map<String, Object>> collect = showList.stream()
                     .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
-                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("clientId").toString())))
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("supplierId").toString())))
                     .collect(Collectors.toList());
             return Pair.of(collect,Maps.newHashMap());
         }

@@ -1,5 +1,6 @@
 package com.ev.report.service;
 
+import com.ev.apis.model.DsResultResponse;
 import com.ev.report.vo.DeviceVO;
 import com.ev.framework.utils.R;
 
@@ -11,5 +12,5 @@ import com.ev.framework.utils.R;
  * @date 2020-03-16 17:22:16
  */
 public interface DeviceAccountingReportService {
-    R analysis(DeviceVO deviceVO);
+    DsResultResponse analysis(DeviceVO deviceVO);
 }

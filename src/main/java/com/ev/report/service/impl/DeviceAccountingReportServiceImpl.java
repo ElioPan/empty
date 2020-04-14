@@ -27,11 +27,11 @@ public class DeviceAccountingReportServiceImpl implements DeviceAccountingReport
     private DeviceAccountingReportDao reportDao;
 
     @Override
-    public R analysis(DeviceVO deviceVO) {
+    public DsResultResponse  analysis(DeviceVO deviceVO) {
         deviceVO.setNameAndCode(StringUtils.sqlLike(deviceVO.getNameAndCode()));
         List<Map<String, Object>> deviceDOList = reportDao.deviceList(deviceVO);
         if (deviceDOList.size() == 0) {
-            return R.ok();
+            return null;
         }
         int pageNo = deviceVO.getPageno();
         int pageSize = deviceVO.getPagesize();
@@ -164,8 +164,6 @@ public class DeviceAccountingReportServiceImpl implements DeviceAccountingReport
             map.put("patrolFrequency", patrolFrequency);
 
         }
-        Map<String, Object> result = Maps.newHashMap();
-        result.put("data", new DsResultResponse(pageNo, pageSize, deviceDOList.size(), deviceList));
-        return R.ok(result);
+        return new DsResultResponse(pageNo, pageSize, deviceDOList.size(), deviceList);
     }
 }
