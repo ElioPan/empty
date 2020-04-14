@@ -18,6 +18,7 @@
         poor.`name` AS poorName,
         inspection.dept_id AS deptId,
         dept.`name` AS deptName,
+        inspection.batch_no AS batch,
         0 AS sign,
         0 AS sortNo,
         SUM(detail.unqualified_count) AS unqualifiedCount
