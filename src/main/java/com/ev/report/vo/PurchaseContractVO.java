@@ -26,6 +26,8 @@ public class PurchaseContractVO implements Serializable {
 	private Long supplierId;
 	// 供应商名称
 	private String supplierName;
+	// 供应商名称
+	private String supplierCode;
 	// 物料ID
 	private Long materielId;
 	// 物料编号
