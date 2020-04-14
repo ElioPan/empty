@@ -196,7 +196,7 @@
         SELECT
         '生产领料' AS typeName,
         sout.id AS id,
-        sout.`out_time` AS `time`,
+        sout.`create_time` AS `time`,
         sout.`out_code` AS `code`,
         materiel.`id` AS materielId,
         materiel.`serial_no` AS serialNo,
