@@ -91,6 +91,42 @@ public class PurchaseManagementAccountingReportApiController {
     }
 
 
+    @ResponseBody
+    @EvApiByToken(value = "/apis/exportExcel/debtDueGetOut", method = RequestMethod.GET, apiTitle = "导出——采购到期债务")
+    @ApiOperation("导出——采购到期债务")
+    public void exportExcelDebtDue(
+            @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+            @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+            @ApiParam(value = "供应商Id") @RequestParam(value = "supplierId", defaultValue = "", required = false) Long supplierId,
+            @ApiParam(value = "部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
+            @ApiParam(value = "采购员") @RequestParam(value = "userId", defaultValue = "", required = false) Long userId,
+            @ApiParam(value = "要显示详情 1是0否", required = true) @RequestParam(value = "showItem", defaultValue ="1") Integer showItem,
+            @ApiParam(value = "要显示小计 1是0否", required = true) @RequestParam(value = "showUser", defaultValue = "1") Integer showUser,
+            @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
+            HttpServletRequest request, HttpServletResponse response, ModelMap modelMap) {
+
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("supplierId", supplierId);
+        params.put("deptId", deptId);
+        params.put("userId", userId);
+        params.put("endTime", endTime);
+        R r =  reportService.disposeDebtDue(params,showItem, showUser);
+        Object dateList=new Object();
+        if(r.containsKey("ultimatelyDate")){
+            dateList = r.get("ultimatelyDate");
+        }
+        ClassPathResource classPathResource = new ClassPathResource("poi/report_purchase_trackingGetOut.xlsx");
+        Map<String,Object> map = Maps.newHashMap();
+        map.put("list", dateList);
+        TemplateExportParams result = new TemplateExportParams(classPathResource.getPath());
+        modelMap.put(TemplateExcelConstants.FILE_NAME, "采购到期债务");
+        modelMap.put(TemplateExcelConstants.PARAMS, result);
+        modelMap.put(TemplateExcelConstants.MAP_DATA, map);
+        PoiBaseView.render(modelMap, request, response,
+                TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
+    }
+
+
 
     @EvApiByToken(value = "/apis/purchaseManagement/balance", method = RequestMethod.POST, apiTitle = "采购合同余额(供应商小计)")
     @ApiOperation("采购合同余额(供应商小计)")
@@ -144,7 +180,7 @@ public class PurchaseManagementAccountingReportApiController {
 
 
     @ResponseBody
-    @EvApiByToken(value = "/apis/scm/exportExcel/trackingGetOut", method = RequestMethod.GET, apiTitle = "导出——采购全程跟踪")
+    @EvApiByToken(value = "/apis/exportExcel/trackingGetOut", method = RequestMethod.GET, apiTitle = "导出——采购全程跟踪")
     @ApiOperation("导出——采购全程跟踪")
     public void exportExcel(
             @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
