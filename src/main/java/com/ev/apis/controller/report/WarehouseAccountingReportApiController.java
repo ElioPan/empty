@@ -50,7 +50,8 @@ public class WarehouseAccountingReportApiController {
     @EvApiByToken(value = "/apis/warehouse/inOutSummary", method = RequestMethod.POST, apiTitle = "仓库收发汇总")
     @ApiOperation("仓库收发汇总")
     public R inOutSummary(
-            @ApiParam(value = "显示小计", required = true) @RequestParam(value = "showTotal", defaultValue = "1") int showTotalInt,
+            @ApiParam(value = "显示期间小计", required = true) @RequestParam(value = "showPeriodTotal", defaultValue = "1") int showPeriodTotalInt,
+            @ApiParam(value = "显示物料小计", required = true) @RequestParam(value = "showMaterielTotal", defaultValue = "1") int showMaterielTotalInt,
             @ApiParam(value = "显示详细", required = true) @RequestParam(value = "showItem", defaultValue = "1") int showItemInt,
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
@@ -60,8 +61,8 @@ public class WarehouseAccountingReportApiController {
         Map<String, Object> results = Maps.newHashMap();
         Map<String, Object> params = Maps.newHashMap();
         boolean showItem = showItemInt == 1;
-        boolean showTotal = showTotalInt == 1;
-
+        boolean showMaterielTotal = showMaterielTotalInt == 1;
+        boolean showPeriodTotal = showPeriodTotalInt == 1;
         params.put("startTime", startTime);
         params.put("endTime", endTime);
         params.put("materielId", materielId);
@@ -70,92 +71,188 @@ public class WarehouseAccountingReportApiController {
         Map<String, Object> totalResult = stockAnalysisService.countForTotal(params);
         if (stockList.size() > 0) {
             List<Map<String, Object>> showList = Lists.newArrayList();
-            if (showTotal) {
-                Map<String, String> materielIdMap = stockList
-                        .stream()
-                        .collect(Collectors.toMap(k -> k.get("materielId").toString(),
-                                v -> v.get("materielName").toString(), (v1, v2) -> v1));
 
-                // 期初数量
-                Map<String, BigDecimal> initialCountMap = stockList
-                        .stream()
-                        .collect(Collectors.toMap(
-                                k->k.get("materielId").toString()
-                                , v -> MathUtils.getBigDecimal(v.get("initialCount"))
-                                , BigDecimal::add));
-                // 期初金额
-                Map<String, BigDecimal> initialAmountMap = stockList
-                        .stream()
-                        .collect(Collectors.toMap(
-                                k->k.get("materielId").toString()
-                                , v -> MathUtils.getBigDecimal(v.get("initialAmount"))
-                                , BigDecimal::add));
-                // 本期入库数量
-                Map<String, BigDecimal> inCountMap = stockList
-                        .stream()
-                        .collect(Collectors.toMap(
-                                k->k.get("materielId").toString()
-                                , v -> MathUtils.getBigDecimal(v.get("inCount"))
-                                , BigDecimal::add));
-                // 入库金额
-                Map<String, BigDecimal> inAmountMap = stockList
-                        .stream()
-                        .collect(Collectors.toMap(
-                                k->k.get("materielId").toString()
-                                , v -> MathUtils.getBigDecimal(v.get("inAmount"))
-                                , BigDecimal::add));
-                // 本期出库数量
-                Map<String, BigDecimal> outCountMap = stockList
-                        .stream()
-                        .collect(Collectors.toMap(
-                                k->k.get("materielId").toString()
-                                , v -> MathUtils.getBigDecimal(v.get("outCount"))
-                                , BigDecimal::add));
-                // 出库金额
-                Map<String, BigDecimal> outAmountMap = stockList
-                        .stream()
-                        .collect(Collectors.toMap(
-                                k->k.get("materielId").toString()
-                                , v -> MathUtils.getBigDecimal(v.get("outAmount"))
-                                , BigDecimal::add));
-                // 结存数量
-                Map<String, BigDecimal> finalCountMap = stockList
-                        .stream()
-                        .collect(Collectors.toMap(
-                                k->k.get("materielId").toString()
-                                , v -> MathUtils.getBigDecimal(v.get("finalCount"))
-                                , BigDecimal::add));
-                // 结存金额
-                Map<String, BigDecimal> finalAmountMap = stockList
-                        .stream()
-                        .collect(Collectors.toMap(
-                                k->k.get("materielId").toString()
-                                , v -> MathUtils.getBigDecimal(v.get("finalAmount"))
-                                , BigDecimal::add));
+            List<String> periodList = stockList
+                    .stream()
+                    .map(e -> e.get("period").toString())
+                    .distinct()
+                    .collect(Collectors.toList());
 
-                Map<String,Object> map;
-                for (String materielIdParam : materielIdMap.keySet()) {
+            Map<String, String> materielIdMap = stockList
+                    .stream()
+                    .collect(Collectors.toMap(k -> k.get("materielId").toString(),
+                            v -> v.get("materielName").toString(), (v1, v2) -> v1));
+
+            // 获取期间对应的秒数
+            Map<String, Long> periodMap = stockList
+                    .stream()
+                    .collect(Collectors.toMap(k -> k.get("period").toString(),
+                            v -> Long.parseLong(v.get("times").toString()), (v1, v2) -> v1));
+
+            // 获取最大的一个物料ID
+            long maxMaterielId = Long.parseLong(materielIdMap
+                    .keySet()
+                    .stream()
+                    .max(Comparator.comparing(Long::parseLong))
+                    .orElse("0")
+            );
+
+
+            // 期初数量
+            Map<String, Map<String, Double>> initialCountMap = stockList
+                    .stream()
+                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
+                            , Collectors.groupingBy(k2 -> k2.get("materielId").toString()
+                                    , Collectors.summingDouble(v -> Double.parseDouble(v.get("initialCount").toString()))))
+                    );
+
+            // 期初金额
+            Map<String, Map<String, Double>> initialAmountMap = stockList
+                    .stream()
+                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
+                            , Collectors.groupingBy(k2 -> k2.get("materielId").toString()
+                                    , Collectors.summingDouble(v -> Double.parseDouble(v.get("initialAmount").toString()))))
+                    );
+            // 本期入库数量
+            Map<String, Map<String, Double>> inCountMap = stockList
+                    .stream()
+                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
+                            , Collectors.groupingBy(k2 -> k2.get("materielId").toString()
+                                    , Collectors.summingDouble(v -> Double.parseDouble(v.get("inCount").toString()))))
+                    );
+            // 入库金额
+            Map<String, Map<String, Double>> inAmountMap = stockList
+                    .stream()
+                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
+                            , Collectors.groupingBy(k2 -> k2.get("materielId").toString()
+                                    , Collectors.summingDouble(v -> Double.parseDouble(v.get("inAmount").toString()))))
+                    );
+            // 本期出库数量
+            Map<String, Map<String, Double>> outCountMap = stockList
+                    .stream()
+                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
+                            , Collectors.groupingBy(k2 -> k2.get("materielId").toString()
+                                    , Collectors.summingDouble(v -> Double.parseDouble(v.get("outCount").toString()))))
+                    );
+            // 出库金额
+            Map<String, Map<String, Double>> outAmountMap = stockList
+                    .stream()
+                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
+                            , Collectors.groupingBy(k2 -> k2.get("materielId").toString()
+                                    , Collectors.summingDouble(v -> Double.parseDouble(v.get("outAmount").toString()))))
+                    );
+            // 结存数量
+            Map<String, Map<String, Double>> finalCountMap = stockList
+                    .stream()
+                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
+                            , Collectors.groupingBy(k2 -> k2.get("materielId").toString()
+                                    , Collectors.summingDouble(v -> Double.parseDouble(v.get("finalCount").toString()))))
+                    );
+            // 结存金额
+            Map<String, Map<String, Double>> finalAmountMap = stockList
+                    .stream()
+                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
+                            , Collectors.groupingBy(k2 -> k2.get("materielId").toString()
+                                    , Collectors.summingDouble(v -> Double.parseDouble(v.get("finalAmount").toString()))))
+                    );
+
+            Map<String, Object> map;
+            Map<String, Double> initialCountForPeriod;
+            Map<String, Double> initialAmountForPeriod;
+            Map<String, Double> inCountForPeriod;
+            Map<String, Double> inAmountForPeriod;
+            Map<String, Double> outCountForPeriod;
+            Map<String, Double> outAmountForPeriod;
+            Map<String, Double> finalCountForPeriod;
+            Map<String, Double> finalAmountForPeriod;
+
+            for (String periodParam : periodList) {
+                initialCountForPeriod = initialCountMap.get(periodParam);
+                initialAmountForPeriod = initialAmountMap.get(periodParam);
+                inCountForPeriod = inCountMap.get(periodParam);
+                inAmountForPeriod = inAmountMap.get(periodParam);
+                outCountForPeriod = outCountMap.get(periodParam);
+                outAmountForPeriod = outAmountMap.get(periodParam);
+                finalCountForPeriod = finalCountMap.get(periodParam);
+                finalAmountForPeriod = finalAmountMap.get(periodParam);
+
+                if (showMaterielTotal) {
+                    for (String materielIdParam : initialCountForPeriod.keySet()) {
+                        map = Maps.newHashMap();
+                        map.put("materielId", materielIdParam);
+                        // 标记颜色 1 为中间状态
+                        map.put("sign", 1);
+                        // 排序号
+                        map.put("sortNo", 1);
+                        map.put("times", periodMap.get(periodParam));
+                        map.put("materielName", materielIdMap.get(materielIdParam) + ConstantForReport.TOTAL_SUFFIX);
+                        map.put("initialCount", initialCountForPeriod.get(materielIdParam));
+                        map.put("initialAmount", initialAmountForPeriod.get(materielIdParam));
+                        map.put("inCount", inCountForPeriod.get(materielIdParam));
+                        map.put("inAmount", inAmountForPeriod.get(materielIdParam));
+                        map.put("outCount", outCountForPeriod.get(materielIdParam));
+                        map.put("outAmount", outAmountForPeriod.get(materielIdParam));
+                        map.put("finalCount", finalCountForPeriod.get(materielIdParam));
+                        map.put("finalAmount", finalAmountForPeriod.get(materielIdParam));
+                        showList.add(map);
+                    }
+                }
+
+                if (showPeriodTotal) {
                     map = Maps.newHashMap();
-                    map.put("materielId", materielIdParam);
-                    // 标记颜色
-                    map.put("sign",ConstantForReport.COLOUR_END);
+                    map.put("materielId", maxMaterielId);
+                    // 标记颜色 1 为中间状态
+                    map.put("sign", ConstantForReport.COLOUR_END);
                     // 排序号
-                    map.put("sortNo",1);
-                    map.put("materielName", materielIdMap.get(materielIdParam) + ConstantForReport.TOTAL_SUFFIX);
-                    map.put("initialCount", initialCountMap.get(materielIdParam));
-                    map.put("initialAmount",initialAmountMap.get(materielIdParam));
-                    map.put("inCount", inCountMap.get(materielIdParam));
-                    map.put("inAmount", inAmountMap.get(materielIdParam));
-                    map.put("outCount", outCountMap.get(materielIdParam));
-                    map.put("outAmount", outAmountMap.get(materielIdParam));
-                    map.put("finalCount", finalCountMap.get(materielIdParam));
-                    map.put("finalAmount", finalAmountMap.get(materielIdParam));
-
+                    map.put("sortNo", 2);
+                    map.put("period", periodParam + ConstantForReport.TOTAL_SUFFIX);
+                    map.put("times", periodMap.get(periodParam));
+                    map.put("initialCount", initialCountForPeriod
+                            .values()
+                            .stream()
+                            .reduce(Double::sum)
+                            .orElse(0.0d));
+                    map.put("initialAmount", initialAmountForPeriod
+                            .values()
+                            .stream()
+                            .reduce(Double::sum)
+                            .orElse(0.0d));
+                    map.put("inCount", inCountForPeriod
+                            .values()
+                            .stream()
+                            .reduce(Double::sum)
+                            .orElse(0.0d));
+                    map.put("inAmount", inAmountForPeriod
+                            .values()
+                            .stream()
+                            .reduce(Double::sum)
+                            .orElse(0.0d));
+                    map.put("outCount", outCountForPeriod
+                            .values()
+                            .stream()
+                            .reduce(Double::sum)
+                            .orElse(0.0d));
+                    map.put("outAmount", outAmountForPeriod
+                            .values()
+                            .stream()
+                            .reduce(Double::sum)
+                            .orElse(0.0d));
+                    map.put("finalCount", finalCountForPeriod
+                            .values()
+                            .stream()
+                            .reduce(Double::sum)
+                            .orElse(0.0d));
+                    map.put("finalAmount", finalAmountForPeriod
+                            .values()
+                            .stream()
+                            .reduce(Double::sum)
+                            .orElse(0.0d));
                     showList.add(map);
-
                 }
 
             }
+
+
             if (showItem) {
                 showList.addAll(stockList);
             }
@@ -163,8 +260,9 @@ public class WarehouseAccountingReportApiController {
             List<Map<String, Object>> collect = showList.stream()
                     .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
                     .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("materielId").toString())))
+                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("times").toString())))
                     .collect(Collectors.toList());
-            results.put("data",collect);
+            results.put("data", collect);
 
             results.put("total", totalResult);
         }
@@ -227,7 +325,7 @@ public class WarehouseAccountingReportApiController {
             // 0 置顶
             initInOutStockItemVO.setSortNo(0);
             initInOutStockItemVO.setPeriod(initialPeriodMap.get(k));
-            initInOutStockItemVO.setInOutTime(DateFormatUtil.getDateByParttern(k,"yyyy-MM-dd"));
+            initInOutStockItemVO.setInOutTime(DateFormatUtil.getDateByParttern(k, "yyyy-MM-dd"));
             totalList.add(initInOutStockItemVO);
         }
 
@@ -394,11 +492,11 @@ public class WarehouseAccountingReportApiController {
                     .collect(Collectors.toMap(
                             StockInItemVO::getMaterielId
                             , StockInItemVO::getMaterielName
-                            , (v1,v2)->v1));
+                            , (v1, v2) -> v1));
             // 获取最大一个时间
             long maxTime = Objects.requireNonNull(DateFormatUtil.getDateByParttern(endTime, "yyyy-MM-dd")).getTime();
 
-            maxTime = maxTime + (24*3600*1000);
+            maxTime = maxTime + (24 * 3600 * 1000);
 
             if (showTotal) {
                 StockInItemVO stockInItemVO;
@@ -501,11 +599,11 @@ public class WarehouseAccountingReportApiController {
                     .collect(Collectors.toMap(
                             StockOutItemVO::getMaterielId
                             , StockOutItemVO::getMaterielName
-                            , (v1,v2)->v1));
+                            , (v1, v2) -> v1));
             // 获取最大一个时间
             long maxTime = Objects.requireNonNull(DateFormatUtil.getDateByParttern(endTime, "yyyy-MM-dd")).getTime();
 
-            maxTime = maxTime + (24*3600*1000);
+            maxTime = maxTime + (24 * 3600 * 1000);
 
             if (showTotal) {
                 StockOutItemVO stockOutItemVO;
@@ -603,7 +701,7 @@ public class WarehouseAccountingReportApiController {
                 .stream()
                 .map(DictionaryDO::getId)
                 .collect(Collectors.toList());
-        params.put("sourceTypes",sourceTypes);
+        params.put("sourceTypes", sourceTypes);
         List<Map<String, Object>> pickingSummary = reportService.pickingSummary(params);
         if (pickingSummary.size() > 0) {
             List<Map<String, Object>> showList = Lists.newArrayList();
@@ -611,33 +709,33 @@ public class WarehouseAccountingReportApiController {
             Map<String, BigDecimal> countMap = pickingSummary
                     .stream()
                     .collect(Collectors.toMap(
-                            k->k.get("productId").toString()
-                            , v->MathUtils.getBigDecimal(v.get("count"))
+                            k -> k.get("productId").toString()
+                            , v -> MathUtils.getBigDecimal(v.get("count"))
                             , BigDecimal::add));
             // 出库金额
             Map<String, BigDecimal> amountMap = pickingSummary
                     .stream()
                     .collect(Collectors.toMap(
-                            k->k.get("productId").toString()
-                            , v->MathUtils.getBigDecimal(v.get("amount"))
+                            k -> k.get("productId").toString()
+                            , v -> MathUtils.getBigDecimal(v.get("amount"))
                             , BigDecimal::add));
             // 产品名
-            Map<String, String > productMap = pickingSummary
+            Map<String, String> productMap = pickingSummary
                     .stream()
                     .collect(Collectors.toMap(
-                            k->k.get("productId").toString()
-                            , v->v.get("productName").toString()
-                            , (v1,v2)->v1));
+                            k -> k.get("productId").toString()
+                            , v -> v.get("productName").toString()
+                            , (v1, v2) -> v1));
             if (showTotal) {
-                Map<String,Object> map;
+                Map<String, Object> map;
                 for (String productId : amountMap.keySet()) {
                     map = Maps.newHashMap();
                     map.put("productId", productId);
                     map.put("productName", productMap.get(productId) + ConstantForReport.TOTAL_SUFFIX);
                     map.put("count", countMap.get(productId));
                     map.put("amount", amountMap.get(productId));
-                    map.put("sortNo",1);
-                    map.put("sign",ConstantForReport.COLOUR_END);
+                    map.put("sortNo", 1);
+                    map.put("sign", ConstantForReport.COLOUR_END);
                     showList.add(map);
                 }
             }
@@ -648,9 +746,9 @@ public class WarehouseAccountingReportApiController {
                     .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
                     .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("productId").toString())))
                     .collect(Collectors.toList());
-            results.put("data",collect);
+            results.put("data", collect);
 
-            Map<String,Object> totalResult = Maps.newHashMap();
+            Map<String, Object> totalResult = Maps.newHashMap();
             BigDecimal totalCount = countMap
                     .values()
                     .stream()
@@ -661,9 +759,9 @@ public class WarehouseAccountingReportApiController {
                     .stream()
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
-            totalResult.put("totalCount",totalCount);
-            totalResult.put("totalAmount",totalAmount);
-            results.put("total",totalResult);
+            totalResult.put("totalCount", totalCount);
+            totalResult.put("totalAmount", totalAmount);
+            results.put("total", totalResult);
         }
         return R.ok(results);
     }

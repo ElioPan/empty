@@ -406,6 +406,7 @@
 		    SELECT
 		    analysis.`id` AS id,
 		    analysis.`period` AS period,
+		    UNIX_TIMESTAMP(analysis.`period`) AS times,
 		    mtype.`name` AS materieTypelName,
 			analysis.`materiel_id` AS materielId,
 			materiel.serial_no AS materielSerialNo,
