@@ -2,6 +2,7 @@ package com.ev.report.service;
 
 import com.ev.report.vo.ContractBillItemVO;
 import com.ev.report.vo.ContractPayItemVO;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 import java.util.Map;
@@ -26,4 +27,10 @@ public interface OutsourcedManagementAccountingReportService {
     List<ContractPayItemVO> contractPayItem(Map<String, Object> params);
 
     List<ContractBillItemVO> billItem(Map<String, Object> params);
+
+    Pair<List<Map<String, Object>>, Map<String, Object>> trackingResult(String supplierName, Long materielType, Long deptId, Long userId, int showTotalInt, int showItemInt, String startTime, String endTime);
+
+    Pair<List<Map<String, Object>>, Map<String, Object>> debtDueResult(int showTotalInt, int showItemInt, Long supplierId, Long deptId, Long userId, String endTime);
+
+    Pair<List<Map<String, Object>>, Map<String, Object>> balanceResult(Long supplierId, int showTotalInt, int showItemInt, Long deptId, Long userId, String endTime);
 }
