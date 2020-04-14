@@ -1,10 +1,9 @@
 package com.ev.report.service;
 
-import com.ev.framework.utils.R;
-import com.ev.report.vo.DeviceVO;
 import com.ev.report.vo.InOutStockItemVO;
 import com.ev.report.vo.StockInItemVO;
 import com.ev.report.vo.StockOutItemVO;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 import java.util.Map;
@@ -27,4 +26,14 @@ public interface WarehouseAccountingReportService {
     List<Map<String, Object>> stockList(Map<String, Object> params);
 
     List<Map<String, Object>> pickingSummary(Map<String, Object> params);
+
+    Pair<List<Map<String, Object>>, Map<String, Object>> inOutSummaryResult(int showPeriodTotalInt, int showMaterielTotalInt, int showItemInt, String startTime, String endTime, Long materielType, Long materielId);
+
+    Pair<List<InOutStockItemVO>, Map<String, Object>> inOutStockItemResult(String startTime, String endTime, Long materielType, Long materielId);
+
+    Pair<List<StockInItemVO>, Map<String, Object>> inStockItemResult(int showTotalInt, int showItemInt, String startTime, String endTime, Long materielType, Long materielId);
+
+    Pair<List<StockOutItemVO>, Map<String, Object>> outStockItemResult(int showTotalInt, int showItemInt, String startTime, String endTime, Long materielType, Long materielId);
+
+    Pair<List<Map<String,Object>>, Map<String, Object>> pickingSummaryResult(int showTotalInt, int showItemInt, String startTime, String endTime, Long deptId);
 }
