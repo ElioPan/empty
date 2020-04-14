@@ -585,9 +585,17 @@ public class QualityManagementAccountingReportApiController {
 
         params.put("auditSign", ConstantForGYL.OK_AUDITED);
 
-        params.put("storageType", ConstantForGYL.PURCHASE_INSTOCK);
+        List<Long> storageTypes =  Lists.newArrayList();
+        storageTypes.add(ConstantForGYL.PURCHASE_INSTOCK);
+        storageTypes.add(ConstantForGYL.OUTSOURCING_INSTOCK);
+        params.put("storageTypes", storageTypes);
+
+        List<Long> outboundTypes =  Lists.newArrayList();
+        outboundTypes.add(ConstantForGYL.WWCK);
+        outboundTypes.add(ConstantForGYL.LYCK);
+        params.put("outboundTypes", outboundTypes);
+
         params.put("inspectionType", ConstantForMES.LLJY);
-        params.put("outboundType", ConstantForGYL.LYCK);
         int total = reportService.qualityTraceabilityCount(params);
 
         params.put("offset", (pageno - 1) * pagesize);

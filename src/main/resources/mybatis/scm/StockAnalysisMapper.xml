@@ -406,6 +406,7 @@
 		    SELECT
 		    analysis.`id` AS id,
 		    analysis.`period` AS period,
+		    mtype.`name` AS materieTypelName,
 			analysis.`materiel_id` AS materielId,
 			materiel.serial_no AS materielSerialNo,
         	materiel.name AS materielName,
@@ -495,6 +496,7 @@
 	<sql id="sql_map_condition">
 		FROM scm_stock_analysis analysis
 		LEFT JOIN cus_materiel materiel ON materiel.`id`=analysis.`materiel_id`
+		LEFT JOIN cus_materiel_type mtype ON mtype.`id`=materiel.`type`
 		LEFT JOIN cus_dictionary unitUom ON unitUom.id = materiel.`unit_uom`
 		<where>
 			<if test="id != null and id != ''"> AND analysis.id = #{id} </if>

@@ -127,7 +127,7 @@
         FROM
         (
         SELECT
-        '采购入库' AS typeName,
+        dicst.`name` AS typeName,
         stock.id AS id,
         stock.create_time AS `time`,
         stock.inhead_code AS `code`,
@@ -141,6 +141,7 @@
         facility.`name` AS facilityName,
         location.`name` AS locationName,
         dict.`name` AS sourceTypeName,
+        0 AS sign,
         item.source_code AS sourceCode
         FROM
         scm_stock_in_item item
@@ -150,8 +151,17 @@
         LEFT JOIN cus_facility facility ON facility.id = item.warehouse
         LEFT JOIN cus_facility_location location ON location.id = item.wareh_location
         LEFT JOIN cus_dictionary dict ON dict.`id`=item.source_type
+        LEFT JOIN cus_dictionary dicst ON dicst.`id`=stock.storage_type
         <where>
             <if test="storageType != null and storageType != ''"> and stock.storage_type = #{storageType} </if>
+            <if test="storageTypes != null and storageTypes.size()>0"> and stock.storage_type IN
+                <foreach item="item" collection="storageTypes" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
+
 
             <if test="auditSign != null and auditSign != ''"> and stock.audit_sign = #{auditSign} </if>
 
@@ -162,7 +172,7 @@
         </where>
         UNION ALL
         SELECT
-        '来料检验' AS typeName,
+        dici.`name` AS typeName,
         inspection.id AS id,
         inspection.create_time AS `time`,
         inspection.inspection_no AS `code`,
@@ -176,12 +186,14 @@
         '' AS facilityName,
         '' AS locationName,
         dict.`name` AS sourceTypeName,
+        0 AS sign,
         inspection.source_no AS sourceCode
         FROM
          mes_material_inspection inspection
         LEFT JOIN cus_materiel materiel ON materiel.id=inspection.materiel_id
         LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.unit_uom
         LEFT JOIN cus_dictionary dict ON dict.`id`=inspection.source_type
+        LEFT JOIN cus_dictionary dici ON dici.`id`=inspection.inspection_type
         <where>
             <if test="inspectionType != null and inspectionType != ''"> and inspection.inspection_type = #{inspectionType} </if>
 
@@ -194,7 +206,7 @@
         </where>
         UNION ALL
         SELECT
-        '生产领料' AS typeName,
+        dico.`name` AS typeName,
         sout.id AS id,
         sout.`create_time` AS `time`,
         sout.`out_code` AS `code`,
@@ -208,6 +220,7 @@
         facility.`name` AS facilityName,
         location.`name` AS locationName,
         dict.`name` AS sourceTypeName,
+        1 AS sign,
         item.source_code AS sourceCode
         FROM
         scm_stock_out_item item
@@ -218,8 +231,16 @@
         LEFT JOIN cus_materiel materiel ON materiel.id=item.materiel_id
         LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.unit_uom
         LEFT JOIN cus_dictionary dict ON dict.`id`=item.source_type
+        LEFT JOIN cus_dictionary dico ON dico.`id`=sout.outbound_type
         <where>
             <if test="outboundType != null and inspectionType != ''"> and sout.outbound_type = #{outboundType} </if>
+            <if test="outboundTypes != null and outboundTypes.size()>0"> and sout.outbound_type IN
+                <foreach item="item" collection="outboundTypes" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
 
             <if test="auditSign != null and auditSign != ''"> and sout.audit_sign = #{auditSign} </if>
 
@@ -228,7 +249,7 @@
             <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(sout.`out_time`,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(sout.`out_time`,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
         </where>
-        UNION ALL
+       <!-- UNION ALL
         SELECT
         '生产计划' AS typeName,
         plan.`id` AS id,
@@ -260,7 +281,7 @@
             <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(feeding.`create_time`,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(feeding.`create_time`,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
             AND feeding.production_plan_id IS NOT NULL
-        </where>
+        </where>-->
         ) a
         GROUP BY a.`id`,a.`typeName`
         ORDER BY a.`time`
