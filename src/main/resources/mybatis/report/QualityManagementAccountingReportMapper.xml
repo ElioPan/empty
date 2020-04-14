@@ -129,7 +129,7 @@
         SELECT
         '采购入库' AS typeName,
         stock.id AS id,
-        stock.in_out_time AS `time`,
+        stock.create_time AS `time`,
         stock.inhead_code AS `code`,
         materiel.`id` AS materielId,
         materiel.`serial_no` AS serialNo,
