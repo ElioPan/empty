@@ -84,7 +84,7 @@ public class SmartManufacturingAccountingReportApiController {
         return R.ok(results);
     }
 
-    @EvApiByToken(value = "/apis/exportExcel/productionPlan", method = RequestMethod.POST, apiTitle = "生产计划跟踪（导出）")
+    @EvApiByToken(value = "/apis/exportExcel/productionPlan", method = RequestMethod.GET, apiTitle = "生产计划跟踪（导出）")
     @ApiOperation("生产计划跟踪（导出）")
     public void productionPlan(
             @ApiParam(value = "计划单号") @RequestParam(value = "planCode", defaultValue = "", required = false) String planCode,
