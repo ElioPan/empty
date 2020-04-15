@@ -92,11 +92,11 @@ public class PurchaseManagementAccountingReportApiController {
         params.put("startTime", startTime);
         params.put("endTime", endTime);
         params.put("auditSign", ConstantForMES.OK_AUDITED);
-        Object dateList=new Object();
         R r = reportService.disposeTracking(params, showItem, showUser);
-        if(r.containsKey("data")){
-            dateList = r.get("data");
+        if(!r.containsKey("data")){
+            return;
         }
+        Object  dateList = r.get("data");
         ClassPathResource classPathResource = new ClassPathResource("poi/report_purchase_trackingGetOut.xlsx");
         Map<String,Object> map = Maps.newHashMap();
         map.put("list", dateList);
@@ -150,10 +150,10 @@ public class PurchaseManagementAccountingReportApiController {
         params.put("userId", userId);
         params.put("endTime", endTime);
         R r =  reportService.disposeDebtDue(params,showItem, showUser);
-        Object dateList=new Object();
-        if(r.containsKey("ultimatelyDate")){
-            dateList = r.get("ultimatelyDate");
+        if(!r.containsKey("ultimatelyDate")){
+            return;
         }
+        Object dateList = r.get("ultimatelyDate");
         ClassPathResource classPathResource = new ClassPathResource("poi/report_debt_dueGetOut.xlsx");
         Map<String,Object> map = Maps.newHashMap();
         map.put("list", dateList);
@@ -209,10 +209,10 @@ public class PurchaseManagementAccountingReportApiController {
         params.put("userId", userId);
         params.put("endTime", endTime);
         R r =  reportService.disposeBalance(params,showItem,showUser);
-        Object dateList=new Object();
         if(r.containsKey("ultimatelyDate")){
-            dateList = r.get("ultimatelyDate");
+            return ;
         }
+        Object dateList = r.get("ultimatelyDate");
         ClassPathResource classPathResource = new ClassPathResource("poi/report_balanceGetOut.xlsx");
         Map<String,Object> map = Maps.newHashMap();
         map.put("list", dateList);
@@ -272,11 +272,13 @@ public class PurchaseManagementAccountingReportApiController {
         params.put("auditSign", ConstantForMES.OK_AUDITED);
         R r =  reportService.disposePriceAnalysis(params,pageno,pagesize);
 
-        Object dateList=new Object();
+        Object dateList;
         if(r.containsKey("data")){
             Object dateLists = r.get("data");
             Map<String,Object> datasMap = JSONObject.parseObject(JSON.toJSONString(dateLists));
             dateList = datasMap.get("datas");
+        }else{
+            return;
         }
         ClassPathResource classPathResource = new ClassPathResource("poi/report_priceAnalysisGetOut.xlsx");
         Map<String,Object> map = Maps.newHashMap();

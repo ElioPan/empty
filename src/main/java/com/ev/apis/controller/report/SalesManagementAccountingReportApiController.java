@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 销售管理报表分析
@@ -98,7 +99,11 @@ public class SalesManagementAccountingReportApiController {
                         , startTime
                         , endTime
                 );
-        List<Map<String, Object>> dateList = trackingResult.getLeft();
+        List<Map<String, Object>> dateList  ;
+        if(Objects.isNull(trackingResult)){
+            return ;
+        }
+        dateList = trackingResult.getLeft();
         ClassPathResource classPathResource = new ClassPathResource("poi/report_sales_tracking.xlsx");
         Map<String,Object> map = Maps.newHashMap();
         map.put("list", dateList);
@@ -158,7 +163,11 @@ public class SalesManagementAccountingReportApiController {
                         , userId
                         , endTime
                 );
-        List<Map<String, Object>> dateList= debtDueResult.getLeft();
+        List<Map<String, Object>> dateList  ;
+        if(Objects.isNull(debtDueResult)){
+            return ;
+        }
+        dateList = debtDueResult.getLeft();
         ClassPathResource classPathResource = new ClassPathResource("poi/report_sales_debtdue.xlsx");
         Map<String,Object> map = Maps.newHashMap();
         map.put("list", dateList);
@@ -231,7 +240,12 @@ public class SalesManagementAccountingReportApiController {
                         , endTime
                         , type
                 );
-        List<Map<String, Object>> dateList=summaryResult.getLeft();
+
+        List<Map<String, Object>> dateList  ;
+        if(Objects.isNull(summaryResult)){
+            return ;
+        }
+        dateList = summaryResult.getLeft();
         ClassPathResource classPathResource = new ClassPathResource("poi/report_sales_summary.xlsx");
         Map<String,Object> map = Maps.newHashMap();
         map.put("list", dateList);
@@ -299,7 +313,11 @@ public class SalesManagementAccountingReportApiController {
                         , userId
                         , endTime
                 );
-        List<Map<String, Object>> dateList=balanceResult.getLeft();
+        List<Map<String, Object>> dateList  ;
+        if(Objects.isNull(balanceResult)){
+            return ;
+        }
+        dateList = balanceResult.getLeft();
         ClassPathResource classPathResource = new ClassPathResource("poi/report_sales_balance.xlsx");
         Map<String,Object> map = Maps.newHashMap();
         map.put("list", dateList);
