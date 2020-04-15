@@ -207,7 +207,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                     .stream()
                     .collect(Collectors.toMap(UserForReportVO::getUserId, UserForReportVO::getCount));
         }
-        String timeLimit = startTime + "至" + endTime;
+        String timeLimit = startTime.substring(0,10) + "至" + endTime.substring(0,10);
         List<Map<String, Object>> userDOsList = Lists.newArrayList();
         Map<String, Object> map;
         for (UserForReportVO userForReportVO : userForReportVOS) {
