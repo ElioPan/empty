@@ -50,7 +50,7 @@ public class PurchaseContractVO implements Serializable {
 	// 最低价格
 	private Double minUnitPrice;
 	// 平均价格
-	private Double avgUnitPrice;
+	private String avgUnitPrice;
 	// 最新价格
 	private Double latestUnitPrice;
 }

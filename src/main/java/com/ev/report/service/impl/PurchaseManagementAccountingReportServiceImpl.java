@@ -5,6 +5,7 @@ import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForReport;
 import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
+import com.ev.framework.utils.StringUtils;
 import com.ev.report.dao.PurchaseManagementAccountingReportDao;
 import com.ev.report.service.PurchaseManagementAccountingReportService;
 import com.ev.report.vo.PurchaseContractVO;
@@ -412,7 +413,7 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
                                 purchaseContractVO.setTaxAmount(materielMapForAmount.get(materiel));
                                 purchaseContractVO.setMaxUnitPrice(doubleSummaryStatistics.getMax());
                                 purchaseContractVO.setMinUnitPrice(doubleSummaryStatistics.getMin());
-                                purchaseContractVO.setAvgUnitPrice(doubleSummaryStatistics.getAverage());
+                                purchaseContractVO.setAvgUnitPrice(StringUtils.formatDouble(doubleSummaryStatistics.getAverage()));
                                 purchaseContractVO.setLatestUnitPrice(materielMapForLatestPrice.get(materiel).orElse(new PurchaseContractVO()).getTaxUnitPrice());
                                 resultList.add(purchaseContractVO);
                                 break;

@@ -1,5 +1,7 @@
 package com.ev.framework.utils;
 
+import java.text.DecimalFormat;
+
 public class StringUtils extends org.apache.commons.lang3.StringUtils{
 	  /**
      * 不够位数的在前面补0，保留code的长度位数字
@@ -41,5 +43,17 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils{
             return order;
         }
         return "DESC";
+    }
+
+    public static String formatDouble(double number) {
+        String numberStr;
+        if (((int) number * 1000) == (int) (number * 1000)) {
+            //如果是一个整数
+            numberStr = String.valueOf((int) number);
+        } else {
+            DecimalFormat df = new DecimalFormat("###################.####");
+            numberStr = df.format(number);
+        }
+        return numberStr;
     }
 }

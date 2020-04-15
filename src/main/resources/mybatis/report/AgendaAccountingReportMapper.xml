@@ -394,6 +394,7 @@
         apply.reason AS reason,
         apply.time_area AS totalCount,
         0 AS sortNo,
+        0 AS sign
         FROM
         cus_leave_apply apply
         LEFT JOIN cus_dictionary cd ON cd.id=apply.type
