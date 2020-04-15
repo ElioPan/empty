@@ -117,7 +117,7 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
                     .stream()
                     .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
                             , Collectors.toMap(k2 -> k2.get("materielId").toString()
-                                    , v -> MathUtils.getBigDecimal(v.get("initialCount")))
+                                    , v -> MathUtils.getBigDecimal(v.get("initialCount")),BigDecimal::add)
                     ));
 
             // 期初金额
@@ -125,7 +125,7 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
                     .stream()
                     .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
                             , Collectors.toMap(k2 -> k2.get("materielId").toString()
-                                    , v -> MathUtils.getBigDecimal(v.get("initialAmount")))
+                                    , v -> MathUtils.getBigDecimal(v.get("initialAmount")),BigDecimal::add)
                     ));
             // 本期入库数量
             Map<String, Map<String, BigDecimal>> inCountMap = stockList
