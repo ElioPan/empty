@@ -132,42 +132,42 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
                     .stream()
                     .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
                             , Collectors.toMap(k2 -> k2.get("materielId").toString()
-                                    , v -> MathUtils.getBigDecimal(v.get("inCount")))
-                    ));
+                                    , v -> MathUtils.getBigDecimal(v.get("inCount")),BigDecimal::add))
+                    );
             // 入库金额
             Map<String, Map<String, BigDecimal>> inAmountMap = stockList
                     .stream()
                     .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
                             , Collectors.toMap(k2 -> k2.get("materielId").toString()
-                                    , v -> MathUtils.getBigDecimal(v.get("inAmount"))))
+                                    , v -> MathUtils.getBigDecimal(v.get("inAmount")),BigDecimal::add))
                     );
             // 本期出库数量
             Map<String, Map<String, BigDecimal>> outCountMap = stockList
                     .stream()
                     .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
                             , Collectors.toMap(k2 -> k2.get("materielId").toString()
-                                    , v -> MathUtils.getBigDecimal(v.get("outCount"))))
+                                    , v -> MathUtils.getBigDecimal(v.get("outCount")),BigDecimal::add))
                     );
             // 出库金额
             Map<String, Map<String, BigDecimal>> outAmountMap = stockList
                     .stream()
                     .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
                             , Collectors.toMap(k2 -> k2.get("materielId").toString()
-                                    , v -> MathUtils.getBigDecimal(v.get("outAmount"))))
+                                    , v -> MathUtils.getBigDecimal(v.get("outAmount")),BigDecimal::add))
                     );
             // 结存数量
             Map<String, Map<String, BigDecimal>> finalCountMap = stockList
                     .stream()
                     .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
                             , Collectors.toMap(k2 -> k2.get("materielId").toString()
-                                    , v -> MathUtils.getBigDecimal(v.get("finalCount"))))
+                                    , v -> MathUtils.getBigDecimal(v.get("finalCount")),BigDecimal::add))
                     );
             // 结存金额
             Map<String, Map<String, BigDecimal>> finalAmountMap = stockList
                     .stream()
                     .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
                             , Collectors.toMap(k2 -> k2.get("materielId").toString()
-                                    , v -> MathUtils.getBigDecimal(v.get("finalAmount"))))
+                                    , v -> MathUtils.getBigDecimal(v.get("finalAmount")),BigDecimal::add))
                     );
 
             Map<String, Object> map;
