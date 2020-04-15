@@ -281,6 +281,7 @@
 			g.name as billTypeName,
 			a.invoice_num as invoiceNum,
 			a.drawer,
+			q.name as drawerName,
 			a.remarks,
 			a.create_by as createBy,
 			n.name as createByName,
@@ -297,6 +298,7 @@
 		LEFT JOIN  sys_user   n on  a.create_by=n.user_id
 		LEFT JOIN  sys_user   o on  a.auditor=o.user_id
 		LEFT JOIN  cus_dictionary m on  a.audit_sign =m.id
+		LEFT JOIN  sys_user   q on  a.auditor=q.user_id
 		where
 		 a.id=#{id}
 	</select>

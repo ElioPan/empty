@@ -276,6 +276,7 @@
 			j.name as auditorName,
 			a.audit_time as auditTime,
 			a.drawer,
+			h.name as drawerName,
 			g.name as drawerName,
 			h.inhead_code as inheadCode,
 			a.create_by as createBy,
@@ -290,6 +291,7 @@
 		LEFT JOIN  scm_stock_in  h on  a.purchase_id =h.id
 		LEFT JOIN  sys_user  i on  a.create_by =i.user_id
 		LEFT JOIN  sys_user  j on  a.auditor =j.user_id
+		LEFT JOIN  sys_user  h on  a.drawer =h.user_id
 		where
 		 a.id=#{id}
 	</select>
