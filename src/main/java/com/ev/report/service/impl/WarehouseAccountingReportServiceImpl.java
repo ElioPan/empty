@@ -92,10 +92,10 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
                     .distinct()
                     .collect(Collectors.toList());
 
-            Map<String, String> materielIdMap = stockList
+            Map<String, Map<String, Object>> materielIdMap = stockList
                     .stream()
                     .collect(Collectors.toMap(k -> k.get("materielId").toString(),
-                            v -> v.get("materielName").toString(), (v1, v2) -> v1));
+                            v -> v, (v1, v2) -> v1));
 
             // 获取期间对应的秒数
             Map<String, Long> periodMap = stockList
@@ -192,7 +192,8 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
 
                 if (showMaterielTotal) {
                     for (String materielIdParam : initialCountForPeriod.keySet()) {
-                        map = Maps.newHashMap();
+                        map = Maps.newHashMap(materielIdMap.get(materielIdParam));
+                        map.remove("batch");
                         map.put("materielId", materielIdParam);
                         // 标记颜色 1 为中间状态
                         map.put("sign", 1);
@@ -200,7 +201,7 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
                         map.put("sortNo", 1);
                         map.put("period", periodParam.substring(0,7));
                         map.put("times", periodMap.get(periodParam));
-                        map.put("materielName", materielIdMap.get(materielIdParam) + ConstantForReport.TOTAL_SUFFIX);
+                        map.put("materielName", map.getOrDefault("materielName","") + ConstantForReport.TOTAL_SUFFIX);
                         map.put("initialCount", initialCountForPeriod.get(materielIdParam));
                         map.put("initialAmount", initialAmountForPeriod.get(materielIdParam));
                         map.put("inCount", inCountForPeriod.get(materielIdParam));

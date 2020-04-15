@@ -407,7 +407,7 @@
 		    analysis.`id` AS id,
 		    LEFT(analysis.`period`,7) AS period,
 		    UNIX_TIMESTAMP(analysis.`period`) AS times,
-		    mtype.`name` AS materielTypelName,
+		    mtype.`name` AS materielTypeName,
 			analysis.`materiel_id` AS materielId,
 			materiel.serial_no AS materielSerialNo,
         	materiel.name AS materielName,
