@@ -24,7 +24,7 @@ public interface SmartManufacturingAccountingReportService {
 
     R pieceRate(CommonVO commonVO);
 
-    Pair<List<PieceRateVO>, Double>  pieceRateGroup(CommonVO commonVO);
+    Pair<List<PieceRateVO>, BigDecimal>  pieceRateGroup(CommonVO commonVO);
 
     R pieceRateGroupByUser(CommonVO commonVO);
 

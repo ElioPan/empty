@@ -3,6 +3,7 @@ package com.ev.report.service.impl;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.config.ConstantForReport;
+import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.StringUtils;
 import com.ev.report.dao.SalesManagementAccountingReportDao;
 import com.ev.report.service.SalesManagementAccountingReportService;
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -102,70 +104,73 @@ public class SalesManagementAccountingReportServiceImpl implements SalesManageme
             List<ContractPayItemVO> contractPayItemVOS = this.contractPayItem(params);
 
             // 出库数量
-            Map<Long, Double> stockCountGroup = stockOutItemVOS
+            Map<Long, BigDecimal> stockCountGroup = stockOutItemVOS
                     .stream()
-                    .collect(Collectors.groupingBy(StockOutItemVO::getSourceId
-                            , Collectors.summingDouble(StockOutItemVO::getCount)));
+                    .collect(Collectors.toMap(StockOutItemVO::getSourceId
+                            ,StockOutItemVO::getCount
+                            ,BigDecimal::add)
+                            );
             // 销售数量
-            Map<Long, Double> salesCountGroup = salesContractList
+            Map<Long, BigDecimal> salesCountGroup = salesContractList
                     .stream()
-                    .collect(Collectors.toMap(k -> Long.parseLong(k.get("id").toString()), v -> Double.parseDouble(v.get("count").toString())));
+                    .collect(Collectors.toMap(k -> Long.parseLong(k.get("id").toString())
+                            , v -> MathUtils.getBigDecimal(v.get("count"))));
             // 未出库数量
-            Map<Long, Double> unStockCountGroup = Maps.newHashMap();
+            Map<Long, BigDecimal> unStockCountGroup = Maps.newHashMap();
             for (Long id : salesCountGroup.keySet()) {
-                unStockCountGroup.put(id, salesCountGroup.get(id) - stockCountGroup.getOrDefault(id, 0.0d));
+                unStockCountGroup.put(id, salesCountGroup.get(id).subtract(stockCountGroup.getOrDefault(id, BigDecimal.ZERO)));
             }
 
             // 销售发票表
             List<ContractBillItemVO> contractBillItemVO = this.stockBillItem(params);
-            Map<Long, Double> billCountGroup = contractBillItemVO
+            Map<Long, BigDecimal> billCountGroup = contractBillItemVO
                     .stream()
-                    .collect(Collectors.groupingBy(ContractBillItemVO::getSourceId
-                            , Collectors.summingDouble(ContractBillItemVO::getCount)));
-            Map<Long, Double> billAmountGroup = contractBillItemVO
+                    .collect(Collectors.toMap(ContractBillItemVO::getSourceId
+                            , ContractBillItemVO::getCount,BigDecimal::add));
+            Map<Long, BigDecimal> billAmountGroup = contractBillItemVO
                     .stream()
-                    .collect(Collectors.groupingBy(ContractBillItemVO::getSourceId
-                            , Collectors.summingDouble(ContractBillItemVO::getAmount)));
+                    .collect(Collectors.toMap(ContractBillItemVO::getSourceId
+                            , ContractBillItemVO::getAmount,BigDecimal::add));
 
             // 销售发票合计项
-            Map<String, Double> totalBillCountGroup = contractBillItemVO
+            Map<String, BigDecimal> totalBillCountGroup = contractBillItemVO
                     .stream()
-                    .collect(Collectors.groupingBy(ContractBillItemVO::getSourceCode
-                            , Collectors.summingDouble(ContractBillItemVO::getCount)));
-            Map<String, Double> totalBillAmountGroup = contractBillItemVO
+                    .collect(Collectors.toMap(ContractBillItemVO::getSourceCode
+                            , ContractBillItemVO::getCount,BigDecimal::add));
+            Map<String, BigDecimal> totalBillAmountGroup = contractBillItemVO
                     .stream()
-                    .collect(Collectors.groupingBy(ContractBillItemVO::getSourceCode
-                            , Collectors.summingDouble(ContractBillItemVO::getAmount)));
+                    .collect(Collectors.toMap(ContractBillItemVO::getSourceCode
+                            , ContractBillItemVO::getAmount,BigDecimal::add));
 
             // 销售出库合计项
-            Map<String, Double> totalStockCountGroup = stockOutItemVOS
+            Map<String, BigDecimal> totalStockCountGroup = stockOutItemVOS
                     .stream()
-                    .collect(Collectors.groupingBy(StockOutItemVO::getSourceCode
-                            , Collectors.summingDouble(StockOutItemVO::getCount)));
-            Map<String, Double> totalStockAmountGroup = stockOutItemVOS
+                    .collect(Collectors.toMap(StockOutItemVO::getSourceCode
+                            , StockOutItemVO::getCount,BigDecimal::add));
+            Map<String, BigDecimal> totalStockAmountGroup = stockOutItemVOS
                     .stream()
-                    .collect(Collectors.groupingBy(StockOutItemVO::getSourceCode
-                            , Collectors.summingDouble(StockOutItemVO::getAmount)));
+                    .collect(Collectors.toMap(StockOutItemVO::getSourceCode
+                            , StockOutItemVO::getAmount,BigDecimal::add));
 
             // 销售数量 销售金额
-            Map<String, Double> totalSalesCountGroup = salesContractList
+            Map<String, BigDecimal> totalSalesCountGroup = salesContractList
                     .stream()
-                    .collect(Collectors.groupingBy(e -> e.get("contractCode").toString()
-                            , Collectors.summingDouble(e -> Double.parseDouble(e.get("count").toString()))));
-            Map<String, Double> totalSalesAmountGroup = salesContractList
+                    .collect(Collectors.toMap(e -> e.get("contractCode").toString()
+                            , e -> MathUtils.getBigDecimal(e.get("count")),BigDecimal::add));
+            Map<String, BigDecimal> totalSalesAmountGroup = salesContractList
                     .stream()
-                    .collect(Collectors.groupingBy(e -> e.get("contractCode").toString()
-                            , Collectors.summingDouble(e -> Double.parseDouble(e.get("taxAmount").toString()))));
+                    .collect(Collectors.toMap(e -> e.get("contractCode").toString()
+                            , e -> MathUtils.getBigDecimal(e.get("taxAmount")),BigDecimal::add));
 
             // 已收款金额 未收金额
-            Map<Long, Double> totalReceivedAmountGroup = contractPayItemVOS
+            Map<Long, BigDecimal> totalReceivedAmountGroup = contractPayItemVOS
                     .stream()
-                    .collect(Collectors.groupingBy(ContractPayItemVO::getSourceId
-                            , Collectors.summingDouble(ContractPayItemVO::getReceivedAmount)));
-            Map<Long, Double> totalUnReceivedAmountGroup = contractPayItemVOS
+                    .collect(Collectors.toMap(ContractPayItemVO::getSourceId
+                            , ContractPayItemVO::getReceivedAmount,BigDecimal::add));
+            Map<Long, BigDecimal> totalUnReceivedAmountGroup = contractPayItemVOS
                     .stream()
-                    .collect(Collectors.groupingBy(ContractPayItemVO::getSourceId
-                            , Collectors.summingDouble(ContractPayItemVO::getUnReceivedAmount)));
+                    .collect(Collectors.toMap(ContractPayItemVO::getSourceId
+                            , ContractPayItemVO::getUnReceivedAmount,BigDecimal::add));
 
             List<Map<String, Object>> showList = Lists.newArrayList();
 
@@ -174,10 +179,10 @@ public class SalesManagementAccountingReportServiceImpl implements SalesManageme
 
             for (Map<String, Object> map : salesContractList) {
                 long itemId = Long.parseLong(map.get("id").toString());
-                map.put("outCount", stockCountGroup.getOrDefault(itemId, 0.0d));
-                map.put("unOutCount", unStockCountGroup.getOrDefault(itemId, 0.0d));
-                map.put("billCount", billCountGroup.getOrDefault(itemId, 0.0d));
-                map.put("billAmount", billAmountGroup.getOrDefault(itemId, 0.0d));
+                map.put("outCount", stockCountGroup.getOrDefault(itemId, BigDecimal.ZERO));
+                map.put("unOutCount", unStockCountGroup.getOrDefault(itemId, BigDecimal.ZERO));
+                map.put("billCount", billCountGroup.getOrDefault(itemId, BigDecimal.ZERO));
+                map.put("billAmount", billAmountGroup.getOrDefault(itemId, BigDecimal.ZERO));
 
                 // 总计
                 if (showTotal) {
@@ -190,17 +195,17 @@ public class SalesManagementAccountingReportServiceImpl implements SalesManageme
                         totalMap.put("contractDate", map.getOrDefault("contractDate", ""));
                         totalMap.put("deptName", map.getOrDefault("deptName", ""));
                         totalMap.put("clientName", map.getOrDefault("clientName", ""));
-                        Double count = totalSalesCountGroup.getOrDefault(sourceCode, 0.0d);
+                        BigDecimal count = totalSalesCountGroup.getOrDefault(sourceCode, BigDecimal.ZERO);
                         totalMap.put("count", count);
-                        totalMap.put("taxAmount", totalSalesAmountGroup.getOrDefault(sourceCode, 0.0d));
-                        Double outCount = totalStockCountGroup.getOrDefault(sourceCode, 0.0d);
+                        totalMap.put("taxAmount", totalSalesAmountGroup.getOrDefault(sourceCode, BigDecimal.ZERO));
+                        BigDecimal outCount = totalStockCountGroup.getOrDefault(sourceCode, BigDecimal.ZERO);
                         totalMap.put("outCount", outCount);
-                        totalMap.put("unOutCount", count - outCount);
-                        totalMap.put("outAmount", totalStockAmountGroup.getOrDefault(sourceCode, 0.0d));
-                        totalMap.put("billCount", totalBillCountGroup.getOrDefault(sourceCode, 0.0d));
-                        totalMap.put("billAmount", totalBillAmountGroup.getOrDefault(sourceCode, 0.0d));
-                        totalMap.put("totalReceivedAmount", totalReceivedAmountGroup.getOrDefault(sourceId, 0.0d));
-                        totalMap.put("totalUnReceivedAmount", totalUnReceivedAmountGroup.getOrDefault(sourceId, 0.0d));
+                        totalMap.put("unOutCount", count.subtract(outCount));
+                        totalMap.put("outAmount", totalStockAmountGroup.getOrDefault(sourceCode, BigDecimal.ZERO));
+                        totalMap.put("billCount", totalBillCountGroup.getOrDefault(sourceCode, BigDecimal.ZERO));
+                        totalMap.put("billAmount", totalBillAmountGroup.getOrDefault(sourceCode, BigDecimal.ZERO));
+                        totalMap.put("totalReceivedAmount", totalReceivedAmountGroup.getOrDefault(sourceId, BigDecimal.ZERO));
+                        totalMap.put("totalUnReceivedAmount", totalUnReceivedAmountGroup.getOrDefault(sourceId, BigDecimal.ZERO));
 
                         totalMap.put("sortNo", 1);
                         totalMap.put("sign", ConstantForReport.COLOUR_END);
@@ -219,49 +224,49 @@ public class SalesManagementAccountingReportServiceImpl implements SalesManageme
                     .collect(Collectors.toList());
 
             Map<String, Object> totalResult = Maps.newHashMap();
-            Double count = totalSalesCountGroup
+            BigDecimal count = totalSalesCountGroup
                     .values()
                     .stream()
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
             totalResult.put("count", count);
             totalResult.put("taxAmount", totalSalesAmountGroup
                     .values()
                     .stream()
-                    .reduce(Double::sum)
-                    .orElse(0.0d));
-            Double outCount = totalStockCountGroup
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO));
+            BigDecimal outCount = totalStockCountGroup
                     .values()
                     .stream()
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
             totalResult.put("outCount", outCount);
-            totalResult.put("unOutCount", count - outCount);
+            totalResult.put("unOutCount", count .subtract(outCount) );
             totalResult.put("outAmount", totalStockAmountGroup
                     .values()
                     .stream()
-                    .reduce(Double::sum)
-                    .orElse(0.0d));
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO));
             totalResult.put("billCount", totalBillCountGroup
                     .values()
                     .stream()
-                    .reduce(Double::sum)
-                    .orElse(0.0d));
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO));
             totalResult.put("billAmount", totalBillAmountGroup
                     .values()
                     .stream()
-                    .reduce(Double::sum)
-                    .orElse(0.0d));
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO));
             totalResult.put("totalReceivedAmount", totalReceivedAmountGroup
                     .values()
                     .stream()
-                    .reduce(Double::sum)
-                    .orElse(0.0d));
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO));
             totalResult.put("totalUnReceivedAmount", totalUnReceivedAmountGroup
                     .values()
                     .stream()
-                    .reduce(Double::sum)
-                    .orElse(0.0d));
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO));
             return Pair.of(collect,totalResult);
         }
         return null;
@@ -290,27 +295,27 @@ public class SalesManagementAccountingReportServiceImpl implements SalesManageme
             List<Map<String, Object>> showList = Lists.newArrayList();
 
             // 应收
-            Map<String, Double> receivableAmountMap = debtDueLists
+            Map<String, BigDecimal> receivableAmountMap = debtDueLists
                     .stream()
                     .collect(Collectors.toMap(
                             k -> k.get("clientId").toString()
-                            , v -> Double.parseDouble(v.get("receivableAmount").toString())
-                            , Double::sum));
+                            , v -> MathUtils.getBigDecimal(v.get("receivableAmount"))
+                            , BigDecimal::add));
             // 已收
-            Map<String, Double> receivedAmountMap = debtDueLists
+            Map<String, BigDecimal> receivedAmountMap = debtDueLists
                     .stream()
                     .collect(Collectors.toMap(
                             k -> k.get("clientId").toString()
-                            , v -> Double.parseDouble(v.get("receivedAmount").toString())
-                            , Double::sum));
+                            , v -> MathUtils.getBigDecimal(v.get("receivedAmount"))
+                            , BigDecimal::add));
 
             // 未收
-            Map<String, Double> unreceivedAmountMap = debtDueLists
+            Map<String, BigDecimal> unreceivedAmountMap = debtDueLists
                     .stream()
                     .collect(Collectors.toMap(
                             k -> k.get("clientId").toString()
-                            , v -> Double.parseDouble(v.get("unreceivedAmount").toString())
-                            , Double::sum));
+                            , v -> MathUtils.getBigDecimal(v.get("unreceivedAmount"))
+                            , BigDecimal::add));
 
             Map<String, String> clientNameMap = debtDueLists
                     .stream()
@@ -344,21 +349,21 @@ public class SalesManagementAccountingReportServiceImpl implements SalesManageme
                     .collect(Collectors.toList());
 
             // 合计项
-            Double totalReceivableAmount = debtDueLists
+            BigDecimal totalReceivableAmount = debtDueLists
                     .stream()
-                    .map(v -> Double.parseDouble(v.get("receivableAmount").toString()))
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
-            Double totalReceivedAmount = debtDueLists
+                    .map(v -> MathUtils.getBigDecimal(v.get("receivableAmount").toString()))
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
+            BigDecimal totalReceivedAmount = debtDueLists
                     .stream()
-                    .map(v -> Double.parseDouble(v.get("receivedAmount").toString()))
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
-            Double totalUnreceivedAmount = debtDueLists
+                    .map(v -> MathUtils.getBigDecimal(v.get("receivedAmount").toString()))
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
+            BigDecimal totalUnreceivedAmount = debtDueLists
                     .stream()
-                    .map(v -> Double.parseDouble(v.get("unreceivedAmount").toString()))
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
+                    .map(v -> MathUtils.getBigDecimal(v.get("unreceivedAmount").toString()))
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
             Map<String,Object> totalResult = Maps.newHashMap();
             totalResult.put("totalReceivableAmount",totalReceivableAmount);
             totalResult.put("totalReceivedAmount",totalReceivedAmount);
@@ -403,19 +408,19 @@ public class SalesManagementAccountingReportServiceImpl implements SalesManageme
             final String finalTypeNameForMap = typePrefix + "Name";
             final String finalTypeIdForMap = typePrefix + "Id";
 
-            Map<String, Double> countMap = summaryLists
+            Map<String, BigDecimal> countMap = summaryLists
                     .stream()
                     .collect(Collectors.toMap(
                             k -> k.get(finalTypeIdForMap).toString()
-                            , v -> Double.parseDouble(v.get("count").toString())
-                            , Double::sum));
+                            , v -> MathUtils.getBigDecimal(v.get("count").toString())
+                            , BigDecimal::add));
 
-            Map<String, Double> amountMap = summaryLists
+            Map<String, BigDecimal> amountMap = summaryLists
                     .stream()
                     .collect(Collectors.toMap(
                             k -> k.get(finalTypeIdForMap).toString()
-                            , v -> Double.parseDouble(v.get("taxAmount").toString())
-                            , Double::sum));
+                            , v -> MathUtils.getBigDecimal(v.get("taxAmount").toString())
+                            , BigDecimal::add));
 
             Map<String, String> typeNameMap = summaryLists
                     .stream()
@@ -445,16 +450,16 @@ public class SalesManagementAccountingReportServiceImpl implements SalesManageme
                     .collect(Collectors.toList());
 
             Map<String,Object> totalResult = Maps.newHashMap();
-            Double totalCount = summaryLists
+            BigDecimal totalCount = summaryLists
                     .stream()
-                    .map(v -> Double.parseDouble(v.get("count").toString()))
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
-            Double totalAmount = summaryLists
+                    .map(v -> MathUtils.getBigDecimal(v.get("count").toString()))
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
+            BigDecimal totalAmount = summaryLists
                     .stream()
-                    .map(v -> Double.parseDouble(v.get("taxAmount").toString()))
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
+                    .map(v -> MathUtils.getBigDecimal(v.get("taxAmount").toString()))
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
             totalResult.put("totalCount",totalCount);
             totalResult.put("totalAmount",totalAmount);
             return Pair.of(collect,totalResult);
@@ -479,27 +484,27 @@ public class SalesManagementAccountingReportServiceImpl implements SalesManageme
             List<Map<String, Object>> showList = Lists.newArrayList();
 
             // 应收
-            Map<String, Double> receivableAmountMap = balanceLists
+            Map<String, BigDecimal> receivableAmountMap = balanceLists
                     .stream()
                     .collect(Collectors.toMap(
                             k -> k.get("clientId").toString()
-                            , v -> Double.parseDouble(v.get("receivableAmount").toString())
-                            , Double::sum));
+                            , v -> MathUtils.getBigDecimal(v.get("receivableAmount").toString())
+                            , BigDecimal::add));
             // 已收
-            Map<String, Double> receivedAmountMap = balanceLists
+            Map<String, BigDecimal> receivedAmountMap = balanceLists
                     .stream()
                     .collect(Collectors.toMap(
                             k -> k.get("clientId").toString()
-                            , v -> Double.parseDouble(v.get("receivedAmount").toString())
-                            , Double::sum));
+                            , v -> MathUtils.getBigDecimal(v.get("receivedAmount").toString())
+                            , BigDecimal::add));
 
             // 未收
-            Map<String, Double> unreceivedAmountMap = balanceLists
+            Map<String, BigDecimal> unreceivedAmountMap = balanceLists
                     .stream()
                     .collect(Collectors.toMap(
                             k -> k.get("clientId").toString()
-                            , v -> Double.parseDouble(v.get("unreceivedAmount").toString())
-                            , Double::sum));
+                            , v -> MathUtils.getBigDecimal(v.get("unreceivedAmount").toString())
+                            , BigDecimal::add));
 
             Map<String, String> clientNameMap = balanceLists
                     .stream()
@@ -535,21 +540,21 @@ public class SalesManagementAccountingReportServiceImpl implements SalesManageme
                     .collect(Collectors.toList());
 
             // 合计项
-            Double totalReceivableAmount = balanceLists
+            BigDecimal totalReceivableAmount = balanceLists
                     .stream()
-                    .map(v -> Double.parseDouble(v.get("receivableAmount").toString()))
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
-            Double totalReceivedAmount = balanceLists
+                    .map(v -> MathUtils.getBigDecimal(v.get("receivableAmount").toString()))
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
+            BigDecimal totalReceivedAmount = balanceLists
                     .stream()
-                    .map(v -> Double.parseDouble(v.get("receivedAmount").toString()))
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
-            Double totalUnreceivedAmount = balanceLists
+                    .map(v -> MathUtils.getBigDecimal(v.get("receivedAmount").toString()))
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
+            BigDecimal totalUnreceivedAmount = balanceLists
                     .stream()
-                    .map(v -> Double.parseDouble(v.get("unreceivedAmount").toString()))
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
+                    .map(v -> MathUtils.getBigDecimal(v.get("unreceivedAmount").toString()))
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
             Map<String,Object> totalResult = Maps.newHashMap();
             totalResult.put("totalReceivableAmount",totalReceivableAmount);
             totalResult.put("totalReceivedAmount",totalReceivedAmount);

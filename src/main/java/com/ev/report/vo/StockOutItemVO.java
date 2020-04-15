@@ -36,11 +36,11 @@ public class StockOutItemVO implements Serializable {
 	//单位
 	private String unitUomName;
 	//领用数量
-	private Double count;
+	private BigDecimal count;
 	//单价
 	private BigDecimal unitPrice;
 	//领用金额
-	private Double amount;
+	private BigDecimal amount;
 	//批号
 	private String batch;
 	//仓库名

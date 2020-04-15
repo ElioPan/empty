@@ -1,6 +1,7 @@
 package com.ev.report.vo;
 
 import lombok.Data;
+import java.math.BigDecimal;
 
 import java.io.Serializable;
 
@@ -39,18 +40,18 @@ public class PurchaseContractVO implements Serializable {
 	// 单位
 	private String unitUomName;
 	// 数量
-	private Double count;
+	private BigDecimal count;
 	// 含税单价
 	private Double taxUnitPrice;
 	// 含税总额
-	private Double taxAmount;
+	private BigDecimal taxAmount;
 
 	// 最高价格
-	private Double maxUnitPrice;
+	private String maxUnitPrice;
 	// 最低价格
-	private Double minUnitPrice;
+	private String minUnitPrice;
 	// 平均价格
 	private String avgUnitPrice;
 	// 最新价格
-	private Double latestUnitPrice;
+	private String latestUnitPrice;
 }

@@ -4,6 +4,7 @@ import com.ev.report.vo.AgendaAccountingReportVO;
 import com.ev.report.vo.UserForReportVO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -23,25 +24,25 @@ public interface AgendaAccountingReportDao {
 
     List<UserForReportVO> executeForMonthReport(Map<String, Object> param);
 
-    Double overtimeForItemTotal(Map<String, Object> param);
+    BigDecimal overtimeForItemTotal(Map<String, Object> param);
 
     List<Map<String, Object>> overtimeForItem(Map<String, Object> param);
 
     List<Map<String, Object>> leaveItem(Map<String, Object> param);
 
-    Double leaveItemTotal(Map<String, Object> param);
+    BigDecimal leaveItemTotal(Map<String, Object> param);
 
     List<Map<String, Object>> leaveForItemGroupType(Map<String, Object> param);
 
     List<Map<String, Object>> applyForReimbursementItem(Map<String, Object> param);
 
-    Double applyForReimbursementItemTotal(Map<String, Object> param);
+    BigDecimal applyForReimbursementItemTotal(Map<String, Object> param);
 
     List<Map<String, Object>> applyForReimbursementGroupType(Map<String, Object> param);
 
     List<Map<String, Object>> paymentForItem(Map<String, Object> param);
 
-    Double paymentItemTotal(Map<String, Object> param);
+    BigDecimal paymentItemTotal(Map<String, Object> param);
 
     List<UserForReportVO> userList(Map<String, Object> params);
 

@@ -30,29 +30,29 @@ public class InOutStockItemVO implements Serializable {
 	// 单据类型
 	private String storageTypeName;
 	// 数量
-	private Double count;
+	private BigDecimal count;
 	// 单价
 	private BigDecimal unitPrice;
 	// 金额
-	private Double amount;
+	private BigDecimal amount;
 	// 收入数量
-	private Double inCount;
+	private BigDecimal inCount;
 	// 收入单价
 	private BigDecimal inUnitPrice;
 	// 收入金额
-	private Double inAmount;
+	private BigDecimal inAmount;
 	// 发出数量
-	private Double outCount;
+	private BigDecimal outCount;
 	// 发出单价
 	private BigDecimal outUnitPrice;
 	// 发出金额
-	private Double outAmount;
+	private BigDecimal outAmount;
 	// 结存数量b
-	private Double balanceCount;
+	private BigDecimal balanceCount;
 	// 结存单价
 	private BigDecimal balanceUnitPrice;
 	// 结存金额
-	private Double balanceAmount;
+	private BigDecimal balanceAmount;
 
 	// 排序号 0为期初 1为中间详情 2为垫底
 	private int sortNo;

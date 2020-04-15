@@ -6,10 +6,7 @@ import com.ev.custom.service.DictionaryService;
 import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForReport;
 import com.ev.framework.il8n.MessageSourceHandler;
-import com.ev.framework.utils.DateFormatUtil;
-import com.ev.framework.utils.DateUtils;
-import com.ev.framework.utils.PageUtils;
-import com.ev.framework.utils.R;
+import com.ev.framework.utils.*;
 import com.ev.report.dao.AgendaAccountingReportDao;
 import com.ev.report.service.AgendaAccountingReportService;
 import com.ev.report.vo.CommonVO;
@@ -20,6 +17,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -82,17 +80,17 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
      * @return 结果集
      */
     @Override
-    public Map<String, Object> getResult(List<UserForReportVO> userForReportVOS, List<Map<String, Object>> itemList, Double total, int size, int pageNo, int pageSize) {
+    public Map<String, Object> getResult(List<UserForReportVO> userForReportVOS, List<Map<String, Object>> itemList, BigDecimal total, int size, int pageNo, int pageSize) {
         Map<String, Object> results = Maps.newHashMap();
-        Map<String, Double> itemGroup = itemList
+        Map<String, BigDecimal> itemGroup = itemList
                 .stream()
-                .collect(Collectors.toMap(stringObjectMap -> stringObjectMap.get("createBy").toString(), stringObjectMap -> Double.parseDouble(stringObjectMap.get("totalCount").toString()), Double::sum));
+                .collect(Collectors.toMap(stringObjectMap -> stringObjectMap.get("createBy").toString(), stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("totalCount")), BigDecimal::add));
         List<Map<String, Object>> userDOsList = Lists.newArrayList();
         Map<String, Object> map;
         for (UserForReportVO userForReportVO : userForReportVOS) {
             map = Maps.newHashMap();
             String userId = userForReportVO.getUserId().toString();
-            Double totalCount = itemGroup.get(userId);
+            BigDecimal totalCount = itemGroup.get(userId);
             map.put("userId", userForReportVO.getUserId());
             map.put("userName", userForReportVO.getUserName() + ConstantForReport.TOTAL_SUFFIX);
             map.put("totalCount", totalCount == null ? 0 : totalCount);
@@ -252,11 +250,11 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         Map<String,Object> result = Maps.newHashMap();
         if (overtimeForItem.size() > 0) {
             // 所有用户的加班总和
-            Double total = reportDao.overtimeForItemTotal(param);
+            BigDecimal total = reportDao.overtimeForItemTotal(param);
             if(showUser){
-                Map<String, Double> itemGroup = overtimeForItem
+                Map<String, BigDecimal> itemGroup = overtimeForItem
                         .stream()
-                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> Double.parseDouble(v.get("totalCount").toString()), Double::sum));
+                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> MathUtils.getBigDecimal(v.get("totalCount").toString()), BigDecimal::add));
                 Map<String, String> userMap = overtimeForItem
                         .stream()
                         .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("name").toString(), (v1,v2)->v1));
@@ -270,7 +268,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                 Map<String, Object> map;
                 for (String userId : itemGroup.keySet()) {
                     map = Maps.newHashMap();
-                    Double totalCount = itemGroup.get(userId);
+                    BigDecimal totalCount = itemGroup.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
                     map.put("sign",ConstantForReport.COLOUR_END);
@@ -353,7 +351,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         if (leaveForItem.size() > 0 ) {
 
             // 所查询的全部用户
-            Double total = reportDao.leaveItemTotal(param);
+            BigDecimal total = reportDao.leaveItemTotal(param);
 
             List<DictionaryDO> dictionaryDOS = dictionaryService.listByType(Constant.LEAVE_APPLY_TYPE);
             Integer typeMax = dictionaryDOS
@@ -364,9 +362,9 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
             typeMax = typeMax == null ? 0 : typeMax + 1;
 
             if(showUser){
-                Map<String, Double> itemGroup = leaveForItem
+                Map<String, BigDecimal> itemGroup = leaveForItem
                         .stream()
-                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> Double.parseDouble(v.get("totalCount").toString()), Double::sum));
+                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> MathUtils.getBigDecimal(v.get("totalCount").toString()), BigDecimal::add));
                 Map<String, String> userMap = leaveForItem
                         .stream()
                         .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("name").toString(), (v1,v2)->v1));
@@ -380,7 +378,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                 Map<String, Object> map;
                 for (String userId : itemGroup.keySet()) {
                     map = Maps.newHashMap();
-                    Double totalCount = itemGroup.get(userId);
+                    BigDecimal totalCount = itemGroup.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
                     map.put("sign",ConstantForReport.COLOUR_END);
@@ -512,7 +510,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         if (applyForReimbursementItem.size() > 0) {
 
             // 所查询的全部用户
-            Double total = reportDao.applyForReimbursementItemTotal(param);
+            BigDecimal total = reportDao.applyForReimbursementItemTotal(param);
 
             List<DictionaryDO> dictionaryDOS = dictionaryService.listByType(Constant.REIM_APPLY_TYPE);
             Integer typeMax = dictionaryDOS
@@ -523,9 +521,9 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
             typeMax = typeMax == null ? 0 : typeMax + 1;
 
             if(showUser){
-                Map<String, Double> itemGroup = applyForReimbursementItem
+                Map<String, BigDecimal> itemGroup = applyForReimbursementItem
                         .stream()
-                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> Double.parseDouble(v.get("totalCount").toString()), Double::sum));
+                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> MathUtils.getBigDecimal(v.get("totalCount").toString()), BigDecimal::add));
                 Map<String, String> userMap = applyForReimbursementItem
                         .stream()
                         .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("name").toString(), (v1,v2)->v1));
@@ -539,7 +537,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                 Map<String, Object> map;
                 for (String userId : itemGroup.keySet()) {
                     map = Maps.newHashMap();
-                    Double totalCount = itemGroup.get(userId);
+                    BigDecimal totalCount = itemGroup.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
                     map.put("sign",ConstantForReport.COLOUR_END);
@@ -614,11 +612,11 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         Map<String,Object> result = Maps.newHashMap();
         if (paymentForItem.size() > 0) {
             // 获取所有的用户
-            Double total = reportDao.paymentItemTotal(param);
+            BigDecimal total = reportDao.paymentItemTotal(param);
             if(showUser){
-                Map<String, Double> itemGroup = paymentForItem
+                Map<String, BigDecimal> itemGroup = paymentForItem
                         .stream()
-                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> Double.parseDouble(v.get("totalCount").toString()), Double::sum));
+                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> MathUtils.getBigDecimal(v.get("totalCount").toString()), BigDecimal::add));
                 Map<String, String> userMap = paymentForItem
                         .stream()
                         .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("name").toString(), (v1,v2)->v1));
@@ -632,7 +630,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                 Map<String, Object> map;
                 for (String userId : itemGroup.keySet()) {
                     map = Maps.newHashMap();
-                    Double totalCount = itemGroup.get(userId);
+                    BigDecimal totalCount = itemGroup.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
                     map.put("sign",ConstantForReport.COLOUR_END);

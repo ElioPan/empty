@@ -113,7 +113,7 @@
         </where>
     </select>
 
-    <select id="overtimeForItemTotal" resultType="java.lang.Double">
+    <select id="overtimeForItemTotal" resultType="java.math.BigDecimal">
         SELECT
         SUM(apply.time_area)
         FROM
@@ -172,7 +172,7 @@
         </where>
     </select>
 
-    <select id="leaveItemTotal" resultType="java.lang.Double">
+    <select id="leaveItemTotal" resultType="java.math.BigDecimal">
         SELECT
         SUM(apply.time_area)
         FROM
@@ -266,7 +266,7 @@
         </where>
     </select>
 
-    <select id="applyForReimbursementItemTotal" resultType="java.lang.Double">
+    <select id="applyForReimbursementItemTotal" resultType="java.math.BigDecimal">
         SELECT
         SUM(item.rei_count)
         FROM
@@ -360,7 +360,7 @@
         </where>
     </select>
 
-    <select id="paymentItemTotal" resultType="java.lang.Double">
+    <select id="paymentItemTotal" resultType="java.math.BigDecimal">
         SELECT
         SUM(total_number)
         FROM

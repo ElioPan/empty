@@ -69,12 +69,11 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
         // 若是分页统计总数则不处理列表内的内容
         if (isTotalData) {
             // 计划生产数量合计
-            BigDecimal totalPlanCount = BigDecimal.valueOf(
+            BigDecimal totalPlanCount =
                     data.stream()
-                            .map(stringObjectMap -> Double.parseDouble(stringObjectMap.getOrDefault("planCount", 0.0d).toString()))
-                            .reduce(Double::sum)
-                            .orElse(0.0d)
-            );
+                            .map(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.getOrDefault("planCount", BigDecimal.ZERO).toString()))
+                            .reduce(BigDecimal::add)
+                            .orElse(BigDecimal.ZERO);
             totalMap.put("totalPlanCount", totalPlanCount);
 
             // 完工数量合计
@@ -228,12 +227,11 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
         // 若是分页统计总数则不处理列表内的内容
         if (isTotalData) {
             // 计划生产数量合计
-            BigDecimal totalPlanCount = BigDecimal.valueOf(
+            BigDecimal totalPlanCount =
                     data.stream()
-                            .map(stringObjectMap -> Double.parseDouble(stringObjectMap.getOrDefault("planCount", 0.0d).toString()))
-                            .reduce(Double::sum)
-                            .orElse(0.0d)
-            );
+                            .map(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.getOrDefault("planCount", BigDecimal.ZERO).toString()))
+                            .reduce(BigDecimal::add)
+                            .orElse(BigDecimal.ZERO);
             totalMap.put("totalPlanCount", totalPlanCount);
 
             // 完工数量(为入库数量)
@@ -371,7 +369,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
     }
 
     @Override
-    public Pair<List<PieceRateVO>, Double>  pieceRateGroup(CommonVO commonVO) {
+    public Pair<List<PieceRateVO>, BigDecimal>  pieceRateGroup(CommonVO commonVO) {
         boolean showItem = commonVO.getShowItem() == 1;
         boolean showUser = commonVO.getShowType() == 1;
         boolean showDept = commonVO.getShowUser() == 1;
@@ -405,46 +403,46 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
 
             // 展示部门合计
             if (showDept) {
-                Map<Long, Double> deptTotal = pieceRateVOLists
+                Map<Long, BigDecimal> deptTotal = pieceRateVOLists
                         .stream()
-                        .collect(Collectors.toMap(PieceRateVO::getDeptId, PieceRateVO::getTotalPrice, Double::sum));
+                        .collect(Collectors.toMap(PieceRateVO::getDeptId, PieceRateVO::getTotalPrice, BigDecimal::add));
                                 PieceRateVO pieceRateVO;
                 for (Long s : deptTotal.keySet()) {
                     pieceRateVO = new PieceRateVO();
-                    Double totalPieceRate = deptTotal.get(s);
+                    BigDecimal totalPieceRate = deptTotal.get(s);
                     // 部门总计标2 用户总计标1 详情标0
                     pieceRateVO.setSign(ConstantForReport.COLOUR_END);
                     pieceRateVO.setDeptId(s);
                     pieceRateVO.setDeptName(deptNameMap.get(s) + ConstantForReport.TOTAL_SUFFIX);
                     pieceRateVO.setOperator(typeMax);
                     pieceRateVO.setSortNo(typeMax);
-                    pieceRateVO.setTotalPrice( totalPieceRate == null ? 0.0d : totalPieceRate);
+                    pieceRateVO.setTotalPrice( totalPieceRate == null ? BigDecimal.ZERO : totalPieceRate);
                     showList.add(pieceRateVO);
                 }
             }
 
             // 展示用户合计
             if (showUser) {
-                Map<Long, Map<Long, Double>> priceGroupByDeptAndUser = pieceRateVOLists
+                Map<Long, Map<Long, BigDecimal>> priceGroupByDeptAndUser = pieceRateVOLists
                         .stream()
                         .collect(
                                 Collectors.groupingBy(PieceRateVO::getDeptId
-                                        , Collectors.groupingBy(PieceRateVO::getOperator
-                                                , Collectors.summingDouble(PieceRateVO::getTotalPrice))));
+                                        , Collectors.toMap(PieceRateVO::getOperator
+                                                , PieceRateVO::getTotalPrice,BigDecimal::add)));
                 PieceRateVO pieceRateVO;
-                Map<Long, Double> groupByUser;
+                Map<Long, BigDecimal> groupByUser;
                 for (Long s : priceGroupByDeptAndUser.keySet()) {
                     groupByUser = priceGroupByDeptAndUser.get(s);
                     for (Long userId : groupByUser.keySet()) {
                         pieceRateVO = new PieceRateVO();
-                        Double totalPieceRate = groupByUser.get(userId);
+                        BigDecimal totalPieceRate = groupByUser.get(userId);
                         // 部门总计标2 用户总计标1 详情标0
                         pieceRateVO.setSign("1");
                         pieceRateVO.setDeptId(s);
                         pieceRateVO.setOperatorName(userNameMap.get(userId) + ConstantForReport.TOTAL_SUFFIX);
                         pieceRateVO.setOperator(userId);
                         pieceRateVO.setSortNo(userId);
-                        pieceRateVO.setTotalPrice( totalPieceRate == null ? 0.0d : totalPieceRate);
+                        pieceRateVO.setTotalPrice( totalPieceRate == null ? BigDecimal.ZERO : totalPieceRate);
                         showList.add(pieceRateVO);
                     }
                 }
@@ -454,11 +452,11 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
             }
 
             // 总合计
-            double total = pieceRateVOLists
+            BigDecimal total = pieceRateVOLists
                     .stream()
                     .map(PieceRateVO::getTotalPrice)
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
 
             // 排序
             List<PieceRateVO> collect = showList.stream()
@@ -486,9 +484,9 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
             return R.ok();
         }
         // 各个部门工资小计
-        Map<Long, Double> userTotal = pieceRateVOLists
+        Map<Long, BigDecimal> userTotal = pieceRateVOLists
                 .stream()
-                .collect(Collectors.toMap(PieceRateVO::getOperator, PieceRateVO::getTotalPrice, Double::sum));
+                .collect(Collectors.toMap(PieceRateVO::getOperator, PieceRateVO::getTotalPrice, BigDecimal::add));
         Map<Long, String> userNameMap = pieceRateVOLists
                 .stream()
                 .collect(Collectors.toMap(PieceRateVO::getOperator, PieceRateVO::getOperatorName, (v1, v2) -> v1));

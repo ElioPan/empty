@@ -3,6 +3,7 @@ package com.ev.report.vo;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 
 /**
@@ -18,9 +19,9 @@ public class ContractPayItemVO implements Serializable {
 	
 	private Long id;
 	// 已收金额
-	private Double receivedAmount;
+	private BigDecimal receivedAmount;
 	// 未收金额
-	private Double unReceivedAmount;
+	private BigDecimal unReceivedAmount;
 	// 源单ID
 	private Long sourceId;
 

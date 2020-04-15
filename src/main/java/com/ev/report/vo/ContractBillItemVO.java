@@ -3,6 +3,7 @@ package com.ev.report.vo;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 
 /**
@@ -20,9 +21,9 @@ public class ContractBillItemVO implements Serializable {
 	//票据号
 	private String code;
 	//开票数量
-	private Double count;
+	private BigDecimal count;
 	//开票金额
-	private Double amount;
+	private BigDecimal amount;
 	// 源单ID
 	private Long sourceId;
 	// 源单单号

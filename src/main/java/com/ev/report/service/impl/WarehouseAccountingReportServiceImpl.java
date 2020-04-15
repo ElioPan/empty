@@ -113,72 +113,72 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
 
 
             // 期初数量
-            Map<String, Map<String, Double>> initialCountMap = stockList
+            Map<String, Map<String, BigDecimal>> initialCountMap = stockList
                     .stream()
                     .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
-                            , Collectors.groupingBy(k2 -> k2.get("materielId").toString()
-                                    , Collectors.summingDouble(v -> Double.parseDouble(v.get("initialCount").toString()))))
-                    );
+                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
+                                    , v -> MathUtils.getBigDecimal(v.get("initialCount")))
+                    ));
 
             // 期初金额
-            Map<String, Map<String, Double>> initialAmountMap = stockList
+            Map<String, Map<String, BigDecimal>> initialAmountMap = stockList
                     .stream()
                     .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
-                            , Collectors.groupingBy(k2 -> k2.get("materielId").toString()
-                                    , Collectors.summingDouble(v -> Double.parseDouble(v.get("initialAmount").toString()))))
-                    );
+                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
+                                    , v -> MathUtils.getBigDecimal(v.get("initialAmount")))
+                    ));
             // 本期入库数量
-            Map<String, Map<String, Double>> inCountMap = stockList
+            Map<String, Map<String, BigDecimal>> inCountMap = stockList
                     .stream()
                     .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
-                            , Collectors.groupingBy(k2 -> k2.get("materielId").toString()
-                                    , Collectors.summingDouble(v -> Double.parseDouble(v.get("inCount").toString()))))
-                    );
+                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
+                                    , v -> MathUtils.getBigDecimal(v.get("inCount")))
+                    ));
             // 入库金额
-            Map<String, Map<String, Double>> inAmountMap = stockList
+            Map<String, Map<String, BigDecimal>> inAmountMap = stockList
                     .stream()
                     .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
-                            , Collectors.groupingBy(k2 -> k2.get("materielId").toString()
-                                    , Collectors.summingDouble(v -> Double.parseDouble(v.get("inAmount").toString()))))
+                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
+                                    , v -> MathUtils.getBigDecimal(v.get("inAmount"))))
                     );
             // 本期出库数量
-            Map<String, Map<String, Double>> outCountMap = stockList
+            Map<String, Map<String, BigDecimal>> outCountMap = stockList
                     .stream()
                     .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
-                            , Collectors.groupingBy(k2 -> k2.get("materielId").toString()
-                                    , Collectors.summingDouble(v -> Double.parseDouble(v.get("outCount").toString()))))
+                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
+                                    , v -> MathUtils.getBigDecimal(v.get("outCount"))))
                     );
             // 出库金额
-            Map<String, Map<String, Double>> outAmountMap = stockList
+            Map<String, Map<String, BigDecimal>> outAmountMap = stockList
                     .stream()
                     .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
-                            , Collectors.groupingBy(k2 -> k2.get("materielId").toString()
-                                    , Collectors.summingDouble(v -> Double.parseDouble(v.get("outAmount").toString()))))
+                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
+                                    , v -> MathUtils.getBigDecimal(v.get("outAmount"))))
                     );
             // 结存数量
-            Map<String, Map<String, Double>> finalCountMap = stockList
+            Map<String, Map<String, BigDecimal>> finalCountMap = stockList
                     .stream()
                     .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
-                            , Collectors.groupingBy(k2 -> k2.get("materielId").toString()
-                                    , Collectors.summingDouble(v -> Double.parseDouble(v.get("finalCount").toString()))))
+                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
+                                    , v -> MathUtils.getBigDecimal(v.get("finalCount"))))
                     );
             // 结存金额
-            Map<String, Map<String, Double>> finalAmountMap = stockList
+            Map<String, Map<String, BigDecimal>> finalAmountMap = stockList
                     .stream()
                     .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
-                            , Collectors.groupingBy(k2 -> k2.get("materielId").toString()
-                                    , Collectors.summingDouble(v -> Double.parseDouble(v.get("finalAmount").toString()))))
+                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
+                                    , v -> MathUtils.getBigDecimal(v.get("finalAmount"))))
                     );
 
             Map<String, Object> map;
-            Map<String, Double> initialCountForPeriod;
-            Map<String, Double> initialAmountForPeriod;
-            Map<String, Double> inCountForPeriod;
-            Map<String, Double> inAmountForPeriod;
-            Map<String, Double> outCountForPeriod;
-            Map<String, Double> outAmountForPeriod;
-            Map<String, Double> finalCountForPeriod;
-            Map<String, Double> finalAmountForPeriod;
+            Map<String, BigDecimal> initialCountForPeriod;
+            Map<String, BigDecimal> initialAmountForPeriod;
+            Map<String, BigDecimal> inCountForPeriod;
+            Map<String, BigDecimal> inAmountForPeriod;
+            Map<String, BigDecimal> outCountForPeriod;
+            Map<String, BigDecimal> outAmountForPeriod;
+            Map<String, BigDecimal> finalCountForPeriod;
+            Map<String, BigDecimal> finalAmountForPeriod;
 
             for (String periodParam : periodList) {
                 initialCountForPeriod = initialCountMap.get(periodParam);
@@ -225,43 +225,43 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
                     map.put("initialCount", initialCountForPeriod
                             .values()
                             .stream()
-                            .reduce(Double::sum)
-                            .orElse(0.0d));
+                            .reduce(BigDecimal::add)
+                            .orElse(BigDecimal.ZERO));
                     map.put("initialAmount", initialAmountForPeriod
                             .values()
                             .stream()
-                            .reduce(Double::sum)
-                            .orElse(0.0d));
+                            .reduce(BigDecimal::add)
+                            .orElse(BigDecimal.ZERO));
                     map.put("inCount", inCountForPeriod
                             .values()
                             .stream()
-                            .reduce(Double::sum)
-                            .orElse(0.0d));
+                            .reduce(BigDecimal::add)
+                            .orElse(BigDecimal.ZERO));
                     map.put("inAmount", inAmountForPeriod
                             .values()
                             .stream()
-                            .reduce(Double::sum)
-                            .orElse(0.0d));
+                            .reduce(BigDecimal::add)
+                            .orElse(BigDecimal.ZERO));
                     map.put("outCount", outCountForPeriod
                             .values()
                             .stream()
-                            .reduce(Double::sum)
-                            .orElse(0.0d));
+                            .reduce(BigDecimal::add)
+                            .orElse(BigDecimal.ZERO));
                     map.put("outAmount", outAmountForPeriod
                             .values()
                             .stream()
-                            .reduce(Double::sum)
-                            .orElse(0.0d));
+                            .reduce(BigDecimal::add)
+                            .orElse(BigDecimal.ZERO));
                     map.put("finalCount", finalCountForPeriod
                             .values()
                             .stream()
-                            .reduce(Double::sum)
-                            .orElse(0.0d));
+                            .reduce(BigDecimal::add)
+                            .orElse(BigDecimal.ZERO));
                     map.put("finalAmount", finalAmountForPeriod
                             .values()
                             .stream()
-                            .reduce(Double::sum)
-                            .orElse(0.0d));
+                            .reduce(BigDecimal::add)
+                            .orElse(BigDecimal.ZERO));
                     showList.add(map);
                 }
 
@@ -299,13 +299,13 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
         params.put("endTime", DatesUtil.getSupportEndDayOfMonth(endPeriod));
 
         List<Map<String, Object>> initData = stockAnalysisService.listForMapGroupMateriel(params);
-        Map<String, Double> initialCountMap = initData.stream()
-                .collect(Collectors.groupingBy(k -> k.get("period").toString()
-                        , Collectors.summingDouble(v -> Double.parseDouble(v.get("initialCount").toString()))));
+        Map<String, BigDecimal> initialCountMap = initData.stream()
+                .collect(Collectors.toMap(k -> k.get("period").toString()
+                        , v -> MathUtils.getBigDecimal(v.get("initialCount"))));
 
-        Map<String, Double> initialAmountMap = initData.stream()
-                .collect(Collectors.groupingBy(k -> k.get("period").toString()
-                        , Collectors.summingDouble(v -> Double.parseDouble(v.get("initialAmount").toString()))));
+        Map<String, BigDecimal> initialAmountMap = initData.stream()
+                .collect(Collectors.toMap(k -> k.get("period").toString()
+                        , v -> MathUtils.getBigDecimal(v.get("initialAmount"))));
 
         Map<String, String> initialPeriodMap = initData.stream()
                 .collect(Collectors.toMap(k -> k.get("period").toString()
@@ -313,12 +313,12 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
 
         Map<String, BigDecimal> initialUnitPriceMap = Maps.newHashMap();
         for (String k : initialAmountMap.keySet()) {
-            Double amount = initialAmountMap.get(k);
-            Double count = initialCountMap.get(k);
-            if (count == 0.0d) {
+            BigDecimal amount = initialAmountMap.get(k);
+            BigDecimal count = initialCountMap.get(k);
+            if (count.compareTo(BigDecimal.ZERO) == 0) {
                 initialUnitPriceMap.put(k, BigDecimal.ZERO);
             } else {
-                initialUnitPriceMap.put(k, BigDecimal.valueOf(amount).divide(BigDecimal.valueOf(count), Constant.BIGDECIMAL_ZERO, BigDecimal.ROUND_HALF_UP));
+                initialUnitPriceMap.put(k, amount.divide(count, Constant.BIGDECIMAL_ZERO, BigDecimal.ROUND_HALF_UP));
             }
 
         }
@@ -344,15 +344,15 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
                 .stream()
                 .collect(Collectors.groupingBy(e -> e.getPeriod() + "-01"));
         List<InOutStockItemVO> groupByStockVOS;
-        Double initialCount;
-        Double initialAmount;
+        BigDecimal initialCount;
+        BigDecimal initialAmount;
         // 计算
-        double newInitialCount;
-        double newInitialAmount;
+        BigDecimal newInitialCount;
+        BigDecimal newInitialAmount;
         BigDecimal newInitialUnitPrice;
         // 出入库
-        Double count;
-        Double amount;
+        BigDecimal count;
+        BigDecimal amount;
         BigDecimal unitPrice;
         // 判断是否为出库
         boolean isOut;
@@ -374,20 +374,20 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
                 amount = groupByStockVO.getAmount();
                 unitPrice = groupByStockVO.getUnitPrice();
                 if (isOut) {
-                    newInitialCount = initialCount - count;
-                    newInitialAmount = initialAmount - amount;
+                    newInitialCount = initialCount.subtract(count) ;
+                    newInitialAmount = initialAmount.subtract(amount) ;
                     groupByStockVO.setOutCount(count);
                     groupByStockVO.setOutAmount(amount);
                 } else {
-                    newInitialCount = initialCount + count;
-                    newInitialAmount = initialAmount + amount;
+                    newInitialCount = initialCount.add(count) ;
+                    newInitialAmount = initialAmount .add(amount) ;
                     groupByStockVO.setInCount(count);
                     groupByStockVO.setInAmount(amount);
                 }
                 groupByStockVO.setUnitPrice(unitPrice);
                 groupByStockVO.setBalanceCount(newInitialCount);
                 groupByStockVO.setBalanceAmount(newInitialAmount);
-                newInitialUnitPrice = BigDecimal.valueOf(newInitialAmount).divide(BigDecimal.valueOf(newInitialCount), Constant.BIGDECIMAL_ZERO, BigDecimal.ROUND_HALF_UP);
+                newInitialUnitPrice = newInitialAmount.divide(newInitialCount, Constant.BIGDECIMAL_ZERO, BigDecimal.ROUND_HALF_UP);
                 groupByStockVO.setBalanceUnitPrice(newInitialUnitPrice);
 
             }
@@ -399,38 +399,38 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
             inOutStockItemVO.setInOutTime(DatesUtil.getSupportBeginDayOfMonthToDate(inOutStockItemVO.getInOutTime()));
 
             // 收入数量
-            Double totalInCount = groupByStockVOS
+            BigDecimal totalInCount = groupByStockVOS
                     .stream()
                     .map(InOutStockItemVO::getCount)
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
             inOutStockItemVO.setInCount(totalInCount);
             // 收入金额合计
-            Double totalInAmount = groupByStockVOS
+            BigDecimal totalInAmount = groupByStockVOS
                     .stream()
                     .map(InOutStockItemVO::getAmount)
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
             inOutStockItemVO.setInAmount(totalInAmount);
             // 合计收入单价
-            BigDecimal totalInUnitPrice = BigDecimal.valueOf(totalInAmount).divide(BigDecimal.valueOf(totalInCount), Constant.BIGDECIMAL_ZERO, BigDecimal.ROUND_HALF_UP);
+            BigDecimal totalInUnitPrice = totalInAmount.divide(totalInCount, Constant.BIGDECIMAL_ZERO, BigDecimal.ROUND_HALF_UP);
             inOutStockItemVO.setInUnitPrice(totalInUnitPrice);
             // 发出数量
-            Double totalOutCount = groupByStockVOS
+            BigDecimal totalOutCount = groupByStockVOS
                     .stream()
                     .map(InOutStockItemVO::getCount)
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
             inOutStockItemVO.setOutCount(totalOutCount);
             // 发出金额合计
-            Double totalOutAmount = groupByStockVOS
+            BigDecimal totalOutAmount = groupByStockVOS
                     .stream()
                     .map(InOutStockItemVO::getAmount)
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
             inOutStockItemVO.setOutAmount(totalOutAmount);
             // 合计发出单价
-            BigDecimal totalOutUnitPrice = BigDecimal.valueOf(totalOutAmount).divide(BigDecimal.valueOf(totalOutCount), Constant.BIGDECIMAL_ZERO, BigDecimal.ROUND_HALF_UP);
+            BigDecimal totalOutUnitPrice = totalOutAmount.divide(totalOutCount, Constant.BIGDECIMAL_ZERO, BigDecimal.ROUND_HALF_UP);
             inOutStockItemVO.setOutUnitPrice(totalOutUnitPrice);
             inOutStockItemVO.setSortNo(2);
             groupByStockVOS.add(inOutStockItemVO);
@@ -569,19 +569,19 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
             List<StockOutItemVO> showList = Lists.newArrayList();
 
             // 出库数量
-            Map<Long, Double> countMap = StockOutItemVOS
+            Map<Long, BigDecimal> countMap = StockOutItemVOS
                     .stream()
                     .collect(Collectors.toMap(
                             StockOutItemVO::getMaterielId
                             , StockOutItemVO::getCount
-                            , Double::sum));
+                            , BigDecimal::add));
             // 出库金额
-            Map<Long, Double> amountMap = StockOutItemVOS
+            Map<Long, BigDecimal> amountMap = StockOutItemVOS
                     .stream()
                     .collect(Collectors.toMap(
                             StockOutItemVO::getMaterielId
                             , StockOutItemVO::getAmount
-                            , Double::sum));
+                            , BigDecimal::add));
 
             // 物料名
             Map<Long, String> materielMap = StockOutItemVOS
@@ -630,16 +630,16 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
             }
 
             // 合计项
-            Double totalCount = countMap
+            BigDecimal totalCount = countMap
                     .values()
                     .stream()
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
-            Double totalAmount = amountMap
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
+            BigDecimal totalAmount = amountMap
                     .values()
                     .stream()
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
 
             Map<String, Object> totalResult = Maps.newHashMap();
             totalResult.put("totalCount", totalCount);

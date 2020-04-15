@@ -2,6 +2,7 @@ package com.ev.report.service.impl;
 
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.config.ConstantForReport;
+import com.ev.framework.utils.MathUtils;
 import com.ev.report.dao.QualityManagementAccountingReportDao;
 import com.ev.report.service.QualityManagementAccountingReportService;
 import com.google.common.collect.Lists;
@@ -10,6 +11,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -60,12 +62,12 @@ public class QualityManagementAccountingReportServiceImpl implements QualityMana
         if (badPurchaseLists.size() > 0) {
             List<Map<String, Object>> showList = Lists.newArrayList();
 
-            Map<String, Double> unqualifiedCountMap = badPurchaseLists
+            Map<String, BigDecimal> unqualifiedCountMap = badPurchaseLists
                     .stream()
                     .collect(Collectors.toMap(
                             k -> k.get("supplierId").toString()
-                            , v -> Double.parseDouble(v.get("unqualifiedCount").toString())
-                            , Double::sum));
+                            , v -> MathUtils.getBigDecimal(v.get("unqualifiedCount").toString())
+                            , BigDecimal::add));
 
             Map<String, String> supplierNameMap = badPurchaseLists
                     .stream()
@@ -102,7 +104,7 @@ public class QualityManagementAccountingReportServiceImpl implements QualityMana
     }
 
     @Override
-    public Pair<List<Map<String, Object>>,Double> badProcessForDeptResult(int showDeptTotalInt, int showItemInt, int showProcessTotalInt, Long deptId, Long processId, Long operator, Long deviceId, String startTime, String endTime) {
+    public Pair<List<Map<String, Object>>,BigDecimal> badProcessForDeptResult(int showDeptTotalInt, int showItemInt, int showProcessTotalInt, Long deptId, Long processId, Long operator, Long deviceId, String startTime, String endTime) {
         // 查询列表数据
         Map<String, Object> params = Maps.newHashMap();
         boolean showItem = showItemInt == 1;
@@ -133,12 +135,12 @@ public class QualityManagementAccountingReportServiceImpl implements QualityMana
             // 最大一个工序号+1
             max = max + 1;
 
-            Map<String, Double> unqualifiedCountMap = badProcessLists
+            Map<String, BigDecimal> unqualifiedCountMap = badProcessLists
                     .stream()
                     .collect(Collectors.toMap(
                             k -> k.get("deptId").toString()
-                            , v -> Double.parseDouble(v.get("rejectsCount").toString())
-                            , Double::sum));
+                            , v -> MathUtils.getBigDecimal(v.get("rejectsCount").toString())
+                            , BigDecimal::add));
 
             Map<String, String> deptNameMap = badProcessLists
                     .stream()
@@ -170,19 +172,19 @@ public class QualityManagementAccountingReportServiceImpl implements QualityMana
             }
 
             if (showProcessTotal) {
-                Map<String, Map<String, Double>> priceGroupByDeptAndProcess = badProcessLists
+                Map<String, Map<String, BigDecimal>> priceGroupByDeptAndProcess = badProcessLists
                         .stream()
                         .collect(
                                 Collectors.groupingBy(e->e.getOrDefault("deptId",0).toString()
-                                        , Collectors.groupingBy(e->e.getOrDefault("processId",0).toString()
-                                                , Collectors.summingDouble(e->Double.parseDouble(e.getOrDefault("rejectsCount",0.0d).toString())))));
-                Map<String, Double> groupByDept;
+                                        , Collectors.toMap(e->e.getOrDefault("processId",0).toString()
+                                                , e->MathUtils.getBigDecimal(e.getOrDefault("rejectsCount",BigDecimal.ZERO)),BigDecimal::add)));
+                Map<String, BigDecimal> groupByDept;
                 Map<String, Object> totalMap;
                 for (String deptIdParam : priceGroupByDeptAndProcess.keySet()) {
                     groupByDept = priceGroupByDeptAndProcess.get(deptIdParam);
                     for (String processIdParam : groupByDept.keySet()) {
                         totalMap = Maps.newHashMap();
-                        Double rejectsCount = groupByDept.getOrDefault(processIdParam,0.0d);
+                        BigDecimal rejectsCount = groupByDept.getOrDefault(processIdParam,BigDecimal.ZERO);
                         // 部门总计标end 工序总计标1 详情标0
                         totalMap.put("sign",1);
                         totalMap.put("sortNo",processIdParam);
@@ -200,12 +202,12 @@ public class QualityManagementAccountingReportServiceImpl implements QualityMana
             }
 
             // 总合计
-            double total = badProcessLists
+            BigDecimal total = badProcessLists
                     .stream()
-                    .map(e->Double.parseDouble(e.getOrDefault("rejectsCount"
-                            ,0.0d).toString()))
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
+                    .map(e->MathUtils.getBigDecimal(e.getOrDefault("rejectsCount"
+                            ,BigDecimal.ZERO)))
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
 
             // 排序
             List<Map<String, Object>> collect = showList.stream()
@@ -220,7 +222,7 @@ public class QualityManagementAccountingReportServiceImpl implements QualityMana
     }
 
     @Override
-    public Pair<List<Map<String, Object>>, Double> badProductForDeptResult(int showDeptTotalInt, int showItemInt, int showProductTotalInt, Long deptId, Long materielId, String startTime, String endTime) {
+    public Pair<List<Map<String, Object>>, BigDecimal> badProductForDeptResult(int showDeptTotalInt, int showItemInt, int showProductTotalInt, Long deptId, Long materielId, String startTime, String endTime) {
 
         // 查询列表数据
         Map<String, Object> params = Maps.newHashMap();
@@ -254,12 +256,12 @@ public class QualityManagementAccountingReportServiceImpl implements QualityMana
             max = max + 1;
 
 
-            Map<String, Double> unqualifiedCountMap = badProductLists
+            Map<String, BigDecimal> unqualifiedCountMap = badProductLists
                     .stream()
                     .collect(Collectors.toMap(
                             k -> k.get("deptId").toString()
-                            , v -> Double.parseDouble(v.get("unqualifiedCount").toString())
-                            , Double::sum));
+                            , v -> MathUtils.getBigDecimal(v.get("unqualifiedCount").toString())
+                            , BigDecimal::add));
 
             Map<String, String> deptNameMap = badProductLists
                     .stream()
@@ -289,19 +291,19 @@ public class QualityManagementAccountingReportServiceImpl implements QualityMana
                 }
             }
             if (showProductTotal) {
-                Map<String, Map<String, Double>> priceGroupByDeptAndMateriel = badProductLists
+                Map<String, Map<String, BigDecimal>> priceGroupByDeptAndMateriel = badProductLists
                         .stream()
                         .collect(
                                 Collectors.groupingBy(e->e.getOrDefault("deptId",0).toString()
-                                        , Collectors.groupingBy(e->e.getOrDefault("materielId",0).toString()
-                                                , Collectors.summingDouble(e->Double.parseDouble(e.getOrDefault("unqualifiedCount",0.0d).toString())))));
-                Map<String, Double> groupByDept;
+                                        , Collectors.toMap(e->e.getOrDefault("materielId",0).toString()
+                                                , e->MathUtils.getBigDecimal(e.getOrDefault("unqualifiedCount",BigDecimal.ZERO)),BigDecimal::add)));
+                Map<String, BigDecimal> groupByDept;
                 Map<String, Object> totalMap;
                 for (String deptIdParam : priceGroupByDeptAndMateriel.keySet()) {
                     groupByDept = priceGroupByDeptAndMateriel.get(deptIdParam);
                     for (String materielIdParam : groupByDept.keySet()) {
                         totalMap = Maps.newHashMap();
-                        Double unqualifiedCount = groupByDept.getOrDefault(materielIdParam,0.0d);
+                        BigDecimal unqualifiedCount = groupByDept.getOrDefault(materielIdParam,BigDecimal.ZERO);
                         // 部门总计标end 工序总计标1 详情标0
                         totalMap.put("sign",1);
                         totalMap.put("sortNo",materielIdParam);
@@ -318,12 +320,12 @@ public class QualityManagementAccountingReportServiceImpl implements QualityMana
             }
 
             // 总合计
-            double total = badProductLists
+            BigDecimal total = badProductLists
                     .stream()
-                    .map(e->Double.parseDouble(e.getOrDefault("unqualifiedCount"
-                            ,0.0d).toString()))
-                    .reduce(Double::sum)
-                    .orElse(0.0d);
+                    .map(e->MathUtils.getBigDecimal(e.getOrDefault("unqualifiedCount"
+                            ,BigDecimal.ZERO)))
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
 
             // 排序
             List<Map<String, Object>> collect = showList.stream()

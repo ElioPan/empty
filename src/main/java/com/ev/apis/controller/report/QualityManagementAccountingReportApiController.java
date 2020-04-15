@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -121,7 +122,7 @@ public class QualityManagementAccountingReportApiController {
             HttpServletRequest request, HttpServletResponse response, ModelMap modelMap
 
     ) {
-        Pair<List<Map<String, Object>>, Double> badProcessForDeptResult =
+        Pair<List<Map<String, Object>>, BigDecimal> badProcessForDeptResult =
                 reportService.badProcessForDeptResult( showDeptTotalInt
                         , showItemInt
                         , showProcessTotalInt
@@ -162,7 +163,7 @@ public class QualityManagementAccountingReportApiController {
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime
     ) {
-        Pair<List<Map<String, Object>>, Double> badProcessForDeptResult =
+        Pair<List<Map<String, Object>>, BigDecimal> badProcessForDeptResult =
                 reportService.badProcessForDeptResult( showDeptTotalInt
                         , showItemInt
                         , showProcessTotalInt
@@ -195,7 +196,7 @@ public class QualityManagementAccountingReportApiController {
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
             HttpServletRequest request, HttpServletResponse response, ModelMap modelMap
     ) {
-        Pair<List<Map<String, Object>>, Double> badProductForDeptResult =
+        Pair<List<Map<String, Object>>, BigDecimal> badProductForDeptResult =
                 reportService.badProductForDeptResult( showDeptTotalInt
                         , showItemInt
                         , showProductTotalInt
@@ -230,7 +231,7 @@ public class QualityManagementAccountingReportApiController {
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime
     ) {
-        Pair<List<Map<String, Object>>, Double> badProductForDeptResult =
+        Pair<List<Map<String, Object>>, BigDecimal> badProductForDeptResult =
                 reportService.badProductForDeptResult( showDeptTotalInt
                         , showItemInt
                         , showProductTotalInt

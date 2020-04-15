@@ -4,9 +4,9 @@ import com.ev.custom.domain.DictionaryDO;
 import com.ev.report.vo.CommonVO;
 import com.ev.framework.utils.R;
 import com.ev.report.vo.UserForReportVO;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +45,7 @@ public interface AgendaAccountingReportService {
 
     Triple<List<UserForReportVO>, List<Long>, List<Long>> getUserInfo(int pageNo, int pageSize, Long userId, Long deptId);
 
-    Map<String, Object> getResult(List<UserForReportVO> userForReportVOS, List<Map<String, Object>> itemList, Double total, int size, int pageNo, int pageSize);
+    Map<String, Object> getResult(List<UserForReportVO> userForReportVOS, List<Map<String, Object>> itemList, BigDecimal total, int size, int pageNo, int pageSize);
 
     Map<String, Object> getResult(List<DictionaryDO> dictionaryDOS, List<Map<String, Object>> applyForReimbursementGroupType, Long userId);
 }

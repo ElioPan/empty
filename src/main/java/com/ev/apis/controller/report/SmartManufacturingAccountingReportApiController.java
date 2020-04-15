@@ -211,7 +211,7 @@ public class SmartManufacturingAccountingReportApiController {
             CommonVO commonVO,
             HttpServletRequest request, HttpServletResponse response, ModelMap modelMap
     ) {
-        Pair<List<PieceRateVO>, Double> pieceRateGroup =
+        Pair<List<PieceRateVO>, BigDecimal> pieceRateGroup =
                 reportService.pieceRateGroup(commonVO);
         if (pieceRateGroup == null) {
             return;
@@ -233,7 +233,7 @@ public class SmartManufacturingAccountingReportApiController {
     public R pieceRateGroup(
             CommonVO commonVO
     ) {
-        Pair<List<PieceRateVO>, Double> pieceRateGroup =
+        Pair<List<PieceRateVO>, BigDecimal> pieceRateGroup =
                 reportService.pieceRateGroup(commonVO);
         if (pieceRateGroup == null) {
             return R.ok();

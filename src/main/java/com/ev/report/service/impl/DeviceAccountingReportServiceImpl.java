@@ -58,13 +58,13 @@ public class DeviceAccountingReportServiceImpl implements DeviceAccountingReport
 
         // 计算停机时长
         // 维修
-        Map<Long, Double> repairOffHourMap = repairRecordList
+        Map<Long, BigDecimal> repairOffHourMap = repairRecordList
                 .stream()
-                .collect(Collectors.toMap(RepairRecordDO::getDeviceId, RepairRecordDO::getOffHour, Double::sum));
+                .collect(Collectors.toMap(RepairRecordDO::getDeviceId, e->BigDecimal.valueOf(e.getOffHour()), BigDecimal::add));
         // 保养
-        Map<Long, Double> upkeepOffHourMap = upkeepRecordList
+        Map<Long, BigDecimal> upkeepOffHourMap = upkeepRecordList
                 .stream()
-                .collect(Collectors.toMap(UpkeepRecordDO::getDeviceId, UpkeepRecordDO::getDownHour, Double::sum));
+                .collect(Collectors.toMap(UpkeepRecordDO::getDeviceId, e->BigDecimal.valueOf(e.getDownHour()), BigDecimal::add));
         Date now = new Date();
 
         // 计算巡检次数
@@ -123,17 +123,17 @@ public class DeviceAccountingReportServiceImpl implements DeviceAccountingReport
         for (Map<String, Object> map : deviceList) {
             Long id = Long.parseLong(map.get("id").toString());
             // 停机时长 计算公式：维修停机时长+保养停机时长
-            double totalOffHour = Double.sum(repairOffHourMap.getOrDefault(id, 0.0d), upkeepOffHourMap.getOrDefault(id, 0.0d));
+            BigDecimal totalOffHour = repairOffHourMap.getOrDefault(id, BigDecimal.ZERO).add(upkeepOffHourMap.getOrDefault(id, BigDecimal.ZERO));
             map.put("totalOffHour", totalOffHour);
 
             // 运行时长  计算公式：运行时长=当前日期-启用时间-停机时长
             Object usingTime = map.get("usingTime");
-            double useTimeHour = 0.0d;
+            BigDecimal useTimeHour = BigDecimal.ZERO;
             if (usingTime != null) {
-                useTimeHour = DatesUtil.dateHour(Objects.requireNonNull(DateFormatUtil.getDateByParttern(usingTime.toString())), now).doubleValue() - totalOffHour;
+                useTimeHour = DatesUtil.dateHour(Objects.requireNonNull(DateFormatUtil.getDateByParttern(usingTime.toString())),now).subtract(totalOffHour) ;
 
             }
-            map.put("useTimeHour", useTimeHour <= 0 ? 0 : String.format("%.2f", useTimeHour));
+            map.put("useTimeHour", useTimeHour.compareTo(BigDecimal.ZERO)<=0? 0 : StringUtils.formatDouble(useTimeHour.doubleValue()));
 
             // 累计故障次数
             Long faultFrequency = faultFrequencyMap.getOrDefault(id, 0L);
