@@ -2,6 +2,7 @@ package com.ev.report.service;
 
 import com.ev.framework.utils.R;
 import com.ev.report.vo.CommonVO;
+import com.ev.report.vo.PieceRateVO;
 import com.ev.report.vo.ProcessReportVO;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -23,7 +24,7 @@ public interface SmartManufacturingAccountingReportService {
 
     R pieceRate(CommonVO commonVO);
 
-    R pieceRateGroup(CommonVO commonVO);
+    Pair<List<PieceRateVO>, Double>  pieceRateGroup(CommonVO commonVO);
 
     R pieceRateGroupByUser(CommonVO commonVO);
 

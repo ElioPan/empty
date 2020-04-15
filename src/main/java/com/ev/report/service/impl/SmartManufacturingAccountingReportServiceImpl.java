@@ -371,7 +371,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
     }
 
     @Override
-    public R pieceRateGroup(CommonVO commonVO) {
+    public Pair<List<PieceRateVO>, Double>  pieceRateGroup(CommonVO commonVO) {
         boolean showItem = commonVO.getShowItem() == 1;
         boolean showUser = commonVO.getShowType() == 1;
         boolean showDept = commonVO.getShowUser() == 1;
@@ -386,7 +386,6 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
         // 获取所有的报工单
         List<PieceRateVO> pieceRateVOLists = reportDao.pieceRateItem(param);
 
-        Map<String,Object> result = Maps.newHashMap();
         if (pieceRateVOLists.size() > 0) {
             // 各个部门工资小计
             Long typeMax = pieceRateVOLists
@@ -468,11 +467,10 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                     .sorted(Comparator.comparing(PieceRateVO::getDeptId))
                     .collect(Collectors.toList());
 
-            result.put("data", collect);
-            result.put("total", total);
+            return Pair.of(collect,total);
 
         }
-        return R.ok(result);
+        return null;
     }
 
     @Override

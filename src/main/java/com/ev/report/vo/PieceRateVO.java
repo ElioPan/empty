@@ -3,7 +3,6 @@ package com.ev.report.vo;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * 物料检验
@@ -36,7 +35,7 @@ public class PieceRateVO implements Serializable {
 	// 工序报工单号
 	private String code;
 	// 日期
-	private Date createTime;
+	private String createTime;
 	// 工序代码
 	private String processCode;
 	// 工序名称
