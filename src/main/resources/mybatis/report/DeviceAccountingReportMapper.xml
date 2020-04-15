@@ -171,7 +171,7 @@
         LEFT JOIN cus_patrol_plan_detail plan on record.`plan_id` = plan.link_patrol_plan_id
         <where>
             <if test="id != null and id != ''"> and record.id = #{id} </if>
-            <if test="status != null and status != ''"> and record.status != #{status} </if>
+            <if test="status != null and status != ''"> and record.status = #{status} </if>
             <if test="deviceIds != null and deviceIds.size()>0"> and plan.link_device_id IN
                 <foreach item="item" collection="deviceIds" open="(" separator="," close=")" index="index">
                     <if test="item!=null">
