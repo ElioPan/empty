@@ -39,6 +39,7 @@ public class PurchaseManagementAccountingReportApiController {
     @Autowired
     private PurchaseManagementAccountingReportService reportService;
 
+
     @EvApiByToken(value = "/apis/purchaseManagement/tracking", method = RequestMethod.POST, apiTitle = "采购全程跟踪")
     @ApiOperation("采购全程跟踪")
     public R tracking(
@@ -96,10 +97,10 @@ public class PurchaseManagementAccountingReportApiController {
         if(!r.containsKey("data")){
             return;
         }
-        Object  dateList = r.get("data");
+        Object  dataList = r.get("data");
         ClassPathResource classPathResource = new ClassPathResource("poi/report_purchase_trackingGetOut.xlsx");
         Map<String,Object> map = Maps.newHashMap();
-        map.put("list", dateList);
+        map.put("list", dataList);
         TemplateExportParams result = new TemplateExportParams(classPathResource.getPath());
         modelMap.put(TemplateExcelConstants.FILE_NAME, "采购全程跟踪");
         modelMap.put(TemplateExcelConstants.PARAMS, result);
@@ -287,8 +288,7 @@ public class PurchaseManagementAccountingReportApiController {
         modelMap.put(TemplateExcelConstants.FILE_NAME, "采购价格分析");
         modelMap.put(TemplateExcelConstants.PARAMS, result);
         modelMap.put(TemplateExcelConstants.MAP_DATA, map);
-        PoiBaseView.render(modelMap, request, response,
-                TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
+        PoiBaseView.render(modelMap, request, response,TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
     }
 
 

@@ -1,18 +1,15 @@
 package com.ev.apis.controller.report;
 
-import cn.afterturn.easypoi.entity.vo.TemplateExcelConstants;
-import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
-import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.utils.R;
 import com.ev.report.service.SalesManagementAccountingReportService;
+import com.ev.report.service.WarehouseAccountingReportService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,6 +34,9 @@ import java.util.Objects;
 public class SalesManagementAccountingReportApiController {
     @Autowired
     private SalesManagementAccountingReportService reportService;
+
+    @Autowired
+    private WarehouseAccountingReportService wareReportService;
 
     @EvApiByToken(value = "/apis/salesManagement/tracking", method = RequestMethod.POST, apiTitle = "销售全程跟踪")
     @ApiOperation("销售全程跟踪")
@@ -104,15 +104,9 @@ public class SalesManagementAccountingReportApiController {
             return ;
         }
         dateList = trackingResult.getLeft();
-        ClassPathResource classPathResource = new ClassPathResource("poi/report_sales_tracking.xlsx");
-        Map<String,Object> map = Maps.newHashMap();
-        map.put("list", dateList);
-        TemplateExportParams result = new TemplateExportParams(classPathResource.getPath());
-        modelMap.put(TemplateExcelConstants.FILE_NAME, "销售全程跟踪");
-        modelMap.put(TemplateExcelConstants.PARAMS, result);
-        modelMap.put(TemplateExcelConstants.MAP_DATA, map);
-        PoiBaseView.render(modelMap, request, response,
-                TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
+        String fileName="poi/report_sales_tracking.xlsx";
+        String fileChineseName="销售全程跟踪";
+        wareReportService.processingExport(request,response,modelMap,fileName,dateList,fileChineseName);
     }
 
 
@@ -168,15 +162,9 @@ public class SalesManagementAccountingReportApiController {
             return ;
         }
         dateList = debtDueResult.getLeft();
-        ClassPathResource classPathResource = new ClassPathResource("poi/report_sales_debtdue.xlsx");
-        Map<String,Object> map = Maps.newHashMap();
-        map.put("list", dateList);
-        TemplateExportParams result = new TemplateExportParams(classPathResource.getPath());
-        modelMap.put(TemplateExcelConstants.FILE_NAME, "销售到期债务");
-        modelMap.put(TemplateExcelConstants.PARAMS, result);
-        modelMap.put(TemplateExcelConstants.MAP_DATA, map);
-        PoiBaseView.render(modelMap, request, response,
-                TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
+        String fileName="poi/report_sales_debtdue.xlsx";
+        String fileChineseName="销售到期债务";
+        wareReportService.processingExport(request,response,modelMap,fileName,dateList,fileChineseName);
     }
 
     @EvApiByToken(value = "/apis/salesManagement/summary", method = RequestMethod.POST, apiTitle = "销售汇总统计")
@@ -246,15 +234,9 @@ public class SalesManagementAccountingReportApiController {
             return ;
         }
         dateList = summaryResult.getLeft();
-        ClassPathResource classPathResource = new ClassPathResource("poi/report_sales_summary.xlsx");
-        Map<String,Object> map = Maps.newHashMap();
-        map.put("list", dateList);
-        TemplateExportParams result = new TemplateExportParams(classPathResource.getPath());
-        modelMap.put(TemplateExcelConstants.FILE_NAME, "销售汇总统计");
-        modelMap.put(TemplateExcelConstants.PARAMS, result);
-        modelMap.put(TemplateExcelConstants.MAP_DATA, map);
-        PoiBaseView.render(modelMap, request, response,
-                TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
+        String fileName="poi/report_sales_summary.xlsx";
+        String fileChineseName="销售汇总统计";
+        wareReportService.processingExport(request,response,modelMap,fileName,dateList,fileChineseName);
     }
 
 
@@ -318,15 +300,9 @@ public class SalesManagementAccountingReportApiController {
             return ;
         }
         dateList = balanceResult.getLeft();
-        ClassPathResource classPathResource = new ClassPathResource("poi/report_sales_balance.xlsx");
-        Map<String,Object> map = Maps.newHashMap();
-        map.put("list", dateList);
-        TemplateExportParams result = new TemplateExportParams(classPathResource.getPath());
-        modelMap.put(TemplateExcelConstants.FILE_NAME, "销售合同余额");
-        modelMap.put(TemplateExcelConstants.PARAMS, result);
-        modelMap.put(TemplateExcelConstants.MAP_DATA, map);
-        PoiBaseView.render(modelMap, request, response,
-                TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
+        String fileName="poi/report_sales_balance.xlsx";
+        String fileChineseName="销售合同余额";
+        wareReportService.processingExport(request,response,modelMap,fileName,dateList,fileChineseName);
     }
 
 }
