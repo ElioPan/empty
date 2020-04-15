@@ -8,6 +8,7 @@
         FROM (
         SELECT
         stock.in_out_time AS `inOutTime`,
+        UNIX_TIMESTAMP(stock.in_out_time) AS times,
         LEFT(stock.in_out_time,7) AS period,
         item.`batch`,
         stock.inhead_code AS `code`,
@@ -31,6 +32,7 @@
         UNION ALL
         SELECT
         stock.out_time AS `inOutTime`,
+        UNIX_TIMESTAMP(stock.out_time) AS times,
         LEFT(stock.out_time,7) AS period,
         item.`batch`,
         stock.out_code AS `code`,

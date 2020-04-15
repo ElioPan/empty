@@ -21,7 +21,6 @@ import com.ev.scm.service.StockAnalysisService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -334,8 +333,8 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
             initInOutStockItemVO.setBalanceUnitPrice(initialUnitPriceMap.get(k));
             // 0 置顶
             initInOutStockItemVO.setSortNo(0);
+            initInOutStockItemVO.setTimes(0L);
             initInOutStockItemVO.setPeriod(initialPeriodMap.get(k));
-            initInOutStockItemVO.setInOutTime(DateFormatUtil.getDateByParttern(k, "yyyy-MM-dd"));
             totalList.add(initInOutStockItemVO);
         }
 
@@ -343,13 +342,11 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
 
         Map<String, List<InOutStockItemVO>> groupByPeriod = inOutStockItemVOS
                 .stream()
-                .collect(Collectors.groupingBy(e -> e.getPeriod() + "-01"));
+                .collect(Collectors.groupingBy(InOutStockItemVO::getPeriod));
         List<InOutStockItemVO> groupByStockVOS;
         BigDecimal initialCount;
         BigDecimal initialAmount;
         // 计算
-        BigDecimal newInitialCount;
-        BigDecimal newInitialAmount;
         BigDecimal newInitialUnitPrice;
         // 出入库
         BigDecimal count;
@@ -375,41 +372,42 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
                 amount = groupByStockVO.getAmount();
                 unitPrice = groupByStockVO.getUnitPrice();
                 if (isOut) {
-                    newInitialCount = initialCount.subtract(count) ;
-                    newInitialAmount = initialAmount.subtract(amount) ;
+                    initialCount = initialCount.subtract(count) ;
+                    initialAmount = initialAmount.subtract(amount) ;
+                    groupByStockVO.setOutUnitPrice(unitPrice);
                     groupByStockVO.setOutCount(count);
                     groupByStockVO.setOutAmount(amount);
                 } else {
-                    newInitialCount = initialCount.add(count) ;
-                    newInitialAmount = initialAmount .add(amount) ;
+                    initialCount = initialCount.add(count) ;
+                    initialAmount = initialAmount .add(amount) ;
+                    groupByStockVO.setInUnitPrice(unitPrice);
                     groupByStockVO.setInCount(count);
                     groupByStockVO.setInAmount(amount);
                 }
-                groupByStockVO.setUnitPrice(unitPrice);
-                groupByStockVO.setBalanceCount(newInitialCount);
-                groupByStockVO.setBalanceAmount(newInitialAmount);
-                newInitialUnitPrice = newInitialAmount.divide(newInitialCount, Constant.BIGDECIMAL_ZERO, BigDecimal.ROUND_HALF_UP);
+                groupByStockVO.setBalanceCount(initialCount);
+                groupByStockVO.setBalanceAmount(initialAmount);
+                newInitialUnitPrice = initialAmount.divide(initialCount, Constant.BIGDECIMAL_ZERO, BigDecimal.ROUND_HALF_UP);
                 groupByStockVO.setBalanceUnitPrice(newInitialUnitPrice);
 
             }
-            InOutStockItemVO inOutStockItem = groupByStockVOS.get(groupByStockVOS.size() - 1);
+            InOutStockItemVO inOutStockItem = groupByStockVOS.get(groupByStockVOS.size()-1);
             inOutStockItemVO = new InOutStockItemVO();
-            BeanUtils.copyProperties(inOutStockItem, inOutStockItemVO);
             inOutStockItemVO.setStorageTypeName("本期合计");
             // 日期
-            inOutStockItemVO.setInOutTime(DatesUtil.getSupportBeginDayOfMonthToDate(inOutStockItemVO.getInOutTime()));
+            inOutStockItemVO.setPeriod(inOutStockItem.getPeriod());
+            inOutStockItemVO.setTimes(inOutStockItem.getTimes()+(24 * 3600 * 1000));
 
             // 收入数量
             BigDecimal totalInCount = groupByStockVOS
                     .stream()
-                    .map(InOutStockItemVO::getCount)
+                    .map(e->e.getInCount()==null?BigDecimal.ZERO:e.getInCount())
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
             inOutStockItemVO.setInCount(totalInCount);
             // 收入金额合计
             BigDecimal totalInAmount = groupByStockVOS
                     .stream()
-                    .map(InOutStockItemVO::getAmount)
+                    .map(e->e.getInAmount()==null?BigDecimal.ZERO:e.getInAmount())
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
             inOutStockItemVO.setInAmount(totalInAmount);
@@ -419,14 +417,14 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
             // 发出数量
             BigDecimal totalOutCount = groupByStockVOS
                     .stream()
-                    .map(InOutStockItemVO::getCount)
+                    .map(e->e.getOutCount()==null?BigDecimal.ZERO:e.getOutCount())
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
             inOutStockItemVO.setOutCount(totalOutCount);
             // 发出金额合计
             BigDecimal totalOutAmount = groupByStockVOS
                     .stream()
-                    .map(InOutStockItemVO::getAmount)
+                    .map(e->e.getOutAmount()==null?BigDecimal.ZERO:e.getOutAmount())
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
             inOutStockItemVO.setOutAmount(totalOutAmount);
@@ -444,9 +442,16 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
         List<InOutStockItemVO> collect = totalList
                 .stream()
                 .sorted(Comparator.comparing(InOutStockItemVO::getSortNo))
-                .sorted(Comparator.comparing(InOutStockItemVO::getInOutTime))
+                .sorted(Comparator.comparing(InOutStockItemVO::getTimes))
                 .collect(Collectors.toList());
+        for (InOutStockItemVO outStockItemVO : collect) {
+            int sortNo = outStockItemVO.getSortNo();
+            if (sortNo == 2) {
+                outStockItemVO.setInOutTime(null);
+            }
 
+
+        }
 
         if (collect.size() > 0) {
            return Pair.of(collect,Maps.newHashMap());

@@ -22,7 +22,9 @@ public class InOutStockItemVO implements Serializable {
 	// 标记（入库0，出库1）
 	private Integer type;
 	// 出入库日期
-	private Date inOutTime;
+	private String inOutTime;
+	// 出入库日期秒数
+	private long times;
 	// 物料批次
 	private String batch;
 	// 单据编号
