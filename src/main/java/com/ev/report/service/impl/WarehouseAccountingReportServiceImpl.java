@@ -198,6 +198,7 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
                         map.put("sign", 1);
                         // 排序号
                         map.put("sortNo", 1);
+                        map.put("period", periodParam.substring(0,7));
                         map.put("times", periodMap.get(periodParam));
                         map.put("materielName", materielIdMap.get(materielIdParam) + ConstantForReport.TOTAL_SUFFIX);
                         map.put("initialCount", initialCountForPeriod.get(materielIdParam));
@@ -219,7 +220,7 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
                     map.put("sign", ConstantForReport.COLOUR_END);
                     // 排序号
                     map.put("sortNo", 2);
-                    map.put("period", periodParam + ConstantForReport.TOTAL_SUFFIX);
+                    map.put("period", periodParam.substring(0,7) + ConstantForReport.TOTAL_SUFFIX);
                     map.put("times", periodMap.get(periodParam));
                     map.put("initialCount", initialCountForPeriod
                             .values()

@@ -405,9 +405,9 @@
 	<select id="listForMap" resultType="java.util.Map">
 		    SELECT
 		    analysis.`id` AS id,
-		    analysis.`period` AS period,
+		    LEFT(analysis.`period`,7) AS period,
 		    UNIX_TIMESTAMP(analysis.`period`) AS times,
-		    mtype.`name` AS materieTypelName,
+		    mtype.`name` AS materielTypelName,
 			analysis.`materiel_id` AS materielId,
 			materiel.serial_no AS materielSerialNo,
         	materiel.name AS materielName,
@@ -463,7 +463,7 @@
 	<select id="listForMapGroupMateriel" resultType="java.util.Map">
 		SELECT
 		analysis.`id` AS id,
-		analysis.`period` AS period,
+		LEFT(analysis.`period`,7) AS period,
 		analysis.`materiel_id` AS materielId,
 		materiel.serial_no AS materielSerialNo,
 		materiel.name AS materielName,
