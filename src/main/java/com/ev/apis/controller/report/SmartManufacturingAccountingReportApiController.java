@@ -123,7 +123,7 @@ public class SmartManufacturingAccountingReportApiController {
         }
     }
 
-    @EvApiByToken(value = "/apis/smartManufacturing/processPlan", method = RequestMethod.GET, apiTitle = "工序计划跟踪")
+    @EvApiByToken(value = "/apis/smartManufacturing/processPlan", method = RequestMethod.POST, apiTitle = "工序计划跟踪")
     @ApiOperation("工序计划跟踪")
     public R processPlan(
             @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
