@@ -1,5 +1,8 @@
 package com.ev.report.service.impl;
 
+import cn.afterturn.easypoi.entity.vo.TemplateExcelConstants;
+import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
+import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.config.Constant;
@@ -20,8 +23,12 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.ModelMap;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -717,4 +724,23 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
         }
         return null;
     }
+
+
+    @Override
+    public void  processingExport(HttpServletRequest request, HttpServletResponse response, ModelMap modelMap, String fileName, List<Map<String, Object>> dateList, String chineseName){
+        ClassPathResource classPathResource = new ClassPathResource(fileName);
+        Map<String,Object> map = Maps.newHashMap();
+        map.put("list", dateList);
+        TemplateExportParams result = new TemplateExportParams(classPathResource.getPath());
+        modelMap.put(TemplateExcelConstants.FILE_NAME, chineseName);
+        modelMap.put(TemplateExcelConstants.PARAMS, result);
+        modelMap.put(TemplateExcelConstants.MAP_DATA, map);
+        PoiBaseView.render(modelMap, request, response,
+                TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
+    }
+
+
+
+
+
 }

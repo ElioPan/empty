@@ -4,7 +4,10 @@ import com.ev.report.vo.InOutStockItemVO;
 import com.ev.report.vo.StockInItemVO;
 import com.ev.report.vo.StockOutItemVO;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.ui.ModelMap;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
 
@@ -36,4 +39,7 @@ public interface WarehouseAccountingReportService {
     Pair<List<StockOutItemVO>, Map<String, Object>> outStockItemResult(int showTotalInt, int showItemInt, String startTime, String endTime, Long materielType, Long materielId);
 
     Pair<List<Map<String,Object>>, Map<String, Object>> pickingSummaryResult(int showTotalInt, int showItemInt, String startTime, String endTime, Long deptId);
+
+    void  processingExport(HttpServletRequest request, HttpServletResponse response, ModelMap modelMap, String fileName, List<Map<String, Object>> dateList, String chineseName);
+
 }
