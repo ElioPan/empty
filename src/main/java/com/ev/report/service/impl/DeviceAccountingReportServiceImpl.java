@@ -58,13 +58,13 @@ public class DeviceAccountingReportServiceImpl implements DeviceAccountingReport
 
         // 计算停机时长
         // 维修
-        Map<Long, Double> repairManHourMap = repairRecordList
+        Map<Long, Double> repairOffHourMap = repairRecordList
                 .stream()
-                .collect(Collectors.toMap(RepairRecordDO::getDeviceId, RepairRecordDO::getManHour, Double::sum));
+                .collect(Collectors.toMap(RepairRecordDO::getDeviceId, RepairRecordDO::getOffHour, Double::sum));
         // 保养
-        Map<Long, Double> upkeepManHourMap = upkeepRecordList
+        Map<Long, Double> upkeepOffHourMap = upkeepRecordList
                 .stream()
-                .collect(Collectors.toMap(UpkeepRecordDO::getDeviceId, UpkeepRecordDO::getManHour, Double::sum));
+                .collect(Collectors.toMap(UpkeepRecordDO::getDeviceId, UpkeepRecordDO::getDownHour, Double::sum));
         Date now = new Date();
 
         // 计算巡检次数
@@ -123,14 +123,14 @@ public class DeviceAccountingReportServiceImpl implements DeviceAccountingReport
         for (Map<String, Object> map : deviceList) {
             Long id = Long.parseLong(map.get("id").toString());
             // 停机时长 计算公式：维修停机时长+保养停机时长
-            double totalManHour = Double.sum(repairManHourMap.getOrDefault(id, 0.0d), upkeepManHourMap.getOrDefault(id, 0.0d));
-            map.put("totalManHour", totalManHour);
+            double totalOffHour = Double.sum(repairOffHourMap.getOrDefault(id, 0.0d), upkeepOffHourMap.getOrDefault(id, 0.0d));
+            map.put("totalOffHour", totalOffHour);
 
             // 运行时长  计算公式：运行时长=当前日期-启用时间-停机时长
             Object usingTime = map.get("usingTime");
             double useTimeHour = 0.0d;
             if (usingTime != null) {
-                useTimeHour = DatesUtil.dateHour(Objects.requireNonNull(DateFormatUtil.getDateByParttern(usingTime.toString())), now).doubleValue() - totalManHour;
+                useTimeHour = DatesUtil.dateHour(Objects.requireNonNull(DateFormatUtil.getDateByParttern(usingTime.toString())), now).doubleValue() - totalOffHour;
 
             }
             map.put("useTimeHour", useTimeHour <= 0 ? 0 : String.format("%.2f", useTimeHour));

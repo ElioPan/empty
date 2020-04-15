@@ -614,7 +614,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         Map<String,Object> result = Maps.newHashMap();
         if (paymentForItem.size() > 0) {
             // 获取所有的用户
-            Double total = reportDao.overtimeForItemTotal(param);
+            Double total = reportDao.paymentItemTotal(param);
             if(showUser){
                 Map<String, Double> itemGroup = paymentForItem
                         .stream()
