@@ -49,6 +49,13 @@
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(plan.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
             <if test="materielSerialNo != null and materielSerialNo != ''"> and materiel.serial_no LIKE #{materielSerialNo} </if>
             <if test="status != null and status != ''"> and plan.status <![CDATA[<>]]> #{status} </if>
+            <if test="statusList != null and statusList.size()>0"> and plan.status  IN
+                <foreach item="item" collection="statusList" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
         </where>
     </sql>
 
@@ -405,6 +412,7 @@
         materiel.specification AS specification,
         unituom.`name` AS unitUomName,
         process.`name` AS processName,
+        process.`code` AS processCode,
         IFNULL(detail.`plan_end_time`, '') AS planEndTime,
         IFNULL(detail.reality_end_time, '') AS actualFinishTime,
         IFNULL(detail.plan_count, 0) AS planCount
@@ -444,6 +452,13 @@
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(plan.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
             <if test="materielSerialNo != null and materielSerialNo != ''"> and materiel.serial_no LIKE #{materielSerialNo} </if>
             <if test="status != null and status != ''"> and plan.status <![CDATA[<>]]> #{status} </if>
+            <if test="statusList != null and statusList.size()>0"> and plan.status  IN
+                <foreach item="item" collection="statusList" open="(" separator="," close=")" index="index">
+                    <if test="item!=null">
+                        #{item}
+                    </if>
+                </foreach>
+            </if>
         </where>
     </sql>
 

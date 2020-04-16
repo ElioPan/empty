@@ -167,6 +167,13 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                 passRate = conformityCount.divide(checkCount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
             }
             map.put("passRate", passRate);
+
+            // 完工率(4位小数) 完工率=完工数/计划数
+            BigDecimal completionRate = BigDecimal.ZERO;
+            if (planCount.compareTo(BigDecimal.ZERO) > 0) {
+                completionRate = completionCount.divide(planCount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+            }
+            map.put("completionRate", completionRate.multiply(BigDecimal.valueOf(100L)));
         }
         return Pair.of(data, totalMap);
     }
