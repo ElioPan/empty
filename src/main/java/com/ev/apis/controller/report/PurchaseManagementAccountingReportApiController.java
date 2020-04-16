@@ -48,6 +48,7 @@ public class PurchaseManagementAccountingReportApiController {
             @ApiParam(value = "供应商") @RequestParam(value = "supplierName", defaultValue = "", required = false) String supplierName,
             @ApiParam(value = "物料类型") @RequestParam(value = "materielType", defaultValue = "", required = false) Long materielType,
             @ApiParam(value = "部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
+            @ApiParam(value = "合同编号") @RequestParam(value = "contractCode", defaultValue = "", required = false) String contractCode,
             @ApiParam(value = "采购员") @RequestParam(value = "userId", defaultValue = "", required = false) Long userId,
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
             @ApiParam(value = "要显示详情 1是0否", required = true) @RequestParam(value = "showItem", defaultValue ="1") Integer showItem,
@@ -61,6 +62,7 @@ public class PurchaseManagementAccountingReportApiController {
         params.put("supplierName", StringUtils.sqlLike(supplierName));
         params.put("materielType", materielType);
         params.put("deptId", deptId);
+        params.put("contractCode", contractCode);
         params.put("userId", userId);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
@@ -79,6 +81,7 @@ public class PurchaseManagementAccountingReportApiController {
             @ApiParam(value = "物料类型") @RequestParam(value = "materielType", defaultValue = "", required = false) Long materielType,
             @ApiParam(value = "部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
             @ApiParam(value = "采购员") @RequestParam(value = "userId", defaultValue = "", required = false) Long userId,
+            @ApiParam(value = "合同编号") @RequestParam(value = "contractCode", defaultValue = "", required = false) String contractCode,
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
             @ApiParam(value = "要显示详情 1是0否", required = true) @RequestParam(value = "showItem", defaultValue ="1") Integer showItem,
             @ApiParam(value = "要显示小计 1是0否", required = true) @RequestParam(value = "showUser", defaultValue = "1") Integer showUser,
@@ -90,6 +93,7 @@ public class PurchaseManagementAccountingReportApiController {
         params.put("materielType", materielType);
         params.put("deptId", deptId);
         params.put("userId", userId);
+        params.put("contractCode", contractCode);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
         params.put("auditSign", ConstantForMES.OK_AUDITED);

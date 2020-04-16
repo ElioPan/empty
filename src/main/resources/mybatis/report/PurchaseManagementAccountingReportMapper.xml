@@ -42,6 +42,7 @@
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(purchase.contract_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
             <if test="supplierName != null and supplierName != ''"> and supplier.`name` LIKE #{supplierName} </if>
             <if test="supplierId != null and supplierId != ''"> and supplier.`id` = #{supplierId} </if>
+            <if test="contractCode != null and contractCode != ''"> and purchase.`contract_code` = #{contractCode} </if>
             <if test="materielType != null and materielType != ''"> and materiel.`type` = #{materielType} </if>
             <if test="userId != null and userId != ''"> and purchase.buyer = #{userId} </if>
             <if test="auditSign != null and auditSign != ''"> and purchase.audit_sign = #{auditSign} </if>
