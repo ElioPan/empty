@@ -435,6 +435,7 @@ public class UserServiceImpl implements UserService {
                 weChatService.deleteUser(user.getUsername());
             }
         }
+        //TODO
         return count;
     }
 

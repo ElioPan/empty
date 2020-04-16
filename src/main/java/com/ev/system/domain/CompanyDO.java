@@ -99,17 +99,4 @@ public class CompanyDO implements Serializable {
     @ApiModelProperty(value = "删除标志",hidden = true)
 	private Integer delFlag;
 
-	@ApiModelProperty(value = "是否启用企业微信(1是，0否）")
-	private String usingStatus;
-	@ApiModelProperty(value = "应用id")
-	private String useId;
-	@ApiModelProperty(value = "企业id")
-	private String enterpriseId;
-	@ApiModelProperty(value = "应用程序秘密")
-	private String appSecrect;
-	@ApiModelProperty(value = "同步通讯录Secrect")
-	private String addressBook;
-	@ApiModelProperty(value = "手机端URL")
-	private String mobileUrl;
-
 }
