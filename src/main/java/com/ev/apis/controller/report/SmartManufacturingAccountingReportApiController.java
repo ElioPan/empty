@@ -64,7 +64,7 @@ public class SmartManufacturingAccountingReportApiController {
         params.put("deptId", deptId);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
-        params.put("materielSerialNo", StringUtils.sqlLike(materielSerialNo));
+        params.put("materielSerialNo", materielSerialNo);
         // 非计划状态下的单据
         params.put("status", ConstantForMES.PLAN);
         // 统计合计数量
@@ -103,7 +103,7 @@ public class SmartManufacturingAccountingReportApiController {
         params.put("deptId", deptId);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
-        params.put("materielSerialNo", StringUtils.sqlLike(materielSerialNo));
+        params.put("materielSerialNo", materielSerialNo);
         // 非计划状态下的单据
         params.put("status", ConstantForMES.PLAN);
 
