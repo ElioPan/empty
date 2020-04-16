@@ -4,7 +4,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
 
 
 /**
@@ -23,7 +22,7 @@ public class ProcessReportVO implements Serializable {
 	//报工单号
 	private String code;
 	//派单时间 (汇报时间)
-	private Date createTime;
+	private String createTime;
 	//工序名
 	private String processName;
 	//工单明细主键

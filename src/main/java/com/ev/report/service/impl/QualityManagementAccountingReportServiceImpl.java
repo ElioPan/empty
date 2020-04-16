@@ -189,6 +189,7 @@ public class QualityManagementAccountingReportServiceImpl implements QualityMana
                         totalMap.put("sign",1);
                         totalMap.put("sortNo",processIdParam);
                         totalMap.put("deptId",deptIdParam);
+                        totalMap.put("deptName",deptNameMap.get(deptIdParam));
                         totalMap.put("processName", processNameMap.get(processIdParam)+ConstantForReport.TOTAL_SUFFIX);
                         totalMap.put("processId",processIdParam);
                         totalMap.put("rejectsCount",rejectsCount);
@@ -247,7 +248,7 @@ public class QualityManagementAccountingReportServiceImpl implements QualityMana
             int max = Integer.parseInt(
                     badProductLists
                             .stream()
-                            .max(Comparator.comparing(e->Integer.parseInt(e.getOrDefault("processId",0).toString())))
+                            .max(Comparator.comparing(e->Integer.parseInt(e.getOrDefault("materielId",0).toString())))
                             .get()
                             .get("materielId")
                             .toString()
@@ -270,10 +271,10 @@ public class QualityManagementAccountingReportServiceImpl implements QualityMana
                             , v -> v.get("deptName").toString()
                             , (v1, v2) -> v1));
 
-            Map<String, String> materielNameMap = badProductLists
+            Map<String, Map<String, Object>> materielNameMap = badProductLists
                     .stream()
                     .collect(Collectors.toMap(k -> k.get("materielId").toString()
-                            , v -> v.get("materielName").toString()
+                            , v -> v
                             , (v1, v2) -> v1));
             if (showDeptTotal) {
                 Map<String, Object> map;
@@ -281,7 +282,7 @@ public class QualityManagementAccountingReportServiceImpl implements QualityMana
                     map = Maps.newHashMap();
                     // 最后一层小计赋end
                     map.put("sign",ConstantForReport.COLOUR_END);
-                    map.put("sortNo", max);
+                    map.put("sortNo", 1);
 
                     map.put("deptId", s);
                     map.put("deptName", deptNameMap.get(s) + ConstantForReport.TOTAL_SUFFIX);
@@ -302,15 +303,18 @@ public class QualityManagementAccountingReportServiceImpl implements QualityMana
                 for (String deptIdParam : priceGroupByDeptAndMateriel.keySet()) {
                     groupByDept = priceGroupByDeptAndMateriel.get(deptIdParam);
                     for (String materielIdParam : groupByDept.keySet()) {
-                        totalMap = Maps.newHashMap();
+                        totalMap = Maps.newHashMap(materielNameMap.get(materielIdParam));
                         BigDecimal unqualifiedCount = groupByDept.getOrDefault(materielIdParam,BigDecimal.ZERO);
                         // 部门总计标end 工序总计标1 详情标0
                         totalMap.put("sign",1);
-                        totalMap.put("sortNo",materielIdParam);
+                        totalMap.put("sortNo",2);
                         totalMap.put("deptId",deptIdParam);
-                        totalMap.put("materielName", materielNameMap.get(materielIdParam)+ConstantForReport.TOTAL_SUFFIX);
+                        totalMap.put("deptName",deptNameMap.get(deptIdParam));
+                        totalMap.put("materielName", totalMap.get("materielName")+ConstantForReport.TOTAL_SUFFIX);
                         totalMap.put("materielId",materielIdParam);
                         totalMap.put("unqualifiedCount",unqualifiedCount);
+                        totalMap.remove("poorName");
+                        totalMap.remove("batch");
                         showList.add(totalMap);
                     }
                 }
