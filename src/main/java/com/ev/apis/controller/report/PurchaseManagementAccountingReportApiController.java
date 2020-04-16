@@ -214,7 +214,7 @@ public class PurchaseManagementAccountingReportApiController {
         params.put("userId", userId);
         params.put("endTime", endTime);
         R r =  reportService.disposeBalance(params,showItem,showUser);
-        if(r.containsKey("ultimatelyDate")){
+        if(!r.containsKey("ultimatelyDate")){
             return ;
         }
         Object dateList = r.get("ultimatelyDate");
