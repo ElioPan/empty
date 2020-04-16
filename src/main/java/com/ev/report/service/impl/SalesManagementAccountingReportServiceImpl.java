@@ -195,6 +195,7 @@ public class SalesManagementAccountingReportServiceImpl implements SalesManageme
                         totalMap.put("contractDate", map.getOrDefault("contractDate", ""));
                         totalMap.put("deptName", map.getOrDefault("deptName", ""));
                         totalMap.put("clientName", map.getOrDefault("clientName", ""));
+                        totalMap.put("userName", map.getOrDefault("userName", ""));
                         BigDecimal count = totalSalesCountGroup.getOrDefault(sourceCode, BigDecimal.ZERO);
                         totalMap.put("count", count);
                         totalMap.put("taxAmount", totalSalesAmountGroup.getOrDefault(sourceCode, BigDecimal.ZERO));

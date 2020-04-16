@@ -20,7 +20,9 @@ public class StockOutItemVO implements Serializable {
 	
 	private Long id;
 	//领料日期
-	private Date outTime;
+	private String outTime;
+	//领料日期
+	private Date outTimeParam;
 	//生产领料单号
 	private String stockOutCode;
 	// 单据类型

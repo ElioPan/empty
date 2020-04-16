@@ -492,28 +492,33 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
                             , BigDecimal::add));
 
             // 物料名
-            Map<Long, String> materielMap = stockInItemVOS
+            Map<Long, StockInItemVO> materielMap = stockInItemVOS
                     .stream()
                     .collect(Collectors.toMap(
                             StockInItemVO::getMaterielId
-                            , StockInItemVO::getMaterielName
+                            , v -> v
                             , (v1, v2) -> v1));
             // 获取最大一个时间
-            long maxTime = Objects.requireNonNull(DateFormatUtil.getDateByParttern(endTime, "yyyy-MM-dd")).getTime();
+            long maxTime = Objects.requireNonNull(DateFormatUtil.getDateByParttern(endTime==null?"2099-12-31":endTime, "yyyy-MM-dd")).getTime();
 
             maxTime = maxTime + (24 * 3600 * 1000);
 
             if (showTotal) {
+                StockInItemVO stockInItemParam;
                 StockInItemVO stockInItemVO;
                 for (Long materiel : amountMap.keySet()) {
+                    stockInItemParam = materielMap.get(materiel);
                     stockInItemVO = new StockInItemVO();
                     stockInItemVO.setMaterielId(materiel);
                     stockInItemVO.setCount(countMap.get(materiel));
                     stockInItemVO.setAmount(amountMap.get(materiel));
-                    stockInItemVO.setInOutTime(new Date(maxTime));
+                    stockInItemVO.setInOutTimeParam(new Date(maxTime));
                     // 标记颜色
                     stockInItemVO.setSign(ConstantForReport.COLOUR_END);
-                    stockInItemVO.setMaterielName(materielMap.get(materiel) + ConstantForReport.TOTAL_SUFFIX);
+                    stockInItemVO.setMaterielName(stockInItemParam.getMaterielName() + ConstantForReport.TOTAL_SUFFIX);
+                    stockInItemVO.setSerialNo(stockInItemParam.getSerialNo());
+                    stockInItemVO.setSpecification(stockInItemParam.getSpecification());
+                    stockInItemVO.setUnitUomName(stockInItemParam.getUnitUomName());
                     // 排序号
                     stockInItemVO.setSortNo(1);
 
@@ -525,12 +530,12 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
             }
             List<StockInItemVO> collect = showList.stream()
                     .sorted(Comparator.comparing(StockInItemVO::getSortNo))
-                    .sorted(Comparator.comparing(StockInItemVO::getInOutTime))
+                    .sorted(Comparator.comparing(StockInItemVO::getInOutTimeParam))
                     .sorted(Comparator.comparing(StockInItemVO::getMaterielId))
                     .collect(Collectors.toList());
 
             for (StockInItemVO stockInItemVO : collect) {
-                long time = stockInItemVO.getInOutTime().getTime();
+                long time = stockInItemVO.getInOutTimeParam().getTime();
                 if (time == maxTime) {
                     stockInItemVO.setInOutTime(null);
                 }
@@ -590,29 +595,34 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
                             , BigDecimal::add));
 
             // 物料名
-            Map<Long, String> materielMap = StockOutItemVOS
+            Map<Long, StockOutItemVO> materielMap = StockOutItemVOS
                     .stream()
                     .collect(Collectors.toMap(
                             StockOutItemVO::getMaterielId
-                            , StockOutItemVO::getMaterielName
+                            , v -> v
                             , (v1, v2) -> v1));
             // 获取最大一个时间
-            long maxTime = Objects.requireNonNull(DateFormatUtil.getDateByParttern(endTime, "yyyy-MM-dd")).getTime();
+            long maxTime = Objects.requireNonNull(DateFormatUtil.getDateByParttern(endTime==null?"2099-12-31":endTime, "yyyy-MM-dd")).getTime();
 
             maxTime = maxTime + (24 * 3600 * 1000);
 
             if (showTotal) {
                 StockOutItemVO stockOutItemVO;
+                StockOutItemVO stockOutItemParam;
                 for (Long materiel : amountMap.keySet()) {
+                    stockOutItemParam = materielMap.get(materiel);
                     stockOutItemVO = new StockOutItemVO();
                     stockOutItemVO.setCount(countMap.get(materiel));
                     stockOutItemVO.setAmount(amountMap.get(materiel));
-                    stockOutItemVO.setOutTime(new Date(maxTime));
+                    stockOutItemVO.setOutTimeParam(new Date(maxTime));
                     // 标记颜色
                     stockOutItemVO.setSign(ConstantForReport.COLOUR_END);
 
-                    stockOutItemVO.setMaterielName(materielMap.get(materiel) + ConstantForReport.TOTAL_SUFFIX);
+                    stockOutItemVO.setMaterielName(stockOutItemParam.getMaterielName() + ConstantForReport.TOTAL_SUFFIX);
                     stockOutItemVO.setMaterielId(materiel);
+                    stockOutItemVO.setSerialNo(stockOutItemParam.getSerialNo());
+                    stockOutItemVO.setSpecification(stockOutItemParam.getSpecification());
+                    stockOutItemVO.setUnitUomName(stockOutItemParam.getUnitUomName());
                     // 排序号
                     stockOutItemVO.setSortNo(1);
 
@@ -624,16 +634,9 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
             }
             List<StockOutItemVO> collect = showList.stream()
                     .sorted(Comparator.comparing(StockOutItemVO::getSortNo))
-                    .sorted(Comparator.comparing(StockOutItemVO::getOutTime))
+                    .sorted(Comparator.comparing(StockOutItemVO::getOutTimeParam))
                     .sorted(Comparator.comparing(StockOutItemVO::getMaterielId))
                     .collect(Collectors.toList());
-
-            for (StockOutItemVO StockOutItemVO : collect) {
-                long time = StockOutItemVO.getOutTime().getTime();
-                if (time == maxTime) {
-                    StockOutItemVO.setOutTime(null);
-                }
-            }
 
             // 合计项
             BigDecimal totalCount = countMap

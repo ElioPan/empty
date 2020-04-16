@@ -191,12 +191,15 @@ public class OutsourcedManagementAccountingReportServiceImpl implements Outsourc
                         totalMap = Maps.newHashMap();
                         totalMap.put("outsourcingContractId", sourceId);
                         totalMap.put("contractCode", sourceCode + ConstantForReport.TOTAL_SUFFIX);
+                        totalMap.put("userName", map.getOrDefault("userName", ""));
                         totalMap.put("contractDate", map.getOrDefault("contractDate", ""));
                         totalMap.put("deptName", map.getOrDefault("deptName", ""));
                         totalMap.put("supplierName", map.getOrDefault("supplierName", ""));
                         BigDecimal count = totalSalesCountGroup.getOrDefault(sourceCode, BigDecimal.ZERO);
                         totalMap.put("count", count);
                         BigDecimal inCount = totalStockCountGroup.getOrDefault(sourceCode, BigDecimal.ZERO);
+                        totalMap.put("taxAmount", totalSalesAmountGroup.getOrDefault(sourceCode, BigDecimal.ZERO));
+
                         totalMap.put("inCount", inCount);
                         totalMap.put("unInCount", count.subtract(inCount));
                         totalMap.put("inAmount", totalStockAmountGroup.getOrDefault(sourceCode, BigDecimal.ZERO));

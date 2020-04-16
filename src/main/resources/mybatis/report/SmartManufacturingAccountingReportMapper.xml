@@ -261,7 +261,8 @@
         SELECT
         item.`id`,
         item.`inhead_id`,
-        stock.in_out_time,
+        stock.in_out_time AS inOutTime,
+        stock.in_out_time AS inOutTimeParam,
         stock.inhead_code AS stockInCode,
         dict.name AS documentType,
         item.`materiel_id`,
@@ -334,6 +335,7 @@
         SELECT
         item.`id`,
         stock.out_time AS outTime,
+        stock.out_time AS outTimeParam,
         stock.out_code AS stockOutCode,
         dict.name AS documentType,
         item.`materiel_id`,

@@ -22,7 +22,9 @@ public class StockInItemVO implements Serializable {
 	//主表主键
 	private Long inheadId;
 	// 入库时间
-	private Date inOutTime;
+	private String inOutTime;
+	// 入库时间
+	private Date inOutTimeParam;
 	// 入库单号
 	private String stockInCode;
 	// 单据类型
