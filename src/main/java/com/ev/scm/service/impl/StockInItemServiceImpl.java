@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -343,16 +342,17 @@ public class StockInItemServiceImpl implements StockInItemService {
 				stockDO.setUnitPrice((mapDertails.containsKey("unitPrice")?new BigDecimal(mapDertails.get("unitPrice").toString()):BigDecimal.ZERO));
 				stockDO.setAmount((mapDertails.containsKey("amount")?new BigDecimal(mapDertails.get("amount").toString()):BigDecimal.ZERO)) ;
 
-				stockDO.setSourceCompany(Long.parseLong(mapDertails.containsKey("sourceCompany")?mapDertails.get("sourceCompany").toString():"0"));
-				stockDO.setWarehouse(Long.parseLong(mapDertails.containsKey("warehouse")?mapDertails.get("warehouse").toString():null));
-				stockDO.setWarehLocation(Long.parseLong(mapDertails.containsKey("warehLocation")?mapDertails.get("warehLocation").toString():"0"));
+				stockDO.setSourceCompany(mapDertails.containsKey("sourceCompany")?Long.parseLong(mapDertails.get("sourceCompany").toString()):null);
+				stockDO.setWarehouse(mapDertails.containsKey("warehouse")?Long.parseLong(mapDertails.get("warehouse").toString()):null);
+				stockDO.setWarehLocation(mapDertails.containsKey("warehLocation")?Long.parseLong(mapDertails.get("warehLocation").toString()):null);
+
 				int saveRows = stockService.save(stockDO);
 				if (saveRows > 0) {
 					//保存库存明细表
 					StockItemDO stockItemDo = new StockItemDO();
 					stockItemDo.setStockId(stockDO.getId());
-					stockItemDo.setInheadId(Long.parseLong(mapDertails.containsKey("headId")?mapDertails.get("headId").toString():"0"));
-					stockItemDo.setInheadId(Long.parseLong(mapDertails.containsKey("inbodyId")?mapDertails.get("headId").toString():"0"));
+					stockItemDo.setInheadId(Long.parseLong(mapDertails.containsKey("headId")?mapDertails.get("headId").toString():null));
+					stockItemDo.setInheadId(Long.parseLong(mapDertails.containsKey("inbodyId")?mapDertails.get("headId").toString():null));
 
 					//入库类型 stragoeType
 					stockItemDo.setInOutType(Long.parseLong(mapDertails.containsKey("storageType")?mapDertails.get("storageType").toString():null));

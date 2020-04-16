@@ -90,7 +90,7 @@
 		  		  <if test="id != null and id != ''"> and record.id = #{id} </if>
 		  		  <if test="deviceId != null and deviceId != ''"> and device.`id` = #{deviceId} and (record.status = 115 OR record.status = 116)</if>
 		  		  <if test="deviceSerialno != null and deviceSerialno != ''"> and device.`serialno` LIKE CONCAT('%',CONCAT(#{deviceSerialno},'%'))</if>
-		  		  <if test="divceName != null and divceName != ''"> and device.`name` LIKE CONCAT('%',CONCAT(#{divceName},'%'))</if>
+		  		  <if test="deviceName != null and deviceName != ''"> and device.`name` LIKE CONCAT('%',CONCAT(#{deviceName},'%'))</if>
 		  		  <if test="deviceQuery != null and deviceQuery != ''"> and CONCAT(device.`name`,device.`serialno`) LIKE CONCAT('%',CONCAT(#{deviceQuery},'%'))</if>
 		  		  <if test="type != null and type != ''"> and record.type = #{type} </if>
 		  		  <if test="usage != null and usage != ''"> and record.usage = #{usage} </if>
@@ -138,7 +138,7 @@
 		  		  <if test="id != null and id != ''"> and record.id = #{id} </if>
 		  		   <if test="deviceId != null and deviceId != ''"> and device.`id` = #{deviceId} and (record.status = 115 OR record.status = 116)</if>
 		  		  <if test="deviceSerialno != null and deviceSerialno != ''"> and device.`serialno` LIKE CONCAT('%',CONCAT(#{deviceSerialno},'%'))</if>
-		  		  <if test="divceName != null and divceName != ''"> and device.`name` LIKE CONCAT('%',CONCAT(#{divceName},'%'))</if>
+		  		  <if test="deviceName != null and deviceName != ''"> and device.`name` LIKE CONCAT('%',CONCAT(#{deviceName},'%'))</if>
 		  		  <if test="deviceQuery != null and deviceQuery != ''"> and CONCAT(device.`name`,device.`serialno`) LIKE CONCAT('%',CONCAT(#{deviceQuery},'%'))</if>
 		  		  <if test="type != null and type != ''"> and record.type = #{type} </if>
 		  		  <if test="usage != null and usage != ''"> and record.usage = #{usage} </if>

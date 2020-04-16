@@ -44,7 +44,7 @@ public class ScmOtherInStockApiController {
     @EvApiByToken(value = "/apis/scm/otherInStock/saveAndChange", method = RequestMethod.POST, apiTitle = "新增/修改—其他入库")
     @ApiOperation("新增/修改—其他入库")
     @Transactional(rollbackFor = Exception.class)
-    public R getMenus(StockInDO stockInDO,
+    public R addAndEdit(StockInDO stockInDO,
 //                      @ApiParam(value = "入库类型id:", required = true) @RequestParam(value = "inStockTypeId", required = true) int  inStockTypeId,
                       @ApiParam(value = "产品/物料明细行[\n" +
                               "{\"materielId\":2,\n" +
@@ -96,6 +96,7 @@ public class ScmOtherInStockApiController {
                                  @ApiParam(value = "单据编号") @RequestParam(value = "inheadCode", defaultValue = "", required = false) String inheadCode,
 
                                  @ApiParam(value = "供应商（模糊）") @RequestParam(value = "sourceCompanyName", defaultValue = "", required = false) String sourceCompanyName,
+                                 @ApiParam(value = "供应商id") @RequestParam(value = "sourceCompany", defaultValue = "", required = false) Long sourceCompany,
                                  @ApiParam(value = "物料名（模糊）") @RequestParam(value = "materielName", defaultValue = "", required = false) String materielName,
                                  @ApiParam(value = "入库起始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
                                  @ApiParam(value = "入库截止时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
@@ -114,7 +115,8 @@ public class ScmOtherInStockApiController {
         params.put("offset", (pageno - 1) * pagesize);
         params.put("limit", pagesize);
         params.put("inheadCode", inheadCode);
-        params.put("supplierName", sourceCompanyName);
+//        params.put("supplierName", sourceCompanyName);
+        params.put("sourceCompany", sourceCompany);
         params.put("materielName",materielName );
         params.put("startTime", startTime);
         params.put("endTime", endTime);

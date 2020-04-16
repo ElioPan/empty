@@ -602,22 +602,23 @@ public class StockOutServiceImpl implements StockOutService {
         // 获取所有的库存明细变化
         List<StockItemDO> stockDetailDO = stockItemService.list(param);
 
-//        List<Long> removeStockIds = Lists.newArrayList();
+        List<Long> removeStockIds = Lists.newArrayList();
         List<Long> stockIds = Lists.newArrayList();
         List<StockDO> batchUpdateStockDO = Lists.newArrayList();
         for (StockItemDO stockDetail : stockDetailDO) {
             BigDecimal stockDetailCount = stockDetail.getCount();
-//            if (stockDetailCount.compareTo(BigDecimal.ZERO) > 0) {
-//                removeStockIds.add(stockDetail.getStockId());
-//            }
+            // 调拨
+            if (stockDetailCount.compareTo(BigDecimal.ZERO) > 0) {
+                removeStockIds.add(stockDetail.getStockId());
+            }
             // 若是库存明细表中数量为负数则是出库操作，则进行修改操作将已经出库的操作撤回
             if (stockDetailCount.compareTo(BigDecimal.ZERO) < 0) {
                 stockIds.add(stockDetail.getStockId());
             }
         }
-//        if (removeStockIds.size() > 0) {
-//            stockService.batchRemove(removeStockIds.toArray(new Long[0]));
-//        }
+        if (removeStockIds.size() > 0) {
+            stockService.batchRemove(removeStockIds.toArray(new Long[0]));
+        }
         List<StockDO> stockList = materielService.stockList(stockIds);
         for (StockItemDO stockDetail : stockDetailDO) {
             BigDecimal detailCount = stockDetail.getCount();
