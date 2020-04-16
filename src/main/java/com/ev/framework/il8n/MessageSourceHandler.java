@@ -16,7 +16,7 @@ public class MessageSourceHandler {
     private MessageSource messageSource;
 
     public String getMessage(String messageKey,String[] args) {
-        String message = messageSource.getMessage(messageKey, args, RequestContextUtils.getLocale(request));
+        String message = messageSource.getMessage("common.prefix", args, RequestContextUtils.getLocale(request))+messageSource.getMessage(messageKey, args, RequestContextUtils.getLocale(request));
         return message;
     }
 }
