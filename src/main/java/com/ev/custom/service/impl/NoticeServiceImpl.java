@@ -103,7 +103,9 @@ public class NoticeServiceImpl implements NoticeService{
 		/**
 		 * 往rabbit发送队列消息
 		 */
-		sendMessage(noticeEntity);
+		if(weChatService.checkIsUse()){
+			sendMessage(noticeEntity);
+		}
 	}
 
 	/**

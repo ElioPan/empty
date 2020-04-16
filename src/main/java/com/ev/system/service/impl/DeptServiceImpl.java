@@ -47,7 +47,9 @@ public class DeptServiceImpl implements DeptService {
 	public int save(DeptDO sysDept) throws IOException, ParseException {
 		int count = sysDeptMapper.save(sysDept);
 		//同步企业微信部门信息
-		weChatService.createDepartment(sysDept);
+		if(weChatService.checkIsUse()){
+			weChatService.createDepartment(sysDept);
+		}
 		return count;
 	}
 
@@ -55,7 +57,9 @@ public class DeptServiceImpl implements DeptService {
 	public int update(DeptDO sysDept) throws IOException, ParseException {
 		int count = sysDeptMapper.update(sysDept);
 		//同步企业微信部门信息
-		weChatService.updateDeptment(sysDept);
+		if(weChatService.checkIsUse()){
+			weChatService.updateDeptment(sysDept);
+		}
 		return count;
 	}
 

@@ -1,6 +1,9 @@
 package com.ev.system.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,10 +16,23 @@ import com.ev.system.service.SettingService;
 
 
 @Service
+@CacheConfig(cacheNames ="setting")
 public class SettingServiceImpl implements SettingService {
 
 	@Autowired
 	SettingDao settingDao;
+
+	/**
+	 * 通过key获取
+	 *
+	 * @param key
+	 * @return
+	 */
+	@Override
+	@Cacheable(key = "#key")
+	public String getSettingValue(String key) {
+		return settingDao.get(key)==null?null:settingDao.get(key).getValue();
+	}
 
 	/**
 	 * 通过key获取
@@ -36,6 +52,7 @@ public class SettingServiceImpl implements SettingService {
 	 * @return
 	 */
 	@Override
+	@CacheEvict(key = "#setting.key")
 	public SettingDO saveOrUpdate(SettingDO setting) {
 		if(settingDao.get(setting.getKey()) ==null){
 			settingDao.save(setting);

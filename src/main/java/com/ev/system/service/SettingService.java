@@ -18,7 +18,13 @@ public interface SettingService {
 	 * @param key
 	 * @return
 	 */
-	@Cacheable(cacheNames ="setting", key = "#key")
+	String getSettingValue(String key);
+
+	/**
+	 * 通过key获取
+	 * @param key
+	 * @return
+	 */
 	SettingDO get(String key);
 
 	/**
@@ -26,6 +32,5 @@ public interface SettingService {
 	 * @param setting
 	 * @return
 	 */
-	@CacheEvict(key = "#setting.key")
 	SettingDO saveOrUpdate(SettingDO setting);
 }

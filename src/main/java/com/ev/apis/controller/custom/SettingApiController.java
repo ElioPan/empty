@@ -10,6 +10,7 @@ import com.ev.system.domain.SettingDO;
 import com.ev.system.service.SettingService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.coyote.http2.Setting;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,11 +37,11 @@ public class SettingApiController {
     @EvApiByToken(value = "/weChat/detail", method = RequestMethod.GET, apiTitle = "查看企业微信配置信息")
     @ApiOperation(value = "查看企业微信配置信息")
     public R getWeChatSetting() {
-        SettingDO setting = settingService.get(ConstantForSYS.QIYE_WECHAT_SETTING);
-        if(setting==null|| StringUtils.isBlank(setting.getValue())){
+        String settingValue = settingService.getSettingValue(ConstantForSYS.QIYE_WECHAT_SETTING);
+        if(settingValue==null|| StringUtils.isBlank(settingValue)){
             return R.error("配置不存在");
         }
-        WeChatSettingEntity weChatSetting = JSON.toJavaObject(JSON.parseObject(setting.getValue()),WeChatSettingEntity.class);
+        WeChatSettingEntity weChatSetting = JSON.toJavaObject(JSON.parseObject(settingValue),WeChatSettingEntity.class);
         Map<String,Object> result = new HashMap<>();
         result.put("data", weChatSetting);
         return R.ok(result);
