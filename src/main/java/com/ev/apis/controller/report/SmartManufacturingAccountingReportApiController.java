@@ -228,7 +228,7 @@ public class SmartManufacturingAccountingReportApiController {
                 TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
     }
 
-    @EvApiByToken(value = "/apis/exportExcel/pieceRate", method = RequestMethod.POST, apiTitle = "计件工资统计")
+    @EvApiByToken(value = "/apis/smartManufacturing/pieceRate", method = RequestMethod.POST, apiTitle = "计件工资统计")
     @ApiOperation("计件工资统计")
     public R pieceRateGroup(
             CommonVO commonVO
