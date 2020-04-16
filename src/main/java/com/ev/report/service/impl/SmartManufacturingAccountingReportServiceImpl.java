@@ -332,7 +332,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
             if (checkCount.compareTo(BigDecimal.ZERO) > 0) {
                 passRate = conformityCount.divide(checkCount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
             }
-            map.put("passRate", passRate);
+            map.put("passRate", passRate.multiply(BigDecimal.valueOf(100L)));
 
             // 完工入库（工序计划关联下的生产入库数量）
             BigDecimal stockInCount = stockInCountMap.getOrDefault(planId, BigDecimal.ZERO);
