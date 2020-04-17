@@ -23,23 +23,13 @@ public interface AgendaAccountingReportService {
 
     R overtime(CommonVO commonVO);
 
-    R overtimeItem(CommonVO commonVO);
-
     R leaveGroup(CommonVO commonVO);
-
-    R leaveTypeGroup(CommonVO commonVO);
 
     R leave(CommonVO commonVO, Long typeId);
 
-    R applyForReimbursement(CommonVO commonVO, Long typeId);
-
     R applyForReimbursementGroup(CommonVO commonVO);
 
-    R applyForReimbursementTypeGroup(CommonVO commonVO);
-
     R payment(CommonVO commonVO);
-
-    R paymentItem(CommonVO commonVO);
 
     List<UserForReportVO> getUserList(Map<String, Object> param);
 

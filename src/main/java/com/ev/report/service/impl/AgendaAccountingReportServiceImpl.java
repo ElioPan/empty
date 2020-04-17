@@ -255,27 +255,22 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                 Map<String, BigDecimal> itemGroup = overtimeForItem
                         .stream()
                         .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> MathUtils.getBigDecimal(v.get("totalCount").toString()), BigDecimal::add));
-                Map<String, String> userMap = overtimeForItem
+                Map<String, Map<String, Object>> itemMap = overtimeForItem
                         .stream()
-                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("name").toString(), (v1,v2)->v1));
-                Map<String, String> deptNameMap = overtimeForItem
-                        .stream()
-                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("deptName").toString(), (v1,v2)->v1));
-                Map<String, String> deptIdMap = overtimeForItem
-                        .stream()
-                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("deptId").toString(), (v1,v2)->v1));
+                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v, (v1,v2)->v1));
 
                 Map<String, Object> map;
                 for (String userId : itemGroup.keySet()) {
                     map = Maps.newHashMap();
                     BigDecimal totalCount = itemGroup.get(userId);
+                    Map<String, Object> item = itemMap.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
                     map.put("sign",ConstantForReport.COLOUR_END);
-                    map.put("name", userMap.get(userId) + ConstantForReport.TOTAL_SUFFIX);
                     map.put("sortNo", 1);
-                    map.put("deptName", deptNameMap.get(userId));
-                    map.put("deptId", deptIdMap.get(userId));
+                    map.put("name", item.get("name") + ConstantForReport.TOTAL_SUFFIX);
+                    map.put("deptName", item.get("deptName"));
+                    map.put("deptId", item.get("deptId"));
                     map.put("totalCount", totalCount == null ? 0 : totalCount);
                     showList.add(map);
                 }
@@ -294,43 +289,14 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         return R.ok(result);
     }
 
-    @Override
-    public R overtimeItem(CommonVO commonVO) {
-        Long userId = commonVO.getUserId();
-        if (userId == null) {
-            return R.ok();
-        }
-        String startTime = commonVO.getStartTime();
-        String endTime = commonVO.getEndTime();
-        Map<String, Object> param = Maps.newHashMap();
-        param.put("userId", userId);
-        param.put("status", Constant.APPLY_COMPLETED);
-        param.put("startTime", startTime);
-        param.put("endTime", endTime);
-        List<Map<String, Object>> overtimeForItem = reportDao.overtimeForItem(param);
-        Map<String, Object> result = Maps.newHashMap();
-        if (overtimeForItem.size() > 0) {
-            List<Map<String, Object>> overtimeForItemList = PageUtils.startPage(overtimeForItem, commonVO.getPageno(), commonVO.getPagesize());
-            result.put("data", new DsResultResponse(commonVO.getPageno(), commonVO.getPagesize(), overtimeForItem.size(), overtimeForItemList));
-        }
-        return R.ok(result);
-    }
 
     @Override
     public R leaveGroup(CommonVO commonVO) {
-//        int pageNo = commonVO.getPageno();
-//        int pageSize = commonVO.getPagesize();
         boolean showItem = commonVO.getShowItem() == 1;
         boolean showType = commonVO.getShowType() == 1;
         boolean showUser = commonVO.getShowUser() == 1;
         Long userIdInfo = commonVO.getUserId();
         Long deptIdInfo = commonVO.getDeptId();
-//        Triple<List<UserForReportVO>, List<Long>, List<Long>> userInfo = this.getUserInfo(pageNo, pageSize, userIdInfo, deptIdInfo);
-//        if (userInfo == null) {
-//            return R.ok();
-//        }
-//        List<Long> userIds = userInfo.getMiddle();
-//        List<Long> userAllIds = userInfo.getRight();
 
         Map<String, Object> param = Maps.newHashMap();
         String startTime = commonVO.getStartTime();
@@ -365,27 +331,22 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                 Map<String, BigDecimal> itemGroup = leaveForItem
                         .stream()
                         .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> MathUtils.getBigDecimal(v.get("totalCount").toString()), BigDecimal::add));
-                Map<String, String> userMap = leaveForItem
+                Map<String, Map<String, Object>> itemMap = leaveForItem
                         .stream()
-                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("name").toString(), (v1,v2)->v1));
-                Map<String, String> deptNameMap = leaveForItem
-                        .stream()
-                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("deptName").toString(), (v1,v2)->v1));
-                Map<String, String> deptIdMap = leaveForItem
-                        .stream()
-                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("deptId").toString(), (v1,v2)->v1));
+                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v, (v1,v2)->v1));
 
                 Map<String, Object> map;
                 for (String userId : itemGroup.keySet()) {
                     map = Maps.newHashMap();
                     BigDecimal totalCount = itemGroup.get(userId);
+                    Map<String, Object> item = itemMap.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
                     map.put("sign",ConstantForReport.COLOUR_END);
-                    map.put("name", userMap.get(userId) + ConstantForReport.TOTAL_SUFFIX);
                     map.put("sortNo", typeMax);
-                    map.put("deptName", deptNameMap.get(userId));
-                    map.put("deptId", deptIdMap.get(userId));
+                    map.put("name", item.get("name") + ConstantForReport.TOTAL_SUFFIX);
+                    map.put("deptName", item.get("deptName"));
+                    map.put("deptId", item.get("deptId"));
                     map.put("type", typeMax);
                     map.put("totalCount", totalCount == null ? 0 : totalCount);
                     showList.add(map);
@@ -413,22 +374,6 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
     }
 
     @Override
-    public R leaveTypeGroup(CommonVO commonVO) {
-        Long userId = commonVO.getUserId();
-        if (userId == null) {
-            return R.ok();
-        }
-        List<DictionaryDO> dictionaryDOS = dictionaryService.listByType(Constant.LEAVE_APPLY_TYPE);
-        Map<String, Object> param = Maps.newHashMap();
-        param.put("status", Constant.APPLY_COMPLETED);
-        param.put("startTime", commonVO.getStartTime());
-        param.put("endTime", commonVO.getEndTime());
-        param.put("createBy", userId);
-        List<Map<String, Object>> leaveForItemGroupType = reportDao.leaveForItemGroupType(param);
-        return R.ok(this.getResult(dictionaryDOS, leaveForItemGroupType, userId));
-    }
-
-    @Override
     public R leave(CommonVO commonVO, Long typeId) {
         Long userId = commonVO.getUserId();
         if (userId == null || typeId == null) {
@@ -451,45 +396,14 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         return R.ok(result);
     }
 
-    @Override
-    public R applyForReimbursement(CommonVO commonVO, Long typeId) {
-        Long userId = commonVO.getUserId();
-        if (userId == null || typeId == null) {
-            return R.ok();
-        }
-        Map<String, Object> result = Maps.newHashMap();
-        String startTime = commonVO.getStartTime();
-        String endTime = commonVO.getEndTime();
-        Map<String, Object> param = Maps.newHashMap();
-        param.put("createBy", userId);
-        param.put("type", typeId);
-        param.put("status", Constant.APPLY_COMPLETED);
-        param.put("startTime", startTime);
-        param.put("endTime", endTime);
-        List<Map<String, Object>> applyForReimbursementItem = reportDao.applyForReimbursementItem(param);
-        if (applyForReimbursementItem.size() > 0) {
-            List<Map<String, Object>> applyForReimbursementItemList = PageUtils.startPage(applyForReimbursementItem, commonVO.getPageno(), commonVO.getPagesize());
-            result.put("data", new DsResultResponse(commonVO.getPageno(), commonVO.getPagesize(), applyForReimbursementItem.size(), applyForReimbursementItemList));
-        }
-        return R.ok(result);
-    }
 
     @Override
     public R applyForReimbursementGroup(CommonVO commonVO) {
-//        int pageNo = commonVO.getPageno();
-//        int pageSize = commonVO.getPagesize();
         boolean showItem = commonVO.getShowItem() == 1;
         boolean showType = commonVO.getShowType() == 1;
         boolean showUser = commonVO.getShowUser() == 1;
         Long userIdInfo = commonVO.getUserId();
         Long deptIdInfo = commonVO.getDeptId();
-//        Triple<List<UserForReportVO>, List<Long>, List<Long>> userInfo = this.getUserInfo(pageNo, pageSize, userIdInfo, deptIdInfo);
-//        if (userInfo == null) {
-//            return R.ok();
-//        }
-//        List<Long> userIds = userInfo.getMiddle();
-//        List<Long> userAllIds = userInfo.getRight();
-//        List<UserForReportVO> userForReportVOS = userInfo.getLeft();
 
         Map<String, Object> param = Maps.newHashMap();
         String startTime = commonVO.getStartTime();
@@ -524,27 +438,22 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                 Map<String, BigDecimal> itemGroup = applyForReimbursementItem
                         .stream()
                         .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> MathUtils.getBigDecimal(v.get("totalCount").toString()), BigDecimal::add));
-                Map<String, String> userMap = applyForReimbursementItem
+                Map<String, Map<String, Object>> itemMap = applyForReimbursementItem
                         .stream()
-                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("name").toString(), (v1,v2)->v1));
-                Map<String, String> deptNameMap = applyForReimbursementItem
-                        .stream()
-                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("deptName").toString(), (v1,v2)->v1));
-                Map<String, String> deptIdMap = applyForReimbursementItem
-                        .stream()
-                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("deptId").toString(), (v1,v2)->v1));
+                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v, (v1,v2)->v1));
 
                 Map<String, Object> map;
                 for (String userId : itemGroup.keySet()) {
                     map = Maps.newHashMap();
                     BigDecimal totalCount = itemGroup.get(userId);
+                    Map<String, Object> item = itemMap.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
                     map.put("sign",ConstantForReport.COLOUR_END);
-                    map.put("name", userMap.get(userId) + ConstantForReport.TOTAL_SUFFIX);
                     map.put("sortNo", typeMax);
-                    map.put("deptName", deptNameMap.get(userId));
-                    map.put("deptId", deptIdMap.get(userId));
+                    map.put("name", item.get("name") + ConstantForReport.TOTAL_SUFFIX);
+                    map.put("deptName", item.get("deptName"));
+                    map.put("deptId", item.get("deptId"));
                     map.put("type", typeMax);
                     map.put("totalCount", totalCount == null ? 0 : totalCount);
                     showList.add(map);
@@ -570,23 +479,6 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         }
 
         return R.ok(result);
-    }
-
-    @Override
-    public R applyForReimbursementTypeGroup(CommonVO commonVO) {
-        Long userId = commonVO.getUserId();
-        if (userId == null) {
-            return R.ok();
-        }
-        List<DictionaryDO> dictionaryDOS = dictionaryService.listByType(Constant.REIM_APPLY_TYPE);
-        Map<String, Object> param = Maps.newHashMap();
-        param.put("status", Constant.APPLY_COMPLETED);
-        param.put("startTime", commonVO.getStartTime());
-        param.put("endTime", commonVO.getEndTime());
-        param.put("createBy", userId);
-        List<Map<String, Object>> applyForReimbursementGroupType = reportDao.applyForReimbursementGroupType(param);
-
-        return R.ok(this.getResult(dictionaryDOS, applyForReimbursementGroupType, userId));
     }
 
     @Override
@@ -617,28 +509,23 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                 Map<String, BigDecimal> itemGroup = paymentForItem
                         .stream()
                         .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> MathUtils.getBigDecimal(v.get("totalCount").toString()), BigDecimal::add));
-                Map<String, String> userMap = paymentForItem
+                Map<String, Map<String, Object>> itemMap = paymentForItem
                         .stream()
-                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("name").toString(), (v1,v2)->v1));
-                Map<String, String> deptNameMap = paymentForItem
-                        .stream()
-                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("deptName").toString(), (v1,v2)->v1));
-                Map<String, String> deptIdMap = paymentForItem
-                        .stream()
-                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v.get("deptId").toString(), (v1,v2)->v1));
+                        .collect(Collectors.toMap(k -> k.get("userId").toString(), v -> v, (v1,v2)->v1));
 
                 Map<String, Object> map;
                 for (String userId : itemGroup.keySet()) {
                     map = Maps.newHashMap();
                     BigDecimal totalCount = itemGroup.get(userId);
+                    Map<String, Object> item = itemMap.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
                     map.put("sign",ConstantForReport.COLOUR_END);
-                    map.put("name", userMap.get(userId) + ConstantForReport.TOTAL_SUFFIX);
                     // 详情内为1
                     map.put("sortNo", 1);
-                    map.put("deptName", deptNameMap.get(userId));
-                    map.put("deptId", deptIdMap.get(userId));
+                    map.put("name", item.get("name") + ConstantForReport.TOTAL_SUFFIX);
+                    map.put("deptName", item.get("deptName"));
+                    map.put("deptId", item.get("deptId"));
                     map.put("totalCount", totalCount == null ? 0 : totalCount);
                     showList.add(map);
                 }
@@ -656,28 +543,5 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         }
         return R.ok(result);
     }
-
-    @Override
-    public R paymentItem(CommonVO commonVO) {
-        Long userId = commonVO.getUserId();
-        if (userId == null) {
-            return R.ok();
-        }
-        String startTime = commonVO.getStartTime();
-        String endTime = commonVO.getEndTime();
-        Map<String, Object> param = Maps.newHashMap();
-        param.put("userId", userId);
-        param.put("status", Constant.APPLY_COMPLETED);
-        param.put("startTime", startTime);
-        param.put("endTime", endTime);
-        List<Map<String, Object>> overtimeForItem = reportDao.paymentForItem(param);
-        Map<String, Object> result = Maps.newHashMap();
-        if (overtimeForItem.size() > 0) {
-            List<Map<String, Object>> overtimeForItemList = PageUtils.startPage(overtimeForItem, commonVO.getPageno(), commonVO.getPagesize());
-            result.put("data", new DsResultResponse(commonVO.getPageno(), commonVO.getPagesize(), overtimeForItem.size(), overtimeForItemList));
-        }
-        return R.ok(result);
-    }
-
 
 }

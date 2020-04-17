@@ -37,34 +37,12 @@ public class AgendaAccountingReportApiController {
         return reportService.overtime(commonVO);
     }
 
-//    @EvApiByToken(value = "/apis/agenda/overtime", method = RequestMethod.POST, apiTitle = "加班统计分析（详细）")
-//    @ApiOperation("加班统计分析（详细）")
-//    public R overtimeItem(CommonVO commonVO) {
-//        // 查询列表数据
-//        return reportService.overtimeItem(commonVO);
-//    }
-
     @EvApiByToken(value = "/apis/agenda/leaveGroup", method = RequestMethod.POST, apiTitle = "请假统计分析")
     @ApiOperation("请假统计分析")
     public R leaveGroup(CommonVO commonVO) {
         // 查询列表数据
         return reportService.leaveGroup(commonVO);
     }
-
-//    @EvApiByToken(value = "/apis/agenda/leaveTypeGroup", method = RequestMethod.POST, apiTitle = "请假统计分析（类型汇总）")
-//    @ApiOperation("请假统计分析（类型汇总）")
-//    public R leaveTypeGroup(CommonVO commonVO) {
-//        // 查询列表数据
-//        return reportService.leaveTypeGroup(commonVO);
-//    }
-//
-//    @EvApiByToken(value = "/apis/agenda/leave", method = RequestMethod.POST, apiTitle = "请假统计分析（详细）")
-//    @ApiOperation("请假统计分析（详细）")
-//    public R leaveItem(CommonVO commonVO,
-//                       @ApiParam(value = "请假类型") @RequestParam(value = "typeId", defaultValue = "", required = false) Long typeId) {
-//        // 查询列表数据
-//        return reportService.leave(commonVO,typeId);
-//    }
 
     @EvApiByToken(value = "/apis/agenda/applyForReimbursement/group", method = RequestMethod.POST, apiTitle = "报销统计分析")
     @ApiOperation("报销统计分析")
@@ -73,21 +51,6 @@ public class AgendaAccountingReportApiController {
         return reportService.applyForReimbursementGroup(commonVO);
     }
 
-//    @EvApiByToken(value = "/apis/agenda/applyForReimbursementTypeGroup", method = RequestMethod.POST, apiTitle = "报销统计分析(类型汇总)")
-//    @ApiOperation("报销统计分析(类型汇总)")
-//    public R applyForReimbursementTypeGroup(CommonVO commonVO) {
-//        // 查询列表数据
-//        return reportService.applyForReimbursementTypeGroup(commonVO);
-//    }
-//
-//    @EvApiByToken(value = "/apis/agenda/applyForReimbursement", method = RequestMethod.POST, apiTitle = "报销统计分析(详细)")
-//    @ApiOperation("报销统计分析(详细)")
-//    public R applyForReimbursement(CommonVO commonVO,
-//                                   @ApiParam(value = "报销类型") @RequestParam(value = "typeId", defaultValue = "", required = false) Long typeId) {
-//        // 查询列表数据
-//        return reportService.applyForReimbursement(commonVO,typeId);
-//    }
-
     @EvApiByToken(value = "/apis/agenda/paymentGroup", method = RequestMethod.POST, apiTitle = "付款统计分析(汇总)")
     @ApiOperation("付款统计分析(汇总)")
     public R payment(CommonVO commonVO) {
@@ -95,10 +58,4 @@ public class AgendaAccountingReportApiController {
         return reportService.payment(commonVO);
     }
 
-//    @EvApiByToken(value = "/apis/agenda/payment", method = RequestMethod.POST, apiTitle = "付款统计分析(详细)")
-//    @ApiOperation("付款统计分析(详细)")
-//    public R paymentItem(CommonVO commonVO) {
-//        // 查询列表数据
-//        return reportService.paymentItem(commonVO);
-//    }
 }
