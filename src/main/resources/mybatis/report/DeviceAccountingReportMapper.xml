@@ -165,14 +165,14 @@
         record.`update_by`,
         record.`update_time`,
         record.`del_flag`,
-        plan.link_device_id AS device_id
+        detail.device_id AS deviceId
         FROM
         cus_patrol_record record
-        LEFT JOIN cus_patrol_plan_detail plan on record.`plan_id` = plan.link_patrol_plan_id
+        LEFT JOIN cus_patrol_detail detail on record.`id` = detail.record_id
         <where>
             <if test="id != null and id != ''"> and record.id = #{id} </if>
             <if test="status != null and status != ''"> and record.status = #{status} </if>
-            <if test="deviceIds != null and deviceIds.size()>0"> and plan.link_device_id IN
+            <if test="deviceIds != null and deviceIds.size()>0"> and  detail.device_id IN
                 <foreach item="item" collection="deviceIds" open="(" separator="," close=")" index="index">
                     <if test="item!=null">
                         #{item}
@@ -181,7 +181,7 @@
             </if>
             AND record.status <![CDATA[<>]]> 146
         </where>
-
+        GROUP BY record.id,detail.device_id
     </select>
 
 
