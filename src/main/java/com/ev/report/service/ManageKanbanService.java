@@ -1,8 +1,5 @@
 package com.ev.report.service;
 
-import com.ev.apis.model.DsResultResponse;
-import com.ev.report.vo.DeviceVO;
-
 import java.util.List;
 import java.util.Map;
 
