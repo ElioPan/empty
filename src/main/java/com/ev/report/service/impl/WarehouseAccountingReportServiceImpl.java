@@ -46,12 +46,12 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
 
     @Override
     public List<StockOutItemVO> stockOutItem(Map<String, Object> params) {
-        return smartManufacturingReportDao.stockOutItem(params);
+        return reportDao.stockOutItem(params);
     }
 
     @Override
     public List<StockInItemVO> stockInItem(Map<String, Object> params) {
-        return smartManufacturingReportDao.stockInItem(params);
+        return reportDao.stockInItem(params);
     }
 
     @Override

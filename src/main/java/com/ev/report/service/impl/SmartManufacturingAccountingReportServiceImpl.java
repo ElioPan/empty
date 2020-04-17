@@ -6,6 +6,7 @@ import com.ev.framework.config.ConstantForReport;
 import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.R;
 import com.ev.report.dao.SmartManufacturingAccountingReportDao;
+import com.ev.report.dao.WarehouseAccountingReportDao;
 import com.ev.report.service.SmartManufacturingAccountingReportService;
 import com.ev.report.vo.*;
 import com.google.common.collect.Lists;
@@ -25,6 +26,8 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
 
     @Autowired
     private SmartManufacturingAccountingReportDao reportDao;
+    @Autowired
+    private WarehouseAccountingReportDao stockDao;
 
     @Override
     public Pair<List<Map<String, Object>>, Map<String, BigDecimal>> processPlan(List<Map<String, Object>> data, boolean isTotalData) {
@@ -197,7 +200,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
 
         // 生产计划下所有生产入库单
         param.put("sourceType", ConstantForMES.SCJH);
-        List<StockInItemVO> stockInItemList = reportDao.stockInItem(param);
+        List<StockInItemVO> stockInItemList = stockDao.stockInItem(param);
 
         // 完工数量(为入库数量)
 //        Map<Long, BigDecimal> completionCountMap = materielInspectionList
@@ -521,10 +524,10 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
         param.put("planId", id);
         param.put("sourceType", ConstantForMES.SCTL);
         param.put("auditSign", ConstantForMES.OK_AUDITED);
-        List<StockOutItemVO> stockOutItemList = reportDao.stockOutItem(param);
+        List<StockOutItemVO> stockOutItemList = stockDao.stockOutItem(param);
         // 查询入库单
         param.put("sourceType", ConstantForMES.SCJH);
-        List<StockInItemVO> stockInItemList = reportDao.stockInItem(param);
+        List<StockInItemVO> stockInItemList = stockDao.stockInItem(param);
         Map<String, Object> results = Maps.newHashMap();
         results.put("stockIn", stockInItemList);
         results.put("stockOut", stockOutItemList);
