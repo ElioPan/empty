@@ -501,6 +501,9 @@
                     </if>
                 </foreach>
             </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(report.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(report.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+
         </where>
         ORDER BY detail.dept_id
     </select>

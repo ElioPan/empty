@@ -386,6 +386,8 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
         Map<String, Object> param = Maps.newHashMap();
         param.put("userId", userIdInfo);
         param.put("deptId", deptIdInfo);
+        param.put("startTime", commonVO.getStartTime());
+        param.put("endTime", commonVO.getEndTime());
 
         List<PieceRateVO> showList = Lists.newArrayList();
         // 获取所有的报工单
