@@ -464,6 +464,7 @@
 		SELECT
 		analysis.`id` AS id,
 		LEFT(analysis.`period`,7) AS period,
+		UNIX_TIMESTAMP(analysis.`period`) AS times,
 		analysis.`materiel_id` AS materielId,
 		materiel.serial_no AS materielSerialNo,
 		materiel.name AS materielName,
@@ -485,7 +486,7 @@
 				ORDER BY ${sort} ${order}
 			</when>
 			<otherwise>
-				GROUP BY analysis.`materiel_id`
+				GROUP BY analysis.`materiel_id`,analysis.`period`
 				ORDER BY analysis.`materiel_id`,analysis.`initial_count` DESC
 			</otherwise>
 		</choose>
