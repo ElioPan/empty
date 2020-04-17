@@ -168,14 +168,6 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                     BigDecimal totalCount = MathUtils.getBigDecimal(totailCountAmount.get("totailCount"));
                     BigDecimal totalAmount = MathUtils.getBigDecimal(totailCountAmount.get("totailAmount"));
 
-//                    BigDecimal meanValue;
-//                    if(sign){
-//                        BigDecimal totailCount= new BigDecimal(String.valueOf(totailCountAmount.get("totailCount")));
-//                        meanValue=totailExprnseAmountBig.divide(totailCount, Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
-//                    }else{
-//                        BigDecimal totailAmount= new BigDecimal(String.valueOf(totailCountAmount.get("totailAmount")));
-//                        meanValue=totailExprnseAmountBig.divide(totailAmount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
-//                    }
                     map.clear();
                     List<StockInItemDO> listItemDo=new ArrayList<>();
 

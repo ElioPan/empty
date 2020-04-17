@@ -11,7 +11,6 @@ import com.ev.scm.dao.PaymentReceivedDao;
 import com.ev.scm.domain.*;
 import com.ev.scm.service.*;
 import com.google.common.collect.Maps;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -125,13 +124,18 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 
 		if (Objects.isNull(paymentReceivedDO.getId())) {
 
+			String maxNo = DateFormatUtil.getWorkOrderno(sign);
 			Map<String, Object> param = Maps.newHashMapWithExpectedSize(3);
-			param.put("maxNo", sign);
+			param.put("maxNo", maxNo);
 			param.put("offset", 0);
 			param.put("limit", 1);
-			param.put("sign", sign);
 			List<PaymentReceivedDO> list = paymentReceivedDao.list(param);
-			paymentReceivedDO.setPrCode(DateFormatUtil.getWorkOrderno(sign,list.size()>0?list.get(0).getPrCode():null,4));
+			String taskNo = null;
+			if (!list.isEmpty()) {
+				taskNo = list.get(0).getPrCode();
+			}
+			paymentReceivedDO.setPrCode(DateFormatUtil.getWorkOrderno(maxNo, taskNo));
+
 			paymentReceivedDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
 			paymentReceivedDO.setSign(sign);
 			int row = paymentReceivedDao.save(paymentReceivedDO);

@@ -79,17 +79,17 @@ public class PurchaseServiceImpl implements PurchaseService {
     public R addPurchase(PurchaseDO purchaseDO, String body,Long[] itemIds) {
         if (Objects.isNull(purchaseDO.getId())) {
 
-            String prefix = DateFormatUtil.getWorkOrderno(ConstantForGYL.PURCHAER, new Date());
-            Map<String, Object> params = Maps.newHashMapWithExpectedSize(3);
-            params.put("maxNo", prefix);
-            params.put("offset", 0);
-            params.put("limit", 1);
-            List<PurchaseDO> list = purchaseDao.list(params);
-            String suffix = null;
-            if (list.size() > 0) {
-                suffix = list.get(0).getPurchaseCode();
+            String maxNo = DateFormatUtil.getWorkOrderno(ConstantForGYL.PURCHAER);
+            Map<String, Object> param = Maps.newHashMapWithExpectedSize(3);
+            param.put("maxNo", maxNo);
+            param.put("offset", 0);
+            param.put("limit", 1);
+            List<PurchaseDO> list = purchaseDao.list(param);
+            String taskNo = null;
+            if (!list.isEmpty()) {
+                taskNo = list.get(0).getPurchaseCode();
             }
-            purchaseDO.setPurchaseCode(DateFormatUtil.getWorkOrderno(prefix, suffix,4));
+            purchaseDO.setPurchaseCode(DateFormatUtil.getWorkOrderno(maxNo, taskNo));
             purchaseDO.setPurchaseType(ConstantForGYL.PURCHASE);
             purchaseDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
             int row = purchaseDao.save(purchaseDO);

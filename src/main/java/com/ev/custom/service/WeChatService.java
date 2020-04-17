@@ -14,14 +14,7 @@ import java.util.List;
  * 企业微信接口
  */
 public interface WeChatService {
-    /**
-     * 获取通讯录管理secret
-     * @param now 当前时间
-     * @return
-     * @throws IOException
-     * @throws ParseException
-     */
-    public String getMobileAccessToken(Date now) throws IOException, ParseException;
+    public Boolean checkIsUse();
 
     public JSONObject getAccessToken(Date now) throws IOException, ParseException;
 
@@ -94,11 +87,6 @@ public interface WeChatService {
      *获取部门列表
      */
     public JSONObject getDepartmentList(String deptId) throws IOException, ParseException;
-
-    /**
-     *发送文本消息
-     */
-    public JSONObject sendTextMessage(NoticeDO noticeDO,List<Long> userId) throws IOException, ParseException;
 
     /**
      *发送卡片消息

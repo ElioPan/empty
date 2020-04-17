@@ -151,9 +151,10 @@
 		b.specification ,
 		b.unit_uom   as unitId,
 		d.name   as unitName,
-		c.sale_price as materielPrice,
-		case when a.profit_loss &lt;0 then -(a.profit_loss*c.sale_price)
-				when a.profit_loss &gt; 0 then (a.profit_loss*c.sale_price)
+<!-- 		c.sale_price as materielPrice,-->
+		ss.unit_price as materielPrice,
+		case when a.profit_loss &lt;0 then -(a.profit_loss*ss.unit_price)
+				when a.profit_loss &gt; 0 then (a.profit_loss*ss.unit_price)
 				end  proAmount,
 		a.batch  as batch,
 		case when a.profit_loss &lt; 0 then -(a.profit_loss)
@@ -169,8 +170,9 @@
 		a.stock_id as stockId
 		FROM scm_inventory_plan_item   a
 		LEFT JOIN cus_materiel  b   ON  a.materiel_id=b.id
-		LEFT JOIN cus_materiel     c   ON a.materiel_id=c.id
-		LEFT JOIN cus_dictionary  d  ON b.unit_uom=d.id
+		LEFT JOIN scm_stock  ss   ON  a.stock_id=ss.id
+		LEFT JOIN cus_materiel  c   ON a.materiel_id=c.id
+		LEFT JOIN cus_dictionary  d ON b.unit_uom=d.id
 		LEFT JOIN scm_inventory_plan  e  ON a.head_id=e.id
 		<!--LEFT JOIN scm_inventory_plan_fitloss  f  ON a.head_id=f.head_id
 		LEFT JOIN cus_dictionary  g  ON f.document_type=g.id-->

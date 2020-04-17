@@ -39,7 +39,6 @@ public class LoginController extends BaseController {
 		return "redirect:/index";
 	}
 
-	@Log("请求访问主页")
 	@GetMapping({ "/index" })
 	String index(Model model) {
 		List<MenuTree<MenuDO>> menus = menuService.listMenuTree(getUserId(),"0");
@@ -64,7 +63,6 @@ public class LoginController extends BaseController {
 		return "login";
 	}
 
-	@Log("登录")
 	@PostMapping("/login")
 	@ResponseBody
 	R ajaxLogin(String username, String password) {

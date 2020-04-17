@@ -150,7 +150,9 @@ public class UserServiceImpl implements UserService {
         user.setGroupstr(groupstr);
         userMapper.update(user);
         //同步企业微信
-        weChatService.saveUser(user);
+        if(weChatService.checkIsUse()){
+            weChatService.saveUser(user);
+        }
         return count;
     }
 
@@ -192,7 +194,9 @@ public class UserServiceImpl implements UserService {
         user.setGroupstr(groupstr);
         int r = userMapper.update(user);
         //同步企业微信
-        weChatService.saveUser(user);
+        if(weChatService.checkIsUse()){
+            weChatService.saveUser(user);
+        }
         return r;
     }
 
@@ -424,11 +428,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public int edit(UserDO user) throws IOException, ParseException {
         int count = userMapper.update(user);
-        if(user.getStatus()==1){
-            weChatService.saveUser(user);
-        }else{
-            weChatService.deleteUser(user.getUsername());
+        if(weChatService.checkIsUse()){
+            if(user.getStatus()==1){
+                weChatService.saveUser(user);
+            }else{
+                weChatService.deleteUser(user.getUsername());
+            }
         }
+        //TODO
         return count;
     }
 

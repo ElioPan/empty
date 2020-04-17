@@ -91,13 +91,20 @@ public class OtherReceivablesServiceImpl implements OtherReceivablesService {
 	public R disposeAddAndChange(OtherReceivablesDO otherReceivablesDO,String  itemBodys,Long[] deleItemIds, String sign){
 
 		if (Objects.isNull(otherReceivablesDO.getId())) {
-			Map<String, Object> param = Maps.newHashMapWithExpectedSize(3);
-			param.put("maxNo", sign);
-			param.put("offset", 0);
-			param.put("limit", 1);
-			param.put("sign", sign);
-			List<OtherReceivablesDO> list = otherReceivablesDao.list(param);
-			otherReceivablesDO.setCode(DateFormatUtil.getWorkOrderno(sign,list.size()>0?list.get(0).getCode():null,4));
+
+			String maxNo = DateFormatUtil.getWorkOrderno(sign);
+			Map<String, Object> params = Maps.newHashMapWithExpectedSize(3);
+			params.put("maxNo", maxNo);
+			params.put("offset", 0);
+			params.put("limit", 1);
+			List<OtherReceivablesDO> list = otherReceivablesDao.list(params);
+			String taskNo = null;
+			if (!list.isEmpty()) {
+				taskNo = list.get(0).getCode();
+			}
+			otherReceivablesDO.setCode(DateFormatUtil.getWorkOrderno(maxNo, taskNo));
+
+
 			otherReceivablesDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
 			otherReceivablesDO.setSign(sign);
 			int row = otherReceivablesDao.save(otherReceivablesDO);

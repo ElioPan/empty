@@ -28,13 +28,7 @@
 		company.`service_start_time`,
 		company.`service_code`,
 		company.`service_end_time`,
-		company.`company_introduction`,
-		company.using_status  as  usingStatus,
-		company.use_id as  useId,
-		company.enterprise_id as enterpriseId,
-		company.app_secrect   as   appSecrect,
-		company.address_book  as  addressBook,
-		company.mobile_url    as  mobileUrl
+		company.`company_introduction`
 		FROM sys_company company 
 		LEFT JOIN sys_area pa ON pa.`city_id` = company.`province`
 		LEFT JOIN sys_area ca ON ca.`city_id` = company.`city`
@@ -73,13 +67,7 @@
 		`update_time`,
 		`del_flag`,
 		`code`,
-		`version`,
-		using_status,
-		use_id,
-		enterprise_id,
-		app_secrect,
-		address_book,
-		mobile_url
+		`version`
 		FROM
 		sys_company
 		<where>
@@ -103,12 +91,6 @@
 		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
 		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
 		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
-					<if test="usingStatus != null and usingStatus != ''"> and using_status = #{usingStatus} </if>
-					<if test="useId != null and useId != ''"> and use_id = #{useId} </if>
-					<if test="enterprise_id != null and enterprise_id != ''"> and enterpriseId = #{enterprise_id} </if>
-					<if test="appSecrect != null and appSecrect != ''"> and app_secrect = #{appSecrect} </if>
-					<if test="addressBook != null and addressBook != ''"> and address_book = #{addressBook} </if>
-					<if test="mobileUrl != null and mobileUrl != ''"> and mobile_url = #{mobileUrl} </if>
 		 </where>
         <choose>
             <when test="sort != null and sort.trim() != ''">
@@ -146,12 +128,6 @@
 		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
 		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
 		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
-			 <if test="usingStatus != null and usingStatus != ''"> and using_status = #{usingStatus} </if>
-			 <if test="useId != null and useId != ''"> and use_id = #{useId} </if>
-			 <if test="enterprise_id != null and enterprise_id != ''"> and enterpriseId = #{enterprise_id} </if>
-			 <if test="appSecrect != null and appSecrect != ''"> and app_secrect = #{appSecrect} </if>
-			 <if test="addressBook != null and addressBook != ''"> and address_book = #{addressBook} </if>
-			 <if test="mobileUrl != null and mobileUrl != ''"> and mobile_url = #{mobileUrl} </if>
 		  		</where>
 	</select>
 	 
@@ -180,13 +156,7 @@
 			`create_time`, 
 			`update_by`, 
 			`update_time`, 
-			`del_flag`,
-			`using_status`,
-			`use_id`,
-			`enterprise_id`,
-			`app_secrect`,
-			`address_book`,
-			`mobile_url`
+			`del_flag`
 		)
 		values
 		(
@@ -212,13 +182,7 @@
 			#{createTime}, 
 			#{updateBy}, 
 			#{updateTime}, 
-			#{delFlag},
-			#{usingStatus},
-			#{useId},
-			#{enterpriseId},
-			#{appSecrect},
-			#{addressBook},
-			#{mobileUrl}
+			#{delFlag}
 		)
 	</insert>
 	 
@@ -246,12 +210,6 @@
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
 			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
-			<if test="usingStatus != null">  using_status = #{usingStatus}, </if>
-			<if test="useId != null">  use_id = #{useId}, </if>
-			<if test="enterprise_id != null ">  enterpriseId = #{enterprise_id}, </if>
-			<if test="appSecrect != null ">  app_secrect = #{appSecrect}, </if>
-			<if test="addressBook != null ">  address_book = #{addressBook}, </if>
-			<if test="mobileUrl != null ">  mobile_url = #{mobileUrl}, </if>
 			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
 		</set>
 		where id = #{id}

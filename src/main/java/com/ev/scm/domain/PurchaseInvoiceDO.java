@@ -33,7 +33,7 @@ public class PurchaseInvoiceDO implements Serializable {
 	private Date invoiceDate;
 	//收票人
     @ApiModelProperty(value = "收票人")
-	private String drawer;
+	private Long drawer;
 	//票据单号
     @ApiModelProperty(value = "票据单号")
 	private String billCode;

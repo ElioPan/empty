@@ -1,3 +1,4 @@
+
 package com.ev.framework.annotation;
 
 import java.lang.annotation.Retention;
@@ -8,5 +9,9 @@ import java.lang.annotation.RetentionPolicy;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Log {
-	String value() default "";
+	String operModule() default "";
+
+	String operType() default "";
+
+	String operDesc() default "";
 }

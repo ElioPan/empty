@@ -42,7 +42,7 @@ public class ScmProduceInStockApiController {
     @EvApiByToken(value = "/apis/scm/produceInStock/saveAndChange", method = RequestMethod.POST, apiTitle = "新增/修改—生产入库")
     @ApiOperation("新增/修改—生产入库")
     @Transactional(rollbackFor = Exception.class)
-    public R getMenus(StockInDO stockInDO,
+    public R addAndEdit(StockInDO stockInDO,
                       @ApiParam(value = "产品/物料明细行[\n" +
                               "{\"materielId\":2,\n" +
                               "\"id\":\"明细主键（修改时必传）\",\n" +
@@ -102,6 +102,7 @@ public class ScmProduceInStockApiController {
                                  @ApiParam(value = "入库起始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
                                  @ApiParam(value = "入库截止时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
                                  @ApiParam(value = "生产部门名字") @RequestParam(value = "deptName", defaultValue = "", required = false) String deptName,
+                                 @ApiParam(value = "生产部门id") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
                                  @ApiParam(value = "规格型号") @RequestParam(value = "specification", defaultValue = "", required = false) String specification,
                                  @ApiParam(value = "批次") @RequestParam(value = "batch", defaultValue = "", required = false) String batch,
                                  @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
@@ -120,6 +121,7 @@ public class ScmProduceInStockApiController {
         params.put("startTime", startTime);
         params.put("endTime", endTime);
         params.put("deptName",deptName );
+        params.put("deptId",deptId);
         params.put("materielSpecification",specification );
         params.put("batch", batch);
         params.put("auditSign",auditSign);

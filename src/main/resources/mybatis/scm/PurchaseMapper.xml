@@ -211,7 +211,7 @@
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(applicantTime,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
 			<if test="createTime != null and createTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') =  DATE_FORMAT(#{createTime},'%Y-%m-%d')</if>
 			<if test="createBy != null and createBy != ''"> and createBy = #{createBy} </if>
-			<if test="applicantName != null and applicantName != ''"> and applicantName = #{applicantName} </if>
+			<if test="applicantName != null and applicantName != ''"> and applicantName LIKE CONCAT('%',#{applicantName},'%')</if>
 			<if test="supplierId != null and supplierId != ''"> and supplierId = #{supplierId} </if>
 			<if test="materiel != null and materiel != ''"> and materielId = #{materiel} </if>
 			<if test="specification != null and specification != ''"> and specification = #{specification} </if>

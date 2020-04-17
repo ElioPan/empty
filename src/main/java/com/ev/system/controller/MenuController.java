@@ -39,7 +39,6 @@ public class MenuController extends BaseController {
 		return menus;
 	}
 
-	@Log("添加菜单")
 	@RequiresPermissions("sys:menu:add")
 	@GetMapping("/add/{pId}")
 	String add(Model model, @PathVariable("pId") Long pId) {
@@ -52,7 +51,6 @@ public class MenuController extends BaseController {
 		return prefix + "/add";
 	}
 
-	@Log("编辑菜单")
 	@RequiresPermissions("sys:menu:edit")
 	@GetMapping("/edit/{id}")
 	String edit(Model model, @PathVariable("id") Long id) {
@@ -78,7 +76,6 @@ public class MenuController extends BaseController {
 		return prefix+"/edit";
 	}
 
-	@Log("保存菜单")
 	@RequiresPermissions("sys:menu:add")
 	@PostMapping("/save")
 	@ResponseBody
@@ -93,7 +90,6 @@ public class MenuController extends BaseController {
 		}
 	}
 
-	@Log("更新菜单")
 	@RequiresPermissions("sys:menu:edit")
 	@PostMapping("/update")
 	@ResponseBody
@@ -108,7 +104,6 @@ public class MenuController extends BaseController {
 		}
 	}
 
-	@Log("删除菜单")
 	@RequiresPermissions("sys:menu:remove")
 	@PostMapping("/remove")
 	@ResponseBody

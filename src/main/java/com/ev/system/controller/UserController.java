@@ -66,7 +66,6 @@ public class UserController extends BaseController {
 	}
 
 	@RequiresPermissions("sys:user:add")
-	@Log("添加用户")
 	@GetMapping("/add")
 	String add(Model model) {
 		List<RoleDO> roles = roleService.list();
@@ -75,7 +74,6 @@ public class UserController extends BaseController {
 	}
 
 	@RequiresPermissions("sys:user:edit")
-	@Log("编辑用户")
 	@GetMapping("/edit/{id}")
 	String edit(Model model, @PathVariable("id") Long id) {
 		UserDO userDO = userService.get(id);
@@ -87,7 +85,6 @@ public class UserController extends BaseController {
 	}
 
 	@RequiresPermissions("sys:user:add")
-	@Log("保存用户")
 	@PostMapping("/save")
 	@ResponseBody
 	R save(UserDO user) throws IOException, ParseException {
@@ -102,7 +99,6 @@ public class UserController extends BaseController {
 	}
 
 	@RequiresPermissions("sys:user:edit")
-	@Log("更新用户")
 	@PostMapping("/update")
 	@ResponseBody
 	R update(UserDO user) throws IOException, ParseException {
@@ -117,7 +113,6 @@ public class UserController extends BaseController {
 
 
 	@RequiresPermissions("sys:user:edit")
-	@Log("更新用户")
 	@PostMapping("/updatePeronal")
 	@ResponseBody
 	R updatePeronal(UserDO user) {
@@ -132,7 +127,6 @@ public class UserController extends BaseController {
 
 
 	@RequiresPermissions("sys:user:remove")
-	@Log("删除用户")
 	@PostMapping("/remove")
 	@ResponseBody
 	R remove(Long id) {
@@ -146,7 +140,6 @@ public class UserController extends BaseController {
 	}
 
 	@RequiresPermissions("sys:user:batchRemove")
-	@Log("批量删除用户")
 	@PostMapping("/batchRemove")
 	@ResponseBody
 	R batchRemove(@RequestParam("ids[]") Long[] userIds) {
@@ -168,7 +161,6 @@ public class UserController extends BaseController {
 	}
 
 	@RequiresPermissions("sys:user:resetPwd")
-	@Log("请求更改用户密码")
 	@GetMapping("/resetPwd/{id}")
 	String resetPwd(@PathVariable("id") Long userId, Model model) {
 
@@ -178,7 +170,6 @@ public class UserController extends BaseController {
 		return prefix + "/reset_pwd";
 	}
 
-	@Log("提交更改用户密码")
 	@PostMapping("/resetPwd")
 	@ResponseBody
 	R resetPwd(UserVO userVO) {
@@ -194,7 +185,6 @@ public class UserController extends BaseController {
 
 	}
 	@RequiresPermissions("sys:user:resetPwd")
-	@Log("admin提交更改用户密码")
 	@PostMapping("/adminResetPwd")
 	@ResponseBody
 	R adminResetPwd(UserVO userVO) {
