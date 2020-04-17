@@ -261,7 +261,7 @@ public class DailyReportServiceImpl implements DailyReportService {
 
 			return R.ok();
 		}
-		return R.error(messageSourceHandler.getMessage("common.dailyReport.batchRemove",null));
+		return R.error(messageSourceHandler.getMessage("common.submit.delete.disabled",null));
 
 	}
 	/*
