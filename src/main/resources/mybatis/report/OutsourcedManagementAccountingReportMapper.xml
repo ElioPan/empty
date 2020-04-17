@@ -203,7 +203,7 @@
         bill.bill_code AS `code`,
         item.`source_id`,
         item.`source_code`,
-        item.amount,
+        item.tax_amount AS amount,
         item.`count`
         FROM
         scm_processing_charge_item item

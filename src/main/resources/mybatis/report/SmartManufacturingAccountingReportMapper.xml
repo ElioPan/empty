@@ -328,7 +328,7 @@
                     </if>
                 </foreach>
             </if>
-            <if test="auditSign != null and auditSign != ''"> and stock.audit_sign = #{auditSign} </if>
+            <if test="status != null and status != ''"> and stock.audit_sign = #{status} </if>
             <if test="sourceType != null and sourceType != ''"> and item.source_type = #{sourceType} </if>
             <if test="planId != null and planId != ''"> and item.source_id = #{planId} </if>
             <if test="materielId != null and materielId != ''"> and item.materiel_id = #{materielId} </if>
