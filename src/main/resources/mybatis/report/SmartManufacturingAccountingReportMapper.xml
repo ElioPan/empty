@@ -176,7 +176,7 @@
         FROM
         mes_process_report report
         LEFT JOIN mes_process_report_check rcheck ON report.id = rcheck.process_report_id
-        LEFT JOIN view_process_report_check vmn on a.id=vmn.viewProcessReportId
+        LEFT JOIN view_process_report_check vmn on report.id=vmn.viewProcessReportId
         LEFT JOIN mes_dispatch_item dispatch ON dispatch.id = report.dispatch_item_id
         <where>
             <if test="planIds != null and planIds.size()>0"> and  dispatch.foriegn_id IN
