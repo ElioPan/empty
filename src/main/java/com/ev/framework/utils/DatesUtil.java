@@ -436,6 +436,25 @@ public class DatesUtil {
 		return now.getTime();
 	}
 
+	/**
+	 * 得到几天前的时间集合(包含当天)
+	 *
+	 * @param d
+	 * @param day
+	 * @return
+	 */
+	public static List<Date> getDateBefore(Date d, int day) {
+		List<Date> dateList = new ArrayList<>();
+		Calendar now = Calendar.getInstance();
+		now.setTime(d);
+		//+后 -前
+		for (int i = 0; i < day +1; i++) {
+			dateList.add(now.getTime());
+			now.set(Calendar.DATE, now.get(Calendar.DATE) - 1);
+		}
+		return dateList;
+	}
+
 
 //	/**
 //	 * 获取过去或者未来 任意天内的日期数组
