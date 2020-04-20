@@ -451,7 +451,7 @@ public class DispatchItemServiceImpl implements DispatchItemService {
                 }
             }
         }
-        BigDecimal totalOrder=awaitingDelivery.add(startWorking).add(startWorking).add(unWorkingl);
+        BigDecimal totalOrder=awaitingDelivery.add(startWorking).add(unWorkingl);
         map.clear();
         map.put("totalOrder",totalOrder);
         map.put("awaitingDelivery",awaitingDelivery);
@@ -488,7 +488,6 @@ public class DispatchItemServiceImpl implements DispatchItemService {
         map.put("status",Constant.APPLY_APPROED);
         map.put("createTimes",formatter.format(dateBefor));
         List<Map<String, Object>> mapList = processReportService.listForMap(map);
-        List<Map<String, Object>> finallResult=new ArrayList<>();
         map.clear();
         if(mapList.size()>0){
 
