@@ -63,5 +63,12 @@ public interface DispatchItemService {
 
 	R oneStartWorkDetail();
 
+	R distributionDiagram();
+
+	List<DispatchItemDO> countOfStatus(Map<String, Object> map);
+
+	R productionSchedule();
+
+	R getPieceRateWage();
 
 }

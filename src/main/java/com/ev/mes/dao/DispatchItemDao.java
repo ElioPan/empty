@@ -57,4 +57,7 @@ public interface DispatchItemDao {
 
 	List<Map<String, Object>> getStartWorkByOperator(Long id);
 
+
+	List<DispatchItemDO> countOfStatus(Map<String, Object> map);
+
 }

@@ -156,7 +156,7 @@ public class WarehouseAccountingReportApiController {
 
 
 
-    
+
     @EvApiByToken(value = "/apis/warehouse/inStockItem", method = RequestMethod.POST, apiTitle = "仓库入库明细")
     @ApiOperation("仓库入库明细")
     public R inStockItem(

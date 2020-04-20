@@ -231,6 +231,8 @@
 		b.start_time as startTime,
 		b.end_time as  endTime,
 		b.plan_count as planCount,<!--工单中指派给个人的计划数量-->
+		IFNULL(d.labour_price,0) AS labourPrice,
+		IFNULL(d.labour_price,0)* IF(a.id=mn.viewProcessReportId,mn.viewConformityCount,a.conformity_count) AS salary,
 		d.is_examine as isExamine
 		from
 		mes_process_report  a
@@ -265,6 +267,7 @@
 			<if test="processName != null and processName != ''"> and processName like CONCAT('%', #{processName},'%') </if>
 			<if test="materialName != null and materialName != ''"> and materialName like CONCAT('%', #{materialName},'%') </if>
 			<if test="supplierName != null and supplierName != ''"> and supplierName like CONCAT('%', #{supplierName},'%') </if>
+			<if test="createTimes != null and createTimes != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;= DATE_FORMAT(#{createTimes},'%Y-%m-%d')</if>
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">

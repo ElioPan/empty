@@ -6,23 +6,23 @@ import com.ev.custom.service.ContentAssocService;
 import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
-import com.ev.framework.utils.DateFormatUtil;
-import com.ev.framework.utils.DatesUtil;
-import com.ev.framework.utils.R;
-import com.ev.framework.utils.ShiroUtils;
+import com.ev.framework.utils.*;
 import com.ev.mes.dao.DispatchItemDao;
 import com.ev.mes.domain.DispatchItemDO;
 import com.ev.mes.domain.DispatchWorkingHungDO;
 import com.ev.mes.domain.WorkingProcedureDetailDO;
 import com.ev.mes.service.DispatchItemService;
 import com.ev.mes.service.DispatchWorkingHungService;
+import com.ev.mes.service.ProcessReportService;
 import com.ev.mes.service.WorkingProcedureDetailService;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -37,6 +37,9 @@ public class DispatchItemServiceImpl implements DispatchItemService {
     private DispatchWorkingHungService dispatchWorkingHungService;
     @Autowired
     private MessageSourceHandler messageSourceHandler;
+
+    @Autowired
+    private  ProcessReportService processReportService;
 
     @Override
     public DispatchItemDO get(Long id) {
@@ -243,10 +246,10 @@ public class DispatchItemServiceImpl implements DispatchItemService {
         int i = dispatchItemDao.canDelet(params);
         if (dispatchId.length == i) {
             for (int ii = 0; ii < dispatchId.length; ii++) {
-                DispatchItemDO Do = new DispatchItemDO();
-                Do.setId(dispatchId[ii]);
-                Do.setStatus(ConstantForMES.CLOSE_CASE);//234结案
-                dispatchItemDao.update(Do);
+                DispatchItemDO dispatchItemDo = new DispatchItemDO();
+                dispatchItemDo.setId(dispatchId[ii]);
+                dispatchItemDo.setStatus(ConstantForMES.CLOSE_CASE);//234结案
+                dispatchItemDao.update(dispatchItemDo);
             }
             return R.ok();
         } else {
@@ -415,10 +418,108 @@ public class DispatchItemServiceImpl implements DispatchItemService {
             List<ContentAssocDO> checkResultList = contentAssocService.list(param);
             map.put("fileList", checkResultList);
         }
-
         return R.ok(map);
     }
 
+    @Override
+    public List<DispatchItemDO> countOfStatus(Map<String, Object> map) {
+        return dispatchItemDao.countOfStatus(map);
+    }
+
+    @Override
+    public R distributionDiagram()  {
+        SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss");
+        DatesUtil datesUtil=new DatesUtil();
+        Date dateBefor = datesUtil.getDateBefor(new Date(), 6);
+        Map<String,Object>  map= new HashMap<>();
+        map.put("status",ConstantForMES.CLOSE_CASE);
+        map.put("createTime",formatter.format(dateBefor));
+        List<DispatchItemDO> dispatchItemDo = this.countOfStatus(map);
+        BigDecimal awaitingDelivery =BigDecimal.ZERO;
+        BigDecimal startWorking=BigDecimal.ZERO;
+        BigDecimal unWorkingl=BigDecimal.ZERO;
+        BigDecimal addOne=new BigDecimal("1");
+        if(dispatchItemDo.size()>0){
+            for(DispatchItemDO dispatchItem:dispatchItemDo){
+               int statuss= dispatchItem.getStatus();
+                if(Objects.equals(ConstantForMES.START_WORK,statuss)){
+                    startWorking=startWorking.add(addOne);
+                }else if(Objects.equals(ConstantForMES.AWAITING_DELIVERY,statuss)){
+                    awaitingDelivery=awaitingDelivery.add(addOne);
+                }else if(Objects.equals(ConstantForMES.PUT_UP,statuss)){
+                    unWorkingl=unWorkingl.add(addOne);
+                }
+            }
+        }
+        BigDecimal totalOrder=awaitingDelivery.add(startWorking).add(startWorking).add(unWorkingl);
+        map.clear();
+        map.put("totalOrder",totalOrder);
+        map.put("awaitingDelivery",awaitingDelivery);
+        map.put("startWorking",startWorking);
+        map.put("unWorkingl",unWorkingl);
+        return R.ok(map);
+    }
+
+    @Override
+    public R productionSchedule(){
+        Map<String,Object>  map= new HashMap<>();
+        map.put("status",ConstantForMES.CLOSE_CASE);
+        List<DispatchItemDO> dispatchItemDo = this.countOfStatus(map);
+        List<DispatchItemDO> result=new ArrayList<>();
+        if(dispatchItemDo.size()>0){
+            List<DispatchItemDO> results=dispatchItemDo.stream().sorted(Comparator.comparing(DispatchItemDO::getPlanCount).reversed()).collect(Collectors.toList());
+            int index=10;
+            if(results.size()<=10){
+                index=results.size();
+            }
+            result=results.subList(0,index);
+        }
+        map.clear();
+        map.put("data",result);
+        return  R.ok(map);
+    }
+
+    @Override
+    public R getPieceRateWage(){
+        SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss");
+        DatesUtil datesUtil=new DatesUtil();
+        Date dateBefor = datesUtil.getDateBefor(new Date(), 6);
+        Map<String,Object>  map= new HashMap<>();
+        map.put("status",Constant.APPLY_APPROED);
+        map.put("createTimes",formatter.format(dateBefor));
+        List<Map<String, Object>> mapList = processReportService.listForMap(map);
+        List<Map<String, Object>> finallResult=new ArrayList<>();
+        map.clear();
+        if(mapList.size()>0){
+
+//            List<Map<String, Object>> results= mapList.stream().sorted((v1,v2)->Integer.parseInt(v1.get("conformityCount").toString())>Integer.parseInt(v2.get("conformityCount").toString())?-1:1).collect(Collectors.toList());
+            Map<String, BigDecimal> operatorSalaryMap = mapList
+                    .stream()
+                    .collect(Collectors.toMap(k -> k.get("operator").toString(), v -> MathUtils.getBigDecimal(v.get("salary")), BigDecimal::add));
+            List<Map<String, Object>> finalList=new ArrayList<>();
+            for(String operator:operatorSalaryMap.keySet()){
+                for(Map<String, Object> mapOne:mapList){
+                    if(Objects.equals(operator,mapOne.get("operator").toString())){
+                        Map<String,Object>  finallMap= new HashMap<>();
+                        finallMap.put("operatorName",mapOne.get("operatorName"));
+                        finallMap.put("salary",operatorSalaryMap.get(mapOne.get("operator").toString()));
+                        finalList.add(finallMap);
+                        break;
+                    }
+                }
+            }
+            List<Map<String, Object>> results= finalList.stream()
+                    .sorted((v1,v2)->new BigDecimal(v1.get("salary").toString()).compareTo(new BigDecimal(v2.get("salary").toString()))>0?-1:1)
+                    .collect(Collectors.toList());
+            int index=10;
+           if(finalList.size()<=10){
+               index=results.size();
+           }
+            List<Map<String, Object>>result =results.subList(0,index);
+            map.put("data",result);
+        }
+        return  R.ok(map);
+    }
 
 
 

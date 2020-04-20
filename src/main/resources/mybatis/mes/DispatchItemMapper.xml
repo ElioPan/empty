@@ -554,6 +554,20 @@
 		a.`status`=237
 	</select>
 
+	<select id="countOfStatus" resultType="com.ev.mes.domain.DispatchItemDO">
+		SELECT
+		id,
+		status,
+		`plan_count`,
+		IF(completion_count is null,0,completion_count) completion_count
+		from
+		mes_dispatch_item
+		<where>
+			<if test="status != null and status != ''"> and status &lt;&gt; #{status} </if>
+			<if test="createTime != null and createTime != ''">  and  DATE_FORMAT(create_time,'%Y-%m-%d') &gt;= DATE_FORMAT(#{createTime},'%Y-%m-%d')</if>
+		</where>
+	</select>
+
 
 
 </mapper>

@@ -551,5 +551,19 @@ public class DatesUtil {
 		return myFmt7.format(firstDate);
 	}
 
+	/**
+	 * 得到时间前几天的时间
+	 *
+	 * @param d
+	 * @param day
+	 * @return
+	 */
+	public  Date getDateBefor(Date d, int day) {
+//		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		Calendar now = Calendar.getInstance();
+		now.setTime(d);
+		now.set(Calendar.DATE, now.get(Calendar.DATE) - day);//+后 -前
+		return now.getTime();
+	}
 
 }

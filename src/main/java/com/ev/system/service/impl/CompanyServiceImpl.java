@@ -1,23 +1,22 @@
 package com.ev.system.service.impl;
 
+import com.ev.common.service.ReceiveService;
+import com.ev.framework.il8n.MessageSourceHandler;
+import com.ev.framework.utils.R;
+import com.ev.system.dao.CompanyDao;
+import com.ev.system.domain.CompanyDO;
+import com.ev.system.service.CompanyService;
+import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
-
-import com.ev.framework.il8n.MessageSourceHandler;
-import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.ev.common.service.ReceiveService;
-import com.ev.framework.utils.R;
-import com.ev.system.dao.CompanyDao;
-import com.ev.system.domain.CompanyDO;
-import com.ev.system.service.CompanyService;
 
 @Service
 public class CompanyServiceImpl implements CompanyService {
@@ -95,6 +94,7 @@ public class CompanyServiceImpl implements CompanyService {
 		} catch (IOException e) {
 			return R.error(messageSourceHandler.getMessage("license.IO.error",null));
 		} catch (Exception e) {
+			e.printStackTrace();
 			return R.error(messageSourceHandler.getMessage("license.reload.error",null));
 		}finally {
 			IOUtils.closeQuietly(reader);

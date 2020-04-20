@@ -242,7 +242,7 @@ public class DailyReportServiceImpl implements DailyReportService {
 	@Override
 	public R listOfCanDelet(Map<String, Object> map,Long[] ids) {
 		List<Map<String, Object>> mapList = dailyReportDao.listOfCanDelet(map);
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
 
 		if(Objects.equals(mapList.size(),ids.length)){
 			Long[] deleIds=new Long[mapList.size()];
@@ -252,7 +252,7 @@ public class DailyReportServiceImpl implements DailyReportService {
 			}
 			dailyReportDao.batchRemove(deleIds);
 
-			Map<String, Object> query = new HashMap<String, Object>();
+			Map<String, Object> query = new HashMap<>();
 			query.put("assocId",deleIds );
 			query.put("assocType", Constant.DAILY_REPORT_TARGET);
 			userAssocService.batchRemoveByAssocIdAadType(query);
@@ -261,9 +261,9 @@ public class DailyReportServiceImpl implements DailyReportService {
 
 			return R.ok();
 		}
-		return R.error(messageSourceHandler.getMessage("common.dailyReport.batchRemove",null));
-
+		return R.error(messageSourceHandler.getMessage("common.submit.delete.disabled",null));
 	}
+
 	/*
 	   验证当前登录人当天是是否重建日志
 	 */
