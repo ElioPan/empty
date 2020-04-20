@@ -76,9 +76,9 @@
         g.name as unitName,
         e.batch_no as batchNo,
         IFNULL(a.completion_count,0) as completionCount,
-        IFNULL(mn.conformity_count,0) AS conformityCount,
-        IFNULL(mn.rework_count,0) AS reworkCount,
-        IFNULL(mn.scrap_count,0) AS scrapCount,
+        IF(a.id=vmn.viewProcessReportId,vmn.viewConformityCount,a.conformity_count) AS conformityCount,
+        IF(a.id=vmn.viewProcessReportId,vmn.viewReworkCount,a.rework_count) AS reworkCount,
+        IF(a.id=vmn.viewProcessReportId,vmn.viewScrapCount,a.scrap_count) AS scrapCount,
         b.foriegn_id AS processPlanItemId
         from
         mes_process_report  a
@@ -91,6 +91,7 @@
         LEFT JOIN  mes_process    h  on  d.process_id=h.id
         LEFT JOIN  cus_device   n  on  b.device_id=n .id
         LEFT JOIN  mes_process_report_check mn on a.id=mn.process_report_id
+        LEFT JOIN   view_process_report_check vmn on a.id=vmn.viewProcessReportId
         <where>
             <if test="deptId != null and deptId != ''"> and d.`dept_id` = #{deptId} </if>
             <if test="userId != null and userId != ''"> and b.operator = #{userId} </if>
@@ -121,9 +122,9 @@
         SELECT
         COUNT(*) AS total,
         IFNULL(SUM(a.completion_count),0) as completionCount,
-        IFNULL(SUM(mn.conformity_count),0) AS conformityCount,
-        IFNULL(SUM(mn.rework_count),0) AS reworkCount,
-        IFNULL(SUM(mn.scrap_count),0) AS scrapCount
+        IFNULL(SUM(IF(a.id=vmn.viewProcessReportId,vmn.viewConformityCount,a.conformity_count)),0) AS conformityCount,
+        IFNULL(SUM(IF(a.id=vmn.viewProcessReportId,vmn.viewReworkCount,a.rework_count)),0) AS reworkCount,
+        IFNULL(SUM(IF(a.id=vmn.viewProcessReportId,vmn.viewScrapCount,a.scrap_count)),0) AS scrapCount
         from
         mes_process_report  a
         LEFT JOIN  mes_dispatch_item   b ON a.dispatch_item_id =b.id
@@ -135,6 +136,7 @@
         LEFT JOIN  mes_process    h  on  d.process_id=h.id
         LEFT JOIN  cus_device   n  on  b.device_id=n .id
         LEFT JOIN  mes_process_report_check mn on a.id=mn.process_report_id
+        LEFT JOIN   view_process_report_check vmn on a.id=vmn.viewProcessReportId
         <where>
             <if test="deptId != null and deptId != ''"> and d.`dept_id` = #{deptId} </if>
             <if test="userId != null and userId != ''"> and b.operator = #{userId} </if>
@@ -160,9 +162,9 @@
         rcheck.`materia_id`,
         rcheck.`supplier_id`,
         rcheck.`check_plan_id`,
-        IFNULL(rcheck.`conformity_count`,0) AS conformity_count,
-        IFNULL(rcheck.`rework_count`,0) AS rework_count,
-        IFNULL(rcheck.`scrap_count`,0) AS scrap_count,
+        IF(report.id=vmn.viewProcessReportId,vmn.viewConformityCount,report.conformity_count) AS conformity_count,
+        IF(report.id=vmn.viewProcessReportId,vmn.viewReworkCount,report.rework_count) AS rework_count,
+        IF(report.id=vmn.viewProcessReportId,vmn.viewScrapCount,report.scrap_count) AS scrap_count,
         IFNULL(rcheck.`check_count`,0) AS check_count,
         rcheck.`status`,
         rcheck.`create_by`,
@@ -172,8 +174,9 @@
         rcheck.`del_flag`,
         dispatch.foriegn_id AS process_plan_item_id
         FROM
-        mes_process_report_check rcheck
-        LEFT JOIN mes_process_report report ON report.id = rcheck.process_report_id
+        mes_process_report report
+        LEFT JOIN mes_process_report_check rcheck ON report.id = rcheck.process_report_id
+        LEFT JOIN view_process_report_check vmn on a.id=vmn.viewProcessReportId
         LEFT JOIN mes_dispatch_item dispatch ON dispatch.id = report.dispatch_item_id
         <where>
             <if test="planIds != null and planIds.size()>0"> and  dispatch.foriegn_id IN
@@ -340,9 +343,9 @@
         report.create_time AS createTime,
         process.code AS processCode,
         process.`name`  AS processName,
-        IFNULL(report.conformity_count,0) AS conformityCount,
+        IF(report.id=mn.viewProcessReportId,mn.viewConformityCount,report.conformity_count) AS conformityCount,
         IFNULL(detail.labour_price,0) AS labourPrice,
-        IFNULL(report.conformity_count,0)*IFNULL(detail.labour_price,0) AS totalPrice,
+        IF(report.id=mn.viewProcessReportId,mn.viewConformityCount,report.conformity_count)*IFNULL(detail.labour_price,0) AS totalPrice,
         0 AS sign,
         0 AS sortNo
         FROM mes_process_report report
@@ -354,6 +357,8 @@
         LEFT JOIN cus_materiel materiel ON materiel.id=plan.`materiel_id`
         LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.unit_uom
         LEFT JOIN mes_process process ON process.id=detail.process_id
+        LEFT JOIN   view_process_report_check mn on report.id=mn.viewProcessReportId
+
         <where>
             <if test="userId != null and userId != ''"> and report.`create_by` = #{userId} </if>
             <if test="deptId != null and deptId != ''"> and detail.dept_id  = #{deptId} </if>
