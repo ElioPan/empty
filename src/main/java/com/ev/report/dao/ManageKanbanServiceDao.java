@@ -8,4 +8,6 @@ import java.util.Map;
 @Mapper
 public interface ManageKanbanServiceDao {
     List<Map<String, Object>> feedingList();
+
+    List<Map<String, Object>> getProductionStatistics(Map<String, Object> param);
 }

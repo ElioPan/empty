@@ -24,4 +24,19 @@
         AND IFNULL(detail.`plan_feeding`,0) &gt; IFNULL(detail.`out_count`,0)
         AND feeding.status = 179
     </select>
+    <select id="getProductionStatistics" resultType="map">
+        SELECT
+        SUM(item.count) AS `count`,
+        LEFT(stock.in_out_time,10) AS `time`
+        FROM scm_stock_in_item item
+        LEFT JOIN scm_stock_in stock ON stock.id=item.inhead_id
+        <where>
+            <if test="auditSign != null and auditSign != ''"> and stock.audit_sign = #{auditSign} </if>
+            <if test="storageType != null and storageType != ''"> and stock.storage_type = #{storageType} </if>
+            <if test="year != null and year != ''"> and LEFT(stock.in_out_time,4) = #{year} </if>
+            <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(stock.in_out_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(stock.in_out_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+        </where>
+        GROUP BY LEFT(stock.in_out_time,10)
+    </select>
 </mapper>

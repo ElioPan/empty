@@ -13,4 +13,6 @@ import java.util.Map;
 public interface ManageKanbanService {
 
     List<Map<String, Object>> feedingList();
+
+    List<Map<String, Object>> getProductionStatistics(Map<String, Object> param);
 }

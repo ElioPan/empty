@@ -17,4 +17,9 @@ public class ManageKanbanServiceImpl implements ManageKanbanService {
     public List<Map<String, Object>> feedingList() {
         return kanbanService.feedingList();
     }
+
+    @Override
+    public List<Map<String, Object>> getProductionStatistics(Map<String, Object> param) {
+        return kanbanService.getProductionStatistics(param);
+    }
 }

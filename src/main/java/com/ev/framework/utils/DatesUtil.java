@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /*
  * 由于为了以后使用方便,所有方法的返回类型都设为了 java.util.Date 请在使用时根据自己的需要进行日期格式化处理,如:
@@ -452,7 +453,7 @@ public class DatesUtil {
 			dateList.add(now.getTime());
 			now.set(Calendar.DATE, now.get(Calendar.DATE) - 1);
 		}
-		return dateList;
+		return dateList.stream().sorted(Comparator.comparing(e->e)).collect(Collectors.toList());
 	}
 
 

@@ -1,7 +1,10 @@
 package com.ev.apis.controller.report;
 
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
+import com.ev.framework.utils.DateFormatUtil;
+import com.ev.framework.utils.DatesUtil;
 import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.R;
 import com.ev.report.service.ManageKanbanService;
@@ -16,8 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -102,6 +104,74 @@ public class ManageKanbanApiController {
             results.put("data",data);
         }
         return R.ok(results);
+    }
+
+    @EvApiByToken(value = "/apis/ManageKanban/productionStatistics", method = RequestMethod.POST, apiTitle = "生产运营看板-产量统计")
+    @ApiOperation("生产运营看板-产量统计")
+    public R productionStatistics() {
+        // 获取当前年
+        Calendar now = Calendar.getInstance();
+        int year = now.get(Calendar.YEAR);
+        int month = now.get(Calendar.MONTH) + 1;
+        String monthToString = String.format("%0" + 2 + "d", month);
+
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("year", year);
+        param.put("auditSign", ConstantForMES.OK_AUDITED);
+        param.put("storageType", ConstantForGYL.YDGOODS_WAREHOUSE);
+        List<Map<String, Object>> data = kanbanService.getProductionStatistics(param);
+
+        Map<String, Object> result = Maps.newHashMap();
+        // 获取最近十天
+        List<Date> dateTen = DatesUtil.getDateBefore(now.getTime(), 10);
+        List<String> dateTenToString = dateTen.stream()
+                .map(e -> DateFormatUtil.getFormateDate(e, "yyyy-MM-dd"))
+                .collect(Collectors.toList());
+        // 年产量
+        BigDecimal yearCount = data
+                .stream()
+                .map(v -> MathUtils.getBigDecimal(v.get("count")))
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+        result.put("yearCount",yearCount);
+
+        // 月产量
+        BigDecimal monthCount = data
+                .stream()
+                .filter(e -> monthToString.equals(e.get("time").toString().substring(5, 7)))
+                .map(v -> MathUtils.getBigDecimal(v.get("count")))
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+        result.put("monthCount",monthCount);
+
+        // 获取最近10天
+        param.remove("year");
+        param.put("startTime",dateTenToString.get(0));
+        param.put("endTime",dateTenToString.get(dateTenToString.size()-1));
+        List<Map<String, Object>> productionStatistics = kanbanService.getProductionStatistics(param);
+
+        Map<String, String> timeToCount = productionStatistics
+                .stream()
+                .collect(Collectors.toMap(k -> k.get("time").toString(), v -> v.get("count").toString()));
+        Map<String,Object> tenDayMap = Maps.newHashMap();
+        for (String date : dateTenToString) {
+            String count = timeToCount.get(date);
+            tenDayMap.put(date,count==null?0:count);
+        }
+        result.put("tenDayCount",tenDayMap);
+
+        // 周产量
+        param.put("startTime",DateFormatUtil.getFormateDate(DatesUtil.getBeginDayOfWeek(),"yyyy-MM-dd"));
+        param.put("endTime",DateFormatUtil.getFormateDate(DatesUtil.getEndDayOfWeek(),"yyyy-MM-dd"));
+        List<Map<String, Object>> weekData = kanbanService.getProductionStatistics(param);
+        BigDecimal weekCount = weekData
+                .stream()
+                .map(v -> MathUtils.getBigDecimal(v.get("count")))
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+        result.put("weekCount",weekCount);
+
+        return R.ok(result);
     }
 
 }
