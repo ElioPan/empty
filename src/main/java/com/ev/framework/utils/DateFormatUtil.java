@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 public class DateFormatUtil {
     public static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    public static final String DATE_PATTERN_YMD = "yyyy-MM-dd";
     public final static String FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
     public final static String[] REPLACE_STRING = new String[]{"GMT+0800", "GMT+08:00"};
     public final static String SPLIT_STRING = "(中国标准时间)";

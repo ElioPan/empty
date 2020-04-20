@@ -22,4 +22,9 @@ public class ManageKanbanServiceImpl implements ManageKanbanService {
     public List<Map<String, Object>> getProductionStatistics(Map<String, Object> param) {
         return kanbanService.getProductionStatistics(param);
     }
+
+    @Override
+    public List<Map<String, Object>> badProductList(Map<String, Object> param) {
+        return kanbanService.badProductList(param);
+    }
 }

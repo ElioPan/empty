@@ -15,4 +15,6 @@ public interface ManageKanbanService {
     List<Map<String, Object>> feedingList();
 
     List<Map<String, Object>> getProductionStatistics(Map<String, Object> param);
+
+    List<Map<String, Object>> badProductList(Map<String, Object> param);
 }

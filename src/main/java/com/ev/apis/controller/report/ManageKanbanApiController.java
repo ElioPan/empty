@@ -3,6 +3,7 @@ package com.ev.apis.controller.report;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
+import com.ev.framework.config.ConstantForReport;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.DatesUtil;
 import com.ev.framework.utils.MathUtils;
@@ -19,7 +20,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -101,7 +105,7 @@ public class ManageKanbanApiController {
         Map<String, Object> results = Maps.newHashMap();
         List<Map<String, Object>> data = kanbanService.feedingList();
         if (data.size() > 0) {
-            results.put("data",data);
+            results.put("data", data);
         }
         return R.ok(results);
     }
@@ -109,6 +113,7 @@ public class ManageKanbanApiController {
     @EvApiByToken(value = "/apis/ManageKanban/productionStatistics", method = RequestMethod.POST, apiTitle = "生产运营看板-产量统计")
     @ApiOperation("生产运营看板-产量统计")
     public R productionStatistics() {
+        Map<String, Object> result = Maps.newHashMap();
         // 获取当前年
         Calendar now = Calendar.getInstance();
         int year = now.get(Calendar.YEAR);
@@ -119,59 +124,136 @@ public class ManageKanbanApiController {
         param.put("year", year);
         param.put("auditSign", ConstantForMES.OK_AUDITED);
         param.put("storageType", ConstantForGYL.YDGOODS_WAREHOUSE);
-        List<Map<String, Object>> data = kanbanService.getProductionStatistics(param);
-
-        Map<String, Object> result = Maps.newHashMap();
-        // 获取最近十天
-        List<Date> dateTen = DatesUtil.getDateBefore(now.getTime(), 10);
-        List<String> dateTenToString = dateTen.stream()
-                .map(e -> DateFormatUtil.getFormateDate(e, "yyyy-MM-dd"))
-                .collect(Collectors.toList());
+        List<Map<String, Object>> yearData = kanbanService.getProductionStatistics(param);
         // 年产量
-        BigDecimal yearCount = data
+        BigDecimal yearCount = yearData
                 .stream()
                 .map(v -> MathUtils.getBigDecimal(v.get("count")))
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
-        result.put("yearCount",yearCount);
+        result.put("yearCount", yearCount);
 
+        param.remove("year");
+        param.put("month", year + "-" + monthToString);
+        List<Map<String, Object>> monthData = kanbanService.getProductionStatistics(param);
         // 月产量
-        BigDecimal monthCount = data
+        BigDecimal monthCount = monthData
                 .stream()
-                .filter(e -> monthToString.equals(e.get("time").toString().substring(5, 7)))
                 .map(v -> MathUtils.getBigDecimal(v.get("count")))
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
-        result.put("monthCount",monthCount);
+        result.put("monthCount", monthCount);
+
+        // 获取最近十天
+        List<Date> dateTen = DatesUtil.getDateBefore(now.getTime(), ConstantForReport.SHOW_COUNT.intValue());
+        List<String> dateTenToString = dateTen.stream()
+                .map(e -> DateFormatUtil.getFormateDate(e, DateFormatUtil.DATE_PATTERN_YMD))
+                .collect(Collectors.toList());
 
         // 获取最近10天
-        param.remove("year");
-        param.put("startTime",dateTenToString.get(0));
-        param.put("endTime",dateTenToString.get(dateTenToString.size()-1));
+        param.remove("month");
+        param.put("day", true);
+        param.put("startTime", dateTenToString.get(0));
+        param.put("endTime", dateTenToString.get(dateTenToString.size() - 1));
         List<Map<String, Object>> productionStatistics = kanbanService.getProductionStatistics(param);
-
-        Map<String, String> timeToCount = productionStatistics
+        Map<String, Object> timeToCount = productionStatistics
                 .stream()
                 .collect(Collectors.toMap(k -> k.get("time").toString(), v -> v.get("count").toString()));
-        Map<String,Object> tenDayMap = Maps.newHashMap();
+        Map<String, Object> tenDayMap = Maps.newHashMap();
         for (String date : dateTenToString) {
-            String count = timeToCount.get(date);
-            tenDayMap.put(date,count==null?0:count);
+            tenDayMap.put(date, timeToCount.getOrDefault(date, 0));
         }
-        result.put("tenDayCount",tenDayMap);
+        result.put("tenDayCount", tenDayMap);
 
-        // 周产量
-        param.put("startTime",DateFormatUtil.getFormateDate(DatesUtil.getBeginDayOfWeek(),"yyyy-MM-dd"));
-        param.put("endTime",DateFormatUtil.getFormateDate(DatesUtil.getEndDayOfWeek(),"yyyy-MM-dd"));
+        // 周产量 本周
+        param.put("startTime", DateFormatUtil.getFormateDate(DatesUtil.getBeginDayOfWeek(), DateFormatUtil.DATE_PATTERN_YMD));
+        param.put("endTime", DateFormatUtil.getFormateDate(DatesUtil.getEndDayOfWeek(), DateFormatUtil.DATE_PATTERN_YMD));
         List<Map<String, Object>> weekData = kanbanService.getProductionStatistics(param);
         BigDecimal weekCount = weekData
                 .stream()
                 .map(v -> MathUtils.getBigDecimal(v.get("count")))
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
-        result.put("weekCount",weekCount);
+        result.put("weekCount", weekCount);
 
         return R.ok(result);
+    }
+
+    @EvApiByToken(value = "/apis/ManageKanban/yieldStatisticsByProduct", method = RequestMethod.POST, apiTitle = "生产运营看板-良率统计(产品最高TOP10)")
+    @ApiOperation("生产运营看板-良率统计(产品最高TOP10)")
+    public R yieldStatisticsByProduct() {
+        // 获取最近7天
+        List<Date> dateSeven = DatesUtil.getDateBefore(new Date(), 7);
+        List<String> dateTenToString = dateSeven.stream()
+                .map(e -> DateFormatUtil.getFormateDate(e, DateFormatUtil.DATE_PATTERN_YMD))
+                .collect(Collectors.toList());
+
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("status", ConstantForMES.OK_AUDITED);
+        param.put("inspectionType", ConstantForMES.CPJY);
+        param.put("startTime", dateTenToString.get(0));
+        param.put("endTime", dateTenToString.get(dateTenToString.size() - 1));
+//        List<Map<String, Object>> data = kanbanService.getProductionStatistics(param);
+//        // 获取一周内产量最高的十个物料
+//        List<Object> materielIdList = data
+//                .stream()
+//                .limit(ConstantForReport.SHOW_COUNT)
+//                .map(e -> e.get("materielId"))
+//                .collect(Collectors.toList());
+
+        List<Map<String, Object>> badData = kanbanService.badProductList(param);
+        List<Map<String, Object>> yieldRate = badData
+                .stream()
+                .limit(ConstantForReport.SHOW_COUNT)
+                .peek(e -> e.put("qualifiedRate", BigDecimal.ONE.subtract(MathUtils.getBigDecimal(e.get("unqualifiedRate")))))
+                .collect(Collectors.toList());
+        Map<String, Object> results = Maps.newHashMap();
+        results.put("yieldRate", yieldRate);
+        return R.ok(results);
+    }
+
+    @EvApiByToken(value = "/apis/ManageKanban/yieldStatisticsByDefectiveRate", method = RequestMethod.POST, apiTitle = "生产运营看板-良率统计(不良率最高TOP10)")
+    @ApiOperation("生产运营看板-良率统计(不良率最高TOP10)")
+    public R yieldStatisticsByDefectiveRate() {
+        // 获取最近7天
+        List<Date> dateSeven = DatesUtil.getDateBefore(new Date(), 7);
+        List<String> dateTenToString = dateSeven.stream()
+                .map(e -> DateFormatUtil.getFormateDate(e, DateFormatUtil.DATE_PATTERN_YMD))
+                .collect(Collectors.toList());
+
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("status", ConstantForMES.OK_AUDITED);
+        param.put("inspectionType", ConstantForMES.CPJY);
+        param.put("startTime", dateTenToString.get(0));
+        param.put("endTime", dateTenToString.get(dateTenToString.size() - 1));
+        param.put("unqualifiedRate", true);
+
+        List<Map<String, Object>> badData = kanbanService.badProductList(param);
+        List<Map<String, Object>> yieldRate = badData
+                .stream()
+                .limit(ConstantForReport.SHOW_COUNT)
+                .collect(Collectors.toList());
+        Map<String, Object> results = Maps.newHashMap();
+        results.put("yieldRate", yieldRate);
+        return R.ok(results);
+    }
+
+    @EvApiByToken(value = "/apis/ManageKanban/badReasonsCount", method = RequestMethod.POST, apiTitle = "生产运营看板-良率统计(不良数量TOP10)")
+    @ApiOperation("生产运营看板-不良原因(不良数量TOP10)")
+    public R badReasonsCount() {
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("status", ConstantForMES.OK_AUDITED);
+        param.put("inspectionType", ConstantForMES.CPJY);
+        param.put("unqualifiedCount", true);
+        param.put("poor", true);
+        List<Map<String, Object>> badData = kanbanService.badProductList(param);
+        List<Map<String, Object>> badDataTop = badData
+                .stream()
+                .limit(ConstantForReport.SHOW_COUNT)
+                .collect(Collectors.toList());
+        Map<String, Object> results = Maps.newHashMap();
+        results.put("badData", badDataTop);
+        return R.ok(results);
     }
 
 }

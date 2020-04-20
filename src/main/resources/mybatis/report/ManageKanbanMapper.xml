@@ -27,6 +27,7 @@
     <select id="getProductionStatistics" resultType="map">
         SELECT
         SUM(item.count) AS `count`,
+        item.materiel_id AS materielId,
         LEFT(stock.in_out_time,10) AS `time`
         FROM scm_stock_in_item item
         LEFT JOIN scm_stock_in stock ON stock.id=item.inhead_id
@@ -34,9 +35,69 @@
             <if test="auditSign != null and auditSign != ''"> and stock.audit_sign = #{auditSign} </if>
             <if test="storageType != null and storageType != ''"> and stock.storage_type = #{storageType} </if>
             <if test="year != null and year != ''"> and LEFT(stock.in_out_time,4) = #{year} </if>
+            <if test="month != null and month != ''"> and LEFT(stock.in_out_time,7) = #{month} </if>
             <if test="startTime != null and startTime != ''"> and  DATE_FORMAT(stock.in_out_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(stock.in_out_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
         </where>
-        GROUP BY LEFT(stock.in_out_time,10)
+        <choose>
+            <when test="year != null ">
+                GROUP BY LEFT(stock.in_out_time,4)
+            </when>
+            <when test="month != null ">
+                GROUP BY LEFT(stock.in_out_time,7)
+            </when>
+            <when test="day != null ">
+                GROUP BY LEFT(stock.in_out_time,10)
+            </when>
+            <otherwise>
+                GROUP BY item.materiel_id
+                ORDER BY `count` DESC
+            </otherwise>
+        </choose>
     </select>
+
+    <select id="badProductList" resultType="java.util.Map">
+        SELECT
+        SUM(inspection.inspection_count) AS inspectionCount,
+        materiel.`id` AS materielId,
+        materiel.`name` AS materielName,
+        materiel.`specification` AS specification,
+        CONCAT_WS('-',materiel.`name`,materiel.`specification`) AS nameAndSpecification,
+        poor.`id` AS poorId,
+        poor.`name` AS poorName,
+        SUM(detail.unqualified_count) AS unqualifiedCount,
+        SUM(detail.unqualified_count)/ SUM(inspection.inspection_count) AS unqualifiedRate
+        FROM mes_material_inspection_detail detail
+        LEFT JOIN mes_material_inspection inspection ON detail.`head_id`=inspection.id
+        LEFT JOIN cus_materiel materiel ON materiel.id=inspection.`materiel_id`
+        LEFT JOIN mes_poor poor ON poor.id=detail.reason_id
+        <where>
+            <if test="inspectionType != null and inspectionType != ''"> and inspection.inspection_type = #{inspectionType} </if>
+            <if test="status != null and status != ''"> and inspection.status = #{status} </if>
+            <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(inspection.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(inspection.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+        </where>
+        <choose>
+            <when test="poor != null ">
+                GROUP BY poor.`id`
+            </when>
+            <otherwise>
+                GROUP BY inspection.`materiel_id`
+            </otherwise>
+        </choose>
+
+        <choose>
+            <when test="unqualifiedRate != null ">
+                ORDER BY unqualifiedRate DESC
+            </when>
+            <when test="unqualifiedCount != null ">
+                ORDER BY unqualifiedCount DESC
+            </when>
+            <otherwise>
+                ORDER BY inspectionCount DESC
+            </otherwise>
+        </choose>
+
+    </select>
+
 </mapper>
