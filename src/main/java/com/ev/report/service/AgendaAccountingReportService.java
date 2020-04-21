@@ -25,8 +25,6 @@ public interface AgendaAccountingReportService {
 
     R leaveGroup(CommonVO commonVO);
 
-    R leave(CommonVO commonVO, Long typeId);
-
     R applyForReimbursementGroup(CommonVO commonVO);
 
     R payment(CommonVO commonVO);

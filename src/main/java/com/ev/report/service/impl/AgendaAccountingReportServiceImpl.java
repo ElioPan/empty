@@ -213,12 +213,12 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
             Long userId = userForReportVO.getUserId();
             map.put("userName", userForReportVO.getUserName());
             map.put("deptName", userForReportVO.getDeptName());
-            Integer dailyCount = dailyReportCollect.get(userId);
-            Integer weekCount = weekReportCollect.get(userId);
-            Integer monthCount = monthReportCollect.get(userId);
-            map.put("dailyCount", dailyCount == null ? workingNum : dailyCount);
-            map.put("weekCount", weekCount == null ? weekNum : weekCount);
-            map.put("monthCount", monthCount == null ? monthNum : monthCount);
+            Integer dailyCount = dailyReportCollect.getOrDefault(userId,workingNum);
+            Integer weekCount = weekReportCollect.getOrDefault(userId,weekNum);
+            Integer monthCount = monthReportCollect.getOrDefault(userId,monthNum);
+            map.put("dailyCount",dailyCount);
+            map.put("weekCount", weekCount);
+            map.put("monthCount", monthCount);
             map.put("timeLimit", timeLimit);
             userDOsList.add(map);
         }
@@ -262,7 +262,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                 Map<String, Object> map;
                 for (String userId : itemGroup.keySet()) {
                     map = Maps.newHashMap();
-                    BigDecimal totalCount = itemGroup.get(userId);
+                    BigDecimal totalCount = itemGroup.getOrDefault(userId,BigDecimal.ZERO);
                     Map<String, Object> item = itemMap.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
@@ -271,7 +271,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                     map.put("name", item.get("name") + ConstantForReport.TOTAL_SUFFIX);
                     map.put("deptName", item.get("deptName"));
                     map.put("deptId", item.get("deptId"));
-                    map.put("totalCount", totalCount == null ? 0 : totalCount);
+                    map.put("totalCount", totalCount);
                     showList.add(map);
                 }
             }
@@ -338,7 +338,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                 Map<String, Object> map;
                 for (String userId : itemGroup.keySet()) {
                     map = Maps.newHashMap();
-                    BigDecimal totalCount = itemGroup.get(userId);
+                    BigDecimal totalCount = itemGroup.getOrDefault(userId,BigDecimal.ZERO);
                     Map<String, Object> item = itemMap.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
@@ -348,7 +348,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                     map.put("deptName", item.get("deptName"));
                     map.put("deptId", item.get("deptId"));
                     map.put("type", typeMax);
-                    map.put("totalCount", totalCount == null ? 0 : totalCount);
+                    map.put("totalCount", totalCount);
                     showList.add(map);
                 }
             }
@@ -369,29 +369,6 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                     .collect(Collectors.toList());
             result.put("data",collect);
             result.put("total",total);
-        }
-        return R.ok(result);
-    }
-
-    @Override
-    public R leave(CommonVO commonVO, Long typeId) {
-        Long userId = commonVO.getUserId();
-        if (userId == null || typeId == null) {
-            return R.ok();
-        }
-        Map<String, Object> result = Maps.newHashMap();
-        String startTime = commonVO.getStartTime();
-        String endTime = commonVO.getEndTime();
-        Map<String, Object> param = Maps.newHashMap();
-        param.put("createBy", userId);
-        param.put("type", typeId);
-        param.put("status", Constant.APPLY_COMPLETED);
-        param.put("startTime", startTime);
-        param.put("endTime", endTime);
-        List<Map<String, Object>> leaveForItem = reportDao.leaveItem(param);
-        if (leaveForItem.size() > 0) {
-            List<Map<String, Object>> leaveForItemList = PageUtils.startPage(leaveForItem, commonVO.getPageno(), commonVO.getPagesize());
-            result.put("data", new DsResultResponse(commonVO.getPageno(), commonVO.getPagesize(), leaveForItem.size(), leaveForItemList));
         }
         return R.ok(result);
     }
@@ -445,7 +422,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                 Map<String, Object> map;
                 for (String userId : itemGroup.keySet()) {
                     map = Maps.newHashMap();
-                    BigDecimal totalCount = itemGroup.get(userId);
+                    BigDecimal totalCount = itemGroup.getOrDefault(userId,BigDecimal.ZERO);
                     Map<String, Object> item = itemMap.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
@@ -455,7 +432,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                     map.put("deptName", item.get("deptName"));
                     map.put("deptId", item.get("deptId"));
                     map.put("type", typeMax);
-                    map.put("totalCount", totalCount == null ? 0 : totalCount);
+                    map.put("totalCount", totalCount);
                     showList.add(map);
                 }
             }
@@ -516,7 +493,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                 Map<String, Object> map;
                 for (String userId : itemGroup.keySet()) {
                     map = Maps.newHashMap();
-                    BigDecimal totalCount = itemGroup.get(userId);
+                    BigDecimal totalCount = itemGroup.getOrDefault(userId,BigDecimal.ZERO);
                     Map<String, Object> item = itemMap.get(userId);
                     map.put("userId",userId);
                     // 颜色标记明细为0 类型合计1, 人员合计2
@@ -526,7 +503,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
                     map.put("name", item.get("name") + ConstantForReport.TOTAL_SUFFIX);
                     map.put("deptName", item.get("deptName"));
                     map.put("deptId", item.get("deptId"));
-                    map.put("totalCount", totalCount == null ? 0 : totalCount);
+                    map.put("totalCount", totalCount);
                     showList.add(map);
                 }
             }
