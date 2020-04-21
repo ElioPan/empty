@@ -153,6 +153,9 @@
             <when test="sort != null and sort.trim() != ''">
                 ORDER BY  IF(repairevent.status=146,0,1),${sort} ${order},repairevent.status ASC,repairevent.`plan_time` ASC,repairevent.`level` ASC,repairevent.id DESC
             </when>
+			<when test="sortByEndTime != null">
+				ORDER BY repairevent.`plan_time` ASC,repairevent.`level` ASC,repairevent.id DESC
+			</when>
 			<otherwise>
                 ORDER BY IF(repairevent.status=146,0,1),repairevent.status ASC,repairevent.`plan_time` ASC,repairevent.`level` ASC,repairevent.id DESC
 			</otherwise>

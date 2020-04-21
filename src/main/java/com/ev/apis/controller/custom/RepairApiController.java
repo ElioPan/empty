@@ -487,11 +487,13 @@ public class RepairApiController {
 			 @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize,
 			 @ApiParam(value = "设备ID") @RequestParam(value = "deviceId",defaultValue = "",required = false)  Long deviceId,
 			 @ApiParam(value = "看板用:显示待处理与待验收数据（0不显示/1显示）") @RequestParam(value = "boardStatus",defaultValue = "",required = false) Integer boardStatus) {
-    	Map<String, Object> params = Maps.newHashMapWithExpectedSize(2);
+    	Map<String, Object> params = Maps.newHashMap();
     	params.put("boardStatus", boardStatus);
     	params.put("deviceId", deviceId);
     	params.put("offset",(pageno-1)*pagesize);
         params.put("limit",pagesize);
+
+		params.put("sortByEndTime",true);
     	Map<String,Object> results = Maps.newHashMap();
     	List<Map<String,Object>> data = this.repairEventService.listForMap(params);
     	int total = this.repairEventService.countForMap(params);

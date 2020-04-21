@@ -652,13 +652,14 @@ public class PatrolApiController {
     
     /***************************************************************************************************************************/
     @EvApiByToken(value = "/apis/patrolRecord/recordListForBoard",method = RequestMethod.POST)
-    @ApiOperation("获取用户的巡点检记录列表")
+    @ApiOperation("获取用户的巡点检记录列表(看板)")
     public R recordListForBoard(@ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
                       @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize,
                       @ApiParam(value = "获取看板内待处理数量",required = true) @RequestParam(value = "statusForBoard",defaultValue = "56") Integer status
                       ){
         Map<String, Object> params = Maps.newHashMapWithExpectedSize(3);
         params.put("statusForBoard",status);
+        params.put("sortByEndTime",true);
         params.put("offset", (pageno - 1) * pagesize);
 		params.put("limit", pagesize);
         Map<String,Object> results = Maps.newHashMap();

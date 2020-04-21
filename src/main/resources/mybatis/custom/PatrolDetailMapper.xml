@@ -118,8 +118,9 @@
 		patrolproject.`name` as projectName,
 		patrolproject.`function` as projectFunction,
 		patroldetail.`result` as projectResult,
-		dict.`name` AS recordStatusName,
-		dict.`id` AS recordStatusId,
+		IF(patrolrecord.end_time &lt; NOW() and dict.`id`=56,'超期未处理',dict.`name`) AS recordStatusName,
+		IF(patrolrecord.end_time &lt; NOW() and dict.`id`=56,999,dict.`id`) AS recordStatusId,
+		patrolrecord.end_time AS endTime,
 		patrolrecord.`complete_time` as completeTime
 		FROM cus_patrol_detail patroldetail
 		LEFT JOIN  cus_patrol_project patrolproject ON patrolproject.`id`=patroldetail.`project_id`
@@ -133,7 +134,7 @@
 		  		  <if test="projectId != null and projectId != ''"> and patroldetail.project_id = #{projectId} </if>
 		  		  <if test="recordStatus != null and recordStatus != ''"> and patrolrecord.status = #{recordStatus} </if>
 		  		  <if test="result != null and result != ''"> and patroldetail.result = #{result} </if>
-		  		  <if test="statusForBoard != null and statusForBoard != ''"> and IF(patrolrecord.end_time &lt; NOW() and dict.`id`=56,999,dict.`id`) = #{statusForBoard} </if>
+		  		  <if test="statusForBoard != null and statusForBoard != ''"> AND patrolrecord.end_time &lt; NOW() AND dict.`id` = #{statusForBoard} </if>
 		  		  <if test="status != null and status != ''"> and patroldetail.status = #{status} </if>
 		  		  <if test="content != null and content != ''"> and patroldetail.content = #{content} </if>
 		  		  <if test="recordId != null and recordId != ''"> and patroldetail.record_id = #{recordId} </if>
@@ -144,6 +145,9 @@
             <when test="sort != null and sort.trim() != ''">
                 ORDER BY ${sort} ${order}
             </when>
+			<when test="sortByEndTime != null">
+				ORDER BY patrolrecord.end_time ASC,patroldetail.id DESC
+			</when>
 			<otherwise>
                 ORDER BY patroldetail.id desc
 			</otherwise>
@@ -168,7 +172,7 @@
 		  		  <if test="projectId != null and projectId != ''"> and patroldetail.project_id = #{projectId} </if>
 		  		  <if test="recordStatus != null and recordStatus != ''"> and patrolrecord.status = #{recordStatus} </if>
 		  		  <if test="result != null and result != ''"> and patroldetail.result = #{result} </if>
-		  		  <if test="statusForBoard != null and statusForBoard != ''"> and IF(patrolrecord.end_time &lt; NOW() and dict.`id`=56,999,dict.`id`) = #{statusForBoard} </if>
+			<if test="statusForBoard != null and statusForBoard != ''"> AND patrolrecord.end_time &lt; NOW() AND dict.`id` = #{statusForBoard} </if>
 		  		  <if test="status != null and status != ''"> and patroldetail.status = #{status} </if>
 		  		  <if test="content != null and content != ''"> and patroldetail.content = #{content} </if>
 		  		  <if test="recordId != null and recordId != ''"> and patroldetail.record_id = #{recordId} </if>
