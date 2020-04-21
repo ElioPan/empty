@@ -557,6 +557,7 @@
 	<select id="countOfStatus" resultType="com.ev.mes.domain.DispatchItemDO">
 		SELECT
 		id,
+		code,
 		status,
 		`plan_count`,
 		IF(completion_count is null,0,completion_count) completion_count

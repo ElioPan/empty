@@ -490,7 +490,6 @@ public class DispatchItemServiceImpl implements DispatchItemService {
         List<Map<String, Object>> mapList = processReportService.listForMap(map);
         map.clear();
         if(mapList.size()>0){
-
 //            List<Map<String, Object>> results= mapList.stream().sorted((v1,v2)->Integer.parseInt(v1.get("conformityCount").toString())>Integer.parseInt(v2.get("conformityCount").toString())?-1:1).collect(Collectors.toList());
             Map<String, BigDecimal> operatorSalaryMap = mapList
                     .stream()
@@ -519,6 +518,8 @@ public class DispatchItemServiceImpl implements DispatchItemService {
         }
         return  R.ok(map);
     }
+
+
 
 
 
