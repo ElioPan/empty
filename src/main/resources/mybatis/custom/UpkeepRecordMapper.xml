@@ -674,6 +674,7 @@
 			d.name as pro_name,
 			e.name as engineerName,
 			a.result,
+			a.create_time as createTime,
 			f.name as resultName
 		from
 			cus_upkeep_record a
@@ -690,7 +691,7 @@
 				order by ${sort} ${order}
 			</when>
 			<otherwise>
-				order by a.id
+				order by a.id ,a.create_time
 			</otherwise>
 		</choose>
 		<if test="offset != null and limit != null">
