@@ -163,10 +163,15 @@
 			<if test="idPath != null and idPath != ''"> and createDept.id_path like CONCAT (#{idPath},'%') </if>
 			<if test="startTime != null and startTime != ''">  and  DATE_FORMAT(taskmain.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(taskmain.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="boardStatus != null and boardStatus != ''"> and (taskmain.status=56 OR taskmain.status=57) </if>
+
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
 				ORDER BY IF(taskmain.status=146,0,1),${sort} ${order},IF(overTime='未超时',1,0),CAST(IF(overTime='未超时','0',overTime) as SIGNED) desc,taskmain.expire_date ASC,taskmain.task_level ASC,id DESC
+			</when>
+			<when test="sortByEndTime != null">
+				ORDER BY taskmain.expire_date ASC,taskmain.task_level ASC,id DESC
 			</when>
 			<otherwise>
                 ORDER BY IF(taskmain.status=146,0,1),taskmain.status ASC,IF(overTime='未超时',1,0),CAST(IF(overTime='未超时','0',overTime) as SIGNED) desc,taskmain.expire_date ASC,taskmain.task_level ASC,id DESC
@@ -218,6 +223,8 @@
 			<if test="idPath != null and idPath != ''"> and createDept.id_path like CONCAT (#{idPath},'%') </if>
 			<if test="startTime != null and startTime != ''">  and  DATE_FORMAT(taskmain.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(taskmain.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="boardStatus != null and boardStatus != ''"> and (taskmain.status=56 OR taskmain.status=57) </if>
+
 		</where>
 	</select>
 	

@@ -1,25 +1,24 @@
 package com.ev.apis.controller.custom;
 
 import com.alibaba.fastjson.JSONObject;
-import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
-import com.ev.framework.config.Constant;
-import com.ev.framework.utils.R;
-import com.ev.framework.utils.ShiroUtils;
 import com.ev.custom.domain.TaskEmployeeDO;
 import com.ev.custom.domain.TaskMainDO;
 import com.ev.custom.domain.TaskReplyDO;
-import com.ev.custom.service.*;
+import com.ev.custom.service.NoticeService;
+import com.ev.custom.service.TaskEmployeeService;
+import com.ev.custom.service.TaskMainService;
+import com.ev.custom.service.TaskReplyService;
+import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.Constant;
 import com.ev.framework.il8n.MessageSourceHandler;
+import com.ev.framework.utils.R;
+import com.ev.framework.utils.ShiroUtils;
 import com.ev.framework.utils.StringUtils;
-import com.ev.system.domain.DeptDO;
-import com.ev.system.domain.UserDO;
-import com.ev.system.service.DeptService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -38,9 +37,6 @@ public class TaskMainApiController {
     
     @Autowired
 	private TaskReplyService taskReplyService;
-    
-    @Autowired
-    private DeptService deptService;
     
     @Autowired
     private TaskEmployeeService taskEmployeeService;
@@ -445,6 +441,31 @@ public class TaskMainApiController {
     	}
     	return R.error();
     }
-    
 
+	@EvApiByToken(value = "/apis/taskMain/listForBoard",method = RequestMethod.POST,apiTitle = "获取任务列表信息（看板）")
+	@ApiOperation("获取任务列表信息(看板)")
+	public R listForBoard(@ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
+				  @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize
+
+	){
+		Map<String, Object> params = Maps.newHashMap();
+		params.put("boardStatus",1);
+		params.put("sortByEndTime",true);
+		params.put("offset", (pageno - 1) * pagesize);
+		params.put("limit", pagesize);
+
+		Map<String,Object> results = Maps.newHashMap();
+		List<Map<String,Object>> data= this.taskMainService.listForMap(params);
+		int total = this.taskMainService.countForMap(params);
+		if(data!=null && data.size()>0){
+			DsResultResponse dsRet = new DsResultResponse();
+			dsRet.setDatas(data);
+			dsRet.setPageno(pageno);
+			dsRet.setPagesize(pagesize);
+			dsRet.setTotalRows(total);
+			dsRet.setTotalPages((total  +  pagesize  - 1) / pagesize);
+			results.put("data",dsRet);
+		}
+		return  R.ok(results);
+	}
 }
