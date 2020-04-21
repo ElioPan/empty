@@ -8,10 +8,10 @@ import com.ev.custom.service.DictionaryService;
 import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.config.ConstantForReport;
+import com.ev.framework.utils.BeanUtils;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.DatesUtil;
 import com.ev.framework.utils.MathUtils;
-import com.ev.report.dao.SmartManufacturingAccountingReportDao;
 import com.ev.report.dao.WarehouseAccountingReportDao;
 import com.ev.report.service.WarehouseAccountingReportService;
 import com.ev.report.vo.InOutStockItemVO;
@@ -36,8 +36,6 @@ import java.util.stream.Collectors;
 public class WarehouseAccountingReportServiceImpl implements WarehouseAccountingReportService {
     @Autowired
     private WarehouseAccountingReportDao reportDao;
-    @Autowired
-    private SmartManufacturingAccountingReportDao smartManufacturingReportDao;
     @Autowired
     private StockAnalysisService stockAnalysisService;
     @Autowired
@@ -91,11 +89,6 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
                     .distinct()
                     .collect(Collectors.toList());
 
-            Map<String, Map<String, Object>> materielIdMap = stockList
-                    .stream()
-                    .collect(Collectors.toMap(k -> k.get("materielId").toString(),
-                            v -> v, (v1, v2) -> v1));
-
             // 获取期间对应的秒数
             Map<String, Long> periodMap = stockList
                     .stream()
@@ -103,95 +96,119 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
                             v -> Long.parseLong(v.get("times").toString()), (v1, v2) -> v1));
 
             // 获取最大的一个物料ID
-            long maxMaterielId = Long.parseLong(materielIdMap
-                    .keySet()
+//            long maxMaterielId = Long.parseLong(materielIdMap
+//                    .keySet()
+//                    .stream()
+//                    .max(Comparator.comparing(Long::parseLong))
+//                    .orElse("0")
+//            );
+            long maxMaterielId = stockList
                     .stream()
-                    .max(Comparator.comparing(Long::parseLong))
-                    .orElse("0")
-            );
+                    .map(v->Long.parseLong(v.get("materielId").toString()))
+                    .max(Comparator.comparing(v->v))
+                    .orElse(0L);
+            //  计算数量
+            ArrayList<Map<String, Object>> cloneStockList = BeanUtils.clone((ArrayList<Map<String, Object>>) stockList);
+            Map<String, Map<String, Map<String, Object>>> reduceMap = cloneStockList
+                    .stream()
+                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
+                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
+                                    , v -> v,
+                                    (v1, v2) -> {
+                                        v1.put("initialCount", MathUtils.getBigDecimal(v1.get("initialCount")).add(MathUtils.getBigDecimal(v2.get("initialCount"))));
+                                        v1.put("initialAmount", MathUtils.getBigDecimal(v1.get("initialAmount")).add(MathUtils.getBigDecimal(v2.get("initialAmount"))));
+                                        v1.put("inCount", MathUtils.getBigDecimal(v1.get("inCount")).add(MathUtils.getBigDecimal(v2.get("inCount"))));
+                                        v1.put("inAmount", MathUtils.getBigDecimal(v1.get("inAmount")).add(MathUtils.getBigDecimal(v2.get("inAmount"))));
+                                        v1.put("outCount", MathUtils.getBigDecimal(v1.get("outCount")).add(MathUtils.getBigDecimal(v2.get("outCount"))));
+                                        v1.put("outAmount", MathUtils.getBigDecimal(v1.get("outAmount")).add(MathUtils.getBigDecimal(v2.get("outAmount"))));
+                                        v1.put("finalCount", MathUtils.getBigDecimal(v1.get("finalCount")).add(MathUtils.getBigDecimal(v2.get("finalCount"))));
+                                        v1.put("finalAmount", MathUtils.getBigDecimal(v1.get("finalAmount")).add(MathUtils.getBigDecimal(v2.get("finalAmount"))));
+                                        return v1;
+                                    }
+                            )));
 
-
-            // 期初数量
-            Map<String, Map<String, BigDecimal>> initialCountMap = stockList
-                    .stream()
-                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
-                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
-                                    , v -> MathUtils.getBigDecimal(v.get("initialCount")),BigDecimal::add)
-                    ));
-
-            // 期初金额
-            Map<String, Map<String, BigDecimal>> initialAmountMap = stockList
-                    .stream()
-                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
-                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
-                                    , v -> MathUtils.getBigDecimal(v.get("initialAmount")),BigDecimal::add)
-                    ));
-            // 本期入库数量
-            Map<String, Map<String, BigDecimal>> inCountMap = stockList
-                    .stream()
-                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
-                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
-                                    , v -> MathUtils.getBigDecimal(v.get("inCount")),BigDecimal::add))
-                    );
-            // 入库金额
-            Map<String, Map<String, BigDecimal>> inAmountMap = stockList
-                    .stream()
-                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
-                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
-                                    , v -> MathUtils.getBigDecimal(v.get("inAmount")),BigDecimal::add))
-                    );
-            // 本期出库数量
-            Map<String, Map<String, BigDecimal>> outCountMap = stockList
-                    .stream()
-                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
-                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
-                                    , v -> MathUtils.getBigDecimal(v.get("outCount")),BigDecimal::add))
-                    );
-            // 出库金额
-            Map<String, Map<String, BigDecimal>> outAmountMap = stockList
-                    .stream()
-                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
-                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
-                                    , v -> MathUtils.getBigDecimal(v.get("outAmount")),BigDecimal::add))
-                    );
-            // 结存数量
-            Map<String, Map<String, BigDecimal>> finalCountMap = stockList
-                    .stream()
-                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
-                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
-                                    , v -> MathUtils.getBigDecimal(v.get("finalCount")),BigDecimal::add))
-                    );
-            // 结存金额
-            Map<String, Map<String, BigDecimal>> finalAmountMap = stockList
-                    .stream()
-                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
-                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
-                                    , v -> MathUtils.getBigDecimal(v.get("finalAmount")),BigDecimal::add))
-                    );
+//            // 期初数量
+//            Map<String, Map<String, BigDecimal>> initialCountMap = stockList
+//                    .stream()
+//                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
+//                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
+//                                    , v -> MathUtils.getBigDecimal(v.get("initialCount")),BigDecimal::add)
+//                    ));
+//
+//            // 期初金额
+//            Map<String, Map<String, BigDecimal>> initialAmountMap = stockList
+//                    .stream()
+//                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
+//                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
+//                                    , v -> MathUtils.getBigDecimal(v.get("initialAmount")),BigDecimal::add)
+//                    ));
+//            // 本期入库数量
+//            Map<String, Map<String, BigDecimal>> inCountMap = stockList
+//                    .stream()
+//                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
+//                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
+//                                    , v -> MathUtils.getBigDecimal(v.get("inCount")),BigDecimal::add))
+//                    );
+//            // 入库金额
+//            Map<String, Map<String, BigDecimal>> inAmountMap = stockList
+//                    .stream()
+//                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
+//                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
+//                                    , v -> MathUtils.getBigDecimal(v.get("inAmount")),BigDecimal::add))
+//                    );
+//            // 本期出库数量
+//            Map<String, Map<String, BigDecimal>> outCountMap = stockList
+//                    .stream()
+//                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
+//                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
+//                                    , v -> MathUtils.getBigDecimal(v.get("outCount")),BigDecimal::add))
+//                    );
+//            // 出库金额
+//            Map<String, Map<String, BigDecimal>> outAmountMap = stockList
+//                    .stream()
+//                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
+//                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
+//                                    , v -> MathUtils.getBigDecimal(v.get("outAmount")),BigDecimal::add))
+//                    );
+//            // 结存数量
+//            Map<String, Map<String, BigDecimal>> finalCountMap = stockList
+//                    .stream()
+//                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
+//                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
+//                                    , v -> MathUtils.getBigDecimal(v.get("finalCount")),BigDecimal::add))
+//                    );
+//            // 结存金额
+//            Map<String, Map<String, BigDecimal>> finalAmountMap = stockList
+//                    .stream()
+//                    .collect(Collectors.groupingBy(k1 -> k1.get("period").toString()
+//                            , Collectors.toMap(k2 -> k2.get("materielId").toString()
+//                                    , v -> MathUtils.getBigDecimal(v.get("finalAmount")),BigDecimal::add))
+//                    );
 
             Map<String, Object> map;
-            Map<String, BigDecimal> initialCountForPeriod;
-            Map<String, BigDecimal> initialAmountForPeriod;
-            Map<String, BigDecimal> inCountForPeriod;
-            Map<String, BigDecimal> inAmountForPeriod;
-            Map<String, BigDecimal> outCountForPeriod;
-            Map<String, BigDecimal> outAmountForPeriod;
-            Map<String, BigDecimal> finalCountForPeriod;
-            Map<String, BigDecimal> finalAmountForPeriod;
-
+//            Map<String, BigDecimal> initialCountForPeriod;
+//            Map<String, BigDecimal> initialAmountForPeriod;
+//            Map<String, BigDecimal> inCountForPeriod;
+//            Map<String, BigDecimal> inAmountForPeriod;
+//            Map<String, BigDecimal> outCountForPeriod;
+//            Map<String, BigDecimal> outAmountForPeriod;
+//            Map<String, BigDecimal> finalCountForPeriod;
+//            Map<String, BigDecimal> finalAmountForPeriod;
+            Map<String, Map<String, Object>> reduceCount;
             for (String periodParam : periodList) {
-                initialCountForPeriod = initialCountMap.get(periodParam);
-                initialAmountForPeriod = initialAmountMap.get(periodParam);
-                inCountForPeriod = inCountMap.get(periodParam);
-                inAmountForPeriod = inAmountMap.get(periodParam);
-                outCountForPeriod = outCountMap.get(periodParam);
-                outAmountForPeriod = outAmountMap.get(periodParam);
-                finalCountForPeriod = finalCountMap.get(periodParam);
-                finalAmountForPeriod = finalAmountMap.get(periodParam);
-
+//                initialCountForPeriod = initialCountMap.get(periodParam);
+//                initialAmountForPeriod = initialAmountMap.get(periodParam);
+//                inCountForPeriod = inCountMap.get(periodParam);
+//                inAmountForPeriod = inAmountMap.get(periodParam);
+//                outCountForPeriod = outCountMap.get(periodParam);
+//                outAmountForPeriod = outAmountMap.get(periodParam);
+//                finalCountForPeriod = finalCountMap.get(periodParam);
+//                finalAmountForPeriod = finalAmountMap.get(periodParam);
+                reduceCount = reduceMap.get(periodParam);
                 if (showMaterielTotal) {
-                    for (String materielIdParam : initialCountForPeriod.keySet()) {
-                        map = Maps.newHashMap(materielIdMap.get(materielIdParam));
+                    for (String materielIdParam : reduceCount.keySet()) {
+                        map = BeanUtils.clone((HashMap<String,Object>)reduceCount.get(materielIdParam));
+//                      map = Maps.newHashMap(reduceCount.get(materielIdParam));
                         map.remove("batch");
                         map.put("materielId", materielIdParam);
                         // 标记颜色 1 为中间状态
@@ -201,72 +218,93 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
                         map.put("period", periodParam.substring(0,7));
                         map.put("times", periodMap.get(periodParam));
                         map.put("materielName", map.getOrDefault("materielName","") + ConstantForReport.TOTAL_SUFFIX);
-                        map.put("initialCount", initialCountForPeriod.get(materielIdParam));
-                        map.put("initialAmount", initialAmountForPeriod.get(materielIdParam));
-                        map.put("inCount", inCountForPeriod.get(materielIdParam));
-                        map.put("inAmount", inAmountForPeriod.get(materielIdParam));
-                        map.put("outCount", outCountForPeriod.get(materielIdParam));
-                        map.put("outAmount", outAmountForPeriod.get(materielIdParam));
-                        map.put("finalCount", finalCountForPeriod.get(materielIdParam));
-                        map.put("finalAmount", finalAmountForPeriod.get(materielIdParam));
+//                        map.put("initialCount", initialCountForPeriod.get(materielIdParam));
+//                        map.put("initialAmount", initialAmountForPeriod.get(materielIdParam));
+//                        map.put("inCount", inCountForPeriod.get(materielIdParam));
+//                        map.put("inAmount", inAmountForPeriod.get(materielIdParam));
+//                        map.put("outCount", outCountForPeriod.get(materielIdParam));
+//                        map.put("outAmount", outAmountForPeriod.get(materielIdParam));
+//                        map.put("finalCount", finalCountForPeriod.get(materielIdParam));
+//                        map.put("finalAmount", finalAmountForPeriod.get(materielIdParam));
                         showList.add(map);
                     }
                 }
 
+                Map<String, Object> periodTotalMap;
                 if (showPeriodTotal) {
-                    map = Maps.newHashMap();
-                    map.put("materielId", maxMaterielId);
+                    reduceCount =  BeanUtils.clone((HashMap<String, Map<String, Object>>)reduceCount);
+
+                    periodTotalMap = reduceCount
+                            .values()
+                            .stream()
+                            .reduce((v1, v2) -> {
+                                v1.put("initialCount", MathUtils.getBigDecimal(v1.get("initialCount")).add(MathUtils.getBigDecimal(v2.get("initialCount"))));
+                                v1.put("initialAmount", MathUtils.getBigDecimal(v1.get("initialAmount")).add(MathUtils.getBigDecimal(v2.get("initialAmount"))));
+                                v1.put("inCount", MathUtils.getBigDecimal(v1.get("inCount")).add(MathUtils.getBigDecimal(v2.get("inCount"))));
+                                v1.put("inAmount", MathUtils.getBigDecimal(v1.get("inAmount")).add(MathUtils.getBigDecimal(v2.get("inAmount"))));
+                                v1.put("outCount", MathUtils.getBigDecimal(v1.get("outCount")).add(MathUtils.getBigDecimal(v2.get("outCount"))));
+                                v1.put("outAmount", MathUtils.getBigDecimal(v1.get("outAmount")).add(MathUtils.getBigDecimal(v2.get("outAmount"))));
+                                v1.put("finalCount", MathUtils.getBigDecimal(v1.get("finalCount")).add(MathUtils.getBigDecimal(v2.get("finalCount"))));
+                                v1.put("finalAmount", MathUtils.getBigDecimal(v1.get("finalAmount")).add(MathUtils.getBigDecimal(v2.get("finalAmount"))));
+                                return v1;
+                            }).orElse(Maps.newHashMap());
+                    periodTotalMap.remove("batch");
+                    periodTotalMap.remove("materielTypeName");
+                    periodTotalMap.remove("materielSerialNo");
+                    periodTotalMap.remove("materielName");
+                    periodTotalMap.remove("specification");
+                    periodTotalMap.remove("unitUomName");
+                    periodTotalMap.put("materielId", maxMaterielId);
                     // 标记颜色 1 为中间状态
-                    map.put("sign", ConstantForReport.COLOUR_END);
+                    periodTotalMap.put("sign", ConstantForReport.COLOUR_END);
                     // 排序号
-                    map.put("sortNo", 2);
-                    map.put("period", periodParam.substring(0,7) + ConstantForReport.TOTAL_SUFFIX);
-                    map.put("times", periodMap.get(periodParam));
-                    map.put("initialCount", initialCountForPeriod
-                            .values()
-                            .stream()
-                            .reduce(BigDecimal::add)
-                            .orElse(BigDecimal.ZERO));
-                    map.put("initialAmount", initialAmountForPeriod
-                            .values()
-                            .stream()
-                            .reduce(BigDecimal::add)
-                            .orElse(BigDecimal.ZERO));
-                    map.put("inCount", inCountForPeriod
-                            .values()
-                            .stream()
-                            .reduce(BigDecimal::add)
-                            .orElse(BigDecimal.ZERO));
-                    map.put("inAmount", inAmountForPeriod
-                            .values()
-                            .stream()
-                            .reduce(BigDecimal::add)
-                            .orElse(BigDecimal.ZERO));
-                    map.put("outCount", outCountForPeriod
-                            .values()
-                            .stream()
-                            .reduce(BigDecimal::add)
-                            .orElse(BigDecimal.ZERO));
-                    map.put("outAmount", outAmountForPeriod
-                            .values()
-                            .stream()
-                            .reduce(BigDecimal::add)
-                            .orElse(BigDecimal.ZERO));
-                    map.put("finalCount", finalCountForPeriod
-                            .values()
-                            .stream()
-                            .reduce(BigDecimal::add)
-                            .orElse(BigDecimal.ZERO));
-                    map.put("finalAmount", finalAmountForPeriod
-                            .values()
-                            .stream()
-                            .reduce(BigDecimal::add)
-                            .orElse(BigDecimal.ZERO));
-                    showList.add(map);
+                    periodTotalMap.put("sortNo", 2);
+                    periodTotalMap.put("period", periodParam.substring(0,7) + ConstantForReport.TOTAL_SUFFIX);
+                    periodTotalMap.put("times", periodMap.get(periodParam));
+//                    map.put("initialCount", initialCountForPeriod
+//                            .values()
+//                            .stream()
+//                            .reduce(BigDecimal::add)
+//                            .orElse(BigDecimal.ZERO));
+//                    map.put("initialAmount", initialAmountForPeriod
+//                            .values()
+//                            .stream()
+//                            .reduce(BigDecimal::add)
+//                            .orElse(BigDecimal.ZERO));
+//                    map.put("inCount", inCountForPeriod
+//                            .values()
+//                            .stream()
+//                            .reduce(BigDecimal::add)
+//                            .orElse(BigDecimal.ZERO));
+//                    map.put("inAmount", inAmountForPeriod
+//                            .values()
+//                            .stream()
+//                            .reduce(BigDecimal::add)
+//                            .orElse(BigDecimal.ZERO));
+//                    map.put("outCount", outCountForPeriod
+//                            .values()
+//                            .stream()
+//                            .reduce(BigDecimal::add)
+//                            .orElse(BigDecimal.ZERO));
+//                    map.put("outAmount", outAmountForPeriod
+//                            .values()
+//                            .stream()
+//                            .reduce(BigDecimal::add)
+//                            .orElse(BigDecimal.ZERO));
+//                    map.put("finalCount", finalCountForPeriod
+//                            .values()
+//                            .stream()
+//                            .reduce(BigDecimal::add)
+//                            .orElse(BigDecimal.ZERO));
+//                    map.put("finalAmount", finalAmountForPeriod
+//                            .values()
+//                            .stream()
+//                            .reduce(BigDecimal::add)
+//                            .orElse(BigDecimal.ZERO));
+                    showList.add(periodTotalMap);
                 }
 
             }
-
 
             if (showItem) {
                 showList.addAll(stockList);
