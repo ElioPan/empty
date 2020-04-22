@@ -84,10 +84,7 @@ public class DeviceApiController {
     @EvApiByToken(value = "/apis/device/countOfSpectaculars", method = RequestMethod.POST, apiTitle = "运行效率看板")
     @ApiOperation("运行效率看板")
     public R deviceCountOfAll() {
-
-        R r= deviceService.countOfAllDevice();
-
-        return r;
+        return deviceService.countOfAllDevice();
     }
 
     /**
@@ -272,9 +269,7 @@ public class DeviceApiController {
     @Transactional(rollbackFor = Exception.class)
     public R deleteAll(@ApiParam(value = "设备IDs:Long[]", required = true) @RequestParam(value = "deviceId", defaultValue = "") Long[] deviceId) {
         if (deviceId.length>0) {
-            R r = deviceService.apiDelete(deviceId);
-
-            return r;
+            return deviceService.apiDelete(deviceId);
         }
         return R.error("参数为空！");
     }

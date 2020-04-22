@@ -363,4 +363,22 @@ public class DeviceServiceImpl implements DeviceService {
 		return deviceDao.countOfDeviceChildren(map);
 	}
 
+
+	@Override
+	public   R  deviceStatus(){
+		Map<String,Object>  map= new HashMap<>();
+		List<Map<String, Object>> countOfdeviceStatus = this.countOfdeviceStatus();
+		if(countOfdeviceStatus.isEmpty()){
+			return R.ok(map);
+		}
+			map.put("data",countOfdeviceStatus);
+			return R.ok(map);
+	}
+
+	@Override
+	public List<Map<String, Object>> countOfdeviceStatus() {
+		return deviceDao.countOfdeviceStatus();
+	}
+
+
 }

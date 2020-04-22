@@ -1,24 +1,29 @@
 package com.ev.apis.controller.report;
 
+import com.ev.custom.service.DeviceService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.utils.R;
 import com.ev.mes.service.DispatchItemService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @Author Kuzi
  * @Date 2020-4-20 9:25
  **/
-@Api(value = "/",tags="看板——工单分布**生产进度**计件工资")
+@Api(value = "/",tags="看板—工单分布*生产进度*计件工资*设备状态*设备产量")
 @RestController
-public class ProductionOperationApiController {
+public class OperationCollectionApiController {
 
     @Autowired
     private DispatchItemService dispatchItemService;
+    @Autowired
+    private DeviceService deviceService;
 
 
     @EvApiByToken(value = "/apis/board/dispachase/distributionDiagram", method = RequestMethod.POST, apiTitle = "工单分布")
@@ -38,6 +43,22 @@ public class ProductionOperationApiController {
     public R pieceRateWage() {
         return dispatchItemService.getPieceRateWage();
     }
+
+
+    @EvApiByToken(value = "/apis/board/dispachase/equipmentStatus", method = RequestMethod.POST, apiTitle = "设备状态")
+    @ApiOperation("设备状态")
+    public R equipmentStatus() {
+        return deviceService.deviceStatus();
+    }
+
+    @EvApiByToken(value = "/apis/board/dispachase/equipmentProduction", method = RequestMethod.POST, apiTitle = "设备产量")
+    @ApiOperation("设备产量")
+    public R equipmentProduction(
+            @ApiParam(value = "昨天传1/今天传2", required = true) @RequestParam(value = "supplierId") int sign ) {
+        return dispatchItemService.deviceProduction(sign);
+    }
+
+
 
 
 

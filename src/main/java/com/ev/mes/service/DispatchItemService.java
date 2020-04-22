@@ -71,4 +71,6 @@ public interface DispatchItemService {
 
 	R getPieceRateWage();
 
+	R deviceProduction(int sign);
+
 }

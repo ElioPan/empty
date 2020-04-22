@@ -828,6 +828,8 @@
         WHERE
         `del_flag`=0
     </select>
+
+
     <select id="getAllName" resultType="java.lang.String">
 		  SELECT
         `name`
@@ -836,5 +838,19 @@
         WHERE
         `del_flag`=0
 	</select>
+
+	<select id="countOfdeviceStatus" resultType="map">
+		SELECT
+		b.name as statusName,
+		a.using_status as usingStatus,
+		count(a.id) AS totalCount
+		from
+		cus_device  a
+		LEFT JOIN cus_dictionary  b  on  a.using_status=b.id
+		GROUP BY a.using_status
+	</select>
+
+
+
 
 </mapper>

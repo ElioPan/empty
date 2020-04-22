@@ -75,5 +75,7 @@ public interface DeviceDao {
 
 	int countOfDeviceChildren(Map<String,Object> map);
 
+	List<Map<String, Object>> countOfdeviceStatus();
+
 
 }

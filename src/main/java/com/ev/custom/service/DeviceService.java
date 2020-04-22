@@ -79,4 +79,9 @@ public interface DeviceService {
     List<String> getAllName();
 
 	int countOfDeviceChildren(Map<String,Object> map);
+
+	R  deviceStatus();
+
+	List<Map<String, Object>> countOfdeviceStatus();
+
 }

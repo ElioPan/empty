@@ -248,7 +248,7 @@ public class DispatchItemServiceImpl implements DispatchItemService {
             for (int ii = 0; ii < dispatchId.length; ii++) {
                 DispatchItemDO dispatchItemDo = new DispatchItemDO();
                 dispatchItemDo.setId(dispatchId[ii]);
-                dispatchItemDo.setStatus(ConstantForMES.CLOSE_CASE);//234结案
+                dispatchItemDo.setStatus(ConstantForMES.CLOSE_CASE);
                 dispatchItemDao.update(dispatchItemDo);
             }
             return R.ok();
@@ -406,7 +406,7 @@ public class DispatchItemServiceImpl implements DispatchItemService {
     @Override
     public R oneStartWorkDetail(){
         Long operatorId=ShiroUtils.getUserId();
-        Map<String,Object>  map= new HashMap<String,Object>();
+        Map<String,Object>  map= new HashMap<>();
         List<Map<String, Object>> startWorkByOperator = dispatchItemDao.getStartWorkByOperator(operatorId);
         if (!startWorkByOperator.isEmpty()){
             Map<String, Object> data = startWorkByOperator.get(0);
@@ -519,6 +519,53 @@ public class DispatchItemServiceImpl implements DispatchItemService {
         return  R.ok(map);
     }
 
+
+    @Override
+    public R deviceProduction(int sign){
+        SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss");
+        DatesUtil datesUtil=new DatesUtil();
+        Date dateTime;
+        if(Objects.equals(1,sign)){
+            dateTime = datesUtil.getDateBefor(new Date(), 1);
+        }else{
+            dateTime=new Date();
+        }
+        Map<String,Object>  map= new HashMap<>();
+        map.put("status",Constant.APPLY_APPROED);
+        map.put("createTimes",formatter.format(dateTime));
+        List<Map<String, Object>> mapList = processReportService.listForMap(map);
+
+        map.clear();
+        if(mapList.size()>0) {
+            Map<String, BigDecimal> operatorProductionMap = mapList
+                    .stream()
+                    .collect(Collectors.toMap(k -> k.get("deviceId").toString(), v -> MathUtils.getBigDecimal(v.get("conformityCount")), BigDecimal::add));
+            List<Map<String, Object>> finalList=new ArrayList<>();
+            for(String operator:operatorProductionMap.keySet()){
+                for(Map<String, Object> mapOne:mapList){
+                    if(Objects.equals(operator,mapOne.get("deviceId").toString())){
+                        Map<String,Object>  finallMap= new HashMap<>();
+                        finallMap.put("deviceName",mapOne.get("deviceName"));
+//                        finallMap.put("deviceId",mapOne.get("deviceId"));
+//                        finallMap.put("id",mapOne.get("id"));
+                        finallMap.put("conformityCount",operatorProductionMap.get(operator));
+                        finalList.add(finallMap);
+                        break;
+                    }
+                }
+            }
+            List<Map<String, Object>> results= finalList.stream()
+                    .sorted((v1,v2)->new BigDecimal(v1.get("conformityCount").toString()).compareTo(new BigDecimal(v2.get("conformityCount").toString()))>0?-1:1)
+                    .collect(Collectors.toList());
+            int index=10;
+            if(finalList.size()<=10){
+                index=results.size();
+            }
+            List<Map<String, Object>>result =results.subList(0,index);
+            map.put("data",result);
+        }
+        return  R.ok(map);
+    }
 
 
 
