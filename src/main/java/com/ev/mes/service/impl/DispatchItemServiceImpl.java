@@ -532,9 +532,8 @@ public class DispatchItemServiceImpl implements DispatchItemService {
         }
         Map<String,Object>  map= new HashMap<>();
         map.put("status",Constant.APPLY_APPROED);
-        map.put("createTimes",formatter.format(dateTime));
+        map.put("yieldTime",formatter.format(dateTime));
         List<Map<String, Object>> mapList = processReportService.listForMap(map);
-
         map.clear();
         if(mapList.size()>0) {
             Map<String, BigDecimal> operatorProductionMap = mapList
