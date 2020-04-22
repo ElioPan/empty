@@ -691,7 +691,7 @@
 				order by ${sort} ${order}
 			</when>
 			<otherwise>
-				order by a.id，a.create_time asc
+				order by a.id,a.create_time asc
 			</otherwise>
 		</choose>
 		<if test="offset != null and limit != null">
