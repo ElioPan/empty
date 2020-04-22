@@ -119,7 +119,7 @@
 		<where>
 			<if test="userId != null and userId != ''"> and sysuser.user_id = #{userId} </if>
 			 <if test="loginName != null and loginName != ''"> and sysuser.username = #{loginName} </if>
-			<if test="username != null and username != ''"> and sysuser.name LIKE CONCAT(#{username},'%')</if>
+			<if test="username != null and username != ''"> and sysuser.name LIKE CONCAT('%',#{username},'%')</if>
 			<if test="query != null and query != ''"> and CONCAT(sysuser.name,sysuser.mobile) LIKE CONCAT('%',CONCAT(#{query},'%')) </if>
 			<if test="password != null and password != ''"> and sysuser.password = #{password} </if>
 			<if test="isContainChildren != null and isContainChildren == 0">
@@ -168,7 +168,7 @@
 		<where>
 			<if test="userId != null and userId != ''"> and sysuser.user_id = #{userId} </if>
 			<if test="loginName != null and loginName != ''"> and sysuser.username = #{loginName} </if>
-			<if test="username != null and username != ''"> and sysuser.name LIKE CONCAT(#{username},'%')</if>
+			<if test="username != null and username != ''"> and sysuser.name LIKE CONCAT('%',#{username},'%')</if>
 			<if test="query != null and query != ''"> and CONCAT(sysuser.name,sysuser.mobile) LIKE CONCAT('%',CONCAT(#{query},'%')) </if>
 			<if test="password != null and password != ''"> and sysuser.password = #{password} </if>
 			<if test="isContainChildren != null and isContainChildren == 0">
