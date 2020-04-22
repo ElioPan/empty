@@ -6,10 +6,8 @@ import com.ev.framework.utils.R;
 import com.ev.mes.service.DispatchItemService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -53,9 +51,8 @@ public class OperationCollectionApiController {
 
     @EvApiByToken(value = "/apis/board/dispachase/equipmentProduction", method = RequestMethod.POST, apiTitle = "设备产量")
     @ApiOperation("设备产量")
-    public R equipmentProduction(
-            @ApiParam(value = "昨天传1/今天传2", required = true) @RequestParam(value = "supplierId") int sign ) {
-        return dispatchItemService.deviceProduction(sign);
+    public R equipmentProduction() {
+        return dispatchItemService.deviceProduction();
     }
 
 

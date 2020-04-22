@@ -521,53 +521,56 @@ public class DispatchItemServiceImpl implements DispatchItemService {
 
 
     @Override
-    public R deviceProduction(int sign){
+    public R deviceProduction(){
         SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss");
         DatesUtil datesUtil=new DatesUtil();
-        Date dateTime;
-        if(Objects.equals(1,sign)){
-            dateTime = datesUtil.getDateBefor(new Date(), 1);
-        }else{
-            dateTime=new Date();
-        }
+        Date yesterday = datesUtil.getDateBefor(new Date(), 1);
         Map<String,Object>  map= new HashMap<>();
         map.put("status",Constant.APPLY_APPROED);
-        map.put("yieldTime",formatter.format(dateTime));
-        List<Map<String, Object>> mapList = processReportService.listForMap(map);
+        map.put("yieldTime",formatter.format(yesterday));
+        List<Map<String, Object>> yesterdayList = processReportService.listForMap(map);
+        map.put("yieldTime",formatter.format(new Date()));
+        List<Map<String, Object>> todayList = processReportService.listForMap(map);
+
+        List<Map<String, Object>> yesterdayLists =this.disposeDatas(yesterdayList);
+        List<Map<String, Object>> todayLists =this.disposeDatas(todayList);
         map.clear();
-        if(mapList.size()>0) {
-            Map<String, BigDecimal> operatorProductionMap = mapList
+        map.put("yesterday",yesterdayLists);
+        map.put("today",todayLists);
+
+        return  R.ok(map);
+    }
+
+
+    public   List<Map<String, Object>> disposeDatas(List<Map<String, Object>> list){
+        List<Map<String, Object>> result=new ArrayList<>();
+        if(list.size()>0) {
+            Map<String, BigDecimal> operatorProductionMap = list
                     .stream()
                     .collect(Collectors.toMap(k -> k.get("deviceId").toString(), v -> MathUtils.getBigDecimal(v.get("conformityCount")), BigDecimal::add));
-            List<Map<String, Object>> finalList=new ArrayList<>();
-            for(String operator:operatorProductionMap.keySet()){
-                for(Map<String, Object> mapOne:mapList){
-                    if(Objects.equals(operator,mapOne.get("deviceId").toString())){
-                        Map<String,Object>  finallMap= new HashMap<>();
-                        finallMap.put("deviceName",mapOne.get("deviceName"));
-//                        finallMap.put("deviceId",mapOne.get("deviceId"));
-//                        finallMap.put("id",mapOne.get("id"));
-                        finallMap.put("conformityCount",operatorProductionMap.get(operator));
+            List<Map<String, Object>> finalList = new ArrayList<>();
+            for (String operator : operatorProductionMap.keySet()) {
+                for (Map<String, Object> mapOne : list) {
+                    if (Objects.equals(operator, mapOne.get("deviceId").toString())) {
+                        Map<String, Object> finallMap = new HashMap<>();
+                        finallMap.put("deviceName", mapOne.get("deviceName"));
+                        finallMap.put("conformityCount", operatorProductionMap.get(operator));
                         finalList.add(finallMap);
                         break;
                     }
                 }
             }
-            List<Map<String, Object>> results= finalList.stream()
-                    .sorted((v1,v2)->new BigDecimal(v1.get("conformityCount").toString()).compareTo(new BigDecimal(v2.get("conformityCount").toString()))>0?-1:1)
+            List<Map<String, Object>> results = finalList.stream()
+                    .sorted((v1, v2) -> new BigDecimal(v1.get("conformityCount").toString()).compareTo(new BigDecimal(v2.get("conformityCount").toString())) > 0 ? -1 : 1)
                     .collect(Collectors.toList());
-            int index=10;
-            if(finalList.size()<=10){
-                index=results.size();
+            int index = 10;
+            if (finalList.size() <= 10) {
+                index = results.size();
             }
-            List<Map<String, Object>>result =results.subList(0,index);
-            map.put("data",result);
+            result = results.subList(0, index);
         }
-        return  R.ok(map);
+        return result;
     }
-
-
-
 
 
 
