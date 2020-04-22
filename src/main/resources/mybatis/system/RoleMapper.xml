@@ -116,4 +116,13 @@
 		</foreach>
 	</select>
 
+	<select id="checkSave" resultType="int" parameterType="com.ev.system.domain.RoleDO">
+		SELECT COUNT(*) FROM
+		sys_role
+		<where>
+			<if test="roleId != null and roleId != ''"> AND role_id <![CDATA[<>]]> #{roleId} </if>
+			<if test="roleName != null and roleName != ''"> AND role_name = #{roleName} </if>
+		</where>
+	</select>
+
 </mapper>

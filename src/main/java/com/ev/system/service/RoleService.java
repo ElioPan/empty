@@ -32,4 +32,6 @@ public interface RoleService {
     int edit(RoleDO role, Long[] ids);
 
     boolean isUserUse(Long id);
+
+	boolean checkSave(RoleDO role);
 }

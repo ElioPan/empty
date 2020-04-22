@@ -110,6 +110,11 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    public boolean checkSave(RoleDO role) {
+        return roleMapper.checkSave(role)==0;
+    }
+
+    @Override
     public RoleDO get(Long id) {
         RoleDO roleDO = roleMapper.get(id);
         return roleDO;
