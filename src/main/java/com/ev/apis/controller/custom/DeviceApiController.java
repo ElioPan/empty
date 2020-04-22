@@ -185,7 +185,7 @@ public class DeviceApiController {
 
     @EvApiByToken(value = "/apis/device/getDeviceByCode",method = RequestMethod.POST,apiTitle = "根据设备编号获取设备信息")
     @ApiOperation("根据设备编号获取设备信息")
-    public R getDevByCode(@ApiParam(value = "设备编号",required = true) @RequestParam(value = "serialno",defaultValue = "",required = true) String serialno){
+    public R getDevByCode(@ApiParam(value = "设备编号",required = true) @RequestParam(value = "serialno",defaultValue = "") String serialno){
         Map<String,Object> results = Maps.newHashMap();
         results.put("serialno",serialno);
         try{
@@ -227,7 +227,7 @@ public class DeviceApiController {
 
     @EvApiByToken(value = "/apis/device/edit", method = RequestMethod.POST, apiTitle = "修改设备信息")
     @ApiOperation("修改设备信息")
-    public R edit(DeviceDO device, @ApiParam(value = "设备ID", required = false) @RequestParam(value = "deviceId", defaultValue = "", required = true) Long deviceId) {
+    public R edit(DeviceDO device, @ApiParam(value = "设备ID") @RequestParam(value = "deviceId", defaultValue = "", required = true) Long deviceId) {
 
         Map<String, Object> query = Maps.newHashMap();
         query.put("serialno", device.getSerialno());

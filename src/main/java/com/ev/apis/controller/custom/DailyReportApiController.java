@@ -1,19 +1,18 @@
 package com.ev.apis.controller.custom;
 
 import com.alibaba.fastjson.JSONObject;
-import com.ev.custom.service.NoticeService;
-import com.ev.custom.service.WeChatService;
-import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
+import com.ev.custom.domain.DailyReportDO;
+import com.ev.custom.service.DailyReportService;
+import com.ev.custom.service.NoticeService;
+import com.ev.custom.service.UserAssocService;
+import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.Constant;
+import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.framework.utils.StringUtils;
-import com.ev.custom.domain.DailyReportDO;
-import com.ev.custom.service.DailyReportService;
-import com.ev.custom.service.UserAssocService;
 import com.ev.system.domain.DeptDO;
-import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.system.service.DeptService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
@@ -107,7 +106,7 @@ public class DailyReportApiController {
     @EvApiByToken(value = "/apis/dailyReport/getCuntOfsenderToMe", method = RequestMethod.POST, apiTitle = "发给我的--未读取的数量")
     @ApiOperation("发给我的--未读取的数量")
     public R countOfSendToOther(@ApiParam(value = "被发送人ID", required = true) @RequestParam(value = "beSentPeopleId", defaultValue = "", required = false) Long beSentPeopleId) {
-        Map<String, Object> results = new HashMap<String, Object>();
+        Map<String, Object> results = new HashMap<>();
         results.put("beSentPeopleId",beSentPeopleId);
 
         int cuntOfsenderToMe = dailyReportService.countOfQuantyForward(results);
@@ -121,13 +120,12 @@ public class DailyReportApiController {
     @EvApiByToken(value = "/apis/dailyReport/detail", method = RequestMethod.POST, apiTitle = "获取日志详细信息")
     @ApiOperation("获取日志详细信息")
     public R detail(@ApiParam(value = "日志ID", required = true) @RequestParam(value = "id", defaultValue = "", required = false) Long id) {
-        Map<String, Object> results = new HashMap<String, Object>();
+        Map<String, Object> results = new HashMap<>();
         results = dailyReportService.detail(id);
 
         //将已经查看到的日志标记为已读
         Long userId=ShiroUtils.getUserId();
-        int rows=userAssocService.changeOfUserAssocSign(userId,id,"DAILY_REPORT_TARGET");
-
+        userAssocService.changeOfUserAssocSign(userId,id,"DAILY_REPORT_TARGET");
         return R.ok(results);
     }
 
@@ -225,11 +223,10 @@ public class DailyReportApiController {
     @ApiOperation("删除/批量删除日志")
     @Transactional(rollbackFor = Exception.class)
     public R remove(@ApiParam(value = "日志主键数组", required = true, example = "[1,2,3,4]") @RequestParam(value = "ids", defaultValue = "") Long[] ids) {
-        Map<String, Object> query = new HashMap<String, Object>();
+        Map<String, Object> query = new HashMap<>();
         query.put("id", ids);
         query.put("status", Constant.TS);//146暂存
-        R r = dailyReportService.listOfCanDelet(query,ids);
-        return r;
+        return dailyReportService.listOfCanDelet(query,ids);
     }
 
 

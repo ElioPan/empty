@@ -92,7 +92,7 @@ public class DailyReportServiceImpl implements DailyReportService {
 
 	@Override
 	public Map<String, Object> detail(Long id) {
-		Map<String, Object> results = new HashMap<String, Object>();
+		Map<String, Object> results = new HashMap<>();
 		List<UserDO> userList = userService.list(null);
 		results.put("userList", userList);
 		Map<String, Object> query = new HashMap<String, Object>(){{

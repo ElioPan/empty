@@ -59,13 +59,13 @@ public class WeekReportApiController {
         DeptDO deptDO= deptService.getIdpathByUserId(lowderUserId);
         String lowderIdpath =deptDO!=null?deptDO.getIdPath():null;
 
-        Map<String, Object> params = new HashMap<String, Object>() {{
-            put("userName", userName);
-            put("offset", (pageno - 1) * pagesize);
-            put("limit", pagesize);
-            put("startTime",startTime);
-            put("endTime",endTime);
-    }};
+        Map<String, Object> params = new HashMap<>();
+        params.put("userName", userName);
+        params.put("offset", (pageno - 1) * pagesize);
+        params.put("limit", pagesize);
+        params.put("startTime",startTime);
+        params.put("endTime",endTime);
+
 
         if(!"".equals(userId)&&Objects.equals(userId,lowderUserId.toString())){
             params.put("createBy", userId);
@@ -73,14 +73,14 @@ public class WeekReportApiController {
         }
         if(!"".equals(userId)&&!Objects.equals(userId,lowderUserId.toString())){
             params.put("createBy", userId);
-            params.put("status", Constant.APPLY_APPROED);//已提交：148
+            params.put("status", Constant.APPLY_APPROED);
         }
 
         //发给我的
         if(!"".equals(beSentPeopleId)) {
             // params.put("createBy", userId);
             params.put("beSentPeopleId", beSentPeopleId);
-            params.put("status", Constant.APPLY_APPROED);//已提交：148
+            params.put("status", Constant.APPLY_APPROED);
 //            params.put("sign", 1);
 
         }
@@ -88,20 +88,20 @@ public class WeekReportApiController {
         //我的团队
         if(idPath!=null){
             params.put("idPath", idPath);
-            params.put("status", Constant.APPLY_APPROED);//已提交：148
+            params.put("status", Constant.APPLY_APPROED);
         }
 
         Map<String, Object> results = Maps.newHashMap();
         List<Map<String, Object>> data = this.weekReportService.listForMap(params);
         int total = this.weekReportService.countForMap(params);
-        if (data != null && data.size() > 0) {
-            DsResultResponse dsRet = new DsResultResponse() {{
-                setDatas(data);
-                setPageno(pageno);
-                setPagesize(pagesize);
-                setTotalRows(total);
-                setTotalPages((Integer) ((total + pagesize - 1) / pagesize));
-            }};
+        if ( data.size() > 0) {
+            DsResultResponse dsRet = new DsResultResponse() ;
+            dsRet.setDatas(data);
+            dsRet.setPageno(pageno);
+            dsRet.setPagesize(pagesize);
+            dsRet.setTotalRows(total);
+            dsRet.setTotalPages(((total + pagesize - 1) / pagesize));
+
             results.put("data", dsRet);
         }
         return R.ok(results);
@@ -110,7 +110,7 @@ public class WeekReportApiController {
     @EvApiByToken(value = "/apis/weekReport/detail",method = RequestMethod.GET,apiTitle = "获取周报详细信息")
     @ApiOperation("获取周报详细信息")
     public R detail(@ApiParam(value = "周报ID",required = true) @RequestParam(value = "id",defaultValue = "",required = false)  Long id) {
-        Map<String,Object> results = new HashMap<String,Object>();
+        Map<String,Object> results ;
         results = weekReportService.detail(id);
 
         //将已经查看到的标记为已读
@@ -145,7 +145,7 @@ public class WeekReportApiController {
         if (!Objects.nonNull(weekReport.getId())) {
             if(weekReportService.duplicateDetectionOrNot(newWeekReportItems)){
 
-                weekReport.setStatus(Constant.TS);//146暂存
+                weekReport.setStatus(Constant.TS);
                 weekReportService.add(weekReport, newWeekReportItems, targetList, taglocationappearanceImage);
                 return R.ok();
             }else{
@@ -157,7 +157,7 @@ public class WeekReportApiController {
 
                 WeekReportDO weekReportDoOne = weekReportService.get(weekReport.getId());
                 if (weekReportDoOne!=null) {
-                    if (!(Objects.equals(Constant.APPLY_APPROED, weekReportDoOne.getStatus()))) {  //148已提交不允许修改
+                    if (!(Objects.equals(Constant.APPLY_APPROED, weekReportDoOne.getStatus()))) {
                         //更新
                         weekReportService.saveWeekChangeAndSbmit(weekReport, newWeekReportItems, targetList,  taglocationappearanceImage,0);
                         return R.ok();
@@ -181,7 +181,7 @@ public class WeekReportApiController {
                             @ApiParam(value = "附件") @RequestParam(value = "taglocationappearanceImage", defaultValue = "", required = false) String[] tagImage) {
         if (!Objects.nonNull(weekReport.getId())) {
             if(weekReportService.duplicateDetectionOrNot(newWeekReportItems)){
-                weekReport.setStatus(Constant.APPLY_APPROED);//148已提交
+                weekReport.setStatus(Constant.APPLY_APPROED);
                 weekReportService.add(weekReport, newWeekReportItems, targetList, tagImage);
                 return R.ok();
             }else{
@@ -192,7 +192,7 @@ public class WeekReportApiController {
         } else {
                 WeekReportDO weekReportDoOne = weekReportService.get(weekReport.getId());
                 if (weekReportDoOne != null) {
-                    if (!(Objects.equals(Constant.APPLY_APPROED, weekReportDoOne.getStatus()))) {  //允许修改
+                    if (!(Objects.equals(Constant.APPLY_APPROED, weekReportDoOne.getStatus()))) {
                         //更新
                         weekReportService.saveWeekChangeAndSbmit(weekReport, newWeekReportItems, targetList, tagImage, 1);
                         return R.ok();
@@ -207,8 +207,8 @@ public class WeekReportApiController {
 
     @EvApiByToken(value = "/apis/weekReport/getCuntOfsenderToMe", method = RequestMethod.POST, apiTitle = "发给我的--未读取的数量")
     @ApiOperation("发给我的--未读取的数量")
-    public R countOfSendToOther(@ApiParam(value = "被发送人ID", required = true) @RequestParam(value = "beSentPeopleId", defaultValue = "", required = true) Long beSentPeopleId) {
-        Map<String, Object> results = new HashMap<String, Object>();
+    public R countOfSendToOther(@ApiParam(value = "被发送人ID", required = true) @RequestParam(value = "beSentPeopleId", defaultValue = "") Long beSentPeopleId) {
+        Map<String, Object> results = new HashMap<>();
         results.put("beSentPeopleId", beSentPeopleId);
         int cuntOfsenderToMe = weekReportService.countOfQuantyForward(results);
         results.remove("beSentPeopleId");
@@ -219,13 +219,11 @@ public class WeekReportApiController {
     @EvApiByToken(value = "/apis/weekReport/batchRemove",method = RequestMethod.POST,apiTitle = "删除/批量删除周报")
     @ApiOperation("删除/批量删除周报")
     @Transactional(rollbackFor = Exception.class)
-    public R remove(@ApiParam(value = "周报主键数组",required = true, example = "[1,2,3,4]") @RequestParam(value="ids",defaultValue = "", required = true) Long[] ids){
-            Map<String, Object> query = new HashMap<String, Object>();
+    public R remove(@ApiParam(value = "周报主键数组",required = true, example = "[1,2,3,4]") @RequestParam(value="ids",defaultValue = "") Long[] ids){
+            Map<String, Object> query = new HashMap<>();
             query.put("id", ids);
-            query.put("status", Constant.TS);//146暂存
-
-                R r = weekReportService.listOfCanDelet(query,ids);
-                return r;
+            query.put("status", Constant.TS);
+        return weekReportService.listOfCanDelet(query,ids);
     }
 
 
