@@ -834,8 +834,8 @@ public class UpkeepApiController {
 
     @EvApiByToken(value = "/apis/upkeepRecorder/upkeepOfBoard", method = RequestMethod.POST,apiTitle = "保养看板")
     @ApiOperation("保养看板")
-    public R watingOfUpkeepAmount(@ApiParam(value = "当前第几页", required = false) @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
-                                  @ApiParam(value = "一页多少条", required = false) @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize){
+    public R watingOfUpkeepAmount(@ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
+                                  @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize){
 
         Map<String, Object> query = Maps.newHashMap();
         //根据设备id查找recordid,
@@ -852,13 +852,12 @@ public class UpkeepApiController {
             resultPonse.setPageno(pageno);
             resultPonse.setPagesize(pagesize);
             resultPonse.setTotalRows(count);
-            resultPonse.setTotalPages((Integer) ((count + pagesize - 1) / pagesize));
+            resultPonse.setTotalPages(((count + pagesize - 1) / pagesize));
         }
         resultList.put("data", resultPonse);
         return R.ok(resultList);
 
     }
-
 
 
 

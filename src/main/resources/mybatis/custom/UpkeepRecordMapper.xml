@@ -669,14 +669,15 @@
 
 	<select id="upkeepDeatailOfBoard" resultType="map">
 		select
-			a.id,
-			c.name as deviceName,
-			d.name as pro_name,
-			e.name as engineerName,
-			a.result,
-			f.name as resultName
+		a.id,
+		c.name as deviceName,
+		d.name as pro_name,
+		e.name as engineerName,
+		a.end_time AS endTime,
+		IF(a.end_time &lt; NOW() and a.result=56,999,a.result) AS `result`,
+		IF(a.end_time &lt; NOW() and a.result=56,'超期未处理',f.name) AS `resultName`
 		from
-			cus_upkeep_record a
+		cus_upkeep_record a
 		LEFT JOIN cus_upkeep_record_project  b  on  a.id=b.record_id
 		LEFT JOIN  cus_device  c on   a.device_id=c.id
 		LEFT JOIN cus_upkeep_project  d  on  b.project_id=d.id
