@@ -524,26 +524,12 @@ public class DispatchItemServiceImpl implements DispatchItemService {
     public R deviceProduction(){
         SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss");
         DatesUtil datesUtil=new DatesUtil();
-        Date yesterday = datesUtil.getDateBefor(new Date(), 1);
+        Date yesterday = datesUtil.getDateBefor(new Date(), 6);
         Map<String,Object>  map= new HashMap<>();
         map.put("status",Constant.APPLY_APPROED);
-        map.put("yieldTime",formatter.format(yesterday));
-        List<Map<String, Object>> yesterdayList = processReportService.listForMap(map);
-        map.put("yieldTime",formatter.format(new Date()));
-        List<Map<String, Object>> todayList = processReportService.listForMap(map);
-
-        List<Map<String, Object>> yesterdayLists =this.disposeDatas(yesterdayList);
-        List<Map<String, Object>> todayLists =this.disposeDatas(todayList);
+        map.put("createTimes",formatter.format(yesterday));
+        List<Map<String, Object>> list = processReportService.listForMap(map);
         map.clear();
-        map.put("yesterday",yesterdayLists);
-        map.put("today",todayLists);
-
-        return  R.ok(map);
-    }
-
-
-    public   List<Map<String, Object>> disposeDatas(List<Map<String, Object>> list){
-        List<Map<String, Object>> result=new ArrayList<>();
         if(list.size()>0) {
             Map<String, BigDecimal> operatorProductionMap = list
                     .stream()
@@ -567,10 +553,14 @@ public class DispatchItemServiceImpl implements DispatchItemService {
             if (finalList.size() <= 10) {
                 index = results.size();
             }
-            result = results.subList(0, index);
+            List<Map<String, Object>> result = results.subList(0, index);
+            map.put("data",result);
         }
-        return result;
+        return  R.ok(map);
     }
+
+
+
 
 
 
