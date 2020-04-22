@@ -256,4 +256,10 @@ public class ManageKanbanApiController {
         return R.ok(results);
     }
 
+    @EvApiByToken(value = "/apis/ManageKanban/deviceTask", method = RequestMethod.POST, apiTitle = "设备运营看板-任务管理")
+    @ApiOperation("设备运营看板-任务管理")
+    public R deviceTask() {
+        return kanbanService.deviceTask();
+    }
+
 }

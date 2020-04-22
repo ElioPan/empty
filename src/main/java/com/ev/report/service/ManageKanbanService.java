@@ -1,5 +1,7 @@
 package com.ev.report.service;
 
+import com.ev.framework.utils.R;
+
 import java.util.List;
 import java.util.Map;
 
@@ -17,4 +19,6 @@ public interface ManageKanbanService {
     List<Map<String, Object>> getProductionStatistics(Map<String, Object> param);
 
     List<Map<String, Object>> badProductList(Map<String, Object> param);
+
+    R deviceTask();
 }
