@@ -360,25 +360,6 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
     }
 
     @Override
-    public R pieceRate(CommonVO commonVO) {
-        Long deptId = commonVO.getDeptId();
-        Long userId = commonVO.getUserId();
-        if (deptId == null || userId == null) {
-            return R.ok();
-        }
-        Map<String, Object> param = Maps.newHashMap();
-        param.put("deptId", deptId);
-        param.put("userId", userId);
-        List<PieceRateVO> pieceRateVOLists = reportDao.pieceRateItem(param);
-        if (pieceRateVOLists.size() == 0) {
-            return R.ok();
-        }
-        Map<String, Object> results = Maps.newHashMap();
-        results.put("data", pieceRateVOLists);
-        return R.ok(results);
-    }
-
-    @Override
     public Pair<List<PieceRateVO>, BigDecimal>  pieceRateGroup(CommonVO commonVO) {
         boolean showItem = commonVO.getShowItem() == 1;
         boolean showUser = commonVO.getShowType() == 1;
@@ -482,39 +463,6 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
 
         }
         return null;
-    }
-
-    @Override
-    public R pieceRateGroupByUser(CommonVO commonVO) {
-        Long deptId = commonVO.getDeptId();
-        if (deptId == null) {
-            return R.ok();
-        }
-        Map<String, Object> param = Maps.newHashMap();
-        param.put("deptId", deptId);
-        List<PieceRateVO> pieceRateVOLists = reportDao.pieceRateItem(param);
-        if (pieceRateVOLists.size() == 0) {
-            return R.ok();
-        }
-        // 各个部门工资小计
-        Map<Long, BigDecimal> userTotal = pieceRateVOLists
-                .stream()
-                .collect(Collectors.toMap(PieceRateVO::getOperator, PieceRateVO::getTotalPrice, BigDecimal::add));
-        Map<Long, String> userNameMap = pieceRateVOLists
-                .stream()
-                .collect(Collectors.toMap(PieceRateVO::getOperator, PieceRateVO::getOperatorName, (v1, v2) -> v1));
-        List<Map<String, Object>> data = Lists.newArrayList();
-        Map<String, Object> map;
-        for (Long s : userTotal.keySet()) {
-            map = Maps.newHashMap();
-            map.put("userId", s);
-            map.put("userName", userNameMap.get(s) + ConstantForReport.TOTAL_SUFFIX);
-            map.put("totalPieceRate", userTotal.get(s));
-            data.add(map);
-        }
-        Map<String, Object> results = Maps.newHashMap();
-        results.put("data", data);
-        return R.ok(results);
     }
 
     @Override

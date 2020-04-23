@@ -22,11 +22,7 @@ public interface SmartManufacturingAccountingReportService {
 
     Pair<List<Map<String, Object>>, Map<String, BigDecimal>> productionPlan(List<Map<String, Object>> data, boolean isTotalData);
 
-    R pieceRate(CommonVO commonVO);
-
     Pair<List<PieceRateVO>, BigDecimal>  pieceRateGroup(CommonVO commonVO);
-
-    R pieceRateGroupByUser(CommonVO commonVO);
 
     R productionBatch(Long id);
 
