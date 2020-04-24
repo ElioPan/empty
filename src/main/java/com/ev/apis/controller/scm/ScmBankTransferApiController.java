@@ -3,7 +3,6 @@ package com.ev.apis.controller.scm;
 import cn.afterturn.easypoi.entity.vo.TemplateExcelConstants;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
-import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.utils.R;
 import com.ev.scm.domain.BankTransferDO;
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -103,15 +103,16 @@ public class ScmBankTransferApiController {
         params.put("auditSign", auditSign);
 
         List<Map<String, Object>> list = bankTransferService.listForMap(params);
-        int count = bankTransferService.countForMap(params);
+        Map<String, Object> count = bankTransferService.countForMap(params);
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(2);
         if (!list.isEmpty()) {
-            DsResultResponse dsRet = new DsResultResponse();
-            dsRet.setDatas(list);
-            dsRet.setPageno(pageno);
-            dsRet.setPagesize(pagesize);
-            dsRet.setTotalRows(count);
-            dsRet.setTotalPages((count + pagesize - 1) / pagesize);
+            Map<String,Object>  dsRet= new HashMap<>();
+            dsRet.put("datas",list);
+            dsRet.put("pageno",pageno);
+            dsRet.put("pagesize",pagesize);
+            dsRet.put("totalRows",Integer.parseInt(count.get("count").toString()));
+            dsRet.put("totalPages",(Integer.parseInt(count.get("count").toString()) + pagesize - 1) / pagesize);
+            dsRet.put("totalTransferAmount",count.get("totalTransferAmount"));
             results.put("data", dsRet);
         }
         return R.ok(results);
@@ -142,6 +143,9 @@ public class ScmBankTransferApiController {
         modelMap.put(TemplateExcelConstants.MAP_DATA, map);
         PoiBaseView.render(modelMap, request, response, TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
     }
+
+
+
 
 
 

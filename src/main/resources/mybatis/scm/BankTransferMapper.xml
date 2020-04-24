@@ -206,9 +206,10 @@
 	</select>
 
 
-	<select id="countForMap" resultType="int">
+	<select id="countForMap" resultType="map">
 		SELECT
-		COUNT(*)
+		COUNT(*) as `count`,
+		sum(d.transfer_amount) as totalTransferAmount
 		from
 		scm_bank_transfer  a
 		LEFT JOIN sys_user b on  a.`transactor_id`=b.user_id

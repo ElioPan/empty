@@ -14,15 +14,12 @@ import com.ev.scm.service.BankTransferItemService;
 import com.ev.scm.service.BankTransferService;
 import com.ev.scm.service.FundInitializationService;
 import com.google.common.collect.Maps;
-import org.omg.CORBA.OBJ_ADAPTER;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jmx.export.metadata.ManagedOperation;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @Service
@@ -78,7 +75,7 @@ public class BankTransferServiceImpl implements BankTransferService {
 	}
 
 	@Override
-	public int countForMap(Map<String, Object> map) {
+	public Map<String, Object> countForMap(Map<String, Object> map) {
 		return bankTransferDao.countForMap(map);
 	}
 
