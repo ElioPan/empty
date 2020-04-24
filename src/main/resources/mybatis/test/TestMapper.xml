@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.test.dao.TestMapper">
+    <select id="pageList" resultType="com.ev.system.domain.UserDO">
+        select `user_id`,`username`,`name`,`password`,`dept_id`,`email`,`mobile`,`status`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`sex`,`birth`,`pic_id`,`live_address`,`hobby`,`province`,`city`,`district`,`groupstr` ,`isapp`,`isfirst` from sys_user
+        <where>
+            <if test="param.userId != null and param.userId != ''"> and user_id = #{param.userId} </if>
+        </where>
+    </select>
+</mapper>
