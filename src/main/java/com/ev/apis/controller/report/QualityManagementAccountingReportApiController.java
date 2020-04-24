@@ -7,6 +7,8 @@ import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
+import com.ev.framework.config.ConstantForReport;
+import com.ev.framework.utils.BeanUtils;
 import com.ev.framework.utils.R;
 import com.ev.report.service.QualityManagementAccountingReportService;
 import com.google.common.collect.Lists;
@@ -26,8 +28,11 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 质量管理报表分析
@@ -258,7 +263,7 @@ public class QualityManagementAccountingReportApiController {
             @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
             @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
             @ApiParam(value = "物料ID", required = true) @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId,
-            @ApiParam(value = "批号", required = true) @RequestParam(value = "batch", defaultValue = "", required = false) String batch,
+            @ApiParam(value = "批号") @RequestParam(value = "batch", defaultValue = "", required = false) String batch,
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime
     ) {
@@ -267,7 +272,7 @@ public class QualityManagementAccountingReportApiController {
 
 
         params.put("batch", batch);
-        params.put("deviceId", materielId);
+        params.put("materielId", materielId);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
 
@@ -286,13 +291,36 @@ public class QualityManagementAccountingReportApiController {
         params.put("inspectionType", ConstantForMES.LLJY);
         int total = reportService.qualityTraceabilityCount(params);
 
-        params.put("offset", (pageno - 1) * pagesize);
-        params.put("limit", pagesize);
         // 采购入库&来料检验&生产领料&生产计划
         List<Map<String, Object>> data = reportService.qualityTraceabilityList(params);
+        ArrayList<Map<String, Object>> clone = BeanUtils.clone((ArrayList<Map<String, Object>>) data);
+        Map<String, Map<String, Object>> batchGroup = clone.stream()
+                .collect(Collectors.toMap(k -> k.get("batch").toString(), v -> v, (v1, v2) -> v1));
+        for (Map<String, Object> value : batchGroup.values()) {
+            value.remove("typeName");
+            value.remove("id");
+            value.remove("code");
+            value.remove("count");
+            value.remove("facilityName");
+            value.remove("way");
+            value.remove("locationName");
+            value.remove("sourceTypeName");
+            value.remove("time");
+            value.put("sign", ConstantForReport.COLOUR_END);
+            value.put("sortNo",0);
+        }
+        data.addAll(batchGroup.values());
+
+        List<Map<String, Object>> collect = data
+                .stream()
+                .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
+                .sorted(Comparator.comparing(e -> e.get("batch").toString()))
+                .collect(Collectors.toList());
+
+
         Map<String, Object> results = Maps.newHashMap();
         if (data.size() > 0) {
-            results.put("data", new DsResultResponse(pageno, pagesize, total, data));
+            results.put("data", new DsResultResponse(pageno, pagesize, total, collect));
         }
         return R.ok(results);
     }

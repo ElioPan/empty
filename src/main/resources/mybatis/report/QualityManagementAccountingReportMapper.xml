@@ -122,8 +122,11 @@
         batch,
         SUM(`count`) AS `count`,
         facilityName,
+        way,
         locationName,
         sourceTypeName,
+        0 AS sign,
+        1 AS sortNo,
         sourceCode
         FROM
         (
@@ -142,7 +145,7 @@
         facility.`name` AS facilityName,
         location.`name` AS locationName,
         dict.`name` AS sourceTypeName,
-        0 AS sign,
+        'in' AS way,
         item.source_code AS sourceCode
         FROM
         scm_stock_in_item item
@@ -170,6 +173,7 @@
             <if test="materielId != null and materielId != ''"> and item.`materiel_id` = #{materielId} </if>
             <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(stock.in_out_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(stock.in_out_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            AND materiel.is_lot=1
         </where>
         UNION ALL
         SELECT
@@ -187,7 +191,7 @@
         '' AS facilityName,
         '' AS locationName,
         dict.`name` AS sourceTypeName,
-        0 AS sign,
+        'in' AS way,
         inspection.source_no AS sourceCode
         FROM
          mes_material_inspection inspection
@@ -204,6 +208,7 @@
             <if test="materielId != null and materielId != ''"> and inspection.`materiel_id` = #{materielId} </if>
             <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(inspection.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(inspection.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+            AND materiel.is_lot=1
         </where>
         UNION ALL
         SELECT
@@ -221,7 +226,7 @@
         facility.`name` AS facilityName,
         location.`name` AS locationName,
         dict.`name` AS sourceTypeName,
-        1 AS sign,
+        'out' AS way,
         item.source_code AS sourceCode
         FROM
         scm_stock_out_item item
@@ -249,7 +254,8 @@
             <if test="materielId != null and materielId != ''"> and item.`materiel_id` = #{materielId} </if>
             <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(sout.`out_time`,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(sout.`out_time`,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
-        </where>
+            AND materiel.is_lot=1
+            </where>
        <!-- UNION ALL
         SELECT
         '生产计划' AS typeName,
@@ -286,10 +292,6 @@
         ) a
         GROUP BY a.`id`,a.`typeName`
         ORDER BY a.`time`
-
-        <if test="offset != null and limit != null">
-            limit #{offset}, #{limit}
-        </if>
 
     </select>
 
