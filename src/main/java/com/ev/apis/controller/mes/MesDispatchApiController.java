@@ -279,8 +279,9 @@ public class MesDispatchApiController {
     @EvApiByToken(value = "/apis/mes/dispatch/workHangUp", method = RequestMethod.POST, apiTitle = "挂起")
     @ApiOperation("挂起")
     @Transactional(rollbackFor = Exception.class)
-    public R workHangUpDispastch(@ApiParam(value = "工单id", required = true) @RequestParam(value = "dispatchId") Long dispatchId)  {
-        return dispatchItemService.hangUpDispatchItem(dispatchId);
+    public R workHangUpDispastch(@ApiParam(value = "工单id", required = true) @RequestParam(value = "dispatchId") Long dispatchId,
+                                 @ApiParam(value = "挂起原因") @RequestParam(value = "pendingReason",defaultValue = "") String  pendingReason)  {
+        return dispatchItemService.hangUpDispatchItem(dispatchId,pendingReason);
     }
 
 

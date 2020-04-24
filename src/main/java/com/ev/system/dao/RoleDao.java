@@ -31,4 +31,6 @@ public interface RoleDao {
 	RoleDO getRByName(String name);
 
 	List<RoleDO> getByIds(@Param("ids") List<Long> ids);
+
+	int checkSave(RoleDO role);
 }

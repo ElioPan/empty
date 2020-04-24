@@ -46,7 +46,8 @@
 			`create_time`, 
 			`update_by`, 
 			`update_time`, 
-			`del_flag`
+			`del_flag`,
+			`pending_reason`
 		)
 		values
 		(
@@ -60,7 +61,8 @@
 			#{createTime}, 
 			#{updateBy}, 
 			#{updateTime}, 
-			#{delFlag}
+			#{delFlag},
+			#{pendingReason}
 		)
 	</insert>
 	 
@@ -77,7 +79,8 @@
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
 			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
-			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+			<if test="delFlag != null">`del_flag` = #{delFlag},</if>
+			<if test="pendingReason != null">`pending_reason` = #{pendingReason}</if>
 		</set>
 		where id = #{id}
 	</update>
@@ -94,7 +97,7 @@
 	</delete>
 	
 	<sql id="sql_column_list">
-		`id`,`dispatch_item_id`,`start_time`,`hang_time`,`man_hour`,`start_hang_id`,`sign`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+		`id`,`dispatch_item_id`,`start_time`,`hang_time`,`man_hour`,`start_hang_id`,`sign`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`pending_reason`
 	</sql>
 	
 	<sql id="sql_condition">
@@ -111,7 +114,8 @@
 		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
 		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
 		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
-		  		</where>
+				  <if test="pendingReason != null and pendingReason != ''"> and pending_reason = #{pendingReason} </if>
+		  </where>
 	</sql>
 
 
@@ -174,7 +178,8 @@
 		h.name as operatorName,
 		b.device_id as deviceId,
 		j.name as deviceName,
-		a.sign
+		a.sign,
+		a.pending_reason  as pendingReason
 		FROM mes_dispatch_working_hung a
 		LEFT JOIN mes_dispatch_item b on a.dispatch_item_id=b.id
 		LEFT JOIN mes_working_procedure_detail   c on b.foriegn_id=c.id
@@ -234,7 +239,8 @@
 		j.name as deviceName,
 	<!--	b.start_time as dispatchStartTime,
 		b.end_time AS dispatchEndTime,-->
-		a.sign
+		a.sign,
+		a.pending_reason  as pendingReason
 		FROM mes_dispatch_working_hung a
 		LEFT JOIN mes_dispatch_item b on a.dispatch_item_id=b.id
 		LEFT JOIN mes_working_procedure_detail   c on b.foriegn_id=c.id

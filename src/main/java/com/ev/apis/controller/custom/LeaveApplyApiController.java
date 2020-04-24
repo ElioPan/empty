@@ -45,7 +45,7 @@ public class LeaveApplyApiController {
     @ApiOperation("暂存/修改暂存")
     @Transactional(rollbackFor = Exception.class)
     public R saveAddAndChange(@ApiParam(value = "请假信息", required = true) LeaveApplyDO leaveApply,
-                              @ApiParam(value = "审核人") @RequestParam(value = "approveList", defaultValue = "", required = true) Long[] approveList,
+                              @ApiParam(value = "审核人") @RequestParam(value = "approveList", defaultValue = "" ) Long[] approveList,
                               @ApiParam(value = "附件") @RequestParam(value = "taglocationappearanceImage", defaultValue = "", required = false) String[] taglocationappearanceImage) {
         if (Objects.isNull(leaveApply.getId())) {
             //新增保存
@@ -74,17 +74,15 @@ public class LeaveApplyApiController {
     @ApiOperation("提交请假申请（1.从暂存态和退回态修改/未修改后直接提交；2:新增填写明细后直接提交）")
     @Transactional(rollbackFor = Exception.class)
     public R saveSbmitAndChange(@ApiParam(value = "请假信息", required = true) LeaveApplyDO leaveApply,
-                              @ApiParam(value = "审核人") @RequestParam(value = "approveList", defaultValue = "", required = true) Long[] approveList,
+                              @ApiParam(value = "审核人") @RequestParam(value = "approveList", defaultValue = "" ) Long[] approveList,
                               @ApiParam(value = "附件") @RequestParam(value = "taglocationappearanceImage", defaultValue = "", required = false) String[] taglocationappearanceImage) {
         if (Objects.isNull(leaveApply.getId())) {
             //新增保存
-
                 leaveApplyService.submit(leaveApply, approveList, null, taglocationappearanceImage, null);
                 return R.ok();
 
         } else {
             //更新
-
                 LeaveApplyDO leveDoOne = leaveApplyService.get(leaveApply.getId());
                 if (leveDoOne != null) {
                     if (Objects.equals(Constant.TS, leveDoOne.getStatus()) || Objects.equals(Constant.APPLY_REJECT, leveDoOne.getStatus())) {  //146,62允许修改
@@ -115,17 +113,17 @@ public class LeaveApplyApiController {
         String idPath = StringUtils.isNotEmpty(deptId) ? deptService.get(Long.parseLong(deptId)).getIdPath() : null;
         Long lowderUserId = ShiroUtils.getUserId();
 
-        Map<String, Object> reponse = new HashMap<String, Object>();
-        Map<String, Object> params = new HashMap<String, Object>() {{
-            put("createByName", userName);
-            put("beginTime", startTime);
-            put("endTime", endTime);
-            put("type", type);
-            put("offset", (pageno - 1) * pagesize);
-            put("limit", pagesize);
+        Map<String, Object> reponse = new HashMap<>();
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("createByName", userName);
+        params.put("beginTime", startTime);
+        params.put("endTime", endTime);
+        params.put("type", type);
+        params.put("offset", (pageno - 1) * pagesize);
+        params.put("limit", pagesize);
 //            put("sort", "status");
 //            put("order", "ASC");
-        }};
+
         if(!"".equals(userId)&&Objects.equals(userId,lowderUserId.toString())){
             params.put("createBy", userId);
         }
@@ -152,8 +150,9 @@ public class LeaveApplyApiController {
         List<Map<String, Object>> data = this.leaveApplyService.listForMap(params);
         Map<String, Object> stringObjectMap = this.leaveApplyService.countForMap(params);//allTimearea
 
-        if (data != null && data.size() > 0) {
-            reponse.put("allTimearea",stringObjectMap.get("allTimearea"));//总时长
+        if (data.size() > 0) {
+            //总时长
+            reponse.put("allTimearea",stringObjectMap.get("allTimearea"));
             reponse.put("datas",data);
             reponse.put("pageno",pageno);
             reponse.put("totalRows",Integer.parseInt(stringObjectMap.get("counts").toString()));
@@ -172,11 +171,9 @@ public class LeaveApplyApiController {
     @ApiOperation("'我审批的'——待审批数量")
     public R approvingOfCount(@ApiParam(value = "审批人ID") @RequestParam(value = "approveUserId", defaultValue = "", required = false) String approveUserId) {
 
-        Map<String, Object> params = new HashMap<String, Object>() {{
-            put("assignId", approveUserId);
-            put("statusOfCount",Constant.APPLY_APPROVING);  //63审批中 为 待审核状态
-        }};
-
+        Map<String, Object> params = new HashMap<>();
+        params.put("assignId", approveUserId);
+        params.put("statusOfCount",Constant.APPLY_APPROVING);
         Map<String, Object> stringObjectMap = leaveApplyService.countForMap(params);
         params.remove("assignId");
         params.remove("statusOfCount");
@@ -190,7 +187,7 @@ public class LeaveApplyApiController {
     @EvApiByToken(value = "/apis/leaveApply/detail",method = RequestMethod.GET,apiTitle = "获取请假详细信息")
     @ApiOperation("获取请假详细信息")
     public R detail(@ApiParam(value = "请假ID",required = true) @RequestParam(value = "id",defaultValue = "",required = false)  Long id) {
-        Map<String,Object> results = new HashMap<String,Object>();
+        Map<String,Object> results;
         results = leaveApplyService.detail(id);
         return  R.ok(results);
     }
@@ -199,7 +196,7 @@ public class LeaveApplyApiController {
     @EvApiByToken(value = "/apis/leaveApply/approve",method = RequestMethod.POST,apiTitle = "请假审批")
     @ApiOperation("请假审批")
     public R tempSave(@ApiParam(value = "请假信息",required = true) Long leaveApplyId,
-                      @ApiParam(value = "是否通过(1:通过；0：拒绝)") @RequestParam(value = "isApproved",defaultValue = "",required = true) Integer isApproved,
+                      @ApiParam(value = "是否通过(1:通过；0：拒绝)") @RequestParam(value = "isApproved",defaultValue = "" ) Integer isApproved,
                       @ApiParam(value = "原因") @RequestParam(value = "reason",defaultValue = "",required = false) String reason){
         try {
             leaveApplyService.approve(leaveApplyId,isApproved,reason);
@@ -241,8 +238,8 @@ public class LeaveApplyApiController {
     public R remove(@ApiParam(value = "请假申请主键数组", required = true, example = "[1,2,3,4]") @RequestParam(value = "ids", defaultValue = "") Long[] ids) {
 
         if (ids.length>0) {
-            R r = leaveApplyService.removeBacth(ids);
-            return r;
+            return leaveApplyService.removeBacth(ids);
+
         }
         return R.error(messageSourceHandler.getMessage("apis.check.buildWinStockD",null));
     }

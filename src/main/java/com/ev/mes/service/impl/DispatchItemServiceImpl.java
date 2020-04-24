@@ -347,7 +347,7 @@ public class DispatchItemServiceImpl implements DispatchItemService {
     }
 
     @Override
-    public R hangUpDispatchItem(Long dispatchId)  {
+    public R hangUpDispatchItem(Long dispatchId,String pendingReason)  {
 
         DispatchItemDO dispatchItemDO = dispatchItemDao.get(dispatchId);
         if (Objects.nonNull(dispatchItemDO)) {
@@ -360,7 +360,7 @@ public class DispatchItemServiceImpl implements DispatchItemService {
                 dWorkingHungDO.setStartTime(new Date());
                 dWorkingHungDO.setSign(0);
                 dWorkingHungDO.setStartHangId(ShiroUtils.getUserId());
-
+                dWorkingHungDO.setPendingReason(pendingReason);
                 DispatchItemDO dispatchItemDO1=new DispatchItemDO();
                 dispatchItemDO1.setId(dispatchId);
                 dispatchItemDO1.setStatus(ConstantForMES.PUT_UP);

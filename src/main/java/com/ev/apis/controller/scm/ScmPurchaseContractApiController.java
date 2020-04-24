@@ -419,7 +419,14 @@ public class ScmPurchaseContractApiController {
                 }
                 BigDecimal countByOutSource = inCountOfContract == null ? BigDecimal.ZERO : inCountOfContract;
 
-                BigDecimal count = MathUtils.getBigDecimal(mapDo.get("count")).subtract(countByOutSource);
+                BigDecimal proportionCount= BigDecimal.ZERO;
+                if(mapDo.containsKey("proportion")){
+                    if((new BigDecimal(mapDo.get("proportion").toString())).compareTo(BigDecimal.ZERO)>0){
+                        BigDecimal proportion=new BigDecimal(mapDo.get("proportion").toString());
+                        proportionCount=MathUtils.getBigDecimal(mapDo.get("count")).multiply(BigDecimal.valueOf(proportion.doubleValue() / 100));
+                    }
+                }
+                BigDecimal count = MathUtils.getBigDecimal(mapDo.get("count")).add(proportionCount).subtract(countByOutSource);
 
                 if (count.compareTo(BigDecimal.ZERO) <= 0) {
                     mapDo.put("quoteCount",0);

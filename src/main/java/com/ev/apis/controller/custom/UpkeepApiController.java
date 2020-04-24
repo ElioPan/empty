@@ -57,14 +57,14 @@ public class UpkeepApiController {
     @EvApiByToken(value = "/apis/upkeepPlan/startUsing", method = RequestMethod.POST)
     @ApiOperation("启用——设备保养计划")
     @Transactional(rollbackFor = Exception.class)
-    public R startUsing(@ApiParam(value = "保养计划id", required = true) @RequestParam(value = "ids", defaultValue = "", required = true) Long[] ids) {
+    public R startUsing(@ApiParam(value = "保养计划id", required = true) @RequestParam(value = "ids", defaultValue = "") Long[] ids) {
         return upkeepPlanService.disposeStartUsing(ids);
     }
 
     @EvApiByToken(value = "/apis/upkeepPlan/forbidden", method = RequestMethod.POST)
     @ApiOperation("禁用——设备保养计划")
     @Transactional(rollbackFor = Exception.class)
-    public R forbidden(@ApiParam(value = "保养计划id", required = true) @RequestParam(value = "ids", defaultValue = "", required = true) Long[] ids) {
+    public R forbidden(@ApiParam(value = "保养计划id", required = true) @RequestParam(value = "ids", defaultValue = "") Long[] ids) {
         return upkeepPlanService.disposeForbidden(ids);
     }
 
@@ -75,8 +75,8 @@ public class UpkeepApiController {
     @ApiOperation("设备保养计划——暂存/修改暂存")
     @Transactional(rollbackFor = Exception.class)
     public R addNewPlanAndChangePlan(UpkeepPlanDO planDo,
-                                     @ApiParam(value = "保养项目ID数组,id用','分隔，如4,5", required = true) @RequestParam(value = "projectIds", defaultValue = "", required = true) String projectIds,
-                                     @ApiParam(value = "备品备件ID数组，如{\"dataList\":[{\"partId\":3,\"amount\":5,\"spartUnit\":\"个\",\"spartPrice\":20,\"spartSum\":1000,\"remark\":\"备注\"},{\"partId\":3,\"amount\":5,\"spartUnit\":\"个\",\"spartPrice\":20,\"spartSum\":1000,\"remark\":\"备注\"}]}", required = true) @RequestParam(value = "partIdArray", defaultValue = "", required = true) String partIdArray) {
+                                     @ApiParam(value = "保养项目ID数组,id用','分隔，如4,5", required = true) @RequestParam(value = "projectIds", defaultValue = "") String projectIds,
+                                     @ApiParam(value = "备品备件ID数组，如{\"dataList\":[{\"partId\":3,\"amount\":5,\"spartUnit\":\"个\",\"spartPrice\":20,\"spartSum\":1000,\"remark\":\"备注\"}]}", required = true) @RequestParam(value = "partIdArray", defaultValue = "") String partIdArray) {
 
         if (Objects.isNull(planDo.getId())) {
             Map<String, Object> results = Maps.newHashMap();
@@ -105,13 +105,13 @@ public class UpkeepApiController {
     @ApiOperation("提交保养计划（2.新增后直接提交；1.未修改/修改后直接提交）")
     @Transactional(rollbackFor = Exception.class)
     public R sbmitOfNewAndChange(UpkeepPlanDO planDo,
-                                     @ApiParam(value = "保养项目ID数组,id用','分隔，如4,5", required = true) @RequestParam(value = "projectIds", defaultValue = "", required = true) String projectIds,
-                                     @ApiParam(value = "备品备件ID数组，如{\"dataList\":[{\"partId\":3,\"amount\":5,\"spartUnit\":\"个\",\"spartPrice\":20,\"spartSum\":1000,\"remark\":\"备注\"},{\"partId\":3,\"amount\":5,\"spartUnit\":\"个\",\"spartPrice\":20,\"spartSum\":1000,\"remark\":\"备注\"}]}", required = true) @RequestParam(value = "partIdArray", defaultValue = "", required = true) String partIdArray) {
+                                     @ApiParam(value = "保养项目ID数组,id用','分隔，如4,5", required = true) @RequestParam(value = "projectIds", defaultValue = "") String projectIds,
+                                     @ApiParam(value = "备品备件ID数组，如{\"dataList\":[{\"partId\":3,\"amount\":5,\"spartUnit\":\"个\",\"spartPrice\":20,\"spartSum\":1000,\"remark\":\"备注\"}]}", required = true) @RequestParam(value = "partIdArray", defaultValue = "") String partIdArray) {
 
         if (Objects.isNull(planDo.getId())) {
             //保养计划提交后就是启用：129启用
             planDo.setStatus(Constant.STATE_START);
-            Map<String, Object> results = results = this.upkeepPlanService.savePlan(planDo, projectIds, partIdArray);
+            Map<String, Object> results = this.upkeepPlanService.savePlan(planDo, projectIds, partIdArray);
             return R.ok(results);
         } else {
             //修改后提交
@@ -133,7 +133,7 @@ public class UpkeepApiController {
 
     @EvApiByToken(value = "/apis/upkeepPlan/getOnePlanDetail", method = RequestMethod.POST)
     @ApiOperation("获取保养计划详情")
-    public R onePlanDetail(@ApiParam(value = "保养计划id", required = true) @RequestParam(value = "planId", defaultValue = "", required = true) Long planId) {
+    public R onePlanDetail(@ApiParam(value = "保养计划id", required = true) @RequestParam(value = "planId", defaultValue = "") Long planId) {
 
         Map<String, Object> results = Maps.newHashMap();
 
@@ -265,8 +265,6 @@ public class UpkeepApiController {
 
     /**
      *  //2.提供功能：保养计划“删除”状态（将delet_status状态更新为1删除，同时将status 计划状态改为 已完成131）
-     * @param id
-     * @return
      */
     @EvApiByToken(value = "/apis/upkeepPlan/deletLargeUpPlan", method = RequestMethod.POST)
     @ApiOperation("批量删除保养计划")
@@ -316,11 +314,11 @@ public class UpkeepApiController {
      */
     @EvApiByToken(value = "/apis/upkeepPlan/findProjects", method = RequestMethod.POST)
     @ApiOperation("保养项目和方法列表")
-    public R findProList(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1", required = true) int pageno,
-                         @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20", required = true) int pagesize,
-                         @ApiParam(value = "设备类型id", required = false) @RequestParam(value = "device_tepy", defaultValue = "", required = false) Integer deviceTepy,
-                         @ApiParam(value = "保养项目名字", required = false) @RequestParam(value = "name", defaultValue = "", required = false) String name,
-                         @ApiParam(value = "保养方法", required = false) @RequestParam(value = "function", defaultValue = "", required = false) String function) {
+    public R findProList(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+                         @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+                         @ApiParam(value = "设备类型id") @RequestParam(value = "device_tepy", defaultValue = "", required = false) Integer deviceTepy,
+                         @ApiParam(value = "保养项目名字") @RequestParam(value = "name", defaultValue = "", required = false) String name,
+                         @ApiParam(value = "保养方法") @RequestParam(value = "function", defaultValue = "", required = false) String function) {
 
         Map<String, Object> query = Maps.newHashMap();
         Map<String, Object> results = Maps.newHashMap();
@@ -362,8 +360,8 @@ public class UpkeepApiController {
     @ApiOperation("无计划保养工单——暂存/修改暂存")
     @Transactional(rollbackFor = Exception.class)
     public R recordOfNoPlan(UpkeepRecordDO upkeepRecordDO,
-                            @ApiParam(value = "保养单下所有保养项目，如[{\"projectId\":3,\"manhour\":5,\"upkeepCost\":522,\"manHourCost\":100,\"result\":1(1正常，0异常),\"remark\":\"备注\"}]", required = true) @RequestParam(value = "projectArray", defaultValue = "", required = true) String projectArray,
-                            @ApiParam(value = "所有备件明细，如[{\"partId\":3,\"spartAmount\":5,\"spartUnit\":\"个\",\"spartPrice\":20,\"spartSum\":1000,\"remark\":\"备注\"}]", required = true) @RequestParam(value = "partArray", defaultValue = "", required = true) String partArray) {
+                            @ApiParam(value = "保养单下所有保养项目，如[{\"projectId\":3,\"manhour\":5,\"upkeepCost\":522,\"manHourCost\":100,\"result\":1(1正常，0异常),\"remark\":\"备注\"}]", required = true) @RequestParam(value = "projectArray", defaultValue = "") String projectArray,
+                            @ApiParam(value = "所有备件明细，如[{\"partId\":3,\"spartAmount\":5,\"spartUnit\":\"个\",\"spartPrice\":20,\"spartSum\":1000,\"remark\":\"备注\"}]", required = true) @RequestParam(value = "partArray", defaultValue = "") String partArray) {
 
         if (Objects.isNull(upkeepRecordDO.getId())) {
             //新增暂存
@@ -396,16 +394,14 @@ public class UpkeepApiController {
     @ApiOperation("无计划保养工单——提交（新增直接提交；暂存态提交）")
     @Transactional(rollbackFor = Exception.class)
     public R sumitNoPlanOfRecord(UpkeepRecordDO upkeepRecordDO,
-                            @ApiParam(value = "保养单下所有保养项目，如[{\"projectId\":3,\"manhour\":5,\"upkeepCost\":522,\"manHourCost\":100,\"result\":1(1正常，0异常),\"remark\":\"备注\"},{\"projectId\":3,\"manhour\":5,\"manHourCost\":100,\"result\":1,\"remark\":\"备注\"}]", required = true) @RequestParam(value = "projectArray", defaultValue = "", required = true) String projectArray,
-                            @ApiParam(value = "所有备件明细，如[{\"partId\":3,\"spartAmount\":5,\"spartUnit\":\"个\",\"spartPrice\":20,\"spartSum\":1000,\"remark\":\"备注\"},{\"partId\":3,\"spartAmount\":5,\"spartUnit\":1,\"spartPrice\":20,\"spartSum\":1000,\"remark\":\"备注\"}]", required = true) @RequestParam(value = "partArray", defaultValue = "", required = true) String partArray) {
+                            @ApiParam(value = "保养单下所有保养项目，如[{\"projectId\":3,\"manhour\":5,\"upkeepCost\":522,\"manHourCost\":100,\"result\":1(1正常，0异常),\"remark\":\"备注\"}]", required = true) @RequestParam(value = "projectArray", defaultValue = "") String projectArray,
+                            @ApiParam(value = "所有备件明细，如[{\"partId\":3,\"spartAmount\":5,\"spartUnit\":\"个\",\"spartPrice\":20,\"spartSum\":1000,\"remark\":\"备注\"}]", required = true) @RequestParam(value = "partArray", defaultValue = "") String partArray) {
 
         if (Objects.isNull(upkeepRecordDO.getId())) {
             //新增+提交
 
                 upkeepRecordDO.setResult(Constant.WAITING_CHECK);//待验收
-                R r = upkeepRecordService.saveRecorderOfNoPlan(upkeepRecordDO, projectArray, partArray,0);
-
-                return r;
+            return upkeepRecordService.saveRecorderOfNoPlan(upkeepRecordDO, projectArray, partArray,0);
         } else {
 
             //修改暂存+提交
@@ -414,9 +410,7 @@ public class UpkeepApiController {
                 if (Objects.equals(Constant.TS, recordDO.getResult())) {
 
                         upkeepRecordDO.setResult(Constant.WAITING_CHECK);//待验收
-                        R r = upkeepRecordService.saveRecorderOfNoPlan(upkeepRecordDO, projectArray, partArray,1);
-
-                        return r;
+                    return upkeepRecordService.saveRecorderOfNoPlan(upkeepRecordDO, projectArray, partArray,1);
                 }
                 //请勿重复提交
                 return R.ok(messageSourceHandler.getMessage("common.dailyReport.submit",null));
@@ -438,15 +432,12 @@ public class UpkeepApiController {
     public R addValidRecord(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
                             @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
                             @ApiParam(value = "保养开始时间") @RequestParam(value = "start_time", defaultValue = "", required = false) String start_time,
-
                             @ApiParam(value = "保养结束时间") @RequestParam(value = "end_time", defaultValue = "", required = false) String end_time,
-
                             @ApiParam(value = "保养负责人Id") @RequestParam(value = "engineer_id", defaultValue = "", required = false) Long engineerId,
                             @ApiParam(value = "部门id") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
-
                             @ApiParam(value = "保养状态") @RequestParam(value = "resultId", defaultValue = "", required = false) Long resultId,
                             @ApiParam(value = "处理状态（多标签）（待处理：56；待验收：57）") @RequestParam(value = "singleStatus",defaultValue = "",required = false)  Integer singleStatus,
-                            @ApiParam(value = "设备名称/编码（模糊）", required = false) @RequestParam(value = "deviceName", defaultValue = "", required = false) String deviceName,
+                            @ApiParam(value = "设备名称/编码（模糊）") @RequestParam(value = "deviceName", defaultValue = "", required = false) String deviceName,
                             @ApiParam(value = "验收结果字段") @RequestParam(value = "recordResultId",defaultValue = "",required = false)  Long recordResultId,
                             @ApiParam(value = "需排序字段") @RequestParam(value = "sort",defaultValue = "",required = false)  String sort,
                             @ApiParam(value = "升（asc）降(desc)序") @RequestParam(value = "order",defaultValue = "",required = false)  String order) {
@@ -487,13 +478,16 @@ public class UpkeepApiController {
         //待处理
         if (Objects.nonNull(singleStatus) && Objects.equals(singleStatus, Constant.WAITING_DEAL)) {
             query.put("singleStatuss", singleStatus);
-            query.put("manIds", manId);//工单责任人当前登录者
-            query.put("overTimeResult", 999);//待处理中显示过期数据
+            //工单责任人当前登录者
+            query.put("manIds", manId);
+            //待处理中显示过期数据
+            query.put("overTimeResult", 999);
         }
         //待验收   则返回保养计划创建人和
         if (Objects.nonNull(singleStatus) &&Objects.equals(singleStatus, Constant.WAITING_CHECK)) {
             query.put("singleStatus", singleStatus);
-            query.put("manIdss", manId);  //工单和计划创建人为当前登录者
+            //工单和计划创建人为当前登录者
+            query.put("manIdss", manId);
         }
         //统计行数+总金额+总工时
         Map<String, Object> countListRecords = upkeepRecordService.countListRecords(query);
@@ -537,10 +531,9 @@ public class UpkeepApiController {
     @EvApiByToken(value = "/apis/upkeepPlan/closeRecordOfPase", method = RequestMethod.POST)
     @ApiOperation("关闭/批量关闭 过期保养工单")
     @Transactional(rollbackFor = Exception.class)
-    public R closeRecordOfPase(@ApiParam(value = "保养工单IDS", required = true) @RequestParam(value = "recordIds", defaultValue = "", required = true) Long[] recordIds,
-                               @ApiParam(value = "关闭原因", required = true) @RequestParam(value = "closureReason", defaultValue = "", required = true) String closureReason) {
-        R r = upkeepRecordService.closePaseOfRecord(recordIds,closureReason);
-        return r;
+    public R closeRecordOfPase(@ApiParam(value = "保养工单IDS", required = true) @RequestParam(value = "recordIds", defaultValue = "") Long[] recordIds,
+                               @ApiParam(value = "关闭原因", required = true) @RequestParam(value = "closureReason", defaultValue = "") String closureReason) {
+        return upkeepRecordService.closePaseOfRecord(recordIds,closureReason);
     }
 
 
@@ -557,33 +550,27 @@ public class UpkeepApiController {
 //        }catch(Exception e){
 //            e.getMessage();
 //        }
-        R r = upkeepRecordService.getOneDetailOfRecord(query);
-            return r;
-
+        return  upkeepRecordService.getOneDetailOfRecord(query);
     }
 
     //提供功能：填写保养工单明细
     @EvApiByToken(value = "/apis/upkeepPlan/saveRecordDetail", method = RequestMethod.POST)
     @ApiOperation("暂存/修改暂存——保养工单")
     @Transactional(rollbackFor = Exception.class)
-    public R saveRecordDetails(@ApiParam(value = "保养单id", required = true) @RequestParam(value = "record_id", defaultValue = "", required = true) Long id,
-                               @ApiParam(value = "停机时长", required = true) @RequestParam(value = "down_hour", defaultValue = "", required = true) double downHour,
-                               @ApiParam(value = "设备使用状况id", required = true) @RequestParam(value = "status", defaultValue = "", required = true) int status,
-                               @ApiParam(value = "本次保养总工时：所有项目保养时间总和", required = true) @RequestParam(value = "man_hour", defaultValue = "", required = true) double manHour,
-                               @ApiParam(value = "保养总结", required = false) @RequestParam(value = "content", defaultValue = "", required = false) String content,
-
-                               @ApiParam(value = "工时费合计", required = false) @RequestParam(value = "manHourCost", defaultValue = "", required = false) String manHourCost,
-                               @ApiParam(value = "材料费合计", required = false) @RequestParam(value = "cost", defaultValue = "", required = false) String cost,
-
-                               @ApiParam(value = "保养单下所有保养项目，如{\"dataList\":[{\"projectId\":3,\"manhour\":5,\"manHourCost\":100,\"result\":1(1正常，0异常),\"remark\":\"备注\"},{\"projectId\":3,\"manhour\":5,\"manHourCost\":100,\"result\":1(1正常，0异常),\"remark\":\"备注\"}]}\n", required = true) @RequestParam(value = "projectArray", defaultValue = "", required = true) String projectArray,
-                               @ApiParam(value = "所有备件明细，如{\"dataList\":[{\"partId\":15,\"spart_amount\":5,\"spartPrice\":10.5,\"spart_sum\":1000,\"remark\":\"备注\"},{\"partId\":16,\"spart_amount\":5,spartPrice\":10.5,\"spart_sum\":1000,\"remark\":\"备注\"}]}", required = true) @RequestParam(value = "partArray", defaultValue = "", required = true) String partArray) throws ParseException {
+    public R saveRecordDetails(@ApiParam(value = "保养单id", required = true) @RequestParam(value = "record_id", defaultValue = "") Long id,
+                               @ApiParam(value = "停机时长", required = true) @RequestParam(value = "down_hour", defaultValue = "") double downHour,
+                               @ApiParam(value = "设备使用状况id", required = true) @RequestParam(value = "status", defaultValue = "") int status,
+                               @ApiParam(value = "本次保养总工时：所有项目保养时间总和", required = true) @RequestParam(value = "man_hour", defaultValue = "" ) double manHour,
+                               @ApiParam(value = "保养总结") @RequestParam(value = "content", defaultValue = "", required = false) String content,
+                               @ApiParam(value = "工时费合计") @RequestParam(value = "manHourCost", defaultValue = "", required = false) String manHourCost,
+                               @ApiParam(value = "材料费合计") @RequestParam(value = "cost", defaultValue = "", required = false) String cost,
+                               @ApiParam(value = "保养单下所有保养项目，如{\"dataList\":[{\"projectId\":3,\"manhour\":5,\"manHourCost\":100,\"result\":1(1正常，0异常),\"remark\":\"备注\"} ]}\n", required = true) @RequestParam(value = "projectArray", defaultValue = "" ) String projectArray,
+                               @ApiParam(value = "所有备件明细，如{\"dataList\":[{\"partId\":15,\"spart_amount\":5,\"spartPrice\":10.5,\"spart_sum\":1000,\"remark\":\"备注\"} ]}", required = true) @RequestParam(value = "partArray", defaultValue = "" ) String partArray) throws ParseException {
 
         //**判断工单若为57待验收 或者58已验收 则不允许修改。
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String dd = df.format(new Date());
-        Date dateNow = df.parse(dd);
         UpkeepRecordDO upkeepRecordDo = upkeepRecordService.get(id);
-
         //"工单id无数据！"
         if(Objects.isNull(upkeepRecordDo)){ return R.error(messageSourceHandler.getMessage("common.massge.haveNoThing",null));}
         //允许超期的工单暂存保养信息
@@ -617,13 +604,11 @@ public class UpkeepApiController {
                                @ApiParam(value = "停机时长", required = true) @RequestParam(value = "down_hour", defaultValue = "") double downHour,
                                @ApiParam(value = "设备使用状况id", required = true) @RequestParam(value = "status", defaultValue = "") int status,
                                @ApiParam(value = "本次保养总工时：所有项目保养时间总和", required = true) @RequestParam(value = "man_hour", defaultValue = "") double manHour,
-                               @ApiParam(value = "保养总结", required = false) @RequestParam(value = "content", defaultValue = "", required = false) String content,
-
+                               @ApiParam(value = "保养总结") @RequestParam(value = "content", defaultValue = "", required = false) String content,
                                  @ApiParam(value = "工时费合计", required = true) @RequestParam(value = "manHourCost", defaultValue = "") String manHourCost,
                                  @ApiParam(value = "材料费合计", required = true) @RequestParam(value = "cost", defaultValue = "") String cost,
-
-                                 @ApiParam(value = "保养单下所有保养项目，如{\"dataList\":[{\"projectId\":3,\"manhour\":5,\"manHourCost\":100,\"result\":1(1正常，0异常),\"remark\":\"备注\"},{\"projectId\":3,\"manhour\":5,\"manHourCost\":100,\"result\":1,\"remark\":\"备注\"}]}", required = true) @RequestParam(value = "projectArray", defaultValue = "", required = true) String projectArray,
-                               @ApiParam(value = "所有备件明细，如{\"dataList\":[{\"partId\":3,\"spart_amount\":5,\"spartPrice\":10.5,\"spart_sum\":1000,\"remark\":\"备注\"},{\"partId\":3,\"spart_amount\":5,\"spartPrice\":10.5,\"spart_sum\":1000,\"remark\":\"备注\"}]}", required = true) @RequestParam(value = "partArray", defaultValue = "", required = true) String partArray) throws ParseException {
+                                 @ApiParam(value = "保养单下所有保养项目，如{\"dataList\":[{\"projectId\":3,\"manhour\":5,\"manHourCost\":100,\"result\":1(1正常，0异常),\"remark\":\"备注\"} ]}", required = true) @RequestParam(value = "projectArray", defaultValue = "", required = true) String projectArray,
+                               @ApiParam(value = "所有备件明细，如{\"dataList\":[{\"partId\":3,\"spart_amount\":5,\"spartPrice\":10.5,\"spart_sum\":1000,\"remark\":\"备注\"} ]}", required = true) @RequestParam(value = "partArray", defaultValue = "", required = true) String partArray) throws ParseException {
 
         //**判断工单若为57待验收 或者58已验收 则不允许修改。
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -659,7 +644,7 @@ public class UpkeepApiController {
     @EvApiByToken(value = "/apis/upkeepRecord/checkRecord", method = RequestMethod.POST)
     @ApiOperation("验收保养任务单--暂存/修改暂存")
     public R checkRecord(UpkeepCheckDO upkeepCheckDO,
-                         @ApiParam(value = "保养工单ID", required = true) @RequestParam(value = "recordId", defaultValue = "", required = true) Long id) {
+                         @ApiParam(value = "保养工单ID", required = true) @RequestParam(value = "recordId", defaultValue = "") Long id) {
 
         //工单已单一旦验收（无论通过与否）则不允许更改,且工单结束。(115通过，116不通过，133待评价)
         Map<String, Object> detailByRecordId = upkeepCheckService.getDetailByRecordId(id);
@@ -673,7 +658,7 @@ public class UpkeepApiController {
                 upkeepCheckDO.setResultRemark(upkeepCheckDO.getResult());
                 upkeepCheckDO.setResult(Constant.NO_EVALUATED);
 
-                int counts= upkeepCheckService.updateByRecordId(upkeepCheckDO);
+                upkeepCheckService.updateByRecordId(upkeepCheckDO);
                 return R.ok();
 
             }else{
@@ -688,7 +673,7 @@ public class UpkeepApiController {
     @EvApiByToken(value = "/apis/upkeepRecord/sumitOfCheck", method = RequestMethod.POST)
     @ApiOperation("提交验收评价")
     public R sumitOfCheck(UpkeepCheckDO upkeepCheckDO,
-                         @ApiParam(value = "保养工单ID", required = true) @RequestParam(value = "recordId", defaultValue = "", required = true) Long id) {
+                         @ApiParam(value = "保养工单ID", required = true) @RequestParam(value = "recordId", defaultValue = "") Long id) {
 
         //工单已单一旦验收（无论通过与否）则不允许更改,且工单结束。(115通过，116不通过，133待评价)
         Map<String, Object> detailByRecordId = upkeepCheckService.getDetailByRecordId(id);
@@ -707,7 +692,7 @@ public class UpkeepApiController {
                     UpkeepRecordDO upkeepRecordDO = new UpkeepRecordDO() ;
                     upkeepRecordDO.setId(id);
                     upkeepRecordDO.setResult(Constant.ALREADY_CHECK);
-                    int count = upkeepRecordService.update(upkeepRecordDO);
+                    upkeepRecordService.update(upkeepRecordDO);
                     return R.ok();
                 }
                 //"验收失败，请检查参数是否正确！"
@@ -726,10 +711,10 @@ public class UpkeepApiController {
      */
     @EvApiByToken(value = "/apis/upkeepRecord/getCheckDetail", method = RequestMethod.POST)
     @ApiOperation("获取保养单评价详情")
-    public R checkDetailByRecordId(@ApiParam(value = "保养工单ID", required = true) @RequestParam(value = "recordId", defaultValue = "", required = true) Long recordId) {
+    public R checkDetailByRecordId(@ApiParam(value = "保养工单ID", required = true) @RequestParam(value = "recordId", defaultValue = "") Long recordId) {
 
         Map<String, Object> detailByRecordId = upkeepCheckService.getDetailByRecordId(recordId);
-        Map<String, Object> result = new HashMap<String,Object>();
+        Map<String, Object> result = new HashMap<>();
         if (detailByRecordId.size()>0) {
             result.put("data", detailByRecordId);
             return R.ok(result);
@@ -743,7 +728,7 @@ public class UpkeepApiController {
     //10.提供功能：根据当前设备查询保养
     @EvApiByToken(value = "/apis/upkeepRecord/getProByDeviceID", method = RequestMethod.POST)
     @ApiOperation("根据当前设备查询保养记录")
-    public R getProjectByDeviceId(@ApiParam(value = "设备ID", required = true) @RequestParam(value = "deviceId", defaultValue = "", required = true) Long deviceId,
+    public R getProjectByDeviceId(@ApiParam(value = "设备ID", required = true) @RequestParam(value = "deviceId", defaultValue = "" ) Long deviceId,
                                   @ApiParam(value = "当前第几页") @RequestParam(value = "pageno", defaultValue = "1", required = false) int pageno,
                                   @ApiParam(value = "一页多少条") @RequestParam(value = "pagesize", defaultValue = "20", required = false) int pagesize,
                                   @ApiParam(value = "工单创建时间—开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
@@ -768,7 +753,7 @@ public class UpkeepApiController {
             resultPonse.setPageno(pageno);
             resultPonse.setPagesize(pagesize);
             resultPonse.setTotalRows(count);
-            resultPonse.setTotalPages((Integer) ((count + pagesize - 1) / pagesize));
+            resultPonse.setTotalPages(((count + pagesize - 1) / pagesize));
         }
         resultList.put("data", resultPonse);
         return R.ok(resultList);
@@ -779,7 +764,7 @@ public class UpkeepApiController {
     @ApiOperation("删除设备保养工单")
     @Transactional(rollbackFor =Exception.class)
     public R deletOneRecordById(@ApiParam(value = "设备ID", required = true) @RequestParam(value = "deviceId", defaultValue = "", required = false) Long id,
-            @ApiParam(value = "保养记录id", required = true) @RequestParam(value = "recordId", defaultValue = "", required = true) Long recordId) {
+            @ApiParam(value = "保养记录id", required = true) @RequestParam(value = "recordId", defaultValue = "") Long recordId) {
 
 
         int removeRows = upkeepRecordService.remove(recordId);
@@ -800,18 +785,18 @@ public class UpkeepApiController {
     @EvApiByToken(value = "/apis/upkeepRecord/deletLargeRecord", method = RequestMethod.POST)
     @ApiOperation("批量删除保养工单")
     @Transactional(rollbackFor = Exception.class)
-    public R deletLargRecords(@ApiParam(value = "保养记录ids:long[]", required = true) @RequestParam(value = "recordId", defaultValue = "", required = true) Long[] recordIds) {
+    public R deletLargRecords(@ApiParam(value = "保养记录ids:long[]", required = true) @RequestParam(value = "recordId", defaultValue = "" ) Long[] recordIds) {
 
-        R r = upkeepRecordService.deletOfRecords(recordIds);
-            return r;
+        return upkeepRecordService.deletOfRecords(recordIds);
+
     }
 
     @EvApiByToken(value = "/apis/upkeepPlan/watingOfUpkeepAmount", method = RequestMethod.POST)
     @ApiOperation("保养工单待处理数量")
-    public R watingOfUpkeepAmount(@ApiParam(value = "保养负责人Id", required = false) @RequestParam(value = "engineer_id", defaultValue = "", required = false) Long engineerId,
-                                  @ApiParam(value = "部门id", required = false) @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId){
+    public R watingOfUpkeepAmount(@ApiParam(value = "保养负责人Id" ) @RequestParam(value = "engineer_id", defaultValue = "", required = false) Long engineerId,
+                                  @ApiParam(value = "部门id" ) @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId){
 
-        Map<String, Object> query = new HashMap<String, Object>();
+        Map<String, Object> query = new HashMap<>();
         Map<String, Object> results = Maps.newHashMap();
 
         String idPath = null;
@@ -863,23 +848,7 @@ public class UpkeepApiController {
 
 }
 
-//=====================================================ggggv=======================================================================================
 
-    /**
-     * 提供给定时器调用service层方法，此处预留
-     * @param
-     * @return
-     */
-//    @EvApiByToken(value = "/apis/upkeepPlan/autoWorkOrder", method = RequestMethod.POST)
-//    @ApiOperation("生成保养工单")
-//    public R autoWorkOrderOfPlan(@ApiParam(value = "计划ID", required = true) @RequestParam(value = "planId", defaultValue = "", required = true) Long planId,
-//                                 @ApiParam(value = "开始时间", required = true) @RequestParam(value = "startTime", defaultValue = "", required = true) Date startTime,
-//                                 @ApiParam(value = "结束时间", required = true) @RequestParam(value = "endTime", defaultValue = "", required = true) Date endTime) {
-//
-//            upkeepPlanService.makeWorkOrder(planId, startTime, endTime);
-//            return R.ok();
-//
-//    }
 
 
 

@@ -44,6 +44,10 @@ public class RoleApiController extends BaseController {
 		if (Constant.DEMO_ACCOUNT.equals(getUsername())) {
             return R.error(messageSourceHandler.getMessage("basicInfo.showProject.update",null));
 		}
+		boolean checkSave =roleService.checkSave(role);
+		if(!checkSave){
+			return R.error(messageSourceHandler.getMessage("common.duplicate.names",null));
+		}
 		if (roleService.insert(role,ids) > 0) {
 			return R.ok();
 		} else {
@@ -67,6 +71,10 @@ public class RoleApiController extends BaseController {
             @ApiParam(value = "自定义权限的部门ID") @RequestParam(value = "ids", defaultValue = "") Long[] ids) {
 		if (Constant.DEMO_ACCOUNT.equals(getUsername())) {
 			return R.error(messageSourceHandler.getMessage("basicInfo.showProject.update",null));
+		}
+		boolean checkSave =roleService.checkSave(role);
+		if(!checkSave){
+			return R.error(messageSourceHandler.getMessage("common.duplicate.names",null));
 		}
 		if (roleService.edit(role,ids) > 0) {
 			return R.ok();

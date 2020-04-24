@@ -59,7 +59,7 @@ public interface DispatchItemService {
 
 	Map<String, Object> getPDStartEndTime(Long id);
 
-	R hangUpDispatchItem(Long dispatchId) ;
+	R hangUpDispatchItem(Long dispatchId,String pendingReason) ;
 
 	R oneStartWorkDetail();
 
