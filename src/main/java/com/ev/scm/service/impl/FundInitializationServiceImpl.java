@@ -2,11 +2,9 @@ package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.ev.apis.model.DsResultResponse;
-import com.ev.custom.domain.DictionaryDO;
-import com.ev.custom.service.DictionaryService;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
-import com.ev.framework.utils.DateFormatUtil;
+import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
@@ -22,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 
@@ -231,9 +228,17 @@ public class FundInitializationServiceImpl implements FundInitializationService 
 				oneDetail.put("remainingAmount",initializationAmount.add(new BigDecimal(inAmount)).add(totailInAmount).subtract(totailOutAmount).subtract(new BigDecimal(outAmount)));
 				oneDetail.put("companyName",name);
 			}
+
+            BigDecimal totalRemainingAmount = getlist
+                    .stream()
+                    .map(v -> MathUtils.getBigDecimal(v.get("remainingAmount")))
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
+
             int total= Integer.parseInt(countOfList.get("totailCount").toString());
 			params.put("total",total);
-			params.put("totailInitialAmount",countOfList.get("totailInitialAmount"));
+            params.put("totalRemainingAmount",totalRemainingAmount);
+//			params.put("totailInitialAmount",countOfList.get("totailInitialAmount"));
 			params.put("data", new DsResultResponse(pageno,pagesize,total,getlist));
 		}
 		return R.ok(params);

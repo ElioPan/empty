@@ -191,6 +191,7 @@
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(a.transfer_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
 			<if test="transferCode != null and transferCode != ''"> AND a.transfer_code = #{transferCode} </if>
 			<if test="auditSign != null and auditSign != ''"> AND a.audit_sign = #{auditSign} </if>
+			<if test="businessType != null and businessType != ''"> AND d.business_type = #{businessType} </if>
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -225,6 +226,7 @@
 			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(a.transfer_date,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
 			<if test="transferCode != null and transferCode != ''"> AND a.transfer_code = #{transferCode} </if>
 			<if test="auditSign != null and auditSign != ''"> AND a.audit_sign = #{auditSign} </if>
+			<if test="businessType != null and businessType != ''"> AND d.business_type = #{businessType} </if>
 		</where>
 	</select>
 

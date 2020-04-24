@@ -92,6 +92,7 @@ public class ScmBankTransferApiController {
                             @ApiParam(value = "单据编号") @RequestParam(value = "transferCode", defaultValue = "", required = false) String transferCode,
                             @ApiParam(value = "开始日期(转账时间)") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
                             @ApiParam(value = "截止日期(转账时间)") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
+                            @ApiParam(value = "业务类型") @RequestParam(value = "businessType", defaultValue = "", required = false) Long businessType,
                             @ApiParam(value = "审核状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign) {
 
         Map<String, Object> params = Maps.newHashMap();
@@ -99,6 +100,7 @@ public class ScmBankTransferApiController {
         params.put("limit", pagesize);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
+        params.put("businessType", businessType);
         params.put("transferCode", transferCode);
         params.put("auditSign", auditSign);
 
