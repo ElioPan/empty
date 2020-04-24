@@ -79,6 +79,30 @@
 		WHERE ${pk.columnName} = #{${pk.attrname}}
 	</update>
 
+	<update id="batchUpdate" parameterType="List">
+		UPDATE ${tableName}
+		<trim prefix="set" suffixOverrides=",">
+#foreach($column in $columns)
+#if($column.columnName != $pk.columnName)
+				<trim prefix="$column.columnName =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.$column.attrname!=null">
+							when id=#{item.${pk.columnName}} then #{item.delFlag}
+						</if>
+						<if test="item.$column.attrname==null">
+							when id=#{item.${pk.columnName}} then ${tableName}.${column.columnName}
+						</if>
+					</foreach>
+				</trim>
+#end
+#end
+		</trim>
+		WHERE ${pk.columnName} IN
+		<foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+			#{item.id}
+		</foreach>
+	</update>
+
 	<update id="updateAll" parameterType="${package}.domain.${className}DO">
 		UPDATE ${tableName} SET
 #foreach($column in $columns)
