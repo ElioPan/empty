@@ -11,6 +11,7 @@ import com.ev.report.vo.DeviceVO;
 import com.ev.framework.config.Constant;
 import com.ev.framework.utils.*;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +28,7 @@ public class DeviceAccountingReportServiceImpl implements DeviceAccountingReport
     private DeviceAccountingReportDao reportDao;
 
     @Override
-    public DsResultResponse  analysis(DeviceVO deviceVO) {
+    public Pair<DsResultResponse,Map<String,Object>> analysis(DeviceVO deviceVO) {
         deviceVO.setNameAndCode(StringUtils.sqlLike(deviceVO.getNameAndCode()));
         List<Map<String, Object>> deviceDOList = reportDao.deviceList(deviceVO);
         if (deviceDOList.size() == 0) {
@@ -119,51 +120,79 @@ public class DeviceAccountingReportServiceImpl implements DeviceAccountingReport
                 .stream()
                 .collect(Collectors.toMap(UpkeepRecordDO::getDeviceId, upkeepRecordDO -> upkeepRecordDO.getCost().add(upkeepRecordDO.getManHourCost()), BigDecimal::add));
 
+        BigDecimal offHourForTotal = BigDecimal.ZERO;
+        BigDecimal useTimeHourForTotal = BigDecimal.ZERO;
+        long faultFrequencyForTotal = 0L;
+        long alreadyCheckFrequencyForTotal = 0L;
+        long waitingCheckFrequencyTotal = 0L;
+        long unprocessedFrequencyForTotal = 0L;
+        BigDecimal repairCostForTotal = BigDecimal.ZERO;
+        BigDecimal upkeepCostForTotal = BigDecimal.ZERO;
+        long patrolFrequencyForTotal = 0L;
 
         for (Map<String, Object> map : deviceList) {
             Long id = Long.parseLong(map.get("id").toString());
             // 停机时长 计算公式：维修停机时长+保养停机时长
             BigDecimal totalOffHour = repairOffHourMap.getOrDefault(id, BigDecimal.ZERO).add(upkeepOffHourMap.getOrDefault(id, BigDecimal.ZERO));
             map.put("totalOffHour", totalOffHour);
+            offHourForTotal = offHourForTotal.add(totalOffHour);
 
             // 运行时长  计算公式：运行时长=当前日期-启用时间-停机时长
             Object usingTime = map.get("usingTime");
             BigDecimal useTimeHour = BigDecimal.ZERO;
             if (usingTime != null) {
                 useTimeHour = DatesUtil.dateHour(Objects.requireNonNull(DateFormatUtil.getDateByParttern(usingTime.toString())),now).subtract(totalOffHour) ;
-
             }
             map.put("useTimeHour", useTimeHour.compareTo(BigDecimal.ZERO)<=0? 0 : StringUtils.formatDouble(useTimeHour.doubleValue()));
+            useTimeHourForTotal = useTimeHourForTotal.add(useTimeHour);
 
             // 累计故障次数
             Long faultFrequency = faultFrequencyMap.getOrDefault(id, 0L);
             map.put("faultFrequency", faultFrequency);
+            faultFrequencyForTotal = faultFrequencyForTotal+faultFrequency;
 
             // 故障已处理验收次数
             Long alreadyCheckFrequency = recordAlreadyCheckMap.getOrDefault(id, 0L);
             map.put("alreadyCheckFrequency", alreadyCheckFrequency);
+            alreadyCheckFrequencyForTotal = alreadyCheckFrequencyForTotal+alreadyCheckFrequency;
 
             // 故障已处理未验收次数
             Long waitingCheckFrequency = recordWaitingCheckMap.getOrDefault(id, 0L);
             map.put("waitingCheckFrequency", waitingCheckFrequency);
+            waitingCheckFrequencyTotal = waitingCheckFrequencyTotal+waitingCheckFrequency;
 
             // 故障未处理次数
             Long unprocessedFrequency = eventUnprocessedFrequencyMap.getOrDefault(id, 0L);
             map.put("unprocessedFrequency", unprocessedFrequency);
+            unprocessedFrequencyForTotal = unprocessedFrequencyForTotal+unprocessedFrequency;
 
             // 累计维修费用
             BigDecimal repairCost = repairCostMap.getOrDefault(id, BigDecimal.ZERO);
             map.put("repairCost", repairCost.stripTrailingZeros().toPlainString());
+            repairCostForTotal = repairCostForTotal.add(repairCost);
 
             // 累计保养费用
             BigDecimal upkeepCost = upkeepCostMap.getOrDefault(id, BigDecimal.ZERO);
             map.put("upkeepCost", upkeepCost.stripTrailingZeros().toPlainString());
+            upkeepCostForTotal = upkeepCostForTotal.add(upkeepCost);
 
             // 巡检次数
             Long patrolFrequency = patrolFrequencyMap.getOrDefault(id, 0L);
             map.put("patrolFrequency", patrolFrequency);
+            patrolFrequencyForTotal = patrolFrequencyForTotal + patrolFrequency;
 
         }
-        return new DsResultResponse(pageNo, pageSize, deviceDOList.size(), deviceList);
+        Map<String,Object> total = Maps.newHashMap();
+        total.put("totalOffHour",offHourForTotal);
+        total.put("useTimeHour",useTimeHourForTotal);
+        total.put("faultFrequency",faultFrequencyForTotal);
+        total.put("alreadyCheckFrequency",alreadyCheckFrequencyForTotal);
+        total.put("waitingCheckFrequency",waitingCheckFrequencyTotal);
+        total.put("unprocessedFrequency",unprocessedFrequencyForTotal);
+        total.put("repairCost",repairCostForTotal);
+        total.put("upkeepCost",upkeepCostForTotal);
+        total.put("patrolFrequency",patrolFrequencyForTotal);
+
+        return Pair.of(new DsResultResponse(pageNo, pageSize, deviceDOList.size(), deviceList),total);
     }
 }

@@ -3,6 +3,9 @@ package com.ev.report.service;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.report.vo.DeviceVO;
 import com.ev.framework.utils.R;
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.Map;
 
 /**
  * 设备管理报表分析
@@ -12,5 +15,5 @@ import com.ev.framework.utils.R;
  * @date 2020-03-16 17:22:16
  */
 public interface DeviceAccountingReportService {
-    DsResultResponse analysis(DeviceVO deviceVO);
+    Pair<DsResultResponse, Map<String,Object>> analysis(DeviceVO deviceVO);
 }

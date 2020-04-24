@@ -11,6 +11,7 @@ import com.ev.report.vo.DeviceVO;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.ui.ModelMap;
@@ -39,12 +40,13 @@ public class DeviceAccountingReportApiController {
     @ApiOperation("设备管理分析")
     public R analysis(DeviceVO deviceVO) {
         // 查询列表数据
-        DsResultResponse analysis = reportService.analysis(deviceVO);
+        Pair<DsResultResponse,Map<String,Object>> analysis = reportService.analysis(deviceVO);
         if (analysis == null) {
             return R.ok();
         }
         Map<String,Object> result = Maps.newHashMap();
-        result.put("data",analysis);
+        result.put("data",analysis.getLeft());
+        result.put("total",analysis.getRight());
         return R.ok(result);
     }
 
@@ -54,13 +56,13 @@ public class DeviceAccountingReportApiController {
     public void analysis(DeviceVO deviceVO,
     HttpServletRequest request, HttpServletResponse response, ModelMap modelMap) {
         // 查询列表数据
-        DsResultResponse analysis = reportService.analysis(deviceVO);
+        Pair<DsResultResponse,Map<String,Object>> analysis = reportService.analysis(deviceVO);
         if (analysis == null) {
             return ;
         }
         ClassPathResource classPathResource = new ClassPathResource("poi/report_device_accountingReport.xlsx");
         Map<String,Object> map = Maps.newHashMap();
-        map.put("list", analysis.getDatas());
+        map.put("list", analysis.getLeft().getDatas());
         TemplateExportParams result = new TemplateExportParams(classPathResource.getPath());
         modelMap.put(TemplateExcelConstants.FILE_NAME, "设备管理分析");
         modelMap.put(TemplateExcelConstants.PARAMS, result);
