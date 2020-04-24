@@ -117,6 +117,7 @@ public class MesDispatchApiController {
                                       "\"deviceId\":\"设备id(委外不传)\",\n" +
                                       "\"planCount\":\"生产数量\",\n" +
                                       "\"startTime\":\"计划开工时间\",\n" +
+                                      "\"remark\":\"备注\"\n" +
                                       "\"endTime\":\"计划完工时间\"\n" +
                                       "},\n" +
                                       "{\n" +
@@ -125,6 +126,7 @@ public class MesDispatchApiController {
                                       "\"deviceId\":\"设备id(委外不传)\",\n" +
                                       "\"planCount\":\"生产数量\",\n" +
                                       "\"startTime\":\"计划开工时间\",\n" +
+                                      "\"remark\":\"备注\"\n" +
                                       "\"endTime\":\"计划完工时间\"\n" +
                                       "}]\n", required = true) @RequestParam(value = "dispatchDetal") String dispatchDetal) {
 

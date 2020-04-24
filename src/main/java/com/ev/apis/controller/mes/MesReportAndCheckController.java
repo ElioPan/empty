@@ -89,6 +89,7 @@ public class MesReportAndCheckController {
             "\"completionCount\":\" 完工数量\",\n" +
             "\"conformityCount\":\" 合格数量\",\n" +
             "\"reworkCount\":\" 返工数量\",\n" +
+            "\"remark\":\"备注\"\n" +
             "\"scrapCount\":\"报废数量\"\n" +
             "}]", required = true) @RequestParam(value = "reportDetail") String  reportDetail) {
 

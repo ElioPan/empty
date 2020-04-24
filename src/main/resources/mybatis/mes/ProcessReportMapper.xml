@@ -48,7 +48,8 @@
 			`create_time`, 
 			`update_by`, 
 			`update_time`, 
-			`del_flag`
+			`del_flag`,
+			`remark`
 		)
 		values
 		(
@@ -64,7 +65,8 @@
 			#{createTime}, 
 			#{updateBy}, 
 			#{updateTime}, 
-			#{delFlag}
+			#{delFlag},
+			#{remark}
 		)
 	</insert>
 	 
@@ -83,6 +85,7 @@
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
 			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="remark != null">`remark` = #{remark}, </if>
 			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
 		</set>
 		where id = #{id}
@@ -100,7 +103,8 @@
 	</delete>
 	
 	<sql id="sql_column_list">
-		`id`,`code`,`dispatch_item_id`,`supplier_id`,`completion_count`,`conformity_count`,`rework_count`,`scrap_count`,`status`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+		`id`,`code`,`dispatch_item_id`,`supplier_id`,`completion_count`,`conformity_count`,`rework_count`,
+		`scrap_count`,`status`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`remark`
 	</sql>
 	
 	<sql id="sql_condition">
@@ -120,6 +124,7 @@
 		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
 		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
 		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+			      <if test="remark != null and remark != ''"> and remark = #{remark} </if>
 		  		</where>
 	</sql>
 
@@ -157,7 +162,8 @@
 			a.scrap_count				as   scrap_count,
 			a.`status`,
 			k.name as statusName,
-			a.create_time as createTime
+			a.create_time as createTime,
+			a.remark
 		from
 		mes_process_report   a
 		LEFT JOIN mes_dispatch_item b on a.dispatch_item_id =b.id
@@ -227,6 +233,7 @@
 		n.name as deviceName,
 		e.work_order_no as planWorkOrderNo,
 		e.batch_no as batchNo,
+		a.remark,
 		p.plan_no as proPlanWorkOrderNo,
 		b.start_time as startTime,
 		b.end_time as  endTime,
@@ -320,6 +327,7 @@
 		n.name as deviceName,
 		e.work_order_no as planWorkOrderNo,
 		e.batch_no as batchNo,
+		a.remark,
 		p.plan_no as proPlanWorkOrderNo,
 		b.start_time as startTime,
 		b.end_time as  endTime,
