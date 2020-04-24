@@ -79,9 +79,10 @@ public class MaterielApiController {
                   @ApiParam(value = "默认仓位") @RequestParam(value = "defaultLocationName", defaultValue = "", required = false) String defaultLocationName,
                   @ApiParam(value = "状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Integer auditSign,
                   @ApiParam(value = "启用状态(0禁用，1启用)") @RequestParam(value = "useStatus", defaultValue = "", required = false) Integer useStatus,
+                  @ApiParam(value = "是否批次管理") @RequestParam(value = "isLot", defaultValue = "", required = false) Integer isLot,
                   @ApiParam(value = "默认仓库ID") @RequestParam(value = "defaultFacility", defaultValue = "", required = false) Integer defaultFacility,
                   @ApiParam(value = "默认仓位ID") @RequestParam(value = "defaultLocation", defaultValue = "", required = false) Integer defaultLocation) {
-        Map<String, Object> params = Maps.newHashMapWithExpectedSize(12);
+        Map<String, Object> params = Maps.newHashMap();
         params.put("serialNo", serialNo);
         params.put("name", name);
         params.put("specification", specification);
@@ -93,6 +94,7 @@ public class MaterielApiController {
         params.put("defaultLocationName", defaultLocationName);
         params.put("defaultFacility", defaultFacility);
         params.put("defaultLocation", defaultLocation);
+        params.put("isLot", isLot);
 
         params.put("auditSign", auditSign);
         params.put("useStatus", useStatus);

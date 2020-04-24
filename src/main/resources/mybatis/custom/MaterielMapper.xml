@@ -185,6 +185,7 @@
             <if test="auditSign != null and auditSign != ''"> and material.audit_sign = #{auditSign} </if>
             <if test="useStatus != null and useStatus != ''"> and material.use_status = #{useStatus} </if>
             <if test="auditor != null and auditor != ''"> and material.auditor = #{auditor} </if>
+			<if test="isLot != null and isLot != ''"> and material.is_lot = #{isLot} </if>
 			AND material.del_flag = 0
 		</where>
 		<choose>
@@ -237,6 +238,7 @@
             <if test="auditSign != null and auditSign != ''"> and material.audit_sign = #{auditSign} </if>
             <if test="useStatus != null and useStatus != ''"> and material.use_status = #{useStatus} </if>
             <if test="auditor != null and auditor != ''"> and material.auditor = #{auditor} </if>
+			<if test="isLot != null and isLot != ''"> and material.is_lot = #{isLot} </if>
 			AND material.del_flag = 0
 		</where>
 	</select>
