@@ -205,7 +205,6 @@ public class OverTimeApplyServiceImpl implements OverTimeApplyService {
 			}
 		}
 		//删除路径 +增加路径保存
-		Map<String, Object> querys = new HashMap<>();
 		Long[] ids = new Long[1];
 		ids[0] = overTimeApplyDO.getId();
 		contentAssocService.removeByAssocIdAndType(ids, Constant.OVER_TIME_APPLY_APPEARANCE_ATTACHMENT);
@@ -219,7 +218,7 @@ public class OverTimeApplyServiceImpl implements OverTimeApplyService {
 	public R listOfCanDelet(Map<String, Object> map,Long[]ids) {
 
 		List<Map<String, Object>> mapList = overTimeApplyDao.listOfCanDelet(map);
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
 		if(Objects.equals(mapList.size(),ids.length)){
 			Long[] deleIds=new Long[mapList.size()];
 			for(int i=0;i<mapList.size();i++){
@@ -228,7 +227,7 @@ public class OverTimeApplyServiceImpl implements OverTimeApplyService {
 			}
 			overTimeApplyDao.batchRemove(deleIds);
 
-			Map<String, Object> query = new HashMap<String, Object>();
+			Map<String, Object> query = new HashMap<>();
 			query.put("assocId",deleIds );
 			query.put("assocType", Constant.OVER_TIME_APPROVE_TARGET);
 			userAssocService.batchRemoveByAssocIdAadType(query);

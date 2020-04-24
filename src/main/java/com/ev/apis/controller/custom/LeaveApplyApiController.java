@@ -131,19 +131,19 @@ public class LeaveApplyApiController {
         if(!"".equals(userId)&&!Objects.equals(userId,lowderUserId.toString())){
             params.put("createBy", userId);
             params.put("status", Constant.TS);//暂存：146
-            params.put("statusOther", Constant.APPLY_REJECT);//退回：62
+            params.put("statusOther", Constant.APPLY_REJECT);
         }
 
         if(!"".equals(approveUserId)){
             params.put("assignId", approveUserId);
             params.put("status", Constant.TS);//暂存：146
-            params.put("statusOther", Constant.APPLY_REJECT);//退回：62
+            params.put("statusOther", Constant.APPLY_REJECT);
         }
 
         if(idPath!=null){
             params.put("idPath", idPath);
             params.put("status", Constant.TS);//暂存：146
-            params.put("statusOther", Constant.APPLY_REJECT);//退回：62
+//            params.put("statusOther", Constant.APPLY_REJECT);
         }
 
         Map<String, Object> results = Maps.newHashMap();
