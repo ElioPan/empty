@@ -1,5 +1,6 @@
 package com.ev.scm.service;
 
+import com.ev.framework.utils.R;
 import com.ev.scm.domain.PurchasecontractItemDO;
 
 import java.math.BigDecimal;
@@ -39,5 +40,5 @@ public interface PurchasecontractItemService {
 
 	BigDecimal getInCounteExcludeContractId(Map<String, Object> map);
 
-
+	R disposeCloseLine(Long[] id , String closeReason);
 }

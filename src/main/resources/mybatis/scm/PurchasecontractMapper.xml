@@ -244,6 +244,7 @@
 				i.tax_rate AS taxRate,
 				i.amount AS amount,
 				i.taxes,
+				i.close_status as closeStatus,
 				i.tax_unit_price AS taxUnitPrice,
 				i.delivery_date AS deliveryDate,
 				a.audit_sign as auditSign,
@@ -289,6 +290,7 @@
 			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
 			<if test="closeStatus != null and closeStatus != ''"> and  closeStatus= #{closeStatus} </if>
 			<if test="supplierId != null and supplierId != ''"> and  supplierId= #{supplierId} </if>
+			<if test="closeStatus != null and closeStatus != ''"> and  closeStatus &lt;&gt; #{closeStatus} </if>
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">

@@ -207,6 +207,7 @@
         item.`unit_price` AS unitPrice,
         item.`tax_unit_price` AS taxUnitPrice,
         item.`amount` AS amount,
+        item.close_status as itemCloseStatus,
         item.`tax_amount` AS taxAmount,
         item.`delivery_date` AS deliveryDate,
         dica.`name` AS auditSignName,
@@ -274,6 +275,7 @@
             <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
             <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
             <if test="closeStatus != null"> and close_status = #{closeStatus} </if>
+            <if test="itemCloseStatus != null"> and item.close_status &lt;&gt; #{itemCloseStatus} </if>
         </where>
     </sql>
 

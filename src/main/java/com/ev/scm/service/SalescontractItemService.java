@@ -1,5 +1,6 @@
 package com.ev.scm.service;
 
+import com.ev.framework.utils.R;
 import com.ev.scm.domain.SalescontractItemDO;
 
 import java.util.List;
@@ -27,4 +28,6 @@ public interface SalescontractItemService {
 	int remove(Long sid);
 	
 	int batchRemove(Long[] sids);
+
+	R disposeCloseLine(Long[] ids , String closeReason);
 }

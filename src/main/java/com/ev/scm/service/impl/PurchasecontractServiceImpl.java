@@ -258,7 +258,7 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 
 	@Override
 	public R getDetailOfContract(Long id) {
-		Map<String, Object> map = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<>();
 		map.put("id", id);
 		Map<String, Object> detailOfHead = purchasecontractDao.detailOfContract(map);
 		List<Map<String, Object>> detailOfBody = purchasecontractItemService.detailOfItem(map);
@@ -266,7 +266,7 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 		List<PurchasecontractPayDO> detailOfPay = purchasecontractPayService.detailOfPay(map);
 		Map<String, Object> totalOfPay = purchasecontractPayService.totalOfPay(map);
 
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
 		map.clear();
 		if (Objects.nonNull(detailOfHead)) {
 			map.put("detailOfHead", detailOfHead);
@@ -674,6 +674,8 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 		}
 		return null;
 	}
+
+
 
 
 

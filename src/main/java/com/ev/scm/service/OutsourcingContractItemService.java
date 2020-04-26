@@ -1,5 +1,6 @@
 package com.ev.scm.service;
 
+import com.ev.framework.utils.R;
 import com.ev.scm.domain.OutsourcingContractItemDO;
 
 import java.util.List;
@@ -27,4 +28,7 @@ public interface OutsourcingContractItemService {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+	R disposeCloseLine(Long[] ids , String closeReason);
+
 }

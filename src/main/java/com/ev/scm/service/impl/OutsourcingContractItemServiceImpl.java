@@ -1,14 +1,15 @@
 package com.ev.scm.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Map;
-
+import com.ev.framework.utils.R;
 import com.ev.scm.dao.OutsourcingContractItemDao;
 import com.ev.scm.domain.OutsourcingContractItemDO;
 import com.ev.scm.service.OutsourcingContractItemService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 
 
@@ -51,5 +52,20 @@ public class OutsourcingContractItemServiceImpl implements OutsourcingContractIt
 	public int batchRemove(Long[] ids){
 		return outsourcingContractItemDao.batchRemove(ids);
 	}
-	
+
+	@Override
+	public R disposeCloseLine(Long[] ids , String closeReason){
+
+		OutsourcingContractItemDO contractItemDO =new OutsourcingContractItemDO();
+		contractItemDO.setCloseStatus(1);
+		contractItemDO.setCloseTime(new Date());
+		contractItemDO.setCloseReason(closeReason);
+		for(Long id:ids){
+			contractItemDO.setId(id);
+			this.update(contractItemDO);
+		}
+		return R.ok();
+	}
+
+
 }

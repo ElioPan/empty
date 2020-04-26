@@ -34,7 +34,13 @@
 	</select>
 
     <sql id="sql_column_list">
-		`id`,`salescontract_id`,`materiel_id`,`is_check`,`count`,`tax_amount`,`tax_rate`,`unit_price`,`tax_unit_price`,`amount`,`delivery_date`,`remarks`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+		`id`,`salescontract_id`,`materiel_id`,`is_check`,`count`,`tax_amount`,`tax_rate`,`unit_price`,`tax_unit_price`,`amount`,`delivery_date`,
+		`remarks`,`create_by`,`create_time`,`update_by`,
+		`update_time`,
+		`del_flag`,
+		`close_status`,
+		`close_time`,
+		`close_reason`
 	</sql>
 
     <sql id="sql_condition">
@@ -56,7 +62,10 @@
                             <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
                             <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
                             <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
-                    </where>
+							<if test="closeStatus != null and closeStatus != ''"> and close_status = #{closeStatus} </if>
+							<if test="closeTime != null and closeTime != ''"> and close_time = #{closeTime} </if>
+							<if test="closeReason != null and closeReason != ''"> and close_reason = #{closeReason} </if>
+         </where>
     </sql>
 	 
 	<insert id="save" parameterType="com.ev.scm.domain.SalescontractItemDO" useGeneratedKeys="true" keyProperty="id">
@@ -77,7 +86,10 @@
 			`create_time`, 
 			`update_by`, 
 			`update_time`, 
-			`del_flag`
+			`del_flag`,
+			`close_status`,
+			`close_time`,
+			`close_reason`
 		)
 		values
 		(
@@ -96,7 +108,10 @@
 			#{createTime}, 
 			#{updateBy}, 
 			#{updateTime}, 
-			#{delFlag}
+			#{delFlag},
+			#{closeStatus},
+			#{closeTime},
+			#{closeReason}
 		)
 	</insert>
 	 
@@ -118,7 +133,11 @@
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
 			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
-			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+			<if test="delFlag != null">`del_flag` = #{delFlag},</if>
+
+			<if test="closeStatus != null">  close_status = #{closeStatus}, </if>
+			<if test="closeTime != null ">  close_time = #{closeTime}, </if>
+			<if test="closeReason != null ">  close_reason = #{closeReason} </if>
 		</set>
 		where id = #{id}
 	</update>
@@ -157,6 +176,10 @@
 			item.unit_price AS unitPrice,
 			item.`tax_unit_price` AS taxUnitPrice,
 			item.amount AS amount,
+			item.close_status   as  closeStatus,
+			IF(item.close_status=1,'是','否')as closeStatusName,
+			item.close_time    as  closeTime,
+			item.close_reason  as  closeReason,
 			item.delivery_date AS deliveryDate,
 			item.remarks AS remarks
         <include refid="sql_contract_condition"/>

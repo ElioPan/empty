@@ -12,10 +12,7 @@ import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.scm.domain.PurchasecontractDO;
-import com.ev.scm.service.PurchaseInvoiceItemService;
-import com.ev.scm.service.PurchasecontractPayService;
-import com.ev.scm.service.PurchasecontractService;
-import com.ev.scm.service.StockInItemService;
+import com.ev.scm.service.*;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -57,6 +54,8 @@ public class ScmPurchaseContractApiController {
     private StockInItemService stockInItemService;
     @Autowired
     private PurchaseInvoiceItemService purchaseInvoiceItemService;
+    @Autowired
+    private PurchasecontractItemService purchasecontractItermService;
 
     @EvApiByToken(value = "/apis/scm/purchaseContract/addOrUpdate",method = RequestMethod.POST,apiTitle = "添加/修改—采购合同")
     @ApiOperation("添加/修改—采购合同")
@@ -391,7 +390,7 @@ public class ScmPurchaseContractApiController {
         map.put("createStartTime", createStartTime);
         map.put("createEndTime", createEndTime);
         map.put("supplierId",supplierId);
-
+        map.put("closeStatus",1);
         List<Map<String, Object>> data = purchasecontractService.listForMap(map);
         DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT.intValue());
         String thisSourceTypeName = dictionaryDO.getName();
@@ -452,6 +451,14 @@ public class ScmPurchaseContractApiController {
             result.put("data", dsRet);
         }
         return R.ok(result);
+    }
+
+    @EvApiByToken(value = "/apis/scm/purchaseContract/closeLine",method = RequestMethod.POST,apiTitle = "行关闭")
+    @ApiOperation("行关闭")
+    @Transactional(rollbackFor = Exception.class)
+    public R closeLine(@ApiParam(value = "合同明细Ids", required = true) @RequestParam(value = "ids", defaultValue = "") Long[] ids,
+                       @ApiParam(value = "原因", required = true) @RequestParam(value = "closeReason", defaultValue = "") String closeReason){
+        return purchasecontractItermService.disposeCloseLine(ids,closeReason);
     }
 
 

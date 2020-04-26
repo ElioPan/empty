@@ -16,10 +16,7 @@ import com.ev.framework.utils.StringUtils;
 import com.ev.mes.service.ProductionFeedingDetailService;
 import com.ev.mes.service.ProductionFeedingService;
 import com.ev.scm.domain.OutsourcingContractDO;
-import com.ev.scm.service.ContractAlterationService;
-import com.ev.scm.service.OutsourcingContractService;
-import com.ev.scm.service.StockInItemService;
-import com.ev.scm.service.StockOutItemService;
+import com.ev.scm.service.*;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -66,6 +63,9 @@ public class OutsourcingContractApiController {
     private DictionaryService dictionaryService;
     @Autowired
     private MaterielService materielService;
+
+    @Autowired
+    private OutsourcingContractItemService outsourcingContractItemService;
 	
 	@EvApiByToken(value = "/apis/outsourcingContract/addOrUpdate",method = RequestMethod.POST,apiTitle = "添加委外合同")
     @ApiOperation("添加/修改委外合同（修改传入id）")
@@ -276,6 +276,7 @@ public class OutsourcingContractApiController {
         map.put("createEndTime", createEndTime);
 
         map.put("closeStatus",closeStatus);
+        map.put("itemCloseStatus",1);
 
         List<Map<String, Object>> data =  outsourcingContractService.listForMap(map);
         Map<String, Object> result = Maps.newHashMap();
@@ -705,6 +706,15 @@ public class OutsourcingContractApiController {
         modelMap.put(TemplateExcelConstants.MAP_DATA, param);
         PoiBaseView.render(modelMap, request, response,
                 TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
+    }
+
+
+    @EvApiByToken(value = "/apis/outsourcingContract/closeLine",method = RequestMethod.POST,apiTitle = "行关闭")
+    @ApiOperation("行关闭")
+    @Transactional(rollbackFor = Exception.class)
+    public R closeLine(@ApiParam(value = "合同明细Ids", required = true) @RequestParam(value = "ids", defaultValue = "") Long[] ids,
+                       @ApiParam(value = "原因", required = true) @RequestParam(value = "closeReason", defaultValue = "") String closeReason){
+        return outsourcingContractItemService.disposeCloseLine(ids,closeReason);
     }
 
 }

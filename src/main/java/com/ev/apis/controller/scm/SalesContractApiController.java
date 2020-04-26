@@ -64,6 +64,8 @@ public class SalesContractApiController {
     private MaterialInspectionService materialInspectionService;
     @Autowired
     private ContractAlterationService contractAlterationService;
+    @Autowired
+    private SalescontractItemService salescontractItemService;
 	
 	@EvApiByToken(value = "/apis/salesContractApi/addOrUpdate",method = RequestMethod.POST,apiTitle = "添加销售合同")
     @ApiOperation("添加/修改销售合同（修改传入id）")
@@ -281,7 +283,7 @@ public class SalesContractApiController {
 
         map.put("auditSign", ConstantForGYL.OK_AUDITED);
         map.put("closeStatus", 0);
-
+        map.put("itemCloseStatus",1);
         List<Map<String, Object>> data = salescontractService.listForMap(map);
         Map<String, Object> result = Maps.newHashMap();
 
@@ -518,6 +520,14 @@ public class SalesContractApiController {
         modelMap.put(TemplateExcelConstants.MAP_DATA, param);
         PoiBaseView.render(modelMap, request, response,
                 TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
+    }
+
+    @EvApiByToken(value = "/apis/salesContractApi/closeLine",method = RequestMethod.POST,apiTitle = "行关闭")
+    @ApiOperation("行关闭")
+    @Transactional(rollbackFor = Exception.class)
+    public R closeLine(@ApiParam(value = "合同明细Ids", required = true) @RequestParam(value = "ids", defaultValue = "") Long[] ids,
+                       @ApiParam(value = "原因", required = true) @RequestParam(value = "closeReason", defaultValue = "") String closeReason){
+        return salescontractItemService.disposeCloseLine(ids,closeReason);
     }
 
 }
