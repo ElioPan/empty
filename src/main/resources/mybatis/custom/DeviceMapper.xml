@@ -382,20 +382,23 @@
 			cusd.*,
 			cusdaa.name   as type_mes,
 			cusdab.name   as status_name,
-			user.username as user_name,
+			user.name as user_name,
 			sdept.name as dept_name,
 			cusdad.name as souce_name,
 			cusdae.name as use_name,
 			cussu.name as factory_name,
 			cussu.legalperson as factory_legalperson_name,
+		    a.name as  factoryLinkmanName,
 			cussu.phone       as factory_phone,
 			cussu.address     as factory_address,
 			cussx.name as supplier_name,
 			cussx.legalperson as supplier_legalperson_name,
+			b.name as  supplierLinkmanName,
 			cussx.phone       as supplier_phone,
 			cussx.address       as supplieraddress,
 			cussy.name as service_name,
 			cussy.legalperson as service_legalperson_name,
+		    c.name as  serviceLinkmanName,
 			cussy.phone       as service_phone,
 			cussy.address       as service_address,
 			su.`name` AS engineerName,
@@ -408,8 +411,11 @@
 		LEFT JOIN cus_dictionary cusdad ON cusd.souce_id=cusdad.id
 		LEFT JOIN cus_dictionary cusdae ON cusd.device_use=cusdae.id
 		LEFT JOIN  cus_supplier  cussu  ON cusd.factory_id=cussu.id
+		LEFT JOIN  cus_supplier_linkman  a  ON a.supplier_id=cussu.id
 		LEFT JOIN  cus_supplier  cussx  ON cusd.supplier_id=cussx.id
+		LEFT JOIN  cus_supplier_linkman  b  ON b.supplier_id=cussx.id
 		LEFT JOIN  cus_supplier  cussy  ON cusd.service_id=cussy.id
+		LEFT JOIN  cus_supplier_linkman  c  ON c.supplier_id=cussy.id
 		LEFT JOIN sys_user         user ON cusd.user_id=user.user_id
 		LEFT JOIN sys_user         su ON cusd.engineer_id=su.user_id
 		LEFT JOIN sys_dept        sdept ON cusd.dept_id=sdept.dept_id
