@@ -283,10 +283,10 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
         List<MaterielDO> materielDOList = materielService.list(param);
         Map<Integer, Integer> facilityMap = materielDOList
                 .stream()
-                .collect(Collectors.toMap(MaterielDO::getId, MaterielDO::getDefaultFacility));
+                .collect(Collectors.toMap(MaterielDO::getId, v->v.getDefaultFacility()==null?0:v.getDefaultFacility()));
         Map<Integer, Integer> locationMap = materielDOList
                 .stream()
-                .collect(Collectors.toMap(MaterielDO::getId, MaterielDO::getDefaultLocation));
+                .collect(Collectors.toMap(MaterielDO::getId, v->v.getDefaultFacility()==null?0:v.getDefaultLocation()));
 
         List<Map<String, Object>> feedingDetailList = new ArrayList<>();
         Map<String, Object> feedingDetail;

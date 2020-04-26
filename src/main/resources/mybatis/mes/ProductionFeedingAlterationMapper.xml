@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.mes.dao.ProductionFeedingAlterationDao">
+
+	<select id="get" resultType="com.ev.mes.domain.ProductionFeedingAlterationDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM mes_production_feeding_alteration 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.mes.domain.ProductionFeedingAlterationDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM mes_production_feeding_alteration
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+			<otherwise>
+                ORDER BY id DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+        SELECT COUNT(*) FROM mes_production_feeding_alteration
+		<include refid="sql_condition"/>
+	</select>
+    <select id="listForFeedingItem" resultType="com.ev.mes.vo.FeedingDetailVO">
+		SELECT
+		d.`id`,
+		d.`head_id`,
+		d.`materiel_id`,
+		d.`batch_no`,
+		d.`plan_feeding`,
+		IFNULL(d.`out_count`,0) AS outCount,
+		d.`scrap_count`,
+		d.`create_by`,
+		d.`create_time`,
+		d.`update_by`,
+		d.`update_time`,
+		d.`del_flag`,
+		d.`facility_id`,
+		IFNULL(cf.`name`,'') AS facilityName,
+		d.`location_id`,
+		IFNULL(cfl.`name`,'') AS locationName,
+		d.`process_id`,
+		IFNULL(p.`name`,'') AS processName,
+		d.`station_id`,
+		IFNULL(s.`name`,'') AS stationName,
+		d.`is_collect`,
+		IF(d.`is_collect`=1,'是','否') AS  isCollectName
+		FROM
+		mes_production_feeding_detail d
+		LEFT JOIN cus_facility cf on d.facility_id = cf.id
+		LEFT JOIN cus_facility_location cfl on d.location_id = cfl.id
+		LEFT JOIN mes_process p on d.station_id = p.id
+		LEFT JOIN mes_station s on d.station_id = s.id
+		<where>
+				<if test="headId != null and headId != ''"> AND d.head_id = #{headId} </if>
+			</where>
+	</select>
+    <select id="listForMap" resultType="java.util.Map">
+		SELECT
+		a.id AS id,
+		a.code,
+		su.`name` AS createName,
+		a.create_time AS createTime
+		FROM mes_production_feeding_alteration a
+		LEFT JOIN sys_user su on a.create_by = su.user_id
+
+		<include refid="sql_map_condition"/>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				ORDER BY ${sort} ${order}
+			</when>
+			<otherwise>
+				ORDER BY a.id DESC
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	<select id="countForMap" resultType="java.lang.Integer">
+		SELECT
+		COUNT(*)
+		FROM mes_production_feeding_alteration a
+		LEFT JOIN sys_user su on a.create_by = su.user_id
+		<include refid="sql_map_condition"/>
+	</select>
+
+	<sql id="sql_column_list">
+		`id`,`feeding_id`,`type`,`code`,`version`,`alteration_content`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> AND id = #{id} </if>
+                            <if test="feedingId != null and feedingId != ''"> AND feeding_id = #{feedingId} </if>
+                            <if test="type != null and type != ''"> AND type = #{type} </if>
+                            <if test="code != null and code != ''"> AND code = #{code} </if>
+                            <if test="version != null and version != ''"> AND version = #{version} </if>
+                            <if test="alterationContent != null and alterationContent != ''"> AND alteration_content = #{alterationContent} </if>
+                            <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+
+	<sql id="sql_map_condition">
+		<where>
+			<if test="startTime != null and startTime != ''">  and  DATE_FORMAT(a.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+			<if test="endTime != null and endTime != ''">  and  DATE_FORMAT(a.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+			<if test="feedingId != null and feedingId != ''"> AND feeding_id = #{feedingId} </if>
+			<if test="type != null and type != ''"> AND a.type = #{type} </if>
+			<if test="createBy != null and createBy != ''"> AND a.create_by = #{createBy} </if>
+			<if test="createName != null and createName != ''"> AND su.`name` LIKE #{createName} </if>
+		</where>
+	</sql>
+	 
+	<insert id="save" parameterType="com.ev.mes.domain.ProductionFeedingAlterationDO" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO mes_production_feeding_alteration
+		(
+			`feeding_id`, 
+			`type`, 
+			`code`, 
+			`version`, 
+			`alteration_content`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		VALUES
+		(
+			#{feedingId}, 
+			#{type}, 
+			#{code}, 
+			#{version}, 
+			#{alterationContent}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.mes.domain.ProductionFeedingAlterationDO">
+		UPDATE mes_production_feeding_alteration
+		<set>
+			<if test="feedingId != null">`feeding_id` = #{feedingId}, </if>
+			<if test="type != null">`type` = #{type}, </if>
+			<if test="code != null">`code` = #{code}, </if>
+			<if test="version != null">`version` = #{version}, </if>
+			<if test="alterationContent != null">`alteration_content` = #{alterationContent}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<update id="batchUpdate" parameterType="List">
+		UPDATE mes_production_feeding_alteration
+		<trim prefix="set" suffixOverrides=",">
+				<trim prefix="feeding_id =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.feedingId!=null">
+							when id=#{item.id} then #{item.feeding_id}
+						</if>
+						<if test="item.feedingId==null">
+							when id=#{item.id} then mes_production_feeding_alteration.feeding_id
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="type =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.type!=null">
+							when id=#{item.id} then #{item.type}
+						</if>
+						<if test="item.type==null">
+							when id=#{item.id} then mes_production_feeding_alteration.type
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="code =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.code!=null">
+							when id=#{item.id} then #{item.code}
+						</if>
+						<if test="item.code==null">
+							when id=#{item.id} then mes_production_feeding_alteration.code
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="version =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.version!=null">
+							when id=#{item.id} then #{item.version}
+						</if>
+						<if test="item.version==null">
+							when id=#{item.id} then mes_production_feeding_alteration.version
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="alteration_content =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.alterationContent!=null">
+							when id=#{item.id} then #{item.alteration_content}
+						</if>
+						<if test="item.alterationContent==null">
+							when id=#{item.id} then mes_production_feeding_alteration.alteration_content
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="create_by =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.createBy!=null">
+							when id=#{item.id} then #{item.create_by}
+						</if>
+						<if test="item.createBy==null">
+							when id=#{item.id} then mes_production_feeding_alteration.create_by
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="create_time =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.createTime!=null">
+							when id=#{item.id} then #{item.create_time}
+						</if>
+						<if test="item.createTime==null">
+							when id=#{item.id} then mes_production_feeding_alteration.create_time
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="update_by =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.updateBy!=null">
+							when id=#{item.id} then #{item.update_by}
+						</if>
+						<if test="item.updateBy==null">
+							when id=#{item.id} then mes_production_feeding_alteration.update_by
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="update_time =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.updateTime!=null">
+							when id=#{item.id} then #{item.update_time}
+						</if>
+						<if test="item.updateTime==null">
+							when id=#{item.id} then mes_production_feeding_alteration.update_time
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="del_flag =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.delFlag!=null">
+							when id=#{item.id} then #{item.del_flag}
+						</if>
+						<if test="item.delFlag==null">
+							when id=#{item.id} then mes_production_feeding_alteration.del_flag
+						</if>
+					</foreach>
+				</trim>
+		</trim>
+		WHERE id IN
+		<foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+			#{item.id}
+		</foreach>
+	</update>
+
+	<update id="updateAll" parameterType="com.ev.mes.domain.ProductionFeedingAlterationDO">
+		UPDATE mes_production_feeding_alteration SET
+			`feeding_id` = #{feedingId}, 
+			`type` = #{type}, 
+			`code` = #{code}, 
+			`version` = #{version}, 
+			`alteration_content` = #{alterationContent}, 
+			`create_by` = #{createBy}, 
+			`create_time` = #{createTime}, 
+			`update_by` = #{updateBy}, 
+			`update_time` = #{updateTime}, 
+			`del_flag` = #{delFlag}
+		WHERE id = #{id}
+	</update>
+
+	
+	<delete id="remove">
+		DELETE FROM mes_production_feeding_alteration WHERE id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+        DELETE FROM mes_production_feeding_alteration WHERE id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+</mapper>

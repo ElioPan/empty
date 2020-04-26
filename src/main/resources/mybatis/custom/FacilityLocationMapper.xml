@@ -30,6 +30,13 @@
 					</if>
 				</foreach>
 			</if>
+			<if test="idList != null and idList.size()>0"> and id IN
+				<foreach item="item" collection="idList" open="(" separator="," close=")" index="index">
+					<if test="item!=null">
+						#{item}
+					</if>
+				</foreach>
+			</if>
 		  		</where>
         <choose>
             <when test="sort != null and sort.trim() != ''">

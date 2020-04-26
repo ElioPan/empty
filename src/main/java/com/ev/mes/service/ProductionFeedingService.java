@@ -96,4 +96,8 @@ public interface ProductionFeedingService {
 	int countForMapToOutsourcingContract(Map<String, Object> map);
 
 	int countBySource(Map<String, Object> map);
+
+    R change(ProductionFeedingDO feedingDO, String childArray, Long[] ids);
+
+	Map<String, Object> changeDetail(Long id);
 }

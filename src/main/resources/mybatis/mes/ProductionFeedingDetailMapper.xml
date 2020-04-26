@@ -4,14 +4,14 @@
 <mapper namespace="com.ev.mes.dao.ProductionFeedingDetailDao">
 
 	<select id="get" resultType="com.ev.mes.domain.ProductionFeedingDetailDO">
-		SELECT 
+		SELECT
 		<include refid="sql_column_list"/>  
 		FROM mes_production_feeding_detail 
 		WHERE id = #{value}
 	</select>
 
 	<select id="list" resultType="com.ev.mes.domain.ProductionFeedingDetailDO">
-		SELECT 
+		SELECT
 		<include refid="sql_column_list"/>
 		FROM mes_production_feeding_detail
 		<include refid="sql_condition"/>
@@ -46,7 +46,12 @@
 			location.id AS 	defaultLocationId,
 			facility.name as defaultFacilityName,
 			location.name as defaultLocationName,
-
+		detail.process_id AS processId,
+		pro.name as processName,
+		station.`id` AS stationId,
+		station.name as stationName,
+		detail.`is_collect` AS isCollect,
+		IF(detail.`is_collect`=1,'是','否') AS isCollectName,
 		feeding.`feeding_no` AS feedingNo,
         feeding.`id` AS feedingId,
         headmaterial.`name` AS productName,
@@ -192,8 +197,10 @@
         LEFT JOIN cus_materiel headmaterial ON headmaterial.`id` = feeding.`materiel_id`
 		LEFT JOIN cus_materiel material ON material.`id` = detail.`materiel_id`
 		LEFT JOIN cus_dictionary unituom ON unituom.id = material.unit_uom
-		LEFT JOIN cus_facility facility ON facility.id = material.default_facility
-		LEFT JOIN cus_facility_location location ON location.id = material.default_location
+		LEFT JOIN cus_facility facility ON facility.id = detail.facility_id
+		LEFT JOIN cus_facility_location location ON location.id = detail.location_id
+		LEFT JOIN mes_process pro ON pro.id = detail.process_id
+		LEFT JOIN mes_station station ON station.id = detail.station_id
 		<where>  
             <if test="headId != null and headId != ''"> and detail.head_id = #{headId} </if>
 			<if test="supplierName != null and supplierName != ''"> and supplier.name LIKE #{supplierName} </if>

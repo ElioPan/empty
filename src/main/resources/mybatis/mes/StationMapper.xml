@@ -85,6 +85,13 @@
                             <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
                             <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
                             <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+							<if test="idList != null and idList.size()>0"> and id IN
+								<foreach item="item" collection="idList" open="(" separator="," close=")" index="index">
+									<if test="item!=null">
+										#{item}
+									</if>
+								</foreach>
+							</if>
                     </where>
     </sql>
 	 
