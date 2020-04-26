@@ -321,11 +321,10 @@
         checkplan.`name` AS checkPlanName,
         plan.`create_time` AS createTime,
         IFNULL(SUM(inspection.`inspection_count`),0) AS  checkedCount,
-        <!-- TODO　已入库数量 -->
-        '0' AS putInCount
+		vpsi.totalCount AS putInCount
         FROM mes_production_plan plan
         LEFT JOIN mes_material_inspection inspection ON inspection.`source_id`= plan.`id`
-        <!-- TODO　已入库数量关联表 -->
+        LEFT JOIN view_plan_stock_in vpsi ON vpsi.planId=plan.`id`
         LEFT JOIN cus_materiel material ON material.`id`= plan.`materiel_id`
         LEFT JOIN cus_dictionary unituom ON unituom.id = material.`unit_uom`
         LEFT JOIN sys_dept dept ON dept.`dept_id`=plan.`pro_dept`
