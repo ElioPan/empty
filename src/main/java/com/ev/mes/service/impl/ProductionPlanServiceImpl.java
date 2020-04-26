@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.ev.framework.config.Constant;
 import com.ev.framework.il8n.MessageSourceHandler;
@@ -269,13 +270,30 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
      */
     private String getFeedingChildArray(ProductionPlanDO planDO) {
         Map<String, Object> param = Maps.newHashMapWithExpectedSize(1);
+        Integer isCollect = planDO.getIsCollect();
         param.put("bomId", planDO.getBomId());
         List<BomDetailDO> list = bomDetailService.list(param);
+        // 获取所有物料详情
+        List<Integer> materielIdList = list.stream()
+                .map(BomDetailDO::getMaterielId)
+                .distinct()
+                .collect(Collectors.toList());
+        param.remove("bomId");
+        param.put("materielIdList",materielIdList);
+        List<MaterielDO> materielDOList = materielService.list(param);
+        Map<Integer, Integer> facilityMap = materielDOList
+                .stream()
+                .collect(Collectors.toMap(MaterielDO::getId, MaterielDO::getDefaultFacility));
+        Map<Integer, Integer> locationMap = materielDOList
+                .stream()
+                .collect(Collectors.toMap(MaterielDO::getId, MaterielDO::getDefaultLocation));
+
         List<Map<String, Object>> feedingDetailList = new ArrayList<>();
         Map<String, Object> feedingDetail;
         for (BomDetailDO bomDetailDO : list) {
             feedingDetail = Maps.newHashMapWithExpectedSize(2);
-            feedingDetail.put("materielId", bomDetailDO.getMaterielId());
+            Integer materielId = bomDetailDO.getMaterielId();
+            feedingDetail.put("materielId", materielId);
             // 计划投料数量公式 (标准用量 /(1-损耗率/100))*计划生产数量
             BigDecimal wasteRate = bomDetailDO.getWasteRate();
             BigDecimal standardCount = bomDetailDO.getStandardCount();
@@ -283,6 +301,12 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
             BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP)
                     .multiply(planCount);
             feedingDetail.put("planFeeding", planFeeding);
+            // 新增字段
+            feedingDetail.put("processId", bomDetailDO.getProcessId());
+            feedingDetail.put("stationId", bomDetailDO.getStationId());
+            feedingDetail.put("facilityId", facilityMap.get(materielId));
+            feedingDetail.put("locationId", locationMap.get(materielId));
+            feedingDetail.put("isCollect", isCollect);
             feedingDetailList.add(feedingDetail);
         }
         return JSON.toJSONString(feedingDetailList);

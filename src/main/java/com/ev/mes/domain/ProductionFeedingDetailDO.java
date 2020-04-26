@@ -69,5 +69,8 @@ public class ProductionFeedingDetailDO implements Serializable {
 	//需求工位ID
 	@ApiModelProperty(value = "需求工位ID")
 	private Long stationId;
+	// 是否用料采集
+	@ApiModelProperty(value = "是否用料采集")
+	private Integer isCollect;
 
 }

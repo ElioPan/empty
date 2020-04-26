@@ -97,7 +97,8 @@
 			`facility_id`,
 			`location_id`,
 			`process_id`,
-			`station_id`
+			`station_id`,
+			`is_collect`
 		)
 		VALUES
 		(
@@ -115,7 +116,8 @@
 			#{facilityId},
 			#{locationId},
 			#{processId},
-			#{stationId}
+			#{stationId},
+			#{isCollect}
 		)
 	</insert>
 	 
@@ -136,6 +138,7 @@
 			<if test="facilityId != null">`facility_id` = #{facilityId}, </if>
 			<if test="locationId != null">`location_id` = #{locationId}, </if>
 			<if test="processId != null">`process_id` = #{processId}, </if>
+			<if test="isCollect != null">`is_collect` = #{isCollect}, </if>
 			<if test="stationId != null">`station_id` = #{stationId}</if>
 		</set>
 		WHERE id = #{id}
@@ -157,7 +160,7 @@
 	</delete>
 	
 	<sql id="sql_column_list">
-		`id`,`head_id`,`materiel_id`,`batch_no`,`plan_feeding`,`out_count`,`scrap_count`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`facility_id`,`location_id`,`process_id`,`station_id`
+		`id`,`head_id`,`materiel_id`,`batch_no`,`plan_feeding`,`out_count`,`scrap_count`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`facility_id`,`location_id`,`process_id`,`station_id`,`is_collect`
 	</sql>
 
 	<sql id="sql_condition">
@@ -178,6 +181,7 @@
 			<if test="locationId != null and locationId != ''"> AND location_id = #{locationId} </if>
 			<if test="processId != null and processId != ''"> AND process_id = #{processId} </if>
 			<if test="stationId != null and stationId != ''"> AND station_id = #{stationId} </if>
+			<if test="isCollect != null and isCollect != ''"> and is_collect = #{isCollect} </if>
 		</where>
 	</sql>
 	
