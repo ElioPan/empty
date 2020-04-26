@@ -97,10 +97,6 @@ public class DeptApiController extends BaseController {
     public R update(DeptDO sysDept) throws IOException, ParseException {
         DeptDO oldDept = sysDeptService.get(sysDept.getDeptId());
 
-        if (Constant.DEMO_ACCOUNT.equals(getUsername())) {
-            return R.error(1, messageSourceHandler.getMessage("basicInfo.showProject.update",null));
-        }
-
         String oldPath = oldDept.getIdPath();
         StringBuilder newPath = new StringBuilder("");
         //获取新的父组织
@@ -134,20 +130,17 @@ public class DeptApiController extends BaseController {
     @EvApiByToken(value = "/apis/dept/remove",method = RequestMethod.POST,apiTitle = "删除部门")
     @ApiOperation("删除部门")
     public R remove(Long deptId) {
-        if (Constant.DEMO_ACCOUNT.equals(getUsername())) {
-            return R.error(1, messageSourceHandler.getMessage("basicInfo.showProject.update",null));
-        }
         Map<String, Object> map = new HashMap<>();
         map.put("parentId", deptId);
         if(sysDeptService.count(map)>0) {
-            return R.error(1, messageSourceHandler.getMessage("basicInfo.dept.update",null));
+            return R.error(1, messageSourceHandler.getMessage("basicInfo.dept.delete",null));
         }
         if(sysDeptService.checkDeptHasUser(deptId)) {
             if (sysDeptService.remove(deptId) > 0) {
                 return R.ok();
             }
         }else {
-            return R.error(1, messageSourceHandler.getMessage("basicInfo.deptContainUser.update",null));
+            return R.error(1, messageSourceHandler.getMessage("basicInfo.deptContainUser.delete",null));
         }
         return R.error();
     }
