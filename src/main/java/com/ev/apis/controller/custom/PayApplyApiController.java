@@ -48,20 +48,12 @@ public class PayApplyApiController {
                   @ApiParam(value = "审批人ID") @RequestParam(value = "approveUserId", defaultValue = "", required = false) String approveUserId) {
         String idPath = StringUtils.isNotEmpty(deptId) ? deptService.get(Long.parseLong(deptId)).getIdPath() : null;
         Long lowderUserId = ShiroUtils.getUserId();
-
-        Map<String, Object> reponse = new HashMap<String, Object>();
-        Map<String, Object> params = new HashMap<String, Object>() {{
-
-            put("createByName", userName);
-
-            put("beginTimes", startTime);
-            put("endTimes", endTime);
-            put("offset", (pageno - 1) * pagesize);
-            put("limit", pagesize);
-//            put("sort", "statusid");
-//            put("order", "ASC");
-
-        }};
+        Map<String, Object> params = new HashMap<>();
+        params.put("createByName", userName);
+        params.put("beginTimes", startTime);
+        params.put("endTimes", endTime);
+        params.put("offset", (pageno - 1) * pagesize);
+        params.put("limit", pagesize);
 
         if(!"".equals(userId)&&Objects.equals(userId,lowderUserId.toString())){
             params.put("createBy", userId);
@@ -69,29 +61,29 @@ public class PayApplyApiController {
 
         if(!"".equals(userId)&&!Objects.equals(userId,lowderUserId.toString())){
             params.put("createBy", userId);
-            params.put("status", Constant.TS);//暂存：146
-            params.put("statusOther", Constant.APPLY_REJECT);//退回：62
+            params.put("status", Constant.TS);
+            params.put("statusOther", Constant.APPLY_REJECT);
         }
 
         if(!"".equals(approveUserId)){
             params.put("assignId", approveUserId);
-            params.put("status", Constant.TS);//暂存：146
-            params.put("statusOther", Constant.APPLY_REJECT);//退回：62
+            params.put("status", Constant.TS);
+            params.put("statusOther", Constant.APPLY_REJECT);
         }
 
         if(idPath!=null){
             params.put("idPath", idPath);
-            params.put("status", Constant.TS);//暂存：146
-            params.put("statusOther", Constant.APPLY_REJECT);//退回：62
+            params.put("status", Constant.TS);
+//            params.put("statusOther", Constant.APPLY_REJECT);
         }
 
         Map<String, Object> results = Maps.newHashMap();
         List<Map<String, Object>> data = this.payApplyService.listForMap(params);
-        Map<String, Object> stringObjectMap = this.payApplyService.countForMap(params);//allTotalNumber
+        Map<String, Object> stringObjectMap = this.payApplyService.countForMap(params);
 
-        if (data != null && data.size() > 0) {
-
-            reponse.put("allTotalNumber",stringObjectMap.get("allTotalNumber"));  //所有的总金额之和
+        if (data.size() > 0) {
+            Map<String, Object> reponse = new HashMap<>();
+            reponse.put("allTotalNumber",stringObjectMap.get("allTotalNumber"));
             reponse.put("datas",data);
             reponse.put("pageno",pageno);
             reponse.put("totalRows",Integer.parseInt(stringObjectMap.get("counts").toString()));
@@ -99,7 +91,6 @@ public class PayApplyApiController {
             reponse.put("pagesize",pagesize);
             reponse.put("keyword",null);
             reponse.put("searchKey",null);
-
             results.put("data", reponse);
         }
         return R.ok(results);
@@ -109,10 +100,10 @@ public class PayApplyApiController {
     @ApiOperation("'我审批的'——待审批数量")
     public R approvingOfCount(@ApiParam(value = "审批人ID") @RequestParam(value = "approveUserId", defaultValue = "", required = false) String approveUserId) {
 
-        Map<String, Object> params = new HashMap<String, Object>() {{
-            put("assignId", approveUserId);
-            put("statusOfCount",Constant.APPLY_APPROVING);  //63审批中 为 待审核状态
-        }};
+        Map<String, Object> params = new HashMap<>();
+        params.put("assignId", approveUserId);
+        params.put("statusOfCount",Constant.APPLY_APPROVING);
+
 
         Map<String, Object> stringObjectMap = this.payApplyService.countForMap(params);
         params.remove("assignId");
@@ -127,7 +118,7 @@ public class PayApplyApiController {
     @EvApiByToken(value = "/apis/payApply/detail",method = RequestMethod.GET,apiTitle = "获取付款详细信息")
     @ApiOperation("获取付款详细信息")
     public R detail(@ApiParam(value = "付款ID",required = true) @RequestParam(value = "id",defaultValue = "",required = false)  Long id) {
-        Map<String,Object> results = new HashMap<String,Object>();
+        Map<String,Object> results  ;
         results = payApplyService.detail(id);
         return  R.ok(results);
     }
@@ -135,7 +126,7 @@ public class PayApplyApiController {
     @EvApiByToken(value = "/apis/payApply/approve",method = RequestMethod.POST,apiTitle = "付款审批")
     @ApiOperation("付款审批")
     public R tempSave(@ApiParam(value = "付款信息",required = true) Long payApplyId,
-                      @ApiParam(value = "是否通过") @RequestParam(value = "isApproved",defaultValue = "",required = true) Integer isApproved,
+                      @ApiParam(value = "是否通过") @RequestParam(value = "isApproved",defaultValue = "") Integer isApproved,
                       @ApiParam(value = "原因") @RequestParam(value = "reason",defaultValue = "",required = false) String reason){
         try {
             payApplyService.approve(payApplyId,isApproved,reason);
@@ -175,10 +166,9 @@ public class PayApplyApiController {
     @EvApiByToken(value = "/apis/payApply/batchRemove",method = RequestMethod.POST,apiTitle = "批量删除付款申请")
     @ApiOperation("批量删除付款申请")
     @Transactional(rollbackFor = Exception.class)
-    public R remove(@ApiParam(value = "付款申请主键数组",required = true, example = "[1,2,3,4]") @RequestParam(value="ids[]",defaultValue = "") Long[] ids){
-        if (!"".equals(ids)) {
-            R r = payApplyService.removeBacth(ids);
-            return r;
+    public R remove(@ApiParam(value = "付款申请主键数组",required = true, example = "[1,2,3,4]") @RequestParam(value="ids[]") Long[] ids){
+        if (ids.length>0) {
+            return payApplyService.removeBacth(ids);
         }
         return R.error(messageSourceHandler.getMessage("apis.check.buildWinStockD",null));
     }
@@ -187,7 +177,7 @@ public class PayApplyApiController {
     @ApiOperation("暂存/修改暂存")
     @Transactional(rollbackFor = Exception.class)
     public R saveAddAndSaveChange(@ApiParam(value = "付款信息", required = true) PayApplyDO payApply,
-                                  @ApiParam(value = "审核人") @RequestParam(value = "newApproveList", defaultValue = "", required = true) Long[] newApproveList,//newApproveList,
+                                  @ApiParam(value = "审核人") @RequestParam(value = "newApproveList", defaultValue = "") Long[] newApproveList,
                                   @ApiParam(value = "上传附件") @RequestParam(value = "taglocationappearanceImage", defaultValue = "", required = false) String[] taglocationappearanceImage) {
 
         if ( Objects.isNull(payApply.getId())) {//payApply.getId() == null
@@ -218,7 +208,7 @@ public class PayApplyApiController {
     @ApiOperation("提交付款申请（1.从暂存态和退回态修改/未修改后直接提交；2:新增填写明细后直接提交）")
     @Transactional(rollbackFor = Exception.class)
     public R saveSbmit(@ApiParam(value = "付款信息", required = true) PayApplyDO payApply,
-                       @ApiParam(value = "审核人") @RequestParam(value = "newApproveList", defaultValue = "", required = true) Long[] newApproveList,
+                       @ApiParam(value = "审核人") @RequestParam(value = "newApproveList", defaultValue = "" ) Long[] newApproveList,
                        @ApiParam(value = "上传附件") @RequestParam(value = "taglocationappearanceImage", defaultValue = "", required = false) String[] taglocationappearanceImage) {
         if (!Objects.nonNull(payApply.getId())) {
                 //保存+提交

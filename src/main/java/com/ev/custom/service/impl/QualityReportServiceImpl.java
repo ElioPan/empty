@@ -67,15 +67,11 @@ public class QualityReportServiceImpl implements QualityReportService {
 		param.put("offset", 0);
 		param.put("limit", 1);
 		List<QualityReportDO> list = this.list(param);
-		String sortNo = "0001";
+		String taskNo = null;
 		if (list.size()>0) {
-			String taskNo = list.get(0).getReportNo();
-			sortNo = taskNo.substring(12);
-			Integer parseInt = Integer.parseInt(sortNo)+1;
-			sortNo = parseInt.toString();
+			taskNo = list.get(0).getReportNo();
 		}
-		String workOrderno = maxNo + sortNo;
-		qualityReport.setReportNo(workOrderno);
+		qualityReport.setReportNo(DateFormatUtil.getWorkOrderno(maxNo, taskNo));
 		//设置报告状态为编制中
 		qualityReport.setStatus(Constant.EDITING);
 		return qualityReportDao.save(qualityReport);

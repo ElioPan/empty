@@ -299,6 +299,7 @@ public class QualityManagementAccountingReportApiController {
         for (Map<String, Object> value : batchGroup.values()) {
             value.remove("typeName");
             value.remove("id");
+            value.remove("sourceCode");
             value.remove("code");
             value.remove("count");
             value.remove("facilityName");

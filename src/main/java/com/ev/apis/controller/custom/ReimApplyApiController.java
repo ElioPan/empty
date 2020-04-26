@@ -48,36 +48,35 @@ public class ReimApplyApiController {
         String idPath = StringUtils.isNotEmpty(deptId) ? deptService.get(Long.parseLong(deptId)).getIdPath() : null;
         Long lowderUserId = ShiroUtils.getUserId();
 
-        Map<String, Object> reponse = new HashMap<String, Object>();
-        Map<String, Object> params = new HashMap<String, Object>() {{
-            put("createByName", userName);
-            put("beginTime", startTime);
-            put("endTime", endTime);
-            put("offset", (pageno - 1) * pagesize);
-            put("limit", pagesize);
-//            put("sort", "statusId");
-//            put("order", "ASC");
-        }};
+        Map<String, Object> reponse = new HashMap<>();
+        Map<String, Object> params = new HashMap<>();
+        params.put("createByName", userName);
+        params.put("beginTime", startTime);
+        params.put("endTime", endTime);
+        params.put("offset", (pageno - 1) * pagesize);
+        params.put("limit", pagesize);
+
+
         if(!"".equals(userId)&&Objects.equals(userId,lowderUserId.toString())){
             params.put("createBy", userId);
         }
 
         if(!"".equals(userId)&&!Objects.equals(userId,lowderUserId.toString())){
             params.put("createBy", userId);
-            params.put("status", Constant.TS);//暂存：146
-            params.put("statusOther", Constant.APPLY_REJECT);//退回：62
+            params.put("status", Constant.TS);
+            params.put("statusOther", Constant.APPLY_REJECT);
         }
 
         if(!"".equals(approveUserId)){
             params.put("assignId", approveUserId);
-            params.put("status", Constant.TS);//暂存：146
-            params.put("statusOther", Constant.APPLY_REJECT);//退回：62
+            params.put("status", Constant.TS);
+            params.put("statusOther", Constant.APPLY_REJECT);
         }
 
         if(idPath!=null){
             params.put("idPath", idPath);
-            params.put("status", Constant.TS);//暂存：146
-            params.put("statusOther", Constant.APPLY_REJECT);//退回：62
+            params.put("status", Constant.TS);
+//            params.put("statusOther", Constant.APPLY_REJECT);
         }
 
         Map<String, Object> results = Maps.newHashMap();
@@ -85,8 +84,8 @@ public class ReimApplyApiController {
         Map<String, Object> stringObjectMap = this.reimApplyService.countForMap(params);
 
 
-        if (data != null && data.size() > 0) {
-            reponse.put("allReiCount",stringObjectMap.get("allReiCount"));  //所有的报销金额之和
+        if (data.size() > 0) {
+            reponse.put("allReiCount",stringObjectMap.get("allReiCount"));
             reponse.put("datas",data);
             reponse.put("pageno",pageno);
             reponse.put("totalRows",Integer.parseInt(stringObjectMap.get("counts").toString()));
@@ -105,10 +104,10 @@ public class ReimApplyApiController {
     @ApiOperation("'我审批的'——待审批数量")
     public R approvingOfCount(@ApiParam(value = "审批人ID") @RequestParam(value = "approveUserId", defaultValue = "", required = false) String approveUserId) {
 
-        Map<String, Object> params = new HashMap<String, Object>() {{
-            put("assignId", approveUserId);
-            put("statusOfCount",Constant.APPLY_APPROVING);  //63审批中 为 待审核状态
-        }};
+        Map<String, Object> params = new HashMap<>();
+        params.put("assignId", approveUserId);
+        params.put("statusOfCount",Constant.APPLY_APPROVING);
+
         Map<String, Object> stringObjectMap = this.reimApplyService.countForMap(params);
         params.remove("assignId");
         params.remove("statusOfCount");
@@ -122,7 +121,7 @@ public class ReimApplyApiController {
     @EvApiByToken(value = "/apis/reimApply/detail",method = RequestMethod.GET,apiTitle = "获取报销详细信息")
     @ApiOperation("获取报销详细信息")
     public R detail(@ApiParam(value = "报销ID",required = true) @RequestParam(value = "id",defaultValue = "",required = false)  Long id) {
-        Map<String,Object> results = new HashMap<String,Object>();
+        Map<String,Object> results ;
         results = reimApplyService.detail(id);
         return  R.ok(results);
     }
@@ -131,7 +130,7 @@ public class ReimApplyApiController {
     @EvApiByToken(value = "/apis/reimApply/approve",method = RequestMethod.POST,apiTitle = "报销审批")
     @ApiOperation("报销审批")
     public R tempSave(@ApiParam(value = "报销信息",required = true) Long reimApplyId,
-                      @ApiParam(value = "是否通过") @RequestParam(value = "isApproved",defaultValue = "",required = true) Integer isApproved,
+                      @ApiParam(value = "是否通过") @RequestParam(value = "isApproved",defaultValue = "") Integer isApproved,
                       @ApiParam(value = "原因") @RequestParam(value = "reason",defaultValue = "",required = false) String reason){
         try {
             reimApplyService.approve(reimApplyId,isApproved,reason);
@@ -165,8 +164,8 @@ public class ReimApplyApiController {
 
         if (ids.length > 0) {
 
-            R r = reimApplyService.removeBacth(ids);
-            return r;
+            return  reimApplyService.removeBacth(ids);
+
         }
         return R.error();
     }
@@ -175,8 +174,8 @@ public class ReimApplyApiController {
     @ApiOperation("暂存/修改暂存")
     @Transactional(rollbackFor = Exception.class)
     public R saveAddAndChange(@ApiParam(value = "报销信息", required = true) ReimApplyDO reimApply,
-                              @ApiParam(value = "报销明细:（修改的加明细主键\"id\":\"3\",）[{\"reiCount\":\"88.8\",\"reiDate\":\"2019-09-09 12:00:00\",\"type\":\"52\",\"reiItemDescription\":\"马杀鸡费用88.8\"}]") @RequestParam(value = "newReimApplyItems", defaultValue = "",required = true) String newReimApplyItems,
-                              @ApiParam(value = "审核人") @RequestParam(value = "approveList", defaultValue = "", required = true) Long[] approveList,
+                              @ApiParam(value = "报销明细:（修改的加明细主键\"id\":\"3\",）[{\"reiCount\":\"88.8\",\"reiDate\":\"2019-09-09 12:00:00\",\"type\":\"52\",\"reiItemDescription\":\"马杀鸡费用88.8\"}]") @RequestParam(value = "newReimApplyItems", defaultValue = "") String newReimApplyItems,
+                              @ApiParam(value = "审核人") @RequestParam(value = "approveList", defaultValue = "") Long[] approveList,
                               @ApiParam(value = "上传附件") @RequestParam(value = "taglocationappearanceImage", defaultValue = "", required = false) String[] taglocationappearanceImage,
                               @ApiParam(value = "删除的明细主键") @RequestParam(value = "deletDetailIds", defaultValue = "", required = false) Long[] deletDetailIds) {
 
@@ -209,7 +208,7 @@ public class ReimApplyApiController {
     @Transactional(rollbackFor = Exception.class)
     public R saveSbmit(@ApiParam(value = "报销信息", required = true) ReimApplyDO reimApply,
                        @ApiParam(value = "所有的报销明细:（修改的加明细主键\"id\":\"3\",）[{\"reiCount\":\"88.8\",\"reiDate\":\"2019-09-09 12:00:00\",\"type\":\"52\",\"reiItemDescription\":\"马杀鸡费用88.8\"}]") @RequestParam(value = "newReimApplyItems", defaultValue = "") String newReimApplyItems,
-                       @ApiParam(value = "审核人") @RequestParam(value = "approveList", defaultValue = "", required = true) Long[] approveList,
+                       @ApiParam(value = "审核人") @RequestParam(value = "approveList", defaultValue = "") Long[] approveList,
                        @ApiParam(value = "附件") @RequestParam(value = "taglocationappearanceImage", defaultValue = "", required = false) String[] taglocationappearanceImage,
                        @ApiParam(value = "删除的明细主键") @RequestParam(value = "deletDetailIds", defaultValue = "", required = false) Long[] deletDetailIds) {
 
