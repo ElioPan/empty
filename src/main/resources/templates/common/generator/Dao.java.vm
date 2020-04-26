@@ -32,5 +32,5 @@ public interface ${className}Dao {
 	
 	int batchRemove(${pk.attrType}[] ${pk.attrname}s);
 
-	int updateAll(List<${className}DO> param);
+	int batchUpdate(List<${className}DO> param);
 }
