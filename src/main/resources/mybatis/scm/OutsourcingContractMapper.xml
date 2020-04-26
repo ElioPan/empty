@@ -246,7 +246,7 @@
             <if test="specification != null and specification != ''"> and materiel.`specification` LIKE #{specification} </if>
             <if test="auditSign != null and auditSign != ''"> and outsourcing.audit_sign = #{auditSign} </if>
             <if test="createByName != null and createByName != ''"> and cuser.name LIKE #{createByName} </if>
-            <if test="closeStatus != null"> and close_status = #{closeStatus} </if>
+            <if test="closeStatus != null"> and outsourcing.close_status = #{closeStatus} </if>
 
             <!--导入关联单据查询-->
             <if test="createStartTime != null and createStartTime != ''"> and  DATE_FORMAT(outsourcing.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
