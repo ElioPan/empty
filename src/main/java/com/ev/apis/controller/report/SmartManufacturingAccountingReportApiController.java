@@ -263,7 +263,6 @@ public class SmartManufacturingAccountingReportApiController {
         // 查询列表数据
         Map<String, Object> params = Maps.newHashMap();
 
-
         params.put("batch", batch);
         params.put("materielId", materielId);
         params.put("startTime", startTime);
@@ -292,27 +291,54 @@ public class SmartManufacturingAccountingReportApiController {
         List<HashMap<String, Object>> inspectionLists= Lists.newArrayList();
         List<HashMap<String, Object>> planLists= Lists.newArrayList();
         Map<String,String> batchForSourceCode = Maps.newHashMap();
+        List<String> emptyId = Lists.newArrayList();
         for (Map<String, Object> datum : data) {
 
             if (Objects.equals(datum.get("typeId").toString(),ConstantForGYL.YDGOODS_WAREHOUSE.toString()) ) {
                 String batchP = datum.get("batch").toString();
-                if(batchForSourceCode.containsKey(batch)){
+                if(batchForSourceCode.containsKey(batchP)){
                     continue;
                 }
 
                 String sourceCode = datum.get("sourceCode").toString();
                 List<HashMap<String, Object>> s = inspectionList
                         .stream()
-                        .filter(e -> Objects.equals(e.get("sourceCode"), sourceCode))
+                        .filter(e -> {
+                            Object batch1 = e.get("batch");
+                            boolean isMatch = batch1==null||StringUtils.isEmpty(batch1.toString())||Objects.equals(batch1.toString(),batchP);
+                            return Objects.equals(e.get("sourceCode"), sourceCode) && isMatch;
+                        })
                         .map(Maps::newHashMap)
-                        .peek(e->e.put("batch",batchP))
                         .collect(Collectors.toList());
+                List<String> collect = s.stream()
+                        .filter(e -> {
+                            Object batch1 = e.get("batch");
+                            return batch1 == null || StringUtils.isEmpty(batch1.toString());
+                        })
+                        .map(e -> e.get("id").toString())
+                        .collect(Collectors.toList());
+                emptyId.addAll(collect);
+                s.forEach(e->e.put("batch",batchP));
+
                 List<HashMap<String, Object>> p = planList
                         .stream()
-                        .filter(e -> Objects.equals(e.get("code"), sourceCode))
+                        .filter(e -> {
+                            Object batch1 = e.get("batch");
+                            boolean isMatch = batch1==null||StringUtils.isEmpty(batch1.toString())||Objects.equals(batch1.toString(),batchP);
+                            return Objects.equals(e.get("code"), sourceCode) && isMatch;
+                        })
                         .map(Maps::newHashMap)
-                        .peek(e->e.put("batch",batchP))
                         .collect(Collectors.toList());
+                List<String> pCollect = p.stream()
+                        .filter(e -> {
+                            Object batch1 = e.get("batch");
+                            return batch1 == null || StringUtils.isEmpty(batch1.toString());
+                        })
+                        .map(e -> e.get("id").toString())
+                        .collect(Collectors.toList());
+                emptyId.addAll(pCollect);
+                s.forEach(e->e.put("batch",batchP));
+
                 inspectionLists.addAll(s);
                 planLists.addAll(p);
                 batchForSourceCode.put(batchP,sourceCode);
@@ -345,11 +371,12 @@ public class SmartManufacturingAccountingReportApiController {
                 .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
                 .sorted(Comparator.comparing(e -> e.get("batch").toString()))
                 .collect(Collectors.toList());
-
-        for (Map<String, Object> stringObjectMap : collect) {
-            String typeId = stringObjectMap.get("typeId").toString();
-            if(Objects.equals(typeId,ConstantForMES.LLJY.toString())||(Objects.equals(typeId,ConstantForMES.SCJH.toString()))){
-                stringObjectMap.remove("batch");
+        if (emptyId.size() > 0) {
+            for (Map<String, Object> stringObjectMap : collect) {
+                String typeId = stringObjectMap.get("typeId").toString();
+                if((Objects.equals(typeId,ConstantForMES.LLJY.toString())||(Objects.equals(typeId,ConstantForMES.SCJH.toString())))&&emptyId.contains(stringObjectMap.get("id").toString())){
+                    stringObjectMap.remove("batch");
+                }
             }
         }
 
@@ -360,6 +387,149 @@ public class SmartManufacturingAccountingReportApiController {
         return R.ok(results);
     }
 
+    @ResponseBody
+    @EvApiByToken(value = "/apis/exportExcel/productionBatch", method = RequestMethod.GET, apiTitle = "生产批次跟踪(导出)")
+    @ApiOperation("生产批次跟踪（导出）")
+    public void qualityTraceability(
+            @ApiParam(value = "物料ID", required = true) @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId,
+            @ApiParam(value = "批号", required = true) @RequestParam(value = "batch", defaultValue = "", required = false) String batch,
+            @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
+            @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
+            HttpServletRequest request, HttpServletResponse response, ModelMap modelMap
+
+    ) {
+        // 查询列表数据
+        Map<String, Object> params = Maps.newHashMap();
+
+        params.put("batch", batch);
+        params.put("materielId", materielId);
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+
+        params.put("auditSign", ConstantForGYL.OK_AUDITED);
+
+        List<Long> storageTypes =  Lists.newArrayList();
+        storageTypes.add(ConstantForGYL.YDGOODS_WAREHOUSE);
+        params.put("storageTypes", storageTypes);
+
+        params.put("isQuality", 0);
+        params.put("isPlan", 1);
+
+        // 采购入库&来料检验&生产领料&生产计划
+        List<Map<String, Object>> data = qualityReportService.qualityTraceabilityList(params);
+        List<Map<String, Object>> inspectionList = data.stream()
+                .filter(e -> Objects.equals(e.get("typeId").toString(), ConstantForMES.CPJY.toString()))
+                .collect(Collectors.toList());
+        List<Map<String, Object>> planList = data.stream()
+                .filter(e -> Objects.equals(e.get("typeId").toString(), ConstantForMES.SCJH.toString()))
+                .collect(Collectors.toList());
+        data.removeAll(inspectionList);
+        data.removeAll(planList);
+
+        List<HashMap<String, Object>> inspectionLists= Lists.newArrayList();
+        List<HashMap<String, Object>> planLists= Lists.newArrayList();
+        Map<String,String> batchForSourceCode = Maps.newHashMap();
+        List<String> emptyId = Lists.newArrayList();
+        for (Map<String, Object> datum : data) {
+
+            if (Objects.equals(datum.get("typeId").toString(),ConstantForGYL.YDGOODS_WAREHOUSE.toString()) ) {
+                String batchP = datum.get("batch").toString();
+                if(batchForSourceCode.containsKey(batchP)){
+                    continue;
+                }
+
+                String sourceCode = datum.get("sourceCode").toString();
+                List<HashMap<String, Object>> s = inspectionList
+                        .stream()
+                        .filter(e -> {
+                            Object batch1 = e.get("batch");
+                            boolean isMatch = batch1==null||StringUtils.isEmpty(batch1.toString())||Objects.equals(batch1.toString(),batchP);
+                            return Objects.equals(e.get("sourceCode"), sourceCode) && isMatch;
+                        })
+                        .map(Maps::newHashMap)
+                        .collect(Collectors.toList());
+                List<String> collect = s.stream()
+                        .filter(e -> {
+                            Object batch1 = e.get("batch");
+                            return batch1 == null || StringUtils.isEmpty(batch1.toString());
+                        })
+                        .map(e -> e.get("id").toString())
+                        .collect(Collectors.toList());
+                emptyId.addAll(collect);
+                s.forEach(e->e.put("batch",batchP));
+
+                List<HashMap<String, Object>> p = planList
+                        .stream()
+                        .filter(e -> {
+                            Object batch1 = e.get("batch");
+                            boolean isMatch = batch1==null||StringUtils.isEmpty(batch1.toString())||Objects.equals(batch1.toString(),batchP);
+                            return Objects.equals(e.get("code"), sourceCode) && isMatch;
+                        })
+                        .map(Maps::newHashMap)
+                        .collect(Collectors.toList());
+                List<String> pCollect = p.stream()
+                        .filter(e -> {
+                            Object batch1 = e.get("batch");
+                            return batch1 == null || StringUtils.isEmpty(batch1.toString());
+                        })
+                        .map(e -> e.get("id").toString())
+                        .collect(Collectors.toList());
+                emptyId.addAll(pCollect);
+                s.forEach(e->e.put("batch",batchP));
+
+                inspectionLists.addAll(s);
+                planLists.addAll(p);
+                batchForSourceCode.put(batchP,sourceCode);
+            }
+        }
+        ArrayList<Map<String, Object>> clone = BeanUtils.clone((ArrayList<Map<String, Object>>) data);
+        Map<String, Map<String, Object>> batchGroup = clone.stream()
+                .collect(Collectors.toMap(k -> k.get("batch").toString(), v -> v, (v1, v2) -> v1));
+        for (Map<String, Object> value : batchGroup.values()) {
+            value.remove("typeName");
+            value.remove("id");
+            value.remove("sourceCode");
+            value.remove("code");
+            value.remove("count");
+            value.remove("facilityName");
+            value.remove("way");
+            value.remove("locationName");
+            value.remove("sourceTypeName");
+            value.remove("time");
+            value.put("times",0);
+            value.put("sign", ConstantForReport.COLOUR_END);
+            value.put("sortNo",0);
+        }
+        data.addAll(batchGroup.values());
+        data.addAll(inspectionLists);
+        data.addAll(planLists);
+        List<Map<String, Object>> collect = data
+                .stream()
+                .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("times").toString())))
+                .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
+                .sorted(Comparator.comparing(e -> e.get("batch").toString()))
+                .collect(Collectors.toList());
+        if (emptyId.size() > 0) {
+            for (Map<String, Object> stringObjectMap : collect) {
+                String typeId = stringObjectMap.get("typeId").toString();
+                if((Objects.equals(typeId,ConstantForMES.LLJY.toString())||(Objects.equals(typeId,ConstantForMES.SCJH.toString())))&&emptyId.contains(stringObjectMap.get("id").toString())){
+                    stringObjectMap.remove("batch");
+                }
+            }
+        }
+        if (data.size() > 0) {
+            ClassPathResource classPathResource = new ClassPathResource("poi/report_quality_qualityTraceability.xlsx");
+            Map<String,Object> map = Maps.newHashMap();
+            map.put("list", collect);
+            TemplateExportParams result = new TemplateExportParams(classPathResource.getPath());
+            modelMap.put(TemplateExcelConstants.FILE_NAME, "生产批次跟踪");
+            modelMap.put(TemplateExcelConstants.PARAMS, result);
+            modelMap.put(TemplateExcelConstants.MAP_DATA, map);
+            PoiBaseView.render(modelMap, request, response,
+                    TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
+        }
+
+    }
 //    @EvApiByToken(value = "/apis/smartManufacturing/productionBatch/item", method = RequestMethod.POST, apiTitle = "生产批次跟踪（详细列表生产入库，生产领料单）")
 //    @ApiOperation("生产批次跟踪（详细列表生产入库，生产领料单）")
 //    public R productionBatchItem(
