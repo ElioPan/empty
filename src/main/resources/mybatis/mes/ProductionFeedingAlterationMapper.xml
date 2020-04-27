@@ -60,7 +60,7 @@
 		mes_production_feeding_detail d
 		LEFT JOIN cus_facility cf on d.facility_id = cf.id
 		LEFT JOIN cus_facility_location cfl on d.location_id = cfl.id
-		LEFT JOIN mes_process p on d.station_id = p.id
+		LEFT JOIN mes_process p on d.process_id = p.id
 		LEFT JOIN mes_station s on d.station_id = s.id
 		<where>
 				<if test="headId != null and headId != ''"> AND d.head_id = #{headId} </if>
