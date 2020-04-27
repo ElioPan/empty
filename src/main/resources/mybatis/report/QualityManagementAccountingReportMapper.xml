@@ -110,9 +110,11 @@
     <!--采购入库&来料检验&生产领料&生产计划-->
     <select id="qualityTraceabilityList" resultType="java.util.Map">
         SELECT
+        typeId,
         typeName,
         id,
         `time`,
+        UNIX_TIMESTAMP(`time`) AS times,
         `code`,
         materielId,
         serialNo,
@@ -126,11 +128,12 @@
         locationName,
         sourceTypeName,
         0 AS sign,
-        1 AS sortNo,
+        sortNo,
         sourceCode
         FROM
         (
         SELECT
+        dicst.`id` AS typeId,
         dicst.`name` AS typeName,
         stock.id AS id,
         stock.create_time AS `time`,
@@ -146,6 +149,7 @@
         location.`name` AS locationName,
         dict.`name` AS sourceTypeName,
         'in' AS way,
+        1 AS sortNo,
         item.source_code AS sourceCode
         FROM
         scm_stock_in_item item
@@ -177,6 +181,7 @@
         </where>
         UNION ALL
         SELECT
+        inspection.inspection_type AS typeId,
         dici.`name` AS typeName,
         inspection.id AS id,
         inspection.create_time AS `time`,
@@ -192,9 +197,18 @@
         '' AS locationName,
         dict.`name` AS sourceTypeName,
         'in' AS way,
+        1 AS sortNo,
         inspection.source_no AS sourceCode
         FROM
-         mes_material_inspection inspection
+        <choose>
+            <when test="isQuality == 1">
+                view_inspection_contract_in viewi
+            </when>
+            <otherwise>
+                view_inspection_contract_pro viewi
+            </otherwise>
+        </choose>
+        LEFT JOIN mes_material_inspection inspection ON viewi.id=inspection.id
         LEFT JOIN cus_materiel materiel ON materiel.id=inspection.materiel_id
         LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.unit_uom
         LEFT JOIN cus_dictionary dict ON dict.`id`=inspection.source_type
@@ -204,14 +218,15 @@
 
             <if test="auditSign != null and auditSign != ''"> and inspection.status = #{auditSign} </if>
 
-            <if test="batch != null and batch != ''"> and inspection.`batch_no` = #{batch} </if>
+            <!--<if test="batch != null and batch != ''"> and inspection.`batch_no` = #{batch} </if>-->
             <if test="materielId != null and materielId != ''"> and inspection.`materiel_id` = #{materielId} </if>
             <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(inspection.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(inspection.create_time,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
-            AND materiel.is_lot=1
+            <!--AND materiel.is_lot=1-->
         </where>
         UNION ALL
         SELECT
+        dico.`id` AS typeId,
         dico.`name` AS typeName,
         sout.id AS id,
         sout.`create_time` AS `time`,
@@ -227,6 +242,7 @@
         location.`name` AS locationName,
         dict.`name` AS sourceTypeName,
         'out' AS way,
+        1 AS sortNo,
         item.source_code AS sourceCode
         FROM
         scm_stock_out_item item
@@ -256,42 +272,46 @@
             <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(sout.`out_time`,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
             AND materiel.is_lot=1
             </where>
-       <!-- UNION ALL
-        SELECT
-        '生产计划' AS typeName,
-        plan.`id` AS id,
-        feeding.`create_time` AS `time`,
-        plan.`plan_no` AS `code`,
-        materiel.`id` AS materielId,
-        materiel.`serial_no` AS serialNo,
-        materiel.`name` AS materielName,
-        materiel.`specification` AS specification,
-        dic.`name` AS unitUomName,
-        plan.`batch_no` AS batch,
-        plan.plan_count AS `count`,
-        '' AS facilityName,
-        '' AS locationName,
-        dict.`name` AS sourceTypeName,
-        plan.source_no AS sourceCode
-        FROM
-        mes_production_feeding_detail item
-        LEFT JOIN mes_production_feeding feeding ON feeding.id=item.head_id
-        LEFT JOIN mes_production_plan plan ON plan.id=feeding.production_plan_id
-        LEFT JOIN cus_materiel materiel ON materiel.id=plan.materiel_id
-        LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.unit_uom
-        LEFT JOIN cus_dictionary dict ON dict.`id`=plan.source_type
-        <where>
-            <if test="auditSign != null and auditSign != ''"> and feeding.status = #{auditSign} </if>
+        <if test="isPlan != null and isPlan != ''">
+            UNION ALL
+            SELECT
+            '生产计划' AS typeName,
+            plan.`id` AS id,
+            feeding.`create_time` AS `time`,
+            plan.`plan_no` AS `code`,
+            materiel.`id` AS materielId,
+            materiel.`serial_no` AS serialNo,
+            materiel.`name` AS materielName,
+            materiel.`specification` AS specification,
+            dic.`name` AS unitUomName,
+            plan.`batch_no` AS batch,
+            plan.plan_count AS `count`,
+            '' AS facilityName,
+            '' AS locationName,
+            dict.`name` AS sourceTypeName,
+            'in' AS way,
+            1 AS sortNo,
+            plan.source_no AS sourceCode
+            FROM
+            mes_production_feeding_detail item
+            LEFT JOIN mes_production_feeding feeding ON feeding.id=item.head_id
+            LEFT JOIN mes_production_plan plan ON plan.id=feeding.production_plan_id
+            LEFT JOIN cus_materiel materiel ON materiel.id=plan.materiel_id
+            LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.unit_uom
+            LEFT JOIN cus_dictionary dict ON dict.`id`=plan.source_type
+            <where>
+                <if test="auditSign != null and auditSign != ''"> and feeding.status = #{auditSign} </if>
 
-            <if test="batch != null and batch != ''"> and item.`batch_no` = #{batch} </if>
-            <if test="materielId != null and materielId != ''"> and item.`materiel_id` = #{materielId} </if>
-            <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(feeding.`create_time`,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
-            <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(feeding.`create_time`,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
-            AND feeding.production_plan_id IS NOT NULL
-        </where>-->
+                <if test="batch != null and batch != ''"> and item.`batch_no` = #{batch} </if>
+                <if test="materielId != null and materielId != ''"> and item.`materiel_id` = #{materielId} </if>
+                <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(feeding.`create_time`,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+                <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(feeding.`create_time`,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+                AND feeding.production_plan_id IS NOT NULL
+            </where>
+        </if>
         ) a
         GROUP BY a.`id`,a.`typeName`
-        ORDER BY a.`time`
+
 
     </select>
 

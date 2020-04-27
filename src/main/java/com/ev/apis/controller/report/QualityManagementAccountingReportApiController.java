@@ -28,10 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -283,16 +280,31 @@ public class QualityManagementAccountingReportApiController {
         storageTypes.add(ConstantForGYL.OUTSOURCING_INSTOCK);
         params.put("storageTypes", storageTypes);
 
-        List<Long> outboundTypes =  Lists.newArrayList();
-        outboundTypes.add(ConstantForGYL.WWCK);
-        outboundTypes.add(ConstantForGYL.LYCK);
-        params.put("outboundTypes", outboundTypes);
-
-        params.put("inspectionType", ConstantForMES.LLJY);
+        params.put("isQuality", 1);
         int total = reportService.qualityTraceabilityCount(params);
 
         // 采购入库&来料检验&生产领料&生产计划
         List<Map<String, Object>> data = reportService.qualityTraceabilityList(params);
+        List<Map<String, Object>> inspectionList = data.stream()
+                .filter(e -> Objects.equals(e.get("typeId"), ConstantForMES.LLJY))
+                .collect(Collectors.toList());
+        data.removeAll(inspectionList);
+
+        List<HashMap<String, Object>> inspectionLists= Lists.newArrayList();
+        for (Map<String, Object> datum : data) {
+            if (Objects.equals(datum.get("way").toString(),"in") ) {
+                String sourceCode = datum.get("sourceCode").toString();
+                String batchP = datum.get("batch").toString();
+                List<HashMap<String, Object>> s = inspectionList
+                        .stream()
+                        .filter(e -> Objects.equals(e.get("sourceCode"), sourceCode))
+                        .map(Maps::newHashMap)
+                        .peek(e->e.put("batch",batchP))
+                        .collect(Collectors.toList());
+                inspectionLists.addAll(s);
+            }
+        }
+
         ArrayList<Map<String, Object>> clone = BeanUtils.clone((ArrayList<Map<String, Object>>) data);
         Map<String, Map<String, Object>> batchGroup = clone.stream()
                 .collect(Collectors.toMap(k -> k.get("batch").toString(), v -> v, (v1, v2) -> v1));
@@ -307,17 +319,25 @@ public class QualityManagementAccountingReportApiController {
             value.remove("locationName");
             value.remove("sourceTypeName");
             value.remove("time");
+            value.put("times",0);
             value.put("sign", ConstantForReport.COLOUR_END);
             value.put("sortNo",0);
         }
         data.addAll(batchGroup.values());
+        data.addAll(inspectionLists);
 
         List<Map<String, Object>> collect = data
                 .stream()
+                .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("times").toString())))
                 .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
                 .sorted(Comparator.comparing(e -> e.get("batch").toString()))
                 .collect(Collectors.toList());
 
+        for (Map<String, Object> stringObjectMap : collect) {
+            if(Objects.equals(stringObjectMap.get("typeId").toString(),ConstantForMES.LLJY.toString())){
+                stringObjectMap.remove("batch");
+            }
+        }
 
         Map<String, Object> results = Maps.newHashMap();
         if (data.size() > 0) {
@@ -345,7 +365,7 @@ public class QualityManagementAccountingReportApiController {
 
 
         params.put("batch", batch);
-        params.put("deviceId", materielId);
+        params.put("materielId", materielId);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
 
@@ -356,19 +376,68 @@ public class QualityManagementAccountingReportApiController {
         storageTypes.add(ConstantForGYL.OUTSOURCING_INSTOCK);
         params.put("storageTypes", storageTypes);
 
-        List<Long> outboundTypes =  Lists.newArrayList();
-        outboundTypes.add(ConstantForGYL.WWCK);
-        outboundTypes.add(ConstantForGYL.LYCK);
-        params.put("outboundTypes", outboundTypes);
-
-        params.put("inspectionType", ConstantForMES.LLJY);
+        params.put("isQuality", 1);
+        int total = reportService.qualityTraceabilityCount(params);
 
         // 采购入库&来料检验&生产领料&生产计划
         List<Map<String, Object>> data = reportService.qualityTraceabilityList(params);
+        List<Map<String, Object>> inspectionList = data.stream()
+                .filter(e -> Objects.equals(e.get("typeId"), ConstantForMES.LLJY))
+                .collect(Collectors.toList());
+        data.removeAll(inspectionList);
+
+        List<HashMap<String, Object>> inspectionLists= Lists.newArrayList();
+        for (Map<String, Object> datum : data) {
+            if (Objects.equals(datum.get("way").toString(),"in") ) {
+                String sourceCode = datum.get("sourceCode").toString();
+                String batchP = datum.get("batch").toString();
+                List<HashMap<String, Object>> s = inspectionList
+                        .stream()
+                        .filter(e -> Objects.equals(e.get("sourceCode"), sourceCode))
+                        .map(Maps::newHashMap)
+                        .peek(e->e.put("batch",batchP))
+                        .collect(Collectors.toList());
+                inspectionLists.addAll(s);
+            }
+        }
+
+        ArrayList<Map<String, Object>> clone = BeanUtils.clone((ArrayList<Map<String, Object>>) data);
+        Map<String, Map<String, Object>> batchGroup = clone.stream()
+                .collect(Collectors.toMap(k -> k.get("batch").toString(), v -> v, (v1, v2) -> v1));
+        for (Map<String, Object> value : batchGroup.values()) {
+            value.remove("typeName");
+            value.remove("id");
+            value.remove("sourceCode");
+            value.remove("code");
+            value.remove("count");
+            value.remove("facilityName");
+            value.remove("way");
+            value.remove("locationName");
+            value.remove("sourceTypeName");
+            value.remove("time");
+            value.put("times",0);
+            value.put("sign", ConstantForReport.COLOUR_END);
+            value.put("sortNo",0);
+        }
+        data.addAll(batchGroup.values());
+        data.addAll(inspectionLists);
+
+        List<Map<String, Object>> collect = data
+                .stream()
+                .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("times").toString())))
+                .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
+                .sorted(Comparator.comparing(e -> e.get("batch").toString()))
+                .collect(Collectors.toList());
+
+        for (Map<String, Object> stringObjectMap : collect) {
+            if(Objects.equals(stringObjectMap.get("typeId").toString(),ConstantForMES.LLJY.toString())){
+                stringObjectMap.remove("batch");
+            }
+        }
         if (data.size() > 0) {
             ClassPathResource classPathResource = new ClassPathResource("poi/report_quality_qualityTraceability.xlsx");
             Map<String,Object> map = Maps.newHashMap();
-            map.put("list", data);
+            map.put("list", collect);
             TemplateExportParams result = new TemplateExportParams(classPathResource.getPath());
             modelMap.put(TemplateExcelConstants.FILE_NAME, "质量追溯分析");
             modelMap.put(TemplateExcelConstants.PARAMS, result);
