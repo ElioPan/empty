@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.Objects;
 
 public class BeanUtils extends org.springframework.beans.BeanUtils {
+    private static final String AFTER_SUFFIX = "After";
+    private static final String BEFORE_SUFFIX = "Before";
+    private static final String DELETE = "delete";
+    private static final String ADD = "add";
     /**
      * 对象深度克隆---使用序列化进行深拷贝
      *
@@ -86,15 +90,15 @@ public class BeanUtils extends org.springframework.beans.BeanUtils {
                         break;
                     }
                     if (afterObject != null) {
-                        jsonObject.put(afterFieldName + "After", afterObject);
+                        jsonObject.put(afterFieldName + AFTER_SUFFIX, afterObject);
                     } else {
-                        jsonObject.put(afterFieldName + "After", "delete");
+                        jsonObject.put(afterFieldName + AFTER_SUFFIX, DELETE);
                     }
 
                     if (beforeObject != null) {
-                        jsonObject.put(beforeFieldName + "Before", beforeObject);
+                        jsonObject.put(beforeFieldName + BEFORE_SUFFIX, beforeObject);
                     }else {
-                        jsonObject.put(beforeFieldName + "Before", "add");
+                        jsonObject.put(beforeFieldName + BEFORE_SUFFIX, ADD);
                     }
                     break;
                 }
