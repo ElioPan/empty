@@ -377,7 +377,6 @@ public class QualityManagementAccountingReportApiController {
         params.put("storageTypes", storageTypes);
 
         params.put("isQuality", 1);
-        int total = reportService.qualityTraceabilityCount(params);
 
         // 采购入库&来料检验&生产领料&生产计划
         List<Map<String, Object>> data = reportService.qualityTraceabilityList(params);
