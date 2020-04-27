@@ -390,7 +390,7 @@ public class ScmPurchaseContractApiController {
         map.put("createStartTime", createStartTime);
         map.put("createEndTime", createEndTime);
         map.put("supplierId",supplierId);
-        map.put("closeStatus",1);
+        map.put("itemCloseStatus",1);
         List<Map<String, Object>> data = purchasecontractService.listForMap(map);
         DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT.intValue());
         String thisSourceTypeName = dictionaryDO.getName();
