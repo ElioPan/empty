@@ -189,21 +189,24 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 	@Override
 	public R disAudit(Long id) {
 		PurchasecontractDO purchasecontractDO = this.get(id);
+		if (Objects.equals(purchasecontractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+			return R.error(messageSourceHandler.getMessage("common.massge.okWaitAudit", null));
+		}
+		if (purchasecontractDO.getCloseStatus() == 1) {
+			return R.error(messageSourceHandler.getMessage("common.contract.isCloseStatus", null));
+		}
+		int closingLines = purchasecontractItemService.lineClosingNumber(id);
+		if(closingLines>0){
+			return R.error(messageSourceHandler.getMessage("scm.contractLine.isClosing", null));
+		}
 		//验证是否被采购入库引用  +  发票  +  付款单
 		Map<String,Object>  map= new HashMap<>();
 		map.put("sourceCode",purchasecontractDO.getContractCode());
 		List<StockInItemDO> stockInItemList = stockInItemService.list(map);
 		List<PaymentReceivedItemDO> receivedItemDos = paymentReceivedItemService.list(map);
 		List<PurchaseInvoiceItemDO> invoiceItemDos = purchaseInvoiceItemService.list(map);
-
 		if(stockInItemList.size()>0||receivedItemDos.size()>0||invoiceItemDos.size()>0){
 			return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));
-		}
-		if (Objects.equals(purchasecontractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
-			return R.error(messageSourceHandler.getMessage("common.massge.okWaitAudit", null));
-		}
-		if (purchasecontractDO.getCloseStatus() == 1) {
-			return R.error(messageSourceHandler.getMessage("common.contract.isCloseStatus", null));
 		}
 		purchasecontractDO.setAuditor(0L);
 		purchasecontractDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);

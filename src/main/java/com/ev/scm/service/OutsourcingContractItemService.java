@@ -31,4 +31,6 @@ public interface OutsourcingContractItemService {
 
 	R disposeCloseLine(Long[] ids , String closeReason);
 
+	int lineClosingNumber(Long id);
+
 }

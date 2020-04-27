@@ -265,6 +265,16 @@
 		</where>
 	</select>
 
+	<select id="lineClosingNumber" resultType="int">
+		select
+		count(id)
+		from
+		scm_purchasecontract_item
+		where
+		close_status =1
+		and
+		purchase_contract_id = #{id}
+	</select>
 
 
 </mapper>

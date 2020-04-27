@@ -1,12 +1,11 @@
 package com.ev.scm.dao;
 
 import com.ev.scm.domain.OutsourcingContractItemDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.ibatis.annotations.Mapper;
 
 /**
  * 委外合同明细
@@ -38,4 +37,6 @@ public interface OutsourcingContractItemDao {
 	Map<String, Object> countByContract(Map<String, Object> params);
 
     BigDecimal getCountBySource(Map<String, Object> map);
+
+	int lineClosingNumber(Long id);
 }

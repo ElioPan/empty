@@ -30,4 +30,6 @@ public interface SalescontractItemService {
 	int batchRemove(Long[] sids);
 
 	R disposeCloseLine(Long[] ids , String closeReason);
+
+	int lineClosingNumber(Long id);
 }

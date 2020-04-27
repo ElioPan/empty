@@ -93,9 +93,10 @@ public class PurchasecontractItemServiceImpl implements PurchasecontractItemServ
 		return R.ok();
 	}
 
-
-
-
+	@Override
+	public int lineClosingNumber(Long id) {
+		return purchasecontractItemDao.lineClosingNumber(id);
+	}
 
 
 }

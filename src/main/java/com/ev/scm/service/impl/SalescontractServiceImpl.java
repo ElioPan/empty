@@ -18,6 +18,7 @@ import com.ev.scm.domain.ContractAlterationDO;
 import com.ev.scm.domain.SalescontractDO;
 import com.ev.scm.domain.SalescontractItemDO;
 import com.ev.scm.domain.SalescontractPayDO;
+import com.ev.scm.service.SalescontractItemService;
 import com.ev.scm.service.SalescontractService;
 import com.ev.scm.vo.ContractItemVO;
 import com.ev.scm.vo.ContractPayVO;
@@ -54,6 +55,9 @@ public class SalescontractServiceImpl implements SalescontractService {
 
     @Autowired
     private MessageSourceHandler messageSourceHandler;
+
+    @Autowired
+    private  SalescontractItemService salescontractItemService;
 
 
     @Override
@@ -167,6 +171,10 @@ public class SalescontractServiceImpl implements SalescontractService {
         }
         if (salescontractDO.getCloseStatus() == 1) {
             return R.error(messageSourceHandler.getMessage("common.contract.isCloseStatus", null));
+        }
+        int  closingLines=salescontractItemService.lineClosingNumber(id);
+        if(closingLines>0){
+            return R.error(messageSourceHandler.getMessage("scm.contractLine.isClosing", null));
         }
         if (this.childCount(id)>0) {
             return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));

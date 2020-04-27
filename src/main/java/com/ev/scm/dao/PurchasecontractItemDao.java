@@ -40,5 +40,6 @@ public interface PurchasecontractItemDao {
 
 	BigDecimal getInCounteExcludeContractId(Map<String, Object> map);
 
+	int lineClosingNumber(Long id);
 
 }

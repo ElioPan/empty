@@ -67,5 +67,10 @@ public class OutsourcingContractItemServiceImpl implements OutsourcingContractIt
 		return R.ok();
 	}
 
+	@Override
+	public int lineClosingNumber(Long id) {
+		return outsourcingContractItemDao.lineClosingNumber(id);
+	}
+
 
 }

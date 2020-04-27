@@ -41,4 +41,7 @@ public interface PurchasecontractItemService {
 	BigDecimal getInCounteExcludeContractId(Map<String, Object> map);
 
 	R disposeCloseLine(Long[] id , String closeReason);
+
+	int lineClosingNumber(Long ids);
+
 }

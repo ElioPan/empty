@@ -66,4 +66,9 @@ public class SalescontractItemServiceImpl implements SalescontractItemService {
 		}
 		return R.ok();
 	}
+
+	@Override
+	public int lineClosingNumber(Long id) {
+		return salescontractItemDao.lineClosingNumber(id);
+	}
 }

@@ -262,4 +262,18 @@
 		</where>
 	</select>
 
+	<select id="lineClosingNumber" resultType="int">
+	   select
+	   count(id)
+	   from
+	   scm_outsourcing_contract_item
+	   where
+	   close_status =1
+	   and
+	   contract_id = #{id}
+	</select>
+
+
+
+
 </mapper>
