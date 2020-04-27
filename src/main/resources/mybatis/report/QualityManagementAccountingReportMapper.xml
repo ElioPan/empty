@@ -275,9 +275,10 @@
         <if test="isPlan != null and isPlan != ''">
             UNION ALL
             SELECT
+            278 AS typeId,
             '生产计划' AS typeName,
             plan.`id` AS id,
-            feeding.`create_time` AS `time`,
+            plan.`create_time` AS `time`,
             plan.`plan_no` AS `code`,
             materiel.`id` AS materielId,
             materiel.`serial_no` AS serialNo,
@@ -292,25 +293,18 @@
             'in' AS way,
             1 AS sortNo,
             plan.source_no AS sourceCode
-            FROM
-            mes_production_feeding_detail item
-            LEFT JOIN mes_production_feeding feeding ON feeding.id=item.head_id
-            LEFT JOIN mes_production_plan plan ON plan.id=feeding.production_plan_id
+            FROM mes_production_plan plan
             LEFT JOIN cus_materiel materiel ON materiel.id=plan.materiel_id
             LEFT JOIN cus_dictionary dic ON dic.`id`=materiel.unit_uom
             LEFT JOIN cus_dictionary dict ON dict.`id`=plan.source_type
             <where>
-                <if test="auditSign != null and auditSign != ''"> and feeding.status = #{auditSign} </if>
-
-                <if test="batch != null and batch != ''"> and item.`batch_no` = #{batch} </if>
-                <if test="materielId != null and materielId != ''"> and item.`materiel_id` = #{materielId} </if>
+                <if test="materielId != null and materielId != ''"> and plan.`materiel_id` = #{materielId} </if>
                 <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(feeding.`create_time`,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
                 <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(feeding.`create_time`,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
-                AND feeding.production_plan_id IS NOT NULL
             </where>
         </if>
         ) a
-        GROUP BY a.`id`,a.`typeName`
+        GROUP BY a.`id`,a.`typeId`
 
 
     </select>

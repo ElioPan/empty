@@ -413,8 +413,8 @@ public class DispatchItemServiceImpl implements DispatchItemService {
             map.put("data",data);
             Map<String,Object> param = Maps.newHashMap();
             // 获取附件信息
-            param.put("assocId",data.getOrDefault("processId",0));
-            param.put("assocType", Constant.PROCESS_FILE);
+            param.put("assocId",data.getOrDefault("planItemId",0));
+            param.put("assocType", ConstantForMES.SOP_FILE);
             List<ContentAssocDO> checkResultList = contentAssocService.list(param);
             map.put("fileList", checkResultList);
         }
