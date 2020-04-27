@@ -1,6 +1,5 @@
 package com.ev.framework.utils;
 
-import com.ev.framework.filter.XssFilter;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
