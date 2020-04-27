@@ -373,45 +373,60 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 		List<Integer> facilityIdList = detailDOList
 				.stream()
 				.map(FeedingDetailVO::getFacilityId)
+				.filter(Objects::nonNull)
 				.distinct()
 				.collect(Collectors.toList());
 		List<Integer> locationIdList = detailDOList
 				.stream()
 				.map(FeedingDetailVO::getLocationId)
+				.filter(Objects::nonNull)
 				.distinct()
 				.collect(Collectors.toList());
 		List<Long> processIdList = detailDOList
 				.stream()
 				.map(FeedingDetailVO::getProcessId)
+				.filter(Objects::nonNull)
 				.distinct()
 				.collect(Collectors.toList());
 		List<Long> stationIdList = detailDOList
 				.stream()
 				.map(FeedingDetailVO::getStationId)
+				.filter(Objects::nonNull)
 				.distinct()
 				.collect(Collectors.toList());
 		Map<String,Object> map = Maps.newHashMap();
-		map.put("idList",facilityIdList);
-		List<FacilityDO> facilityList = facilityService.list(map);
-		Map<Integer, String> facilityMap = facilityList
-				.stream()
-				.collect(Collectors.toMap(FacilityDO::getId, FacilityDO::getName));
-		map.put("idList",locationIdList);
-		List<FacilityLocationDO> locationList = facilityLocationService.list(map);
-		Map<Integer, String> locationMap = locationList
-				.stream()
-				.collect(Collectors.toMap(FacilityLocationDO::getId, FacilityLocationDO::getName));
-		map.put("idList",processIdList);
-		List<ProcessDO> processList = processService.list(map);
-		Map<Long, String> processMap = processList
-				.stream()
-				.collect(Collectors.toMap(ProcessDO::getId, ProcessDO::getName));
-		map.put("idList",stationIdList);
-		List<StationDO> stationList = stationService.list(map);
-		Map<Long, String> stationMap = stationList
-				.stream()
-				.collect(Collectors.toMap(StationDO::getId, StationDO::getName));
-
+		Map<Integer, String> facilityMap = Maps.newHashMap();
+		if (facilityIdList.size() > 0) {
+			map.put("idList",facilityIdList);
+			List<FacilityDO> facilityList = facilityService.list(map);
+			facilityMap = facilityList
+					.stream()
+					.collect(Collectors.toMap(FacilityDO::getId, FacilityDO::getName));
+		}
+		Map<Integer, String> locationMap = Maps.newHashMap();
+		if (locationIdList.size() > 0) {
+			map.put("idList",locationIdList);
+			List<FacilityLocationDO> locationList = facilityLocationService.list(map);
+			locationMap = locationList
+					.stream()
+					.collect(Collectors.toMap(FacilityLocationDO::getId, FacilityLocationDO::getName));
+		}
+		Map<Long, String> processMap = Maps.newHashMap();
+		if (processIdList.size() > 0) {
+			map.put("idList",processIdList);
+			List<ProcessDO> processList = processService.list(map);
+			processMap = processList
+					.stream()
+					.collect(Collectors.toMap(ProcessDO::getId, ProcessDO::getName));
+		}
+		Map<Long, String> stationMap = Maps.newHashMap();
+		if (stationIdList.size() > 0) {
+			map.put("idList",stationIdList);
+			List<StationDO> stationList = stationService.list(map);
+			stationMap = stationList
+					.stream()
+					.collect(Collectors.toMap(StationDO::getId, StationDO::getName));
+		}
 
 		for (FeedingDetailVO afterDetailDO : detailDOList) {
 			Long afterDetailId = afterDetailDO.getId();
