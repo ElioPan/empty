@@ -352,9 +352,11 @@ public class QualityManagementAccountingReportApiController {
                 .sorted(Comparator.comparing(e -> e.get("batch").toString()))
                 .collect(Collectors.toList());
 
-        for (Map<String, Object> stringObjectMap : collect) {
-            if(emptyId.contains(stringObjectMap.get("id").toString())){
-                stringObjectMap.remove("batch");
+        if (emptyId.size() > 0) {
+            for (Map<String, Object> stringObjectMap : collect) {
+                if(emptyId.contains(stringObjectMap.get("id").toString())){
+                    stringObjectMap.remove("batch");
+                }
             }
         }
 
