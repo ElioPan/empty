@@ -213,7 +213,7 @@
 			a.source_id as sourceId,
 			d.name as sourceTypeName,
 			a.close_status   as  closeStatus,
-			IF(a.close_status=1,'是','否')as closeStatusName,
+			IF(a.close_status=1,'关闭','未关闭')as closeStatusName,
 			a.close_time    as  closeTime,
 			a.close_reason  as  closeReason
 		FROM
