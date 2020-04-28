@@ -85,7 +85,7 @@ public class UpkeepRecordPartServiceImpl implements UpkeepRecordPartService {
 			int count = 0;
 			for (Map<String, Object> mapsSpart : oneRecordDetailspartOne) {
 
-				MaterielDO materielDO = materielService.get(Integer.parseInt(mapsSpart.get("part_id").toString()));
+				MaterielDO materielDO = materielService.get(Long.parseLong(mapsSpart.get("part_id").toString()));
 				Double price =0.0;
 				if(materielDO!=null){
 					price=materielDO.getSalePrice().doubleValue();
@@ -99,7 +99,7 @@ public class UpkeepRecordPartServiceImpl implements UpkeepRecordPartService {
 					Double spart_sum = Double.valueOf((spart_amount * price));
 
 					UpkeepRecordPartDO upkeepRecordPartDO = new UpkeepRecordPartDO();
-					upkeepRecordPartDO.setId(Integer.valueOf(mapsSpart.get("id").toString()));
+					upkeepRecordPartDO.setId(Long.valueOf(mapsSpart.get("id").toString()));
 					upkeepRecordPartDO.setSpartPrice(Double.valueOf(price));
 					upkeepRecordPartDO.setSpartSum(spart_sum);
 					//upkeepRecordPartDO.setSpartUnit(mapsSpart.get("unitName").toString());

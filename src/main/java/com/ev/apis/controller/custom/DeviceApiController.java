@@ -917,7 +917,7 @@ public class DeviceApiController {
                 sourceName = deviceEntity.getSourceName();
                 for (DictionaryDO sourceDO : sourceDOs) {
                     if (Objects.equals(sourceDO.getName(),sourceName)) {
-                        deviceDO.setSouceId(sourceDO.getId().longValue());
+                        deviceDO.setSouceId(sourceDO.getId());
                         break;
                     }
                 }

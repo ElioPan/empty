@@ -22,7 +22,7 @@ public class FacilityServiceImpl implements FacilityService {
     private FacilityDao facilityDao;
 
     @Override
-    public FacilityDO get(Integer id) {
+    public FacilityDO get(Long id) {
         return facilityDao.get(id);
     }
 
@@ -84,17 +84,17 @@ public class FacilityServiceImpl implements FacilityService {
     }
 
     @Override
-    public int remove(Integer id) {
+    public int remove(Long id) {
         return facilityDao.remove(id);
     }
 
     @Override
-    public int batchRemove(Integer[] ids) {
+    public int batchRemove(Long[] ids) {
         return facilityDao.batchRemove(ids);
     }
 
     @Override
-    public int logicRemove(Integer id) {
+    public int logicRemove(Long id) {
         FacilityDO facilityDO = new FacilityDO();
         facilityDO.setId(id);
         facilityDO.setDelFlag(1);
@@ -102,9 +102,9 @@ public class FacilityServiceImpl implements FacilityService {
     }
 
     @Override
-    public int logicBatchRemove(Integer[] ids) {
+    public int logicBatchRemove(Long[] ids) {
         int count = 0;
-        for (Integer id : ids) {
+        for (Long id : ids) {
             count += this.logicRemove(id);
         }
         return count;
@@ -116,7 +116,7 @@ public class FacilityServiceImpl implements FacilityService {
     }
 
     @Override
-    public int audit(Integer id) {
+    public int audit(Long id) {
         FacilityDO facilityDO = new FacilityDO();
         facilityDO.setId(id);
         facilityDO.setAuditor(ShiroUtils.getUserId());
@@ -125,7 +125,7 @@ public class FacilityServiceImpl implements FacilityService {
     }
 
     @Override
-    public int reverseAudit(Integer id) {
+    public int reverseAudit(Long id) {
         FacilityDO facilityDO = new FacilityDO();
         facilityDO.setId(id);
         facilityDO.setAuditor(0L);

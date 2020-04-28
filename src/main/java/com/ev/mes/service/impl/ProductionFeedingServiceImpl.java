@@ -134,7 +134,7 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
             return R.error(messageSourceHandler.getMessage("receipt.reverseAudit.nonWaitingAudit", null));
         }
         // 检查投料单下是否有下游单据
-		List<Integer> outStockIds = dictionaryService.listByType(ConstantForMES.FEEDING)
+		List<Long> outStockIds = dictionaryService.listByType(ConstantForMES.FEEDING)
 				.stream()
 				.map(DictionaryDO::getId)
 				.collect(Collectors.toList());
@@ -304,7 +304,7 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 
 		// 检查投料单下是否有下游单据
 		if(ids.length>0) {
-			List<Integer> outStockIds = dictionaryService.listByType(ConstantForMES.FEEDING)
+			List<Long> outStockIds = dictionaryService.listByType(ConstantForMES.FEEDING)
 					.stream()
 					.map(DictionaryDO::getId)
 					.collect(Collectors.toList());
@@ -370,13 +370,13 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 			feedingDetailService.batchRemove(ids);
 		}
 		List<FeedingDetailVO> detailDOList = JSON.parseArray(childArray, FeedingDetailVO.class);
-		List<Integer> facilityIdList = detailDOList
+		List<Long> facilityIdList = detailDOList
 				.stream()
 				.map(FeedingDetailVO::getFacilityId)
 				.filter(Objects::nonNull)
 				.distinct()
 				.collect(Collectors.toList());
-		List<Integer> locationIdList = detailDOList
+		List<Long> locationIdList = detailDOList
 				.stream()
 				.map(FeedingDetailVO::getLocationId)
 				.filter(Objects::nonNull)
@@ -395,7 +395,7 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 				.distinct()
 				.collect(Collectors.toList());
 		Map<String,Object> map = Maps.newHashMap();
-		Map<Integer, String> facilityMap = Maps.newHashMap();
+		Map<Long, String> facilityMap = Maps.newHashMap();
 		if (facilityIdList.size() > 0) {
 			map.put("idList",facilityIdList);
 			List<FacilityDO> facilityList = facilityService.list(map);
@@ -403,7 +403,7 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 					.stream()
 					.collect(Collectors.toMap(FacilityDO::getId, FacilityDO::getName));
 		}
-		Map<Integer, String> locationMap = Maps.newHashMap();
+		Map<Long, String> locationMap = Maps.newHashMap();
 		if (locationIdList.size() > 0) {
 			map.put("idList",locationIdList);
 			List<FacilityLocationDO> locationList = facilityLocationService.list(map);

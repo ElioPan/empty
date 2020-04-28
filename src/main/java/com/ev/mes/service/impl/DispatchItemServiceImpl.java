@@ -276,8 +276,8 @@ public class DispatchItemServiceImpl implements DispatchItemService {
         if (Objects.nonNull(statusOfPAndD)) {
             // dispatchStatus, planStatus
             //ISSUED = 232;下达  ++++  CLOSE_CASE = 234;结案   ++++  PUT_UP = 233;挂起    +++START_WORK 开工
-            if (Objects.equals(ConstantForMES.ISSUED, Integer.parseInt(statusOfPAndD.get("planStatus").toString()))) {
-                if (Objects.equals(ConstantForMES.PUT_UP, Integer.parseInt(statusOfPAndD.get("dispatchStatus").toString()))||Objects.equals(ConstantForMES.AWAITING_DELIVERY, Integer.parseInt(statusOfPAndD.get("dispatchStatus").toString()))) {
+            if (Objects.equals(ConstantForMES.ISSUED, Long.parseLong(statusOfPAndD.get("planStatus").toString()))) {
+                if (Objects.equals(ConstantForMES.PUT_UP, Long.parseLong(statusOfPAndD.get("dispatchStatus").toString()))||Objects.equals(ConstantForMES.AWAITING_DELIVERY, Long.parseLong(statusOfPAndD.get("dispatchStatus").toString()))) {
                     //允许开工
                     //搜寻是否有个同id的挂起记录，时间为空，标记为1的记录，
                     Map<String, Object> wHungTime = dispatchWorkingHungService.getWHungTime(0,dispatchId);//查询是否已有挂机记录
@@ -327,16 +327,16 @@ public class DispatchItemServiceImpl implements DispatchItemService {
                         }
                     }
                     return R.ok();
-                } else if (Objects.equals(ConstantForMES.START_WORK, Integer.parseInt(statusOfPAndD.get("dispatchStatus").toString()))) {
+                } else if (Objects.equals(ConstantForMES.START_WORK, Long.parseLong(statusOfPAndD.get("dispatchStatus").toString()))) {
                     //已开工 请勿重复操作
                     return R.error(messageSourceHandler.getMessage("apis.mes.dispatch.workingOk",null));
                 }
 
-            } else if (Objects.equals(ConstantForMES.CLOSE_CASE, Integer.parseInt(statusOfPAndD.get("planStatus").toString())) || Objects.equals(ConstantForMES.CLOSE_CASE, Integer.parseInt(statusOfPAndD.get("dispatchStatus").toString()))) {
+            } else if (Objects.equals(ConstantForMES.CLOSE_CASE, Long.parseLong(statusOfPAndD.get("planStatus").toString())) || Objects.equals(ConstantForMES.CLOSE_CASE, Long.parseLong(statusOfPAndD.get("dispatchStatus").toString()))) {
                //工序计划/工单已结案，禁止开工
                 return R.error(messageSourceHandler.getMessage("apis.mes.dispatch.planOrdisOver",null));
 
-            } else if (Objects.equals(ConstantForMES.PUT_UP, Integer.parseInt(statusOfPAndD.get("planStatus").toString()))) {
+            } else if (Objects.equals(ConstantForMES.PUT_UP, Long.parseLong(statusOfPAndD.get("planStatus").toString()))) {
                 //工序计划挂起状态，禁止开工
                 return R.error(messageSourceHandler.getMessage("apis.mes.dispatch.hungNo",null));
             }
@@ -441,7 +441,7 @@ public class DispatchItemServiceImpl implements DispatchItemService {
         BigDecimal addOne=new BigDecimal("1");
         if(dispatchItemDo.size()>0){
             for(DispatchItemDO dispatchItem:dispatchItemDo){
-               int statuss= dispatchItem.getStatus();
+               long statuss= dispatchItem.getStatus();
                 if(Objects.equals(ConstantForMES.START_WORK,statuss)){
                     startWorking=startWorking.add(addOne);
                 }else if(Objects.equals(ConstantForMES.AWAITING_DELIVERY,statuss)){
@@ -490,7 +490,7 @@ public class DispatchItemServiceImpl implements DispatchItemService {
         List<Map<String, Object>> mapList = processReportService.listForMap(map);
         map.clear();
         if(mapList.size()>0){
-//            List<Map<String, Object>> results= mapList.stream().sorted((v1,v2)->Integer.parseInt(v1.get("conformityCount").toString())>Integer.parseInt(v2.get("conformityCount").toString())?-1:1).collect(Collectors.toList());
+//            List<Map<String, Object>> results= mapList.stream().sorted((v1,v2)->Long.parseLong(v1.get("conformityCount").toString())>Long.parseLong(v2.get("conformityCount").toString())?-1:1).collect(Collectors.toList());
             Map<String, BigDecimal> operatorSalaryMap = mapList
                     .stream()
                     .collect(Collectors.toMap(k -> k.get("operator").toString(), v -> MathUtils.getBigDecimal(v.get("salary")), BigDecimal::add));

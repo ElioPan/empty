@@ -16,7 +16,7 @@ import java.util.Map;
 @Mapper
 public interface MaterielDao {
 
-	MaterielDO get(Integer id);
+	MaterielDO get(Long id);
 	
 	List<MaterielDO> list(Map<String, Object> map);
 
@@ -28,9 +28,9 @@ public interface MaterielDao {
 	
 	int update(MaterielDO materiel);
 	
-	int remove(Integer id);
+	int remove(Long id);
 	
-	int batchRemove(Integer[] ids);
+	int batchRemove(Long[] ids);
 
 	int countForMap(Map<String, Object> params);
 
@@ -39,7 +39,7 @@ public interface MaterielDao {
 	
 	List<StockDO> stockList(List<Long>stockIds);
 
-	int checkUse(Integer id);
+	int checkUse(Long id);
 	
 	List<Map<String,Object>> stockCount(Map<String,Object>map);
 	

@@ -21,7 +21,7 @@ public class InventoryPlanFitlossDO implements Serializable {
 	
 	//主键
     @ApiModelProperty(value = "主键")
-	private Integer id;
+	private Long id;
 	//盘点主表id
     @ApiModelProperty(value = "盘点主表id")
 	private Long headId;

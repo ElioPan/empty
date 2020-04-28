@@ -125,7 +125,7 @@ public class RepairEventServiceImpl implements RepairEventService {
 		params.put("replyId",0);
 		List<TaskEmployeeDO> ccPerson = taskEmployeeService.list(params);
 		JSONArray ccIdList = new JSONArray();
-		UserDO userDO = null;
+		UserDO userDO;
 		for(TaskEmployeeDO map:ccPerson){
 			JSONObject object = new JSONObject();
 			userDO = userService.get(map.getEmployeeId());
@@ -143,7 +143,7 @@ public class RepairEventServiceImpl implements RepairEventService {
     	List<Map<String, Object>> records = this.getRecordInfoByEventId(eventId);
 		if (records.size()>0) {
 			Map<String, Object> map = records.get(0);
-			if (Objects.equals(Integer.parseInt(map.get("statusId").toString()), Constant.TS)) {
+			if (Objects.equals(Long.parseLong(map.get("statusId").toString()), Constant.TS)) {
 				Long recordId = Long.parseLong(map.get("id").toString());
 				Map<String, Object> recordDetail = this.repairRecordService.recordDetail(recordId);
 				if (ShiroUtils.isUser(Long.parseLong(map.get("heldPersonId").toString()))) {
@@ -166,7 +166,7 @@ public class RepairEventServiceImpl implements RepairEventService {
 	@Override
 	public Map<String, Object> getCountBacklog(Long userId, Long deptId) {
 		String idPath = null;
-        Integer status = Constant.WAITING_DEAL;
+		Long status = Constant.WAITING_DEAL;
         if (Objects.nonNull(deptId)) {
         	idPath = deptService.get(deptId).getIdPath();
 		}
@@ -182,10 +182,10 @@ public class RepairEventServiceImpl implements RepairEventService {
 //        results.put("createerWaitingCount", createUserCount);
 //        params.remove("createBy");
         // 若传入为待处理 则获取当前用户待处理的任务数量
-        if (Objects.equals(status, Constant.WAITING_DEAL)) {
-        	params.put("engineerId",userId);
-        	int waitingStatusCount = this.countForMap(params);
-        	results.put("helderWaitingCount", waitingStatusCount);
+		{
+			params.put("engineerId",userId);
+			int waitingStatusCount = this.countForMap(params);
+			results.put("helderWaitingCount", waitingStatusCount);
 		}
         // 若传入为待验收 则获取当前用户待验收的任务数量
         if (Objects.equals(status, Constant.WAITING_CHECK)) {
@@ -216,16 +216,14 @@ public class RepairEventServiceImpl implements RepairEventService {
 	}
 	
 	@Override
-	public int saveEvengts(Long eventId, Long[] ids) {
+	public void saveEvengts(Long eventId, Long[] ids) {
         //保存抄送人信息
-        int count=0;
         for(Long id:ids){
         	// 维修事件抄送人	Constant.REPAIR_EVENT_CC_PERSON
         	TaskEmployeeDO taskEmployeeDO = new TaskEmployeeDO(eventId,id,Constant.REPAIR_EVENT_CC_PERSON,0L);
-        	count+=taskEmployeeService.save(taskEmployeeDO);
+        	taskEmployeeService.save(taskEmployeeDO);
 		}
-		return count;
-	}
+    }
 	
 	@Override
 	public R saveRepairInfo(RepairEventDO event, String[] taglocationappearanceImage, Long[] carbonCopyRecipients) throws IOException, ParseException {
@@ -238,15 +236,12 @@ public class RepairEventServiceImpl implements RepairEventService {
     		if (eventId!=null) {
     			this.saveEventSatellite(taglocationappearanceImage, carbonCopyRecipients, eventId);
     			if (map.containsKey("id")) {
-					/**
-					 * 发送消息
-					 */
+    				// 发送消息
 					Long repairId = Long.parseLong(map.get("id").toString());
 					JSONObject contentDetail = new JSONObject();
 					contentDetail.put("id",repairId);
 					contentDetail.put("url","/eqRepair/repairDetail?id="+repairId);
-					List<Long> toUsers = new ArrayList<>();
-					toUsers.addAll(Arrays.asList(carbonCopyRecipients));
+					List<Long> toUsers = new ArrayList<>(Arrays.asList(carbonCopyRecipients));
 					String content = "单号为“"+event.getWorkOrderno()+"”的维修单据抄送了您，请及时关注！";
 					noticeService.saveAndSendSocket("@我的维修单", content, repairId, contentDetail.toString(),5L, ShiroUtils.getUserId(),toUsers);
     				return R.ok(map);
@@ -260,14 +255,11 @@ public class RepairEventServiceImpl implements RepairEventService {
         	Long [] eventIds = {eventId};
         	// 删除事件附属信息增加新的附属信息
         	this.removeAndSaveEventSatellite(taglocationappearanceImage, carbonCopyRecipients, eventId, eventIds);
-			/**
-			 * 发送消息
-			 */
+			 // 发送消息
 			JSONObject contentDetail = new JSONObject();
 			contentDetail.put("id",eventId);
 			contentDetail.put("url","/eqRepair/repairDetail?id="+eventId);
-			List<Long> toUsers = new ArrayList<>();
-			toUsers.addAll(Arrays.asList(carbonCopyRecipients));
+			List<Long> toUsers = new ArrayList<>(Arrays.asList(carbonCopyRecipients));
 			String content = "单号为“"+event.getWorkOrderno()+"”的维修单据抄送了您，请及时关注！";
 			noticeService.saveAndSendSocket("@我的维修单", content, eventId, contentDetail.toString(),5L, ShiroUtils.getUserId(),toUsers);
         	return R.ok();
@@ -322,8 +314,7 @@ public class RepairEventServiceImpl implements RepairEventService {
 					JSONObject contentDetail = new JSONObject();
 					contentDetail.put("id",repairId);
 					contentDetail.put("url","/eqRepair/repairDetail?id="+repairId);
-					List<Long> toUsers = new ArrayList<>();
-					toUsers.addAll(Arrays.asList(carbonCopyRecipients));
+					List<Long> toUsers = new ArrayList<>(Arrays.asList(carbonCopyRecipients));
 					String content = "单号为“"+event.getWorkOrderno()+"”的维修单据抄送了您，请及时关注！";
 					noticeService.saveAndSendSocket("@我的维修单", content, repairId, contentDetail.toString(),5L, ShiroUtils.getUserId(),toUsers);
 					return R.ok(result);
@@ -346,8 +337,7 @@ public class RepairEventServiceImpl implements RepairEventService {
 			JSONObject contentDetail = new JSONObject();
 			contentDetail.put("id",eventId);
 			contentDetail.put("url","/eqRepair/repairDetail?id="+eventId);
-			List<Long> toUsers = new ArrayList<>();
-			toUsers.addAll(Arrays.asList(carbonCopyRecipients));
+			List<Long> toUsers = new ArrayList<>(Arrays.asList(carbonCopyRecipients));
 			String content = "单号为“"+event.getWorkOrderno()+"”的维修单据抄送了您，请及时关注！";
 			noticeService.saveAndSendSocket("@我的维修单", content, eventId, contentDetail.toString(),5L, ShiroUtils.getUserId(),toUsers);
     		return R.ok();
@@ -392,7 +382,7 @@ public class RepairEventServiceImpl implements RepairEventService {
 	public void removeAndSaveEventSatellite(String[] taglocationappearanceImage, Long[] carbonCopyRecipients,
 			Long eventId, Long[] eventIds) {
 		// 删除事件附属信息
-		Integer [] assocTypes = {Constant.REPAIR_EVENT_CC_PERSON};
+		Long [] assocTypes = {Constant.REPAIR_EVENT_CC_PERSON};
 		taskMainService.removeSatellite(eventIds,assocTypes,Constant.REPAIR_EVENT_IMAGE);
 		// 保存事件附属信息
 		this.saveEventSatellite(taglocationappearanceImage, carbonCopyRecipients, eventId);
@@ -424,22 +414,22 @@ public class RepairEventServiceImpl implements RepairEventService {
 	}
 	
 	@Override
-	public void removeSatellite(Long[] ids, Integer[] assocTypes, String imageType) {
+	public void removeSatellite(Long[] ids, Long[] assocTypes, String imageType) {
 		this.taskMainService.removeSatellite(ids, assocTypes, imageType);
 	}
 	
 	@Override
-	public boolean nonWaitingDeal(Integer status) {
+	public boolean nonWaitingDeal(Long status) {
 		return this.taskMainService.nonWaitingDeal(status);
 	}
     
 	@Override
-	public boolean nonTS(Integer status) {
+	public boolean nonTS(Long status) {
 		return this.taskMainService.nonTS(status);
 	}
 	
 	@Override
-	public boolean nonWaitingCheck(Integer status) {
+	public boolean nonWaitingCheck(Long status) {
 		return this.taskMainService.nonWaitingCheck(status);
 	}
 	
@@ -447,7 +437,7 @@ public class RepairEventServiceImpl implements RepairEventService {
 	public Map<String, Object> params(Map<String, Object> params) {
 //		if (params.get("checkType")!=null) {
 //			Long userId=params.get("userId")==null?null:Long.parseLong(params.get("userId").toString());
-//			if(Integer.parseInt(params.get("checkType").toString())==1){
+//			if(Long.parseInt(params.get("checkType").toString())==1){
 //				params.put("createBy",userId);//我发起的
 //			}else{
 //				params.put("manage",userId);//我办理的

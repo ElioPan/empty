@@ -70,7 +70,7 @@ public class TaskReplyController {
 
 	@GetMapping("/edit/{id}")
 	@RequiresPermissions("custom:taskReply:edit")
-	String edit(@PathVariable("id") Integer id,Model model){
+	String edit(@PathVariable("id") Long id,Model model){
 		TaskReplyDO taskReply = taskReplyService.get(id);
 		model.addAttribute("taskReply", taskReply);
 	    return "custom/taskReply/edit";
@@ -105,7 +105,7 @@ public class TaskReplyController {
 	@PostMapping( "/remove")
 	@ResponseBody
 	@RequiresPermissions("custom:taskReply:remove")
-	public R remove( Integer id){
+	public R remove( Long id){
 		if(taskReplyService.remove(id)>0){
 		return R.ok();
 		}
@@ -118,7 +118,7 @@ public class TaskReplyController {
 	@PostMapping( "/batchRemove")
 	@ResponseBody
 	@RequiresPermissions("custom:taskReply:batchRemove")
-	public R remove(@RequestParam("ids") Integer[] ids){
+	public R remove(@RequestParam("ids") Long[] ids){
 		taskReplyService.batchRemove(ids);
 		return R.ok();
 	}

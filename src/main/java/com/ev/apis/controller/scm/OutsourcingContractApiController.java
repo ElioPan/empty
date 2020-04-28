@@ -224,7 +224,7 @@ public class OutsourcingContractApiController {
         int total = Integer.parseInt(stringBigDecimalMap.getOrDefault("total",0).toString());
         Map<String, Object> result = Maps.newHashMap();
         if (data.size() > 0) {
-            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.WWHT.intValue());
+            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.WWHT);
             String thisSourceTypeName = dictionaryDO.getName();
             for (Map<String, Object> stringObjectMap : data) {
                 stringObjectMap.put("thisSourceType", ConstantForGYL.WWHT);
@@ -304,7 +304,7 @@ public class OutsourcingContractApiController {
                     .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO)>0)
                     .collect(Collectors.toList());
             if (quoteLists.size() > 0) {
-                DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.WWHT.intValue());
+                DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.WWHT);
                 String thisSourceTypeName = dictionaryDO.getName();
                 List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
                 for (Map<String, Object> stringObjectMap : quoteList) {
@@ -471,7 +471,7 @@ public class OutsourcingContractApiController {
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
         List<Map<String, Object>> data = productionFeedingDetailService.listForMap(params);
 
-        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.WWTLD.intValue());
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.WWTLD);
         String thisSourceTypeName = dictionaryDO.getName();
         Map<String, Object> param = Maps.newHashMap();
         param.put("isPc",1);
@@ -644,7 +644,7 @@ public class OutsourcingContractApiController {
         int total = Integer.parseInt(stringBigDecimalMap.getOrDefault("total",0).toString());
         Map<String, Object> result = Maps.newHashMap();
         if (data.size() > 0) {
-            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.WWHT.intValue());
+            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.WWHT);
             String thisSourceTypeName = dictionaryDO.getName();
             for (Map<String, Object> datum : data) {
                 datum.put("thisSourceType", ConstantForGYL.WWHT);

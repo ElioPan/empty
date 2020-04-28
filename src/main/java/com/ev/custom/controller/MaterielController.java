@@ -74,7 +74,7 @@ public class MaterielController {
 
 	@GetMapping("/edit/{id}")
 	@RequiresPermissions("custom:materiel:edit")
-	String edit(@PathVariable("id") Integer id,Model model){
+	String edit(@PathVariable("id") Long id,Model model){
 		MaterielDO materiel = materielService.get(id);
 		model.addAttribute("materiel", materiel);
 		List<FacilityLocationDO> defaultLocationList = facilityLocationService.list(null);
@@ -117,7 +117,7 @@ public class MaterielController {
 	@PostMapping( "/remove")
 	@ResponseBody
 	@RequiresPermissions("custom:materiel:remove")
-	public R remove( Integer id){
+	public R remove( Long id){
 		if(materielService.remove(id)>0){
 		return R.ok();
 		}
@@ -130,7 +130,7 @@ public class MaterielController {
 	@PostMapping( "/batchRemove")
 	@ResponseBody
 	@RequiresPermissions("custom:materiel:batchRemove")
-	public R remove(@RequestParam("ids") Integer[] ids){
+	public R remove(@RequestParam("ids") Long[] ids){
 		materielService.batchRemove(ids);
 		return R.ok();
 	}

@@ -187,7 +187,7 @@ public class MaterialInspectionServiceImpl implements MaterialInspectionService 
 	}
 
 	@Override
-	public void setInspectionNo(MaterialInspectionDO inspectionDO, Integer inspectionType) {
+	public void setInspectionNo(MaterialInspectionDO inspectionDO, Long inspectionType) {
 		DictionaryDO dictionaryDO = dictionaryService.get(inspectionType);
 		// 获取编号
 		String maxNo = DateFormatUtil.getWorkOrderno(dictionaryDO.getValue());

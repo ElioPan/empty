@@ -155,7 +155,7 @@ public class ScmPurchaseContractApiController {
 
         List<Map<String, Object>> data = purchasecontractService.listForMap(map);
         Map<String, Object> totalMap = purchasecontractService.countForMap(map);
-        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT.intValue());
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT);
         String thisSourceTypeName = dictionaryDO.getName();
         for (Map<String, Object> datum : data) {
             datum.put("thisSourceType", ConstantForGYL.CGHT);
@@ -343,7 +343,7 @@ public class ScmPurchaseContractApiController {
         List<Map<String, Object>> data = purchasecontractPayService.listOfPay(map);
         Map<String, Object> totalMap= purchasecontractPayService.countListOfPay(map);
 
-        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT.intValue());
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT);
         String thisSourceTypeName = dictionaryDO.getName();
         for (Map<String, Object> datum : data) {
             datum.put("thisSourceType", ConstantForGYL.CGHT);
@@ -392,7 +392,7 @@ public class ScmPurchaseContractApiController {
         map.put("supplierId",supplierId);
         map.put("itemCloseStatus",1);
         List<Map<String, Object>> data = purchasecontractService.listForMap(map);
-        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT.intValue());
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT);
         String thisSourceTypeName = dictionaryDO.getName();
 //        for (Map<String, Object> datum : data) {
 //            datum.put("thisSourceType", ConstantForGYL.CGHT);

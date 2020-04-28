@@ -302,7 +302,7 @@ public class StockInItemServiceImpl implements StockInItemService {
 
 	private String purchaseContractCode(Long type) {
 
-		DictionaryDO dictionaryDO = dictionaryService.get(type.intValue());
+		DictionaryDO dictionaryDO = dictionaryService.get(type);
 		String typeValue=null;
 		if(dictionaryDO!=null){
 			typeValue=dictionaryDO.getValue();

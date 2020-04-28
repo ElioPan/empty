@@ -198,7 +198,7 @@ public class RepairApiController {
     	List<Map<String, Object>> checkDO = repairEventService.getRepairCheckInfo(eventId);
 		if (checkDO.size()>0) {
 			Map<String,Object> check = checkDO.get(0);
-			if (Objects.equals(Integer.parseInt(check.get("result").toString()), Constant.TS)) {
+			if (Objects.equals(Long.parseLong(check.get("result").toString()), Constant.TS)) {
 				if (ShiroUtils.isUser(Long.parseLong(check.get("create_by").toString()))) {
 					result.put("checkInfo", check);
 				}
@@ -215,8 +215,8 @@ public class RepairApiController {
                        @ApiParam(value = "开始时间(格式：2019-08-01)") @RequestParam(value = "startTime",defaultValue = "",required = false)  String startTime,
                        @ApiParam(value = "结束时间(格式：2019-08-02)") @RequestParam(value = "endTime",defaultValue = "",required = false)  String endTime,
                        @ApiParam(value = "故障等级（紧急任务49；普通任务50；)") @RequestParam(value = "level",defaultValue = "",required = false) Integer level,
-                       @ApiParam(value = "任务状态（待处理56；待验收:57；已验收58；）") @RequestParam(value = "status",defaultValue = "",required = false) Integer status,
-                       @ApiParam(value = "处理状态（多标签）（待处理：56；待验收：57）") @RequestParam(value = "singleStatus",defaultValue = "",required = false)  Integer singleStatus,
+                       @ApiParam(value = "任务状态（待处理56；待验收:57；已验收58；）") @RequestParam(value = "status",defaultValue = "",required = false) Long status,
+                       @ApiParam(value = "处理状态（多标签）（待处理：56；待验收：57）") @RequestParam(value = "singleStatus",defaultValue = "",required = false)  Long singleStatus,
                        @ApiParam(value = "维修责任人ID") @RequestParam(value = "engineerId",defaultValue = "",required = false)Long engineerId,
 //                       @ApiParam(value = "类型（我发起的事件1；我办理的事件2；）",required = false) @RequestParam(value = "checkType",defaultValue = "",required = false) Integer checkType,
                        @ApiParam(value = "用户部门ID") @RequestParam(value = "deptIdQuery",defaultValue = "",required = false) Long deptIdQuery,
@@ -350,7 +350,7 @@ public class RepairApiController {
 		}
 		Long[] ids = { id };
     	if(repairEventService.remove(id)>0){
-    		Integer [] assocTypes = {Constant.REPAIR_EVENT_CC_PERSON};
+			Long [] assocTypes = {Constant.REPAIR_EVENT_CC_PERSON};
     		repairEventService.removeSatellite(ids,assocTypes,Constant.REPAIR_EVENT_IMAGE);
             return R.ok();
         }
@@ -372,7 +372,7 @@ public class RepairApiController {
 		}
     	int batchRemove = repairEventService.batchRemove(ids);
     	if (batchRemove==ids.length) {
-    		Integer [] assocTypes = {Constant.REPAIR_EVENT_CC_PERSON};
+			Long [] assocTypes = {Constant.REPAIR_EVENT_CC_PERSON};
     		repairEventService.removeSatellite(ids,assocTypes,Constant.REPAIR_EVENT_IMAGE);
     		return R.ok();
 		}

@@ -274,17 +274,17 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
         param.put("bomId", planDO.getBomId());
         List<BomDetailDO> list = bomDetailService.list(param);
         // 获取所有物料详情
-        List<Integer> materielIdList = list.stream()
+        List<Long> materielIdList = list.stream()
                 .map(BomDetailDO::getMaterielId)
                 .distinct()
                 .collect(Collectors.toList());
         param.remove("bomId");
         param.put("materielIdList",materielIdList);
         List<MaterielDO> materielDOList = materielService.list(param);
-        Map<Integer, Integer> facilityMap = materielDOList
+        Map<Long, Long> facilityMap = materielDOList
                 .stream()
                 .collect(Collectors.toMap(MaterielDO::getId, v->v.getDefaultFacility()==null?0:v.getDefaultFacility()));
-        Map<Integer, Integer> locationMap = materielDOList
+        Map<Long, Long> locationMap = materielDOList
                 .stream()
                 .collect(Collectors.toMap(MaterielDO::getId, v->v.getDefaultFacility()==null?0:v.getDefaultLocation()));
 
@@ -292,7 +292,7 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
         Map<String, Object> feedingDetail;
         for (BomDetailDO bomDetailDO : list) {
             feedingDetail = Maps.newHashMapWithExpectedSize(2);
-            Integer materielId = bomDetailDO.getMaterielId();
+            Long materielId = bomDetailDO.getMaterielId();
             feedingDetail.put("materielId", materielId);
             // 计划投料数量公式 (标准用量 /(1-损耗率/100))*计划生产数量
             BigDecimal wasteRate = bomDetailDO.getWasteRate();
@@ -564,7 +564,7 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
     public R alterationPlan(ProductionPlanDO planDO) {
         Long planId = planDO.getId();
         ProductionPlanDO productionPlanDO = this.get(planId);
-        Integer status = productionPlanDO.getStatus();
+        Long status = productionPlanDO.getStatus();
         if (Objects.equals(status, ConstantForMES.PLAN)) {
             return R.error(messageSourceHandler.getMessage("plan.alteration.useUpdate", null));
         }

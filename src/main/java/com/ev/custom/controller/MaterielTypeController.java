@@ -45,7 +45,7 @@ public class MaterielTypeController {
 
 	@GetMapping("/edit/{id}")
 	@RequiresPermissions("custom:materielType:edit")
-	String edit(@PathVariable("id") Integer id,Model model){
+	String edit(@PathVariable("id") Long id,Model model){
 		MaterielTypeDO materielType = materielTypeService.get(id);
 		model.addAttribute("materielType", materielType);
 	    return "custom/materielType/edit";
@@ -80,7 +80,7 @@ public class MaterielTypeController {
 	@PostMapping( "/remove")
 	@ResponseBody
 	@RequiresPermissions("custom:materielType:remove")
-	public R remove( Integer id){
+	public R remove( Long id){
 		if(materielTypeService.remove(id)>0){
 		return R.ok();
 		}
@@ -93,7 +93,7 @@ public class MaterielTypeController {
 	@PostMapping( "/batchRemove")
 	@ResponseBody
 	@RequiresPermissions("custom:materielType:batchRemove")
-	public R remove(@RequestParam("ids") Integer[] ids){
+	public R remove(@RequestParam("ids") Long[] ids){
 		materielTypeService.batchRemove(ids);
 		return R.ok();
 	}

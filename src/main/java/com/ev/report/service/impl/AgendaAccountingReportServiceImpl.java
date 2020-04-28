@@ -320,7 +320,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
             BigDecimal total = reportDao.leaveItemTotal(param);
 
             List<DictionaryDO> dictionaryDOS = dictionaryService.listByType(Constant.LEAVE_APPLY_TYPE);
-            Integer typeMax = dictionaryDOS
+            Long typeMax = dictionaryDOS
                     .stream()
                     .max(Comparator.comparing(DictionaryDO::getId))
                     .orElse(new DictionaryDO())
@@ -404,7 +404,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
             BigDecimal total = reportDao.applyForReimbursementItemTotal(param);
 
             List<DictionaryDO> dictionaryDOS = dictionaryService.listByType(Constant.REIM_APPLY_TYPE);
-            Integer typeMax = dictionaryDOS
+            Long typeMax = dictionaryDOS
                     .stream()
                     .max(Comparator.comparing(DictionaryDO::getId))
                     .orElse(new DictionaryDO())

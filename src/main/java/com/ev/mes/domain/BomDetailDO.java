@@ -29,7 +29,7 @@ public class BomDetailDO implements Serializable {
 	private Long bomId;
 	//子物料ID
     @ApiModelProperty(value = "子物料ID")
-	private Integer materielId;
+	private Long materielId;
 	//标准数量
     @ApiModelProperty(value = "标准数量")
 	private BigDecimal standardCount;

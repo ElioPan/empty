@@ -223,12 +223,12 @@ public class UpkeepRecordServiceImpl implements UpkeepRecordService {
 		this.upkeepCheckService.save(check);
 		//更新保养记录和保养计划状态
 		UpkeepRecordDO record = this.upkeepRecordDao.get(id);
-		record.setStatus(3);
+		record.setStatus(3L);
 		record.setEndTime(new Date());
 		this.upkeepRecordDao.update(record);
 		UpkeepPlanDO plan = upkeepPlanSrvice.get(record.getPlanId());
 		plan.setEndTime(new Date());
-		plan.setStatus(2);
+		plan.setStatus(2L);
 		this.upkeepPlanSrvice.update(plan);
 		return results;
 	}

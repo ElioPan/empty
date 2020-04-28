@@ -76,7 +76,7 @@ public class OtherStockOutApiController {
                          "    }\n" +
                          "]"
                     , required = true)@RequestParam(value = "item",defaultValue = "") String item) {
-		DictionaryDO storageType = dictionaryService.get(ConstantForGYL.QTCK.intValue());
+		DictionaryDO storageType = dictionaryService.get(ConstantForGYL.QTCK);
         return stockOutService.add(stockOutDO, item, storageType);
 	}
 	
@@ -195,7 +195,7 @@ public class OtherStockOutApiController {
         Map<String, Object> maps = stockOutService.countTotal(params);
         int total = Integer.parseInt(maps.getOrDefault("total",0).toString());
 		if ( data.size() > 0) {
-            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.QTCK.intValue());
+            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.QTCK);
             String thisSourceTypeName = dictionaryDO.getName();
             for (Map<String, Object> datum : data) {
                 datum.put("thisSourceType", ConstantForGYL.QTCK);

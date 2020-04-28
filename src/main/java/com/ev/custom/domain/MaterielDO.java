@@ -23,7 +23,7 @@ public class MaterielDO implements Serializable {
 	
 	//主键
     @ApiModelProperty(value = "主键")
-	private Integer id;
+	private Long id;
 	//编号
     @ApiModelProperty(value = "编号")
 	private String serialNo;
@@ -38,28 +38,28 @@ public class MaterielDO implements Serializable {
 	private String imageNo;
 	//物料类别
     @ApiModelProperty(value = "物料类别",required = true)
-	private Integer type;
+	private Long type;
 	//物料属性
     @ApiModelProperty(value = "物料属性38,39",required = true)
-	private Integer attribute;
+	private Long attribute;
 	//计量单位
     @ApiModelProperty(value = "计量单位117-125",required = true)
-	private Integer unitUom;
+	private Long unitUom;
 	//默认仓库
     @ApiModelProperty(value = "默认仓库",required = true)
-	private Integer defaultFacility;
+	private Long defaultFacility;
 	//默认库位
     @ApiModelProperty(value = "默认库位",required = true)
-	private Integer defaultLocation;
+	private Long defaultLocation;
 	//辅助单位
     @ApiModelProperty(value = "辅助单位",hidden = true)
-	private Integer supportUom;
+	private Long supportUom;
 	//供应商
     @ApiModelProperty(value = "供应商")
-	private Integer supplier;
+	private Long supplier;
 	//工艺路线
     @ApiModelProperty(value = "工艺路线 141-142")
-	private Integer tecRoute;
+	private Long tecRoute;
 	//工艺版本号
     @ApiModelProperty(value = "工艺版本号")
 	private String tecVersion;
@@ -68,7 +68,7 @@ public class MaterielDO implements Serializable {
 	private Integer expireDays;
 	//计价方法
     @ApiModelProperty(value = "计价方法 143-144",required = true)
-	private Integer valuationMethod;
+	private Long valuationMethod;
 	//是否生效
     @ApiModelProperty(value = "是否生效")
 	private Integer isValid;
@@ -95,7 +95,7 @@ public class MaterielDO implements Serializable {
 	private Long  inspectionScheme;
 	//长度单位
     @ApiModelProperty(value = "长度单位",hidden = true)
-	private Integer lengthUom;
+	private Long lengthUom;
 	//长度
     @ApiModelProperty(value = "长度",hidden = true)
 	private BigDecimal length;
@@ -107,7 +107,7 @@ public class MaterielDO implements Serializable {
 	private BigDecimal height;
 	//重量单位
     @ApiModelProperty(value = "重量单位",hidden = true)
-	private Integer weightUom;
+	private Long weightUom;
 	//毛重
     @ApiModelProperty(value = "毛重",hidden = true)
 	private BigDecimal grossWeight;
@@ -149,7 +149,7 @@ public class MaterielDO implements Serializable {
     private Long auditor;
     // 审核标志：（待审核/已审核）
     @ApiModelProperty(value = "审核标志：（待审核/已审核）", hidden = true)
-    private Integer auditSign;
+    private Long auditSign;
     // 启用状态
     @ApiModelProperty(value = "启用状态(是否启用 1启用，0禁用)")
     private Integer useStatus;

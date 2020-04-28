@@ -16,7 +16,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface MaterielTypeDao {
 
-	MaterielTypeDO get(Integer id);
+	MaterielTypeDO get(Long id);
 	
 	List<MaterielTypeDO> list(Map<String,Object> map);
 	
@@ -26,13 +26,13 @@ public interface MaterielTypeDao {
 	
 	int update(MaterielTypeDO materielType);
 	
-	int remove(Integer id);
+	int remove(Long id);
 	
-	int batchRemove(Integer[] ids);
+	int batchRemove(Long[] ids);
 
 	int checkSave(MaterielTypeDO materielType);
 
-	int checkDelete(Integer[] ids);
+	int checkDelete(Long[] ids);
 
     List<Map<String,Object>> listForMap(Map<String, Object> params);
 }

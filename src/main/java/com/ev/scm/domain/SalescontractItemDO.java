@@ -30,7 +30,7 @@ public class SalescontractItemDO implements Serializable {
 	private Long salescontractId;
 	//产品ID
     @ApiModelProperty(value = "产品ID")
-	private Integer materielId;
+	private Long materielId;
     //0检验1 不检验
     @ApiModelProperty(value = "发货是否检验 0是/1否")
     private Integer isCheck;

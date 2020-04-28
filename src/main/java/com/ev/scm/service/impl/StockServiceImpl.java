@@ -189,7 +189,7 @@ public class StockServiceImpl implements StockService {
 				String []args = {collect.toString()};
 				return R.error(messageSourceHandler.getMessage("basicInfo.materiel.isLotError", args));
 			}
-			Map<String, Integer> idToMap = materielDOs.stream()
+			Map<String, Long> idToMap = materielDOs.stream()
 					.collect(Collectors.toMap(MaterielDO::getSerialNo, MaterielDO::getId));
 
 			// 仓库验证
@@ -211,10 +211,10 @@ public class StockServiceImpl implements StockService {
 			}
 
 			// 检查仓库与仓位是否匹配
-			Map<String, Integer> facilityIdToMap = facilityDOs
+			Map<String, Long> facilityIdToMap = facilityDOs
 					.stream()
 					.collect(Collectors.toMap(FacilityDO::getName, FacilityDO::getId));
-			List<Integer> facilityIds = new ArrayList<>(facilityIdToMap.values());
+			List<Long> facilityIds = new ArrayList<>(facilityIdToMap.values());
 			emptyMap.put("codes",facilityIds);
 			List<FacilityLocationDO> locationDOs = facilityLocationService.list(emptyMap);
 
@@ -231,9 +231,9 @@ public class StockServiceImpl implements StockService {
 			}
 
 			// 检验库位是否匹配
-			Map<String, Integer> locationIdToMap  = Maps.newHashMap();
+			Map<String, Long> locationIdToMap  = Maps.newHashMap();
 			if (locationDOs.size() > 0) {
-				Map<Integer, List<FacilityLocationDO>> idToLocationDOs = locationDOs
+				Map<Long, List<FacilityLocationDO>> idToLocationDOs = locationDOs
 						.stream()
 						.collect(Collectors.groupingBy(FacilityLocationDO::getFacilityId));
 				List<FacilityLocationDO> facilityLocationDOS;
@@ -244,7 +244,7 @@ public class StockServiceImpl implements StockService {
 					if (facilityLocation == null) {
 						continue;
 					}
-					Integer facility = facilityIdToMap.get(stockEntity.getFacilityName());
+					Long facility = facilityIdToMap.get(stockEntity.getFacilityName());
 					facilityLocationDOS = idToLocationDOs.get(facility);
 					boolean present = facilityLocationDOS
 							.stream()
@@ -276,10 +276,10 @@ public class StockServiceImpl implements StockService {
 				// 默认仓库
 				facilityName = stockEntity.getFacilityName();
 				facilityLocationName = stockEntity.getFacilityLocationName();
-				Integer integer = locationIdToMap.get(facilityLocationName);
-				stockDO.setWarehouse(facilityIdToMap.get(facilityName).longValue());
-				stockDO.setWarehLocation(integer!=null?integer.longValue():null);
-				stockDO.setMaterielId(idToMap.get(stockEntity.getSerialno()).longValue());
+				Long integer = locationIdToMap.get(facilityLocationName);
+				stockDO.setWarehouse(facilityIdToMap.get(facilityName));
+				stockDO.setWarehLocation(integer);
+				stockDO.setMaterielId(idToMap.get(stockEntity.getSerialno()));
 				stockDO.setBatch(stockEntity.getBatch());
 				BigDecimal count = BigDecimal.valueOf(Double.parseDouble(stockEntity.getTotalCount()));
 				stockDO.setEnteringTime(now);
@@ -377,7 +377,7 @@ public class StockServiceImpl implements StockService {
 			for (StockDO itemDO : itemDOs) {
 				batch = itemDO.getBatch();
 				for (MaterielDO materielDO : materielDOs) {
-					if (Objects.equals(materielDO.getId().longValue(), itemDO.getMaterielId())) {
+					if (Objects.equals(materielDO.getId(), itemDO.getMaterielId())) {
 						isLot = materielDO.getIsLot();
 						if (isLot == 1 && StringUtils.isEmpty(batch)) {
 							String[] args = {materielDO.getName()};
@@ -467,7 +467,7 @@ public class StockServiceImpl implements StockService {
 			Map<String,Object> params = Maps.newHashMap();
 			params.put("materielIdList", materielIds);
 			List<MaterielDO> materielDOList = materielService.list(params);
-			List<Integer> idList = Lists.newArrayList();
+			List<Long> idList = Lists.newArrayList();
 			if (materielDOList.size() > 0) {
 				// 非批次管理的入库物料
 				idList = materielDOList.stream()
@@ -479,7 +479,7 @@ public class StockServiceImpl implements StockService {
 			Map<String, BigDecimal> materielCountMap = Maps.newHashMap();
 			Map<String, BigDecimal> materielAmountMap = Maps.newHashMap();
 			for (StockDO stockDO : stockDOList) {
-				int materielId = stockDO.getMaterielId().intValue();
+				Long materielId = stockDO.getMaterielId();
 				// 无批次管理的物料
 				if (idList.contains(materielId)) {
 					String materielIdToString = String.valueOf(materielId);
@@ -506,12 +506,12 @@ public class StockServiceImpl implements StockService {
 				Date now = new Date();
 				StockAnalysisDO stockAnalysis;
 				String[] split;
-				int materielId;
+				long materielId;
 				String batch;
 				for (String s : materielCountMap.keySet()) {
 					stockAnalysis = new StockAnalysisDO();
 					split = s.split("&");
-					materielId = Integer.parseInt(split[0]);
+					materielId = Long.parseLong(split[0]);
 					if (split.length == 2) {
 						batch = split[1];
 					}else {
@@ -720,7 +720,7 @@ public class StockServiceImpl implements StockService {
 		// 加权平均法出库成本的算法：(月初结存金额+本月入库金额)/（月初结存数量+本月入库数量），算出当月加权平均
 		// 分批认定法：物料属性中需要设置批次管理，入库时入库单需要录入批号，出库时出库单的单价以入库时相同批号的单价作为出库单价。
 
-		List<Integer> weightedAverageIdList = Lists.newArrayList();
+		List<Long> weightedAverageIdList = Lists.newArrayList();
 
 		List<Map<String, Object>> stockInBatchEmpty = Lists.newArrayList();
 		List<Map<String, Object>> stockInBatchNonEmpty = Lists.newArrayList();
@@ -730,9 +730,9 @@ public class StockServiceImpl implements StockService {
 					.map(stringObjectMap -> stringObjectMap.get("materielId"))
 					.collect(Collectors.toList());
 			List<MaterielDO> materielDOInList;
-			List<Integer> weightedAverageIdInList;
-			List<Integer> idAndBatchInList;
-//        List<Integer> lotIdInList;
+			List<Long> weightedAverageIdInList;
+			List<Long> idAndBatchInList;
+//        List<Long> lotIdInList;
 //        List<Map<String, Object>> stockInLot;
 //        List<Map<String, Object>> stockInNonLot;
 			if (materielInIdList.size() > 0) {
@@ -759,22 +759,22 @@ public class StockServiceImpl implements StockService {
 
 				// 获取本期要计算入库的加权平均物料
 				stockInBatchEmpty = stockInList.stream()
-						.filter(stringObjectMap -> weightedAverageIdInList.contains(Integer.parseInt(stringObjectMap.get("materielId").toString())))
+						.filter(stringObjectMap -> weightedAverageIdInList.contains(Long.parseLong(stringObjectMap.get("materielId").toString())))
 						.collect(Collectors.toList());
 
 				// 获取本期要计算入库的分批认定物料 id+&+batch
 				stockInBatchNonEmpty = stockInList.stream()
-						.filter(stringObjectMap -> idAndBatchInList.contains(Integer.parseInt(stringObjectMap.get("materielId").toString())))
+						.filter(stringObjectMap -> idAndBatchInList.contains(Long.parseLong(stringObjectMap.get("materielId").toString())))
 						.collect(Collectors.toList());
 
 				// 获取本期要计算入库的批次管理物料
 //            stockInLot = stockInList.stream()
-//                    .filter(stringObjectMap -> lotIdInList.contains(Integer.parseInt(stringObjectMap.get("materielId").toString())))
+//                    .filter(stringObjectMap -> lotIdInList.contains(Long.parseLong(stringObjectMap.get("materielId").toString())))
 //                    .collect(Collectors.toList());
 
 				// 获取本期要计算入库的非批次管理物料 id+&+batch
 //            stockInNonLot = stockInList.stream()
-//                    .filter(stringObjectMap -> !lotIdInList.contains(Integer.parseInt(stringObjectMap.get("materielId").toString())))
+//                    .filter(stringObjectMap -> !lotIdInList.contains(Long.parseLong(stringObjectMap.get("materielId").toString())))
 //                    .collect(Collectors.toList());
 				if (weightedAverageIdInList.size() > 0) {
 					weightedAverageIdList.addAll(weightedAverageIdInList);
@@ -785,12 +785,12 @@ public class StockServiceImpl implements StockService {
 		List<StockOutItemDO> stockOutBatchNonEmpty = Lists.newArrayList();
 		if (stockOutList.size() > 0) {
 			// 出库的物料
-			List<Integer> materielOutIdList = stockOutList.stream()
+			List<Long> materielOutIdList = stockOutList.stream()
 					.map(StockOutItemDO::getMaterielId)
 					.collect(Collectors.toList());
 			List<MaterielDO> materielDOOutList;
-			List<Integer> weightedAverageIdOutList;
-			List<Integer> idAndBatchOutList;
+			List<Long> weightedAverageIdOutList;
+			List<Long> idAndBatchOutList;
 			if (materielOutIdList.size() > 0) {
 				params.put("materielIdList",materielOutIdList);
 				materielDOOutList = materielService.list(params);
@@ -825,9 +825,9 @@ public class StockServiceImpl implements StockService {
 		}
 
 		// 分析表中现有的物料
-		List<Integer> weightedAverageExistingIdList = Lists.newArrayList();
+		List<Long> weightedAverageExistingIdList = Lists.newArrayList();
 		if (stockAnalysisList.size() > 0) {
-			List<Integer> materielIdList = stockAnalysisList.stream()
+			List<Long> materielIdList = stockAnalysisList.stream()
 					.map(StockAnalysisDO::getMaterielId)
 					.collect(Collectors.toList());
 			params.put("materielIdList", materielIdList);
@@ -840,7 +840,7 @@ public class StockServiceImpl implements StockService {
 		}
 
 		// 分批认定的分析表中现有物料
-//        List<Integer> idAndBatchExistingList = materielDOList.stream()
+//        List<Long> idAndBatchExistingList = materielDOList.stream()
 //                .filter(materielDO -> Objects.equals(ConstantForGYL.BATCH_FINDS, materielDO.getValuationMethod()))
 //                .map(MaterielDO::getId)
 //                .collect(Collectors.toList());
@@ -904,12 +904,12 @@ public class StockServiceImpl implements StockService {
 			if (materielInCountMapCopy.size() > 0) {
 				StockAnalysisDO stockAnalysisDO;
 				String[] split;
-				int materielId;
+				long materielId;
 				String batch;
 				for (String s : materielInCountMapCopy.keySet()) {
 					stockAnalysisDO = new StockAnalysisDO();
 					split = s.split("&");
-					materielId = Integer.parseInt(split[0]);
+					materielId = Long.parseLong(split[0]);
 					if (split.length == 2) {
 						batch = split[1];
 					}else {
@@ -940,7 +940,7 @@ public class StockServiceImpl implements StockService {
 
 				// 本月已入库的物料
 				// 计算加权平均出库新入物料成本单价
-				if (materielInCountMap.containsKey(materielId) && weightedAverageIdList.contains(Integer.parseInt(materielId))) {
+				if (materielInCountMap.containsKey(materielId) && weightedAverageIdList.contains(Long.parseLong(materielId))) {
 					// (月初结存金额+本月入库金额)/（月初结存数量+本月入库数量）
 					BigDecimal inAmount = materielInAmountMap.get(materielId);
 					BigDecimal inCount = materielInCountMap.get(materielId);
@@ -955,7 +955,7 @@ public class StockServiceImpl implements StockService {
 					continue;
 				}
 				// 计算批次管理出库新入物料成本单价
-				if (materielInCountMap.containsKey(materielIdAndBatch) && !weightedAverageIdList.contains(Integer.parseInt(materielId))) {
+				if (materielInCountMap.containsKey(materielIdAndBatch) && !weightedAverageIdList.contains(Long.parseLong(materielId))) {
 					// (月初结存金额+本月入库金额)/（月初结存数量+本月入库数量）
 					BigDecimal inAmount = materielInAmountMap.get(materielIdAndBatch);
 					BigDecimal inCount = materielInCountMap.get(materielIdAndBatch);
@@ -971,7 +971,7 @@ public class StockServiceImpl implements StockService {
 				}
 				if (analysisDO.getInitialCount().compareTo(BigDecimal.ZERO)!=0) {
 					// 本月未入库，存在上个月的库存
-					if (weightedAverageIdList.contains(Integer.parseInt(materielId))) {
+					if (weightedAverageIdList.contains(Long.parseLong(materielId))) {
 						totalAmountMap.put(materielId,analysisDO.getInitialAmount());
 						totalCountMap.put(materielId,analysisDO.getInitialCount());
 
@@ -1062,7 +1062,7 @@ public class StockServiceImpl implements StockService {
 //            BigDecimal inCount = analysisDO.getInCount() == null ? BigDecimal.ZERO : analysisDO.getInCount();
 //            BigDecimal inAmount = analysisDO.getInAmount() == null ? BigDecimal.ZERO : analysisDO.getInAmount();
 		// 加权平均
-//            if (materielOutCountMap.containsKey(materielId) && weightedAverageIdList.contains(Integer.parseInt(materielId))) {
+//            if (materielOutCountMap.containsKey(materielId) && weightedAverageIdList.contains(Long.parseLong(materielId))) {
 //                BigDecimal outCount = materielOutCountMap.get(materielId);
 //                BigDecimal outAmount = materielOutAmountMap.get(materielId);
 //                analysisDO.setOutCount(outCount);
@@ -1081,7 +1081,7 @@ public class StockServiceImpl implements StockService {
 //            }
 
 		// 分批认定
-//            if (materielOutCountMap.containsKey(materielIdAndBatch)&& !weightedAverageIdList.contains(Integer.parseInt(materielId))) {
+//            if (materielOutCountMap.containsKey(materielIdAndBatch)&& !weightedAverageIdList.contains(Long.parseLong(materielId))) {
 //                BigDecimal outCount = materielOutCountMap.get(materielIdAndBatch);
 //                BigDecimal outAmount = materielOutAmountMap.get(materielIdAndBatch);
 //                analysisDO.setOutCount(outCount);
@@ -1279,25 +1279,25 @@ public class StockServiceImpl implements StockService {
 			}
 		}
 
-		List<Integer> materielIdList = Lists.newArrayList();
+		List<Long> materielIdList = Lists.newArrayList();
 		// 入库的物料
 		if (stockInList.size() > 0) {
-			List<Integer> materielInIdList = stockInList.stream()
-					.map(stringObjectMap -> Integer.parseInt(stringObjectMap.get("materielId").toString()))
+			List<Long> materielInIdList = stockInList.stream()
+					.map(stringObjectMap -> Long.parseLong(stringObjectMap.get("materielId").toString()))
 					.collect(Collectors.toList());
 			materielIdList.addAll(materielInIdList);
 		}
 
 		// 出库的物料
 		if (stockOutList.size() > 0) {
-			List<Integer> materielOutIdList = stockOutList.stream()
+			List<Long> materielOutIdList = stockOutList.stream()
 					.map(StockOutItemDO::getMaterielId)
 					.collect(Collectors.toList());
 			materielIdList.addAll(materielOutIdList);
 		}
 
 		// 分析表中现有的物料
-		List<Integer> materielNowIdList = Lists.newArrayList();
+		List<Long> materielNowIdList = Lists.newArrayList();
 		if (stockAnalysisList.size() > 0) {
 			materielNowIdList = stockAnalysisList.stream()
 					.map(StockAnalysisDO::getMaterielId)
@@ -1311,7 +1311,7 @@ public class StockServiceImpl implements StockService {
 			params.put("materielIdList", materielIdList);
 			List<MaterielDO> materielDOList = materielService.list(params);
 
-			List<Integer> idList = Lists.newArrayList();
+			List<Long> idList = Lists.newArrayList();
 			if (materielDOList.size() > 0) {
 				// 非批次管理的入库物料
 				idList = materielDOList.stream()
@@ -1325,7 +1325,7 @@ public class StockServiceImpl implements StockService {
 			for (Map<String, Object> map : stockInList) {
 				boolean isFlag =true;
 				String materielIdToString = map.get("materielId").toString();
-				Integer materielId = Integer.parseInt(materielIdToString);
+				Long materielId = Long.parseLong(materielIdToString);
 				// 非批次管理
 				if (idList.contains(materielId)) {
 					// 若已存在这个物料及累加
@@ -1395,7 +1395,7 @@ public class StockServiceImpl implements StockService {
 
 			// 统计出库物料
 			for (StockOutItemDO itemDO : stockOutList) {
-				Integer materielId = itemDO.getMaterielId();
+				Long materielId = itemDO.getMaterielId();
 				String materielIdToString = materielId.toString();
 				// 非批次管理
 				if (idList.contains(materielId)) {

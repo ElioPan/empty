@@ -72,7 +72,7 @@ public class DictionaryController {
 
 	@GetMapping("/edit/{id}")
 	@RequiresPermissions("custom:dictionary:edit")
-	String edit(@PathVariable("id") Integer id,Model model){
+	String edit(@PathVariable("id") Long id,Model model){
 		DictionaryDO dictionary = dictionaryService.get(id);
 		model.addAttribute("dictionary", dictionary);
 	    return "custom/dictionary/edit";
@@ -107,7 +107,7 @@ public class DictionaryController {
 	@PostMapping( "/remove")
 	@ResponseBody
 	@RequiresPermissions("custom:dictionary:remove")
-	public R remove( Integer id){
+	public R remove( Long id){
 		if(dictionaryService.remove(id)>0){
 		return R.ok();
 		}
@@ -120,7 +120,7 @@ public class DictionaryController {
 	@PostMapping( "/batchRemove")
 	@ResponseBody
 	@RequiresPermissions("custom:dictionary:batchRemove")
-	public R remove(@RequestParam("ids") Integer[] ids){
+	public R remove(@RequestParam("ids") Long[] ids){
 		dictionaryService.batchRemove(ids);
 		return R.ok();
 	}

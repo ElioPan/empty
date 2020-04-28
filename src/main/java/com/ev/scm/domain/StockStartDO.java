@@ -22,7 +22,7 @@ public class StockStartDO implements Serializable {
 	
 	//
     @ApiModelProperty()
-	private Integer id;
+	private Long id;
 	//启用时间
     @ApiModelProperty(value = "启用时间")
 	private Date startTime;

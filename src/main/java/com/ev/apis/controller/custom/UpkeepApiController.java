@@ -436,7 +436,7 @@ public class UpkeepApiController {
                             @ApiParam(value = "保养负责人Id") @RequestParam(value = "engineer_id", defaultValue = "", required = false) Long engineerId,
                             @ApiParam(value = "部门id") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
                             @ApiParam(value = "保养状态") @RequestParam(value = "resultId", defaultValue = "", required = false) Long resultId,
-                            @ApiParam(value = "处理状态（多标签）（待处理：56；待验收：57）") @RequestParam(value = "singleStatus",defaultValue = "",required = false)  Integer singleStatus,
+                            @ApiParam(value = "处理状态（多标签）（待处理：56；待验收：57）") @RequestParam(value = "singleStatus",defaultValue = "",required = false)  Long singleStatus,
                             @ApiParam(value = "设备名称/编码（模糊）") @RequestParam(value = "deviceName", defaultValue = "", required = false) String deviceName,
                             @ApiParam(value = "验收结果字段") @RequestParam(value = "recordResultId",defaultValue = "",required = false)  Long recordResultId,
                             @ApiParam(value = "需排序字段") @RequestParam(value = "sort",defaultValue = "",required = false)  String sort,
@@ -559,7 +559,7 @@ public class UpkeepApiController {
     @Transactional(rollbackFor = Exception.class)
     public R saveRecordDetails(@ApiParam(value = "保养单id", required = true) @RequestParam(value = "record_id", defaultValue = "") Long id,
                                @ApiParam(value = "停机时长", required = true) @RequestParam(value = "down_hour", defaultValue = "") double downHour,
-                               @ApiParam(value = "设备使用状况id", required = true) @RequestParam(value = "status", defaultValue = "") int status,
+                               @ApiParam(value = "设备使用状况id", required = true) @RequestParam(value = "status", defaultValue = "") Long status,
                                @ApiParam(value = "本次保养总工时：所有项目保养时间总和", required = true) @RequestParam(value = "man_hour", defaultValue = "" ) double manHour,
                                @ApiParam(value = "保养总结") @RequestParam(value = "content", defaultValue = "", required = false) String content,
                                @ApiParam(value = "工时费合计") @RequestParam(value = "manHourCost", defaultValue = "", required = false) String manHourCost,
@@ -602,7 +602,7 @@ public class UpkeepApiController {
     @Transactional(rollbackFor = Exception.class)
     public R sbumitRecordDetails(@ApiParam(value = "保养单id", required = true) @RequestParam(value = "record_id", defaultValue = "") Long id,
                                @ApiParam(value = "停机时长", required = true) @RequestParam(value = "down_hour", defaultValue = "") double downHour,
-                               @ApiParam(value = "设备使用状况id", required = true) @RequestParam(value = "status", defaultValue = "") int status,
+                               @ApiParam(value = "设备使用状况id", required = true) @RequestParam(value = "status", defaultValue = "") Long status,
                                @ApiParam(value = "本次保养总工时：所有项目保养时间总和", required = true) @RequestParam(value = "man_hour", defaultValue = "") double manHour,
                                @ApiParam(value = "保养总结") @RequestParam(value = "content", defaultValue = "", required = false) String content,
                                  @ApiParam(value = "工时费合计", required = true) @RequestParam(value = "manHourCost", defaultValue = "") String manHourCost,
@@ -650,7 +650,7 @@ public class UpkeepApiController {
         Map<String, Object> detailByRecordId = upkeepCheckService.getDetailByRecordId(id);
         //评价状态
         if(detailByRecordId!=null){
-            int satus= Integer.parseInt(detailByRecordId.get("result").toString());
+            Long satus= Long.parseLong(detailByRecordId.get("result").toString());
             if(Objects.equals(Constant.NO_EVALUATED,satus)){//113待评价
 
                 upkeepCheckDO.setUserId(ShiroUtils.getUserId());//当前登录人的id作为评价单的验收人
@@ -679,7 +679,7 @@ public class UpkeepApiController {
         Map<String, Object> detailByRecordId = upkeepCheckService.getDetailByRecordId(id);
         //评价状态
         if(detailByRecordId!=null){
-            int satus= Integer.parseInt(detailByRecordId.get("result").toString());
+            Long satus= Long.parseLong(detailByRecordId.get("result").toString());
             if(Objects.equals(Constant.NO_EVALUATED,satus)){//113待评价
 
                 upkeepCheckDO.setUserId(ShiroUtils.getUserId());//当前登录人的id作为评价单的验收人

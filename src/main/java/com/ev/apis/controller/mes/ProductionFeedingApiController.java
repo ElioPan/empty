@@ -221,7 +221,7 @@ public class ProductionFeedingApiController {
 
 		Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
 		List<Map<String, Object>> data = productionFeedingDetailService.listForMap(params);
-		DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.SCTLD.intValue());
+		DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.SCTLD);
 		String thisSourceTypeName = dictionaryDO.getName();
 
 		Map<String, Object> param = Maps.newHashMap();

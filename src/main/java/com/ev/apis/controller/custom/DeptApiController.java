@@ -41,7 +41,7 @@ public class DeptApiController extends BaseController {
     @ApiOperation("获取部门列表信息")
     public R list(@ApiParam(value = "部门名称") @RequestParam(value = "deptName",defaultValue = "",required = false)  String deptName){
         Map<String,Object> results = Maps.newHashMap();
-        List<DeptDO> sysDeptList = sysDeptService.list(new HashMap<String,Object>(1));
+        List<DeptDO> sysDeptList = sysDeptService.list(new HashMap<>(1));
         if(StringUtils.isNotBlank(deptName)){
             Map<String, Object> nameQuery = new HashMap<>(1);
             nameQuery.put("name",deptName);
@@ -49,7 +49,7 @@ public class DeptApiController extends BaseController {
             List<DeptDO> tempDeptList = new ArrayList<>();
             for(DeptDO dept : deptList){
                 for(DeptDO deptAll : sysDeptList){
-                    if((dept.getIdPath().indexOf(deptAll.getIdPath()) != -1 || deptAll.getIdPath().indexOf(dept.getIdPath()) != -1) && !tempDeptList.contains(deptAll)){
+                    if((dept.getIdPath().contains(deptAll.getIdPath()) || deptAll.getIdPath().contains(dept.getIdPath())) && !tempDeptList.contains(deptAll)){
                         tempDeptList.add(deptAll);
                     }
                 }
@@ -60,7 +60,7 @@ public class DeptApiController extends BaseController {
         if(sysDeptList!=null && sysDeptList.size()>0){
             for(DeptDO dept:sysDeptList){
                 if(dept.getType()!=null){
-                    dept.setTypeName(dictionaryService.get(dept.getType().intValue()).getName());
+                    dept.setTypeName(dictionaryService.get(dept.getType()).getName());
                 }
             }
         }
@@ -98,7 +98,7 @@ public class DeptApiController extends BaseController {
         DeptDO oldDept = sysDeptService.get(sysDept.getDeptId());
 
         String oldPath = oldDept.getIdPath();
-        StringBuilder newPath = new StringBuilder("");
+        StringBuilder newPath = new StringBuilder();
         //获取新的父组织
         Long newParenetId = sysDept.getParentId();
         if(newParenetId==0){
@@ -149,7 +149,7 @@ public class DeptApiController extends BaseController {
     @ApiOperation("获取部门树信息")
     public R tree(@ApiParam(value = "部门ID") @RequestParam(value = "deptId",defaultValue = "",required = false)  String deptId){
         Map<String,Object> results = Maps.newHashMap();
-        Tree<DeptDO> tree = new Tree<DeptDO>();
+        Tree<DeptDO> tree = new Tree<>();
         tree = sysDeptService.getTree(deptId);
         results.put("data",tree);
         return  R.ok(results);

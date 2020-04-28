@@ -454,7 +454,7 @@ public class CraftServiceImpl implements CraftService {
             }
             Map<String, Long> typeMap = Maps.newHashMap();
             if (typeList.size() > 0) {
-                typeMap = typeList.stream().collect(Collectors.toMap(DictionaryDO::getName, m -> m.getId().longValue()));
+                typeMap = typeList.stream().collect(Collectors.toMap(DictionaryDO::getName, DictionaryDO::getId));
             }
 
             Map<String, Long> idForCode = processDOList

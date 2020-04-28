@@ -22,7 +22,7 @@ public class MaterielTypeDO implements Serializable {
 	
 	//主键
     @ApiModelProperty(value = "主键")
-	private Integer id;
+	private Long id;
 	//名称
     @ApiModelProperty(value = "名称",required = true)
 	private String name;

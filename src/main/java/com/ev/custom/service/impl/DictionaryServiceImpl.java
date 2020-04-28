@@ -22,7 +22,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 	private DictionaryDao dictionaryDao;
 	
 	@Override
-	public DictionaryDO get(Integer id){
+	public DictionaryDO get(Long id){
 		return dictionaryDao.get(id);
 	}
 
@@ -65,12 +65,12 @@ public class DictionaryServiceImpl implements DictionaryService {
 	}
 	
 	@Override
-	public int remove(Integer id){
+	public int remove(Long id){
 		return dictionaryDao.remove(id);
 	}
 	
 	@Override
-	public int batchRemove(Integer[] ids){
+	public int batchRemove(Long[] ids){
 		return dictionaryDao.batchRemove(ids);
 	}
 

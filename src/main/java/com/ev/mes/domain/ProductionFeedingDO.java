@@ -32,16 +32,16 @@ public class ProductionFeedingDO implements Serializable {
     private Long outsourceContractItemId;
 	//生产类型
     @ApiModelProperty(value = "生产类型")
-	private Integer type;
+	private Long type;
 	//生产投料工单号
     @ApiModelProperty(value = "生产投料工单号")
 	private String feedingNo;
 	//状态
     @ApiModelProperty(value = "状态",hidden = true)
-	private Integer status;
+	private Long status;
 	//产品ID
     @ApiModelProperty(value = "产品ID")
-	private Integer materielId;
+	private Long materielId;
 	//供应商ID
 	@ApiModelProperty(value = "供应商ID")
 	private Long supplierId;

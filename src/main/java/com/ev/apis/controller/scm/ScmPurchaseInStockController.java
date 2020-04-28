@@ -151,7 +151,7 @@ public class ScmPurchaseInStockController {
         Map<String, Object> totalForMap = stockInService.countForMap(params);
         List<Map<String, Object>> detailList = stockInService.listForMap(params);
 
-        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PURCHASE_INSTOCK.intValue());
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PURCHASE_INSTOCK);
         String thisSourceTypeName = dictionaryDO.getName();
         for (Map<String, Object> datum : detailList) {
             datum.put("thisSourceType", ConstantForGYL.PURCHASE_INSTOCK);
@@ -259,7 +259,7 @@ public class ScmPurchaseInStockController {
 
         List<Map<String, Object>> detailList = stockInService.listForMap(params);
 
-        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PURCHASE_INSTOCK.intValue());
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PURCHASE_INSTOCK);
         String thisSourceTypeName = dictionaryDO.getName();
         if (!detailList.isEmpty()) {
 

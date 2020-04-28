@@ -19,7 +19,7 @@ public class RoleDO {
 	private List<Long> menuIds;
 	private List<Long> appMenuIds;
 	private List<Long> padMenuIds;
-	private Integer dataPermission;
+	private Long dataPermission;
 
 	@Override
 	public String toString() {

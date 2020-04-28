@@ -6,7 +6,7 @@ import java.util.Date;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-
+import lombok.Data;
 
 
 /**
@@ -16,19 +16,20 @@ import io.swagger.annotations.ApiModelProperty;
  * @email 286600136@qq.com
  * @date 2019-11-22 15:44:50
  */
+@Data
 @ApiModel(value = "工序计划单")
 public class WorkingProcedurePlanDO implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	//
-    @ApiModelProperty(value = "")
+    @ApiModelProperty()
 	private Long id;
 	//生产计划ID
     @ApiModelProperty(value = "生产计划ID")
 	private Long productionPlanId;
 	//源单类型
     @ApiModelProperty(value = "源单类型")
-	private Integer sourceType;
+	private Long sourceType;
 	//来源单号ID
     @ApiModelProperty(value = "来源单号ID")
 	private Long sourceId;
@@ -40,13 +41,13 @@ public class WorkingProcedurePlanDO implements Serializable {
 	private String workOrderNo;
 	//产品ID
     @ApiModelProperty(value = "产品ID")
-	private Integer materielId;
+	private Long materielId;
 	//生产部门
     @ApiModelProperty(value = "生产部门")
 	private Long proDept;
 	//生产类型
     @ApiModelProperty(value = "生产类型")
-	private Integer type;
+	private Long type;
 	//是否限额(0不限/1限)
     @ApiModelProperty(value = "是否限额(0不限/1限)")
 	private Integer isQuota;
@@ -103,7 +104,7 @@ public class WorkingProcedurePlanDO implements Serializable {
 	private Date actualFinishTime;
 	//单据状态
     @ApiModelProperty(value = "单据状态",hidden = true)
-	private Integer status;
+	private Long status;
 	//审核人员
     @ApiModelProperty(value = "审核人员")
 	private Long auditor;
@@ -126,426 +127,6 @@ public class WorkingProcedurePlanDO implements Serializable {
     @ApiModelProperty(value = "删除状态",hidden = true)
 	private Integer delFlag;
 
-	/**
-	 * 设置：
-	 */
-	public void setId(Long id) {
-		this.id = id;
-	}
-	/**
-	 * 获取：
-	 */
-	public Long getId() {
-		return id;
-	}
-	/**
-	 * 设置：生产计划ID
-	 */
-	public void setProductionPlanId(Long productionPlanId) {
-		this.productionPlanId = productionPlanId;
-	}
-	/**
-	 * 获取：生产计划ID
-	 */
-	public Long getProductionPlanId() {
-		return productionPlanId;
-	}
-	/**
-	 * 设置：源单类型
-	 */
-	public void setSourceType(Integer sourceType) {
-		this.sourceType = sourceType;
-	}
-	/**
-	 * 获取：源单类型
-	 */
-	public Integer getSourceType() {
-		return sourceType;
-	}
-	/**
-	 * 设置：来源单号ID
-	 */
-	public void setSourceId(Long sourceId) {
-		this.sourceId = sourceId;
-	}
-	/**
-	 * 获取：来源单号ID
-	 */
-	public Long getSourceId() {
-		return sourceId;
-	}
-	/**
-	 * 设置：工单号
-	 */
-	public void setWorkOrderNo(String workOrderNo) {
-		this.workOrderNo = workOrderNo;
-	}
-	/**
-	 * 获取：工单号
-	 */
-	public String getWorkOrderNo() {
-		return workOrderNo;
-	}
-	/**
-	 * 设置：产品ID
-	 */
-	public void setMaterielId(Integer materielId) {
-		this.materielId = materielId;
-	}
-	/**
-	 * 获取：产品ID
-	 */
-	public Integer getMaterielId() {
-		return materielId;
-	}
-	/**
-	 * 设置：生产部门
-	 */
-	public void setProDept(Long proDept) {
-		this.proDept = proDept;
-	}
-	/**
-	 * 获取：生产部门
-	 */
-	public Long getProDept() {
-		return proDept;
-	}
-	/**
-	 * 设置：生产类型
-	 */
-	public void setType(Integer type) {
-		this.type = type;
-	}
-	/**
-	 * 获取：生产类型
-	 */
-	public Integer getType() {
-		return type;
-	}
-	/**
-	 * 设置：是否限额(0不限/1限)
-	 */
-	public void setIsQuota(Integer isQuota) {
-		this.isQuota = isQuota;
-	}
-	/**
-	 * 获取：是否限额(0不限/1限)
-	 */
-	public Integer getIsQuota() {
-		return isQuota;
-	}
-	/**
-	 * 设置：计划生产数量
-	 */
-	public void setCount(BigDecimal count) {
-		this.count = count;
-	}
-	/**
-	 * 获取：计划生产数量
-	 */
-	public BigDecimal getCount() {
-		return count;
-	}
-	/**
-	 * 设置：批号
-	 */
-	public void setBatchNo(String batchNo) {
-		this.batchNo = batchNo;
-	}
-	/**
-	 * 获取：批号
-	 */
-	public String getBatchNo() {
-		return batchNo;
-	}
-	/**
-	 * 设置：计划开始时间
-	 */
-	public void setPlanStartTime(Date planStartTime) {
-		this.planStartTime = planStartTime;
-	}
-	/**
-	 * 获取：计划开始时间
-	 */
-	public Date getPlanStartTime() {
-		return planStartTime;
-	}
-	/**
-	 * 设置：计划完工时间
-	 */
-	public void setPlanEndTime(Date planEndTime) {
-		this.planEndTime = planEndTime;
-	}
-	/**
-	 * 获取：计划完工时间
-	 */
-	public Date getPlanEndTime() {
-		return planEndTime;
-	}
-	/**
-	 * 设置：BOMID
-	 */
-	public void setBomId(Long bomId) {
-		this.bomId = bomId;
-	}
-	/**
-	 * 获取：BOMID
-	 */
-	public Long getBomId() {
-		return bomId;
-	}
-	/**
-	 * 设置：工艺路线ID
-	 */
-	public void setTecRouteId(Long tecRouteId) {
-		this.tecRouteId = tecRouteId;
-	}
-	/**
-	 * 获取：工艺路线ID
-	 */
-	public Long getTecRouteId() {
-		return tecRouteId;
-	}
-	/**
-	 * 设置：完工数量上限
-	 */
-	public void setCompletionMax(BigDecimal completionMax) {
-		this.completionMax = completionMax;
-	}
-	/**
-	 * 获取：完工数量上限
-	 */
-	public BigDecimal getCompletionMax() {
-		return completionMax;
-	}
-	/**
-	 * 设置：完工下限
-	 */
-	public void setCompletionMin(BigDecimal completionMin) {
-		this.completionMin = completionMin;
-	}
-	/**
-	 * 获取：完工下限
-	 */
-	public BigDecimal getCompletionMin() {
-		return completionMin;
-	}
-	/**
-	 * 设置：是否检验
-	 */
-	public void setIsCheck(Integer isCheck) {
-		this.isCheck = isCheck;
-	}
-	/**
-	 * 获取：是否检验
-	 */
-	public Integer getIsCheck() {
-		return isCheck;
-	}
-	/**
-	 * 设置：检验方案
-	 */
-	public void setInspectionScheme(Long inspectionScheme) {
-		this.inspectionScheme = inspectionScheme;
-	}
-	/**
-	 * 获取：检验方案
-	 */
-	public Long getInspectionScheme() {
-		return inspectionScheme;
-	}
-	/**
-	 * 设置：客户ID
-	 */
-	public void setClientId(Long clientId) {
-		this.clientId = clientId;
-	}
-	/**
-	 * 获取：客户ID
-	 */
-	public Long getClientId() {
-		return clientId;
-	}
-    /**
-     * 设置：客户名称
-     */
-    public void setClientName(String clientName) {
-        this.clientName = clientName;
-    }
 
-    /**
-     * 获取：客户名称
-     */
-    public String  getClientName() {
-        return clientName;
-    }
-	/**
-	 * 设置：交货期
-	 */
-	public void setDeliveryDate(Date deliveryDate) {
-		this.deliveryDate = deliveryDate;
-	}
-	/**
-	 * 获取：交货期
-	 */
-	public Date getDeliveryDate() {
-		return deliveryDate;
-	}
-	/**
-	 * 设置：客户商品名称
-	 */
-	public void setClientProductName(String clientProductName) {
-		this.clientProductName = clientProductName;
-	}
-	/**
-	 * 获取：客户商品名称
-	 */
-	public String getClientProductName() {
-		return clientProductName;
-	}
-	/**
-	 * 设置：客户料号
-	 */
-	public void setClientProductNo(String clientProductNo) {
-		this.clientProductNo = clientProductNo;
-	}
-	/**
-	 * 获取：客户料号
-	 */
-	public String getClientProductNo() {
-		return clientProductNo;
-	}
-	/**
-	 * 设置：下达时间
-	 */
-	public void setGiveTime(Date giveTime) {
-		this.giveTime = giveTime;
-	}
-	/**
-	 * 获取：下达时间
-	 */
-	public Date getGiveTime() {
-		return giveTime;
-	}
-	/**
-	 * 设置：结案时间（实际完成时间）
-	 */
-	public void setActualFinishTime(Date actualFinishTime) {
-		this.actualFinishTime = actualFinishTime;
-	}
-	/**
-	 * 获取：结案时间（实际完成时间）
-	 */
-	public Date getActualFinishTime() {
-		return actualFinishTime;
-	}
-	/**
-	 * 设置：单据状态
-	 */
-	public void setStatus(Integer status) {
-		this.status = status;
-	}
-	/**
-	 * 获取：单据状态
-	 */
-	public Integer getStatus() {
-		return status;
-	}
-	/**
-	 * 设置：审核人员
-	 */
-	public void setAuditor(Long auditor) {
-		this.auditor = auditor;
-	}
-	/**
-	 * 获取：审核人员
-	 */
-	public Long getAuditor() {
-		return auditor;
-	}
-	/**
-	 * 设置：原工序计划单号
-	 */
-	public void setOriginalPlanNo(String originalPlanNo) {
-		this.originalPlanNo = originalPlanNo;
-	}
-	/**
-	 * 获取：原工序计划单号
-	 */
-	public String getOriginalPlanNo() {
-		return originalPlanNo;
-	}
-	/**
-	 * 设置：创建人
-	 */
-	public void setCreateBy(Long createBy) {
-		this.createBy = createBy;
-	}
-	/**
-	 * 获取：创建人
-	 */
-	public Long getCreateBy() {
-		return createBy;
-	}
-	/**
-	 * 设置：创建时间
-	 */
-	public void setCreateTime(Date createTime) {
-		this.createTime = createTime;
-	}
-	/**
-	 * 获取：创建时间
-	 */
-	public Date getCreateTime() {
-		return createTime;
-	}
-	/**
-	 * 设置：修改人
-	 */
-	public void setUpdateBy(Long updateBy) {
-		this.updateBy = updateBy;
-	}
-	/**
-	 * 获取：修改人
-	 */
-	public Long getUpdateBy() {
-		return updateBy;
-	}
-	/**
-	 * 设置：修改时间
-	 */
-	public void setUpdateTime(Date updateTime) {
-		this.updateTime = updateTime;
-	}
-	/**
-	 * 获取：修改时间
-	 */
-	public Date getUpdateTime() {
-		return updateTime;
-	}
-	/**
-	 * 设置：删除状态
-	 */
-	public void setDelFlag(Integer delFlag) {
-		this.delFlag = delFlag;
-	}
-	/**
-	 * 获取：删除状态
-	 */
-	public Integer getDelFlag() {
-		return delFlag;
-	}
-	/**
-	 * 设置：来源单号
-	 */
-	public void setSourceNo(String sourceNo) {
-		this.sourceNo = sourceNo;
-	}
-	/**
-	 * 获取：来源单号
-	 */
-	public String getSourceNo() {
-		return sourceNo;
-	}
 	
 }

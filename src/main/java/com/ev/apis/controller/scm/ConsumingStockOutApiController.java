@@ -88,7 +88,7 @@ public class ConsumingStockOutApiController {
                          "]"
                     , required = true)@RequestParam(value = "item",defaultValue = "") String item) {
         R r = consumingStockOutService.checkSourceNumber(item,stockOutDO.getId());
-        DictionaryDO storageType = dictionaryService.get(ConstantForGYL.LYCK.intValue());
+        DictionaryDO storageType = dictionaryService.get(ConstantForGYL.LYCK);
         return r==null?consumingStockOutService.add(stockOutDO, item, storageType):r;
 	}
 	
@@ -274,7 +274,7 @@ public class ConsumingStockOutApiController {
                     .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO) > 0)
                     .collect(Collectors.toList());
             if (quoteLists.size() > 0) {
-                DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.LYCK.intValue());
+                DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.LYCK);
                 String thisSourceTypeName = dictionaryDO.getName();
                 List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
                 for (Map<String, Object> stringObjectMap : quoteList) {

@@ -463,7 +463,7 @@ public class PatrolRecordServiceImpl implements PatrolRecordService {
 	@Override
 	public Map<String, Object> getBacklog(Long userId, Long deptId) {
 		String idPath = null;
-        Integer status = Constant.WAITING_DEAL;
+		Long status = Constant.WAITING_DEAL;
         if (Objects.nonNull(deptId)) {
         	idPath = deptService.get(deptId).getIdPath();
 		}

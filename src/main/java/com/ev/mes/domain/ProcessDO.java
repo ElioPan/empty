@@ -35,10 +35,10 @@ public class ProcessDO implements Serializable {
     private BigDecimal standard;
     //工序类型
     @ApiModelProperty(value = "工序类型")
-    private Integer type;
+    private Long type;
 	//工序类型
 	@ApiModelProperty(value = "设备类型")
-	private Integer deviceType;
+	private Long deviceType;
     //单件工时
     @ApiModelProperty(value = "单件工时")
     private BigDecimal manHour;
@@ -87,7 +87,7 @@ public class ProcessDO implements Serializable {
     @ApiModelProperty(value = "审核人")
     private Long auditId;
     @ApiModelProperty(value = "审核状态")
-    private Integer auditSign;
+    private Long auditSign;
     @ApiModelProperty(value = "使用状态   1是 0否")
     private Integer useStatus;
 

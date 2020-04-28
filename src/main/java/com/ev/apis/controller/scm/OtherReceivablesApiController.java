@@ -110,7 +110,7 @@ public class OtherReceivablesApiController {
 
         List<Map<String, Object>> list = otherReceivablesService.listForMap(map);
         Map<String, Object> countForMap = otherReceivablesService.countForMap(map);
-        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.OTHER_RECIVEABLE_TYPE.intValue());
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.OTHER_RECIVEABLE_TYPE);
         String thisSourceTypeName = dictionaryDO.getName();
         Map<String, Object> result = Maps.newHashMap();
         if (list.size() > 0) {
@@ -146,7 +146,7 @@ public class OtherReceivablesApiController {
 
         List<Map<String, Object>> list = otherReceivablesItemService.getDetailOfIntroduce(map);
         Map<String, Object> countForMap = otherReceivablesItemService.totailAmountOfIntroduce(map);
-        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.OTHER_RECIVEABLE_TYPE.intValue());
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.OTHER_RECIVEABLE_TYPE);
         String sourceTypeName=dictionaryDO.getName();
         Map<String, Object> result = Maps.newHashMap();
         if (list.size() > 0) {

@@ -35,7 +35,7 @@ public class FacilityLocationApiController {
     public R list(@ApiParam(value = "当前第几页",required = true) @RequestParam(value = "pageno",defaultValue = "1") int pageno,
                   @ApiParam(value = "一页多少条",required = true) @RequestParam(value = "pagesize",defaultValue = "20") int pagesize,
                   @ApiParam(value = "库位编号、库位名称") @RequestParam(value = "name",defaultValue = "",required = false)  String name,
-                  @ApiParam(value = "仓库Id") @RequestParam(value = "facilityId",defaultValue = "",required = false) Integer facilityId,
+                  @ApiParam(value = "仓库Id") @RequestParam(value = "facilityId",defaultValue = "",required = false) Long facilityId,
 
                   @ApiParam(value = "审核状态") @RequestParam(value = "auditSign",defaultValue = "",required = false)  String auditSign
                   ){
@@ -64,7 +64,7 @@ public class FacilityLocationApiController {
 
     @EvApiByToken(value = "/apis/facilityLocation/detail",method = RequestMethod.GET,apiTitle = "获取库位详细信息")
     @ApiOperation("获取库位详细信息")
-    public R detail(@ApiParam(value = "主键ID",required = true) @RequestParam(value = "id",defaultValue = "")  Integer id) {
+    public R detail(@ApiParam(value = "主键ID",required = true) @RequestParam(value = "id",defaultValue = "")  Long id) {
         Map<String,Object> results = new HashMap<>();
         Map<String,Object> param = Maps.newHashMap();
         param.put("id",id);
@@ -105,7 +105,7 @@ public class FacilityLocationApiController {
     @Transactional(rollbackFor = Exception.class)
     @EvApiByToken(value = "/apis/facilityLocation/remove",method = RequestMethod.POST,apiTitle = "删除库位信息")
     @ApiOperation("删除库位信息")
-    public R remove(@ApiParam(value = "库位主键",required = true) @RequestParam(value="id",defaultValue = "") Integer id){
+    public R remove(@ApiParam(value = "库位主键",required = true) @RequestParam(value="id",defaultValue = "") Long id){
         FacilityLocationDO facilityLocationDO = facilityLocationService.get(id);
         if (facilityLocationDO != null) {
             if(Objects.equals(facilityLocationDO.getAuditSign(),ConstantForMES.OK_AUDITED)){
@@ -121,8 +121,8 @@ public class FacilityLocationApiController {
     @Transactional(rollbackFor = Exception.class)
     @EvApiByToken(value = "/apis/facilityLocation/batchRemove",method = RequestMethod.POST,apiTitle = "批量删除库位信息")
     @ApiOperation("批量删除库位信息")
-    public R remove(@ApiParam(value = "库位主键数组",required = true, example = "[1,2,3,4]") @RequestParam(value="ids",defaultValue = "") Integer[] ids){
-        for (Integer id : ids) {
+    public R remove(@ApiParam(value = "库位主键数组",required = true, example = "[1,2,3,4]") @RequestParam(value="ids",defaultValue = "") Long[] ids){
+        for (Long id : ids) {
             FacilityLocationDO facilityLocationDO = facilityLocationService.get(id);
             if(facilityLocationDO == null){
                 return R.error();
@@ -145,7 +145,7 @@ public class FacilityLocationApiController {
     @EvApiByToken(value = "/apis/facilityLocation/audit", method = RequestMethod.POST, apiTitle = "审核库位")
     @ApiOperation("审核库位")
     public R audit(
-            @ApiParam(value = "库位主键", required = true) @RequestParam(value = "id", defaultValue = "") Integer id) {
+            @ApiParam(value = "库位主键", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
         FacilityLocationDO facilityLocationDO = facilityLocationService.get(id);
         if (Objects.equals(facilityLocationDO.getAuditSign(), ConstantForMES.OK_AUDITED)) {
             return R.error(messageSourceHandler.getMessage("common.duplicate.approved",null));
@@ -166,7 +166,7 @@ public class FacilityLocationApiController {
     @EvApiByToken(value = "/apis/facilityLocation/reverseAudit", method = RequestMethod.POST, apiTitle = "反审核库位")
     @ApiOperation("反审核库位")
     public R reverseAudit(
-            @ApiParam(value = "库位主键", required = true) @RequestParam(value = "id", defaultValue = "") Integer id) {
+            @ApiParam(value = "库位主键", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
         FacilityLocationDO facilityLocationDO = facilityLocationService.get(id);
         if (Objects.equals(facilityLocationDO.getAuditSign(), ConstantForMES.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("receipt.reverseAudit.nonWaitingAudit",null));

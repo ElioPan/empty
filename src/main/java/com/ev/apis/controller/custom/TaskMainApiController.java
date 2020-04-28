@@ -56,7 +56,7 @@ public class TaskMainApiController {
                   @ApiParam(value = "发起人") @RequestParam(value = "createBy",defaultValue = "",required = false)  String createBy,
 //                  @ApiParam(value = "发起部门") @RequestParam(value = "deptId",defaultValue = "",required = false)  String deptId,
                   @ApiParam(value = "处理状态（待处理：56；待验收：57；已验收：58）") @RequestParam(value = "status",defaultValue = "",required = false)  String status,
-                  @ApiParam(value = "处理状态（多标签）（待处理：56；待验收：57；已验收：58）") @RequestParam(value = "singleStatus",defaultValue = "",required = false)  Integer singleStatus,
+                  @ApiParam(value = "处理状态（多标签）（待处理：56；待验收：57；已验收：58）") @RequestParam(value = "singleStatus",defaultValue = "",required = false)  Long singleStatus,
 //                  @ApiParam(value = "当前用户ID",required = false) @RequestParam(value = "userId",defaultValue = "",required = false)  Long userId,
                   @ApiParam(value = "责任人") @RequestParam(value = "heldPerson",defaultValue = "",required = false)  String heldPerson,
                   @ApiParam(value = "发起开始时间") @RequestParam(value = "startTime",defaultValue = "",required = false)  String startTime,
@@ -157,8 +157,8 @@ public class TaskMainApiController {
                   @ApiParam(value = "责任人",required = true) @RequestParam(value = "heldPerson",defaultValue = "") Long heldPerson,
                   @ApiParam(value = "验收人",required = true) @RequestParam(value = "checkPerson",defaultValue = "") Long checkPerson,
                   @ApiParam(value = "关联单号") @RequestParam(value = "linkOrderNo",defaultValue = "",required = false) String linkOrderNo,
-                  @ApiParam(value = "关联单据类型") @RequestParam(value = "linkOrderType",defaultValue = "",required = false) Integer linkOrderType,
-                  @ApiParam(value = "关联单据阶段类型") @RequestParam(value = "linkStageType",defaultValue = "",required = false) Integer linkStageType,
+                  @ApiParam(value = "关联单据类型") @RequestParam(value = "linkOrderType",defaultValue = "",required = false) Long linkOrderType,
+                  @ApiParam(value = "关联单据阶段类型") @RequestParam(value = "linkStageType",defaultValue = "",required = false) Long linkStageType,
                   @ApiParam(value = "上传图片") @RequestParam(value = "taglocationappearanceImage",defaultValue = "",required = false) String[] taglocationappearanceImage) throws IOException, ParseException {
         	taskMain.setStatus(Constant.WAITING_DEAL);
         	return taskMainService.saveTaskInfo(taskMain, ccList, heldPerson, checkPerson, linkOrderNo, linkOrderType, linkStageType,
@@ -173,8 +173,8 @@ public class TaskMainApiController {
                   @ApiParam(value = "责任人",required = true) @RequestParam(value = "heldPerson",defaultValue = "") Long heldPerson,
                   @ApiParam(value = "验收人",required = true) @RequestParam(value = "checkPerson",defaultValue = "") Long checkPerson,
                   @ApiParam(value = "关联单号") @RequestParam(value = "linkOrderNo",defaultValue = "",required = false) String linkOrderNo,
-                  @ApiParam(value = "关联单据类型") @RequestParam(value = "linkOrderType",defaultValue = "",required = false) Integer linkOrderType,
-                  @ApiParam(value = "关联单据阶段类型") @RequestParam(value = "linkStageType",defaultValue = "",required = false) Integer linkStageType,
+                  @ApiParam(value = "关联单据类型") @RequestParam(value = "linkOrderType",defaultValue = "",required = false) Long linkOrderType,
+                  @ApiParam(value = "关联单据阶段类型") @RequestParam(value = "linkStageType",defaultValue = "",required = false) Long linkStageType,
                   @ApiParam(value = "上传图片") @RequestParam(value = "taglocationappearanceImage",defaultValue = "",required = false) String[] taglocationappearanceImage) throws IOException, ParseException {
          	// 状态设置为暂存
          	taskMain.setStatus(Constant.TS);
@@ -230,7 +230,7 @@ public class TaskMainApiController {
         	List<Map<String, Object>> dealList = taskMainService.getTaskReplyInfo(id,Constant.REPLY_DEAL);
     		if (dealList.size()>0) {
     			Map<String, Object> map = dealList.get(0);
-    			if (Objects.equals(Integer.parseInt(map.get("statusId").toString()), Constant.TS)) {
+    			if (Objects.equals(Long.parseLong(map.get("statusId").toString()), Constant.TS)) {
     				if (taskMainService.isDealBy(id)) {
     					result.put("dealInfo", map);
 					}
@@ -306,7 +306,7 @@ public class TaskMainApiController {
         	Long id = taskReplyDO.getTaskid();
     		List<Map<String, Object>> dealList = taskMainService.getTaskReplyInfo(id, Constant.REPLY_DEAL);
         	if (dealList.size()>0) {
-				taskReplyDO.setDealId(Integer.parseInt(dealList.get(0).get("id").toString()));
+				taskReplyDO.setDealId(Long.parseLong(dealList.get(0).get("id").toString()));
 				taskMainService.checkSave(taskReplyDO/* ,ccList */);
 				return R.ok();
 			}
@@ -321,7 +321,7 @@ public class TaskMainApiController {
     		List<Map<String, Object>> checkList = taskMainService.getTaskReplyInfo(id,Constant.REPLY_CHECK);
     		if (checkList.size()>0) {
     			Map<String, Object> check = checkList.get(0);
-    			if (Objects.equals(Integer.parseInt(check.get("statusId").toString()), Constant.TS)) {
+    			if (Objects.equals(Long.parseLong(check.get("statusId").toString()), Constant.TS)) {
     				result.put("checkInfo", checkList.get(0));
     			}
 			}
@@ -348,7 +348,7 @@ public class TaskMainApiController {
         	Long id = taskReplyDO.getTaskid();
     		List<Map<String, Object>> dealList = taskMainService.getTaskReplyInfo(id, Constant.REPLY_DEAL);
         	if (dealList.size()>0) {
-				taskReplyDO.setDealId(Integer.parseInt(dealList.get(0).get("id").toString()));
+				taskReplyDO.setDealId(Long.parseLong(dealList.get(0).get("id").toString()));
 				taskMainService.checkSave(taskReplyDO/* ,ccList */);
 				return R.ok();
 			}
@@ -367,7 +367,7 @@ public class TaskMainApiController {
 			return R.error(messageSourceHandler.getMessage("task.nonCreateUser",null));
 		}
     	if(taskMainService.remove(id)>0){
-			Integer[] assocTypes = { Constant.HELD_PERSON, Constant.CC_PERSON, Constant.CHECK_PERSON };
+			Long[] assocTypes = { Constant.HELD_PERSON, Constant.CC_PERSON, Constant.CHECK_PERSON };
 			Long[] ids = { id };
     		taskMainService.removeSatellite(ids, assocTypes, Constant.TASK_APPEARANCE_IMAGE);
             return R.ok();
@@ -390,7 +390,7 @@ public class TaskMainApiController {
 		}
     	int batchRemove = taskMainService.batchRemove(ids);
     	if (batchRemove==ids.length) {
-			Integer[] assocTypes = { Constant.HELD_PERSON, Constant.CC_PERSON, Constant.CHECK_PERSON };
+			Long[] assocTypes = { Constant.HELD_PERSON, Constant.CC_PERSON, Constant.CHECK_PERSON };
     		taskMainService.removeSatellite(ids, assocTypes, Constant.TASK_APPEARANCE_IMAGE);
     		return R.ok();
 		}
@@ -403,7 +403,7 @@ public class TaskMainApiController {
     		
 //                  @ApiParam(value = "用户Id",required = false) @RequestParam(value = "userId",defaultValue = "",required = false)  Long userId,
 //                  @ApiParam(value = "用户部门Id",required = false) @RequestParam(value = "deptId",defaultValue = "",required = false)  Long deptId
-                 /* @ApiParam(value = "处理状态", required = false) @RequestParam(value = "status",defaultValue = "",required = false)  Integer status*/){
+                 /* @ApiParam(value = "处理状态", required = false) @RequestParam(value = "status",defaultValue = "",required = false)  Long status*/){
         Long userId = ShiroUtils.getUserId();
 //    	String idPath = null;
 //        if (Objects.nonNull(deptId)) {

@@ -3,7 +3,6 @@ package com.ev.custom.service;
 import com.ev.framework.utils.R;
 import com.ev.custom.domain.TaskMainDO;
 import com.ev.custom.domain.TaskReplyDO;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -21,14 +20,14 @@ public interface TaskMainService {
 	
 	TaskMainDO get(Long id);
 	
-	List<Map<String, Object>> getTaskReplyInfo(Long id, Integer status);
+	List<Map<String, Object>> getTaskReplyInfo(Long id, Long status);
 	
 	List<TaskMainDO> list(Map<String, Object> map);
 	
 	List<Map<String,Object>> listForMap(Map<String, Object> map);
 	
 	R saveTaskInfo(TaskMainDO taskMain, Long[] ccList, Long heldPerson, Long checkPerson, String linkOrderNo,
-			Integer linkOrderType, Integer linkStageType, String[] taglocationappearanceImage) throws IOException, ParseException;
+			Long linkOrderType, Long linkStageType, String[] taglocationappearanceImage) throws IOException, ParseException;
 	
 	Map<String,Object> detail(Long id);
 
@@ -40,7 +39,7 @@ public interface TaskMainService {
 	
 	List<Map<String, Object>> countWeekBackLog(Map<String, Object> params);
 	
-	void getUserWaitingCount(Long userId, Integer status, String idPath, Map<String, Object> results);
+	void getUserWaitingCount(Long userId, Long status, String idPath, Map<String, Object> results);
 	
 	int save(TaskMainDO taskMain);
 	
@@ -58,23 +57,23 @@ public interface TaskMainService {
 	
 	int remove(Long id);
 	
-	void removeSatellite(Long[] ids, Integer[] assocTypes, String imageType);
+	void removeSatellite(Long[] ids, Long[] assocTypes, String imageType);
 	
 	int batchRemove(Long[] ids);
 
 
-	boolean nonWaitingDeal(Integer status);
+	boolean nonWaitingDeal(Long status);
 
-	boolean nonTS(Integer status);
+	boolean nonTS(Long status);
 
-	boolean nonWaitingCheck(Integer status);
+	boolean nonWaitingCheck(Long status);
 
 	/**
 	 * 是否为处理人
 	 */
 	boolean isDealBy(Long id);
 
-	boolean isAlreadyCheck(Integer status);
+	boolean isAlreadyCheck(Long status);
 
 	
 }

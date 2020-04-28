@@ -280,9 +280,7 @@ public class SalesManagementAccountingReportApiController {
             @ApiParam(value = "客户ID") @RequestParam(value = "clientId", defaultValue = "", required = false) Long clientId,
             @ApiParam(value = "部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
             @ApiParam(value = "业务员") @RequestParam(value = "userId", defaultValue = "", required = false) Long userId,
-            @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
-            @ApiParam(value = "分类汇总条件:1客户，2部门，3销售员", required = true) @RequestParam(value = "type", defaultValue = "1") Integer type,
             HttpServletRequest request, HttpServletResponse response, ModelMap modelMap) {
 
         Pair<List<Map<String, Object>>, Map<String, Object>> balanceResult =

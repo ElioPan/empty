@@ -21,17 +21,17 @@ import lombok.Data;
 public class MaterialInspectionDO implements Serializable {
 	private static final long serialVersionUID = 1L;
 	//
-	@ApiModelProperty(value = "")
+	@ApiModelProperty()
 	private Long id;
 	// 检验单类型
 	@ApiModelProperty(value = "检验单类型(216、来料检验、217产品检验、218、发货检验)", required = true)
-	private Integer inspectionType;
+	private Long inspectionType;
 	// 来源单号ID
 	@ApiModelProperty(value = "来源单号ID")
 	private Long sourceId;
 	// 源单类型
 	@ApiModelProperty(value = "源单类型")
-	private Integer sourceType;
+	private Long sourceType;
 	//来源单号
     @ApiModelProperty(value = "来源单号")
 	private String sourceNo;
@@ -49,7 +49,7 @@ public class MaterialInspectionDO implements Serializable {
 	private Long inspector;
 	// 物料ID
 	@ApiModelProperty(value = "物料ID")
-	private Integer materielId;
+	private Long materielId;
 	// 批号
 	@ApiModelProperty(value = "批号")
 	private String batchNo;
@@ -82,7 +82,7 @@ public class MaterialInspectionDO implements Serializable {
 	private Long auditor;
 	// 单据状态
 	@ApiModelProperty(value = "单据状态", hidden = true)
-	private Integer status;
+	private Long status;
 	// 是否已打印二维码
 	@ApiModelProperty(value = "是否已打印二维码", hidden = true)
 	@Builder.Default

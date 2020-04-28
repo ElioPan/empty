@@ -35,10 +35,10 @@ public class FeedingDetailVO implements Serializable {
     //删除状态
     private Integer delFlag;
     //发料仓库ID
-    private Integer facilityId;
+    private Long facilityId;
     private String facilityName;
     //库位ID
-    private Integer locationId;
+    private Long locationId;
     private String locationName;
     //需求工序ID
     private Long processId;
@@ -47,7 +47,7 @@ public class FeedingDetailVO implements Serializable {
     private Long stationId;
     private String stationName;
     // 是否用料采集
-    private Integer isCollect;
+    private Long isCollect;
     private String isCollectName;
 
 }

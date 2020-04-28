@@ -708,7 +708,7 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
         params.put("startTime", startTime);
         params.put("endTime", endTime);
         List<DictionaryDO> feedingTypes = dictionaryService.listByType(ConstantForMES.FEEDING);
-        List<Integer> sourceTypes = feedingTypes
+        List<Long> sourceTypes = feedingTypes
                 .stream()
                 .map(DictionaryDO::getId)
                 .collect(Collectors.toList());

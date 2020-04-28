@@ -1,10 +1,7 @@
 package com.ev.custom.service.impl;
 
-import com.ev.custom.dao.FacilityDao;
 import com.ev.custom.dao.FacilityLocationDao;
-import com.ev.custom.domain.FacilityDO;
 import com.ev.custom.domain.FacilityLocationDO;
-import com.ev.custom.domain.PatrolPlanDO;
 import com.ev.custom.service.FacilityLocationService;
 import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
@@ -22,11 +19,9 @@ import java.util.Objects;
 public class FacilityLocationServiceImpl implements FacilityLocationService {
 	@Autowired
 	private FacilityLocationDao facilityLocationDao;
-    @Autowired
-    private FacilityDao facilityDao;
 
 	@Override
-	public FacilityLocationDO get(Integer id) {
+	public FacilityLocationDO get(Long id) {
 		return facilityLocationDao.get(id);
 	}
 
@@ -48,7 +43,7 @@ public class FacilityLocationServiceImpl implements FacilityLocationService {
 	@Override
 	public int save(FacilityLocationDO facilityLocation) {
 		Map<String, Object> param = Maps.newHashMap();
-		facilityLocation.setSerialNo(this.setSerialNo(facilityLocation.getFacilityId()));
+		facilityLocation.setSerialNo(this.setSerialNo());
 
 		param.put("nameSearch", facilityLocation.getName());
 		int count = this.count(param);
@@ -76,17 +71,17 @@ public class FacilityLocationServiceImpl implements FacilityLocationService {
 	}
 
 	@Override
-	public int remove(Integer id) {
+	public int remove(Long id) {
 		return facilityLocationDao.remove(id);
 	}
 
 	@Override
-	public int batchRemove(Integer[] ids) {
+	public int batchRemove(Long[] ids) {
 		return facilityLocationDao.batchRemove(ids);
 	}
 
 	@Override
-	public int logicRemove(Integer id) {
+	public int logicRemove(Long id) {
 		FacilityLocationDO locationDO = new FacilityLocationDO();
 		locationDO.setId(id);
 		locationDO.setDelFlag(1);
@@ -94,16 +89,16 @@ public class FacilityLocationServiceImpl implements FacilityLocationService {
 	}
 
 	@Override
-	public int logicBatchRemove(Integer[] ids) {
+	public int logicBatchRemove(Long[] ids) {
 		int count = 0;
-		for (Integer id : ids) {
+		for (Long id : ids) {
 			count += this.logicRemove(id);
 		}
 		return count;
 	}
 
     @Override
-    public int audit(Integer id) {
+    public int audit(Long id) {
         FacilityLocationDO facilityLocationDO = new FacilityLocationDO();
         facilityLocationDO.setId(id);
         facilityLocationDO.setAuditor(ShiroUtils.getUserId());
@@ -112,7 +107,7 @@ public class FacilityLocationServiceImpl implements FacilityLocationService {
     }
 
     @Override
-    public int reverseAudit(Integer id) {
+    public int reverseAudit(Long id) {
         FacilityLocationDO facilityLocationDO = new FacilityLocationDO();
         facilityLocationDO.setId(id);
         facilityLocationDO.setAuditor(0L);
@@ -120,7 +115,7 @@ public class FacilityLocationServiceImpl implements FacilityLocationService {
         return facilityLocationDao.update(facilityLocationDO);
     }
 
-    private String setSerialNo(Integer facilityId) {
+    private String setSerialNo() {
         //获取编号
         Map<String,Object> param = Maps.newHashMapWithExpectedSize(3);
 //        FacilityDO facilityDO = facilityDao.get(facilityId);

@@ -145,7 +145,7 @@ public class ScmPurchaseApiController {
         List<Map<String, Object>> list = purchaseService.listForMap(params);
         Map<String, Object> countForMaps = purchaseService.countForMap(params);
 
-        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PURCHASE.intValue());
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PURCHASE);
         String thisSourceTypeName = dictionaryDO.getName();
         for (Map<String, Object> datum : list) {
             datum.put("thisSourceType", ConstantForGYL.PURCHASE);
@@ -239,7 +239,7 @@ public class ScmPurchaseApiController {
         List<Map<String, Object>> list = purchaseService.listForMap(params);
         Map<String, Object> countForMaps = purchaseService.countForMap(params);
 
-        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PURCHASE.intValue());
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PURCHASE);
         String thisSourceTypeName = dictionaryDO.getName();
 
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(2);

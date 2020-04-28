@@ -26,16 +26,16 @@ public class RepairRecordDO implements Serializable {
 	private Long id;
 	//故障类型
     @ApiModelProperty(value = "故障类型(设备故障：103 电路故障：104 油路故障：105)",required = true)
-	private Integer type;
+	private Long type;
 	//故障等级
     @ApiModelProperty(value = "故障等级",hidden = true)
-	private Integer level;
+	private Long level;
 	//使用情况
     @ApiModelProperty(value = "使用情况(正常运行:106 带病运行:107 停机待修:108 停用报废:109)",required = true)
-	private Integer usage;
+	private Long usage;
 	//记录状态
     @ApiModelProperty(value = "维修状态",hidden = true)
-	private Integer status;
+	private Long status;
 	//维修人
     @ApiModelProperty(value = "维修人",hidden = true)
 	private Long createBy;

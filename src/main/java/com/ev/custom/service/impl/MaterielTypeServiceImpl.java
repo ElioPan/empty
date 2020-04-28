@@ -18,7 +18,7 @@ public class MaterielTypeServiceImpl implements MaterielTypeService {
 	private MaterielTypeDao materielTypeDao;
 	
 	@Override
-	public MaterielTypeDO get(Integer id){
+	public MaterielTypeDO get(Long id){
 		return materielTypeDao.get(id);
 	}
 	
@@ -43,12 +43,12 @@ public class MaterielTypeServiceImpl implements MaterielTypeService {
 	}
 	
 	@Override
-	public int remove(Integer id){
+	public int remove(Long id){
 		return materielTypeDao.remove(id);
 	}
 	
 	@Override
-	public int batchRemove(Integer[] ids){
+	public int batchRemove(Long[] ids){
 		return materielTypeDao.batchRemove(ids);
 	}
 
@@ -58,7 +58,7 @@ public class MaterielTypeServiceImpl implements MaterielTypeService {
 	}
 	
 	@Override
-	public int checkDelete(Integer[] ids) {
+	public int checkDelete(Long[] ids) {
 		return materielTypeDao.checkDelete(ids);
 	}
 

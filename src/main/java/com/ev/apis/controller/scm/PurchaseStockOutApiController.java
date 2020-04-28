@@ -88,7 +88,7 @@ public class PurchaseStockOutApiController {
 	public R audit(
 			@ApiParam(value = "出库单Id", required = true) @RequestParam(value = "id", defaultValue = "") Long id
     ) {
-        R audit = purchaseStockOutService.audit(id,  ConstantForGYL.CGTH.longValue());
+        R audit = purchaseStockOutService.audit(id, ConstantForGYL.CGTH);
         return audit==null?R.ok():audit;
 	}
 
@@ -98,7 +98,7 @@ public class PurchaseStockOutApiController {
     public R reverseAudit(
             @ApiParam(value = "出库单Id", required = true) @RequestParam(value = "id", defaultValue = "") Long id
     ) {
-        R audit = purchaseStockOutService.reverseAuditForR(id, ConstantForGYL.CGTH.longValue());
+        R audit = purchaseStockOutService.reverseAuditForR(id, ConstantForGYL.CGTH);
         return audit==null?R.ok():audit;
     }
 	
@@ -108,7 +108,7 @@ public class PurchaseStockOutApiController {
 	public R delete(
 			@ApiParam(value = "采购退货ID组", required = true) @RequestParam(value = "ids", defaultValue = "") Long[] ids
     ) {
-		return purchaseStockOutService.batchDelete(ids,ConstantForGYL.CGTH.longValue());
+		return purchaseStockOutService.batchDelete(ids, ConstantForGYL.CGTH);
 	}
 	
 	@EvApiByToken(value = "/apis/purchaseStockOut/edit", method = RequestMethod.POST, apiTitle = "修改采购退货")
@@ -147,7 +147,7 @@ public class PurchaseStockOutApiController {
                     , required = true) @RequestParam(value = "item", defaultValue = "") String item,
                   @ApiParam(value = "明细数组") @RequestParam(value = "itemIds", defaultValue = "", required = false) Long[] itemIds) {
         R r = purchaseStockOutService.checkSourceNumber(item,stockOutDO.getId());
-	    return r==null?purchaseStockOutService.edit(stockOutDO, item, ConstantForGYL.CGTH.longValue() , itemIds):r;
+	    return r==null?purchaseStockOutService.edit(stockOutDO, item, ConstantForGYL.CGTH, itemIds):r;
 	}
 	
 	@EvApiByToken(value = "/apis/purchaseStockOut/advancedQuery", method = RequestMethod.POST, apiTitle = "获取采购退货列表/高级查询")

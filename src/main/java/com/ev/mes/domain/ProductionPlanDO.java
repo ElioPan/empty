@@ -25,7 +25,7 @@ public class ProductionPlanDO implements Serializable {
 	private Long id;
 	// 源单类型
 	@ApiModelProperty(value = "源单类型")
-	private Integer sourceType;
+	private Long sourceType;
 	// 来源单ID
 	@ApiModelProperty(value = "来源单ID")
 	private Long sourceId;
@@ -37,13 +37,13 @@ public class ProductionPlanDO implements Serializable {
 	private String planNo;
 	// 产品ID
 	@ApiModelProperty(value = "产品ID", required = true)
-	private Integer materielId;
+	private Long materielId;
 	// 生产部门
 	@ApiModelProperty(value = "生产部门", required = true)
 	private Long proDept;
 	// 生产类型
 	@ApiModelProperty(value = "生产类型", required = true)
-	private Integer type;
+	private Long type;
 	// 是否限额(0不限/1限)
 	@ApiModelProperty(value = "是否限额(0不限/1限)")
 	private Integer isQuota;
@@ -100,7 +100,7 @@ public class ProductionPlanDO implements Serializable {
 	private Date actualFinishTime;
 	// 单据状态
 	@ApiModelProperty(value = "单据状态", hidden = true)
-	private Integer status;
+	private Long status;
 	// 审核人员
 	@ApiModelProperty(value = "审核人员", hidden = true)
 	private Long auditor;

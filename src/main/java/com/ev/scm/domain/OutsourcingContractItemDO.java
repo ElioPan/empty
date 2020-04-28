@@ -22,14 +22,14 @@ public class OutsourcingContractItemDO implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	//
-    @ApiModelProperty(value = "")
+    @ApiModelProperty()
 	private Long id;
 	//主表id
     @ApiModelProperty(value = "主表id")
 	private Long contractId;
 	//物料ID
     @ApiModelProperty(value = "物料ID")
-	private Integer materielId;
+	private Long materielId;
 	//0检验1 不检验
     @ApiModelProperty(value = "0检验1 不检验")
 	private Integer isCheck;

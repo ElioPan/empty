@@ -339,7 +339,7 @@ public class SalesContractApiController {
                     .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO)>0)
                     .collect(Collectors.toList());
             if (quoteLists.size() > 0) {
-                DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.XSHT.intValue());
+                DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.XSHT);
                 String thisSourceTypeName = dictionaryDO.getName();
                 List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
                 for (Map<String, Object> stringObjectMap : quoteList) {
@@ -415,7 +415,7 @@ public class SalesContractApiController {
         int total = Integer.parseInt(stringBigDecimalMap.getOrDefault("total",0).toString());
         Map<String, Object> result = Maps.newHashMap();
         if (data.size() > 0) {
-            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.XSHT.intValue());
+            DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.XSHT);
             String thisSourceTypeName = dictionaryDO.getName();
             for (Map<String, Object> datum : data) {
                 datum.put("thisSourceType", ConstantForGYL.XSHT);

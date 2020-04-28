@@ -38,34 +38,28 @@ public class ShiroUtils {
     public static UserDO getUserDataPermission() {
         UserDO user = getUser();
         if (user != null) {
-            Integer dataPermission = user.getDataPermission();
+            Long dataPermission = user.getDataPermission();
             dataPermission = dataPermission ==null? 0:dataPermission;
-            switch (dataPermission){
-                case Constant.ALL_DATA:
-                    user.setDeptDatas(null);
-                    user.setDeptId(null);
-                    user.setUserId(null);
-                    break;
-                case Constant.SUBORDINATE_DEPT_DATA :
-                case Constant.THIS_DEPT_DATA:
-                    user.setDeptDatas(null);
-                    user.setUserId(null);
-                    break;
-                case Constant.CUSTOM_DATA:
-                    user.setDeptId(null);
-                    user.setUserId(null);
-                    break;
-                default:
-                    user.setDeptDatas(null);
-                    user.setDeptId(null);
-                    break;
+            if (dataPermission.equals(Constant.ALL_DATA)) {
+                user.setDeptDatas(null);
+                user.setDeptId(null);
+                user.setUserId(null);
+            } else if (dataPermission.equals(Constant.SUBORDINATE_DEPT_DATA) || dataPermission.equals(Constant.THIS_DEPT_DATA)) {
+                user.setDeptDatas(null);
+                user.setUserId(null);
+            } else if (dataPermission.equals(Constant.CUSTOM_DATA)) {
+                user.setDeptId(null);
+                user.setUserId(null);
+            } else {
+                user.setDeptDatas(null);
+                user.setDeptId(null);
             }
         }
         return user;
     }
 
     public static void logout() {
-        getSubjct().logout();
+        Objects.requireNonNull(getSubjct()).logout();
     }
 
     public static List<Principal> getPrinciples() {

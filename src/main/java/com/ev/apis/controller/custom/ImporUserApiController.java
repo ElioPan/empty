@@ -3,9 +3,6 @@ package com.ev.apis.controller.custom;
 import com.ev.common.service.ImportUserService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.utils.R;
-import com.ev.system.domain.AreaDO;
-import com.ev.system.service.AreaService;
-import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -16,10 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author gumingjie

@@ -419,7 +419,7 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 	public R splitPlan(Long oldId, String splitArray) {
 		// 结案状态不能拆分 判断是否为结案状态
 		WorkingProcedurePlanDO procedurePlanDO = this.get(oldId);
-		Integer status = procedurePlanDO.getStatus();
+		Long status = procedurePlanDO.getStatus();
 		if (Objects.equals(status, ConstantForMES.CLOSE_CASE)) {
             return R.error(messageSourceHandler.getMessage("plan.status.isCloseCase.split",null));
 		}

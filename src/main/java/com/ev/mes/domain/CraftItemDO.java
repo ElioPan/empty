@@ -62,7 +62,7 @@ public class CraftItemDO implements Serializable {
 	private Long deviceId;
 	//工序类型
     @ApiModelProperty(value = "工序类型")
-	private Integer type;
+	private Long type;
 	//单件工时
     @ApiModelProperty(value = "单件工时")
 	private BigDecimal manHour;

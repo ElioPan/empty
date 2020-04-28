@@ -19,11 +19,11 @@ public class MaterialInspectionVO implements Serializable {
 	//
 	private Long id;
 	// 检验单类型(216、来料检验、217产品检验、218、发货检验)
-	private Integer inspectionType;
+	private Long inspectionType;
 	// 来源单号ID
 	private Long sourceId;
 	// 源单类型
-	private Integer sourceType;
+	private Long sourceType;
 	//来源单号
 	private String sourceNo;
 	// 供应商ID
@@ -35,7 +35,7 @@ public class MaterialInspectionVO implements Serializable {
 	// 检验员
 	private Long inspector;
 	// 物料ID
-	private Integer materielId;
+	private Long materielId;
 	// 批号
 	private String batchNo;
 	// 检验方案
@@ -57,7 +57,7 @@ public class MaterialInspectionVO implements Serializable {
 	// 审核人员
 	private Long auditor;
 	// 单据状态
-	private Integer status;
+	private Long status;
 	// 是否已打印二维码
 	private Integer isPrintedQrcode = 0;
 	// 单位二维码数量

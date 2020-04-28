@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public interface DictionaryService {
 	
-	DictionaryDO get(Integer id);
+	DictionaryDO get(Long id);
 
 	DictionaryDO getByValue(String value,String type);
 	
@@ -30,9 +30,9 @@ public interface DictionaryService {
 	
 	int update(DictionaryDO dictionary);
 	
-	int remove(Integer id);
+	int remove(Long id);
 	
-	int batchRemove(Integer[] ids);
+	int batchRemove(Long[] ids);
 
 	List<DictionaryDO> listByType(String type);
 

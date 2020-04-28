@@ -61,7 +61,7 @@ public class FacilityApiController {
 
     @EvApiByToken(value = "/apis/facility/detail",method = RequestMethod.GET,apiTitle = "获取仓库详细信息")
     @ApiOperation("获取仓库详细信息")
-    public R detail(@ApiParam(value = "主键ID",required = true) @RequestParam(value = "id",defaultValue = "")  Integer id) {
+    public R detail(@ApiParam(value = "主键ID",required = true) @RequestParam(value = "id",defaultValue = "")  Long id) {
         Map<String,Object> results = new HashMap<>();
         Map<String,Object> param = Maps.newHashMap();
         param.put("id",id);
@@ -101,7 +101,7 @@ public class FacilityApiController {
     @Transactional(rollbackFor = Exception.class)
     @EvApiByToken(value = "/apis/facility/remove",method = RequestMethod.POST,apiTitle = "删除仓库信息")
     @ApiOperation("删除仓库信息")
-    public R remove(@ApiParam(value = "仓库主键",required = true) @RequestParam(value="id",defaultValue = "") Integer id){
+    public R remove(@ApiParam(value = "仓库主键",required = true) @RequestParam(value="id",defaultValue = "") Long id){
         FacilityDO facilityDO = facilityService.get(id);
         if (Objects.equals(facilityDO.getAuditSign(), ConstantForMES.OK_AUDITED)) {
             return R.error(messageSourceHandler.getMessage("common.approved.delete.disabled",null));
@@ -115,8 +115,8 @@ public class FacilityApiController {
     @Transactional(rollbackFor = Exception.class)
     @EvApiByToken(value = "/apis/facility/batchRemove",method = RequestMethod.POST,apiTitle = "批量删除仓库信息")
     @ApiOperation("批量删除仓库信息")
-    public R remove(@ApiParam(value = "仓库主键数组",required = true, example = "[1,2,3,4]") @RequestParam(value="ids",defaultValue = "") Integer[] ids){
-        for (Integer id : ids) {
+    public R remove(@ApiParam(value = "仓库主键数组",required = true, example = "[1,2,3,4]") @RequestParam(value="ids",defaultValue = "") Long[] ids){
+        for (Long id : ids) {
             FacilityDO facilityDO = facilityService.get(id);
             if (Objects.equals(facilityDO.getAuditSign(), ConstantForMES.OK_AUDITED)) {
                 return R.error(messageSourceHandler.getMessage("common.approved.delete.disabled",null));
@@ -136,7 +136,7 @@ public class FacilityApiController {
     @EvApiByToken(value = "/apis/facility/audit", method = RequestMethod.POST, apiTitle = "审核仓库")
     @ApiOperation("审核仓库")
     public R audit(
-            @ApiParam(value = "仓库主键", required = true) @RequestParam(value = "id", defaultValue = "") Integer id) {
+            @ApiParam(value = "仓库主键", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
         FacilityDO facilityDO = facilityService.get(id);
         if (Objects.equals(facilityDO.getAuditSign(), ConstantForMES.OK_AUDITED)) {
             return R.error(messageSourceHandler.getMessage("common.duplicate.approved",null));
@@ -157,7 +157,7 @@ public class FacilityApiController {
     @EvApiByToken(value = "/apis/facility/reverseAudit", method = RequestMethod.POST, apiTitle = "反审核仓库")
     @ApiOperation("反审核仓库")
     public R reverseAudit(
-            @ApiParam(value = "仓库主键", required = true) @RequestParam(value = "id", defaultValue = "") Integer id) {
+            @ApiParam(value = "仓库主键", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
         FacilityDO facilityDO = facilityService.get(id);
         if (Objects.equals(facilityDO.getAuditSign(), ConstantForMES.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("receipt.reverseAudit.nonWaitingAudit",null));

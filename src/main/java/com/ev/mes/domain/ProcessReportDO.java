@@ -48,7 +48,7 @@ public class ProcessReportDO implements Serializable {
 	private BigDecimal scrapCount;
 	//状态
     @ApiModelProperty(value = "状态")
-	private Integer status;
+	private Long status;
 	//创建人 （汇报人)
     @ApiModelProperty(value = "创建人 （汇报人)")
 	private Long createBy;

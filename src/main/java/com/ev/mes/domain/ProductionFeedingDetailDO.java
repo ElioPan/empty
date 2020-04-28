@@ -29,7 +29,7 @@ public class ProductionFeedingDetailDO implements Serializable {
 	private Long headId;
 	//产品ID
 	@ApiModelProperty(value = "产品ID")
-	private Integer materielId;
+	private Long materielId;
 	//批号
 	@ApiModelProperty(value = "批号")
 	private String batchNo;
