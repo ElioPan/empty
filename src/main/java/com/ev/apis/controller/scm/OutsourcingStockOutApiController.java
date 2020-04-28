@@ -101,7 +101,7 @@ public class OutsourcingStockOutApiController {
                          "]"
                     , required = true)@RequestParam(value = "item",defaultValue = "") String item) {
         R r = outsourcingStockOutService.checkSourceNumber(item,stockOutDO.getId());
-        DictionaryDO storageType = dictionaryService.get(ConstantForGYL.WWCK.intValue());
+        DictionaryDO storageType = dictionaryService.get(ConstantForGYL.WWCK);
         return r==null?outsourcingStockOutService.add(stockOutDO, item, storageType):r;
 	}
 	
@@ -342,7 +342,7 @@ public class OutsourcingStockOutApiController {
                     .filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("quoteCount")).compareTo(BigDecimal.ZERO) > 0)
                     .collect(Collectors.toList());
             if (quoteLists.size() > 0) {
-                DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.WWCK.intValue());
+                DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.WWCK);
                 String thisSourceTypeName = dictionaryDO.getName();
                 List<Map<String, Object>> quoteList = PageUtils.startPage(quoteLists, pageno, pagesize);
                 for (Map<String, Object> stringObjectMap : quoteList) {

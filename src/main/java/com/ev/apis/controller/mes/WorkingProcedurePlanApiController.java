@@ -312,7 +312,6 @@ public class WorkingProcedurePlanApiController {
 	 *
 	 * @date 2019-11-30 
 	 * @author gumingjie
-	 * @version 1  
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	@EvApiByToken(value = "/apis/workingProcedurePlan/reverseIssuedPlan", method = RequestMethod.POST, apiTitle = "反下达工序计划")
@@ -330,7 +329,6 @@ public class WorkingProcedurePlanApiController {
 	 *
 	 * @date 2019-11-30 
 	 * @author gumingjie
-	 * @version 1  
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	@EvApiByToken(value = "/apis/workingProcedurePlan/putUpPlan", method = RequestMethod.POST, apiTitle = "挂起工序计划")
@@ -462,7 +460,6 @@ public class WorkingProcedurePlanApiController {
 	 *
 	 * @date 2019-12-02 
 	 * @author gumingjie
-	 * @version 1  
 	 */
 	@EvApiByToken(value = "/apis/workingProcedurePlan/followPlan", method = RequestMethod.POST, apiTitle = "跟踪工序计划")
 	@ApiOperation("跟踪工序计划")

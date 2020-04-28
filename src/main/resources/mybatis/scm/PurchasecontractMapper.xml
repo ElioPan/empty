@@ -244,6 +244,10 @@
 				i.tax_rate AS taxRate,
 				i.amount AS amount,
 				i.taxes,
+				i.close_status as itemCloseStatus,
+				IF(i.close_status=1,'关闭','未关闭') AS itemCloseStatusName,
+				i.close_time as itemCloseTime,
+				i.close_reason as itemCloseReason,
 				i.tax_unit_price AS taxUnitPrice,
 				i.delivery_date AS deliveryDate,
 				a.audit_sign as auditSign,
@@ -289,6 +293,7 @@
 			<if test="createEndTime != null and createEndTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{createEndTime},'%Y-%m-%d')</if>
 			<if test="closeStatus != null and closeStatus != ''"> and  closeStatus= #{closeStatus} </if>
 			<if test="supplierId != null and supplierId != ''"> and  supplierId= #{supplierId} </if>
+			<if test="itemCloseStatus != null and itemCloseStatus != ''"> and  itemCloseStatus is null</if>
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -345,6 +350,8 @@
 		h.name as auditSignName,
 		i.source_code as sourceCode,
 		i.source_type as sourceType,
+		i.close_status as itemCloseStatus,
+		IF(i.close_status=1,'关闭','未关闭') AS itemCloseStatusName,
 		m.name as sourceTypeName,
 		a.create_by as createBy,
 		n.name as createByName,
@@ -381,6 +388,7 @@
 			<if test="createTime != null and createTime != ''"> and  createTime= #{createTime} </if>
 			<if test="closeStatus != null and closeStatus != ''"> and  closeStatus= #{closeStatus} </if>
 			<if test="supplierId != null and supplierId != ''"> and  supplierId= #{supplierId} </if>
+			<if test="itemCloseStatus != null and itemCloseStatus != ''"> and  itemCloseStatus is null</if>
 		</where>
 	</select>
 
@@ -444,6 +452,8 @@
         and  DATE_FORMAT(a.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')
         and  DATE_FORMAT(a.create_time,'%Y-%m-%d') &lt;=   DATE_FORMAT(#{endTime},'%Y-%m-%d')
 	</select>
+
+
 
 
 </mapper>

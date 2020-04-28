@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public interface TaskReplyService {
 	
-	TaskReplyDO get(Integer id);
+	TaskReplyDO get(Long id);
 	
 	List<TaskReplyDO> list(Map<String, Object> map);
 
@@ -28,9 +28,9 @@ public interface TaskReplyService {
 	
 	int update(TaskReplyDO taskReply);
 	
-	int remove(Integer id);
+	int remove(Long id);
 	
-	int batchRemove(Integer[] ids);
+	int batchRemove(Long[] ids);
 
 	Map<String, Object> detail(Long id);
 }

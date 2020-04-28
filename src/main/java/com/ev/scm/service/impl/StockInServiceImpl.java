@@ -378,7 +378,7 @@ public class StockInServiceImpl implements StockInService {
 		String code=null;
 		Long storageType=0L;
 
-		DictionaryDO dictionaryDO = dictionaryService.get(Integer.parseInt(inStockTypeId.toString()));
+		DictionaryDO dictionaryDO = dictionaryService.get(Long.parseLong(inStockTypeId.toString()));
 		if(Objects.nonNull(dictionaryDO)){
 			code = purchaseContractCode(dictionaryDO.getValue());
 			storageType=inStockTypeId;
@@ -398,11 +398,11 @@ public class StockInServiceImpl implements StockInService {
 				Map<String,Object> param = Maps.newHashMap();
 				param.put("materielIdList",materielIdList);
 				List<MaterielDO> materielDOS = materielService.list(param);
-				Map<Integer, Integer> isLotMap = materielDOS.stream()
+				Map<Long, Integer> isLotMap = materielDOS.stream()
 						.collect(Collectors.toMap(MaterielDO::getId, MaterielDO::getIsLot));
 				List<StockInItemDO> errorList = inbodyCDos.stream()
-						.filter(e -> (e.getBatch() == null && isLotMap.get(e.getMaterielId().intValue()) == 1)
-								|| (e.getBatch() != null && isLotMap.get(e.getMaterielId().intValue()) == 0))
+						.filter(e -> (e.getBatch() == null && isLotMap.get(e.getMaterielId()) == 1)
+								|| (e.getBatch() != null && isLotMap.get(e.getMaterielId()) == 0))
 						.collect(Collectors.toList());
 				if (errorList.size() > 0) {
 					List<Long> errorIds = errorList
@@ -411,7 +411,7 @@ public class StockInServiceImpl implements StockInService {
 							.collect(Collectors.toList());
 					String join = StringUtils.join(materielDOS
 							.stream()
-							.filter(e -> errorIds.contains(e.getId().longValue()))
+							.filter(e -> errorIds.contains(e.getId()))
 							.map(MaterielDO::getName).toArray(), ",");
 					String []args ={join};
 					return R.error(messageSourceHandler.getMessage("basicInfo.materiel.isLotError",args));
@@ -529,7 +529,7 @@ public class StockInServiceImpl implements StockInService {
 				stockDo.setMaterielId(stockInItemDo.getMaterielId());
 				stockDo.setBatch(stockInItemDo.getBatch());
 				stockDo.setWarehouse(stockInItemDo.getWarehouse());
-				stockDo.setWarehLocation(stockInItemDo.getWarehLocation()==null?null:stockInItemDo.getWarehLocation());
+				stockDo.setWarehLocation(stockInItemDo.getWarehLocation());
 				stockDo.setSourceCompany(stockInDO.getSourceCompany()==null?stockInDO.getClientId():stockInDO.getSourceCompany());
 				stockDo.setEnteringTime(new Date());
 			BigDecimal inCount = BigDecimal.ZERO;
@@ -838,7 +838,7 @@ public class StockInServiceImpl implements StockInService {
 				Long sourceType = itemDo.getSourceType();
 
 				if (Objects.nonNull(sourceType)) {
-					if(Objects.equals(sourceType,(ConstantForMES.SCJH).longValue())){
+					if(Objects.equals(sourceType,(ConstantForMES.SCJH))){
 						//获取采购合同子表数量
 						ProductionPlanDO productionPlanDO = productionPlanService.get(sourceId);
 						if (productionPlanDO != null) {

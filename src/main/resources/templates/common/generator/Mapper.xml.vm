@@ -87,7 +87,7 @@
 				<trim prefix="$column.columnName =case" suffix="end,">
 					<foreach collection="list" item="item" index="index">
 						<if test="item.$column.attrname!=null">
-							when id=#{item.${pk.columnName}} then #{item.delFlag}
+							when id=#{item.${pk.columnName}} then #{item.${column.columnName}}
 						</if>
 						<if test="item.$column.attrname==null">
 							when id=#{item.${pk.columnName}} then ${tableName}.${column.columnName}

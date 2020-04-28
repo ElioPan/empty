@@ -189,7 +189,7 @@ public final class ConstantForGYL {
 	/**
 	 * 采购退货
 	 */
-	public static final Integer CGTH = 259;
+	public static final Long CGTH = 259L;
 
 	/**
 	 * 盘点方案前缀
@@ -246,7 +246,7 @@ public final class ConstantForGYL {
 	/**
 	 * 加权平均  计价方法
 	 */
-	public static final Integer WEIGHTED_AVERAGE = 144;
+	public static final Long WEIGHTED_AVERAGE = 144L;
 
 	/**
 	 * 按数量分配
@@ -260,7 +260,7 @@ public final class ConstantForGYL {
 	/**
 	 * 分批认定 计价方法
 	 */
-	public static final Integer BATCH_FINDS = 143;
+	public static final Long BATCH_FINDS = 143L;
 	/**
 	 * 支出
 	 */

@@ -11,11 +11,11 @@ public final class ConstantForMES{
 	/**
 	 * 待审核
 	 */
-	public static final Integer WAIT_AUDIT = ConstantForGYL.WAIT_AUDIT.intValue();
+	public static final Long WAIT_AUDIT = ConstantForGYL.WAIT_AUDIT;
 	/**
 	 * 已审核
 	 */
-	public static final Integer OK_AUDITED = ConstantForGYL.OK_AUDITED.intValue();
+	public static final Long OK_AUDITED = ConstantForGYL.OK_AUDITED;
 	/**
 	 * BOM文件
 	 */
@@ -53,31 +53,31 @@ public final class ConstantForMES{
 	/**
 	 * 生产计划
 	 */
-	public static final Integer SCJH = 278;
+	public static final Long SCJH = 278L;
 	/**
 	 * 计划
 	 */
-	public static final Integer PLAN = 231;
+	public static final Long PLAN = 231L;
 	/**
 	 * 下达
 	 */
-	public static final Integer ISSUED = 232;
+	public static final Long ISSUED = 232L;
 	/**
 	 * 挂起
 	 */
-	public static final Integer PUT_UP = 233;
+	public static final Long PUT_UP = 233L;
 	/**
 	 * 结案
 	 */
-	public static final Integer CLOSE_CASE = 234;
+	public static final Long CLOSE_CASE = 234L;
 	/**
 	 * 工序跟踪
 	 */
-	public static final Integer PROCESS_TRACKING = 235;
+	public static final Long PROCESS_TRACKING = 235L;
 	/**
 	 * 派工
 	 */
-	public static final Integer SEND_ORDERS = 236;
+	public static final Long SEND_ORDERS = 236L;
 	/**
 	 * 生产投料工单前缀
 	 */
@@ -103,16 +103,16 @@ public final class ConstantForMES{
 	/**
 	 * 开工
 	 */
-	public static final Integer START_WORK = 237;
+	public static final Long START_WORK = 237L;
 
 	/**
 	 * 暂存
 	 */
-	public static final Integer MES_TS= Constant.TS;
+	public static final Long MES_TS= Constant.TS;
 	/**
 	 * 已提交
 	 */
-	public static final Integer MES_APPLY_APPROED = Constant.APPLY_APPROED;
+	public static final Long MES_APPLY_APPROED = Constant.APPLY_APPROED;
 
 	/**
 	 * 工序报工单号前缀
@@ -133,7 +133,7 @@ public final class ConstantForMES{
 	/**
 	 * 返工返修
 	 */
-	public static final Integer REWPRKER = 212;
+	public static final Long REWPRKER = 212L;
 
 	/**
 	 * 报工 返工返修类型标记
@@ -148,7 +148,7 @@ public final class ConstantForMES{
 	/**
 	 * 待产
 	 */
-	public static final Integer AWAITING_DELIVERY = 249;
+	public static final Long AWAITING_DELIVERY = 249L;
 
 	/**
 	 * 投料单Type
@@ -163,21 +163,21 @@ public final class ConstantForMES{
 	/**
 	 * 产品检验
 	 */
-	public static final Integer CPJY = 217;
+	public static final Long CPJY = 217L;
 
 	/**
 	 * 生产投料
 	 */
-	public static final Integer SCTL = 277;
+	public static final Long SCTL = 277L;
 
 	/**
 	 * 来料检验
 	 */
-	public static final Integer LLJY = 216;
+	public static final Long LLJY = 216L;
 	/**
 	 * 发货检验
 	 */
-	public static final Integer FHJY = 218;
+	public static final Long FHJY = 218L;
 
 
 	/**

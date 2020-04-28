@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.ev.framework.config.Constant;
 import com.ev.framework.il8n.MessageSourceHandler;
@@ -179,16 +180,18 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
         if (!this.isPlan(planDO)) {
             return R.error(messageSourceHandler.getMessage("plan.status.nonPlan", null));
         }
-        if (this.isBomEmpty(planDO)) {
-            return R.error(messageSourceHandler.getMessage("plan.bom.isEmpty", null));
-        }
+//        if (this.isBomEmpty(planDO)) {
+//            return R.error(messageSourceHandler.getMessage("plan.bom.isEmpty", null));
+//        }
         if (this.isTecRouteEmpty(planDO)) {
             return R.error(messageSourceHandler.getMessage("plan.tecRoute.isEmpty", null));
         }
 //		if (this.isInspectionEmpty(planDO)) {
 //			return R.error("请选择检验方案");
 //		}
-        feedingService.add(this.getFeedingDO(planDO), this.getFeedingChildArray(planDO));
+        if (!this.isBomEmpty(planDO)) {
+            feedingService.add(this.getFeedingDO(planDO), this.getFeedingChildArray(planDO));
+        }
         planDO.setStatus(ConstantForMES.ISSUED);
         planDO.setGiveTime(new Date());
         int update = this.update(planDO);
@@ -269,13 +272,30 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
      */
     private String getFeedingChildArray(ProductionPlanDO planDO) {
         Map<String, Object> param = Maps.newHashMapWithExpectedSize(1);
+        Integer isCollect = planDO.getIsCollect();
         param.put("bomId", planDO.getBomId());
         List<BomDetailDO> list = bomDetailService.list(param);
+        // 获取所有物料详情
+        List<Long> materielIdList = list.stream()
+                .map(BomDetailDO::getMaterielId)
+                .distinct()
+                .collect(Collectors.toList());
+        param.remove("bomId");
+        param.put("materielIdList",materielIdList);
+        List<MaterielDO> materielDOList = materielService.list(param);
+        Map<Long, Long> facilityMap = materielDOList
+                .stream()
+                .collect(Collectors.toMap(MaterielDO::getId, v->v.getDefaultFacility()==null?0:v.getDefaultFacility()));
+        Map<Long, Long> locationMap = materielDOList
+                .stream()
+                .collect(Collectors.toMap(MaterielDO::getId, v->v.getDefaultFacility()==null?0:v.getDefaultLocation()));
+
         List<Map<String, Object>> feedingDetailList = new ArrayList<>();
         Map<String, Object> feedingDetail;
         for (BomDetailDO bomDetailDO : list) {
             feedingDetail = Maps.newHashMapWithExpectedSize(2);
-            feedingDetail.put("materielId", bomDetailDO.getMaterielId());
+            Long materielId = bomDetailDO.getMaterielId();
+            feedingDetail.put("materielId", materielId);
             // 计划投料数量公式 (标准用量 /(1-损耗率/100))*计划生产数量
             BigDecimal wasteRate = bomDetailDO.getWasteRate();
             BigDecimal standardCount = bomDetailDO.getStandardCount();
@@ -283,6 +303,12 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
             BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP)
                     .multiply(planCount);
             feedingDetail.put("planFeeding", planFeeding);
+            // 新增字段
+            feedingDetail.put("processId", bomDetailDO.getProcessId());
+            feedingDetail.put("stationId", bomDetailDO.getStationId());
+            feedingDetail.put("facilityId", facilityMap.get(materielId));
+            feedingDetail.put("locationId", locationMap.get(materielId));
+            feedingDetail.put("isCollect", isCollect);
             feedingDetailList.add(feedingDetail);
         }
         return JSON.toJSONString(feedingDetailList);
@@ -540,7 +566,7 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
     public R alterationPlan(ProductionPlanDO planDO) {
         Long planId = planDO.getId();
         ProductionPlanDO productionPlanDO = this.get(planId);
-        Integer status = productionPlanDO.getStatus();
+        Long status = productionPlanDO.getStatus();
         if (Objects.equals(status, ConstantForMES.PLAN)) {
             return R.error(messageSourceHandler.getMessage("plan.alteration.useUpdate", null));
         }

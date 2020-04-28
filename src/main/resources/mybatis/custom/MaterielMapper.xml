@@ -186,6 +186,13 @@
             <if test="useStatus != null and useStatus != ''"> and material.use_status = #{useStatus} </if>
             <if test="auditor != null and auditor != ''"> and material.auditor = #{auditor} </if>
 			<if test="isLot != null and isLot != ''"> and material.is_lot = #{isLot} </if>
+			<if test="materielIdList != null and materielIdList.size()>0"> and material.id IN
+				<foreach item="item" collection="materielIdList" open="(" separator="," close=")" index="index">
+					<if test="item!=null">
+						#{item}
+					</if>
+				</foreach>
+			</if>
 			AND material.del_flag = 0
 		</where>
 		<choose>

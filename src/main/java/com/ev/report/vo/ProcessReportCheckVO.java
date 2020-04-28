@@ -39,7 +39,7 @@ public class ProcessReportCheckVO implements Serializable {
 	//报检数量
 	private BigDecimal checkCount;
 	//状态
-	private Integer status;
+	private Long status;
 	//创建人
 	private Long createBy;
 	//创建时间

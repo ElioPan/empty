@@ -25,7 +25,7 @@ public class MaterielServiceImpl implements MaterielService {
 	private MessageSourceHandler messageSourceHandler;
 	
 	@Override
-	public MaterielDO get(Integer id){
+	public MaterielDO get(Long id){
 		return materielDao.get(id);
 	}
 	
@@ -56,12 +56,12 @@ public class MaterielServiceImpl implements MaterielService {
 	}
 	
 	@Override
-	public int remove(Integer id){
+	public int remove(Long id){
 		return materielDao.remove(id);
 	}
 	
 	@Override
-	public int batchRemove(Integer[] ids){
+	public int batchRemove(Long[] ids){
 		return materielDao.batchRemove(ids);
 	}
 
@@ -71,7 +71,7 @@ public class MaterielServiceImpl implements MaterielService {
 	}
 
 	@Override
-	public Map<String, Object> getDetail(Integer id) {
+	public Map<String, Object> getDetail(Long id) {
 		Map<String, Object> param = Maps.newHashMapWithExpectedSize(1);
 		param.put("id", id);
 		List<Map<String, Object>> listForMap = materielDao.listForMap(param);
@@ -104,7 +104,7 @@ public class MaterielServiceImpl implements MaterielService {
 	}
 
 	@Override
-	public int checkUse(Integer id) {
+	public int checkUse(Long id) {
 		return materielDao.checkUse(id);
 	}
 	
@@ -114,7 +114,7 @@ public class MaterielServiceImpl implements MaterielService {
 	}
 
 	@Override
-	public R logicRemove(Integer id) {
+	public R logicRemove(Long id) {
 		if (this.get(id).getAuditSign().equals(ConstantForMES.OK_AUDITED)) {
 			return R.error(messageSourceHandler.getMessage("common.approvedOrChild.delete.disabled", null));
 		}
@@ -129,9 +129,9 @@ public class MaterielServiceImpl implements MaterielService {
 	}
 
 	@Override
-	public R logicBatchRemove(Integer[] ids) {
+	public R logicBatchRemove(Long[] ids) {
 		int count = 0;
-		for (Integer id : ids) {
+		for (Long id : ids) {
 			if (this.get(id).getAuditSign().equals(ConstantForMES.OK_AUDITED)) {
 				return R.error(messageSourceHandler.getMessage("common.approvedOrChild.delete.disabled", null));
 			}
@@ -140,7 +140,7 @@ public class MaterielServiceImpl implements MaterielService {
 			}
 		}
 		MaterielDO materielDO;
-		for (Integer id : ids) {
+		for (Long id : ids) {
 			materielDO = new MaterielDO();
 			materielDO.setId(id);
 			materielDO.setDelFlag(1);
@@ -150,7 +150,7 @@ public class MaterielServiceImpl implements MaterielService {
 	}
 
     @Override
-    public int audit(Integer id) {
+    public int audit(Long id) {
         MaterielDO materielDO = new MaterielDO();
         materielDO.setId(id);
         materielDO.setAuditSign(ConstantForMES.OK_AUDITED);
@@ -159,7 +159,7 @@ public class MaterielServiceImpl implements MaterielService {
     }
 
     @Override
-    public int reverseAudit(Integer id) {
+    public int reverseAudit(Long id) {
         MaterielDO materielDO = new MaterielDO();
         materielDO.setId(id);
         materielDO.setAuditSign(ConstantForMES.WAIT_AUDIT);

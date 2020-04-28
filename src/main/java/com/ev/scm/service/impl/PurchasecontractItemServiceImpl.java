@@ -1,5 +1,6 @@
 package com.ev.scm.service.impl;
 
+import com.ev.framework.utils.R;
 import com.ev.scm.dao.PurchasecontractItemDao;
 import com.ev.scm.domain.PurchasecontractItemDO;
 import com.ev.scm.service.PurchasecontractItemService;
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -76,5 +78,25 @@ public class PurchasecontractItemServiceImpl implements PurchasecontractItemServ
 	public BigDecimal getInCounteExcludeContractId(Map<String, Object> map) {
 		return purchasecontractItemDao.getInCounteExcludeContractId(map);
 	}
+
+	@Override
+	public R disposeCloseLine(Long[] ids ,String closeReason){
+
+		PurchasecontractItemDO purchasecontractItemDO=new PurchasecontractItemDO();
+		purchasecontractItemDO.setCloseStatus(1);
+		purchasecontractItemDO.setCloseTime(new Date());
+		purchasecontractItemDO.setCloseReason(closeReason);
+		for(Long id:ids){
+			purchasecontractItemDO.setId(id);
+			purchasecontractItemDao.update(purchasecontractItemDO);
+		}
+		return R.ok();
+	}
+
+	@Override
+	public int lineClosingNumber(Long id) {
+		return purchasecontractItemDao.lineClosingNumber(id);
+	}
+
 
 }

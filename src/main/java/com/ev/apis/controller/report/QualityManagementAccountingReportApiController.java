@@ -6,9 +6,6 @@ import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.ConstantForGYL;
-import com.ev.framework.config.ConstantForMES;
-import com.ev.framework.config.ConstantForReport;
-import com.ev.framework.utils.BeanUtils;
 import com.ev.framework.utils.R;
 import com.ev.report.service.QualityManagementAccountingReportService;
 import com.google.common.collect.Lists;
@@ -28,11 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 质量管理报表分析
@@ -270,7 +264,6 @@ public class QualityManagementAccountingReportApiController {
         // 查询列表数据
         Map<String, Object> params = Maps.newHashMap();
 
-
         params.put("batch", batch);
         params.put("materielId", materielId);
         params.put("startTime", startTime);
@@ -283,45 +276,16 @@ public class QualityManagementAccountingReportApiController {
         storageTypes.add(ConstantForGYL.OUTSOURCING_INSTOCK);
         params.put("storageTypes", storageTypes);
 
-        List<Long> outboundTypes =  Lists.newArrayList();
-        outboundTypes.add(ConstantForGYL.WWCK);
-        outboundTypes.add(ConstantForGYL.LYCK);
-        params.put("outboundTypes", outboundTypes);
-
-        params.put("inspectionType", ConstantForMES.LLJY);
-        int total = reportService.qualityTraceabilityCount(params);
+        params.put("isQuality", 1);
 
         // 采购入库&来料检验&生产领料&生产计划
         List<Map<String, Object>> data = reportService.qualityTraceabilityList(params);
-        ArrayList<Map<String, Object>> clone = BeanUtils.clone((ArrayList<Map<String, Object>>) data);
-        Map<String, Map<String, Object>> batchGroup = clone.stream()
-                .collect(Collectors.toMap(k -> k.get("batch").toString(), v -> v, (v1, v2) -> v1));
-        for (Map<String, Object> value : batchGroup.values()) {
-            value.remove("typeName");
-            value.remove("id");
-            value.remove("sourceCode");
-            value.remove("code");
-            value.remove("count");
-            value.remove("facilityName");
-            value.remove("way");
-            value.remove("locationName");
-            value.remove("sourceTypeName");
-            value.remove("time");
-            value.put("sign", ConstantForReport.COLOUR_END);
-            value.put("sortNo",0);
-        }
-        data.addAll(batchGroup.values());
 
-        List<Map<String, Object>> collect = data
-                .stream()
-                .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
-                .sorted(Comparator.comparing(e -> e.get("batch").toString()))
-                .collect(Collectors.toList());
-
+        List<Map<String, Object>> collect = reportService.qualityTraceabilityListCollect(data);
 
         Map<String, Object> results = Maps.newHashMap();
         if (data.size() > 0) {
-            results.put("data", new DsResultResponse(pageno, pagesize, total, collect));
+            results.put("data", new DsResultResponse(pageno, pagesize, 0, collect));
         }
         return R.ok(results);
     }
@@ -343,9 +307,8 @@ public class QualityManagementAccountingReportApiController {
         // 查询列表数据
         Map<String, Object> params = Maps.newHashMap();
 
-
         params.put("batch", batch);
-        params.put("deviceId", materielId);
+        params.put("materielId", materielId);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
 
@@ -356,19 +319,25 @@ public class QualityManagementAccountingReportApiController {
         storageTypes.add(ConstantForGYL.OUTSOURCING_INSTOCK);
         params.put("storageTypes", storageTypes);
 
-        List<Long> outboundTypes =  Lists.newArrayList();
-        outboundTypes.add(ConstantForGYL.WWCK);
-        outboundTypes.add(ConstantForGYL.LYCK);
-        params.put("outboundTypes", outboundTypes);
-
-        params.put("inspectionType", ConstantForMES.LLJY);
+        params.put("isQuality", 1);
 
         // 采购入库&来料检验&生产领料&生产计划
         List<Map<String, Object>> data = reportService.qualityTraceabilityList(params);
+        List<Map<String, Object>> collect = reportService.qualityTraceabilityListCollect(data);
+
+        collect.forEach(e->{
+            String way = e.get("way").toString();
+            if ("in".equals(way)) {
+                e.put("way", "来源");
+            } else {
+                e.put("way", "去向");
+            }
+        });
+
         if (data.size() > 0) {
             ClassPathResource classPathResource = new ClassPathResource("poi/report_quality_qualityTraceability.xlsx");
             Map<String,Object> map = Maps.newHashMap();
-            map.put("list", data);
+            map.put("list", collect);
             TemplateExportParams result = new TemplateExportParams(classPathResource.getPath());
             modelMap.put(TemplateExcelConstants.FILE_NAME, "质量追溯分析");
             modelMap.put(TemplateExcelConstants.PARAMS, result);

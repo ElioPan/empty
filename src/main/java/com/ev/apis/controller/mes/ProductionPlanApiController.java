@@ -127,7 +127,6 @@ public class ProductionPlanApiController {
 	 * 获取生产计划的变更记录
 	 * @date 2019-11-27
 	 * @author gumingjie
-	 * @version 1 
 	 */
 	@EvApiByToken(value = "/apis/productionPlan/alterationList", method = RequestMethod.POST, apiTitle = "变更记录列表")
 	@ApiOperation("变更记录列表")
@@ -248,7 +247,6 @@ public class ProductionPlanApiController {
 	 *
 	 * @date 2019-11-27 
 	 * @author gumingjie
-	 * @version 1  
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	@EvApiByToken(value = "/apis/productionPlan/reverseIssuedPlan", method = RequestMethod.POST, apiTitle = "反下达生产计划")
@@ -284,7 +282,6 @@ public class ProductionPlanApiController {
      *
 	 * @date 2019-11-28
 	 * @author gumingjie
-	 * @version 1  
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	@EvApiByToken(value = "/apis/productionPlan/reversePutUpPlan", method = RequestMethod.POST, apiTitle = "反挂起生产计划")

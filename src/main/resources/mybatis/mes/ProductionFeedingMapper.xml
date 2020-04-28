@@ -319,6 +319,14 @@
     LEFT JOIN scm_outsourcing_contract_item soci ON soci.source_id = item.id
 		<where>
 			<if test="sourceId != null and sourceId != ''"> and item.head_id = #{sourceId} </if>
+			<if test="sourceIds != null and sourceIds.size()>0"> and item.id IN
+				<foreach item="item" collection="sourceIds" open="(" separator="," close=")" index="index">
+					<if test="item!=null">
+						#{item}
+					</if>
+				</foreach>
+			</if>
+
 			<if test="sourceTypes != null and sourceTypes.size()>0"> and (
 			 	purchase.source_type IN
 				<foreach item="item" collection="sourceTypes" open="(" separator="," close=")" index="index">

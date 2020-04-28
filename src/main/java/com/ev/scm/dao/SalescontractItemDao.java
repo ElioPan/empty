@@ -34,4 +34,6 @@ public interface SalescontractItemDao {
 
     Map<String, Object> countByContract(Map<String, Object> map);
 //	int removeSid(Long sid);
+
+    int lineClosingNumber(Long id);
 }

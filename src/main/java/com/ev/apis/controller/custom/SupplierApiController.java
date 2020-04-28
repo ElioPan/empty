@@ -91,7 +91,7 @@ public class SupplierApiController {
             }
         }
             supplierDO.setName(supplierDO.getName().trim());
-            supplierDO.setStatus(ConstantForGYL.WAIT_AUDIT.intValue());
+            supplierDO.setStatus(ConstantForGYL.WAIT_AUDIT);
 
         //按照之前表设计将联系人保存在supplierLinkman表中
         SupplierLinkmanDO supplierLinkmanDO = new SupplierLinkmanDO();
@@ -124,7 +124,7 @@ public class SupplierApiController {
         }
 
         supplierDO.setName(supplierDO.getName().trim());
-        supplierDO.setStatus(ConstantForGYL.WAIT_AUDIT.intValue());
+        supplierDO.setStatus(ConstantForGYL.WAIT_AUDIT);
 
         int count = supplierService.update(supplierDO);
 
@@ -150,8 +150,8 @@ public class SupplierApiController {
     public R submitSupplier(@ApiParam(value = "供应商id", required = true) @RequestParam(value = "id", defaultValue = "", required = true)Long id ){
         SupplierDO supplierDO= supplierService.get(id);
         if(Objects.nonNull(supplierDO)){
-            if(Objects.equals(supplierDO.getStatus(),ConstantForGYL.WAIT_AUDIT.intValue())){
-                supplierDO.setStatus(ConstantForGYL.OK_AUDITED.intValue());
+            if(Objects.equals(supplierDO.getStatus(),ConstantForGYL.WAIT_AUDIT)){
+                supplierDO.setStatus(ConstantForGYL.OK_AUDITED);
                 supplierDO.setAuditId(ShiroUtils.getUserId());
                 supplierService.update(supplierDO);
                 return R.ok();
@@ -169,8 +169,8 @@ public class SupplierApiController {
     public R goBackSubmitSupplier(@ApiParam(value = "供应商id", required = true) @RequestParam(value = "id", defaultValue = "", required = true)Long id ){
         SupplierDO supplierDO= supplierService.get(id);
         if(Objects.nonNull(supplierDO)){
-            if(Objects.equals(supplierDO.getStatus(),ConstantForGYL.OK_AUDITED.intValue())){
-                supplierDO.setStatus(ConstantForGYL.WAIT_AUDIT.intValue());
+            if(Objects.equals(supplierDO.getStatus(),ConstantForGYL.OK_AUDITED)){
+                supplierDO.setStatus(ConstantForGYL.WAIT_AUDIT);
                 supplierDO.setAuditId(0L);
                 supplierService.update(supplierDO);
                 return R.ok();
@@ -415,8 +415,6 @@ public class SupplierApiController {
                 assert firstCode != null;
                 firstCode = Constant.GYS + StringUtils.autoGenericCode(firstCode.substring(Constant.GYS.length()), 4);
             }
-
-            List<DictionaryDO> dictionaryDOS = dictionaryService.listByType(Constant.BANK);
 
             Date now = new Date();
             Long userId = ShiroUtils.getUserId();

@@ -46,131 +46,131 @@ public class Constant {
     /**
      * 供应商
      */
-    public static final Integer SEVICE_SUPPLIER = 42;
+    public static final Long SEVICE_SUPPLIER = 42L;
     /**
      * 生产商
      */
-    public static final Integer SEVICE_MANUFACTURER = 43;
+    public static final Long SEVICE_MANUFACTURER = 43L;
     /**
      * 服务商
      */
-    public static final Integer SEVICE_FACILITATOR = 44;
+    public static final Long SEVICE_FACILITATOR = 44L;
     /**
      * 任务责任人
      */
-    public static final Integer HELD_PERSON = 51;
+    public static final Long HELD_PERSON = 51L;
     /**
      * 任务抄送人
      */
-    public static final Integer CC_PERSON = 52;
+    public static final Long CC_PERSON = 52L;
     /**
      * 待处理
      */
-    public static final Integer WAITING_DEAL = 56;
+    public static final Long WAITING_DEAL = 56L;
     /**
      * 待验收
      */
-    public static final Integer WAITING_CHECK = 57;
+    public static final Long WAITING_CHECK = 57L;
     /**
      * 已验收
      */
-    public static final Integer ALREADY_CHECK = 58;
+    public static final Long ALREADY_CHECK = 58L;
     /**
      * 任务验收人
      */
-    public static final Integer CHECK_PERSON = 59;
+    public static final Long CHECK_PERSON = 59L;
     /**
      * 任务回复处理
      */
-    public static final Integer REPLY_DEAL = 60;
+    public static final Long REPLY_DEAL = 60L;
     /**
      * 验收
      */
-    public static final Integer REPLY_CHECK = 61;
+    public static final Long REPLY_CHECK = 61L;
     /**
      * 退回（审批退回）
      */
-    public static final Integer APPLY_REJECT = 62;
+    public static final Long APPLY_REJECT = 62L;
     /**
      * 审批中
      */
-    public static final Integer APPLY_APPROVING = 63;
+    public static final Long APPLY_APPROVING = 63L;
     /**
      * 已结束
      */
-    public static final Integer APPLY_COMPLETED = 64;
+    public static final Long APPLY_COMPLETED = 64L;
     /**
      * 8D报告编制中
      */
-    public static final Integer EDITING = 91;
+    public static final Long EDITING = 91L;
     /**
      * 8D报告已完成
      */
-    public static final Integer COMPLETED = 92;
+    public static final Long COMPLETED = 92L;
     /**
      * 通过
      */
-    public static final Integer RESULT_PASS = 115;
+    public static final Long RESULT_PASS = 115L;
     /**
      * 不通过
      */
-    public static final Integer RESULT_UNPASS = 116;
+    public static final Long RESULT_UNPASS = 116L;
     /**
      * 计划启用
      */
-    public static final Integer STATE_START = 129;
+    public static final Long STATE_START = 129L;
     /**
      * 计划完成
      */
-    public static final Integer STATE_STOP_OVER = 131;    
+    public static final Long STATE_STOP_OVER = 131L;
     /**
      * 待评价
      */
-    public static final Integer NO_EVALUATED= 133;
+    public static final Long NO_EVALUATED= 133L;
     /**
      * 维修事件抄送人
      */
-    public static final Integer REPAIR_EVENT_CC_PERSON = 134;
+    public static final Long REPAIR_EVENT_CC_PERSON = 134L;
     /**
      * 回复
      */
-    public static final Integer REPLY = 145;
+    public static final Long REPLY = 145L;
     /**
      * 暂存
      */
-    public static final Integer TS = 146;
+    public static final Long TS = 146L;
     /**
      * 维修责任人
      */
-    public static final Integer REPAIR_EVENT_HELD_PERSON = 147;
+    public static final Long REPAIR_EVENT_HELD_PERSON = 147L;
     /**
      * 已提交
      */
-    public static final Integer APPLY_APPROED = 148;
+    public static final Long APPLY_APPROED = 148L;
     /**
      * 关闭
      */
-    public static final Integer CLOSE = 167;
+    public static final Long CLOSE = 167L;
     /**
      * 全部
      */
-    public static final int ALL_DATA = 243;
+    public static final Long ALL_DATA = 243L;
     /**
      * 本部门及下属部门
      */
-    public static final int SUBORDINATE_DEPT_DATA = 244;
+    public static final Long SUBORDINATE_DEPT_DATA = 244L;
     /**
      * 本部门
      */
-    public static final int THIS_DEPT_DATA = 245;
+    public static final Long THIS_DEPT_DATA = 245L;
     /**
      * 个人
      */
-    public static final int PERSONAL_DATA = 246;
+    public static final Long PERSONAL_DATA = 246L;
     /**
      * 自定义数据权限
      */
-    public static final int CUSTOM_DATA = 247;
+    public static final Long CUSTOM_DATA = 247L;
     /**
      * 巡检完成图片
      */
@@ -372,11 +372,11 @@ public class Constant {
 /**
 	 * 待审核
 	 */
-	public static final Integer WAIT_AUDIT = 178;
+	public static final Long WAIT_AUDIT = 178L;
 	/**
 	 * 已审核
 	 */
-	public static final Integer OK_AUDITED = 179;
+	public static final Long OK_AUDITED = 179L;
 
 	/**
 	 * 费用编码前缀
@@ -456,7 +456,7 @@ public class Constant {
 	/**
 	 * 计划禁用
 	 */
-	public static final Integer FORBIDDEN = 130;
+	public static final Long FORBIDDEN = 130L;
 
 	/**
 	 * 巡检标准

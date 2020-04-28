@@ -38,7 +38,7 @@ public class SalesbillItemDO implements Serializable {
 	private Long salesbillId;
 	//产品ID
     @ApiModelProperty(value = "产品ID")
-	private Integer materielId;
+	private Long materielId;
 	//数量
     @ApiModelProperty(value = "数量")
 	private BigDecimal count;

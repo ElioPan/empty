@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public interface FacilityService {
 	
-	FacilityDO get(Integer id);
+	FacilityDO get(Long id);
 	
 	List<FacilityDO> list(Map<String, Object> map);
 
@@ -26,18 +26,18 @@ public interface FacilityService {
 	
 	int update(FacilityDO facility);
 	
-	int remove(Integer id);
+	int remove(Long id);
 	
-	int batchRemove(Integer[] ids);
+	int batchRemove(Long[] ids);
 
-	int logicRemove(Integer id);
+	int logicRemove(Long id);
 
-	int logicBatchRemove(Integer[] ids);
+	int logicBatchRemove(Long[] ids);
 
     int countForMap(Map<String, Object> params);
 
-    int audit(Integer id);
+    int audit(Long id);
 
-    int reverseAudit(Integer id);
+    int reverseAudit(Long id);
 
 }

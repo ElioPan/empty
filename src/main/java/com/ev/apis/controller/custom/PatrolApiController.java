@@ -614,7 +614,7 @@ public class PatrolApiController {
     @ApiOperation("删除巡检记录")
     public R removePatrolRecord(@ApiParam(value = "记录ID") @RequestParam(value = "id",defaultValue = "")  Long recordId){
     	PatrolRecordDO patrolRecordDO = patrolRecordService.get(recordId);
-    	Integer status = patrolRecordDO.getStatus();
+        Long status = patrolRecordDO.getStatus();
     	if (!Objects.equals(Constant.TS, status)) {
             return R.error(messageSourceHandler.getMessage("common.submit.delete.disabled",null));
     	}

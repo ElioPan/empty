@@ -28,13 +28,13 @@ public class CompanyDO implements Serializable {
 	private String name;
 	//省
     @ApiModelProperty(value = "省")
-	private Integer province;
+	private Long province;
 	//市
     @ApiModelProperty(value = "市")
-	private Integer city;
+	private Long city;
 	//区
     @ApiModelProperty(value = "区")
-	private Integer district;
+	private Long district;
 	//详细地址
     @ApiModelProperty(value = "详细地址",required = true)
 	private String address;
@@ -98,5 +98,7 @@ public class CompanyDO implements Serializable {
 	//删除标志
     @ApiModelProperty(value = "删除标志",hidden = true)
 	private Integer delFlag;
-
+	//是否启用企业微信(1是，0否）
+	@ApiModelProperty(value = "是否启用企业微信(1是，0否）")
+	private Integer usingStatus;
 }

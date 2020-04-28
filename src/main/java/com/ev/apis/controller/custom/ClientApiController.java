@@ -112,7 +112,7 @@ public class ClientApiController {
             return  R.error(messageSourceHandler.getMessage("common.massge.haveNoId",null));
         }
 
-        clientDo.setStatus(ConstantForGYL.WAIT_AUDIT.intValue());
+        clientDo.setStatus(ConstantForGYL.WAIT_AUDIT);
         clientDo.setName(clientDo.getName().trim());
 
         int rows = clientService.update(clientDo);
@@ -161,7 +161,7 @@ public class ClientApiController {
         }
 
         ClientLinkmanDO clientLinkmanDO = new ClientLinkmanDO();
-        clientDo.setStatus(ConstantForGYL.WAIT_AUDIT.intValue());
+        clientDo.setStatus(ConstantForGYL.WAIT_AUDIT);
         clientDo.setName(clientDo.getName().trim());
         int rows = clientService.save(clientDo);
         if (rows > 0) {
@@ -182,8 +182,8 @@ public class ClientApiController {
     public R submitClient(@ApiParam(value = "客户id", required = true) @RequestParam(value = "id", defaultValue = "", required = true)Long id ){
         ClientDO clientDO = clientService.get(id);
         if(Objects.nonNull(clientDO)){
-            if(Objects.equals(clientDO.getStatus(),ConstantForGYL.WAIT_AUDIT.intValue())){
-                clientDO.setStatus(ConstantForGYL.OK_AUDITED.intValue());
+            if(Objects.equals(clientDO.getStatus(),ConstantForGYL.WAIT_AUDIT)){
+                clientDO.setStatus(ConstantForGYL.OK_AUDITED);
                 clientDO.setAuditId(ShiroUtils.getUserId());
                 clientService.update(clientDO);
                 return R.ok();
@@ -201,8 +201,8 @@ public class ClientApiController {
     public R goBackSubmitClient(@ApiParam(value = "客户id", required = true) @RequestParam(value = "id", defaultValue = "", required = true)Long id ){
         ClientDO clientDO = clientService.get(id);
         if(Objects.nonNull(clientDO)){
-            if(Objects.equals(clientDO.getStatus(),ConstantForGYL.OK_AUDITED.intValue())){
-                clientDO.setStatus(ConstantForGYL.WAIT_AUDIT.intValue());
+            if(Objects.equals(clientDO.getStatus(),ConstantForGYL.OK_AUDITED)){
+                clientDO.setStatus(ConstantForGYL.WAIT_AUDIT);
                 clientDO.setAuditId(0L);
                 clientService.update(clientDO);
                 return R.ok();

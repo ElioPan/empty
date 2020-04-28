@@ -42,13 +42,13 @@ public class PatrolRecordDO implements Serializable {
 	private Date endTime;
 	//任务状态
     @ApiModelProperty(value = "任务状态",hidden = true)
-	private Integer status ;//56待处理；57待验收；58已完成
+	private Long status ;//56待处理；57待验收；58已完成
 	//内容
     @ApiModelProperty(value = "内容",hidden = true)
 	private String content;
 	//任务结果
     @ApiModelProperty(value = "任务结果",hidden = true)
-	private Integer result;
+	private Long result;
 	//计划ID
     @ApiModelProperty(value = "计划ID",hidden = true)
 	private Long planId;

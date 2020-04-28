@@ -218,7 +218,7 @@ public class OverTimeApplyApiController {
     public R remove(@ApiParam(value = "加班申请主键数组", required = true, example = "[1,2,3,4]") @RequestParam(value = "ids[]", defaultValue = "") Long[] ids) {
 
         //146L,//62退回 {Constant.TS,Constant.APPLY_APPROED};
-        int[] status = {Constant.TS, Constant.APPLY_REJECT};
+        long[] status = {Constant.TS, Constant.APPLY_REJECT};
 
         Map<String, Object> query = new HashMap<String, Object>();
         query.put("id", ids);

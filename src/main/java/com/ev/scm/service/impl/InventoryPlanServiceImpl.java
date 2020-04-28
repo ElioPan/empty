@@ -407,7 +407,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				List<InventoryPlanFitlossDO> inventoryPlanFitlossDOS = inventoryPlanFitlossService.list(maps);
 				//返回生成其他入库的数据。
 				params.remove("documentType");
-				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PYDJ.intValue());
+				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PYDJ);
 				if(dictionaryDO!=null){
 					for(Map<String, Object> map:profitLossMsg){
 						map.put("documentTypeId",ConstantForGYL.PYDJ);
@@ -429,7 +429,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 
 			} else if (rows > 0 && otherInLines == 0 && linesPL > 0) {
 
-				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PYDJ.intValue());
+				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PYDJ);
 				Map<String,Object>  maps= new HashMap<>();
 				maps.put("headId",planId);
 				maps.put("documentType",ConstantForGYL.PYDJ);
@@ -484,7 +484,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 				maps.put("headId",planId);
 				maps.put("documentType",ConstantForGYL.PKDJ);
 				List<InventoryPlanFitlossDO> inventoryPlanFitlossDOS = inventoryPlanFitlossService.list(maps);
-				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PKDJ.intValue());
+				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PKDJ);
 				if(dictionaryDO!=null){
 					for(Map<String, Object> map:profitLossMsg){
 						map.put("documentTypeId",ConstantForGYL.PKDJ);
@@ -506,7 +506,7 @@ public class InventoryPlanServiceImpl implements InventoryPlanService {
 			} else if (rows > 0 && otherInLines == 0 && linesPL > 0) {
 
 				Map<String, Object> result = new HashMap<>();
-				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PKDJ.intValue());
+				DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.PKDJ);
 				Map<String,Object>  maps= new HashMap<>();
 				maps.put("headId",planId);
 				maps.put("documentType",ConstantForGYL.PKDJ);

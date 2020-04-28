@@ -20,41 +20,57 @@ import lombok.Data;
 @ApiModel(value = "生产投料单（详情列表）")
 public class ProductionFeedingDetailDO implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	//
-    @ApiModelProperty()
+	@ApiModelProperty()
 	private Long id;
-    // 主表ID
-    @ApiModelProperty()
+	//主表ID
+	@ApiModelProperty(value = "主表ID")
 	private Long headId;
 	//产品ID
-    @ApiModelProperty(value = "产品ID")
-	private Integer materielId;
+	@ApiModelProperty(value = "产品ID")
+	private Long materielId;
 	//批号
-    @ApiModelProperty(value = "批号")
+	@ApiModelProperty(value = "批号")
 	private String batchNo;
 	//计划投料数量
-    @ApiModelProperty(value = "计划投料数量")
+	@ApiModelProperty(value = "计划投料数量")
 	private BigDecimal planFeeding;
 	//已出数量
-    @ApiModelProperty(value = "已出数量")
+	@ApiModelProperty(value = "已出数量")
 	private BigDecimal outCount;
 	//报废数量
-    @ApiModelProperty(value = "报废数量")
+	@ApiModelProperty(value = "报废数量")
 	private BigDecimal scrapCount;
 	//创建人
-    @ApiModelProperty(value = "创建人")
+	@ApiModelProperty(value = "创建人")
 	private Long createBy;
 	//创建时间
-    @ApiModelProperty(value = "创建时间")
+	@ApiModelProperty(value = "创建时间")
 	private Date createTime;
 	//修改人
-    @ApiModelProperty(value = "修改人")
+	@ApiModelProperty(value = "修改人")
 	private Long updateBy;
 	//修改时间
-    @ApiModelProperty(value = "修改时间")
+	@ApiModelProperty(value = "修改时间")
 	private Date updateTime;
 	//删除状态
-    @ApiModelProperty(value = "删除状态")
+	@ApiModelProperty(value = "删除状态")
 	private Integer delFlag;
+	//发料仓库ID
+	@ApiModelProperty(value = "发料仓库ID")
+	private Long facilityId;
+	//库位ID
+	@ApiModelProperty(value = "库位ID")
+	private Long locationId;
+	//需求工序ID
+	@ApiModelProperty(value = "需求工序ID")
+	private Long processId;
+	//需求工位ID
+	@ApiModelProperty(value = "需求工位ID")
+	private Long stationId;
+	// 是否用料采集
+	@ApiModelProperty(value = "是否用料采集")
+	private Integer isCollect;
+
 }

@@ -19,6 +19,7 @@ import java.util.Objects;
 @Service
 @EnableTransactionManagement
 public class ReimApplyServiceImpl implements ReimApplyService {
+
 	@Autowired
 	private ReimApplyDao reimApplyDao;
 
@@ -56,6 +57,7 @@ public class ReimApplyServiceImpl implements ReimApplyService {
 	public List<Map<String, Object>> listForMap(Map<String, Object> map) {
 		return reimApplyDao.listForMap(map);
 	}
+
 
 	@Override
 	public Map<String, Object> countForMap(Map<String, Object> map) {

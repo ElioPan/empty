@@ -1,11 +1,12 @@
 package com.ev.scm.domain;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.Date;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
 
 
 
@@ -29,7 +30,7 @@ public class SalescontractItemDO implements Serializable {
 	private Long salescontractId;
 	//产品ID
     @ApiModelProperty(value = "产品ID")
-	private Integer materielId;
+	private Long materielId;
     //0检验1 不检验
     @ApiModelProperty(value = "发货是否检验 0是/1否")
     private Integer isCheck;
@@ -72,5 +73,12 @@ public class SalescontractItemDO implements Serializable {
 	//删除状态
     @ApiModelProperty(value = "删除状态")
 	private Integer delFlag;
+
+	@ApiModelProperty(value = "关闭状态")
+	private Integer closeStatus;
+	@ApiModelProperty(value = "关闭时间")
+	private Date closeTime;
+	@ApiModelProperty(value = "关闭原因")
+	private String closeReason;
 
 }

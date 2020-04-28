@@ -316,7 +316,7 @@ public class BomServiceImpl implements BomService {
 				String[] notExist = {allCode.toString()};
 				return R.error(messageSourceHandler.getMessage("basicInfo.materiel.notExist", notExist));
 			}
-			Map<String, Integer> idForCode = materielDOList
+			Map<String, Long> idForCode = materielDOList
 					.stream()
 					.collect(Collectors.toMap(MaterielDO::getSerialNo, MaterielDO::getId));
 			Map<String, List<BomEntity>> groupBomEntity = bomEntityList

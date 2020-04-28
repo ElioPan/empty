@@ -32,7 +32,7 @@ public class DeviceDO implements Serializable {
 	private String name;
 	//设备类型
 	@ApiModelProperty(value = "设备类型")
-	private Integer type;
+	private Long type;
 	//品牌
 	@ApiModelProperty(value = "品牌")
 	private String factory;
@@ -56,10 +56,10 @@ public class DeviceDO implements Serializable {
 	private Long userId;
 	//使用状况
 	@ApiModelProperty(value = "使用状况")
-	private Integer usingStatus;
+	private Long usingStatus;
 	//设备用途
 	@ApiModelProperty(value = "设备用途")
-	private Integer deviceUse;
+	private Long deviceUse;
 	//保修到期时间
 	@ApiModelProperty(value = "保修到期时间")
 	private Date repairEnd;

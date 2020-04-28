@@ -33,7 +33,7 @@ public class StockOutItemDO implements Serializable {
 	private String stockId;
 	//物料ID
     @ApiModelProperty(value = "物料ID")
-	private Integer materielId;
+	private Long materielId;
 	//批号
     @ApiModelProperty(value = "批号")
 	private String batch;

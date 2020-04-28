@@ -1,11 +1,13 @@
 package com.ev.scm.service.impl;
 
+import com.ev.framework.utils.R;
 import com.ev.scm.dao.SalescontractItemDao;
 import com.ev.scm.domain.SalescontractItemDO;
 import com.ev.scm.service.SalescontractItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -49,5 +51,24 @@ public class SalescontractItemServiceImpl implements SalescontractItemService {
 	public int batchRemove(Long[] sids){
 		return salescontractItemDao.batchRemove(sids);
 	}
-	
+
+
+	@Override
+	public R disposeCloseLine(Long[] ids , String closeReason){
+
+		SalescontractItemDO contractItemDO =new SalescontractItemDO();
+		contractItemDO.setCloseStatus(1);
+		contractItemDO.setCloseTime(new Date());
+		contractItemDO.setCloseReason(closeReason);
+		for(Long id:ids){
+			contractItemDO.setId(id);
+			this.update(contractItemDO);
+		}
+		return R.ok();
+	}
+
+	@Override
+	public int lineClosingNumber(Long id) {
+		return salescontractItemDao.lineClosingNumber(id);
+	}
 }

@@ -522,6 +522,7 @@
 	<select id="getStartWorkByOperator" resultType="map">
 		SELECT
 		a.id as dispatchItemId,
+		b.id AS planItemId,
 		a.operator,
 		n.name as operatorName,
 		a.`status`,

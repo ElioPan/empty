@@ -324,7 +324,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
         map.put("auditSign",ConstantForGYL.OK_AUDITED);
         List<Map<String, Object>> saleMaps = purchasecontractService.getDetailOfHead(map);
 
-        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT.intValue());
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT);
         List<Map<String, Object>> saleDates=new ArrayList<>();
         if(saleMaps.size()>0){
             for(Map<String, Object> saleMap:saleMaps){
@@ -354,11 +354,11 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 		map.put("endTime",parameter.get("endTime"));
 		map.put("sign", sign);
 		List<Map<String, Object>> otherMaps = otherReceivablesService.listForMap(map);
-		int dictionaryId=0;
+		long dictionaryId=0;
 		if(Objects.equals(sign,ConstantForGYL.OTHER_RECIVEABLE)){
-			dictionaryId=ConstantForGYL.OTHER_RECIVEABLE_TYPE.intValue();
+			dictionaryId=ConstantForGYL.OTHER_RECIVEABLE_TYPE;
 		}else if(Objects.equals(sign,ConstantForGYL.OTHER_PAYABLE)){
-			dictionaryId=ConstantForGYL.OTHER_PAYABLE_TYPE.intValue();
+			dictionaryId=ConstantForGYL.OTHER_PAYABLE_TYPE;
 		}
 		DictionaryDO dictionaryDO = dictionaryService.get(dictionaryId);
 		List<Map<String, Object>> otherDate=new ArrayList<>();
@@ -392,7 +392,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 		map.put("auditSign",ConstantForGYL.OK_AUDITED);
 		List<Map<String, Object>> saleMaps = salescontractService.getDetailOfHead(map);
 
-		DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.XSHT.intValue());
+		DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.XSHT);
 		List<Map<String, Object>> saleDates=new ArrayList<>();
 		if(saleMaps.size()>0){
 			for(Map<String, Object> saleMap:saleMaps){

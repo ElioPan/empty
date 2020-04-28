@@ -188,6 +188,10 @@
         item.`tax_unit_price` AS taxUnitPrice,
         item.`tax_amount` AS taxAmount,
         item.`delivery_date` AS deliveryDate,
+        item.close_status as itemCloseStatus,
+        IF(item.close_status=1,'关闭','未关闭') AS itemCloseStatusName,
+        item.close_time as itemCloseTime,
+        item.close_reason as itemCloseReason,
         dica.`name` AS auditSignName,
         dics.`id` AS sourceType,
         dics.`name` AS sourceTypeName,
@@ -246,7 +250,7 @@
             <if test="specification != null and specification != ''"> and materiel.`specification` LIKE #{specification} </if>
             <if test="auditSign != null and auditSign != ''"> and outsourcing.audit_sign = #{auditSign} </if>
             <if test="createByName != null and createByName != ''"> and cuser.name LIKE #{createByName} </if>
-            <if test="closeStatus != null"> and close_status = #{closeStatus} </if>
+            <if test="closeStatus != null"> and outsourcing.close_status = #{closeStatus} </if>
 
             <!--导入关联单据查询-->
             <if test="createStartTime != null and createStartTime != ''"> and  DATE_FORMAT(outsourcing.create_time,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{createStartTime},'%Y-%m-%d')</if>
@@ -255,6 +259,8 @@
             <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
             <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
             <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
+            <if test="itemCloseStatus != null and delFlag != ''"> and item.close_status is null </if>
+
         </where>
     </sql>
 

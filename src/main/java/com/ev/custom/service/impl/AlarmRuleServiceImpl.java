@@ -76,9 +76,9 @@ public class AlarmRuleServiceImpl implements AlarmRuleService {
 		Date date = new Date();
 //		List<AlarmRuleDO> alarmRuleDOs = new ArrayList<>();
 		String name = alarmRule.getName();
-		Integer alarmType = alarmRule.getAlarmType();
-		Integer alarmLevel = alarmRule.getAlarmLevel();
-		Integer triggerMode = alarmRule.getTriggerMode();
+		Long alarmType = alarmRule.getAlarmType();
+		Long alarmLevel = alarmRule.getAlarmLevel();
+		Long triggerMode = alarmRule.getTriggerMode();
 		Integer triggerTime = alarmRule.getTriggerTime();
 		Integer continueTime = alarmRule.getContinueTime();
 		String alarmWay = alarmRule.getAlarmWay();

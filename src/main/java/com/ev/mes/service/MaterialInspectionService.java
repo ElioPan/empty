@@ -48,7 +48,7 @@ public interface MaterialInspectionService {
 
 	Map<String, Object> countForMap(Map<String, Object> params);
 
-	void setInspectionNo(MaterialInspectionDO inspectionDO, Integer inspectionType);
+	void setInspectionNo(MaterialInspectionDO inspectionDO, Long inspectionType);
 
 	R add(MaterialInspectionDO inspectionDO, String childArray);
 

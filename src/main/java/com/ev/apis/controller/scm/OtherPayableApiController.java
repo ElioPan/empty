@@ -112,7 +112,7 @@ public class OtherPayableApiController {
 
         List<Map<String, Object>> list = otherReceivablesService.listForMap(map);
         Map<String, Object> countForMap = otherReceivablesService.countForMap(map);
-        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.OTHER_PAYABLE_TYPE.intValue());
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.OTHER_PAYABLE_TYPE);
         String thisSourceTypeName = dictionaryDO.getName();
         Map<String, Object> result = Maps.newHashMap();
         if (list.size() > 0) {
@@ -147,7 +147,7 @@ public class OtherPayableApiController {
         map.put("sign",ConstantForGYL.OTHER_PAYABLE);
         List<Map<String, Object>> list = otherReceivablesItemService.getDetailOfIntroduce(map);
         Map<String, Object> countForMap = otherReceivablesItemService.totailAmountOfIntroduce(map);
-        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.OTHER_PAYABLE_TYPE.intValue());
+        DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.OTHER_PAYABLE_TYPE);
         String sourceTypeName;
         if(dictionaryDO!=null){
             sourceTypeName=dictionaryDO.getName();

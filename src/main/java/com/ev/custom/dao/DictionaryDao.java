@@ -16,7 +16,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface DictionaryDao {
 
-	DictionaryDO get(Integer id);
+	DictionaryDO get(Long id);
 	
 	List<DictionaryDO> list(Map<String, Object> map);
 	
@@ -30,9 +30,9 @@ public interface DictionaryDao {
 	
 	int update(DictionaryDO dictionary);
 	
-	int remove(Integer id);
+	int remove(Long id);
 	
-	int batchRemove(Integer[] ids);
+	int batchRemove(Long[] ids);
 
 	List<DictionaryDO> listByType(String type);
 }

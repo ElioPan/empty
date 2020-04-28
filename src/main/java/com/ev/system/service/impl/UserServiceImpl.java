@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
     public UserDO get(Long id) {
         List<Long> roleIds = userRoleMapper.listRoleId(id);
         List<Long> groupIds = userGroupMapper.listGroupId(id);
-        Integer dataPermission = null;
+        Long dataPermission = null;
         List<Long> deptDatas = Lists.newArrayList();
         if(roleIds.size()>0){
             RoleDO roleDO = roleService.get(roleIds.get(0));

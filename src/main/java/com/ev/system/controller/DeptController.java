@@ -48,7 +48,7 @@ public class DeptController extends BaseController {
 		if(sysDeptList!=null && sysDeptList.size()>0){
 			for(DeptDO dept:sysDeptList){
 				if(dept.getType()!=null){
-					dept.setTypeName(dictionaryService.get(dept.getType().intValue()).getName());
+					dept.setTypeName(dictionaryService.get(dept.getType()).getName());
 				}
 			}
 		}
@@ -123,7 +123,7 @@ public class DeptController extends BaseController {
 		if (Constant.DEMO_ACCOUNT.equals(getUsername())) {
 			return R.error(1, "演示系统不允许修改,完整体验请部署程序");
 		}
-		Map<String, Object> map = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<>();
 		map.put("parentId", deptId);
 		if(sysDeptService.count(map)>0) {
 			return R.error(1, "包含下级部门,不允许修改");
@@ -155,7 +155,7 @@ public class DeptController extends BaseController {
 	@GetMapping("/tree")
 	@ResponseBody
 	public Tree<DeptDO> tree() {
-		Tree<DeptDO> tree = new Tree<DeptDO>();
+		Tree<DeptDO> tree = new Tree<>();
 		tree = sysDeptService.getTree(null);
 		return tree;
 	}

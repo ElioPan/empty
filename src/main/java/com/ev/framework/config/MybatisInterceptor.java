@@ -37,10 +37,12 @@ public class MybatisInterceptor implements Interceptor {
             if (parameter instanceof DefaultSqlSession.StrictMap) {
                 DefaultSqlSession.StrictMap<Object> objectStrictMap =  (DefaultSqlSession.StrictMap<Object>)parameter;
                 Object objectList = objectStrictMap.get("list");
-                if(objectList instanceof List){
-                    List<Object> list = (List<Object>)objectList;
-                    for (Object o : list) {
-                        this.setFiled(o,invocation,now,userId);
+                if(objectList!=null){
+                    if(objectList instanceof List){
+                        List<Object> list = (List<Object>)objectList;
+                        for (Object o : list) {
+                            this.setFiled(o,invocation,now,userId);
+                        }
                     }
                 }
             }else{

@@ -57,7 +57,7 @@ public class DispatchItemDO implements Serializable {
 	private BigDecimal planCount;
 	//状态
 	@ApiModelProperty(value = "状态")
-	private Integer status;
+	private Long status;
 	//完工数量
 	@ApiModelProperty(value = "完工数量")
 	private BigDecimal completionCount;

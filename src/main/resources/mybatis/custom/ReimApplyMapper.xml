@@ -158,7 +158,7 @@
 				order by ${sort} ${order}
 			</when>
 			<otherwise>
-				order by id desc , createtime DESC ,statusId desc
+				order by id desc ,statusId desc ,createtime DESC
 			</otherwise>
 		</choose>
 		<if test="offset != null and limit != null">

@@ -1,10 +1,13 @@
 package com.ev.report.service.impl;
 
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.config.ConstantForReport;
+import com.ev.framework.utils.BeanUtils;
 import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.R;
+import com.ev.framework.utils.StringUtils;
 import com.ev.report.dao.SmartManufacturingAccountingReportDao;
 import com.ev.report.dao.WarehouseAccountingReportDao;
 import com.ev.report.service.SmartManufacturingAccountingReportService;
@@ -16,9 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -511,5 +512,124 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
     @Override
     public Map<String, Object> processOutputCount(Map<String, Object> params) {
         return reportDao.processOutputCount(params);
+    }
+
+    @Override
+    public List<Map<String, Object>> productionBatchCollect(List<Map<String, Object>> data) {
+        List<Map<String, Object>> inspectionList = data.stream()
+                .filter(e -> Objects.equals(e.get("typeId").toString(), ConstantForMES.CPJY.toString()))
+                .collect(Collectors.toList());
+        List<Map<String, Object>> planList = data.stream()
+                .filter(e -> Objects.equals(e.get("typeId").toString(), ConstantForMES.SCJH.toString()))
+                .collect(Collectors.toList());
+        data.removeAll(inspectionList);
+        data.removeAll(planList);
+
+        Map<String, List<Map<String, Object>>> batchToList = data
+                .stream()
+                .collect(Collectors.groupingBy(e -> e.get("batch").toString()));
+
+        List<Map<String, Object>> batchList;
+        for (String batch : batchToList.keySet()) {
+            batchList = batchToList.get(batch);
+            boolean nonRemove = batchList.stream().anyMatch(e -> Objects.equals(e.get("typeId").toString(), ConstantForGYL.YDGOODS_WAREHOUSE.toString()));
+            if(!nonRemove){
+                data.removeAll(batchList);
+            }
+        }
+
+
+        List<HashMap<String, Object>> inspectionLists= Lists.newArrayList();
+        List<HashMap<String, Object>> planLists= Lists.newArrayList();
+        Map<String,String> batchForSourceCode = Maps.newHashMap();
+        List<String> emptyId = Lists.newArrayList();
+        for (Map<String, Object> datum : data) {
+
+            if (Objects.equals(datum.get("typeId").toString(), ConstantForGYL.YDGOODS_WAREHOUSE.toString()) ) {
+                String batchP = datum.get("batch").toString();
+                String sourceCode = datum.get("sourceCode").toString();
+                if(batchForSourceCode.containsKey(batchP)&&Objects.equals(batchForSourceCode.get(batchP),sourceCode)){
+                    continue;
+                }
+
+                List<HashMap<String, Object>> s = inspectionList
+                        .stream()
+                        .filter(e -> {
+                            Object batch1 = e.get("batch");
+                            boolean isMatch = batch1==null|| StringUtils.isEmpty(batch1.toString())||Objects.equals(batch1.toString(),batchP);
+                            return Objects.equals(e.get("sourceCode"), sourceCode) && isMatch;
+                        })
+                        .map(Maps::newHashMap)
+                        .collect(Collectors.toList());
+                List<String> eCollect = s.stream()
+                        .filter(e -> {
+                            Object batch1 = e.get("batch");
+                            return batch1 == null || StringUtils.isEmpty(batch1.toString());
+                        })
+                        .map(e -> e.get("id").toString())
+                        .collect(Collectors.toList());
+                emptyId.addAll(eCollect);
+                s.forEach(e->e.put("batch",batchP));
+
+                List<HashMap<String, Object>> p = planList
+                        .stream()
+                        .filter(e -> {
+                            Object batch1 = e.get("batch");
+                            boolean isMatch = batch1==null||StringUtils.isEmpty(batch1.toString())||Objects.equals(batch1.toString(),batchP);
+                            return Objects.equals(e.get("code"), sourceCode) && isMatch;
+                        })
+                        .map(Maps::newHashMap)
+                        .collect(Collectors.toList());
+                List<String> pCollect = p.stream()
+                        .filter(e -> {
+                            Object batch1 = e.get("batch");
+                            return batch1 == null || StringUtils.isEmpty(batch1.toString());
+                        })
+                        .map(e -> e.get("id").toString())
+                        .collect(Collectors.toList());
+                emptyId.addAll(pCollect);
+                s.forEach(e->e.put("batch",batchP));
+                p.forEach(e->e.put("batch",batchP));
+                inspectionLists.addAll(s);
+                planLists.addAll(p);
+                batchForSourceCode.put(batchP,sourceCode);
+            }
+        }
+        ArrayList<Map<String, Object>> clone = BeanUtils.clone((ArrayList<Map<String, Object>>) data);
+        Map<String, Map<String, Object>> batchGroup = clone.stream()
+                .collect(Collectors.toMap(k -> k.get("batch").toString(), v -> v, (v1, v2) -> v1));
+        for (Map<String, Object> value : batchGroup.values()) {
+            value.remove("typeName");
+            value.remove("id");
+            value.remove("sourceCode");
+            value.remove("code");
+            value.remove("count");
+            value.remove("facilityName");
+            value.remove("way");
+            value.remove("locationName");
+            value.remove("sourceTypeName");
+            value.remove("time");
+            value.put("times",0);
+            value.put("sign", ConstantForReport.COLOUR_END);
+            value.put("sortNo",0);
+        }
+        data.addAll(batchGroup.values());
+        data.addAll(inspectionLists);
+        data.addAll(planLists);
+        List<Map<String, Object>> collect = data
+                .stream()
+                .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("times").toString())))
+                .sorted(Comparator.comparing(e -> Integer.parseInt(e.get("sortNo").toString())))
+                .sorted(Comparator.comparing(e -> e.get("batch").toString()))
+                .collect(Collectors.toList());
+        if (emptyId.size() > 0) {
+            for (Map<String, Object> stringObjectMap : collect) {
+                String typeId = stringObjectMap.get("typeId").toString();
+                if((Objects.equals(typeId,ConstantForMES.LLJY.toString())||(Objects.equals(typeId,ConstantForMES.SCJH.toString())))&&emptyId.contains(stringObjectMap.get("id").toString())){
+                    stringObjectMap.remove("batch");
+                }
+            }
+        }
+        return collect;
     }
 }

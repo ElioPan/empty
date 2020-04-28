@@ -67,7 +67,7 @@ public class FacilityController {
 
 	@GetMapping("/edit/{id}")
 	@RequiresPermissions("custom:facility:edit")
-	String edit(@PathVariable("id") Integer id,Model model){
+	String edit(@PathVariable("id") Long id,Model model){
 		FacilityDO facility = facilityService.get(id);
 		model.addAttribute("facility", facility);
 		List<DictionaryDO> facTypeList = dictionaryService.listByType("fac_type");
@@ -104,7 +104,7 @@ public class FacilityController {
 	@PostMapping( "/remove")
 	@ResponseBody
 	@RequiresPermissions("custom:facility:remove")
-	public R remove( Integer id){
+	public R remove( Long id){
 		if(facilityService.remove(id)>0){
 		return R.ok();
 		}
@@ -117,7 +117,7 @@ public class FacilityController {
 	@PostMapping( "/batchRemove")
 	@ResponseBody
 	@RequiresPermissions("custom:facility:batchRemove")
-	public R remove(@RequestParam("ids") Integer[] ids){
+	public R remove(@RequestParam("ids") Long[] ids){
 		facilityService.batchRemove(ids);
 		return R.ok();
 	}

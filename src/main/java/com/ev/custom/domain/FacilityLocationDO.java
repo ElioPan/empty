@@ -19,7 +19,7 @@ public class FacilityLocationDO implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	//主键
-	private Integer id;
+	private Long id;
 	//编号
 	private String serialNo;
 	//名称
@@ -27,7 +27,7 @@ public class FacilityLocationDO implements Serializable {
 	//备注
 	private String description;
 	//所属仓库
-	private Integer facilityId;
+	private Long facilityId;
 	//创建人
 	private Long createBy;
 	//创建时间
@@ -39,7 +39,7 @@ public class FacilityLocationDO implements Serializable {
 	//删除状态
 	private Integer delFlag;
     // 审核状态
-    private Integer auditSign;
+    private Long auditSign;
     // 审核状态
     private Long auditor;
     // 审核状态

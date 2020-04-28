@@ -40,7 +40,7 @@ public interface RepairEventService {
 
 	int save(RepairEventDO repairEvent);
 
-	int saveEvengts(Long eventId, Long[] ids);
+	void saveEvengts(Long eventId, Long[] ids);
 
 	Map<String, Object> addRepairEvent(RepairEventDO event);
 
@@ -50,7 +50,7 @@ public interface RepairEventService {
 
 	int batchRemove(Long[] ids);
 
-	void removeSatellite(Long[] ids, Integer[] assocTypes, String imageType);
+	void removeSatellite(Long[] ids, Long[] assocTypes, String imageType);
 
 	void removeRecordSatellite(Long recordId);
 
@@ -70,22 +70,16 @@ public interface RepairEventService {
 	R saveRepairInfo(Long eventId, String partIdArray, String[] taglocationappearanceImage, RepairRecordDO record,
 			RepairEventDO repairEventDO);
 
-	boolean nonWaitingDeal(Integer status);
+	boolean nonWaitingDeal(Long status);
 
-	boolean nonTS(Integer status);
+	boolean nonTS(Long status);
 
-	boolean nonWaitingCheck(Integer status);
+	boolean nonWaitingCheck(Long status);
 
 	Map<String, Object> params(Map<String, Object> params);
 
 	/**
 	 * 保存维修记录单
-	 * @param eventId
-	 * @param partIdArray
-	 * @param taglocationappearanceImage
-	 * @param record
-	 * @param repairEventDO
-	 * @return
 	 */
 	R saveRepairRecord(Long eventId, String partIdArray, String[] taglocationappearanceImage, RepairRecordDO record,
 			RepairEventDO repairEventDO);

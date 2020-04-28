@@ -21,7 +21,7 @@ public class DictionaryDO implements Serializable {
 
 	//主键
 	@ApiModelProperty(value = "主键")
-	private Integer id;
+	private Long id;
 	//名称
 	@ApiModelProperty(value = "名称")
 	private String name;

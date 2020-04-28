@@ -79,7 +79,7 @@ public class UpkeepApiController {
                                      @ApiParam(value = "备品备件ID数组，如{\"dataList\":[{\"partId\":3,\"amount\":5,\"spartUnit\":\"个\",\"spartPrice\":20,\"spartSum\":1000,\"remark\":\"备注\"}]}", required = true) @RequestParam(value = "partIdArray", defaultValue = "") String partIdArray) {
 
         if (Objects.isNull(planDo.getId())) {
-            Map<String, Object> results = Maps.newHashMap();
+            Map<String, Object> results ;
             //保养计划保存后是暂存：146暂存
             planDo.setStatus(Constant.TS);
             results = this.upkeepPlanService.savePlan(planDo, projectIds, partIdArray);
@@ -276,7 +276,7 @@ public class UpkeepApiController {
         Map<String, Object> query = Maps.newHashMap();
 
         if(id.length>0){
-            for (  int i=0;i<id.length;i++) {
+            for (int i=0;i<id.length;i++) {
                 query.clear();
                 query.put("planId", id[i]);
 
@@ -289,7 +289,7 @@ public class UpkeepApiController {
                     return R.error(messageSourceHandler.getMessage("common.plan.allowRemove",null));
                 }
             }
-            Map<String,Object>  map= new HashMap<String,Object>();
+            Map<String,Object>  map= new HashMap<>();
             map.put("ids",id);
             upkeepPlanService.deletOfPlan(map);
             return R.ok();
@@ -337,7 +337,7 @@ public class UpkeepApiController {
             resultPonse.setPageno(pageno);
             resultPonse.setPagesize(pagesize);
             resultPonse. setTotalRows(count);
-            resultPonse.setTotalPages((Integer) ((count + pagesize - 1) / pagesize));
+            resultPonse.setTotalPages(((count + pagesize - 1) / pagesize));
             results.put("data", resultPonse);
             return R.ok(results);
         } else {
@@ -436,7 +436,7 @@ public class UpkeepApiController {
                             @ApiParam(value = "保养负责人Id") @RequestParam(value = "engineer_id", defaultValue = "", required = false) Long engineerId,
                             @ApiParam(value = "部门id") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
                             @ApiParam(value = "保养状态") @RequestParam(value = "resultId", defaultValue = "", required = false) Long resultId,
-                            @ApiParam(value = "处理状态（多标签）（待处理：56；待验收：57）") @RequestParam(value = "singleStatus",defaultValue = "",required = false)  Integer singleStatus,
+                            @ApiParam(value = "处理状态（多标签）（待处理：56；待验收：57）") @RequestParam(value = "singleStatus",defaultValue = "",required = false)  Long singleStatus,
                             @ApiParam(value = "设备名称/编码（模糊）") @RequestParam(value = "deviceName", defaultValue = "", required = false) String deviceName,
                             @ApiParam(value = "验收结果字段") @RequestParam(value = "recordResultId",defaultValue = "",required = false)  Long recordResultId,
                             @ApiParam(value = "需排序字段") @RequestParam(value = "sort",defaultValue = "",required = false)  String sort,
@@ -559,7 +559,7 @@ public class UpkeepApiController {
     @Transactional(rollbackFor = Exception.class)
     public R saveRecordDetails(@ApiParam(value = "保养单id", required = true) @RequestParam(value = "record_id", defaultValue = "") Long id,
                                @ApiParam(value = "停机时长", required = true) @RequestParam(value = "down_hour", defaultValue = "") double downHour,
-                               @ApiParam(value = "设备使用状况id", required = true) @RequestParam(value = "status", defaultValue = "") int status,
+                               @ApiParam(value = "设备使用状况id", required = true) @RequestParam(value = "status", defaultValue = "") Long status,
                                @ApiParam(value = "本次保养总工时：所有项目保养时间总和", required = true) @RequestParam(value = "man_hour", defaultValue = "" ) double manHour,
                                @ApiParam(value = "保养总结") @RequestParam(value = "content", defaultValue = "", required = false) String content,
                                @ApiParam(value = "工时费合计") @RequestParam(value = "manHourCost", defaultValue = "", required = false) String manHourCost,
@@ -602,13 +602,13 @@ public class UpkeepApiController {
     @Transactional(rollbackFor = Exception.class)
     public R sbumitRecordDetails(@ApiParam(value = "保养单id", required = true) @RequestParam(value = "record_id", defaultValue = "") Long id,
                                @ApiParam(value = "停机时长", required = true) @RequestParam(value = "down_hour", defaultValue = "") double downHour,
-                               @ApiParam(value = "设备使用状况id", required = true) @RequestParam(value = "status", defaultValue = "") int status,
+                               @ApiParam(value = "设备使用状况id", required = true) @RequestParam(value = "status", defaultValue = "") Long status,
                                @ApiParam(value = "本次保养总工时：所有项目保养时间总和", required = true) @RequestParam(value = "man_hour", defaultValue = "") double manHour,
                                @ApiParam(value = "保养总结") @RequestParam(value = "content", defaultValue = "", required = false) String content,
                                  @ApiParam(value = "工时费合计", required = true) @RequestParam(value = "manHourCost", defaultValue = "") String manHourCost,
                                  @ApiParam(value = "材料费合计", required = true) @RequestParam(value = "cost", defaultValue = "") String cost,
                                  @ApiParam(value = "保养单下所有保养项目，如{\"dataList\":[{\"projectId\":3,\"manhour\":5,\"manHourCost\":100,\"result\":1(1正常，0异常),\"remark\":\"备注\"} ]}", required = true) @RequestParam(value = "projectArray", defaultValue = "", required = true) String projectArray,
-                               @ApiParam(value = "所有备件明细，如{\"dataList\":[{\"partId\":3,\"spart_amount\":5,\"spartPrice\":10.5,\"spart_sum\":1000,\"remark\":\"备注\"} ]}", required = true) @RequestParam(value = "partArray", defaultValue = "", required = true) String partArray) throws ParseException {
+                               @ApiParam(value = "所有备件明细，如{\"dataList\":[{\"partId\":3,\"spart_amount\":5,\"spartPrice\":10.5,\"spart_sum\":1000,\"remark\":\"备注\"} ]}", required = true) @RequestParam(value = "partArray", defaultValue = "") String partArray) throws ParseException {
 
         //**判断工单若为57待验收 或者58已验收 则不允许修改。
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -650,7 +650,7 @@ public class UpkeepApiController {
         Map<String, Object> detailByRecordId = upkeepCheckService.getDetailByRecordId(id);
         //评价状态
         if(detailByRecordId!=null){
-            int satus= Integer.parseInt(detailByRecordId.get("result").toString());
+            Long satus= Long.parseLong(detailByRecordId.get("result").toString());
             if(Objects.equals(Constant.NO_EVALUATED,satus)){//113待评价
 
                 upkeepCheckDO.setUserId(ShiroUtils.getUserId());//当前登录人的id作为评价单的验收人
@@ -679,7 +679,7 @@ public class UpkeepApiController {
         Map<String, Object> detailByRecordId = upkeepCheckService.getDetailByRecordId(id);
         //评价状态
         if(detailByRecordId!=null){
-            int satus= Integer.parseInt(detailByRecordId.get("result").toString());
+            Long satus= Long.parseLong(detailByRecordId.get("result").toString());
             if(Objects.equals(Constant.NO_EVALUATED,satus)){//113待评价
 
                 upkeepCheckDO.setUserId(ShiroUtils.getUserId());//当前登录人的id作为评价单的验收人

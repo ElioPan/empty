@@ -18,7 +18,7 @@ public class TaskReplyServiceImpl implements TaskReplyService {
 	private TaskReplyDao taskReplyDao;
 	
 	@Override
-	public TaskReplyDO get(Integer id){
+	public TaskReplyDO get(Long id){
 		return taskReplyDao.get(id);
 	}
 	
@@ -54,12 +54,12 @@ public class TaskReplyServiceImpl implements TaskReplyService {
 	}
 	
 	@Override
-	public int remove(Integer id){
+	public int remove(Long id){
 		return taskReplyDao.remove(id);
 	}
 	
 	@Override
-	public int batchRemove(Integer[] ids){
+	public int batchRemove(Long[] ids){
 		return taskReplyDao.batchRemove(ids);
 	}
 

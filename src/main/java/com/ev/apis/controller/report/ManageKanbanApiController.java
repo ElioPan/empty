@@ -48,7 +48,7 @@ public class ManageKanbanApiController {
         Map<String, Object> params = Maps.newHashMap();
 
         // 非计划状态下的单据
-        List<Integer> status = Lists.newArrayList();
+        List<Long> status = Lists.newArrayList();
         status.add(ConstantForMES.ISSUED);
         status.add(ConstantForMES.PUT_UP);
         params.put("statusList", status);
@@ -72,7 +72,7 @@ public class ManageKanbanApiController {
         // 查询列表数据
         Map<String, Object> params = Maps.newHashMap();
         // 非计划状态下的单据
-        List<Integer> status = Lists.newArrayList();
+        List<Long> status = Lists.newArrayList();
         status.add(ConstantForMES.ISSUED);
         status.add(ConstantForMES.PUT_UP);
         params.put("statusList", status);

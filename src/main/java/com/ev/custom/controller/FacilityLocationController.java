@@ -61,7 +61,7 @@ public class FacilityLocationController {
 
 	@GetMapping("/edit/{id}")
 	@RequiresPermissions("custom:facilityLocation:edit")
-	String edit(@PathVariable("id") Integer id,Model model){
+	String edit(@PathVariable("id") Long id,Model model){
 		FacilityLocationDO facilityLocation = facilityLocationService.get(id);
 		model.addAttribute("facilityLocation", facilityLocation);
 		List<FacilityDO> facilityList = facilityService.list(null);
@@ -98,7 +98,7 @@ public class FacilityLocationController {
 	@PostMapping( "/remove")
 	@ResponseBody
 	@RequiresPermissions("custom:facilityLocation:remove")
-	public R remove( Integer id){
+	public R remove( Long id){
 		if(facilityLocationService.remove(id)>0){
 		return R.ok();
 		}
@@ -111,7 +111,7 @@ public class FacilityLocationController {
 	@PostMapping( "/batchRemove")
 	@ResponseBody
 	@RequiresPermissions("custom:facilityLocation:batchRemove")
-	public R remove(@RequestParam("ids") Integer[] ids){
+	public R remove(@RequestParam("ids") Long[] ids){
 		facilityLocationService.batchRemove(ids);
 		return R.ok();
 	}

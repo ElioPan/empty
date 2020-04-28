@@ -5,13 +5,16 @@ import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
+import com.ev.report.service.QualityManagementAccountingReportService;
 import com.ev.report.service.SmartManufacturingAccountingReportService;
 import com.ev.report.vo.CommonVO;
 import com.ev.report.vo.PieceRateVO;
 import com.ev.report.vo.ProcessReportVO;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -43,6 +46,8 @@ import java.util.Map;
 public class SmartManufacturingAccountingReportApiController {
     @Autowired
     private SmartManufacturingAccountingReportService reportService;
+    @Autowired
+    private QualityManagementAccountingReportService qualityReportService;
 
     @EvApiByToken(value = "/apis/smartManufacturing/productionPlan", method = RequestMethod.POST, apiTitle = "生产计划跟踪")
     @ApiOperation("生产计划跟踪")
@@ -245,47 +250,103 @@ public class SmartManufacturingAccountingReportApiController {
 
     }
 
-    @EvApiByToken(value = "/apis/smartManufacturing/productionBatch", method = RequestMethod.POST, apiTitle = "生产批次跟踪（生产计划列表）")
-    @ApiOperation("生产批次跟踪（生产计划列表）")
+    @EvApiByToken(value = "/apis/smartManufacturing/productionBatch", method = RequestMethod.POST, apiTitle = "生产批次跟踪")
+    @ApiOperation("生产批次跟踪")
     public R productionBatch(
-            @ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
-            @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
-            @ApiParam(value = "计划单号") @RequestParam(value = "planCode", defaultValue = "", required = false) String planCode,
-            @ApiParam(value = "产品编号") @RequestParam(value = "materielSerialNo", defaultValue = "", required = false) String materielSerialNo,
-            @ApiParam(value = "物料ID") @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId,
-            @ApiParam(value = "生产部门") @RequestParam(value = "deptId", defaultValue = "", required = false) Long deptId,
+            @ApiParam(value = "物料ID", required = true) @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId,
+            @ApiParam(value = "批号") @RequestParam(value = "batch", defaultValue = "", required = false) String batch,
             @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
             @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime
     ) {
         // 查询列表数据
         Map<String, Object> params = Maps.newHashMap();
 
-        params.put("planCode", planCode);
+        params.put("batch", batch);
         params.put("materielId", materielId);
-        params.put("deptId", deptId);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
-        params.put("materielSerialNo", StringUtils.sqlLike(materielSerialNo));
-        // 非计划状态下的单据
-        params.put("status", ConstantForMES.PLAN);
-        params.put("offset", (pageno - 1) * pagesize);
-        params.put("limit", pagesize);
+
+        params.put("auditSign", ConstantForGYL.OK_AUDITED);
+
+        List<Long> storageTypes =  Lists.newArrayList();
+        storageTypes.add(ConstantForGYL.YDGOODS_WAREHOUSE);
+        params.put("storageTypes", storageTypes);
+
+        params.put("isQuality", 0);
+        params.put("isPlan", 1);
+
+        // 生产入库&产品检验&出库&生产计划
+        List<Map<String, Object>> data = qualityReportService.qualityTraceabilityList(params);
+        List<Map<String, Object>> collect = reportService.productionBatchCollect(data);
+
         Map<String, Object> results = Maps.newHashMap();
-        List<Map<String, Object>> data = reportService.productionPlanList(params);
-        int total = reportService.productionPlanCount(params);
         if (data.size() > 0) {
-            results.put("data", new DsResultResponse(pageno, pagesize, total, data));
+            results.put("data", collect);
         }
         return R.ok(results);
     }
 
-    @EvApiByToken(value = "/apis/smartManufacturing/productionBatch/item", method = RequestMethod.POST, apiTitle = "生产批次跟踪（详细列表生产入库，生产领料单）")
-    @ApiOperation("生产批次跟踪（详细列表生产入库，生产领料单）")
-    public R productionBatchItem(
-            @ApiParam(value = "生产计划ID", required = true) @RequestParam(value = "id", defaultValue = "") Long id
+    @ResponseBody
+    @EvApiByToken(value = "/apis/exportExcel/productionBatch", method = RequestMethod.GET, apiTitle = "生产批次跟踪(导出)")
+    @ApiOperation("生产批次跟踪（导出）")
+    public void qualityTraceability(
+            @ApiParam(value = "物料ID", required = true) @RequestParam(value = "materielId", defaultValue = "", required = false) Long materielId,
+            @ApiParam(value = "批号", required = true) @RequestParam(value = "batch", defaultValue = "", required = false) String batch,
+            @ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
+            @ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime,
+            HttpServletRequest request, HttpServletResponse response, ModelMap modelMap
+
     ) {
-        return reportService.productionBatch(id);
+        // 查询列表数据
+        Map<String, Object> params = Maps.newHashMap();
+
+        params.put("batch", batch);
+        params.put("materielId", materielId);
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+
+        params.put("auditSign", ConstantForGYL.OK_AUDITED);
+
+        List<Long> storageTypes =  Lists.newArrayList();
+        storageTypes.add(ConstantForGYL.YDGOODS_WAREHOUSE);
+        params.put("storageTypes", storageTypes);
+
+        params.put("isQuality", 0);
+        params.put("isPlan", 1);
+
+        // 生产入库&产品检验&出库&生产计划
+        List<Map<String, Object>> data = qualityReportService.qualityTraceabilityList(params);
+        List<Map<String, Object>> collect = reportService.productionBatchCollect(data);
+
+        collect.forEach(e->{
+            String way = e.get("way").toString();
+            if ("in".equals(way)) {
+                e.put("way", "来源");
+            } else {
+                e.put("way", "去向");
+            }
+        });
+
+        if (data.size() > 0) {
+            ClassPathResource classPathResource = new ClassPathResource("poi/report_production_batch.xlsx");
+            Map<String,Object> map = Maps.newHashMap();
+            map.put("list", collect);
+            TemplateExportParams result = new TemplateExportParams(classPathResource.getPath());
+            modelMap.put(TemplateExcelConstants.FILE_NAME, "生产批次跟踪");
+            modelMap.put(TemplateExcelConstants.PARAMS, result);
+            modelMap.put(TemplateExcelConstants.MAP_DATA, map);
+            PoiBaseView.render(modelMap, request, response,
+                    TemplateExcelConstants.EASYPOI_TEMPLATE_EXCEL_VIEW);
+        }
+
     }
+//    @EvApiByToken(value = "/apis/smartManufacturing/productionBatch/item", method = RequestMethod.POST, apiTitle = "生产批次跟踪（详细列表生产入库，生产领料单）")
+//    @ApiOperation("生产批次跟踪（详细列表生产入库，生产领料单）")
+//    public R productionBatchItem(
+//            @ApiParam(value = "生产计划ID", required = true) @RequestParam(value = "id", defaultValue = "") Long id
+//    ) {
+//        return reportService.productionBatch(id);
+//    }
 
 
 

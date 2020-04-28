@@ -29,7 +29,7 @@ public class ExpenseDO implements Serializable {
 	private String code;
 	//费用类型
     @ApiModelProperty(value = "费用类型")
-	private Integer type;
+	private Long type;
 	//名称
     @ApiModelProperty(value = "名称")
 	private String name;
@@ -38,7 +38,7 @@ public class ExpenseDO implements Serializable {
 	private Long auditor;
 	//审核标志：（待审核/已审核）
     @ApiModelProperty(value = "审核标志：（待审核/已审核）")
-	private Integer auditSign;
+	private Long auditSign;
 	//备注
     @ApiModelProperty(value = "备注")
 	private String remarks;

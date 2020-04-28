@@ -95,14 +95,14 @@ public class RepairRecordServiceImpl implements RepairRecordService {
 			JSONArray jsonArray = JSON.parseArray(partIds);
 			for(int j = 0; j < jsonArray.size(); j ++) {
 				JSONObject jsonObject = jsonArray.getJSONObject(j);
-				Integer partId = Integer.parseInt(jsonObject.getOrDefault("partId",0).toString());
+				int partId = Integer.parseInt(jsonObject.getOrDefault("partId",0).toString());
 				int amount = Integer.parseInt(jsonObject.getOrDefault("amount",0).toString());
 				double price = Double.parseDouble(jsonObject.getOrDefault("price",0.0).toString());
 				String content = jsonObject.getOrDefault("content","").toString();
 //				MaterielDO sparePart =  this.materielService.get(partId);
 				RepairEventPartDO part = new RepairEventPartDO();
 				part.setAmount(amount);
-				part.setPartId(Long.parseLong(partId.toString()));
+				part.setPartId(Long.parseLong(Integer.toString(partId)));
 				part.setRemark(content);
 				part.setPrice(price);
 				part.setTotal(amount*price);
@@ -117,7 +117,7 @@ public class RepairRecordServiceImpl implements RepairRecordService {
 		if (record.getStatus().equals(Constant.TS)) {
 			return;
 		}
-		Integer usage = record.getUsage();
+		Long usage = record.getUsage();
 		/*
 		//将维修后的设备状态更改
 		DeviceDO deviceDO=new DeviceDO();

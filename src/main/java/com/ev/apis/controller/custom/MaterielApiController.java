@@ -171,7 +171,7 @@ public class MaterielApiController {
         }
         // 若编号为空 则自动生成
         String serialNo = materiel.getSerialNo();
-        Integer type = materiel.getType();
+        Long type = materiel.getType();
         if (type == null) {
             return R.error(messageSourceHandler.getMessage("common.dailyReport.save", null));
         }
@@ -212,7 +212,7 @@ public class MaterielApiController {
     @EvApiByToken(value = "/apis/materiel/audit", method = RequestMethod.POST, apiTitle = "审核物料")
     @ApiOperation("审核物料")
     public R audit(
-            @ApiParam(value = "物料主键", required = true) @RequestParam(value = "id", defaultValue = "") Integer id) {
+            @ApiParam(value = "物料主键", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
         MaterielDO materielDO = materielService.get(id);
         if (Objects.equals(materielDO.getAuditSign(), ConstantForMES.OK_AUDITED)) {
             return R.error(messageSourceHandler.getMessage("common.duplicate.approved", null));
@@ -233,7 +233,7 @@ public class MaterielApiController {
     @EvApiByToken(value = "/apis/materiel/reverseAudit", method = RequestMethod.POST, apiTitle = "反审核物料")
     @ApiOperation("反审核物料")
     public R reverseAudit(
-            @ApiParam(value = "物料主键", required = true) @RequestParam(value = "id", defaultValue = "") Integer id) {
+            @ApiParam(value = "物料主键", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
         MaterielDO materielDO = materielService.get(id);
         if (Objects.equals(materielDO.getAuditSign(), ConstantForMES.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("receipt.reverseAudit.nonWaitingAudit", null));
@@ -267,7 +267,7 @@ public class MaterielApiController {
 
     @EvApiByToken(value = "/apis/materiel/detail", method = RequestMethod.POST)
     @ApiOperation("获取物料详情")
-    public R detail(@ApiParam(value = "物料Id", required = true) @RequestParam(value = "id", defaultValue = "") Integer id) {
+    public R detail(@ApiParam(value = "物料Id", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
         Map<String, Object> results = this.materielService.getDetail(id);
         if (results == null) {
             return R.error();
@@ -317,24 +317,24 @@ public class MaterielApiController {
 
     @EvApiByToken(value = "/apis/materiel/remove", method = RequestMethod.POST)
     @ApiOperation("删除物料")
-    public R remove(@ApiParam(value = "物料Id", required = true) @RequestParam(value = "id", defaultValue = "") Integer id) {
+    public R remove(@ApiParam(value = "物料Id", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
         return materielService.logicRemove(id);
     }
 
     @EvApiByToken(value = "/apis/materiel/batchRemove", method = RequestMethod.POST)
     @ApiOperation("批量删除物料")
-    public R batchRemove(@ApiParam(value = "物料Id数组", required = true) @RequestParam(value = "id", defaultValue = "") Integer[] ids) {
+    public R batchRemove(@ApiParam(value = "物料Id数组", required = true) @RequestParam(value = "id", defaultValue = "") Long[] ids) {
         return materielService.logicBatchRemove(ids);
     }
 
     @EvApiByToken(value = "/apis/materiel/removeType", method = RequestMethod.POST)
     @ApiOperation("删除物料类型")
-    public R removeType(@ApiParam(value = "物料类型Id", required = true) @RequestParam(value = "id", defaultValue = "") Integer id) {
+    public R removeType(@ApiParam(value = "物料类型Id", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
         MaterielTypeDO materielTypeDO = materielTypeService.get(id);
         if(materielTypeDO.getIsSystem()==1){
             return R.error(messageSourceHandler.getMessage("common.system.disable.operate", null));
         }
-        Integer[] ids = {id};
+        Long[] ids = {id};
         // 有关联物料信息则不能删除
         if (materielTypeService.checkDelete(ids) > 0) {
             return R.error(messageSourceHandler.getMessage("common.approvedOrChild.delete.disabled", null));
@@ -347,8 +347,8 @@ public class MaterielApiController {
 
     @EvApiByToken(value = "/apis/materiel/batchRemoveType", method = RequestMethod.POST)
     @ApiOperation("批量删除物料类型")
-    public R batchRemoveType(@ApiParam(value = "物料类型Id数组", required = true) @RequestParam(value = "id", defaultValue = "") Integer[] ids) {
-        for(Integer id : ids){
+    public R batchRemoveType(@ApiParam(value = "物料类型Id数组", required = true) @RequestParam(value = "id", defaultValue = "") Long[] ids) {
+        for(Long id : ids){
             MaterielTypeDO materielTypeDO = materielTypeService.get(id);
             if(materielTypeDO.getIsSystem()==1){
                 return R.error(messageSourceHandler.getMessage("common.system.disable.operate", null));
@@ -373,15 +373,15 @@ public class MaterielApiController {
             @ApiParam(value = "物料名称") @RequestParam(value = "name", defaultValue = "", required = false) String name,
             @ApiParam(value = "物料名称&&物料编码") @RequestParam(value = "query", defaultValue = "", required = false) String query,
             @ApiParam(value = "规格型号") @RequestParam(value = "specification", defaultValue = "", required = false) String specification,
-            @ApiParam(value = "计量单位ID") @RequestParam(value = "unitUom", defaultValue = "", required = false) Integer unitUom,
-            @ApiParam(value = "物料类型ID") @RequestParam(value = "type", defaultValue = "", required = false) Integer type,
-            @ApiParam(value = "物料属性ID") @RequestParam(value = "attribute", defaultValue = "", required = false) Integer attribute,
+            @ApiParam(value = "计量单位ID") @RequestParam(value = "unitUom", defaultValue = "", required = false) Long unitUom,
+            @ApiParam(value = "物料类型ID") @RequestParam(value = "type", defaultValue = "", required = false) Long type,
+            @ApiParam(value = "物料属性ID") @RequestParam(value = "attribute", defaultValue = "", required = false) Long attribute,
             @ApiParam(value = "默认仓库") @RequestParam(value = "defaultFacilityName", defaultValue = "", required = false) String defaultFacilityName,
             @ApiParam(value = "默认仓位") @RequestParam(value = "defaultLocationName", defaultValue = "", required = false) String defaultLocationName,
-            @ApiParam(value = "状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Integer auditSign,
+            @ApiParam(value = "状态") @RequestParam(value = "auditSign", defaultValue = "", required = false) Long auditSign,
             @ApiParam(value = "启用状态(0禁用，1启用)") @RequestParam(value = "useStatus", defaultValue = "", required = false) Integer useStatus,
-            @ApiParam(value = "默认仓库ID") @RequestParam(value = "defaultFacility", defaultValue = "", required = false) Integer defaultFacility,
-            @ApiParam(value = "默认仓位ID") @RequestParam(value = "defaultLocation", defaultValue = "", required = false) Integer defaultLocation,
+            @ApiParam(value = "默认仓库ID") @RequestParam(value = "defaultFacility", defaultValue = "", required = false) Long defaultFacility,
+            @ApiParam(value = "默认仓位ID") @RequestParam(value = "defaultLocation", defaultValue = "", required = false) Long defaultLocation,
             HttpServletRequest request, HttpServletResponse response, ModelMap modelMap) {
         Map<String, Object> param = Maps.newHashMap();
         param.put("serialNo", serialNo);
@@ -421,11 +421,11 @@ public class MaterielApiController {
     @EvApiByToken(value = "/apis/materiel/batchAudit", method = RequestMethod.POST, apiTitle = "批量审核物料")
     @ApiOperation("批量审核物料")
     @Transactional(rollbackFor = Exception.class)
-    public R batchAudit(@ApiParam(value = "供应商id", required = true) @RequestParam(value = "ids", defaultValue = "")Integer[] ids ){
+    public R batchAudit(@ApiParam(value = "供应商id", required = true) @RequestParam(value = "ids", defaultValue = "")Long[] ids ){
         if (ids.length > 0) {
             List<MaterielDO> materielDOList=Lists.newArrayList();
             Long userId = ShiroUtils.getUserId();
-            for (Integer id : ids) {
+            for (Long id : ids) {
                 MaterielDO materielDO= materielService.get(id);
                 if(Objects.isNull(materielDO)){
                     return R.error(messageSourceHandler.getMessage("common.massge.haveNoThing",null));
@@ -581,7 +581,7 @@ public class MaterielApiController {
                 defaultLocationName = materielEntity.getDefaultLocationName();
                 for (FacilityDO facilityDO : facilityDOs) {
                     if (Objects.equals(facilityDO.getName(),defaultFacilityName)) {
-                        Integer facilityDOId = facilityDO.getId();
+                        Long facilityDOId = facilityDO.getId();
                         // 默认库位
                         for (FacilityLocationDO locationDO : locationDOs) {
                             if (Objects.equals(locationDO.getName(),defaultLocationName)) {
@@ -601,7 +601,7 @@ public class MaterielApiController {
                 supplierName = materielEntity.getSupplierName();
                 for (SupplierDO supplierDO: supplierDOs) {
                     if (Objects.equals(supplierDO.getName(),supplierName)) {
-                        materielDO.setSupplier(supplierDO.getId().intValue());
+                        materielDO.setSupplier(supplierDO.getId());
                         break;
                     }
                 }

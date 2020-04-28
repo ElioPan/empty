@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public interface MaterielService {
 	
-	MaterielDO get(Integer id);
+	MaterielDO get(Long id);
 	
 	List<MaterielDO> list(Map<String, Object> map);
 
@@ -28,13 +28,13 @@ public interface MaterielService {
 	
 	int update(MaterielDO materiel);
 	
-	int remove(Integer id);
+	int remove(Long id);
 	
-	int batchRemove(Integer[] ids);
+	int batchRemove(Long[] ids);
 
 	int countForMap(Map<String, Object> params);
 
-	Map<String, Object> getDetail(Integer id);
+	Map<String, Object> getDetail(Long id);
 
 	int checkSave(MaterielDO materiel);
 
@@ -56,7 +56,7 @@ public interface MaterielService {
 	/**
 	 * 验证能否删除
 	 */
-	int checkUse(Integer id);
+	int checkUse(Long id);
 
 	/**
 	 * 获取库存数量
@@ -65,15 +65,15 @@ public interface MaterielService {
 
 	/**
 	 */
-	R logicRemove(Integer id);
+	R logicRemove(Long id);
 
 	/**
 	 */
-	R logicBatchRemove(Integer[] ids);
+	R logicBatchRemove(Long[] ids);
 
-    int audit(Integer id);
+    int audit(Long id);
 
-    int reverseAudit(Integer id);
+    int reverseAudit(Long id);
 
     List<String> getAllCode();
 

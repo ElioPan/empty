@@ -9,7 +9,6 @@ import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.custom.domain.*;
 import com.ev.custom.service.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Maps;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -115,7 +114,7 @@ public class TaskMainServiceImpl implements TaskMainService {
 	}
 	
 	@Override
-	public List<Map<String, Object>> getTaskReplyInfo(Long id, Integer status) {
+	public List<Map<String, Object>> getTaskReplyInfo(Long id, Long status) {
 		Map<String,Object> params = Maps.newHashMapWithExpectedSize(4);
 		if (Objects.equals(Constant.REPLY_CHECK, status)) {
 			params.put("createBy", ShiroUtils.getUserId());
@@ -148,7 +147,7 @@ public class TaskMainServiceImpl implements TaskMainService {
 	}
 	
 	@Override
-	public void getUserWaitingCount(Long userId, Integer status, String idPath, Map<String, Object> results) {
+	public void getUserWaitingCount(Long userId, Long status, String idPath, Map<String, Object> results) {
 		 Map<String, Object> params = Maps.newHashMapWithExpectedSize(4);
 		// 创建人可以知晓该事项 待验收或待处理的数量
 //        params.put("createBy",userId);
@@ -231,7 +230,7 @@ public class TaskMainServiceImpl implements TaskMainService {
 	
 	@Override
 	public R saveTaskInfo(TaskMainDO taskMain, Long[] ccList, Long heldPerson, Long checkPerson, String linkOrderNo,
-			Integer linkOrderType, Integer linkStageType, String[] taglocationappearanceImage) throws IOException, ParseException {
+			Long linkOrderType, Long linkStageType, String[] taglocationappearanceImage) throws IOException, ParseException {
 		Long taskId = taskMain.getId();
 		if (taskId==null) {
 			Map<String,Object> result = Maps.newHashMapWithExpectedSize(1);
@@ -246,14 +245,12 @@ public class TaskMainServiceImpl implements TaskMainService {
 				ReportTaskDO reportTask = new ReportTaskDO(taskId,linkOrderNo,linkOrderType,linkStageType);
 				reportTaskService.save(reportTask);
 			}
-			/**
-			 * 发送消息
-			 */
+			// 发送消息
+
 			JSONObject contentDetail = new JSONObject();
 			contentDetail.put("id",taskId);
 			contentDetail.put("url","/task/taskDetail?id="+taskId);
-			List<Long> toUsers = new ArrayList<>();
-			toUsers.addAll(Arrays.asList(ccList));
+			List<Long> toUsers = new ArrayList<>(Arrays.asList(ccList));
 			String content = "单号为“"+taskMain.getTaskNo()+"”的任务单据抄送了您，请及时关注！";
 			noticeService.saveAndSendSocket("@我的任务", content, taskId, contentDetail.toString(),4L, ShiroUtils.getUserId(),toUsers);
 			result.put("taskId",taskId);
@@ -264,19 +261,16 @@ public class TaskMainServiceImpl implements TaskMainService {
 			// Constant.CC_PERSON 抄送人 cc_person
 			// Constant.HELD_PERSON 责任人 held_person
 			// Constant.CHECK_PERSON 验收人 check_person
-			
-			Integer[] assocTypes = { Constant.HELD_PERSON, Constant.CC_PERSON, Constant.CHECK_PERSON };
+
+			Long[] assocTypes = { Constant.HELD_PERSON, Constant.CC_PERSON, Constant.CHECK_PERSON };
 			this.removeSatellite(taskIds, assocTypes, Constant.TASK_APPEARANCE_IMAGE);
 		
 			this.add(taskId,ccList,heldPerson,checkPerson,taglocationappearanceImage);
-			/**
-			 * 发送消息
-			 */
+			 // 发送消息
 			JSONObject contentDetail = new JSONObject();
 			contentDetail.put("id",taskId);
 			contentDetail.put("url","/task/taskDetail?id="+taskId);
-			List<Long> toUsers = new ArrayList<>();
-			toUsers.addAll(Arrays.asList(ccList));
+			List<Long> toUsers = new ArrayList<>(Arrays.asList(ccList));
 			String content = "单号为“"+taskMain.getTaskNo()+"”的任务单据抄送了您，请及时关注！";
 			noticeService.saveAndSendSocket("@我的任务", content, taskId, contentDetail.toString(),4L, ShiroUtils.getUserId(),toUsers);
 			return R.ok();
@@ -333,7 +327,7 @@ public class TaskMainServiceImpl implements TaskMainService {
 			return;
 		}
 		if (count>0) {
-			Integer status = taskReplyDO.getStatus();
+			Long status = taskReplyDO.getStatus();
 			// 修改任务处理记录的状态
 			TaskReplyDO dealReply = taskReplyService.get(taskReplyDO.getDealId());
 			dealReply.setStatus(status);
@@ -415,7 +409,7 @@ public class TaskMainServiceImpl implements TaskMainService {
 	}
 
 	@Override
-	public void removeSatellite(Long[] ids,Integer[] assocTypes,String imageType) {
+	public void removeSatellite(Long[] ids,Long[] assocTypes,String imageType) {
 		if (ArrayUtils.isNotEmpty(ids)) {
 			// 将抄送人删除
 			Map<String, Object> map =Maps.newHashMapWithExpectedSize(2);
@@ -428,22 +422,22 @@ public class TaskMainServiceImpl implements TaskMainService {
 	}
 	
 	@Override
-	public boolean nonWaitingDeal(Integer status) {
+	public boolean nonWaitingDeal(Long status) {
 		return !(Objects.equals(status, Constant.WAITING_DEAL));
 	}
 	
 	@Override
-	public boolean nonTS(Integer status) {
+	public boolean nonTS(Long status) {
 		return !(status==null||Objects.equals(status,Constant.TS));
 	}
 	
 	@Override
-	public boolean nonWaitingCheck(Integer status) {
+	public boolean nonWaitingCheck(Long status) {
 		return !(Objects.equals(status,Constant.WAITING_CHECK));
 	}
 	
 	@Override
-	public boolean isAlreadyCheck(Integer status) {
+	public boolean isAlreadyCheck(Long status) {
 		return Objects.equals(status,Constant.ALREADY_CHECK);
 	}
 	

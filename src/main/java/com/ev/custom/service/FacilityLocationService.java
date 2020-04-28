@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public interface FacilityLocationService {
 	
-	FacilityLocationDO get(Integer id);
+	FacilityLocationDO get(Long id);
 	
 	List<FacilityLocationDO> list(Map<String, Object> map);
 
@@ -26,15 +26,15 @@ public interface FacilityLocationService {
 	
 	int update(FacilityLocationDO facilityLocation);
 	
-	int remove(Integer id);
+	int remove(Long id);
 	
-	int batchRemove(Integer[] ids);
-	int logicRemove(Integer id);
+	int batchRemove(Long[] ids);
+	int logicRemove(Long id);
 
-	int logicBatchRemove(Integer[] ids);
+	int logicBatchRemove(Long[] ids);
 
-    int audit(Integer id);
+    int audit(Long id);
 
-    int reverseAudit(Integer id);
+    int reverseAudit(Long id);
 
 }

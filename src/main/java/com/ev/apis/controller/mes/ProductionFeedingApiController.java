@@ -10,6 +10,7 @@ import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.*;
+import com.ev.mes.service.ProductionFeedingAlterationService;
 import com.ev.scm.service.PurchaseItemService;
 import com.ev.scm.service.StockOutItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,8 @@ public class ProductionFeedingApiController {
 	private StockOutItemService stockOutItemService;
 	@Autowired
 	private PurchaseItemService purchaseItemService;
+	@Autowired
+	private ProductionFeedingAlterationService alterationService;
 	@Autowired
 	private MaterielService materielService;
 
@@ -218,7 +221,7 @@ public class ProductionFeedingApiController {
 
 		Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
 		List<Map<String, Object>> data = productionFeedingDetailService.listForMap(params);
-		DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.SCTLD.intValue());
+		DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.SCTLD);
 		String thisSourceTypeName = dictionaryDO.getName();
 
 		Map<String, Object> param = Maps.newHashMap();
@@ -447,6 +450,107 @@ public class ProductionFeedingApiController {
     ) @RequestParam(value = "childArray", defaultValue = "", required = false) String childArray,
 			@ApiParam(value = "被删除的子项目ID") @RequestParam(value = "ids", defaultValue = "", required = false) Long[] ids) {
 		return productionFeedingService.edit(feedingDO, childArray, ids);
+	}
+
+	/**
+	 * 变更生产投料
+	 *
+	 * @date 2020-04-26
+	 * @author gumingjie
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	@EvApiByToken(value = "/apis/productionFeeding/change", method = RequestMethod.POST, apiTitle = "变更生产投料")
+	@ApiOperation("变更生产投料")
+	public R change(ProductionFeedingDO feedingDO, @ApiParam(value = "生产投料单需要领的物料数组例："+
+			"[\r\n" +
+			"    {\r\n" +
+			"        \"id\":1,\r\n" +
+			"        \"materielId\":1,\r\n" +
+			"        \"batchNo\":\"批号001\",\r\n" +
+			"        \"planFeeding\":1000,\r\n" +
+			"        \"facilityId\":1,\r\n" +
+			"        \"locationId\":1,\r\n" +
+			"        \"processId\":1,\r\n" +
+			"        \"stationId\":1,\r\n" +
+			"        \"isCollect\":1\r\n" +
+			"    },\r\n" +
+			"    {\r\n" +
+			"        \"id\":2,\r\n" +
+			"        \"materielId\":2,\r\n" +
+			"        \"batchNo\":\"批号002\",\r\n" +
+			"        \"planFeeding\":9000,\r\n" +
+			"        \"facilityId\":1,\r\n" +
+			"        \"locationId\":1,\r\n" +
+			"        \"processId\":1,\r\n" +
+			"        \"stationId\":1,\r\n" +
+			"        \"isCollect\":1\r\n" +
+			"    },\r\n" +
+			"    {\r\n" +
+			"        \"materielId\":1,\r\n" +
+			"        \"batchNo\":\"批号004\",\r\n" +
+			"        \"planFeeding\":9000,\r\n" +
+			"        \"facilityId\":1,\r\n" +
+			"        \"locationId\":1,\r\n" +
+			"        \"processId\":1,\r\n" +
+			"        \"stationId\":1,\r\n" +
+			"        \"isCollect\":1\r\n" +
+			"    }\r\n" +
+			"]"
+	) @RequestParam(value = "childArray", defaultValue = "", required = false) String childArray,
+					@ApiParam(value = "被删除的子项目ID") @RequestParam(value = "ids", defaultValue = "", required = false) Long[] ids) {
+		return productionFeedingService.change(feedingDO, childArray, ids);
+	}
+
+	/**
+	 * 查看生产投料单变更详情
+	 *
+	 * @date 2020-04-26
+	 * @author gumingjie
+	 */
+	@EvApiByToken(value = "/apis/productionFeeding/changeDetail", method = RequestMethod.POST, apiTitle = "查看生产投料单变更详情")
+	@ApiOperation("查看生产投料单变更详情")
+	public R changeDetail(
+			@ApiParam(value = "变更记录", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
+		return R.ok(productionFeedingService.changeDetail(id));
+	}
+
+	/**
+	 * 查看投料单变更记录列表
+	 *
+	 * @date 2020-04-26
+	 * @author gumingjie
+	 */
+	@EvApiByToken(value = "/apis/productionFeeding/changeList", method = RequestMethod.POST, apiTitle = "查看投料单变更记录列表")
+	@ApiOperation("查看投料单变更记录列表")
+	public R changeList(
+			@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+			@ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+			@ApiParam(value = "变更人") @RequestParam(value = "createName", defaultValue = "", required = false) String createName,
+			@ApiParam(value = "变更人ID") @RequestParam(value = "createId", defaultValue = "", required = false) Long createId,
+			@ApiParam(value = "投料单ID") @RequestParam(value = "feedingId", defaultValue = "", required = false) Long feedingId,
+			@ApiParam(value = "投料单类型") @RequestParam(value = "type", defaultValue = "", required = false) Integer type,
+			@ApiParam(value = "开始时间") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
+			@ApiParam(value = "结束时间") @RequestParam(value = "endTime", defaultValue = "", required = false) String endTime
+	) {
+
+		// 查询列表数据
+		Map<String, Object> params = Maps.newHashMapWithExpectedSize(10);
+		params.put("startTime", startTime);
+		params.put("endTime", endTime);
+		params.put("type", type);
+		params.put("createId", createId);
+		params.put("feedingId", feedingId);
+		params.put("createName", StringUtils.sqlLike(createName));
+
+		params.put("offset", (pageno - 1) * pagesize);
+		params.put("limit", pagesize);
+		Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
+		List<Map<String, Object>> data = alterationService.listForMap(params);
+		int total = alterationService.countForMap(params);
+		if (data.size() > 0) {
+			results.put("data", new DsResultResponse(pageno,pagesize,total,data));
+		}
+		return R.ok(results);
 	}
 
 //	/**

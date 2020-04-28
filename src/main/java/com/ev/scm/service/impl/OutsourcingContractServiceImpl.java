@@ -21,6 +21,7 @@ import com.ev.scm.dao.OutsourcingContractDao;
 import com.ev.scm.dao.OutsourcingContractItemDao;
 import com.ev.scm.dao.OutsourcingContractPayDao;
 import com.ev.scm.domain.*;
+import com.ev.scm.service.OutsourcingContractItemService;
 import com.ev.scm.service.OutsourcingContractService;
 import com.ev.scm.service.SalescontractItemService;
 import com.ev.scm.vo.ContractItemVO;
@@ -59,6 +60,9 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
     private SalescontractItemService salescontractItemService;
     @Autowired
     private MessageSourceHandler messageSourceHandler;
+    @Autowired
+    private OutsourcingContractItemService outsourcingContractItemService;
+
 
     @Override
     public OutsourcingContractDO get(Long id) {
@@ -488,7 +492,10 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         if (!Objects.equals(outsourcingContractDO.getAuditSign(), ConstantForGYL.OK_AUDITED)) {
             return R.error(messageSourceHandler.getMessage("common.massge.faildRollBackAudit", null));
         }
-
+        int  closingLines= outsourcingContractItemService.lineClosingNumber(id);
+        if(closingLines>0){
+            return R.error(messageSourceHandler.getMessage("scm.contractLine.isClosing", null));
+        }
         int childCount = outsourcingContractDao.childCount(id);
         if (childCount>0) {
             return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));

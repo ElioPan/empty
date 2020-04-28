@@ -94,7 +94,7 @@ public class DictionaryApiController {
     @Transactional(rollbackFor = Exception.class)
     @EvApiByToken(value = "/apis/dictionary/delete",method = RequestMethod.POST,apiTitle = "删除字典")
     @ApiOperation("删除字典")
-    public R delete(@ApiParam(value = "字典ID",required = true) @RequestParam(value = "dictionaryId",defaultValue = "",required = true) Integer dictionaryId){
+    public R delete(@ApiParam(value = "字典ID",required = true) @RequestParam(value = "dictionaryId",defaultValue = "",required = true) Long dictionaryId){
         if(dictionaryService.remove(dictionaryId)>0){
             return R.ok();
         }

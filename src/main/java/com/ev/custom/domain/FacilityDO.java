@@ -19,7 +19,7 @@ public class FacilityDO implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	//主键
-	private Integer id;
+	private Long id;
 	//编号
 	private String serialNo;
 	//名称
@@ -37,9 +37,9 @@ public class FacilityDO implements Serializable {
 	//删除状态
 	private Integer delFlag;
 	//仓库类型
-	private Integer facilityType;
+	private Long facilityType;
     // 审核状态
-    private Integer auditSign;
+    private Long auditSign;
     // 审核状态
     private Long auditor;
 }

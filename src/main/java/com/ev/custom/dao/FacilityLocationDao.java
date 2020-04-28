@@ -16,7 +16,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface FacilityLocationDao {
 
-	FacilityLocationDO get(Integer id);
+	FacilityLocationDO get(Long id);
 	
 	List<FacilityLocationDO> list(Map<String, Object> map);
 
@@ -28,7 +28,7 @@ public interface FacilityLocationDao {
 	
 	int update(FacilityLocationDO facilityLocation);
 	
-	int remove(Integer id);
+	int remove(Long id);
 	
-	int batchRemove(Integer[] ids);
+	int batchRemove(Long[] ids);
 }

@@ -4,14 +4,14 @@
 <mapper namespace="com.ev.mes.dao.ProductionFeedingDetailDao">
 
 	<select id="get" resultType="com.ev.mes.domain.ProductionFeedingDetailDO">
-		SELECT 
+		SELECT
 		<include refid="sql_column_list"/>  
 		FROM mes_production_feeding_detail 
 		WHERE id = #{value}
 	</select>
 
 	<select id="list" resultType="com.ev.mes.domain.ProductionFeedingDetailDO">
-		SELECT 
+		SELECT
 		<include refid="sql_column_list"/>
 		FROM mes_production_feeding_detail
 		<include refid="sql_condition"/>
@@ -46,7 +46,12 @@
 			location.id AS 	defaultLocationId,
 			facility.name as defaultFacilityName,
 			location.name as defaultLocationName,
-
+		detail.process_id AS processId,
+		pro.name as processName,
+		station.`id` AS stationId,
+		station.name as stationName,
+		detail.`is_collect` AS isCollect,
+		IF(detail.`is_collect`=1,'是','否') AS isCollectName,
 		feeding.`feeding_no` AS feedingNo,
         feeding.`id` AS feedingId,
         headmaterial.`name` AS productName,
@@ -81,38 +86,48 @@
 	</select>
 
 	<insert id="save" parameterType="com.ev.mes.domain.ProductionFeedingDetailDO" useGeneratedKeys="true" keyProperty="id">
-		insert into mes_production_feeding_detail
+		INSERT INTO mes_production_feeding_detail
 		(
 			`head_id`,
-			`materiel_id`, 
-			`batch_no`, 
-			`plan_feeding`, 
-			`out_count`, 
-			`scrap_count`, 
-			`create_by`, 
-			`create_time`, 
-			`update_by`, 
-			`update_time`, 
-			`del_flag`
+			`materiel_id`,
+			`batch_no`,
+			`plan_feeding`,
+			`out_count`,
+			`scrap_count`,
+			`create_by`,
+			`create_time`,
+			`update_by`,
+			`update_time`,
+			`del_flag`,
+			`facility_id`,
+			`location_id`,
+			`process_id`,
+			`station_id`,
+			`is_collect`
 		)
-		values
+		VALUES
 		(
-			#{headId}, 
-			#{materielId}, 
-			#{batchNo}, 
-			#{planFeeding}, 
-			#{outCount}, 
-			#{scrapCount}, 
-			#{createBy}, 
-			#{createTime}, 
-			#{updateBy}, 
-			#{updateTime}, 
-			#{delFlag}
+			#{headId},
+			#{materielId},
+			#{batchNo},
+			#{planFeeding},
+			#{outCount},
+			#{scrapCount},
+			#{createBy},
+			#{createTime},
+			#{updateBy},
+			#{updateTime},
+			#{delFlag},
+			#{facilityId},
+			#{locationId},
+			#{processId},
+			#{stationId},
+			#{isCollect}
 		)
 	</insert>
 	 
 	<update id="update" parameterType="com.ev.mes.domain.ProductionFeedingDetailDO">
-		update mes_production_feeding_detail 
+		UPDATE mes_production_feeding_detail
 		<set>
 			<if test="headId != null">`head_id` = #{headId}, </if>
 			<if test="materielId != null">`materiel_id` = #{materielId}, </if>
@@ -124,9 +139,14 @@
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
 			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
-			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}, </if>
+			<if test="facilityId != null">`facility_id` = #{facilityId}, </if>
+			<if test="locationId != null">`location_id` = #{locationId}, </if>
+			<if test="processId != null">`process_id` = #{processId}, </if>
+			<if test="isCollect != null">`is_collect` = #{isCollect}, </if>
+			<if test="stationId != null">`station_id` = #{stationId}</if>
 		</set>
-		where id = #{id}
+		WHERE id = #{id}
 	</update>
 	
 	<delete id="remove">
@@ -145,24 +165,29 @@
 	</delete>
 	
 	<sql id="sql_column_list">
-		`id`,`head_id`,`materiel_id`,`batch_no`,`plan_feeding`,`out_count`,`scrap_count`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+		`id`,`head_id`,`materiel_id`,`batch_no`,`plan_feeding`,`out_count`,`scrap_count`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`,`facility_id`,`location_id`,`process_id`,`station_id`,`is_collect`
 	</sql>
-	
+
 	<sql id="sql_condition">
-		<where>  
-		  		  <if test="id != null and id != ''"> and id = #{id} </if>
-		  		  <if test="headId != null and headId != ''"> and head_id = #{headId} </if>
-		  		  <if test="materielId != null and materielId != ''"> and materiel_id = #{materielId} </if>
-		  		  <if test="batchNo != null and batchNo != ''"> and batch_no = #{batchNo} </if>
-		  		  <if test="planFeeding != null and planFeeding != ''"> and plan_feeding = #{planFeeding} </if>
-		  		  <if test="outCount != null and outCount != ''"> and out_count = #{outCount} </if>
-		  		  <if test="scrapCount != null and scrapCount != ''"> and scrap_count = #{scrapCount} </if>
-		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
-		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
-		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
-		  		  <if test="updateTime != null and updateTime != ''"> and update_time = #{updateTime} </if>
-		  		  <if test="delFlag != null and delFlag != ''"> and del_flag = #{delFlag} </if>
-		  		</where>
+		<where>
+			<if test="id != null and id != ''"> AND id = #{id} </if>
+			<if test="headId != null and headId != ''"> AND head_id = #{headId} </if>
+			<if test="materielId != null and materielId != ''"> AND materiel_id = #{materielId} </if>
+			<if test="batchNo != null and batchNo != ''"> AND batch_no = #{batchNo} </if>
+			<if test="planFeeding != null and planFeeding != ''"> AND plan_feeding = #{planFeeding} </if>
+			<if test="outCount != null and outCount != ''"> AND out_count = #{outCount} </if>
+			<if test="scrapCount != null and scrapCount != ''"> AND scrap_count = #{scrapCount} </if>
+			<if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+			<if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+			<if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+			<if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+			<if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+			<if test="facilityId != null and facilityId != ''"> AND facility_id = #{facilityId} </if>
+			<if test="locationId != null and locationId != ''"> AND location_id = #{locationId} </if>
+			<if test="processId != null and processId != ''"> AND process_id = #{processId} </if>
+			<if test="stationId != null and stationId != ''"> AND station_id = #{stationId} </if>
+			<if test="isCollect != null and isCollect != ''"> and is_collect = #{isCollect} </if>
+		</where>
 	</sql>
 	
 	<sql id="sql_map_condition">
@@ -172,8 +197,10 @@
         LEFT JOIN cus_materiel headmaterial ON headmaterial.`id` = feeding.`materiel_id`
 		LEFT JOIN cus_materiel material ON material.`id` = detail.`materiel_id`
 		LEFT JOIN cus_dictionary unituom ON unituom.id = material.unit_uom
-		LEFT JOIN cus_facility facility ON facility.id = material.default_facility
-		LEFT JOIN cus_facility_location location ON location.id = material.default_location
+		LEFT JOIN cus_facility facility ON facility.id = detail.facility_id
+		LEFT JOIN cus_facility_location location ON location.id = detail.location_id
+		LEFT JOIN mes_process pro ON pro.id = detail.process_id
+		LEFT JOIN mes_station station ON station.id = detail.station_id
 		<where>  
             <if test="headId != null and headId != ''"> and detail.head_id = #{headId} </if>
 			<if test="supplierName != null and supplierName != ''"> and supplier.name LIKE #{supplierName} </if>
