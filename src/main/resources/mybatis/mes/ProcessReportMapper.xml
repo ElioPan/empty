@@ -276,6 +276,7 @@
 			<if test="supplierName != null and supplierName != ''"> and supplierName like CONCAT('%', #{supplierName},'%') </if>
 			<if test="createTimes != null and createTimes != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;= DATE_FORMAT(#{createTimes},'%Y-%m-%d')</if>
 			<if test="yieldTime != null and yieldTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') = DATE_FORMAT(#{yieldTime},'%Y-%m-%d')</if>
+			<if test="deviceIdIsNull != null and deviceIdIsNull != ''"> and deviceId is not null </if>
 		</where>
 		<choose>
 			<when test="sort != null and sort.trim() != ''">
@@ -367,6 +368,9 @@
 			<if test="processName != null and processName != ''"> and processName like CONCAT('%', #{processName},'%') </if>
 			<if test="materialName != null and materialName != ''"> and materialName like CONCAT('%', #{materialName},'%') </if>
 			<if test="supplierName != null and supplierName != ''"> and supplierName like CONCAT('%', #{supplierName},'%') </if>
+			<if test="createTimes != null and createTimes != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') &gt;= DATE_FORMAT(#{createTimes},'%Y-%m-%d')</if>
+			<if test="yieldTime != null and yieldTime != ''">  and  DATE_FORMAT(createTime,'%Y-%m-%d') = DATE_FORMAT(#{yieldTime},'%Y-%m-%d')</if>
+			<if test="deviceIdIsNull != null and deviceIdIsNull != ''"> and deviceId is not null </if>
 		</where>
 	</select>
 
