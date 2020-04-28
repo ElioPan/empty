@@ -230,7 +230,7 @@ public class WeChatServiceImpl implements WeChatService {
 
         for(Long userId: userIds){
             UserDO userDO = userService.get(userId);
-            WeChatUtil.sendTextCardMessage(setting.getAppId(),setting.getAppUrl(), getMobileAccessToken(new Date()),noticeDO,userDO.getUsername());
+            WeChatUtil.sendTextCardMessage(setting.getAppId(),setting.getAppUrl(), getAccessToken(new Date()).optString("access_token"),noticeDO,userDO.getUsername());
         }
         return null;
     }
