@@ -38,4 +38,5 @@ public interface SmartManufacturingAccountingReportService {
 
     Map<String, Object> processOutputCount(Map<String, Object> params);
 
+    List<Map<String, Object>> productionBatchCollect(List<Map<String, Object>> data);
 }

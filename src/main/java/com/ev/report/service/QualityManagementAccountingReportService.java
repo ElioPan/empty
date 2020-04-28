@@ -26,4 +26,6 @@ public interface QualityManagementAccountingReportService {
     Pair<List<Map<String, Object>>, BigDecimal> badProcessForDeptResult(int showDeptTotalInt, int showItemInt, int showProcessTotalInt, Long deptId, Long processId, Long operator, Long deviceId, String startTime, String endTime);
 
     Pair<List<Map<String, Object>>, BigDecimal> badProductForDeptResult(int showDeptTotalInt, int showItemInt, int showProductTotalInt, Long deptId, Long materielId, String startTime, String endTime);
+
+    List<Map<String, Object>> qualityTraceabilityListCollect(List<Map<String, Object>> data);
 }
