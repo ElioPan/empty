@@ -528,6 +528,8 @@ public class DispatchItemServiceImpl implements DispatchItemService {
         Map<String,Object>  map= new HashMap<>();
         map.put("status",Constant.APPLY_APPROED);
         map.put("createTimes",formatter.format(yesterday));
+        //派工时未选设备的工单去掉
+        map.put("deviceIdIsNull",1);
         List<Map<String, Object>> list = processReportService.listForMap(map);
         map.clear();
         if(list.size()>0) {
