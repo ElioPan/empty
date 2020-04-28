@@ -209,6 +209,8 @@
         item.`amount` AS amount,
         item.close_status as itemCloseStatus,
         IF(item.close_status=1,'关闭','未关闭') AS itemCloseStatusName,
+        item.close_time as itemCloseTime,
+        item.close_reason as itemCloseReason,
         item.`tax_amount` AS taxAmount,
         item.`delivery_date` AS deliveryDate,
         dica.`name` AS auditSignName,

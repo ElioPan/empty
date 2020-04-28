@@ -246,6 +246,8 @@
 				i.taxes,
 				i.close_status as itemCloseStatus,
 				IF(i.close_status=1,'关闭','未关闭') AS itemCloseStatusName,
+				i.close_time as itemCloseTime,
+				i.close_reason as itemCloseReason,
 				i.tax_unit_price AS taxUnitPrice,
 				i.delivery_date AS deliveryDate,
 				a.audit_sign as auditSign,

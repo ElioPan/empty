@@ -214,8 +214,8 @@
 			d.name as sourceTypeName,
 			a.close_status   as  closeStatus,
 			IF(a.close_status=1,'关闭','未关闭')as closeStatusName,
-			a.close_time    as  closeTime,
-			a.close_reason  as  closeReason
+			a.close_time    as  itemCloseTime,
+			a.close_reason  as  itemCloseReason
 		FROM
 			scm_purchasecontract_item a
         LEFT JOIN cus_materiel b ON b.id=a.materiel_id
