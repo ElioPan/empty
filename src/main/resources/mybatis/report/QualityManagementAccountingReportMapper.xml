@@ -299,8 +299,8 @@
             LEFT JOIN cus_dictionary dict ON dict.`id`=plan.source_type
             <where>
                 <if test="materielId != null and materielId != ''"> and plan.`materiel_id` = #{materielId} </if>
-                <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(feeding.`create_time`,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
-                <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(feeding.`create_time`,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
+                <if test="startTime != null and startTime != ''">  and  DATE_FORMAT(plan.`create_time`,'%Y-%m-%d') &gt;=  DATE_FORMAT(#{startTime},'%Y-%m-%d')</if>
+                <if test="endTime != null and endTime != ''">  and  DATE_FORMAT(plan.`create_time`,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{endTime},'%Y-%m-%d')</if>
             </where>
         </if>
         ) a
