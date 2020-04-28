@@ -180,16 +180,18 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
         if (!this.isPlan(planDO)) {
             return R.error(messageSourceHandler.getMessage("plan.status.nonPlan", null));
         }
-        if (this.isBomEmpty(planDO)) {
-            return R.error(messageSourceHandler.getMessage("plan.bom.isEmpty", null));
-        }
+//        if (this.isBomEmpty(planDO)) {
+//            return R.error(messageSourceHandler.getMessage("plan.bom.isEmpty", null));
+//        }
         if (this.isTecRouteEmpty(planDO)) {
             return R.error(messageSourceHandler.getMessage("plan.tecRoute.isEmpty", null));
         }
 //		if (this.isInspectionEmpty(planDO)) {
 //			return R.error("请选择检验方案");
 //		}
-        feedingService.add(this.getFeedingDO(planDO), this.getFeedingChildArray(planDO));
+        if (!this.isBomEmpty(planDO)) {
+            feedingService.add(this.getFeedingDO(planDO), this.getFeedingChildArray(planDO));
+        }
         planDO.setStatus(ConstantForMES.ISSUED);
         planDO.setGiveTime(new Date());
         int update = this.update(planDO);
