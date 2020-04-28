@@ -525,6 +525,20 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
         data.removeAll(inspectionList);
         data.removeAll(planList);
 
+        Map<String, List<Map<String, Object>>> batchToList = data
+                .stream()
+                .collect(Collectors.groupingBy(e -> e.get("batch").toString()));
+
+        List<Map<String, Object>> batchList;
+        for (String batch : batchToList.keySet()) {
+            batchList = batchToList.get(batch);
+            boolean nonRemove = batchList.stream().anyMatch(e -> Objects.equals(e.get("typeId").toString(), ConstantForGYL.YDGOODS_WAREHOUSE.toString()));
+            if(!nonRemove){
+                data.removeAll(batchList);
+            }
+        }
+
+
         List<HashMap<String, Object>> inspectionLists= Lists.newArrayList();
         List<HashMap<String, Object>> planLists= Lists.newArrayList();
         Map<String,String> batchForSourceCode = Maps.newHashMap();

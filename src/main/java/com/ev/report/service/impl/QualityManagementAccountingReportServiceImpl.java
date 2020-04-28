@@ -1,5 +1,6 @@
 package com.ev.report.service.impl;
 
+import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.config.ConstantForReport;
 import com.ev.framework.utils.BeanUtils;
@@ -349,6 +350,22 @@ public class QualityManagementAccountingReportServiceImpl implements QualityMana
                 .filter(e -> Objects.equals(e.get("typeId").toString(), ConstantForMES.LLJY.toString()))
                 .collect(Collectors.toList());
         data.removeAll(inspectionList);
+
+        Map<String, List<Map<String, Object>>> batchToList = data
+                .stream()
+                .collect(Collectors.groupingBy(e -> e.get("batch").toString()));
+
+        List<Map<String, Object>> batchList;
+        for (String batch : batchToList.keySet()) {
+            batchList = batchToList.get(batch);
+            boolean nonRemove = batchList.stream().anyMatch(e -> {
+                String typeId = e.get("typeId").toString();
+                return Objects.equals(typeId, ConstantForGYL.PURCHASE_INSTOCK.toString()) || Objects.equals(typeId, ConstantForGYL.OUTSOURCING_INSTOCK.toString());
+            });
+            if(!nonRemove){
+                data.removeAll(batchList);
+            }
+        }
 
         Map<String,String> batchForSourceCode = Maps.newHashMap();
         List<HashMap<String, Object>> inspectionLists= Lists.newArrayList();
