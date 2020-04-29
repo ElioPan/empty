@@ -7,7 +7,7 @@ public enum WeekDays {
 	private final int id;
 	private final String name;
 
-	private WeekDays(int id, String name) {
+	WeekDays(int id, String name) {
 		this.name = name;
 		this.id = id;
 	}
