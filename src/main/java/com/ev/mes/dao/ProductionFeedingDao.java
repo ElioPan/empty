@@ -40,7 +40,7 @@ public interface ProductionFeedingDao {
 	 */
 	int countForMap(Map<String, Object> params);
 
-	List<ProductionFeedingDO> getByOutsourcingContractItemId(Long id);
+	ProductionFeedingDO getByOutsourcingContractItemId(Long id);
 
     List<Map<String, Object>> listForMapToOutsourcingContract(Map<String, Object> map);
 
