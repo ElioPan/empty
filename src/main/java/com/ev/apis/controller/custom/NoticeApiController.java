@@ -77,7 +77,7 @@ public class NoticeApiController {
     @Transactional(rollbackFor = Exception.class)
     public R remove(@ApiParam(value = "消息主键数组", required = true, example = "[1,2,3,4]") @RequestParam(value = "ids", defaultValue = "") Long[] ids) {
 
-        noticeService.batchRemove(ids);
+        noticeAssocService.batchRemove(ids);
         return R.ok();
 
     }
