@@ -1,6 +1,6 @@
 package com.ev.custom.service.impl;
 
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.custom.dao.DocumentDao;
 import com.ev.custom.domain.ContentAssocDO;
 import com.ev.custom.domain.DictionaryDO;
@@ -91,7 +91,7 @@ public class DocumentServiceImpl implements DocumentService {
 		DocumentDO documentDO = get(id);
 		results.put("document", documentDO);
 		//获取附件
-		Map<String,Object> contentMap = new HashMap<String,Object>(){{put("assocId",documentDO.getId());put("assocType",Constant.DOCUMENT_APPEARANCE_ATTACHMENT);}};
+		Map<String,Object> contentMap = new HashMap<String,Object>(){{put("assocId",documentDO.getId());put("assocType", ConstantForDevice.DOCUMENT_APPEARANCE_ATTACHMENT);}};
 		List<ContentAssocDO> contentAssocDOS = contentAssocService.list(contentMap);
 		results.put("initFileList", contentAssocDOS);
 		return results;
@@ -102,13 +102,13 @@ public class DocumentServiceImpl implements DocumentService {
 		//保存文档信息
 		save(document);
 		//保存图片信息
-		contentAssocService.saveList(Long.parseLong(document.getId().toString()),taglocationappearanceImage,Constant.DOCUMENT_APPEARANCE_ATTACHMENT);
+		contentAssocService.saveList(Long.parseLong(document.getId().toString()),taglocationappearanceImage, ConstantForDevice.DOCUMENT_APPEARANCE_ATTACHMENT);
 	}
 
 	@Override
 	public void edit(DocumentDO document, String[] taglocationappearanceImage, String[] deletetagAppearanceImage) {
 		update(document);
-		contentAssocService.saveList(Long.parseLong(document.getId().toString()),taglocationappearanceImage,Constant.DOCUMENT_APPEARANCE_ATTACHMENT);
+		contentAssocService.saveList(Long.parseLong(document.getId().toString()),taglocationappearanceImage, ConstantForDevice.DOCUMENT_APPEARANCE_ATTACHMENT);
 		contentAssocService.deleteList(deletetagAppearanceImage);
 	}
 

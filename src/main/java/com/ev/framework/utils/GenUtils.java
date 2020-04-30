@@ -2,6 +2,7 @@ package com.ev.framework.utils;
 
 
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.common.domain.ColumnDO;
 import com.ev.common.domain.TableDO;
 import org.apache.commons.configuration.Configuration;

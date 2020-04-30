@@ -8,7 +8,7 @@ import com.ev.custom.domain.RepairRecordDO;
 import com.ev.custom.domain.UpkeepRecordDO;
 import com.ev.report.service.DeviceAccountingReportService;
 import com.ev.report.vo.DeviceVO;
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.*;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.tuple.Pair;
@@ -54,7 +54,7 @@ public class DeviceAccountingReportServiceImpl implements DeviceAccountingReport
         List<UpkeepRecordDO> upkeepRecordList = reportDao.upkeepList(param);
 
         // 巡检所有记录(已完成填写的)
-        param.put("status", Constant.STATE_STOP_OVER);
+        param.put("status", ConstantForDevice.STATE_STOP_OVER);
         List<PatrolRecordDO> patrolRecordList = reportDao.patrolList(param);
 
         // 计算停机时长
@@ -101,13 +101,13 @@ public class DeviceAccountingReportServiceImpl implements DeviceAccountingReport
         // 故障已处理验收次数（维修记录状态 不为待验收）
         Map<Long, Long> recordAlreadyCheckMap = repairRecordList
                 .stream()
-                .filter(recordDO -> !Constant.WAITING_CHECK.equals(recordDO.getStatus()))
+                .filter(recordDO -> !ConstantForDevice.WAITING_CHECK.equals(recordDO.getStatus()))
                 .collect(Collectors.groupingBy(RepairRecordDO::getDeviceId, Collectors.counting()));
 
         // 故障已处理未验收次数（维修记录状态 待验收）
         Map<Long, Long> recordWaitingCheckMap = repairRecordList
                 .stream()
-                .filter(recordDO -> Constant.WAITING_CHECK.equals(recordDO.getStatus()))
+                .filter(recordDO -> ConstantForDevice.WAITING_CHECK.equals(recordDO.getStatus()))
                 .collect(Collectors.groupingBy(RepairRecordDO::getDeviceId, Collectors.counting()));
 
         // 累计维修费用(维修成本和)

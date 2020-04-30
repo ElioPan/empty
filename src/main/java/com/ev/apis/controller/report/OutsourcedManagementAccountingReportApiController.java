@@ -1,6 +1,7 @@
 package com.ev.apis.controller.report;
 
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.utils.R;
@@ -240,7 +241,7 @@ public class OutsourcedManagementAccountingReportApiController {
         params.put("endTime", endTime);
 
         params.put("outboundType", ConstantForGYL.WWCK);
-        params.put("auditSign", ConstantForMES.OK_AUDITED);
+        params.put("auditSign", Constant.OK_AUDITED);
         Map<String, Object> results = Maps.newHashMap();
 
         // 获取委外合同列表
@@ -267,7 +268,7 @@ public class OutsourcedManagementAccountingReportApiController {
         params.put("userId", userId);
         params.put("endTime", endTime);
         params.put("outboundType", ConstantForGYL.WWCK);
-        params.put("auditSign", ConstantForMES.OK_AUDITED);
+        params.put("auditSign", Constant.OK_AUDITED);
         // 获取委外合同列表
         List<Map<String, Object>> dateList = reportService.inOutReconciliationList(params);
         if(dateList.isEmpty()){

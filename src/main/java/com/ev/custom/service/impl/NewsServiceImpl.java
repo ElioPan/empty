@@ -1,7 +1,7 @@
 package com.ev.custom.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.custom.dao.NewsDao;
@@ -85,7 +85,7 @@ public class NewsServiceImpl implements NewsService {
 			//获取附件
 			Map<String, Object> contentMap = new HashMap<String, Object>() {{
 				put("assocId", newsId);
-				put("assocType", Constant.NEWS_PRESS_RELEASE);
+				put("assocType", ConstantForDevice.NEWS_PRESS_RELEASE);
 			}};
 			List<ContentAssocDO> contentAssocDOS = contentAssocService.list(contentMap);
 
@@ -115,7 +115,7 @@ public class NewsServiceImpl implements NewsService {
 				deletIds[i]=Long.parseLong(maps.get("id").toString());
 			}
 			newsDao.batchRemove(deletIds);
-			contentAssocService.removeByAssocIdAndType(deletIds, Constant.NEWS_PRESS_RELEASE);
+			contentAssocService.removeByAssocIdAndType(deletIds, ConstantForDevice.NEWS_PRESS_RELEASE);
 			return R.ok();
 		}
 		return R.error(messageSourceHandler.getMessage("common.device.batchDelet",null));
@@ -129,7 +129,7 @@ public class NewsServiceImpl implements NewsService {
 
 			Long deletIds[] = new Long[1];
 			deletIds[0] = newsId;
-			contentAssocService.removeByAssocIdAndType(deletIds, Constant.NEWS_PRESS_RELEASE);
+			contentAssocService.removeByAssocIdAndType(deletIds, ConstantForDevice.NEWS_PRESS_RELEASE);
 
 			JSONArray nameAndPath=new JSONArray();
 			if(!"".equals(pathAndName)&&null!=pathAndName) {
@@ -137,7 +137,7 @@ public class NewsServiceImpl implements NewsService {
 			}
 //				JSONArray nameAndPath = JSONArray.parseArray(pathAndName);
 
-			contentAssocService.saveList(newsDO.getId(), nameAndPath, Constant.NEWS_PRESS_RELEASE);
+			contentAssocService.saveList(newsDO.getId(), nameAndPath, ConstantForDevice.NEWS_PRESS_RELEASE);
 			return R.ok();
 		}
 		return R.error(messageSourceHandler.getMessage("apis.check.buildWinStockD",null));

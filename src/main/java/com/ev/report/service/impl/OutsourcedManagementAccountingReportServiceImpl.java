@@ -1,7 +1,7 @@
 package com.ev.report.service.impl;
 
 import com.ev.framework.config.ConstantForGYL;
-import com.ev.framework.config.ConstantForMES;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForReport;
 import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.StringUtils;
@@ -77,7 +77,7 @@ public class OutsourcedManagementAccountingReportServiceImpl implements Outsourc
         params.put("startTime", startTime);
         params.put("endTime", endTime);
 
-        params.put("auditSign", ConstantForMES.OK_AUDITED);
+        params.put("auditSign", Constant.OK_AUDITED);
 
         // 获取委外合同列表
         List<Map<String, Object>> outsourcedContractList = this.outsourcedContractList(params);
@@ -96,7 +96,7 @@ public class OutsourcedManagementAccountingReportServiceImpl implements Outsourc
             params.clear();
             params.put("sourceIds", itemIds);
             params.put("sourceType", ConstantForGYL.XSHT);
-            params.put("auditSign", ConstantForMES.OK_AUDITED);
+            params.put("auditSign", Constant.OK_AUDITED);
             // 入库表
             List<StockInItemVO> stockInItemVOS = stockService.stockInItem(params);
             params.put("sourceIds", contractIds);

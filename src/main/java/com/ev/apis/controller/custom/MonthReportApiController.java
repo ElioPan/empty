@@ -5,6 +5,7 @@ import com.ev.custom.service.NoticeService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.framework.utils.StringUtils;
@@ -69,13 +70,13 @@ public class MonthReportApiController {
 
         if(!"".equals(beSentPeopleId)) {
             params.put("beSentPeopleId", beSentPeopleId);
-            params.put("status", Constant.APPLY_APPROED);//已提交：148
+            params.put("status", ConstantForDevice.APPLY_APPROED);//已提交：148
 //            params.put("sign",1);
         }
 
         if(idPath!=null){
             params.put("idPath", idPath);
-            params.put("status", Constant.APPLY_APPROED);//已提交：148
+            params.put("status", ConstantForDevice.APPLY_APPROED);//已提交：148
         }
 
         Map<String, Object> results = Maps.newHashMap();
@@ -165,7 +166,7 @@ public class MonthReportApiController {
             MonthReportDO monthReportDO = monthReportService.get(monthReport.getId());
             if (monthReportDO != null) {
 
-                if (!(Objects.equals(Constant.APPLY_APPROED, monthReportDO.getStatus()))) {  //148 已提交   允许修改
+                if (!(Objects.equals(ConstantForDevice.APPLY_APPROED, monthReportDO.getStatus()))) {  //148 已提交   允许修改
                     //更新
                     monthReportService.allPowerfulMelthod(monthReport,newTargetList,taglocationappearanceImage,0);
                     return R.ok();
@@ -190,7 +191,7 @@ public class MonthReportApiController {
             //1.新增填写明细后直接提交
                //验证本月是否新建，默认当月新建当月的月报。一个月只在本月建立一次。
             if (monthReportService.duplicateDetectionOrNot()) {
-                monthReport.setStatus(Constant.APPLY_APPROED);//148状态 已提交
+                monthReport.setStatus(ConstantForDevice.APPLY_APPROED);//148状态 已提交
                 monthReportService.add(monthReport, newTargetList, taglocationappearanceImage);
                 return R.ok();
             } else {
@@ -202,7 +203,7 @@ public class MonthReportApiController {
             MonthReportDO monthReportDO = monthReportService.get(monthReport.getId());
             if (monthReportDO != null) {
                 //2.查看明细进行修改/未修改后直接提交
-                if (!(Objects.equals(Constant.APPLY_APPROED, monthReportDO.getStatus()))) {  //148 已提交    允许修改并提交
+                if (!(Objects.equals(ConstantForDevice.APPLY_APPROED, monthReportDO.getStatus()))) {  //148 已提交    允许修改并提交
                     //更新
                     monthReportService.allPowerfulMelthod(monthReport, newTargetList, taglocationappearanceImage, 1);
                     return R.ok();

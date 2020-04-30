@@ -1,6 +1,7 @@
 package com.ev.custom.service.impl;
 
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.R;
 import com.ev.custom.dao.PayApplyDao;
 import com.ev.custom.domain.CommentDO;
@@ -92,7 +93,7 @@ public class PayApplyServiceImpl implements PayApplyService {
 		//获取附件
 		Map<String, Object> contentMap = new HashMap<String, Object>() {{
 			put("assocId", payApplyDO.getId());
-			put("assocType", Constant.PAY_APPLY_APPEARANCE_ATTACHMENT);
+			put("assocType", ConstantForDevice.PAY_APPLY_APPEARANCE_ATTACHMENT);
 			put("sort","id");
 			put("order","ASC");
 		}};
@@ -101,16 +102,16 @@ public class PayApplyServiceImpl implements PayApplyService {
 		//审核人
 		List<Map<String, Object>> approveList = userAssocService.list(new HashMap<String, Object>() {{
 			put("assocId", payApplyDO.getId());
-			put("assocType", Constant.PAY_APPROVE_TARGET);
+			put("assocType", ConstantForDevice.PAY_APPROVE_TARGET);
 			put("sort","id");
 			put("order","ASC");
 		}});
 		results.put("approveList", approveList);
 		//获取发送对象
-		List<Map<String,Object>> targetList = userAssocService.list(new HashMap<String,Object>(){{put("assocId",payApplyDO.getId());put("assocType",Constant.PAY_APPLY_TARGET);}});
+		List<Map<String,Object>> targetList = userAssocService.list(new HashMap<String,Object>(){{put("assocId",payApplyDO.getId());put("assocType", ConstantForDevice.PAY_APPLY_TARGET);}});
 		results.put("targetList", targetList);
 		//获取回复信息
-		Map<String,Object> commentMap = new HashMap<String,Object>(){{put("assocId",id);put("assocType",Constant.PAY_APPLY_COMMENT);}};
+		Map<String,Object> commentMap = new HashMap<String,Object>(){{put("assocId",id);put("assocType", ConstantForDevice.PAY_APPLY_COMMENT);}};
 		List<CommentDO> commentList = commentService.list(commentMap);
 		results.put("commentList", commentList);
 		return results;
@@ -120,7 +121,7 @@ public class PayApplyServiceImpl implements PayApplyService {
 	public void submit(PayApplyDO payApplyDO, Long[] approveList, Long[] targetList, String[] taglocationappearanceImage, String[] deleteTagAppearanceAttachment) {
 		String processInstanceId = dingdingService.submitApply(approveList,payApplyDO.getProcessInstanceId()==null?null:payApplyDO.getProcessInstanceId().toString());
 		payApplyDO.setProcessInstanceId(processInstanceId);
-		payApplyDO.setStatus(Constant.APPLY_APPROVING);
+		payApplyDO.setStatus(ConstantForDevice.APPLY_APPROVING);
 		savePayApply(payApplyDO, approveList, taglocationappearanceImage );
 	}
 
@@ -134,10 +135,10 @@ public class PayApplyServiceImpl implements PayApplyService {
 		PayApplyDO payApplyDO = get(payApplyId);
 		String status = dingdingService.completeApprove(payApplyDO.getProcessInstanceId(),isApproved==1,reason);
 		if("down".equals(status)){
-			payApplyDO.setStatus(Constant.APPLY_REJECT);
+			payApplyDO.setStatus(ConstantForDevice.APPLY_REJECT);
 			update(payApplyDO);
 		}else if("up".equals(status)){
-			payApplyDO.setStatus(Constant.APPLY_COMPLETED);
+			payApplyDO.setStatus(ConstantForDevice.APPLY_COMPLETED);
 			update(payApplyDO);
 		}else{
 			//TODO
@@ -146,7 +147,7 @@ public class PayApplyServiceImpl implements PayApplyService {
 
 	@Override
 	public void commentPayApply(Long payApplyId, String comment) {
-		CommentDO commentDo = new CommentDO(payApplyId,Constant.PAY_APPLY_COMMENT,comment);
+		CommentDO commentDo = new CommentDO(payApplyId, ConstantForDevice.PAY_APPLY_COMMENT,comment);
 		commentService.save(commentDo);
 	}
 
@@ -155,7 +156,7 @@ public class PayApplyServiceImpl implements PayApplyService {
 			save(payApplyDO);
 			//审核人
 			for(int i=0;i<approveList.length;i++){
-				UserAssocDO userAssocDO = new UserAssocDO(payApplyDO.getId(),Constant.PAY_APPROVE_TARGET,approveList[i]);
+				UserAssocDO userAssocDO = new UserAssocDO(payApplyDO.getId(), ConstantForDevice.PAY_APPROVE_TARGET,approveList[i]);
 				userAssocService.save(userAssocDO);
 			}
 //			//抄送给谁
@@ -167,7 +168,7 @@ public class PayApplyServiceImpl implements PayApplyService {
 			update(payApplyDO);
 		}
 		//附件信息操作
-		contentAssocService.saveList(payApplyDO.getId(),tagLocationAppearanceAttachment,Constant.PAY_APPLY_APPEARANCE_ATTACHMENT);
+		contentAssocService.saveList(payApplyDO.getId(),tagLocationAppearanceAttachment, ConstantForDevice.PAY_APPLY_APPEARANCE_ATTACHMENT);
 //		contentAssocService.deleteList(deleteTagAppearanceAttachment);
 	}
 
@@ -177,7 +178,7 @@ public class PayApplyServiceImpl implements PayApplyService {
 		if(sign==1){
 			String processInstanceId = dingdingService.submitApply(newApproveMen,payApplyDO.getProcessInstanceId()==null?null:payApplyDO.getProcessInstanceId().toString());
 			payApplyDO.setProcessInstanceId(processInstanceId);
-			payApplyDO.setStatus(Constant.APPLY_APPROVING);
+			payApplyDO.setStatus(ConstantForDevice.APPLY_APPROVING);
 		}//63审批中
 
 			update(payApplyDO);
@@ -186,13 +187,13 @@ public class PayApplyServiceImpl implements PayApplyService {
 			Map<String, Object> query = new HashMap<String, Object>();
 			query.put("userId", null);
 			query.put("assocId", payApplyDO.getId());
-			query.put("assocType", Constant.PAY_APPROVE_TARGET);
+			query.put("assocType", ConstantForDevice.PAY_APPROVE_TARGET);
 
 			userAssocService.removeByAssocIdAndUserId(query);
 
 		if (newApproveMen.length>0) {
 			for (int i = 0; i < newApproveMen.length; i++) {
-				UserAssocDO userAssocDO = new UserAssocDO(payApplyDO.getId(), Constant.PAY_APPROVE_TARGET, newApproveMen[i]);
+				UserAssocDO userAssocDO = new UserAssocDO(payApplyDO.getId(), ConstantForDevice.PAY_APPROVE_TARGET, newApproveMen[i]);
 				userAssocService.save(userAssocDO);
 			}
 		}
@@ -202,10 +203,10 @@ public class PayApplyServiceImpl implements PayApplyService {
 		Map<String,Object> querys =new HashMap<>();
 		Long[] ids = new Long[1];
 		ids[0] =payApplyDO.getId();
-		contentAssocService.removeByAssocIdAndType(ids, Constant.PAY_APPLY_APPEARANCE_ATTACHMENT);
+		contentAssocService.removeByAssocIdAndType(ids, ConstantForDevice.PAY_APPLY_APPEARANCE_ATTACHMENT);
 
 		if (newTaglocatio.length>0) {
-			contentAssocService.saveList(payApplyDO.getId(), newTaglocatio, Constant.PAY_APPLY_APPEARANCE_ATTACHMENT);
+			contentAssocService.saveList(payApplyDO.getId(), newTaglocatio, ConstantForDevice.PAY_APPLY_APPEARANCE_ATTACHMENT);
 		}
 //			//新增抄送人++删除抄送人
 //		if (deletTarget.length>0) {
@@ -230,7 +231,7 @@ public class PayApplyServiceImpl implements PayApplyService {
 
 			PayApplyDO payApplyDO = payApplyDao.get(ids[i]);
 			if (payApplyDO != null) {
-				if (Objects.equals(Constant.TS, payApplyDO.getStatus()) || Objects.equals(Constant.APPLY_REJECT, payApplyDO.getStatus())) {
+				if (Objects.equals(Constant.TS, payApplyDO.getStatus()) || Objects.equals(ConstantForDevice.APPLY_REJECT, payApplyDO.getStatus())) {
 					logIDs[i] = ids[i];
 				}else{
 					return R.error("单据已提交，不能删除！！");

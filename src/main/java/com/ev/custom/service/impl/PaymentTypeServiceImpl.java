@@ -4,6 +4,7 @@ import com.ev.custom.dao.PaymentTypeDao;
 import com.ev.custom.domain.PaymentTypeDO;
 import com.ev.custom.service.PaymentTypeService;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -85,12 +86,12 @@ public class PaymentTypeServiceImpl implements PaymentTypeService {
 				return R.error(messageSourceHandler.getMessage("apis.mes.clientSupplier.duplicationOfName",null));
 			}
 			Map<String,Object> map = Maps.newHashMap();
-			map.put("maxNo", Constant.SZRX);
+			map.put("maxNo", ConstantForDevice.SZRX);
 			map.put("offset", 0);
 			map.put("limit", 1);
 			List<PaymentTypeDO> list = paymentTypeDao.list(map);
-			paymentTypeDO.setCode(DateFormatUtil.getWorkOrderno(Constant.SZRX,list.size()>0?list.get(0).getCode():null,4));
-			paymentTypeDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+			paymentTypeDO.setCode(DateFormatUtil.getWorkOrderno(ConstantForDevice.SZRX,list.size()>0?list.get(0).getCode():null,4));
+			paymentTypeDO.setAuditSign(Constant.WAIT_AUDIT);
 			this.save(paymentTypeDO);
 			maps.put("id",paymentTypeDO.getId());
 			return R.ok(maps);

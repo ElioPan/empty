@@ -1,6 +1,7 @@
 package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.ev.framework.config.Constant;
 import com.ev.framework.utils.*;
 import com.ev.scm.domain.*;
 import com.ev.custom.service.MaterielService;
@@ -104,7 +105,7 @@ public class AllotServiceImpl implements AllotService {
         Long singleTypeId = ConstantForGYL.DBDJ;
         Long storageTypeId = ConstantForGYL.DB;
         // 设置审核状态为待审核
-        allot.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+        allot.setAuditSign(Constant.WAIT_AUDIT);
         // 保存主表数据
         int count = this.save(allot);
         Long allotId = allot.getId();
@@ -150,7 +151,7 @@ public class AllotServiceImpl implements AllotService {
         // 设置调拨单据号
         Long storageTypeId = ConstantForGYL.DB;
         // 设置审核状态为待审核
-        allot.setAuditSign(ConstantForGYL.OK_AUDITED);
+        allot.setAuditSign(Constant.OK_AUDITED);
         allot.setAuditTime(new Date());
         allot.setAuditor(ShiroUtils.getUserId());
         // 保存主表数据
@@ -262,8 +263,8 @@ public class AllotServiceImpl implements AllotService {
         Long auditSignId = allot.getAuditSign();
         int count;
         // 若是待审核状态设置审核状态为已审核
-        if (Objects.equals(auditSignId, ConstantForGYL.WAIT_AUDIT)) {
-            allot.setAuditSign(ConstantForGYL.OK_AUDITED);
+        if (Objects.equals(auditSignId, Constant.WAIT_AUDIT)) {
+            allot.setAuditSign(Constant.OK_AUDITED);
             // 设置审核时间
             allot.setAuditTime(new Date());
             // 设置审核人
@@ -292,7 +293,7 @@ public class AllotServiceImpl implements AllotService {
     @Override
     public R batchRemoveByIds(Long[] ids) {
         for (Long id : ids) {
-            if (this.get(id).getAuditSign().equals(ConstantForGYL.OK_AUDITED)) {
+            if (this.get(id).getAuditSign().equals(Constant.OK_AUDITED)) {
                 return R.error(messageSourceHandler.getMessage("common.approved.delete.disabled",null));
             }
         }
@@ -312,7 +313,7 @@ public class AllotServiceImpl implements AllotService {
         Long auditSignId = allot.getAuditSign();
         int count;
         // 若是已审核状态设置审核状态为待审核
-        if (Objects.equals(auditSignId, ConstantForGYL.OK_AUDITED)) {
+        if (Objects.equals(auditSignId, Constant.OK_AUDITED)) {
             // 检测调拨产品是否已出库
             if (this.isOut(id)) {
                 return R.error(messageSourceHandler.getMessage("allot.audit.material.isOut", null));
@@ -320,7 +321,7 @@ public class AllotServiceImpl implements AllotService {
             // 操作库存数据
             stockOutService.reverseAudit(id, storageType);
             // 修改调拨单据状态
-            allot.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+            allot.setAuditSign(Constant.WAIT_AUDIT);
             allot.setAuditor(null);
             allot.setAuditTime(null);
             count = this.updateAll(allot);
@@ -435,7 +436,7 @@ public class AllotServiceImpl implements AllotService {
     @Override
     public R edit(AllotDO allotDO, String body, Long[] itemIds) {
         Long id = allotDO.getId();
-        if (this.get(id).getAuditSign().equals(ConstantForGYL.OK_AUDITED)) {
+        if (this.get(id).getAuditSign().equals(Constant.OK_AUDITED)) {
             return R.error(messageSourceHandler.getMessage("common.approved.update.disabled", null));
         }
         if (itemIds.length > 0) {

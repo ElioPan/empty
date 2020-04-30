@@ -10,6 +10,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ev.custom.service.WeChatService;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.config.ConstantsConfig;
 import com.ev.common.domain.FileDO;
 import com.ev.common.service.FileService;
@@ -71,7 +72,7 @@ public class UserServiceImpl implements UserService {
             RoleDO roleDO = roleService.get(roleIds.get(0));
             dataPermission = roleDO.getDataPermission();
             Long roleId = roleDO.getRoleId();
-            if (Objects.equals(dataPermission,Constant.CUSTOM_DATA) ) {
+            if (Objects.equals(dataPermission, Constant.CUSTOM_DATA) ) {
                 Map<String,Object> param = Maps.newHashMap();
                 param.put("roleId",roleId);
                 List<RoleDataDO> roleDataDOList = roleDataMapper.list(param);

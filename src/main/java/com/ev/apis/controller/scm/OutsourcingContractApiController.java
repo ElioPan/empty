@@ -8,6 +8,7 @@ import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.custom.service.MaterielService;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.PageUtils;
@@ -466,7 +467,7 @@ public class OutsourcingContractApiController {
         params.put("endTime", endTime);
         params.put("headId", headId);
 
-        params.put("auditSign", ConstantForGYL.OK_AUDITED);
+        params.put("auditSign", Constant.OK_AUDITED);
         params.put("isPlan",0);
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
         List<Map<String, Object>> data = productionFeedingDetailService.listForMap(params);

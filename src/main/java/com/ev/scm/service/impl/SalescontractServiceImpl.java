@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ev.custom.service.MaterielService;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -66,7 +67,7 @@ public class SalescontractServiceImpl implements SalescontractService {
         Long id = salesContract.getId();
         // 新增
         if (id == null) {
-            salesContract.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+            salesContract.setAuditSign(Constant.WAIT_AUDIT);
             salesContract.setCloseStatus(0);
             salesContract.setContractCode(this.salesContractCode());
             salesContract.setUninvoicedAmount(salesContract.getPayAmount());
@@ -83,7 +84,7 @@ public class SalescontractServiceImpl implements SalescontractService {
             // 修改
             // 验证是否能修改 CloseStatus 0 未关闭 1 关闭
             SalescontractDO salescontractDO = this.get(id);
-            if (!Objects.equals(salescontractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+            if (!Objects.equals(salescontractDO.getAuditSign(), Constant.WAIT_AUDIT)) {
                 return R.error(messageSourceHandler.getMessage("common.approved.update.disabled", null));
             }
             salesContractDao.update(salesContract);
@@ -135,7 +136,7 @@ public class SalescontractServiceImpl implements SalescontractService {
         if (salesContractIds.length > 0) {
             for (Long salesContractId : salesContractIds) {
                 salescontractDO = this.get(salesContractId);
-                if (!Objects.equals(salescontractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+                if (!Objects.equals(salescontractDO.getAuditSign(), Constant.WAIT_AUDIT)) {
                     return R.error(messageSourceHandler.getMessage("common.submit.delete.disabled", null));
                 }
             }
@@ -154,10 +155,10 @@ public class SalescontractServiceImpl implements SalescontractService {
         if (salescontractDO.getCloseStatus() == 1) {
             return R.error(messageSourceHandler.getMessage("common.contract.isCloseStatus", null));
         }
-        if (Objects.equals(salescontractDO.getAuditSign(), ConstantForGYL.OK_AUDITED)) {
+        if (Objects.equals(salescontractDO.getAuditSign(), Constant.OK_AUDITED)) {
             return R.error(messageSourceHandler.getMessage("common.duplicate.approved", null));
         }
-        salescontractDO.setAuditSign(ConstantForGYL.OK_AUDITED);
+        salescontractDO.setAuditSign(Constant.OK_AUDITED);
         salescontractDO.setAuditor(ShiroUtils.getUserId());
         salescontractDO.setAuditTime(new Date());
         return this.update(salescontractDO) > 0 ? R.ok() : R.error();
@@ -166,7 +167,7 @@ public class SalescontractServiceImpl implements SalescontractService {
     @Override
     public R reverseAudit(Long id) {
         SalescontractDO salescontractDO = this.get(id);
-        if (Objects.equals(salescontractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+        if (Objects.equals(salescontractDO.getAuditSign(), Constant.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("common.massge.faildRollBackAudit", null));
         }
         if (salescontractDO.getCloseStatus() == 1) {
@@ -183,7 +184,7 @@ public class SalescontractServiceImpl implements SalescontractService {
 //        if (!Objects.equals(salescontractDO.getAuditor(), ShiroUtils.getUserId())) {
 //            return R.error(messageSourceHandler.getMessage("common.approved.user", null));
 //        }
-        salescontractDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+        salescontractDO.setAuditSign(Constant.WAIT_AUDIT);
         salescontractDO.setAuditor(null);
         salescontractDO.setAuditTime(null);
         return this.updateAll(salescontractDO) > 0 ? R.ok() : R.error();
@@ -216,7 +217,7 @@ public class SalescontractServiceImpl implements SalescontractService {
     public R editSalesContract(SalescontractDO salesContract, String bodyItem, String bodyPay, Long[] payIds) {
         Long salesContractId = salesContract.getId();
         SalescontractDO salescontractDO = this.get(salesContractId);
-        if (Objects.equals(salescontractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+        if (Objects.equals(salescontractDO.getAuditSign(), Constant.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("scm.contract.isUpdate.notAlteration", null));
         }
         if (salescontractDO.getCloseStatus() == 1) {
@@ -433,7 +434,7 @@ public class SalescontractServiceImpl implements SalescontractService {
     @Override
     public R close(Long id) {
         SalescontractDO salescontractDO = this.get(id);
-        if (Objects.equals(salescontractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+        if (Objects.equals(salescontractDO.getAuditSign(), Constant.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("scm.close.isWaitAudit", null));
         }
         if (salescontractDO.getCloseStatus() == 1) {
@@ -449,7 +450,7 @@ public class SalescontractServiceImpl implements SalescontractService {
     @Override
     public R reverseClose(Long id) {
         SalescontractDO salescontractDO = this.get(id);
-        if (Objects.equals(salescontractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+        if (Objects.equals(salescontractDO.getAuditSign(), Constant.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("scm.close.isWaitAudit", null));
         }
         if (salescontractDO.getCloseStatus() == 0) {

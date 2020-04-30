@@ -4,13 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.ev.custom.domain.NoticeDO;
 import com.ev.custom.service.WeChatService;
 import com.ev.custom.vo.WeChatSettingEntity;
-import com.ev.custom.vo.WxDeptEntity;
-import com.ev.custom.vo.WxUserEntity;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.config.Constant;
-import com.ev.framework.config.ConstantForSYS;
 import com.ev.framework.exception.WorkWxException;
 import com.ev.framework.utils.DateFormatUtil;
-import com.ev.framework.utils.HttpClientUtils;
 import com.ev.framework.utils.WeChatUtil;
 import com.ev.system.domain.DeptDO;
 import com.ev.system.domain.UserDO;
@@ -19,7 +16,6 @@ import com.ev.system.service.UserService;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +41,7 @@ public class WeChatServiceImpl implements WeChatService {
 
     @Override
     public Boolean checkIsUse() {
-        WeChatSettingEntity setting = JSON.parseObject(settingService.getSettingValue(ConstantForSYS.QIYE_WECHAT_SETTING),WeChatSettingEntity.class);
+        WeChatSettingEntity setting = JSON.parseObject(settingService.getSettingValue(Constant.QIYE_WECHAT_SETTING),WeChatSettingEntity.class);
         if(setting != null && setting.getUserOrNot()==1){
             return true;
         }else{
@@ -58,7 +54,7 @@ public class WeChatServiceImpl implements WeChatService {
         /**
          * 获取企业微信配置信息
          */
-        WeChatSettingEntity setting = JSON.parseObject(settingService.getSettingValue(ConstantForSYS.QIYE_WECHAT_SETTING),WeChatSettingEntity.class);
+        WeChatSettingEntity setting = JSON.parseObject(settingService.getSettingValue(Constant.QIYE_WECHAT_SETTING),WeChatSettingEntity.class);
         JSONObject jsAccessToken = JSONObject.fromObject(redisTemplate.opsForValue().get(Constant.WECHAT_ACCESS_TOKEN));
         /**
          * 首先校验accessToken是否过期
@@ -99,7 +95,7 @@ public class WeChatServiceImpl implements WeChatService {
         /**
          * 获取企业微信配置信息
          */
-        WeChatSettingEntity setting = JSON.parseObject(settingService.getSettingValue(ConstantForSYS.QIYE_WECHAT_SETTING),WeChatSettingEntity.class);
+        WeChatSettingEntity setting = JSON.parseObject(settingService.getSettingValue(Constant.QIYE_WECHAT_SETTING),WeChatSettingEntity.class);
 
         /**
          * 判断JSAPITICKET是否过期
@@ -226,7 +222,7 @@ public class WeChatServiceImpl implements WeChatService {
         /**
          * 获取企业微信配置信息
          */
-        WeChatSettingEntity setting = JSON.parseObject(settingService.getSettingValue(ConstantForSYS.QIYE_WECHAT_SETTING),WeChatSettingEntity.class);
+        WeChatSettingEntity setting = JSON.parseObject(settingService.getSettingValue(Constant.QIYE_WECHAT_SETTING),WeChatSettingEntity.class);
 
         for(Long userId: userIds){
             UserDO userDO = userService.get(userId);
@@ -239,7 +235,7 @@ public class WeChatServiceImpl implements WeChatService {
         /**
          * 获取企业微信配置信息
          */
-        WeChatSettingEntity setting = JSON.parseObject(settingService.getSettingValue(ConstantForSYS.QIYE_WECHAT_SETTING),WeChatSettingEntity.class);
+        WeChatSettingEntity setting = JSON.parseObject(settingService.getSettingValue(Constant.QIYE_WECHAT_SETTING),WeChatSettingEntity.class);
         JSONObject jsAccessToken = JSONObject.fromObject(redisTemplate.opsForValue().get(Constant.WECHAT_MOBILE_ACCESS_TOKEN));
         /**
          * 首先校验mobileAccessToken是否过期

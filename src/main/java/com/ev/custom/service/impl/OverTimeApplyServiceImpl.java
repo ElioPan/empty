@@ -1,6 +1,6 @@
 package com.ev.custom.service.impl;
 
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.R;
 import com.ev.custom.dao.OverTimeApplyDao;
 import com.ev.custom.domain.CommentDO;
@@ -100,25 +100,25 @@ public class OverTimeApplyServiceImpl implements OverTimeApplyService {
 		//获取附件
 		Map<String, Object> contentMap = new HashMap<String, Object>() {{
 			put("assocId", overTimeApplyDO.getId());
-			put("assocType", Constant.OVER_TIME_APPLY_APPEARANCE_ATTACHMENT);
+			put("assocType", ConstantForDevice.OVER_TIME_APPLY_APPEARANCE_ATTACHMENT);
 			put("sort","id");
 			put("order","ASC");
 		}};
 		List<ContentAssocDO> contentAssocDOS = contentAssocService.list(contentMap);
 		results.put("initFileList", contentAssocDOS);
 		//获取发送对象
-		List<Map<String,Object>> targetList = userAssocService.list(new HashMap<String,Object>(){{put("assocId",overTimeApplyDO.getId());put("assocType",Constant.OVER_TIME_APPLY_TARGET);}});
+		List<Map<String,Object>> targetList = userAssocService.list(new HashMap<String,Object>(){{put("assocId",overTimeApplyDO.getId());put("assocType", ConstantForDevice.OVER_TIME_APPLY_TARGET);}});
 		results.put("targetList", targetList);
 		//获取审核人
 		List<Map<String, Object>> approveList = userAssocService.list(new HashMap<String, Object>() {{
 			put("assocId", overTimeApplyDO.getId());
-			put("assocType", Constant.OVER_TIME_APPROVE_TARGET);
+			put("assocType", ConstantForDevice.OVER_TIME_APPROVE_TARGET);
 			put("sort","id");
 			put("order","ASC");
 		}});
 		results.put("approveList", approveList);
 		//获取回复信息
-		Map<String,Object> commentMap = new HashMap<String,Object>(){{put("assocId",id);put("assocType",Constant.OVER_TIME_APPLY_COMMENT);}};
+		Map<String,Object> commentMap = new HashMap<String,Object>(){{put("assocId",id);put("assocType", ConstantForDevice.OVER_TIME_APPLY_COMMENT);}};
 		List<CommentDO> commentList = commentService.list(commentMap);
 		results.put("commentList", commentList);
 		return results;
@@ -143,10 +143,10 @@ public class OverTimeApplyServiceImpl implements OverTimeApplyService {
 		OverTimeApplyDO overTimeApplyDO = get(overTimeApplyId);
 		String status = dingdingService.completeApprove(overTimeApplyDO.getProcessInstanceId(),isApproved==1?true:false,reason);
 		if("down".equals(status)){
-			overTimeApplyDO.setStatus(Constant.APPLY_REJECT);
+			overTimeApplyDO.setStatus(ConstantForDevice.APPLY_REJECT);
 			update(overTimeApplyDO);
 		}else if("up".equals(status)){
-			overTimeApplyDO.setStatus(Constant.APPLY_COMPLETED);
+			overTimeApplyDO.setStatus(ConstantForDevice.APPLY_COMPLETED);
 			update(overTimeApplyDO);
 		}else{
 			//TODO
@@ -155,7 +155,7 @@ public class OverTimeApplyServiceImpl implements OverTimeApplyService {
 
 	@Override
 	public void commentOverTimeApply(Long overTimeApplyId, String comment) {
-		CommentDO commentDo = new CommentDO(overTimeApplyId,Constant.OVER_TIME_APPLY_COMMENT,comment);
+		CommentDO commentDo = new CommentDO(overTimeApplyId, ConstantForDevice.OVER_TIME_APPLY_COMMENT,comment);
 		commentService.save(commentDo);
 	}
 
@@ -164,7 +164,7 @@ public class OverTimeApplyServiceImpl implements OverTimeApplyService {
 			save(overTimeApplyDO);
 			//审核人
 			for(int i=0;i<approveList.length;i++){
-				UserAssocDO userAssocDO = new UserAssocDO(overTimeApplyDO.getId(),Constant.OVER_TIME_APPROVE_TARGET,approveList[i]);
+				UserAssocDO userAssocDO = new UserAssocDO(overTimeApplyDO.getId(), ConstantForDevice.OVER_TIME_APPROVE_TARGET,approveList[i]);
 				userAssocService.save(userAssocDO);
 			}
 //			//抄送给谁
@@ -176,7 +176,7 @@ public class OverTimeApplyServiceImpl implements OverTimeApplyService {
 			update(overTimeApplyDO);
 		}
 		//附件信息操作
-		contentAssocService.saveList(overTimeApplyDO.getId(),tagLocationAppearanceAttachment,Constant.OVER_TIME_APPLY_APPEARANCE_ATTACHMENT);
+		contentAssocService.saveList(overTimeApplyDO.getId(),tagLocationAppearanceAttachment, ConstantForDevice.OVER_TIME_APPLY_APPEARANCE_ATTACHMENT);
 //		contentAssocService.deleteList(deleteTagAppearanceAttachment);
 	}
 
@@ -187,7 +187,7 @@ public class OverTimeApplyServiceImpl implements OverTimeApplyService {
 		if (sign == 1) {
 			String processInstanceId = dingdingService.submitApply(newApproveList,overTimeApplyDO.getProcessInstanceId()==null?null:overTimeApplyDO.getProcessInstanceId().toString());
 			overTimeApplyDO.setProcessInstanceId(processInstanceId);
-			overTimeApplyDO.setStatus(Constant.APPLY_APPROVING);
+			overTimeApplyDO.setStatus(ConstantForDevice.APPLY_APPROVING);
 		}//63审核中
 
 		update(overTimeApplyDO);
@@ -196,21 +196,21 @@ public class OverTimeApplyServiceImpl implements OverTimeApplyService {
 		Map<String, Object> query = new HashMap<String, Object>();
 		query.put("userId", null);
 		query.put("assocId", overTimeApplyDO.getId());
-		query.put("assocType", Constant.OVER_TIME_APPROVE_TARGET);
+		query.put("assocType", ConstantForDevice.OVER_TIME_APPROVE_TARGET);
 		userAssocService.removeByAssocIdAndUserId(query);
 		if (newApproveList.length > 0) {
 			for (int i = 0; i < newApproveList.length; i++) {
-				UserAssocDO userAssocDO = new UserAssocDO(overTimeApplyDO.getId(), Constant.OVER_TIME_APPROVE_TARGET, newApproveList[i]);
+				UserAssocDO userAssocDO = new UserAssocDO(overTimeApplyDO.getId(), ConstantForDevice.OVER_TIME_APPROVE_TARGET, newApproveList[i]);
 				userAssocService.save(userAssocDO);
 			}
 		}
 		//删除路径 +增加路径保存
 		Long[] ids = new Long[1];
 		ids[0] = overTimeApplyDO.getId();
-		contentAssocService.removeByAssocIdAndType(ids, Constant.OVER_TIME_APPLY_APPEARANCE_ATTACHMENT);
+		contentAssocService.removeByAssocIdAndType(ids, ConstantForDevice.OVER_TIME_APPLY_APPEARANCE_ATTACHMENT);
 
 		if (newAttachment.length > 0) {
-			contentAssocService.saveList(overTimeApplyDO.getId(), newAttachment, Constant.OVER_TIME_APPLY_APPEARANCE_ATTACHMENT);
+			contentAssocService.saveList(overTimeApplyDO.getId(), newAttachment, ConstantForDevice.OVER_TIME_APPLY_APPEARANCE_ATTACHMENT);
 		}
 	}
 
@@ -229,10 +229,10 @@ public class OverTimeApplyServiceImpl implements OverTimeApplyService {
 
 			Map<String, Object> query = new HashMap<>();
 			query.put("assocId",deleIds );
-			query.put("assocType", Constant.OVER_TIME_APPROVE_TARGET);
+			query.put("assocType", ConstantForDevice.OVER_TIME_APPROVE_TARGET);
 			userAssocService.batchRemoveByAssocIdAadType(query);
 
-			contentAssocService.removeByAssocIdAndType(deleIds,Constant.OVER_TIME_APPLY_APPEARANCE_ATTACHMENT);
+			contentAssocService.removeByAssocIdAndType(deleIds, ConstantForDevice.OVER_TIME_APPLY_APPEARANCE_ATTACHMENT);
 
 			return R.ok();
 		}

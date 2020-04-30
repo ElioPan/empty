@@ -1,5 +1,6 @@
 package com.ev.custom.service.impl;
 
+import com.ev.framework.config.Constant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.HashMap;
@@ -28,7 +29,7 @@ public class ReceiptServiceImpl implements ReceiptService {
 	
 	@Override
 	public R addReceipt(ReceiptDO receiptDO, String bodyItem) {
-		receiptDO.setAuditStatus(ConstantForGYL.WAIT_AUDIT);
+		receiptDO.setAuditStatus(Constant.WAIT_AUDIT);
 		String code = this.receiptCode();
 		receiptDO.setReceiptNum(code);
 		receiptDao.save(receiptDO);

@@ -1,6 +1,7 @@
 package com.ev.mes.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -84,7 +85,7 @@ public class ProcessReportCheckServiceImpl implements ProcessReportCheckService 
 			if(sign==1){
 				processReportCheckDO.setStatus(ConstantForMES.MES_APPLY_APPROED);
 			}else{
-				processReportCheckDO.setStatus(ConstantForMES.MES_TS);//暂存
+				processReportCheckDO.setStatus(Constant.TS);//暂存
 			}
 			if (Objects.isNull(processReportCheckDO.getId())) {
 				//保存新增

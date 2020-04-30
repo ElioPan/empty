@@ -3,6 +3,7 @@ package com.ev.apis.controller.custom;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.custom.domain.UpkeepCheckDO;
@@ -110,7 +111,7 @@ public class UpkeepApiController {
 
         if (Objects.isNull(planDo.getId())) {
             //保养计划提交后就是启用：129启用
-            planDo.setStatus(Constant.STATE_START);
+            planDo.setStatus(ConstantForDevice.STATE_START);
             Map<String, Object> results = this.upkeepPlanService.savePlan(planDo, projectIds, partIdArray);
             return R.ok(results);
         } else {
@@ -245,7 +246,7 @@ public class UpkeepApiController {
         UpkeepPlanDO upkeepPlanDo = new UpkeepPlanDO() ;
         upkeepPlanDo.setDeletStatus(1L);
         upkeepPlanDo.setId(id);
-        upkeepPlanDo.setStatus(Constant.STATE_STOP_OVER);//CSTATE_STOP_OVER   计划结束/完成
+        upkeepPlanDo.setStatus(ConstantForDevice.STATE_STOP_OVER);//CSTATE_STOP_OVER   计划结束/完成
 
         Long lodwnUserId = ShiroUtils.getUserId();
         int counts = upkeepRecordService.count(query);
@@ -400,7 +401,7 @@ public class UpkeepApiController {
         if (Objects.isNull(upkeepRecordDO.getId())) {
             //新增+提交
 
-                upkeepRecordDO.setResult(Constant.WAITING_CHECK);//待验收
+                upkeepRecordDO.setResult(ConstantForDevice.WAITING_CHECK);//待验收
             return upkeepRecordService.saveRecorderOfNoPlan(upkeepRecordDO, projectArray, partArray,0);
         } else {
 
@@ -409,7 +410,7 @@ public class UpkeepApiController {
             if (recordDO != null) {
                 if (Objects.equals(Constant.TS, recordDO.getResult())) {
 
-                        upkeepRecordDO.setResult(Constant.WAITING_CHECK);//待验收
+                        upkeepRecordDO.setResult(ConstantForDevice.WAITING_CHECK);//待验收
                     return upkeepRecordService.saveRecorderOfNoPlan(upkeepRecordDO, projectArray, partArray,1);
                 }
                 //请勿重复提交
@@ -476,7 +477,7 @@ public class UpkeepApiController {
             query. put("resultId", resultId);
         }
         //待处理
-        if (Objects.nonNull(singleStatus) && Objects.equals(singleStatus, Constant.WAITING_DEAL)) {
+        if (Objects.nonNull(singleStatus) && Objects.equals(singleStatus, ConstantForDevice.WAITING_DEAL)) {
             query.put("singleStatuss", singleStatus);
             //工单责任人当前登录者
             query.put("manIds", manId);
@@ -484,7 +485,7 @@ public class UpkeepApiController {
             query.put("overTimeResult", 999);
         }
         //待验收   则返回保养计划创建人和
-        if (Objects.nonNull(singleStatus) &&Objects.equals(singleStatus, Constant.WAITING_CHECK)) {
+        if (Objects.nonNull(singleStatus) &&Objects.equals(singleStatus, ConstantForDevice.WAITING_CHECK)) {
             query.put("singleStatus", singleStatus);
             //工单和计划创建人为当前登录者
             query.put("manIdss", manId);
@@ -575,7 +576,7 @@ public class UpkeepApiController {
         if(Objects.isNull(upkeepRecordDo)){ return R.error(messageSourceHandler.getMessage("common.massge.haveNoThing",null));}
         //允许超期的工单暂存保养信息
 //        if (Objects.equals(Constant.WAITING_DEAL, upkeepRecordDo.getResult()) && (dateNow.before(upkeepRecordDo.getEndTime()))){
-        if (Objects.equals(Constant.WAITING_DEAL, upkeepRecordDo.getResult())){
+        if (Objects.equals(ConstantForDevice.WAITING_DEAL, upkeepRecordDo.getResult())){
             //允许修改
             UpkeepRecordDO upkeepRecordDO = new UpkeepRecordDO() ;
             upkeepRecordDO. setId(id);
@@ -583,7 +584,7 @@ public class UpkeepApiController {
             upkeepRecordDO. setStatus(status);
             upkeepRecordDO.setManHour(manHour);
             upkeepRecordDO.setContent(content);
-            upkeepRecordDO.setResult(Constant.WAITING_DEAL);
+            upkeepRecordDO.setResult(ConstantForDevice.WAITING_DEAL);
             upkeepRecordDO.setCost(new BigDecimal(cost));
             upkeepRecordDO.setManHourCost(new BigDecimal(manHourCost));
 
@@ -619,7 +620,7 @@ public class UpkeepApiController {
         if(Objects.isNull(upkeepRecordDo)){ return R.error("请传正确工单id！");}
         //允许超期的工单提交保养信息
 //        if (Objects.equals(Constant.WAITING_DEAL, upkeepRecordDo.getResult()) && (dateNow.before(upkeepRecordDo.getEndTime()))){
-        if (Objects.equals(Constant.WAITING_DEAL, upkeepRecordDo.getResult())){
+        if (Objects.equals(ConstantForDevice.WAITING_DEAL, upkeepRecordDo.getResult())){
 
                 //允许修改
             UpkeepRecordDO upkeepRecordDO = new UpkeepRecordDO() ;
@@ -628,7 +629,7 @@ public class UpkeepApiController {
             upkeepRecordDO. setStatus(status);
             upkeepRecordDO.setManHour(manHour);
             upkeepRecordDO.setContent(content);
-            upkeepRecordDO.setResult(Constant.WAITING_CHECK);
+            upkeepRecordDO.setResult(ConstantForDevice.WAITING_CHECK);
             upkeepRecordDO.setCost(new BigDecimal(cost));
             upkeepRecordDO.setManHourCost(new BigDecimal(manHourCost));
 
@@ -651,12 +652,12 @@ public class UpkeepApiController {
         //评价状态
         if(detailByRecordId!=null){
             Long satus= Long.parseLong(detailByRecordId.get("result").toString());
-            if(Objects.equals(Constant.NO_EVALUATED,satus)){//113待评价
+            if(Objects.equals(ConstantForDevice.NO_EVALUATED,satus)){//113待评价
 
                 upkeepCheckDO.setUserId(ShiroUtils.getUserId());//当前登录人的id作为评价单的验收人
                 upkeepCheckDO.setRecordId(id);
                 upkeepCheckDO.setResultRemark(upkeepCheckDO.getResult());
-                upkeepCheckDO.setResult(Constant.NO_EVALUATED);
+                upkeepCheckDO.setResult(ConstantForDevice.NO_EVALUATED);
 
                 upkeepCheckService.updateByRecordId(upkeepCheckDO);
                 return R.ok();
@@ -680,18 +681,18 @@ public class UpkeepApiController {
         //评价状态
         if(detailByRecordId!=null){
             Long satus= Long.parseLong(detailByRecordId.get("result").toString());
-            if(Objects.equals(Constant.NO_EVALUATED,satus)){//113待评价
+            if(Objects.equals(ConstantForDevice.NO_EVALUATED,satus)){//113待评价
 
                 upkeepCheckDO.setUserId(ShiroUtils.getUserId());//当前登录人的id作为评价单的验收人
                 upkeepCheckDO.setRecordId(id);
-                upkeepCheckDO.setResultRemark(Constant.APPLY_APPROED);
+                upkeepCheckDO.setResultRemark(ConstantForDevice.APPLY_APPROED);
 
                 int counts= upkeepCheckService.updateByRecordId(upkeepCheckDO);
                 if(counts>0){
                     //更新保养单转态为 58已验收
                     UpkeepRecordDO upkeepRecordDO = new UpkeepRecordDO() ;
                     upkeepRecordDO.setId(id);
-                    upkeepRecordDO.setResult(Constant.ALREADY_CHECK);
+                    upkeepRecordDO.setResult(ConstantForDevice.ALREADY_CHECK);
                     upkeepRecordService.update(upkeepRecordDO);
                     return R.ok();
                 }
@@ -805,7 +806,7 @@ public class UpkeepApiController {
             idPath = Objects.nonNull(deptDO)?deptDO.getIdPath():null;
         }
         query.put("engineerId", engineerId);
-        query.put("result", Constant.WAITING_DEAL);//工单状态{56待处理，57待验收，58已验收}
+        query.put("result", ConstantForDevice.WAITING_DEAL);//工单状态{56待处理，57待验收，58已验收}
 
         int waitingOfRecode = upkeepRecordService.countOfWaitingDo(query);
         results.put("data",waitingOfRecode);

@@ -1,6 +1,7 @@
 package com.ev.mes.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
@@ -109,7 +110,7 @@ public class MaterialsScrapServiceImpl implements MaterialsScrapService {
 				scrapDo.setCode(DateFormatUtil.getWorkOrderno(prefix, suffix));
 				scrapDo.setCreateTime(Objects.nonNull(scrapDo.getCreateTime()) ? scrapDo.getCreateTime() : new Date());
 				scrapDo.setCreateBy(Objects.nonNull(scrapDo.getCreateBy()) ? scrapDo.getCreateBy() : ShiroUtils.getUserId());
-				scrapDo.setAuditSign(ConstantForMES.WAIT_AUDIT);
+				scrapDo.setAuditSign(Constant.WAIT_AUDIT);
 
 				materialsScrapDao.save(scrapDo);
 
@@ -178,10 +179,10 @@ public class MaterialsScrapServiceImpl implements MaterialsScrapService {
 
 		MaterialsScrapDO scrapDO= materialsScrapDao.get(scrapId);
 		if(Objects.nonNull(scrapDO)){
-			if(!Objects.equals(scrapDO.getAuditSign(), ConstantForMES.WAIT_AUDIT)){
+			if(!Objects.equals(scrapDO.getAuditSign(), Constant.WAIT_AUDIT)){
 
 				MaterialsScrapDO scrapDO1=new MaterialsScrapDO();
-				scrapDO1.setAuditSign(ConstantForMES.WAIT_AUDIT);
+				scrapDO1.setAuditSign(Constant.WAIT_AUDIT);
 				scrapDO1.setAuditId(0L); //将审核人更新为0
 				scrapDO1.setId(scrapId);
 				materialsScrapDao.update(scrapDO1);
@@ -202,10 +203,10 @@ public class MaterialsScrapServiceImpl implements MaterialsScrapService {
 
 		MaterialsScrapDO scrapDO= materialsScrapDao.get(scrapId);
 		if(Objects.nonNull(scrapDO)){
-			if(!Objects.equals(scrapDO.getAuditSign(), ConstantForMES.OK_AUDITED)){
+			if(!Objects.equals(scrapDO.getAuditSign(), Constant.OK_AUDITED)){
 
 				MaterialsScrapDO scrapDO1=new MaterialsScrapDO();
-				scrapDO1.setAuditSign(ConstantForMES.OK_AUDITED);
+				scrapDO1.setAuditSign(Constant.OK_AUDITED);
 				scrapDO1.setAuditId(auditId);
 				scrapDO1.setId(scrapId);
 				materialsScrapDao.update(scrapDO1);

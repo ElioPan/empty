@@ -3,7 +3,7 @@ package com.ev.apis.controller.custom;
 import com.alibaba.fastjson.JSONArray;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.R;
 import com.ev.custom.domain.NewsDO;
 import com.ev.custom.service.ContentAssocService;
@@ -97,7 +97,7 @@ public class NewsApiController {
                    nameAndPath = JSONArray.parseArray(fileOFNameAndPath);
 
                 }
-                contentAssocService.saveList(newsDO.getId(),nameAndPath,Constant.NEWS_PRESS_RELEASE);
+                contentAssocService.saveList(newsDO.getId(),nameAndPath, ConstantForDevice.NEWS_PRESS_RELEASE);
                 return R.ok();
             }
             return R.error(messageSourceHandler.getMessage("common.dailyReport.save",null));

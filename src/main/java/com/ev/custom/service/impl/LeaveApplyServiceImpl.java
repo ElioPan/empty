@@ -1,6 +1,7 @@
 package com.ev.custom.service.impl;
 
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.R;
 import com.ev.custom.dao.LeaveApplyDao;
 import com.ev.custom.domain.CommentDO;
@@ -97,7 +98,7 @@ public class LeaveApplyServiceImpl implements LeaveApplyService {
 		//获取附件
 		Map<String, Object> contentMap = new HashMap<String, Object>() {{
 			put("assocId", leaveApplyDo.getId());
-			put("assocType", Constant.LEAVE_APPLY_APPEARANCE_ATTACHMENT);
+			put("assocType", ConstantForDevice.LEAVE_APPLY_APPEARANCE_ATTACHMENT);
 			put("sort","id");
 			put("order","ASC");
 		}};
@@ -106,13 +107,13 @@ public class LeaveApplyServiceImpl implements LeaveApplyService {
 		//获取发送对象
 		List<Map<String, Object>> targetList = userAssocService.list(new HashMap<String, Object>() {{
 			put("assocId", leaveApplyDo.getId());
-			put("assocType", Constant.LEAVE_APPLY_TARGET);
+			put("assocType", ConstantForDevice.LEAVE_APPLY_TARGET);
 		}});
 		results.put("targetList", targetList);
 		//获取审批人
 		List<Map<String, Object>> approveList = userAssocService.list(new HashMap<String, Object>() {{
 			put("assocId", leaveApplyDo.getId());
-			put("assocType", Constant.LEAVE_APPROVE_TARGET);
+			put("assocType", ConstantForDevice.LEAVE_APPROVE_TARGET);
 			put("sort","id");
 			put("order","ASC");
 		}});
@@ -120,7 +121,7 @@ public class LeaveApplyServiceImpl implements LeaveApplyService {
 		//获取回复信息
 		Map<String, Object> commentMap = new HashMap<String, Object>() {{
 			put("assocId", id);
-			put("assocType", Constant.LEAVE_APPLY_COMMENT);
+			put("assocType", ConstantForDevice.LEAVE_APPLY_COMMENT);
 		}};
 		List<CommentDO> commentList = commentService.list(commentMap);
 		results.put("commentList", commentList);
@@ -148,10 +149,10 @@ public class LeaveApplyServiceImpl implements LeaveApplyService {
 		String status = dingdingService.completeApprove(leaveApplyDO.getProcessInstanceId(),isApproved==1?true:false,reason);
 		System.out.println("==============status====="+status+"==========================");
 		if("down".equals(status)){
-			leaveApplyDO.setStatus(Constant.APPLY_REJECT);
+			leaveApplyDO.setStatus(ConstantForDevice.APPLY_REJECT);
 			update(leaveApplyDO);
 		}else if("up".equals(status)){
-			leaveApplyDO.setStatus(Constant.APPLY_COMPLETED);
+			leaveApplyDO.setStatus(ConstantForDevice.APPLY_COMPLETED);
 			update(leaveApplyDO);
 		}else{
 			//TODO
@@ -160,7 +161,7 @@ public class LeaveApplyServiceImpl implements LeaveApplyService {
 
 	@Override
 	public void commentLeaveApply(Long leaveApplyId, String comment) {
-		CommentDO commentDo = new CommentDO(leaveApplyId,Constant.LEAVE_APPLY_COMMENT,comment);
+		CommentDO commentDo = new CommentDO(leaveApplyId, ConstantForDevice.LEAVE_APPLY_COMMENT,comment);
 		commentService.save(commentDo);
 	}
 
@@ -170,7 +171,7 @@ public class LeaveApplyServiceImpl implements LeaveApplyService {
 			save(leaveApplyDO);
 			//审核人
 			for(int i=0;i<approveList.length;i++){
-				UserAssocDO userAssocDO = new UserAssocDO(leaveApplyDO.getId(),Constant.LEAVE_APPROVE_TARGET,approveList[i]);
+				UserAssocDO userAssocDO = new UserAssocDO(leaveApplyDO.getId(), ConstantForDevice.LEAVE_APPROVE_TARGET,approveList[i]);
 				userAssocService.save(userAssocDO);
 			}
 //			//抄送给谁
@@ -180,7 +181,7 @@ public class LeaveApplyServiceImpl implements LeaveApplyService {
 //			}
 		}
 		//附件信息操作
-		contentAssocService.saveList(leaveApplyDO.getId(),tagLocationAppearanceAttachment,Constant.LEAVE_APPLY_APPEARANCE_ATTACHMENT);
+		contentAssocService.saveList(leaveApplyDO.getId(),tagLocationAppearanceAttachment, ConstantForDevice.LEAVE_APPLY_APPEARANCE_ATTACHMENT);
 
 	}
 
@@ -193,7 +194,7 @@ public class LeaveApplyServiceImpl implements LeaveApplyService {
 		if (sign == 1) {
 			String processInstanceId = dingdingService.submitApply(newApproveMen,leaveApplyDO.getProcessInstanceId()==null?null:leaveApplyDO.getProcessInstanceId().toString());
 			leaveApplyDO.setProcessInstanceId(processInstanceId);
-			leaveApplyDO.setStatus(Constant.APPLY_APPROVING);
+			leaveApplyDO.setStatus(ConstantForDevice.APPLY_APPROVING);
 		} //146：暂存  状态   63审批中
 
 		//修改LeaveAppply表信息
@@ -203,14 +204,14 @@ public class LeaveApplyServiceImpl implements LeaveApplyService {
             Map<String, Object> query = new HashMap<String, Object>();
             query.put("userId", null);
             query.put("assocId", leaveId);
-            query.put("assocType", Constant.LEAVE_APPROVE_TARGET);
+            query.put("assocType", ConstantForDevice.LEAVE_APPROVE_TARGET);
 
             userAssocService.removeByAssocIdAndUserId(query);
 
         //新增审核人
         if (newApproveMen.length>0) {
             for (int i = 0; i < newApproveMen.length; i++) {
-                UserAssocDO userAssocDO = new UserAssocDO(leaveId, Constant.LEAVE_APPROVE_TARGET, newApproveMen[i]);
+                UserAssocDO userAssocDO = new UserAssocDO(leaveId, ConstantForDevice.LEAVE_APPROVE_TARGET, newApproveMen[i]);
                 userAssocService.save(userAssocDO);
             }
         }
@@ -219,10 +220,10 @@ public class LeaveApplyServiceImpl implements LeaveApplyService {
 		Map<String,Object> querys =new HashMap<>();
 		Long[] ids = new Long[1];
 		ids[0] =leaveId;
-		contentAssocService.removeByAssocIdAndType(ids, Constant.LEAVE_APPLY_APPEARANCE_ATTACHMENT);
+		contentAssocService.removeByAssocIdAndType(ids, ConstantForDevice.LEAVE_APPLY_APPEARANCE_ATTACHMENT);
 
 		if (newTaglocatio.length>0) {
-			contentAssocService.saveList(leaveId, newTaglocatio, Constant.LEAVE_APPLY_APPEARANCE_ATTACHMENT);
+			contentAssocService.saveList(leaveId, newTaglocatio, ConstantForDevice.LEAVE_APPLY_APPEARANCE_ATTACHMENT);
 		}
 //        //删除抄送人
 //        if (deletTarget.length>0) {
@@ -251,20 +252,20 @@ public class LeaveApplyServiceImpl implements LeaveApplyService {
 
 		//sign==1 新增提交     sign==0 修改提交
 		if(sign==1){
-			leaveApplyDO.setStatus(Constant.APPLY_APPROVING); //146：暂存  状态   63审批中
+			leaveApplyDO.setStatus(ConstantForDevice.APPLY_APPROVING); //146：暂存  状态   63审批中
 			save(leaveApplyDO);
 			//审核人
 			for(int i=0;i<approveList.length;i++){
-				UserAssocDO userAssocDO = new UserAssocDO(leaveApplyDO.getId(),Constant.LEAVE_APPROVE_TARGET,approveList[i]);
+				UserAssocDO userAssocDO = new UserAssocDO(leaveApplyDO.getId(), ConstantForDevice.LEAVE_APPROVE_TARGET,approveList[i]);
 				userAssocService.save(userAssocDO);
 			}
 			//抄送给谁
 			for(int i=0;i<targetList.length;i++){
-				UserAssocDO userAssocDO = new UserAssocDO(leaveApplyDO.getId(),Constant.LEAVE_APPLY_TARGET,targetList[i]);
+				UserAssocDO userAssocDO = new UserAssocDO(leaveApplyDO.getId(), ConstantForDevice.LEAVE_APPLY_TARGET,targetList[i]);
 				userAssocService.save(userAssocDO);
 			}
 			//附件信息操作
-			contentAssocService.saveList(leaveApplyDO.getId(),tagLocationAppearanceAttachment,Constant.LEAVE_APPLY_APPEARANCE_ATTACHMENT);
+			contentAssocService.saveList(leaveApplyDO.getId(),tagLocationAppearanceAttachment, ConstantForDevice.LEAVE_APPLY_APPEARANCE_ATTACHMENT);
 		}
 	}
 
@@ -275,7 +276,7 @@ public class LeaveApplyServiceImpl implements LeaveApplyService {
 		for (int i = 0; i < ids.length; i++) {
 			LeaveApplyDO applyDO = leaveApplyService.get(ids[i]);
 			if (applyDO != null) {
-				if (Objects.equals(Constant.TS, applyDO.getStatus()) || Objects.equals(Constant.APPLY_REJECT, applyDO.getStatus())) {
+				if (Objects.equals(Constant.TS, applyDO.getStatus()) || Objects.equals(ConstantForDevice.APPLY_REJECT, applyDO.getStatus())) {
 					logIDs[i] = ids[i];
 				}else{
 					return R.error("单据已提交，不能删除！");

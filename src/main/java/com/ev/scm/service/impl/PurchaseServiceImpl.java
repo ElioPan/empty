@@ -1,6 +1,7 @@
 package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -91,7 +92,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             }
             purchaseDO.setPurchaseCode(DateFormatUtil.getWorkOrderno(maxNo, taskNo));
             purchaseDO.setPurchaseType(ConstantForGYL.PURCHASE);
-            purchaseDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+            purchaseDO.setAuditSign(Constant.WAIT_AUDIT);
             int row = purchaseDao.save(purchaseDO);
 
             if (row > 0) {
@@ -135,9 +136,9 @@ public class PurchaseServiceImpl implements PurchaseService {
     public R audit(Long id) {
         PurchaseDO purchaseDO = purchaseDao.get(id);
         if(Objects.nonNull(purchaseDO)){
-            if(Objects.equals(purchaseDO.getAuditSign(),ConstantForGYL.WAIT_AUDIT)){
+            if(Objects.equals(purchaseDO.getAuditSign(),Constant.WAIT_AUDIT)){
                 PurchaseDO pDo=new PurchaseDO();
-                pDo.setAuditSign(ConstantForGYL.OK_AUDITED);
+                pDo.setAuditSign(Constant.OK_AUDITED);
                 pDo.setAuditor(ShiroUtils.getUserId());
                 pDo.setAuditTime(new Date());
                 pDo.setId(id);
@@ -166,9 +167,9 @@ public class PurchaseServiceImpl implements PurchaseService {
                 return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit",null));
             }
 
-            if(Objects.equals(purchaseDO.getAuditSign(),ConstantForGYL.OK_AUDITED)){
+            if(Objects.equals(purchaseDO.getAuditSign(),Constant.OK_AUDITED)){
                 PurchaseDO pDo=new PurchaseDO();
-                pDo.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+                pDo.setAuditSign(Constant.WAIT_AUDIT);
                 pDo.setAuditor(0L);
                 pDo.setId(id);
                 purchaseDao.update(pDo);

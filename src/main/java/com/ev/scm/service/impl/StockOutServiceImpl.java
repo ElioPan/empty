@@ -3,6 +3,7 @@ package com.ev.scm.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.MaterielService;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -148,7 +149,7 @@ public class StockOutServiceImpl implements StockOutService {
         long storageTypeId = storageType.getId().longValue();
         stockOutDO.setOutboundType(storageTypeId);
         // 设置审核状态为待审核
-        stockOutDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+        stockOutDO.setAuditSign(Constant.WAIT_AUDIT);
         // 设置出库单据号
         String value = storageType.getValue();
 
@@ -215,10 +216,10 @@ public class StockOutServiceImpl implements StockOutService {
         }
 
         // 设置出库类型
-        long storageTypeId = storageType.getId().longValue();
+        long storageTypeId = storageType.getId();
         stockOutDO.setOutboundType(storageTypeId);
         // 设置审核状态为待审核
-        stockOutDO.setAuditSign(ConstantForGYL.OK_AUDITED);
+        stockOutDO.setAuditSign(Constant.OK_AUDITED);
         Date now = new Date();
         stockOutDO.setOutTime(now);
         stockOutDO.setAuditTime(now);
@@ -327,7 +328,7 @@ public class StockOutServiceImpl implements StockOutService {
                 return R.error(messageSourceHandler.getMessage("scm.stock.code.operateError", null));
             }
 
-            if (Objects.equal(stockOutDO.getAuditSign(), ConstantForGYL.OK_AUDITED)) {
+            if (Objects.equal(stockOutDO.getAuditSign(), Constant.OK_AUDITED)) {
                 return R.error(messageSourceHandler.getMessage("common.approvedOrChild.delete.disabled", null));
             }
         }
@@ -353,8 +354,8 @@ public class StockOutServiceImpl implements StockOutService {
         Long auditSignId = stockOutDO.getAuditSign();
         int count = 0;
         // 若是已审核状态设置审核状态为反审核
-        if (auditSignId.equals(ConstantForGYL.OK_AUDITED)) {
-            stockOutDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+        if (auditSignId.equals(Constant.OK_AUDITED)) {
+            stockOutDO.setAuditSign(Constant.WAIT_AUDIT);
             // 设置审核人
             stockOutDO.setAuditor(null);
             stockOutDO.setAuditTime(null);
@@ -467,8 +468,8 @@ public class StockOutServiceImpl implements StockOutService {
         Long auditSignId = stockOutDO.getAuditSign();
         int count = 0;
         // 若是待审核状态设置审核状态为已审核
-        if (auditSignId.equals(ConstantForGYL.WAIT_AUDIT)) {
-            stockOutDO.setAuditSign(ConstantForGYL.OK_AUDITED);
+        if (auditSignId.equals(Constant.WAIT_AUDIT)) {
+            stockOutDO.setAuditSign(Constant.OK_AUDITED);
             // 设置审核时间
             stockOutDO.setAuditTime(new Date());
             // 设置审核人
@@ -677,7 +678,7 @@ public class StockOutServiceImpl implements StockOutService {
     @Override
     public R edit(StockOutDO stockOutDO, String item, Long storageType,Long [] itemIds) {
         StockOutDO stockOut = this.get(stockOutDO.getId());
-        if (Objects.equal(stockOut.getAuditSign(),ConstantForGYL.OK_AUDITED)) {
+        if (Objects.equal(stockOut.getAuditSign(),Constant.OK_AUDITED)) {
             return R.error(messageSourceHandler.getMessage("common.approved.update.disabled", null));
         }
         // 修改前先删除库存记录

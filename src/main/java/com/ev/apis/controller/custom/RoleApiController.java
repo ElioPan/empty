@@ -2,6 +2,7 @@ package com.ev.apis.controller.custom;
 
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.common.controller.BaseController;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;

@@ -1,6 +1,7 @@
 package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.MathUtils;
@@ -54,7 +55,7 @@ public class SalesbillServiceImpl implements SalesbillService {
         if (id == null) {
             Map<String,Object> result = Maps.newHashMap();
 
-            salesBillDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+            salesBillDO.setAuditSign(Constant.WAIT_AUDIT);
 //            salesBillDO.setBillCode(this.SalesBillCode());
             salesbillDao.save(salesBillDO);
             id = salesBillDO.getId();
@@ -86,7 +87,7 @@ public class SalesbillServiceImpl implements SalesbillService {
 	@Override
 	public R audit(Long id) {
         SalesbillDO salesbillDO = this.get(id);
-        if (Objects.equals(salesbillDO.getAuditSign(), ConstantForGYL.OK_AUDITED)) {
+        if (Objects.equals(salesbillDO.getAuditSign(), Constant.OK_AUDITED)) {
             return R.error(messageSourceHandler.getMessage("common.duplicate.approved", null));
         }
 
@@ -104,7 +105,7 @@ public class SalesbillServiceImpl implements SalesbillService {
             salescontractDao.update(salescontractDO);
         }
 
-        salesbillDO.setAuditSign(ConstantForGYL.OK_AUDITED);
+        salesbillDO.setAuditSign(Constant.OK_AUDITED);
         salesbillDO.setAuditor(ShiroUtils.getUserId());
         salesbillDO.setAuditTime(new Date());
 
@@ -114,7 +115,7 @@ public class SalesbillServiceImpl implements SalesbillService {
 	@Override
 	public R reverseAudit(Long id) {
         SalesbillDO salesbillDO = this.get(id);
-        if (Objects.equals(salesbillDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+        if (Objects.equals(salesbillDO.getAuditSign(), Constant.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("common.massge.faildRollBackAudit", null));
         }
 
@@ -130,7 +131,7 @@ public class SalesbillServiceImpl implements SalesbillService {
             salescontractDao.update(salescontractDO);
         }
 
-        salesbillDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+        salesbillDO.setAuditSign(Constant.WAIT_AUDIT);
         salesbillDO.setAuditor(null);
         salesbillDO.setAuditTime(null);
         return this.updateAll(salesbillDO) > 0 ? R.ok() : R.error();
@@ -159,7 +160,7 @@ public class SalesbillServiceImpl implements SalesbillService {
             SalesbillDO salesbillDO;
             for (Long id : ids) {
                 salesbillDO = this.get(id);
-                if (Objects.equals(salesbillDO.getAuditSign(),ConstantForGYL.OK_AUDITED)) {
+                if (Objects.equals(salesbillDO.getAuditSign(),Constant.OK_AUDITED)) {
                     return R.error(messageSourceHandler.getMessage("common.submit.delete.disabled", null));
                 }
             }

@@ -9,6 +9,7 @@ import com.ev.custom.domain.DeviceDO;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DeviceService;
 import com.ev.custom.service.DictionaryService;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -185,7 +186,7 @@ public class CraftServiceImpl implements CraftService {
                 suffix = list.get(0).getCode();
             }
             craftDO.setCode(DateFormatUtil.getWorkOrderno(prefix, suffix));
-            craftDO.setAuditSign(ConstantForMES.WAIT_AUDIT);//设置为 待审核
+            craftDO.setAuditSign(Constant.WAIT_AUDIT);//设置为 待审核
 
             craftDao.save(craftDO);
 
@@ -230,16 +231,16 @@ public class CraftServiceImpl implements CraftService {
         CraftDO getCraftDO = craftDao.get(craftId);
         if (getCraftDO != null) {
             CraftDO craftDo = new CraftDO();
-            if (sign == 0 && Objects.equals(getCraftDO.getAuditSign(), ConstantForMES.WAIT_AUDIT)) {
-                craftDo.setAuditSign(ConstantForMES.OK_AUDITED);
+            if (sign == 0 && Objects.equals(getCraftDO.getAuditSign(), Constant.WAIT_AUDIT)) {
+                craftDo.setAuditSign(Constant.OK_AUDITED);
                 craftDo.setAuditId(ShiroUtils.getUserId());
-            } else if (sign == 0 && Objects.equals(getCraftDO.getAuditSign(), ConstantForMES.OK_AUDITED)) {
+            } else if (sign == 0 && Objects.equals(getCraftDO.getAuditSign(), Constant.OK_AUDITED)) {
                 //已审核请勿重复操作！
                 return R.error(messageSourceHandler.getMessage("common.massge.okAudit",null));
-            } else if (sign == 1 && Objects.equals(getCraftDO.getAuditSign(), ConstantForMES.OK_AUDITED)) {
-                craftDo.setAuditSign(ConstantForMES.WAIT_AUDIT);
+            } else if (sign == 1 && Objects.equals(getCraftDO.getAuditSign(), Constant.OK_AUDITED)) {
+                craftDo.setAuditSign(Constant.WAIT_AUDIT);
                 craftDo.setAuditId(0L);
-            } else if(sign == 1 && Objects.equals(getCraftDO.getAuditSign(), ConstantForMES.WAIT_AUDIT)) {
+            } else if(sign == 1 && Objects.equals(getCraftDO.getAuditSign(), Constant.WAIT_AUDIT)) {
                 //单据为待审状态请勿重复操作！
                 return R.error(messageSourceHandler.getMessage("common.massge.okWaitAudit",null));
             }
@@ -474,7 +475,7 @@ public class CraftServiceImpl implements CraftService {
                 craft.setCode(craftEntity.getCode());
                 craft.setName(craftEntity.getName());
                 craft.setVersion(craftEntity.getVersion());
-                craft.setAuditSign(ConstantForMES.WAIT_AUDIT);
+                craft.setAuditSign(Constant.WAIT_AUDIT);
                 craft.setUseStatus(1);
                 this.save(craft);
                 craftId = craft.getId();

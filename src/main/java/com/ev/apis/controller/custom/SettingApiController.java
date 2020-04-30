@@ -3,14 +3,13 @@ package com.ev.apis.controller.custom;
 import com.alibaba.fastjson.JSON;
 import com.ev.custom.vo.WeChatSettingEntity;
 import com.ev.framework.annotation.EvApiByToken;
-import com.ev.framework.config.ConstantForSYS;
+import com.ev.framework.config.Constant;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.system.domain.SettingDO;
 import com.ev.system.service.SettingService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.coyote.http2.Setting;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,7 +36,7 @@ public class SettingApiController {
     @EvApiByToken(value = "/weChat/detail", method = RequestMethod.GET, apiTitle = "查看企业微信配置信息")
     @ApiOperation(value = "查看企业微信配置信息")
     public R getWeChatSetting() {
-        String settingValue = settingService.getSettingValue(ConstantForSYS.QIYE_WECHAT_SETTING);
+        String settingValue = settingService.getSettingValue(Constant.QIYE_WECHAT_SETTING);
         if(settingValue==null|| StringUtils.isBlank(settingValue)){
             return R.error("配置不存在");
         }
@@ -51,10 +50,10 @@ public class SettingApiController {
     @EvApiByToken(value = "/weChat/set", method = RequestMethod.POST, apiTitle = "企业微信配置")
     @ApiOperation(value = "企业微信配置")
     public R weChatSet(@ModelAttribute WeChatSettingEntity weChatSetting) {
-        SettingDO setting = settingService.get(ConstantForSYS.QIYE_WECHAT_SETTING);
+        SettingDO setting = settingService.get(Constant.QIYE_WECHAT_SETTING);
         if(setting==null){
             setting = new SettingDO();
-            setting.setKey(ConstantForSYS.QIYE_WECHAT_SETTING);
+            setting.setKey(Constant.QIYE_WECHAT_SETTING);
         }
         setting.setValue(JSON.toJSONString(weChatSetting));
         settingService.saveOrUpdate(setting);

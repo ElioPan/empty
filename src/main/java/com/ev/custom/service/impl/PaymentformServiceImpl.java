@@ -1,5 +1,6 @@
 package com.ev.custom.service.impl;
 
+import com.ev.framework.config.Constant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.HashMap;
@@ -27,7 +28,7 @@ public class PaymentformServiceImpl implements PaymentformService {
 
 	@Override
 	public R addPaymentform(PaymentformDO paymentform, String bodyItem) {
-		paymentform.setAuditStatus(ConstantForGYL.WAIT_AUDIT);
+		paymentform.setAuditStatus(Constant.WAIT_AUDIT);
 		String code = this.paymentformCode();
 		paymentform.setPayNum(code);
 		paymentformDao.save(paymentform);

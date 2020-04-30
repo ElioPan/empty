@@ -29,14 +29,7 @@ public final class ConstantForGYL {
 	 * 生产退料单据前缀
 	 */
 	public static final String TLDJ_PREFIX = "TLDJ";
-	/**
-	 * 待审核
-	 */
-	public static final Long WAIT_AUDIT = 178L;
-	/**
-	 * 已审核
-	 */
-	public static final Long OK_AUDITED = 179L;
+
 	/**
 	 * 调拨
 	 */

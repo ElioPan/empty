@@ -1,6 +1,7 @@
 package com.ev.mes.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -96,7 +97,7 @@ public class ProcessReportServiceImpl implements ProcessReportService {
 					return R.error(messageSourceHandler.getMessage("common.massge.haveNoId",null));
 				}
 			}else{
-				rocessReportDO1.setStatus(ConstantForMES.MES_TS); //暂存
+				rocessReportDO1.setStatus(Constant.TS); //暂存
 			}
 
 			if(Objects.nonNull(rocessReportDO1.getId())){

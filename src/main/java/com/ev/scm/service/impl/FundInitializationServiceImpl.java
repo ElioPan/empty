@@ -2,6 +2,7 @@ package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.ev.apis.model.DsResultResponse;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.MathUtils;
@@ -187,7 +188,7 @@ public class FundInitializationServiceImpl implements FundInitializationService 
             //付款
             Map<String,Object>  query= new HashMap<>();
             query.put("sign", ConstantForGYL.PAYMENT_ORDER);
-            query.put("auditSign",ConstantForGYL.OK_AUDITED);
+            query.put("auditSign", Constant.OK_AUDITED);
             query.put("accountNumber",ids);
             query.put("endTime", map.get("endTime"));
             List<Map<String, Object>> outMaps= paymentReceivedItemService.getInCountById(query);
@@ -278,7 +279,7 @@ public class FundInitializationServiceImpl implements FundInitializationService 
         //收款  付款
         Map<String, Object> query = new HashMap<>();
         query.put("accountNumber", founId);
-        query.put("auditSign", ConstantForGYL.OK_AUDITED);
+        query.put("auditSign", Constant.OK_AUDITED);
         query.put("sign", ConstantForGYL.ALL_BILL);
         query.put("startTime", map.get("startTime"));
         query.put("endTime", map.get("endTime"));

@@ -7,6 +7,7 @@ import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.*;
 import com.ev.scm.domain.StockOutDO;
@@ -248,7 +249,7 @@ public class ConsumingStockOutApiController {
         params.put("createBy", createBy);
         params.put("createTime", createTime);
 
-        params.put("auditSign", ConstantForGYL.OK_AUDITED);
+        params.put("auditSign", Constant.OK_AUDITED);
         params.put("outboundType", ConstantForGYL.LYCK);
         Map<String, Object> results = Maps.newHashMap();
         List<Map<String, Object>> data = this.consumingStockOutService.listApi(params);

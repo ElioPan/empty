@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -216,7 +217,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 if(!Objects.equals(0,expense.compareTo(BigDecimal.ZERO) )){
                     BigDecimal oldAmount=stockInItemDo.getAmount().subtract(expense);
                     stockInItemDo.setAmount(oldAmount);
-                    stockInItemDo.setUnitPrice(oldAmount.divide(stockInItemDo.getCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
+                    stockInItemDo.setUnitPrice(oldAmount.divide(stockInItemDo.getCount(), Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
                     oldStockInItemDos.add(stockInItemDo);
                 }
             }
@@ -259,7 +260,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
                         BigDecimal newAmount=stockInItemDo.getAmount().add(expense);
                         stockInItemDo.setAmount(newAmount);
-                        stockInItemDo.setUnitPrice(newAmount.divide(stockInItemDo.getCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
+                        stockInItemDo.setUnitPrice(newAmount.divide(stockInItemDo.getCount(), Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
                         newStockInItemDos.add(stockInItemDo);
                     }
                 }
@@ -349,7 +350,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
             Map<String, Object> totalTaxAmountCount = this.getTotalTaxAmountCount(stockInItemDo.getId());
             BigDecimal totailCount=new BigDecimal(totalTaxAmountCount.get("totailCount").toString());
             BigDecimal taxAmount=new BigDecimal(totalTaxAmountCount.get("taxAmount").toString());
-            stockInItemDo.setExpense((taxAmount.multiply(stockInItemDo.getCount()).divide(totailCount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP)));
+            stockInItemDo.setExpense((taxAmount.multiply(stockInItemDo.getCount()).divide(totailCount, Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP)));
             newStockInItemDo.add(stockInItemDo);
         }
         //批量更新委外入库子表
@@ -504,7 +505,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
 
                 BigDecimal totailAmout = cost.add(expense);
 //                BigDecimal totailAmout = inItemDo.getAmount().add(cost.add(expense));
-                BigDecimal unitPrice = totailAmout.divide(inItemDo.getCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+                BigDecimal unitPrice = totailAmout.divide(inItemDo.getCount(), Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
                 inItemDo.setUnitPrice(unitPrice);
                 inItemDo.setAmount(totailAmout);
             }
@@ -564,7 +565,7 @@ public class InStockAccountingServiceImpl implements InStockAccountingService {
                 Map<String, Object> map = bomItem.get(i);
                 BigDecimal standardCount = new BigDecimal(map.get("standardCount").toString());
                 BigDecimal wasteRate=new BigDecimal(map.get("wasteRate").toString());
-                BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+                BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100), Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
                 BigDecimal needAccountCount = planFeeding.multiply(count);
                 map.put("standardCount", needAccountCount);
                 bomItems.add(map);

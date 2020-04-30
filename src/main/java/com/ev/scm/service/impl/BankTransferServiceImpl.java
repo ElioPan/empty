@@ -1,6 +1,7 @@
 package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -95,7 +96,7 @@ public class BankTransferServiceImpl implements BankTransferService {
 				taskNo = list.get(0).getTransferCode();
 			}
 			bankTransferDO.setTransferCode(DateFormatUtil.getWorkOrderno(maxNo, taskNo));
-			bankTransferDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+			bankTransferDO.setAuditSign(Constant.WAIT_AUDIT);
 			int row = bankTransferDao.save(bankTransferDO);
 
 			if (row > 0) {
@@ -210,9 +211,9 @@ public class BankTransferServiceImpl implements BankTransferService {
 	public R audit(Long id) {
 		BankTransferDO bankTransferDO = this.get(id);
 		if(Objects.nonNull(bankTransferDO)){
-			if(Objects.equals(bankTransferDO.getAuditSign(),ConstantForGYL.WAIT_AUDIT)){
+			if(Objects.equals(bankTransferDO.getAuditSign(), Constant.WAIT_AUDIT)){
 				BankTransferDO btDo=new BankTransferDO();
-				btDo.setAuditSign(ConstantForGYL.OK_AUDITED);
+				btDo.setAuditSign(Constant.OK_AUDITED);
 				btDo.setAuditor(ShiroUtils.getUserId());
 				btDo.setAuditTime(new Date());
 				btDo.setId(id);
@@ -231,9 +232,9 @@ public class BankTransferServiceImpl implements BankTransferService {
 	public R rollBackAudit(Long id) {
 		BankTransferDO bankTransferDO = this.get(id);
 		if(Objects.nonNull(bankTransferDO)){
-			if(Objects.equals(bankTransferDO.getAuditSign(),ConstantForGYL.OK_AUDITED)){
+			if(Objects.equals(bankTransferDO.getAuditSign(),Constant.OK_AUDITED)){
 				BankTransferDO btDo=new BankTransferDO();
-				btDo.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+				btDo.setAuditSign(Constant.WAIT_AUDIT);
 				btDo.setAuditor(0L);
 				btDo.setId(id);
 				this.update(btDo);

@@ -1,6 +1,7 @@
 package com.ev.framework.exception;
 
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.common.domain.LogDO;
 import com.ev.common.service.LogService;
 import com.ev.framework.utils.HttpServletUtils;

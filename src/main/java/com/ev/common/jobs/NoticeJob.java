@@ -3,7 +3,7 @@ package com.ev.common.jobs;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ev.framework.config.ApplicationContextRegister;
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.common.vo.PlanVo;
 import com.ev.custom.domain.PatrolPlanDO;
@@ -61,7 +61,7 @@ public class NoticeJob{
             JSONArray array = new JSONArray();
             Map<String,Object> conditionMap = new HashMap<String, Object>();
             conditionMap.put("planId",planVo.getId());
-            if(Constant.PATRAL_PLAN.equals(planVo.getPlanType())){
+            if(ConstantForDevice.PATRAL_PLAN.equals(planVo.getPlanType())){
                 //TODO 巡检计划生成
                 List<PatrolRecordDO> patrolRecordList = patrolRecordService.list(conditionMap);
                 if(patrolRecordList.size()>0){
@@ -76,7 +76,7 @@ public class NoticeJob{
                 }catch(Exception e){
                     continue;
                 }
-            }else if(Constant.UPKEEP_PLAN.equals(planVo.getPlanType())){
+            }else if(ConstantForDevice.UPKEEP_PLAN.equals(planVo.getPlanType())){
                 //TODO 保养计划生成
                 List<UpkeepRecordDO> upkeepRecordList = upkeepRecordService.list(conditionMap);
                 if(upkeepRecordList.size()>0){
@@ -128,12 +128,12 @@ public class NoticeJob{
     private void saveRecordByPlan(JSONArray array,PlanVo planVo)throws ParseException{
         PatrolRecordService patrolRecordService = ApplicationContextRegister.getBean(PatrolRecordService.class);
         UpkeepPlanService upkeepPlanService = ApplicationContextRegister.getBean(UpkeepPlanService.class);
-        if(Constant.PATRAL_PLAN.equals(planVo.getPlanType())){
+        if(ConstantForDevice.PATRAL_PLAN.equals(planVo.getPlanType())){
             for (int i=0;i<array.size();i++){
                 JSONObject object = array.getJSONObject(i);
                 patrolRecordService.addRecordByPlan(planVo.getId(),DateUtils.parseDate(object.get("beginTime").toString(),"yyyy-MM-dd HH:mm:ss"),DateUtils.parseDate(object.get("endTime").toString(),"yyyy-MM-dd HH:mm:ss"));
             }
-        }else if(Constant.UPKEEP_PLAN.equals(planVo.getPlanType())){
+        }else if(ConstantForDevice.UPKEEP_PLAN.equals(planVo.getPlanType())){
             for (int i=0;i<array.size();i++){
                 JSONObject object = array.getJSONObject(i);
                 upkeepPlanService.makeWorkOrder(planVo.getId(),DateUtils.parseDate(object.get("beginTime").toString(),"yyyy-MM-dd HH:mm:ss"),DateUtils.parseDate(object.get("endTime").toString(),"yyyy-MM-dd HH:mm:ss"));
@@ -147,7 +147,7 @@ public class NoticeJob{
     	Map<String,Object> params = Maps.newHashMapWithExpectedSize(1);
     	params.put("planEndTime", DateFormatUtil.getFormateDate(new Date()));
     	// 129 为启用状态
-    	params.put("status", Constant.STATE_START);
+    	params.put("status", ConstantForDevice.STATE_START);
     	List<Map<String,Object>> planList = patrolPlanService.planList(params);
     	List<Long> planIds = new ArrayList<>();
     	if (planList.size()>0) {
@@ -160,7 +160,7 @@ public class NoticeJob{
     				patrolPlan = new PatrolPlanDO();
     				patrolPlan.setId(planId);
     				// 131 为已完成
-    				patrolPlan.setStatus(Constant.STATE_STOP_OVER);
+    				patrolPlan.setStatus(ConstantForDevice.STATE_STOP_OVER);
     				patrolPlanService.update(patrolPlan);
     			}
 			}

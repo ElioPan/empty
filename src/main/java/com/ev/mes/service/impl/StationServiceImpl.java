@@ -1,6 +1,7 @@
 package com.ev.mes.service.impl;
 
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -78,7 +79,7 @@ public class StationServiceImpl implements StationService {
 		}
 		if (id == null) {
 			stationDO.setCode(this.setCode());
-			stationDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+			stationDO.setAuditSign(Constant.WAIT_AUDIT);
 			this.save(stationDO);
 			id = stationDO.getId();
 		}else {
@@ -86,7 +87,7 @@ public class StationServiceImpl implements StationService {
 			if (station == null) {
 				return R.error(messageSourceHandler.getMessage("common.massge.dateIsNon",null));
 			}
-			if (Objects.equals(station.getAuditSign(),ConstantForGYL.OK_AUDITED)) {
+			if (Objects.equals(station.getAuditSign(),Constant.OK_AUDITED)) {
 				return R.error(messageSourceHandler.getMessage("common.approved.update.disabled",null));
 			}
 			this.update(stationDO);
@@ -102,7 +103,7 @@ public class StationServiceImpl implements StationService {
 			if (stationDO == null) {
 				return R.error(messageSourceHandler.getMessage("common.massge.dateIsNon",null));
 			}
-			if (Objects.equals(stationDO.getAuditSign(),ConstantForGYL.OK_AUDITED)) {
+			if (Objects.equals(stationDO.getAuditSign(),Constant.OK_AUDITED)) {
 				return R.error(messageSourceHandler.getMessage("common.approved.delete.disabled",null));
 			}
 		}
@@ -116,10 +117,10 @@ public class StationServiceImpl implements StationService {
 		if (stationDO == null) {
 			return R.error(messageSourceHandler.getMessage("common.massge.dateIsNon",null));
 		}
-		if (Objects.equals(stationDO.getAuditSign(),ConstantForGYL.OK_AUDITED)) {
+		if (Objects.equals(stationDO.getAuditSign(),Constant.OK_AUDITED)) {
 			return R.error(messageSourceHandler.getMessage("common.duplicate.approved",null));
 		}
-		stationDO.setAuditSign(ConstantForGYL.OK_AUDITED);
+		stationDO.setAuditSign(Constant.OK_AUDITED);
 		this.update(stationDO);
 		return R.ok();
 	}
@@ -130,10 +131,10 @@ public class StationServiceImpl implements StationService {
 		if (stationDO == null) {
 			return R.error(messageSourceHandler.getMessage("common.massge.dateIsNon",null));
 		}
-		if (Objects.equals(stationDO.getAuditSign(),ConstantForGYL.WAIT_AUDIT)) {
+		if (Objects.equals(stationDO.getAuditSign(), Constant.WAIT_AUDIT)) {
 			return R.error(messageSourceHandler.getMessage("common.massge.faildRollBackAudit",null));
 		}
-		stationDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+		stationDO.setAuditSign(Constant.WAIT_AUDIT);
 		this.update(stationDO);
 		return R.ok();
 	}
@@ -149,7 +150,7 @@ public class StationServiceImpl implements StationService {
 		if (list.size() > 0) {
 			taskNo = list.get(0).getCode();
 		}
-		return DateFormatUtil.getWorkOrderno(Constant.GW, taskNo, 3);
+		return DateFormatUtil.getWorkOrderno(ConstantForDevice.GW, taskNo, 3);
 	}
 
 	@Override

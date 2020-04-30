@@ -1,5 +1,6 @@
 package com.ev.custom.service.impl;
 
+import com.ev.framework.config.Constant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.HashMap;
@@ -29,7 +30,7 @@ public class PurchasebillServiceImpl implements PurchasebillService {
 	
 	@Override
 	public R addPurchaseBill(PurchasebillDO purchasebillDO, String bodyItem) {
-		purchasebillDO.setAuditStatus(ConstantForGYL.WAIT_AUDIT);
+		purchasebillDO.setAuditStatus(Constant.WAIT_AUDIT);
 		String code = this.PurchaseBillCode();
 		purchasebillDO.setBillNumber(code);
 		purchasebillDao.save(purchasebillDO);

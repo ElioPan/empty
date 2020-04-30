@@ -4,6 +4,7 @@ import com.ev.custom.dao.FacilityDao;
 import com.ev.custom.domain.FacilityDO;
 import com.ev.custom.service.FacilityService;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.ShiroUtils;
@@ -51,7 +52,7 @@ public class FacilityServiceImpl implements FacilityService {
         if (count > 0) {
             return -1;
         }
-        facility.setAuditSign(ConstantForMES.WAIT_AUDIT);
+        facility.setAuditSign(Constant.WAIT_AUDIT);
         return facilityDao.save(facility);
     }
 
@@ -65,7 +66,7 @@ public class FacilityServiceImpl implements FacilityService {
         if (list.size() > 0) {
             taskNo = list.get(0).getSerialNo();
         }
-        return DateFormatUtil.getWorkOrderno(Constant.CK, taskNo, 4);
+        return DateFormatUtil.getWorkOrderno(ConstantForDevice.CK, taskNo, 4);
     }
 
     @Override
@@ -120,7 +121,7 @@ public class FacilityServiceImpl implements FacilityService {
         FacilityDO facilityDO = new FacilityDO();
         facilityDO.setId(id);
         facilityDO.setAuditor(ShiroUtils.getUserId());
-        facilityDO.setAuditSign(ConstantForMES.OK_AUDITED);
+        facilityDO.setAuditSign(Constant.OK_AUDITED);
         return facilityDao.update(facilityDO);
     }
 
@@ -129,7 +130,7 @@ public class FacilityServiceImpl implements FacilityService {
         FacilityDO facilityDO = new FacilityDO();
         facilityDO.setId(id);
         facilityDO.setAuditor(0L);
-        facilityDO.setAuditSign(ConstantForMES.WAIT_AUDIT);
+        facilityDO.setAuditSign(Constant.WAIT_AUDIT);
         return facilityDao.update(facilityDO);
     }
 

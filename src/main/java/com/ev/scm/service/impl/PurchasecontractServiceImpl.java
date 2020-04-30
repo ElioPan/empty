@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.service.MaterielService;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -104,7 +105,7 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 		Long id = purchasecontractDO.getId();
 		// 新增
 		if (id == null) {
-			purchasecontractDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+			purchasecontractDO.setAuditSign(Constant.WAIT_AUDIT);
 			purchasecontractDO.setCloseStatus(0);
 			purchasecontractDO.setContractCode(this.purchaseContractCode());
 			purchasecontractDao.save(purchasecontractDO);
@@ -113,7 +114,7 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 			// 修改
 			// 验证是否能修改 CloseStatus 0 未关闭 1 关闭
 			PurchasecontractDO purchasecontractDo = this.get(id);
-			if (!Objects.equals(purchasecontractDo.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+			if (!Objects.equals(purchasecontractDo.getAuditSign(), Constant.WAIT_AUDIT)) {
 				return R.error(messageSourceHandler.getMessage("common.approved.update.disabled", null));
 			}
 			purchasecontractDao.update(purchasecontractDO);
@@ -178,10 +179,10 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 		if (purchasecontractDO.getCloseStatus() == 1) {
 			return R.error(messageSourceHandler.getMessage("common.contract.isCloseStatus", null));
 		}
-		if (Objects.equals(purchasecontractDO.getAuditSign(), ConstantForGYL.OK_AUDITED)) {
+		if (Objects.equals(purchasecontractDO.getAuditSign(), Constant.OK_AUDITED)) {
 			return R.error(messageSourceHandler.getMessage("common.duplicate.approved", null));
 		}
-		purchasecontractDO.setAuditSign(ConstantForGYL.OK_AUDITED);
+		purchasecontractDO.setAuditSign(Constant.OK_AUDITED);
 		purchasecontractDO.setAuditor(ShiroUtils.getUserId());
 		return this.update(purchasecontractDO) > 0 ? R.ok() : R.error();
 	}
@@ -189,7 +190,7 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 	@Override
 	public R disAudit(Long id) {
 		PurchasecontractDO purchasecontractDO = this.get(id);
-		if (Objects.equals(purchasecontractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+		if (Objects.equals(purchasecontractDO.getAuditSign(), Constant.WAIT_AUDIT)) {
 			return R.error(messageSourceHandler.getMessage("common.massge.okWaitAudit", null));
 		}
 		if (purchasecontractDO.getCloseStatus() == 1) {
@@ -209,7 +210,7 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 			return R.error(messageSourceHandler.getMessage("scm.childList.reverseAudit", null));
 		}
 		purchasecontractDO.setAuditor(0L);
-		purchasecontractDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+		purchasecontractDO.setAuditSign(Constant.WAIT_AUDIT);
 		return this.update(purchasecontractDO) > 0 ? R.ok() : R.error();
 	}
 
@@ -217,7 +218,7 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 	@Override
 	public R close(Long id) {
 		PurchasecontractDO purchasecontractDO = this.get(id);
-		if (Objects.equals(purchasecontractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+		if (Objects.equals(purchasecontractDO.getAuditSign(), Constant.WAIT_AUDIT)) {
 			return R.error(messageSourceHandler.getMessage("scm.close.isWaitAudit", null));
 		}
 		if (purchasecontractDO.getCloseStatus() == 1) {
@@ -231,7 +232,7 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 	@Override
 	public R disClose(Long id) {
 		PurchasecontractDO purchasecontractDO = this.get(id);
-		if (Objects.equals(purchasecontractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+		if (Objects.equals(purchasecontractDO.getAuditSign(), Constant.WAIT_AUDIT)) {
 			return R.error(messageSourceHandler.getMessage("scm.close.isWaitAudit", null));
 		}
 		if (purchasecontractDO.getCloseStatus() == 0) {
@@ -294,7 +295,7 @@ public class PurchasecontractServiceImpl implements PurchasecontractService {
 		}
 
 		PurchasecontractDO purchasecontractDO = this.get(purchaseContractId);
-		if (Objects.equals(purchasecontractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+		if (Objects.equals(purchasecontractDO.getAuditSign(), Constant.WAIT_AUDIT)) {
 			return R.error(messageSourceHandler.getMessage("scm.contract.isUpdate.notAlteration", null));
 		}
 		if (purchasecontractDO.getCloseStatus() == 1) {

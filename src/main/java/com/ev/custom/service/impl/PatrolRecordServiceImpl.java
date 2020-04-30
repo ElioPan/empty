@@ -10,12 +10,13 @@ import java.util.Objects;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.ev.framework.config.Constant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSON;
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.custom.dao.PatrolRecordDao;
@@ -104,13 +105,13 @@ public class PatrolRecordServiceImpl implements PatrolRecordService {
 			//获取签到图片
 			Map<String, Object> param = Maps.newHashMapWithExpectedSize(2);
 			param.put("assocId",id);
-			param.put("assocType",Constant.PATROL_RECORD_SIGNIN_IMAGE);
+			param.put("assocType", ConstantForDevice.PATROL_RECORD_SIGNIN_IMAGE);
 			List<ContentAssocDO> contentAssocDO = contentAssocService.list(param);
 			results.put("signInImage", contentAssocDO);
 			//获取完成图片
 			param.clear();
 			param.put("assocId",id);
-			param.put("assocType",Constant.PATROL_RECORD_APPEARANCE_IMAGE);
+			param.put("assocType", ConstantForDevice.PATROL_RECORD_APPEARANCE_IMAGE);
 			List<ContentAssocDO> contentAssocDOS = contentAssocService.list(param);
 			results.put("initFileList", contentAssocDOS);
 			//获取任务中的巡检项目详情
@@ -207,9 +208,9 @@ public class PatrolRecordServiceImpl implements PatrolRecordService {
 			}
 			//图片上传
 			// 完成后的照片上传
-			contentAssocService.saveList(recordId, taglocationappearanceImage, Constant.PATROL_RECORD_APPEARANCE_IMAGE);
+			contentAssocService.saveList(recordId, taglocationappearanceImage, ConstantForDevice.PATROL_RECORD_APPEARANCE_IMAGE);
 			// 拍照签到的照片上传
-			contentAssocService.saveList(recordId, signInImage, Constant.PATROL_RECORD_SIGNIN_IMAGE);
+			contentAssocService.saveList(recordId, signInImage, ConstantForDevice.PATROL_RECORD_SIGNIN_IMAGE);
 			
 		}
 		return results;
@@ -238,10 +239,10 @@ public class PatrolRecordServiceImpl implements PatrolRecordService {
 //		currentTime+=patrolPlanDO.getFrequency()*60*60*1000;
 		record.setEndTime(endTime);
 		//设置任务状态为待处理
-		record.setStatus(Constant.WAITING_DEAL);
+		record.setStatus(ConstantForDevice.WAITING_DEAL);
 		record.setPlanId(patrolPlanDO.getId());
 
-		String prefix = DateFormatUtil.getWorkOrderno(Constant.XJJL,beginTime);
+		String prefix = DateFormatUtil.getWorkOrderno(ConstantForDevice.XJJL,beginTime);
 		Map<String,Object> params = Maps.newHashMapWithExpectedSize(3);
 		params.put("maxNo", prefix);
 		params.put("offset", 0);
@@ -291,10 +292,10 @@ public class PatrolRecordServiceImpl implements PatrolRecordService {
 		}
 		//图片上传
 		// 完成后的照片上传
-		contentAssocService.saveList(recordId, taglocationappearanceImage, Constant.PATROL_RECORD_APPEARANCE_IMAGE);
+		contentAssocService.saveList(recordId, taglocationappearanceImage, ConstantForDevice.PATROL_RECORD_APPEARANCE_IMAGE);
 		
 		// 拍照签到的照片上传
-		contentAssocService.saveList(recordId, signInImage, Constant.PATROL_RECORD_SIGNIN_IMAGE);
+		contentAssocService.saveList(recordId, signInImage, ConstantForDevice.PATROL_RECORD_SIGNIN_IMAGE);
 
 		return results;
 	}
@@ -318,7 +319,7 @@ public class PatrolRecordServiceImpl implements PatrolRecordService {
 		//更新巡检记录和巡检计划状态
 		//设置任务单状态为已验收
 		if (!Objects.equals(Constant.TS, check.getResult())) {
-			record.setStatus(Constant.ALREADY_CHECK);
+			record.setStatus(ConstantForDevice.ALREADY_CHECK);
 			record.setResult(check.getResult());
 			record.setEndTime(new Date());
 			this.patrolRecordDao.update(record);
@@ -407,7 +408,7 @@ public class PatrolRecordServiceImpl implements PatrolRecordService {
 		recordDO.setId(id);
 		recordDO.setCompleteTime(new Date());
 		recordDO.setCloseReason(closeReason);
-		recordDO.setStatus(Constant.CLOSE);
+		recordDO.setStatus(ConstantForDevice.CLOSE);
 		return this.update(recordDO);
 	}
 	
@@ -424,7 +425,7 @@ public class PatrolRecordServiceImpl implements PatrolRecordService {
 		Map<Object, Object> param = Maps.newHashMapWithExpectedSize(3);
 		param.put("closeReason", closeReason);
 		param.put("completeTime", new Date());
-		param.put("status", Constant.CLOSE);
+		param.put("status", ConstantForDevice.CLOSE);
 		param.put("ids", ids);
 		return patrolRecordDao.batchUpdate(param);
 	}
@@ -432,7 +433,7 @@ public class PatrolRecordServiceImpl implements PatrolRecordService {
 	@Override
 	public void removeImage(Long id) {
 		Long[] ids = { id };
-		String[] types = { Constant.PATROL_RECORD_APPEARANCE_IMAGE,Constant.PATROL_RECORD_SIGNIN_IMAGE };
+		String[] types = { ConstantForDevice.PATROL_RECORD_APPEARANCE_IMAGE, ConstantForDevice.PATROL_RECORD_SIGNIN_IMAGE };
 		contentAssocService.removeByAssocIdsAndTypes(ids, types);
 	}
 	
@@ -463,7 +464,7 @@ public class PatrolRecordServiceImpl implements PatrolRecordService {
 	@Override
 	public Map<String, Object> getBacklog(Long userId, Long deptId) {
 		String idPath = null;
-		Long status = Constant.WAITING_DEAL;
+		Long status = ConstantForDevice.WAITING_DEAL;
         if (Objects.nonNull(deptId)) {
         	idPath = deptService.get(deptId).getIdPath();
 		}

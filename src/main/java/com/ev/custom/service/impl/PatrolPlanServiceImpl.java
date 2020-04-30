@@ -8,7 +8,7 @@ import com.ev.custom.domain.PatrolProjectDO;
 import com.ev.custom.service.PatrolPlanDetailService;
 import com.ev.custom.service.PatrolPlanService;
 import com.ev.custom.service.PatrolProjectService;
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
@@ -86,7 +86,7 @@ public class PatrolPlanServiceImpl implements PatrolPlanService {
 		int code = 0;
 		if(Objects.isNull(planId)) {
 			//获取编号
-			String maxNo = DateFormatUtil.getWorkOrderno(Constant.XJJH);
+			String maxNo = DateFormatUtil.getWorkOrderno(ConstantForDevice.XJJH);
 			Map<String,Object> param = Maps.newHashMapWithExpectedSize(3);
 			param.put("maxNo", maxNo);
 			param.put("offset", 0);
@@ -176,7 +176,7 @@ public class PatrolPlanServiceImpl implements PatrolPlanService {
 				params.put("manage", userId);// 我办理的
 			}
 		}
-		params.put("planType", Constant.PATRAL_PLAN);
+		params.put("planType", ConstantForDevice.PATRAL_PLAN);
 		params.put("nowTime", DateFormatUtil.getFormateDate(new Date()));
 		return this.patrolPlanDao.getNoticeList(params);
 	}
@@ -201,7 +201,7 @@ public class PatrolPlanServiceImpl implements PatrolPlanService {
 
 	@Override
 	public int getNoticeListCount(Map<String, Object> params) {
-		params.put("planType", Constant.PATRAL_PLAN);
+		params.put("planType", ConstantForDevice.PATRAL_PLAN);
 		params.put("nowTime", DateFormatUtil.getFormateDate(new Date()));
 		return patrolPlanDao.getNoticeListCount(params);
 	}
@@ -211,12 +211,12 @@ public class PatrolPlanServiceImpl implements PatrolPlanService {
 	public R disposeStartUsing(Long[]ids){
 		Map<String,Object>  map= new HashMap<>();
 		map.put("ids",ids);
-		map.put("status",Constant.STATE_STOP_OVER);
+		map.put("status", ConstantForDevice.STATE_STOP_OVER);
 		int counts= this.canChangeStatus(map);
 		if(counts>0){
 			return R.error(messageSourceHandler.getMessage("scm.plan.statusIsOver.prohibitToEnable",null));
 		}
-		map.put("status",Constant.FORBIDDEN);
+		map.put("status", ConstantForDevice.FORBIDDEN);
 		map.put("endTime",1);
 		int rows= this.canChangeStatus(map);
 		if(rows>0){
@@ -224,7 +224,7 @@ public class PatrolPlanServiceImpl implements PatrolPlanService {
 		}
 		for(Long id :ids){
 			PatrolPlanDO patrolPlanDO=new PatrolPlanDO();
-			patrolPlanDO.setStatus(Constant.STATE_START);
+			patrolPlanDO.setStatus(ConstantForDevice.STATE_START);
 			patrolPlanDO.setId(id);
 			this.update(patrolPlanDO);
 		}
@@ -236,14 +236,14 @@ public class PatrolPlanServiceImpl implements PatrolPlanService {
 
 		Map<String,Object>  map= new HashMap<>();
 		map.put("ids",ids);
-		map.put("status",Constant.STATE_STOP_OVER);
+		map.put("status", ConstantForDevice.STATE_STOP_OVER);
 		int counts= this.canChangeStatus(map);
 		if(counts>0){
 			return R.error(messageSourceHandler.getMessage("scm.plan.statusIsOver.prohibitToDisable",null));
 		}
 		for(Long id :ids){
 			PatrolPlanDO patrolPlanDO=new PatrolPlanDO();
-			patrolPlanDO.setStatus(Constant.FORBIDDEN);
+			patrolPlanDO.setStatus(ConstantForDevice.FORBIDDEN);
 			patrolPlanDO.setId(id);
 			this.update(patrolPlanDO);
 		}

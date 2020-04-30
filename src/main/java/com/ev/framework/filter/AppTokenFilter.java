@@ -3,8 +3,8 @@ package com.ev.framework.filter;
 
 import com.alibaba.fastjson.JSON;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.StringUtils;
-import com.ev.framework.filter.XssFilter;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

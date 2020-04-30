@@ -5,7 +5,7 @@ import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.dao.UpkeepPlanDao;
 import com.ev.custom.domain.*;
 import com.ev.custom.service.*;
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
@@ -179,7 +179,7 @@ public class UpkeepPlanServiceImpl implements UpkeepPlanService {
         //1 将保养计划保存后并获取主键待用   (改造添加计划状态)
         Map<String, Object> results = Maps.newHashMap();
 
-        String prefix = DateFormatUtil.getWorkOrderno(Constant.BYJH, new Date());
+        String prefix = DateFormatUtil.getWorkOrderno(ConstantForDevice.BYJH, new Date());
         Map<String, Object> params = Maps.newHashMapWithExpectedSize(3);
         params.put("maxNo", prefix);
         params.put("offset", 0);
@@ -319,13 +319,13 @@ public class UpkeepPlanServiceImpl implements UpkeepPlanService {
             upkeepRecordDO.setCreateTime(new Date());
             upkeepRecordDO.setType(upkeepPlanDO.getType());
             upkeepRecordDO.setMessageId(Long.valueOf(planIds.get("id").toString()));
-            upkeepRecordDO.setResult(Constant.WAITING_DEAL);//待处理状态
+            upkeepRecordDO.setResult(ConstantForDevice.WAITING_DEAL);//待处理状态
 
             upkeepRecordService.save(upkeepRecordDO);
 
             //将工单id保存至check验收表中，状态result 初始为133
             UpkeepCheckDO upkeepCheckDO = new UpkeepCheckDO() ;
-                upkeepCheckDO.setResult(Constant.NO_EVALUATED);
+                upkeepCheckDO.setResult(ConstantForDevice.NO_EVALUATED);
                 upkeepCheckDO.setRecordId(upkeepRecordDO.getId());
 
             upkeepCheckService.save(upkeepCheckDO);
@@ -422,7 +422,7 @@ public class UpkeepPlanServiceImpl implements UpkeepPlanService {
 
         //保养计划提交时状态为启用：129启用
         if (sign == 1) {
-            planDO.setStatus(Constant.STATE_START);
+            planDO.setStatus(ConstantForDevice.STATE_START);
         }
 
         upkeepPlanDao.update(planDO);
@@ -487,7 +487,7 @@ public class UpkeepPlanServiceImpl implements UpkeepPlanService {
         //将工单保存record表
         UpkeepRecordDO upkeepRecordDO = new UpkeepRecordDO();
 
-        String prefix = DateFormatUtil.getWorkOrderno(Constant.SBBY, startTime);
+        String prefix = DateFormatUtil.getWorkOrderno(ConstantForDevice.SBBY, startTime);
         Map<String, Object> params = Maps.newHashMapWithExpectedSize(3);
         params.put("maxNo", prefix);
         params.put("offset", 0);
@@ -515,13 +515,13 @@ public class UpkeepPlanServiceImpl implements UpkeepPlanService {
         upkeepRecordDO.setManHourCost(new BigDecimal(0));
 //            upkeepRecordDO.setMessageId(Long.valueOf(planIds.get("id").toString()));
 
-        upkeepRecordDO.setResult(Constant.WAITING_DEAL);//待处理状态
+        upkeepRecordDO.setResult(ConstantForDevice.WAITING_DEAL);//待处理状态
 
         upkeepRecordService.save(upkeepRecordDO);
 
         //将工单id保存至check验收表中，状态result 初始为133
         UpkeepCheckDO upkeepCheckDO = new UpkeepCheckDO();
-        upkeepCheckDO.setResult(Constant.NO_EVALUATED);
+        upkeepCheckDO.setResult(ConstantForDevice.NO_EVALUATED);
         upkeepCheckDO.setRecordId(upkeepRecordDO.getId());
 
         upkeepCheckService.save(upkeepCheckDO);
@@ -582,12 +582,12 @@ public class UpkeepPlanServiceImpl implements UpkeepPlanService {
     public R disposeStartUsing(Long[]ids){
         Map<String,Object>  map= new HashMap<>();
         map.put("ids",ids);
-        map.put("status",Constant.STATE_STOP_OVER);
+        map.put("status", ConstantForDevice.STATE_STOP_OVER);
         int counts= this.canChangeStatus(map);
         if(counts>0){
             return R.error(messageSourceHandler.getMessage("scm.plan.statusIsOver.prohibitToEnable",null));
         }
-        map.put("status",Constant.FORBIDDEN);
+        map.put("status", ConstantForDevice.FORBIDDEN);
         map.put("endTime",1);
         int rows= this.canChangeStatus(map);
         if(rows>0){
@@ -595,7 +595,7 @@ public class UpkeepPlanServiceImpl implements UpkeepPlanService {
         }
         for(Long id :ids){
             UpkeepPlanDO updatePlanDO=new UpkeepPlanDO();
-            updatePlanDO.setStatus(Constant.STATE_START);
+            updatePlanDO.setStatus(ConstantForDevice.STATE_START);
             updatePlanDO.setId(id);
             this.update(updatePlanDO);
         }
@@ -607,14 +607,14 @@ public class UpkeepPlanServiceImpl implements UpkeepPlanService {
 
         Map<String,Object>  map= new HashMap<>();
         map.put("ids",ids);
-        map.put("status",Constant.STATE_STOP_OVER);
+        map.put("status", ConstantForDevice.STATE_STOP_OVER);
         int counts= this.canChangeStatus(map);
         if(counts>0){
             return R.error(messageSourceHandler.getMessage("scm.plan.statusIsOver.prohibitToDisable",null));
         }
         for(Long id :ids){
             UpkeepPlanDO updatePlanDO=new UpkeepPlanDO();
-            updatePlanDO.setStatus(Constant.FORBIDDEN);
+            updatePlanDO.setStatus(ConstantForDevice.FORBIDDEN);
             updatePlanDO.setId(id);
             this.update(updatePlanDO);
         }

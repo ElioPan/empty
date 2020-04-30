@@ -1,5 +1,6 @@
 package com.ev.report.service.impl;
 
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.config.ConstantForReport;
@@ -55,7 +56,7 @@ public class QualityManagementAccountingReportServiceImpl implements QualityMana
         params.put("startTime", startTime);
         params.put("endTime", endTime);
 
-        params.put("status", ConstantForMES.OK_AUDITED);
+        params.put("status", Constant.OK_AUDITED);
         params.put("inspectionType", ConstantForMES.LLJY);
 
         // 获取所有来料检验单
@@ -238,7 +239,7 @@ public class QualityManagementAccountingReportServiceImpl implements QualityMana
         params.put("startTime", startTime);
         params.put("endTime", endTime);
 
-        params.put("status", ConstantForMES.OK_AUDITED);
+        params.put("status", Constant.OK_AUDITED);
         params.put("inspectionType", ConstantForMES.CPJY);
         List<Map<String, Object>> badProductLists = this.badPurchaseList(params);
 

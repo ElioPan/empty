@@ -1,5 +1,6 @@
 package com.ev.custom.service.impl;
 
+import com.ev.framework.config.Constant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.HashMap;
@@ -27,7 +28,7 @@ public class BanktransferslipServiceImpl implements BanktransferslipService {
 
 	@Override
 	public R addBankTransferSlip(BanktransferslipDO banktransferslip, String bodyItem) {
-		banktransferslip.setAuditStatus(ConstantForGYL.WAIT_AUDIT);
+		banktransferslip.setAuditStatus(Constant.WAIT_AUDIT);
 		String code = this.banktransferslipCode();
 		banktransferslip.setTransferNum(code);
 		banktransferslipDao.save(banktransferslip);

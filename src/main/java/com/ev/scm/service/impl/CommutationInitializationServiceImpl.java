@@ -3,6 +3,7 @@ package com.ev.scm.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -321,7 +322,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
         map.put("supplierId",parameter.get("supplierId"));
         map.put("startTime",parameter.get("startTime"));
         map.put("endTime",parameter.get("endTime"));
-        map.put("auditSign",ConstantForGYL.OK_AUDITED);
+        map.put("auditSign",Constant.OK_AUDITED);
         List<Map<String, Object>> saleMaps = purchasecontractService.getDetailOfHead(map);
 
         DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.CGHT);
@@ -389,7 +390,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 		map.put("clientId",parameter.get("clientId"));
 		map.put("startTime",parameter.get("startTime"));
 		map.put("endTime",parameter.get("endTime"));
-		map.put("auditSign",ConstantForGYL.OK_AUDITED);
+		map.put("auditSign",Constant.OK_AUDITED);
 		List<Map<String, Object>> saleMaps = salescontractService.getDetailOfHead(map);
 
 		DictionaryDO dictionaryDO = dictionaryService.get(ConstantForGYL.XSHT);
@@ -420,7 +421,7 @@ public class CommutationInitializationServiceImpl implements CommutationInitiali
 		map.put("startTime",parameter.get("startTime"));
 		map.put("endTime",parameter.get("endTime"));
 		map.put("sign",sign);
-		map.put("auditSign",ConstantForGYL.OK_AUDITED);
+		map.put("auditSign", Constant.OK_AUDITED);
 		List<Map<String, Object>>paymentMaps = paymentReceivedService.detailOfReceivedAmount(map);
 
 		List<Map<String, Object>> paymentDates=new ArrayList<>();

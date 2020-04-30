@@ -4,6 +4,7 @@ import com.ev.custom.domain.RepairEventDO;
 import com.ev.custom.domain.RepairRecordDO;
 import com.ev.custom.service.RepairEventService;
 import com.ev.custom.service.RepairRecordService;
+import com.ev.framework.config.Constant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.custom.dao.RepairCheckDao;
 import com.ev.custom.domain.RepairCheckDO;
 import com.ev.custom.service.RepairCheckService;
@@ -88,21 +89,21 @@ public class RepairCheckServiceImpl implements RepairCheckService {
 		}
 		if (count>0) {
 			// 若验收结果为不通过
-			if (Objects.equals(check.getResult(),Constant.RESULT_UNPASS)) {
+			if (Objects.equals(check.getResult(), ConstantForDevice.RESULT_UNPASS)) {
 				// 设置为维修事件为待处理 Constant.WAITING_DEAL 
-				event.setStatus(Constant.WAITING_DEAL);
+				event.setStatus(ConstantForDevice.WAITING_DEAL);
 				this.repairEventService.update(event);
 				// 设置维修记录为不通过 Constant.RESULT_UNPASS
-				recordDO.setStatus(Constant.RESULT_UNPASS);
+				recordDO.setStatus(ConstantForDevice.RESULT_UNPASS);
 				this.recordService.update(recordDO);
 			}
 			// 若验收结果为通过
-			if (Objects.equals(check.getResult(),Constant.RESULT_PASS)) {
+			if (Objects.equals(check.getResult(), ConstantForDevice.RESULT_PASS)) {
 				// 设置为已验收  Constant.WAITING_CHECK 
-				event.setStatus(Constant.ALREADY_CHECK);
+				event.setStatus(ConstantForDevice.ALREADY_CHECK);
 				this.repairEventService.update(event);
 				// 设置维修记录为通过 Constant.RESULT_PASS
-				recordDO.setStatus(Constant.RESULT_PASS);
+				recordDO.setStatus(ConstantForDevice.RESULT_PASS);
 				this.recordService.update(recordDO);
 			}
 		}

@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.hr.dao.SalaryProjectDao">
+
+	<select id="get" resultType="com.ev.hr.domain.SalaryProjectDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM hr_salary_project 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.hr.domain.SalaryProjectDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM hr_salary_project
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+			<otherwise>
+                ORDER BY id DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+        SELECT COUNT(*) FROM hr_salary_project
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`salary_item_name`,`attribute`,`data_attribute`,`is_show_salary_accounting`,`sort_of_salary_accounting_items`,`instruction`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> AND id = #{id} </if>
+                            <if test="salaryItemName != null and salaryItemName != ''"> AND salary_item_name = #{salaryItemName} </if>
+                            <if test="attribute != null and attribute != ''"> AND attribute = #{attribute} </if>
+                            <if test="dataAttribute != null and dataAttribute != ''"> AND data_attribute = #{dataAttribute} </if>
+                            <if test="isShowSalaryAccounting != null and isShowSalaryAccounting != ''"> AND is_show_salary_accounting = #{isShowSalaryAccounting} </if>
+                            <if test="sortOfSalaryAccountingItems != null and sortOfSalaryAccountingItems != ''"> AND sort_of_salary_accounting_items = #{sortOfSalaryAccountingItems} </if>
+                            <if test="instruction != null and instruction != ''"> AND instruction = #{instruction} </if>
+                            <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.hr.domain.SalaryProjectDO" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO hr_salary_project
+		(
+			`salary_item_name`, 
+			`attribute`, 
+			`data_attribute`, 
+			`is_show_salary_accounting`, 
+			`sort_of_salary_accounting_items`, 
+			`instruction`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		VALUES
+		(
+			#{salaryItemName}, 
+			#{attribute}, 
+			#{dataAttribute}, 
+			#{isShowSalaryAccounting}, 
+			#{sortOfSalaryAccountingItems}, 
+			#{instruction}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.hr.domain.SalaryProjectDO">
+		UPDATE hr_salary_project
+		<set>
+			<if test="salaryItemName != null">`salary_item_name` = #{salaryItemName}, </if>
+			<if test="attribute != null">`attribute` = #{attribute}, </if>
+			<if test="dataAttribute != null">`data_attribute` = #{dataAttribute}, </if>
+			<if test="isShowSalaryAccounting != null">`is_show_salary_accounting` = #{isShowSalaryAccounting}, </if>
+			<if test="sortOfSalaryAccountingItems != null">`sort_of_salary_accounting_items` = #{sortOfSalaryAccountingItems}, </if>
+			<if test="instruction != null">`instruction` = #{instruction}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<update id="batchUpdate" parameterType="List">
+		UPDATE hr_salary_project
+		<trim prefix="set" suffixOverrides=",">
+				<trim prefix="salary_item_name =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.salaryItemName!=null">
+							when id=#{item.id} then #{item.salary_item_name}
+						</if>
+						<if test="item.salaryItemName==null">
+							when id=#{item.id} then hr_salary_project.salary_item_name
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="attribute =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.attribute!=null">
+							when id=#{item.id} then #{item.attribute}
+						</if>
+						<if test="item.attribute==null">
+							when id=#{item.id} then hr_salary_project.attribute
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="data_attribute =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.dataAttribute!=null">
+							when id=#{item.id} then #{item.data_attribute}
+						</if>
+						<if test="item.dataAttribute==null">
+							when id=#{item.id} then hr_salary_project.data_attribute
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="is_show_salary_accounting =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.isShowSalaryAccounting!=null">
+							when id=#{item.id} then #{item.is_show_salary_accounting}
+						</if>
+						<if test="item.isShowSalaryAccounting==null">
+							when id=#{item.id} then hr_salary_project.is_show_salary_accounting
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="sort_of_salary_accounting_items =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.sortOfSalaryAccountingItems!=null">
+							when id=#{item.id} then #{item.sort_of_salary_accounting_items}
+						</if>
+						<if test="item.sortOfSalaryAccountingItems==null">
+							when id=#{item.id} then hr_salary_project.sort_of_salary_accounting_items
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="instruction =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.instruction!=null">
+							when id=#{item.id} then #{item.instruction}
+						</if>
+						<if test="item.instruction==null">
+							when id=#{item.id} then hr_salary_project.instruction
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="create_by =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.createBy!=null">
+							when id=#{item.id} then #{item.create_by}
+						</if>
+						<if test="item.createBy==null">
+							when id=#{item.id} then hr_salary_project.create_by
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="create_time =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.createTime!=null">
+							when id=#{item.id} then #{item.create_time}
+						</if>
+						<if test="item.createTime==null">
+							when id=#{item.id} then hr_salary_project.create_time
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="update_by =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.updateBy!=null">
+							when id=#{item.id} then #{item.update_by}
+						</if>
+						<if test="item.updateBy==null">
+							when id=#{item.id} then hr_salary_project.update_by
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="update_time =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.updateTime!=null">
+							when id=#{item.id} then #{item.update_time}
+						</if>
+						<if test="item.updateTime==null">
+							when id=#{item.id} then hr_salary_project.update_time
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="del_flag =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.delFlag!=null">
+							when id=#{item.id} then #{item.del_flag}
+						</if>
+						<if test="item.delFlag==null">
+							when id=#{item.id} then hr_salary_project.del_flag
+						</if>
+					</foreach>
+				</trim>
+		</trim>
+		WHERE id IN
+		<foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+			#{item.id}
+		</foreach>
+	</update>
+
+	<update id="updateAll" parameterType="com.ev.hr.domain.SalaryProjectDO">
+		UPDATE hr_salary_project SET
+			`salary_item_name` = #{salaryItemName}, 
+			`attribute` = #{attribute}, 
+			`data_attribute` = #{dataAttribute}, 
+			`is_show_salary_accounting` = #{isShowSalaryAccounting}, 
+			`sort_of_salary_accounting_items` = #{sortOfSalaryAccountingItems}, 
+			`instruction` = #{instruction}, 
+			`create_by` = #{createBy}, 
+			`create_time` = #{createTime}, 
+			`update_by` = #{updateBy}, 
+			`update_time` = #{updateTime}, 
+			`del_flag` = #{delFlag}
+		WHERE id = #{id}
+	</update>
+
+	
+	<delete id="remove">
+		DELETE FROM hr_salary_project WHERE id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+        DELETE FROM hr_salary_project WHERE id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+</mapper>

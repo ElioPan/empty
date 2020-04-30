@@ -3,6 +3,7 @@ package com.ev.custom.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
@@ -269,7 +270,7 @@ public class UpkeepRecordServiceImpl implements UpkeepRecordService {
 		Map<String,Object> result = Maps.newHashMap();
 		Map<String,Object> query = Maps.newHashMap();
 		query.put("ids",recordIds);
-		query.put("result",Constant.WAITING_DEAL);//待处理
+		query.put("result", ConstantForDevice.WAITING_DEAL);//待处理
 		List<Map<String, Object>> mapList = upkeepRecordDao.idsOfCanChange(query);
 		if(mapList.size()>0){
 			Long updateIds[]=new Long[mapList.size()];
@@ -280,7 +281,7 @@ public class UpkeepRecordServiceImpl implements UpkeepRecordService {
 				UpkeepRecordDO   recordDO= new UpkeepRecordDO();
 
 				recordDO.setId(Long.parseLong(map.get("id").toString()));
-				recordDO.setResult(Constant.CLOSE);
+				recordDO.setResult(ConstantForDevice.CLOSE);
 				recordDO.setClosureReason(closeResen);
 				upkeepRecordDao.update(recordDO);
 			}
@@ -334,16 +335,16 @@ public class UpkeepRecordServiceImpl implements UpkeepRecordService {
 
 		if (recordDO != null) {
 
-			if (Objects.equals(Constant.WAITING_DEAL, recordDO.getResult()) && (dateNow.before(recordDO.getEndTime()))) {
+			if (Objects.equals(ConstantForDevice.WAITING_DEAL, recordDO.getResult()) && (dateNow.before(recordDO.getEndTime()))) {
 				//返回信息，+将状态给为待评价
 				UpkeepRecordDO recordDoChagne = new UpkeepRecordDO();
-				recordDoChagne.setResult(Constant.WAITING_CHECK);
+				recordDoChagne.setResult(ConstantForDevice.WAITING_CHECK);
 				recordDoChagne.setId(recordId);
 				upkeepRecordDao.update(recordDoChagne);
 				R rr = this.getOneDetailOfRecord(query);
 				return rr;
 
-			} else if (Objects.equals(Constant.WAITING_CHECK, recordDO.getResult())) {//待评价 状态下也可执行
+			} else if (Objects.equals(ConstantForDevice.WAITING_CHECK, recordDO.getResult())) {//待评价 状态下也可执行
 				//返回信息  (不用更新状态)
 				R r = this.getOneDetailOfRecord(query);
 				return r;
@@ -360,7 +361,7 @@ public class UpkeepRecordServiceImpl implements UpkeepRecordService {
 		Map<String, Object> result = Maps.newHashMap();
 		if (sign == 0) {
 
-			String prefix = DateFormatUtil.getWorkOrderno(Constant.SBBY, new Date());
+			String prefix = DateFormatUtil.getWorkOrderno(ConstantForDevice.SBBY, new Date());
 			Map<String, Object> params = Maps.newHashMapWithExpectedSize(3);
 			params.put("maxNo", prefix);
 			params.put("offset", 0);
@@ -403,7 +404,7 @@ public class UpkeepRecordServiceImpl implements UpkeepRecordService {
 			}
 			//将工单id保存至check验收表中，状态result 初始为133
 			UpkeepCheckDO upkeepCheckDO = new UpkeepCheckDO();
-			upkeepCheckDO.setResult(Constant.NO_EVALUATED);
+			upkeepCheckDO.setResult(ConstantForDevice.NO_EVALUATED);
 			upkeepCheckDO.setRecordId(upkeepRecordDO.getId());
 
 			upkeepCheckService.save(upkeepCheckDO);
@@ -458,7 +459,7 @@ public class UpkeepRecordServiceImpl implements UpkeepRecordService {
 
 		Map<String, Object> query = Maps.newHashMap();
 			query.put("ids",recordIds);
-			query.put("result",Constant.TS);
+			query.put("result", Constant.TS);
 			//验证所传id是否都是出于暂存状态
 		List<Map<String, Object>> mapList = upkeepRecordDao.idsOfCanDelet(query);
 		if(mapList.size()==recordIds.length){

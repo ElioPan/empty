@@ -1,6 +1,7 @@
 package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -89,7 +90,7 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 				suffix = list.get(0).getBillCode();
 			}
 			purchaseInvoiceDO.setBillCode(DateFormatUtil.getWorkOrderno(prefix, suffix));
-			purchaseInvoiceDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+			purchaseInvoiceDO.setAuditSign(Constant.WAIT_AUDIT);
 			int row = purchaseInvoiceDao.save(purchaseInvoiceDO);
 
 			if (row > 0) {
@@ -147,9 +148,9 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 
 		PurchaseInvoiceDO purchaseInvoiceDO = purchaseInvoiceDao.get(id);
 		if(Objects.nonNull(purchaseInvoiceDO)){
-			if(Objects.equals(purchaseInvoiceDO.getAuditSign(),ConstantForGYL.WAIT_AUDIT)){
+			if(Objects.equals(purchaseInvoiceDO.getAuditSign(),Constant.WAIT_AUDIT)){
 				PurchaseInvoiceDO pDo=new PurchaseInvoiceDO();
-				pDo.setAuditSign(ConstantForGYL.OK_AUDITED);
+				pDo.setAuditSign(Constant.OK_AUDITED);
 				pDo.setAuditor(ShiroUtils.getUserId());
 				pDo.setAuditTime(new Date());
 				pDo.setId(id);
@@ -198,9 +199,9 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 
 		PurchaseInvoiceDO purchaseInvoiceDO = purchaseInvoiceDao.get(id);
 		if(Objects.nonNull(purchaseInvoiceDO)){
-			if(Objects.equals(purchaseInvoiceDO.getAuditSign(),ConstantForGYL.OK_AUDITED)){
+			if(Objects.equals(purchaseInvoiceDO.getAuditSign(), Constant.OK_AUDITED)){
 				PurchaseInvoiceDO pDo=new PurchaseInvoiceDO();
-				pDo.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+				pDo.setAuditSign(Constant.WAIT_AUDIT);
 				pDo.setAuditor(0L);
 				pDo.setId(id);
 				purchaseInvoiceDao.update(pDo);

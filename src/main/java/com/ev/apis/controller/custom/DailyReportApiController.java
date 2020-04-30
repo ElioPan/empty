@@ -8,6 +8,7 @@ import com.ev.custom.service.NoticeService;
 import com.ev.custom.service.UserAssocService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
@@ -78,13 +79,13 @@ public class DailyReportApiController {
         if(!"".equals(beSentPeopleId)) {
 
             params.put("beSentPeopleId", beSentPeopleId);
-            params.put("status", Constant.APPLY_APPROED);//已提交：148
+            params.put("status", ConstantForDevice.APPLY_APPROED);//已提交：148
 //            params.put("sign", 1);
         }
 
         if(idPath!=null){
             params.put("idPath", idPath);
-            params.put("status", Constant.APPLY_APPROED);//已提交：148
+            params.put("status", ConstantForDevice.APPLY_APPROED);//已提交：148
         }
 
         Map<String, Object> results = Maps.newHashMap();
@@ -150,7 +151,7 @@ public class DailyReportApiController {
             DailyReportDO dailyReportDoOne = dailyReportService.get(dailyReport.getId());
             if (dailyReportDoOne != null) {
 
-                if (!(Objects.equals(Constant.APPLY_APPROED, dailyReportDoOne.getStatus()))) {  //148 已提交   允许修改
+                if (!(Objects.equals(ConstantForDevice.APPLY_APPROED, dailyReportDoOne.getStatus()))) {  //148 已提交   允许修改
                     //更新
                     dailyReportService.allPowerfulMelthod(dailyReport, targetList, taglocationappearanceImage, 0);
                     return R.ok();
@@ -177,7 +178,7 @@ public class DailyReportApiController {
         if (!Objects.nonNull(dailyReport.getId())) {//Objects.nonNull(dailyReport.getId())
             //1.新增填写明细后直接提交
             if(dailyReportService.duplicateDetectionOrNot()){
-                dailyReport.setStatus(Constant.APPLY_APPROED);//148状态 已提交
+                dailyReport.setStatus(ConstantForDevice.APPLY_APPROED);//148状态 已提交
                 dailyReportService.add(dailyReport, targetList, taglocationappearanceImage);
                 return R.ok();
             }else{
@@ -188,7 +189,7 @@ public class DailyReportApiController {
             DailyReportDO dailyReportDO = dailyReportService.get(dailyReport.getId());
             if (dailyReportDO != null) {
                 //2.查看明细进行修改/未修改后直接提交
-                if (!(Objects.equals(Constant.APPLY_APPROED, dailyReportDO.getStatus()))) {  //148 已提交    允许修改并提交
+                if (!(Objects.equals(ConstantForDevice.APPLY_APPROED, dailyReportDO.getStatus()))) {  //148 已提交    允许修改并提交
                     //更新
                     dailyReportService.allPowerfulMelthod(dailyReport, targetList, taglocationappearanceImage, 1);
                     return R.ok();

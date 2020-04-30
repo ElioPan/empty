@@ -9,14 +9,6 @@ public final class ConstantForMES{
     private ConstantForMES() {
 	}
 	/**
-	 * 待审核
-	 */
-	public static final Long WAIT_AUDIT = ConstantForGYL.WAIT_AUDIT;
-	/**
-	 * 已审核
-	 */
-	public static final Long OK_AUDITED = ConstantForGYL.OK_AUDITED;
-	/**
 	 * BOM文件
 	 */
 	public static final String BOM_FILE = "BOM_FILE";
@@ -104,15 +96,10 @@ public final class ConstantForMES{
 	 * 开工
 	 */
 	public static final Long START_WORK = 237L;
-
-	/**
-	 * 暂存
-	 */
-	public static final Long MES_TS= Constant.TS;
 	/**
 	 * 已提交
 	 */
-	public static final Long MES_APPLY_APPROED = Constant.APPLY_APPROED;
+	public static final Long MES_APPLY_APPROED = ConstantForDevice.APPLY_APPROED;
 
 	/**
 	 * 工序报工单号前缀

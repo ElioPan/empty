@@ -6,7 +6,6 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.apis.model.DsResultResponse;
-import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.domain.SupplierDO;
 import com.ev.custom.domain.SupplierLinkmanDO;
 import com.ev.custom.service.DictionaryService;
@@ -15,6 +14,7 @@ import com.ev.custom.service.SupplierService;
 import com.ev.custom.vo.SupplierEntity;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
@@ -74,16 +74,16 @@ public class SupplierApiController {
             return  R.error(messageSourceHandler.getMessage("apis.mes.clientSupplier.duplicationOfName",null));
         }
 
-        if(StringUtils.isEmpty(supplierDO.getCode()) || supplierDO.getCode().startsWith(Constant.GYS)){
+        if(StringUtils.isEmpty(supplierDO.getCode()) || supplierDO.getCode().startsWith(ConstantForDevice.GYS)){
             Map<String,Object> param = Maps.newHashMap();
-            param.put("maxNo",Constant.GYS);
+            param.put("maxNo", ConstantForDevice.GYS);
             param.put("offset", 0);
             param.put("limit", 1);
             List<SupplierDO> list = supplierService.list(param);
-            supplierDO.setCode(DateFormatUtil.getWorkOrderno(Constant.GYS,list.size()>0?list.get(0).getCode():null,4));
+            supplierDO.setCode(DateFormatUtil.getWorkOrderno(ConstantForDevice.GYS,list.size()>0?list.get(0).getCode():null,4));
         }
 
-        if(StringUtils.isNotEmpty(supplierDO.getCode())&&!(supplierDO.getCode().startsWith(Constant.GYS))){
+        if(StringUtils.isNotEmpty(supplierDO.getCode())&&!(supplierDO.getCode().startsWith(ConstantForDevice.GYS))){
             paramy.clear();
             paramy.put("code",supplierDO.getCode());
             if(supplierService.checkSave(paramy)>0){
@@ -91,7 +91,7 @@ public class SupplierApiController {
             }
         }
             supplierDO.setName(supplierDO.getName().trim());
-            supplierDO.setStatus(ConstantForGYL.WAIT_AUDIT);
+            supplierDO.setStatus(Constant.WAIT_AUDIT);
 
         //按照之前表设计将联系人保存在supplierLinkman表中
         SupplierLinkmanDO supplierLinkmanDO = new SupplierLinkmanDO();
@@ -124,7 +124,7 @@ public class SupplierApiController {
         }
 
         supplierDO.setName(supplierDO.getName().trim());
-        supplierDO.setStatus(ConstantForGYL.WAIT_AUDIT);
+        supplierDO.setStatus(Constant.WAIT_AUDIT);
 
         int count = supplierService.update(supplierDO);
 
@@ -150,8 +150,8 @@ public class SupplierApiController {
     public R submitSupplier(@ApiParam(value = "供应商id", required = true) @RequestParam(value = "id", defaultValue = "", required = true)Long id ){
         SupplierDO supplierDO= supplierService.get(id);
         if(Objects.nonNull(supplierDO)){
-            if(Objects.equals(supplierDO.getStatus(),ConstantForGYL.WAIT_AUDIT)){
-                supplierDO.setStatus(ConstantForGYL.OK_AUDITED);
+            if(Objects.equals(supplierDO.getStatus(),Constant.WAIT_AUDIT)){
+                supplierDO.setStatus(Constant.WAIT_AUDIT);
                 supplierDO.setAuditId(ShiroUtils.getUserId());
                 supplierService.update(supplierDO);
                 return R.ok();
@@ -169,8 +169,8 @@ public class SupplierApiController {
     public R goBackSubmitSupplier(@ApiParam(value = "供应商id", required = true) @RequestParam(value = "id", defaultValue = "", required = true)Long id ){
         SupplierDO supplierDO= supplierService.get(id);
         if(Objects.nonNull(supplierDO)){
-            if(Objects.equals(supplierDO.getStatus(),ConstantForGYL.OK_AUDITED)){
-                supplierDO.setStatus(ConstantForGYL.WAIT_AUDIT);
+            if(Objects.equals(supplierDO.getStatus(), Constant.WAIT_AUDIT)){
+                supplierDO.setStatus(Constant.WAIT_AUDIT);
                 supplierDO.setAuditId(0L);
                 supplierService.update(supplierDO);
                 return R.ok();
@@ -328,14 +328,14 @@ public class SupplierApiController {
                 if(Objects.isNull(supplierDO)){
                     return R.error(messageSourceHandler.getMessage("common.massge.haveNoThing",null));
                 }
-                if(!Objects.equals(supplierDO.getStatus(),ConstantForMES.WAIT_AUDIT)){
+                if(!Objects.equals(supplierDO.getStatus(),Constant.WAIT_AUDIT)){
                     return R.error(messageSourceHandler.getMessage("common.massge.okAudit",null));
                 }
                 supplierDOList.add(supplierDO);
             }
 
             for (SupplierDO supplierDO : supplierDOList) {
-                supplierDO.setStatus(ConstantForMES.OK_AUDITED);
+                supplierDO.setStatus(Constant.OK_AUDITED);
                 supplierDO.setAuditId(userId);
                 supplierService.update(supplierDO);
             }
@@ -402,18 +402,18 @@ public class SupplierApiController {
             }
 
             Map<String, Object> param = Maps.newHashMap();
-            param.put("maxNo", Constant.GYS);
+            param.put("maxNo", ConstantForDevice.GYS);
             param.put("offset", 0);
             param.put("limit", 1);
             List<SupplierDO> list = supplierService.list(param);
-            String firstCode = DateFormatUtil.getWorkOrderno(Constant.GYS, list.size() > 0 ? list.get(0).getCode() : null, 4);
+            String firstCode = DateFormatUtil.getWorkOrderno(ConstantForDevice.GYS, list.size() > 0 ? list.get(0).getCode() : null, 4);
 
             List<SupplierEntity> codeEmptyList = supplierEntityList.stream()
-                    .filter(supplierEntity -> StringUtils.isEmpty(supplierEntity.getCode()) || supplierEntity.getCode().startsWith(Constant.GYS)).collect(Collectors.toList());
+                    .filter(supplierEntity -> StringUtils.isEmpty(supplierEntity.getCode()) || supplierEntity.getCode().startsWith(ConstantForDevice.GYS)).collect(Collectors.toList());
             for (SupplierEntity supplierEntity : codeEmptyList) {
                 supplierEntity.setCode(firstCode);
                 assert firstCode != null;
-                firstCode = Constant.GYS + StringUtils.autoGenericCode(firstCode.substring(Constant.GYS.length()), 4);
+                firstCode = ConstantForDevice.GYS + StringUtils.autoGenericCode(firstCode.substring(ConstantForDevice.GYS.length()), 4);
             }
 
             Date now = new Date();
@@ -429,7 +429,7 @@ public class SupplierApiController {
                 BeanUtils.copyProperties(supplierEntity, supplierDO);
                 supplierDO.setBank(supplierEntity.getBank());
 
-                supplierDO.setStatus(ConstantForMES.WAIT_AUDIT);
+                supplierDO.setStatus(Constant.WAIT_AUDIT);
                 // 使用状态(1是0否)
                 supplierDO.setDelFlag(0);
                 supplierDO.setUseStatus(1);

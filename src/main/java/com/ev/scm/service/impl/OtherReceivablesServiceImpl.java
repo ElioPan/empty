@@ -1,6 +1,7 @@
 package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -105,7 +106,7 @@ public class OtherReceivablesServiceImpl implements OtherReceivablesService {
 			otherReceivablesDO.setCode(DateFormatUtil.getWorkOrderno(maxNo, taskNo));
 
 
-			otherReceivablesDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+			otherReceivablesDO.setAuditSign(Constant.WAIT_AUDIT);
 			otherReceivablesDO.setSign(sign);
 			int row = otherReceivablesDao.save(otherReceivablesDO);
 			if (row > 0) {
@@ -149,11 +150,11 @@ public class OtherReceivablesServiceImpl implements OtherReceivablesService {
 	public R disposeAudit(Long id ){
 		OtherReceivablesDO otherReceivablesDO = this.get(id);
 		if(Objects.nonNull(otherReceivablesDO)){
-			if(Objects.equals(otherReceivablesDO.getAuditSign(),ConstantForGYL.OK_AUDITED)){
+			if(Objects.equals(otherReceivablesDO.getAuditSign(),Constant.OK_AUDITED)){
 				return R.error(messageSourceHandler.getMessage("common.massge.okAudit",null));
 			}else{
 				otherReceivablesDO.setAuditor(ShiroUtils.getUserId());
-				otherReceivablesDO.setAuditSign(ConstantForGYL.OK_AUDITED);
+				otherReceivablesDO.setAuditSign(Constant.OK_AUDITED);
 				otherReceivablesDO.setAuditTime(new Date());
 				this.updateAll(otherReceivablesDO);
 			}
@@ -175,11 +176,11 @@ public class OtherReceivablesServiceImpl implements OtherReceivablesService {
 			return R.error(messageSourceHandler.getMessage("scm.otherPayment.used",null));
 		}
 		if(Objects.nonNull(otherReceivablesDO)){
-			if(Objects.equals(otherReceivablesDO.getAuditSign(),ConstantForGYL.WAIT_AUDIT)){
+			if(Objects.equals(otherReceivablesDO.getAuditSign(), Constant.WAIT_AUDIT)){
 				return R.error(messageSourceHandler.getMessage("common.massge.okWaitAudit",null));
 			}else{
 				otherReceivablesDO.setAuditor(null);
-				otherReceivablesDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+				otherReceivablesDO.setAuditSign(Constant.WAIT_AUDIT);
 				otherReceivablesDO.setAuditTime(null);
 				this.updateAll(otherReceivablesDO);
 			}

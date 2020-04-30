@@ -1,6 +1,7 @@
 package com.ev.mes.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.utils.R;
 import com.ev.mes.dao.MaterialsCollectDao;
@@ -78,7 +79,7 @@ public class MaterialsCollectServiceImpl implements MaterialsCollectService {
 					if(sign==1){
 						materDo.setStatus(ConstantForMES.MES_APPLY_APPROED);//已提交
 					}else{
-						materDo.setStatus(ConstantForMES.MES_TS);//暂存
+						materDo.setStatus(Constant.TS);//暂存
 					}
 
 					if(Objects.nonNull(materDo.getId())){

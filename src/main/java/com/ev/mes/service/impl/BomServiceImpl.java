@@ -9,6 +9,7 @@ import com.ev.custom.domain.MaterielDO;
 import com.ev.custom.service.ContentAssocService;
 import com.ev.custom.service.MaterielService;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -108,14 +109,14 @@ public class BomServiceImpl implements BomService {
 	@Override
 	public R add(BomDO bom, String childBomArray, String uploadAttachments) {
         String serialNo = bom.getSerialno();
-        if(StringUtils.isEmpty(serialNo) || serialNo.startsWith(Constant.BOM)){
+        if(StringUtils.isEmpty(serialNo) || serialNo.startsWith(ConstantForDevice.BOM)){
             Map<String,Object> param = Maps.newHashMap();
-            param.put("maxNo",Constant.BOM);
+            param.put("maxNo", ConstantForDevice.BOM);
             param.put("offset", 0);
             param.put("limit", 1);
 
             List<BomDO> list = this.list(param);
-            bom.setSerialno(DateFormatUtil.getWorkOrderno(Constant.BOM,list.size()>0?list.get(0).getSerialno():null,4));
+            bom.setSerialno(DateFormatUtil.getWorkOrderno(ConstantForDevice.BOM,list.size()>0?list.get(0).getSerialno():null,4));
         }else{
 			bom.setSerialno(serialNo.trim());
 		}
@@ -123,7 +124,7 @@ public class BomServiceImpl implements BomService {
 	    if (this.isNoRepeat(bom.getSerialno())) {
             return R.error(messageSourceHandler.getMessage("common.duplicate.serialNo",null));
 		}
-		bom.setAuditSign(ConstantForMES.WAIT_AUDIT);
+		bom.setAuditSign(Constant.WAIT_AUDIT);
 		int save = this.save(bom);
 		List<BomDetailDO> bodys = JSON.parseArray(childBomArray, BomDetailDO.class);
 		if (save > 0) {
@@ -211,7 +212,7 @@ public class BomServiceImpl implements BomService {
 	@Override
 	public boolean isAudit(Long id) {
 		BomDO bomDO = this.get(id);
-		return Objects.equals(bomDO.getAuditSign(), ConstantForMES.OK_AUDITED);
+		return Objects.equals(bomDO.getAuditSign(), Constant.OK_AUDITED);
 	}
 
 	@Override
@@ -219,7 +220,7 @@ public class BomServiceImpl implements BomService {
 		BomDO bomDO = new BomDO();
 		bomDO.setId(id);
 		bomDO.setAuditor(ShiroUtils.getUserId());
-		bomDO.setAuditSign(ConstantForMES.OK_AUDITED);
+		bomDO.setAuditSign(Constant.OK_AUDITED);
 		return this.update(bomDO);
 	}
 
@@ -228,7 +229,7 @@ public class BomServiceImpl implements BomService {
 		BomDO bomDO = new BomDO();
 		bomDO.setId(id);
 		bomDO.setAuditor(0L);
-		bomDO.setAuditSign(ConstantForMES.WAIT_AUDIT);
+		bomDO.setAuditSign(Constant.WAIT_AUDIT);
 		return this.update(bomDO);
 	}
 
@@ -337,7 +338,7 @@ public class BomServiceImpl implements BomService {
 				bom.setVersion(bomEntity.getVersion());
 				bom.setMaterielId(idForCode.get(bomEntity.getProductCode()));
 				bom.setCount(new BigDecimal(bomEntity.getProductCount()));
-				bom.setAuditSign(ConstantForMES.WAIT_AUDIT);
+				bom.setAuditSign(Constant.WAIT_AUDIT);
 				bom.setUseStatus(1);
 				this.save(bom);
 				bomId = bom.getId();

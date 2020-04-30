@@ -2,6 +2,7 @@ package com.ev.apis.controller.mes;
 
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
@@ -57,7 +58,7 @@ public class MesProcessAndCraftApiController {
                                  @ApiParam(value = "上传附件") @RequestParam(value = "uploadAttachment",defaultValue = "",required = false) String  uploadAttachment) {
         //将审核状态变为待审核状态
         if(processDO.getAuditSign()==null){
-            processDO.setAuditSign(ConstantForMES.WAIT_AUDIT);
+            processDO.setAuditSign(Constant.WAIT_AUDIT);
         }
         return processService.saveAndChange(processDO, processCheck, "",uploadAttachment);
     }
@@ -69,9 +70,9 @@ public class MesProcessAndCraftApiController {
 
         ProcessDO processDO = processService.get(id);
         if(Objects.nonNull(processDO)){
-            if(Objects.equals(ConstantForMES.WAIT_AUDIT,processDO.getAuditSign())){
+            if(Objects.equals(Constant.WAIT_AUDIT,processDO.getAuditSign())){
                 ProcessDO processDo1=new ProcessDO();
-                processDo1.setAuditSign(ConstantForMES.OK_AUDITED);
+                processDo1.setAuditSign(Constant.OK_AUDITED);
                 processDo1.setAuditId(ShiroUtils.getUserId());
                 processDo1.setId(id);
                  processService.update(processDo1);
@@ -91,9 +92,9 @@ public class MesProcessAndCraftApiController {
 
         ProcessDO processDO = processService.get(id);
         if(Objects.nonNull(processDO)){
-            if(Objects.equals(ConstantForMES.OK_AUDITED,processDO.getAuditSign())){
+            if(Objects.equals(Constant.OK_AUDITED,processDO.getAuditSign())){
                 ProcessDO processDO1=new ProcessDO();
-                processDO1.setAuditSign(ConstantForMES.WAIT_AUDIT);
+                processDO1.setAuditSign(Constant.WAIT_AUDIT);
                 processDO1.setAuditId(0L);
                 processDO1.setId(id);
                 processService.update(processDO1);
@@ -352,7 +353,7 @@ public class MesProcessAndCraftApiController {
                 if (craftDO == null) {
                     return R.error(messageSourceHandler.getMessage("common.massge.haveNoThing", null));
                 }
-                if (Objects.equals(craftDO.getAuditSign(), ConstantForMES.OK_AUDITED)) {
+                if (Objects.equals(craftDO.getAuditSign(), Constant.OK_AUDITED)) {
                     //已审核请勿重复操作！
                     return R.error(messageSourceHandler.getMessage("common.massge.okAudit", null));
                 }
@@ -360,7 +361,7 @@ public class MesProcessAndCraftApiController {
             }
 
             for (CraftDO craftDO : craftDOList) {
-                craftDO.setAuditSign(ConstantForMES.OK_AUDITED);
+                craftDO.setAuditSign(Constant.OK_AUDITED);
                 craftDO.setAuditId(userId);
                 craftService.update(craftDO);
             }
