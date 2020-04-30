@@ -165,7 +165,7 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 	}
 
 	@Override
-	public List<ProductionFeedingDO> getByOutsourcingContractItemId(Long id) {
+	public ProductionFeedingDO getByOutsourcingContractItemId(Long id) {
 		return productionFeedingDao.getByOutsourcingContractItemId(id);
 	}
 
@@ -441,10 +441,10 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 				feedingAlterationVO.setIsCollectBefore("新增");
 				feedingAlterationVO.setMaterielId(afterDetailDO.getMaterielId());
 				feedingAlterationVO.setCountAfter(afterDetailDO.getPlanFeeding().toPlainString());
-				feedingAlterationVO.setFacilityAfter(facilityMap.get(afterDetailDO.getFacilityId()));
-				feedingAlterationVO.setLocationAfter(locationMap.get(afterDetailDO.getLocationId()));
-				feedingAlterationVO.setProcessAfter(processMap.get(afterDetailDO.getProcessId()));
-				feedingAlterationVO.setStationAfter(stationMap.get(afterDetailDO.getStationId()));
+				feedingAlterationVO.setFacilityAfter(facilityMap.getOrDefault(afterDetailDO.getFacilityId(),""));
+				feedingAlterationVO.setLocationAfter(locationMap.getOrDefault(afterDetailDO.getLocationId(),""));
+				feedingAlterationVO.setProcessAfter(processMap.getOrDefault(afterDetailDO.getProcessId(),""));
+				feedingAlterationVO.setStationAfter(stationMap.getOrDefault(afterDetailDO.getStationId(),""));
 				String isCollectName = afterDetailDO.getIsCollect()==1?"是":"否";
 				feedingAlterationVO.setIsCollectAfter(isCollectName);
 				feedingAlterationVOList.add(feedingAlterationVO);
@@ -470,19 +470,19 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 					}
 					if(!Objects.equals(afterDetailDO.getFacilityId(),beforeDetailDO.getFacilityId())){
 						isUpdate = true;
-						feedingAlterationVO.setFacilityAfter(facilityMap.get(afterDetailDO.getFacilityId()));
+						feedingAlterationVO.setFacilityAfter(facilityMap.getOrDefault(afterDetailDO.getFacilityId(),""));
 					}
 					if(!Objects.equals(afterDetailDO.getLocationId(),beforeDetailDO.getLocationId())){
 						isUpdate = true;
-						feedingAlterationVO.setLocationAfter(locationMap.get(afterDetailDO.getLocationId()));
+						feedingAlterationVO.setLocationAfter(locationMap.getOrDefault(afterDetailDO.getLocationId(),""));
 					}
 					if(!Objects.equals(afterDetailDO.getProcessId(),beforeDetailDO.getProcessId())){
 						isUpdate = true;
-						feedingAlterationVO.setProcessAfter(processMap.get(afterDetailDO.getProcessId()));
+						feedingAlterationVO.setProcessAfter(processMap.getOrDefault(afterDetailDO.getProcessId(),""));
 					}
 					if(!Objects.equals(afterDetailDO.getStationId(),beforeDetailDO.getStationId())){
 						isUpdate = true;
-						feedingAlterationVO.setStationAfter(stationMap.get(afterDetailDO.getStationId()));
+						feedingAlterationVO.setStationAfter(stationMap.getOrDefault(afterDetailDO.getStationId(),""));
 					}
 					if(!Objects.equals(afterDetailDO.getIsCollect(),beforeDetailDO.getIsCollect())){
 						isUpdate = true;

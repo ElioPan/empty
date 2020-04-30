@@ -1,7 +1,7 @@
 package com.ev.apis.controller.mes;
 
-import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
 import com.ev.mes.service.MaterialsCollectService;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,12 +126,18 @@ public class MesMaterialsCollecApiController {
         Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
 
         if (!(list.isEmpty())) {
-            DsResultResponse dsRet = new DsResultResponse();
-            dsRet.setDatas(list);
-            dsRet.setPageno(pageno);
-            dsRet.setPagesize(pagesize);
-            dsRet.setTotalRows(count);
-            dsRet.setTotalPages((int) (count + pagesize - 1) / pagesize);
+            BigDecimal totalCollectMaterialCount = list
+                    .stream()
+                    .map(v -> MathUtils.getBigDecimal(v.get("collectMaterialCount")))
+                    .reduce(BigDecimal::add)
+                    .orElse(BigDecimal.ZERO);
+            Map<String,Object>  dsRet= new HashMap<>();
+            dsRet.put("datas",list);
+            dsRet.put("pageno",pageno);
+            dsRet.put("pagesize",pagesize);
+            dsRet.put("totalRows",count);
+            dsRet.put("totalPages",(count + pagesize - 1) / pagesize);
+            dsRet.put("totalCollectMaterialCount", totalCollectMaterialCount);
             results.put("data", dsRet);
         }
         return R.ok(results);

@@ -89,7 +89,7 @@ public interface ProductionFeedingService {
 	 */
 	boolean isCited(Long id);
 
-	List<ProductionFeedingDO> getByOutsourcingContractItemId(Long id);
+	ProductionFeedingDO getByOutsourcingContractItemId(Long id);
 
     List<Map<String, Object>> listForMapToOutsourcingContract(Map<String, Object> map);
 
