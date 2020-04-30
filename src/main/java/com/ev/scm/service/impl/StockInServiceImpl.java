@@ -6,6 +6,7 @@ import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.domain.MaterielDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.custom.service.MaterielService;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
@@ -106,7 +107,7 @@ public class StockInServiceImpl implements StockInService {
 	public R addOtherIn(StockInDO stockInDO , String proInbodyList) {
 		Map<String, Object> query = Maps.newHashMap();
 		//保寸主表信息
-		stockInDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);         //10待审核；11已审核  -->178待审核；179已审核
+		stockInDO.setAuditSign(Constant.WAIT_AUDIT);         //10待审核；11已审核  -->178待审核；179已审核
 		int rows = stockInDao.save(stockInDO);
 		//保存子表信息
 		if (rows > 0) {
@@ -139,13 +140,13 @@ public class StockInServiceImpl implements StockInService {
 		stockInDO.setAuditor(auditor);
 		stockInDO.setAuditTime(new Date());
 		stockInDO.setId(inHeadId);
-		stockInDO.setAuditSign(ConstantForGYL.OK_AUDITED); //179已审核
+		stockInDO.setAuditSign(Constant.OK_AUDITED); //179已审核
 
 		//首先判断主表中状态是否已经审核，不允许反复审核！   178待审核；179已审核
 		StockInDO pInheadDO = stockInDao.get(inHeadId);
 		if (pInheadDO!=null) {
 
-			if (!(Objects.equals(pInheadDO.getAuditSign(),ConstantForGYL.OK_AUDITED))) {
+			if (!(Objects.equals(pInheadDO.getAuditSign(),Constant.OK_AUDITED))) {
 				int rows = stockInDao.update(stockInDO);
 
 				if (rows > 0) {
@@ -296,7 +297,7 @@ public class StockInServiceImpl implements StockInService {
 	public int dealOveraAudit(Long inHeadId) {
 		StockInDO stockInDO = stockInDao.get(inHeadId);
 		stockInDO.setId(inHeadId);
-		stockInDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+		stockInDO.setAuditSign(Constant.WAIT_AUDIT);
 		stockInDO.setAuditor(null);
 		stockInDO.setAuditTime(null);
 		stockInDO.setUpdateTime(new Date());
@@ -422,14 +423,14 @@ public class StockInServiceImpl implements StockInService {
 
 				//保存主表信息
 				stockInDO.setInheadCode(code);
-				stockInDO.setAuditSign(ConstantForGYL.WAIT_AUDIT );
+				stockInDO.setAuditSign(Constant.WAIT_AUDIT );
 				stockInDO.setStorageType(storageType);
 				if(Objects.equals(storageType,ConstantForGYL.PURCHASE_INSTOCK)){stockInDO.setSign(0);}
 				if(Objects.equals(storageType,ConstantForGYL.OUTSOURCING_INSTOCK)){stockInDO.setSign(0);}
 				if(qR){
 					stockInDO.setQrSign(1);
 					stockInDO.setAuditor(ShiroUtils.getUserId());
-					stockInDO.setAuditSign(ConstantForGYL.OK_AUDITED );
+					stockInDO.setAuditSign(Constant.OK_AUDITED );
 					stockInDO.setAuditTime(new Date());
 				}
 
@@ -466,7 +467,7 @@ public class StockInServiceImpl implements StockInService {
 			StockInDO InheadDo = stockInDao.get(headId);
 
 			if (Objects.nonNull(InheadDo)) {
-				if (Objects.equals(ConstantForGYL.WAIT_AUDIT,InheadDo.getAuditSign())) {
+				if (Objects.equals(Constant.WAIT_AUDIT,InheadDo.getAuditSign())) {
 					stockInDao.update(stockInDO);
 
 					if(Objects.nonNull(ItemIds)&&ItemIds.length>0){
@@ -623,12 +624,12 @@ public class StockInServiceImpl implements StockInService {
 
 		//更改主表审核状态为11已审核-->179已审核  178待审核；
 		if (Objects.nonNull(pInheadDO)) {
-			if (!(Objects.equals(pInheadDO.getAuditSign(),ConstantForGYL.OK_AUDITED))) {
+			if (!(Objects.equals(pInheadDO.getAuditSign(),Constant.OK_AUDITED))) {
 				StockInDO stockInDO=new StockInDO();
 				stockInDO.setAuditor(auditor);
 				stockInDO.setAuditTime(new Date());
 				stockInDO.setId(id);
-				stockInDO.setAuditSign(ConstantForGYL.OK_AUDITED); //179已审核
+				stockInDO.setAuditSign(Constant.OK_AUDITED); //179已审核
 				stockInDao.update(stockInDO);
 
 				//入库操作
@@ -661,7 +662,7 @@ public class StockInServiceImpl implements StockInService {
 			}
 
 
-			if (Objects.equals(inheadDO.getAuditSign(), ConstantForGYL.OK_AUDITED)) {
+			if (Objects.equals(inheadDO.getAuditSign(), Constant.OK_AUDITED)) {
 				//判断是否能够反审核：detail表中出现两次stock（出现两次表示已经做了出库）的主键即不能反审核
 				int counts = stockDetailService.getStockIdByHeadIds(type, inHeadId);
 				//扫码入库的不允许反审核

@@ -2,6 +2,7 @@ package com.ev.apis.controller.custom;
 
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.framework.utils.StringUtils;
@@ -62,13 +63,13 @@ public class PayApplyApiController {
         if(!"".equals(userId)&&!Objects.equals(userId,lowderUserId.toString())){
             params.put("createBy", userId);
             params.put("status", Constant.TS);
-            params.put("statusOther", Constant.APPLY_REJECT);
+            params.put("statusOther", ConstantForDevice.APPLY_REJECT);
         }
 
         if(!"".equals(approveUserId)){
             params.put("assignId", approveUserId);
             params.put("status", Constant.TS);
-            params.put("statusOther", Constant.APPLY_REJECT);
+            params.put("statusOther", ConstantForDevice.APPLY_REJECT);
         }
 
         if(idPath!=null){
@@ -102,7 +103,7 @@ public class PayApplyApiController {
 
         Map<String, Object> params = new HashMap<>();
         params.put("assignId", approveUserId);
-        params.put("statusOfCount",Constant.APPLY_APPROVING);
+        params.put("statusOfCount", ConstantForDevice.APPLY_APPROVING);
 
 
         Map<String, Object> stringObjectMap = this.payApplyService.countForMap(params);
@@ -151,7 +152,7 @@ public class PayApplyApiController {
 
         PayApplyDO payApplyDO = payApplyService.get(id);
         if (payApplyDO != null) {
-            if (Objects.equals(Constant.TS, payApplyDO.getStatus())||Objects.equals(Constant.APPLY_REJECT, payApplyDO.getStatus())) {
+            if (Objects.equals(Constant.TS, payApplyDO.getStatus())||Objects.equals(ConstantForDevice.APPLY_REJECT, payApplyDO.getStatus())) {
                 if(payApplyService.remove(id)>0){
                     return R.ok();
                 }
@@ -192,7 +193,7 @@ public class PayApplyApiController {
                 PayApplyDO payApplyDoOne = payApplyService.get(payApply.getId());
                 if (payApplyDoOne != null) {
 
-                    if (Objects.equals(Constant.TS, payApplyDoOne.getStatus()) || Objects.equals(Constant.APPLY_REJECT, payApplyDoOne.getStatus())) {//146+62
+                    if (Objects.equals(Constant.TS, payApplyDoOne.getStatus()) || Objects.equals(ConstantForDevice.APPLY_REJECT, payApplyDoOne.getStatus())) {//146+62
                         payApplyService.saveChangeAndSbmit(payApply, newApproveList, taglocationappearanceImage,0);
                         return R.ok();
                     }
@@ -219,7 +220,7 @@ public class PayApplyApiController {
             //验证是否重复提交
                 PayApplyDO payApplyDoOne = payApplyService.get(payApply.getId());
                 if (payApplyDoOne != null) {
-                if (Objects.equals(Constant.TS, payApplyDoOne.getStatus())||Objects.equals(Constant.APPLY_REJECT, payApplyDoOne.getStatus())) {//146+62
+                if (Objects.equals(Constant.TS, payApplyDoOne.getStatus())||Objects.equals(ConstantForDevice.APPLY_REJECT, payApplyDoOne.getStatus())) {//146+62
                     payApplyService.saveChangeAndSbmit(payApply, newApproveList, taglocationappearanceImage,1);
                     return R.ok();
                 }

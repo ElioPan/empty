@@ -11,6 +11,7 @@ import com.ev.custom.service.TaskMainService;
 import com.ev.custom.service.TaskReplyService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
@@ -106,15 +107,15 @@ public class TaskMainApiController {
 
         
         // singleStatus 匹配不同字段
-        if (Objects.equals(singleStatus, Constant.WAITING_CHECK)) {
+        if (Objects.equals(singleStatus, ConstantForDevice.WAITING_CHECK)) {
         	params.put("singleStatus", singleStatus);
         	params.put("createId", userId);
         }
-        if (Objects.equals(singleStatus, Constant.WAITING_DEAL)) {
+        if (Objects.equals(singleStatus, ConstantForDevice.WAITING_DEAL)) {
         	 params.put("singleStatus", singleStatus);
 			params.put("heldPersonId", userId);
 		}
-        if (Objects.equals(singleStatus, Constant.ALREADY_CHECK)) {
+        if (Objects.equals(singleStatus, ConstantForDevice.ALREADY_CHECK)) {
         	params.put("userId", userId);
         	params.put("singleStatusAready", singleStatus);
 		}
@@ -160,7 +161,7 @@ public class TaskMainApiController {
                   @ApiParam(value = "关联单据类型") @RequestParam(value = "linkOrderType",defaultValue = "",required = false) Long linkOrderType,
                   @ApiParam(value = "关联单据阶段类型") @RequestParam(value = "linkStageType",defaultValue = "",required = false) Long linkStageType,
                   @ApiParam(value = "上传图片") @RequestParam(value = "taglocationappearanceImage",defaultValue = "",required = false) String[] taglocationappearanceImage) throws IOException, ParseException {
-        	taskMain.setStatus(Constant.WAITING_DEAL);
+        	taskMain.setStatus(ConstantForDevice.WAITING_DEAL);
         	return taskMainService.saveTaskInfo(taskMain, ccList, heldPerson, checkPerson, linkOrderNo, linkOrderType, linkStageType,
 					taglocationappearanceImage);
     }
@@ -213,7 +214,7 @@ public class TaskMainApiController {
 			}
         	// 设置回复状态为处理
         	Map<String, Object> result = Maps.newHashMapWithExpectedSize(1);
-        	taskReplyDO.setStatus(Constant.REPLY_DEAL);
+        	taskReplyDO.setStatus(ConstantForDevice.REPLY_DEAL);
 			taskMainService.dealSave(taskReplyDO/* ,ccList */);
 			result.put("id", taskReplyDO.getId());
 			if (Objects.isNull(taskReplyDO.getId())) {
@@ -227,7 +228,7 @@ public class TaskMainApiController {
     public R dealDetail(@ApiParam(value = "任务ID",required = true) @RequestParam(value = "id",defaultValue = "")Long id){
         try {
         	Map<String,Object> result = Maps.newHashMapWithExpectedSize(1);
-        	List<Map<String, Object>> dealList = taskMainService.getTaskReplyInfo(id,Constant.REPLY_DEAL);
+        	List<Map<String, Object>> dealList = taskMainService.getTaskReplyInfo(id, ConstantForDevice.REPLY_DEAL);
     		if (dealList.size()>0) {
     			Map<String, Object> map = dealList.get(0);
     			if (Objects.equals(Long.parseLong(map.get("statusId").toString()), Constant.TS)) {
@@ -304,7 +305,7 @@ public class TaskMainApiController {
 				return R.error(messageSourceHandler.getMessage("task.nonCreateUser",null));
     		}
         	Long id = taskReplyDO.getTaskid();
-    		List<Map<String, Object>> dealList = taskMainService.getTaskReplyInfo(id, Constant.REPLY_DEAL);
+    		List<Map<String, Object>> dealList = taskMainService.getTaskReplyInfo(id, ConstantForDevice.REPLY_DEAL);
         	if (dealList.size()>0) {
 				taskReplyDO.setDealId(Long.parseLong(dealList.get(0).get("id").toString()));
 				taskMainService.checkSave(taskReplyDO/* ,ccList */);
@@ -318,7 +319,7 @@ public class TaskMainApiController {
     public R checkDetail(@ApiParam(value = "任务ID",required = true) @RequestParam(value = "id",defaultValue = "")Long id){
         try {
         	Map<String,Object> result = Maps.newHashMapWithExpectedSize(1);
-    		List<Map<String, Object>> checkList = taskMainService.getTaskReplyInfo(id,Constant.REPLY_CHECK);
+    		List<Map<String, Object>> checkList = taskMainService.getTaskReplyInfo(id, ConstantForDevice.REPLY_CHECK);
     		if (checkList.size()>0) {
     			Map<String, Object> check = checkList.get(0);
     			if (Objects.equals(Long.parseLong(check.get("statusId").toString()), Constant.TS)) {
@@ -346,7 +347,7 @@ public class TaskMainApiController {
     		}
         	taskReplyDO.setStatus(Constant.TS);
         	Long id = taskReplyDO.getTaskid();
-    		List<Map<String, Object>> dealList = taskMainService.getTaskReplyInfo(id, Constant.REPLY_DEAL);
+    		List<Map<String, Object>> dealList = taskMainService.getTaskReplyInfo(id, ConstantForDevice.REPLY_DEAL);
         	if (dealList.size()>0) {
 				taskReplyDO.setDealId(Long.parseLong(dealList.get(0).get("id").toString()));
 				taskMainService.checkSave(taskReplyDO/* ,ccList */);
@@ -367,9 +368,9 @@ public class TaskMainApiController {
 			return R.error(messageSourceHandler.getMessage("task.nonCreateUser",null));
 		}
     	if(taskMainService.remove(id)>0){
-			Long[] assocTypes = { Constant.HELD_PERSON, Constant.CC_PERSON, Constant.CHECK_PERSON };
+			Long[] assocTypes = { ConstantForDevice.HELD_PERSON, ConstantForDevice.CC_PERSON, ConstantForDevice.CHECK_PERSON };
 			Long[] ids = { id };
-    		taskMainService.removeSatellite(ids, assocTypes, Constant.TASK_APPEARANCE_IMAGE);
+    		taskMainService.removeSatellite(ids, assocTypes, ConstantForDevice.TASK_APPEARANCE_IMAGE);
             return R.ok();
         }
         return R.error();
@@ -390,8 +391,8 @@ public class TaskMainApiController {
 		}
     	int batchRemove = taskMainService.batchRemove(ids);
     	if (batchRemove==ids.length) {
-			Long[] assocTypes = { Constant.HELD_PERSON, Constant.CC_PERSON, Constant.CHECK_PERSON };
-    		taskMainService.removeSatellite(ids, assocTypes, Constant.TASK_APPEARANCE_IMAGE);
+			Long[] assocTypes = { ConstantForDevice.HELD_PERSON, ConstantForDevice.CC_PERSON, ConstantForDevice.CHECK_PERSON };
+    		taskMainService.removeSatellite(ids, assocTypes, ConstantForDevice.TASK_APPEARANCE_IMAGE);
     		return R.ok();
 		}
     	return R.error();
@@ -410,8 +411,8 @@ public class TaskMainApiController {
 //        	idPath = deptService.get(deptId).getIdPath();
 //		}
         Map<String,Object> results = Maps.newHashMapWithExpectedSize(2);
-        taskMainService.getUserWaitingCount(userId, Constant.WAITING_CHECK, null, results);
-        taskMainService.getUserWaitingCount(userId, Constant.WAITING_DEAL, null, results);
+        taskMainService.getUserWaitingCount(userId, ConstantForDevice.WAITING_CHECK, null, results);
+        taskMainService.getUserWaitingCount(userId, ConstantForDevice.WAITING_DEAL, null, results);
         
         return  R.ok(results);
     }
@@ -428,14 +429,14 @@ public class TaskMainApiController {
     	if (!taskMainService.isDealBy(taskMainDO.getId())) {
 			return R.error(messageSourceHandler.getMessage("task.nonHeldPerson.turnToSend",null));
 		}
-    	List<Map<String, Object>> dealList = taskMainService.getTaskReplyInfo(taskId, Constant.REPLY_DEAL);
+    	List<Map<String, Object>> dealList = taskMainService.getTaskReplyInfo(taskId, ConstantForDevice.REPLY_DEAL);
     	if (dealList.size()>0) {
     		if (Objects.equals(dealList.get(0).get("statusId").toString(), Constant.TS.toString())) {
 				return R.error(messageSourceHandler.getMessage("task.status.isTs.turnToSend",null));
     		}
 		}
     	// Constant.HELD_PERSON 为责任人
-    	TaskEmployeeDO taskEmployeeDO = new TaskEmployeeDO(taskId,userId,Constant.HELD_PERSON,0L);
+    	TaskEmployeeDO taskEmployeeDO = new TaskEmployeeDO(taskId,userId, ConstantForDevice.HELD_PERSON,0L);
     	if(taskEmployeeService.save(taskEmployeeDO)>0) {
     		return R.ok();
     	}

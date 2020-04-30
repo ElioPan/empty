@@ -9,7 +9,7 @@ import com.ev.custom.service.ContentAssocService;
 import com.ev.custom.service.QualityGroupService;
 import com.ev.custom.service.QualityReportService;
 import com.ev.custom.service.ReportTaskService;
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.StringUtils;
 import com.google.common.collect.Maps;
@@ -61,7 +61,7 @@ public class QualityReportServiceImpl implements QualityReportService {
 	@Override
 	public int save(QualityReportDO qualityReport){
 		//获取编号
-		String maxNo = DateFormatUtil.getWorkOrderno(Constant.BDBG);
+		String maxNo = DateFormatUtil.getWorkOrderno(ConstantForDevice.BDBG);
 		Map<String,Object> param = Maps.newHashMapWithExpectedSize(3);
 		param.put("maxNo", maxNo);
 		param.put("offset", 0);
@@ -73,7 +73,7 @@ public class QualityReportServiceImpl implements QualityReportService {
 		}
 		qualityReport.setReportNo(DateFormatUtil.getWorkOrderno(maxNo, taskNo));
 		//设置报告状态为编制中
-		qualityReport.setStatus(Constant.EDITING);
+		qualityReport.setStatus(ConstantForDevice.EDITING);
 		return qualityReportDao.save(qualityReport);
 	}
 	
@@ -151,13 +151,13 @@ public class QualityReportServiceImpl implements QualityReportService {
 		//获取8D报告主要原因效果确认验收附件
 		param.clear();
 		param.put("assocId",id);
-		param.put("assocType",Constant.BD_MAINREASON_FILE);
+		param.put("assocType", ConstantForDevice.BD_MAINREASON_FILE);
 		List<ContentAssocDO> mainReasonList = contentAssocService.list(param);
 		results.put("mainReasonList", mainReasonList);
 		//获取8D报告效果确认验收附件
 		param.clear();
 		param.put("assocId",id);
-		param.put("assocType",Constant.BD_CHECKRESULT_FILE);
+		param.put("assocType", ConstantForDevice.BD_CHECKRESULT_FILE);
 		List<ContentAssocDO> checkResultList = contentAssocService.list(param);
 		results.put("checkResultList", checkResultList);
 		
@@ -191,7 +191,7 @@ public class QualityReportServiceImpl implements QualityReportService {
 	@Override
 	public Map<String,Object> add(QualityReportDO qualityReport,String groupList) {
 		Map<String,Object> results=Maps.newHashMap();
-		qualityReport.setCheckStatus(Constant.WAITING_CHECK);
+		qualityReport.setCheckStatus(ConstantForDevice.WAITING_CHECK);
 		save(qualityReport);
 		results.put("reportId",qualityReport.getId() );
 		//改善小组保存
@@ -234,11 +234,11 @@ public class QualityReportServiceImpl implements QualityReportService {
 		// 传入8D报告主键ID，与分析效果原因
 		QualityReportDO qualityReport=new QualityReportDO();
 		qualityReport.setId(id);
-		qualityReport.setCheckStatus(Constant.ALREADY_CHECK);
+		qualityReport.setCheckStatus(ConstantForDevice.ALREADY_CHECK);
 		qualityReport.setCheckId(userId);
 		qualityReport.setResultContent(resultContent);
 		//验收完设置8D报告为已完成
-		qualityReport.setStatus(Constant.COMPLETED);
+		qualityReport.setStatus(ConstantForDevice.COMPLETED);
 //		return qualityReport;
 		return update(qualityReport);
 	}
@@ -269,7 +269,7 @@ public class QualityReportServiceImpl implements QualityReportService {
 	public boolean checkBDTask(Long id) {
 		List<Map<String, Object>> preventPlan = getTaskInfo(id);
 		for (Map<String, Object> map : preventPlan) {
-			if (!Objects.equals(Constant.ALREADY_CHECK.toString(), map.get("statusId").toString())) {
+			if (!Objects.equals(ConstantForDevice.ALREADY_CHECK.toString(), map.get("statusId").toString())) {
 				return false;
 			}
 		}

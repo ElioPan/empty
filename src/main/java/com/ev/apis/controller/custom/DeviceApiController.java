@@ -11,7 +11,7 @@ import com.ev.custom.domain.*;
 import com.ev.custom.service.*;
 import com.ev.custom.vo.DeviceEntity;
 import com.ev.framework.annotation.EvApiByToken;
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.*;
 import com.ev.scm.domain.StockDO;
@@ -564,7 +564,7 @@ public class DeviceApiController {
 
             documentService.save(document);
 
-            contentAssocService.saveList(document.getId(),nameAndPath,Constant.DEVICE_ARTECLE_IMAGE);
+            contentAssocService.saveList(document.getId(),nameAndPath, ConstantForDevice.DEVICE_ARTECLE_IMAGE);
 
             return R.ok();
         } catch (Exception ex) {
@@ -862,25 +862,25 @@ public class DeviceApiController {
             }
 
             Map<String, Object> param = Maps.newHashMap();
-            param.put("maxNo", Constant.SB);
+            param.put("maxNo", ConstantForDevice.SB);
             param.put("offset", 0);
             param.put("limit", 1);
             List<DeviceDO> list = deviceService.list(param);
-            String firstCode = DateFormatUtil.getWorkOrderno(Constant.SB, list.size() > 0 ? list.get(0).getSerialno() : null, 4);
+            String firstCode = DateFormatUtil.getWorkOrderno(ConstantForDevice.SB, list.size() > 0 ? list.get(0).getSerialno() : null, 4);
 
             List<DeviceEntity> codeEmptyList = deviceEntityList.stream()
-                    .filter(deviceEntity -> StringUtils.isEmpty(deviceEntity.getSerialno()) || deviceEntity.getSerialno().startsWith(Constant.SB)).collect(Collectors.toList());
+                    .filter(deviceEntity -> StringUtils.isEmpty(deviceEntity.getSerialno()) || deviceEntity.getSerialno().startsWith(ConstantForDevice.SB)).collect(Collectors.toList());
             for (DeviceEntity deviceEntity : codeEmptyList) {
                 deviceEntity.setSerialno(firstCode);
                 assert firstCode != null;
-                firstCode = Constant.SB + StringUtils.autoGenericCode(firstCode.substring(Constant.SB.length()), 4);
+                firstCode = ConstantForDevice.SB + StringUtils.autoGenericCode(firstCode.substring(ConstantForDevice.SB.length()), 4);
             }
 
             Map<String, Object> emptyMap = Maps.newHashMap();
-            List<DictionaryDO> typeDOs = dictionaryService.listByType(Constant.DEVICE_TYPE);
-            List<DictionaryDO> sourceDOs = dictionaryService.listByType(Constant.DEVICE_SOURCE);
-            List<DictionaryDO> statusDOs = dictionaryService.listByType(Constant.DEVICE_STATUS);
-            List<DictionaryDO> purposeDOs = dictionaryService.listByType(Constant.DEVICE_PURPOSE);
+            List<DictionaryDO> typeDOs = dictionaryService.listByType(ConstantForDevice.DEVICE_TYPE);
+            List<DictionaryDO> sourceDOs = dictionaryService.listByType(ConstantForDevice.DEVICE_SOURCE);
+            List<DictionaryDO> statusDOs = dictionaryService.listByType(ConstantForDevice.DEVICE_STATUS);
+            List<DictionaryDO> purposeDOs = dictionaryService.listByType(ConstantForDevice.DEVICE_PURPOSE);
             List<UserDO> userDOs = userService.list(emptyMap);
             List<DeptDO> deptDOs = deptService.list(emptyMap);
             List<SupplierDO> supplierDOs = supplierService.list(emptyMap);

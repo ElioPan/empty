@@ -1,6 +1,6 @@
 package com.ev.custom.service.impl;
 
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.custom.dao.FrdbDao;
 import com.ev.custom.domain.ContentAssocDO;
 import com.ev.custom.domain.DictionaryDO;
@@ -92,7 +92,7 @@ public class FrdbServiceImpl implements FrdbService {
 		FrdbDO frdbDO = get(id);
 		results.put("frDb", frdbDO);
 		//获取附件
-		Map<String,Object> contentMap = new HashMap<String,Object>(){{put("assocId",frdbDO.getId());put("assocType",Constant.FRDB_APPEARANCE_ATTACHMENT);}};
+		Map<String,Object> contentMap = new HashMap<String,Object>(){{put("assocId",frdbDO.getId());put("assocType", ConstantForDevice.FRDB_APPEARANCE_ATTACHMENT);}};
 		List<ContentAssocDO> contentAssocDOS = contentAssocService.list(contentMap);
 		results.put("initFileList", contentAssocDOS);
 		return results;
@@ -102,13 +102,13 @@ public class FrdbServiceImpl implements FrdbService {
 	public void add(FrdbDO frDb, String[] taglocationappearanceImage) {
 		save(frDb);
 		//保存图片信息
-		contentAssocService.saveList(Long.parseLong(frDb.getId().toString()),taglocationappearanceImage,Constant.FRDB_APPEARANCE_ATTACHMENT);
+		contentAssocService.saveList(Long.parseLong(frDb.getId().toString()),taglocationappearanceImage, ConstantForDevice.FRDB_APPEARANCE_ATTACHMENT);
 	}
 
 	@Override
 	public void edit(FrdbDO frDb, String[] taglocationappearanceImage, String[] deletetag_appearanceImage) {
 		update(frDb);
-		contentAssocService.saveList(Long.parseLong(frDb.getId().toString()),taglocationappearanceImage,Constant.FRDB_APPEARANCE_ATTACHMENT);
+		contentAssocService.saveList(Long.parseLong(frDb.getId().toString()),taglocationappearanceImage, ConstantForDevice.FRDB_APPEARANCE_ATTACHMENT);
 		contentAssocService.deleteList(deletetag_appearanceImage);
 	}
 

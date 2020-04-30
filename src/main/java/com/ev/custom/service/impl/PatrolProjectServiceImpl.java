@@ -2,7 +2,7 @@ package com.ev.custom.service.impl;
 
 import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.service.PatrolPlanDetailService;
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
@@ -48,13 +48,13 @@ public class PatrolProjectServiceImpl implements PatrolProjectService {
 	public int save(PatrolProjectDO patrolProject){
 		Map<String,Object> param= Maps.newHashMapWithExpectedSize(2);
 		String code = patrolProject.getCode();
-		if (StringUtils.isBlank(code) || code.startsWith(Constant.XJBZ)) {
-			param.put("maxNo", Constant.XJBZ);
+		if (StringUtils.isBlank(code) || code.startsWith(ConstantForDevice.XJBZ)) {
+			param.put("maxNo", ConstantForDevice.XJBZ);
 			param.put("offset", 0);
 			param.put("limit", 1);
 
 			List<PatrolProjectDO> list = this.list(param);
-			patrolProject.setCode(DateFormatUtil.getWorkOrderno(Constant.XJBZ, list.size() > 0 ? list.get(0).getCode() : null, 6));
+			patrolProject.setCode(DateFormatUtil.getWorkOrderno(ConstantForDevice.XJBZ, list.size() > 0 ? list.get(0).getCode() : null, 6));
 		}else {
 			patrolProject.setCode(code.trim());
 		}

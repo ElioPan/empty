@@ -6,6 +6,7 @@ import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.*;
 import com.ev.scm.domain.StockInDO;
@@ -251,7 +252,7 @@ public class ScmPurchaseInStockController {
         params.put("supplierName", supplierName);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
-        params.put("auditSign",ConstantForGYL.OK_AUDITED);
+        params.put("auditSign", Constant.OK_AUDITED);
         params.put("createStartTime", createStartTime);
         params.put("createEndTime", createEndTime);
         params.put("supplierId", supplierId);

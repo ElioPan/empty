@@ -6,10 +6,11 @@ import java.util.Map;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.ev.framework.config.Constant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.StringUtils;
 import com.ev.custom.dao.RepairRecordDao;
 import com.ev.custom.domain.ContentAssocDO;
@@ -112,7 +113,7 @@ public class RepairRecordServiceImpl implements RepairRecordService {
 			}
 		}
 		// 完成后的照片上传
-		contentAssocService.saveList(recordId, taglocationappearanceImage, Constant.REPAIR_EVENT_RECORD_IMAGE);
+		contentAssocService.saveList(recordId, taglocationappearanceImage, ConstantForDevice.REPAIR_EVENT_RECORD_IMAGE);
 		// 若为暂存操作则不更新事件进度状态
 		if (record.getStatus().equals(Constant.TS)) {
 			return;
@@ -131,7 +132,7 @@ public class RepairRecordServiceImpl implements RepairRecordService {
 		event.setCost(record.getCost());
 		event.setUsage(usage);
 		// 设置为待验收Constant.WAITING_CHECK
-		event.setStatus(Constant.WAITING_CHECK);
+		event.setStatus(ConstantForDevice.WAITING_CHECK);
 		this.repairEventService.update(event);
 	}
 
@@ -246,7 +247,7 @@ public class RepairRecordServiceImpl implements RepairRecordService {
 			//获取完工时的照片
 			param.clear();
 			param.put("assocId", recordId);
-			param.put("assocType", Constant.REPAIR_EVENT_RECORD_IMAGE);
+			param.put("assocType", ConstantForDevice.REPAIR_EVENT_RECORD_IMAGE);
 			List<ContentAssocDO> contentAssocDOs = contentAssocService.list(param);
 			result.put("repairRecordImage", contentAssocDOs);
 		return result;

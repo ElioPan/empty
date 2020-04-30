@@ -1,6 +1,7 @@
 package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.MathUtils;
@@ -94,7 +95,7 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 		if (id == null) {
 			Map<String,Object> result = Maps.newHashMap();
 
-			processingChargeDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+			processingChargeDO.setAuditSign(Constant.WAIT_AUDIT);
 //			processingChargeDO.setBillCode(this.BillCode());
 			processingChargeDao.save(processingChargeDO);
 			id = processingChargeDO.getId();
@@ -136,7 +137,7 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 			ProcessingChargeDO processingChargeDO;
 			for (Long id : ids) {
 				processingChargeDO = this.get(id);
-				if (Objects.equals(processingChargeDO.getAuditSign(),ConstantForGYL.OK_AUDITED)) {
+				if (Objects.equals(processingChargeDO.getAuditSign(), Constant.OK_AUDITED)) {
 					return R.error(messageSourceHandler.getMessage("common.submit.delete.disabled", null));
 				}
 			}
@@ -160,7 +161,7 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 	@Override
 	public R audit(Long id) {
 		ProcessingChargeDO processingChargeDO = this.get(id);
-		if (Objects.equals(processingChargeDO.getAuditSign(), ConstantForGYL.OK_AUDITED)) {
+		if (Objects.equals(processingChargeDO.getAuditSign(), Constant.OK_AUDITED)) {
 			return R.error(messageSourceHandler.getMessage("common.duplicate.approved", null));
 		}
 		// 反写委外合同开票金额
@@ -182,7 +183,7 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 		}
 
 
-		processingChargeDO.setAuditSign(ConstantForGYL.OK_AUDITED);
+		processingChargeDO.setAuditSign(Constant.OK_AUDITED);
 		processingChargeDO.setAuditTime(new Date());
 		processingChargeDO.setAuditor(ShiroUtils.getUserId());
 		return this.update(processingChargeDO) > 0 ? R.ok() : R.error();
@@ -191,7 +192,7 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 	@Override
 	public R reverseAudit(Long id) {
 		ProcessingChargeDO processingChargeDO = this.get(id);
-		if (Objects.equals(processingChargeDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+		if (Objects.equals(processingChargeDO.getAuditSign(), Constant.WAIT_AUDIT)) {
 			return R.error(messageSourceHandler.getMessage("common.massge.faildRollBackAudit", null));
 		}
 //		int childCount = processingChargeDao.childCount(id);
@@ -217,7 +218,7 @@ public class ProcessingChargeServiceImpl implements ProcessingChargeService {
 		}
 
 
-		processingChargeDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+		processingChargeDO.setAuditSign(Constant.WAIT_AUDIT);
 		processingChargeDO.setAuditor(null);
 		processingChargeDO.setAuditTime(null);
 		return this.updateAll(processingChargeDO) > 0 ? R.ok() : R.error();

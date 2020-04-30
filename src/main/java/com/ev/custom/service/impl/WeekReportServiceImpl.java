@@ -1,7 +1,7 @@
 package com.ev.custom.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
@@ -109,7 +109,7 @@ public class WeekReportServiceImpl implements WeekReportService {
 		//获取附件
 		Map<String, Object> contentMap = new HashMap<String, Object>() {{
 			put("assocId", weekReport.getId());
-			put("assocType", Constant.WEEK_REPORT_APPEARANCE_ATTACHMENT);
+			put("assocType", ConstantForDevice.WEEK_REPORT_APPEARANCE_ATTACHMENT);
 			put("sort","id");
 			put("order","ASC");
 		}};
@@ -118,14 +118,14 @@ public class WeekReportServiceImpl implements WeekReportService {
 		//获取发送对象
 		List<Map<String, Object>> targetList = userAssocService.list(new HashMap<String, Object>() {{
 			put("assocId", weekReport.getId());
-			put("assocType", Constant.WEEK_REPORT_TARGET);
+			put("assocType", ConstantForDevice.WEEK_REPORT_TARGET);
 			put("sort","id");
 			put("order","ASC");
 		}});
 		results.put("targetList", targetList);
 
 		//获取回复信息
-		Map<String,Object> commentMap = new HashMap<String,Object>(){{put("assocId",id);put("assocType",Constant.WEEK_REPORT_COMMENT);}};
+		Map<String,Object> commentMap = new HashMap<String,Object>(){{put("assocId",id);put("assocType", ConstantForDevice.WEEK_REPORT_COMMENT);}};
 //		List<CommentDO> commentList = commentService.list(commentMap);
 		List<Map<String, Object>> commentList =commentService.listOfDetail(commentMap);
 		results.put("commentList", commentList);
@@ -142,7 +142,7 @@ public class WeekReportServiceImpl implements WeekReportService {
 
 	@Override
 	public void commentWeekReport(Long weekReportId, String comment) {
-		CommentDO commentDo = new CommentDO(weekReportId,Constant.WEEK_REPORT_COMMENT,comment);
+		CommentDO commentDo = new CommentDO(weekReportId, ConstantForDevice.WEEK_REPORT_COMMENT,comment);
 		commentService.save(commentDo);
 	}
 
@@ -161,14 +161,14 @@ public class WeekReportServiceImpl implements WeekReportService {
 			save(weekReportDO);
 			//发送给谁
 			for (int i = 0; i < targetList.length; i++) {
-				UserAssocDO userAssocDO = new UserAssocDO(weekReportDO.getId(), Constant.WEEK_REPORT_TARGET, targetList[i]);
+				UserAssocDO userAssocDO = new UserAssocDO(weekReportDO.getId(), ConstantForDevice.WEEK_REPORT_TARGET, targetList[i]);
 				userAssocService.save(userAssocDO);
 			}
 		} else {
 			update(weekReportDO);
 		}
 		//附件信息操作
-		contentAssocService.saveList(weekReportDO.getId(), tagLocationAppearanceAttachment, Constant.WEEK_REPORT_APPEARANCE_ATTACHMENT);
+		contentAssocService.saveList(weekReportDO.getId(), tagLocationAppearanceAttachment, ConstantForDevice.WEEK_REPORT_APPEARANCE_ATTACHMENT);
 //		contentAssocService.deleteList(deleteTagAppearanceAttachment);
 		//周报明细保存
 		for (ReportItemDO obj : items) {
@@ -186,7 +186,7 @@ public class WeekReportServiceImpl implements WeekReportService {
 	public void saveWeekChangeAndSbmit(WeekReportDO weekReportDO, String newWeekReportItems,Long[] newSenderIds, String[] newAttachment, int sign) {
 
 		if (sign == 1) {
-			weekReportDO.setStatus(Constant.APPLY_APPROED);//148已提交
+			weekReportDO.setStatus(ConstantForDevice.APPLY_APPROED);//148已提交
 		}
 
 		weekReportDao.update(weekReportDO);
@@ -196,13 +196,13 @@ public class WeekReportServiceImpl implements WeekReportService {
 			Map<String, Object> query = new HashMap<String, Object>();
 			query.put("userId", null);
 			query.put("assocId", weekReportDO.getId());
-			query.put("assocType", Constant.WEEK_REPORT_TARGET);
+			query.put("assocType", ConstantForDevice.WEEK_REPORT_TARGET);
 			userAssocService.removeByAssocIdAndUserId(query);
 
 		if (newSenderIds.length>0) {
 
 			for (int i = 0; i < newSenderIds.length; i++) {
-				UserAssocDO userAssocDO = new UserAssocDO(weekReportDO.getId(), Constant.WEEK_REPORT_TARGET, newSenderIds[i]);
+				UserAssocDO userAssocDO = new UserAssocDO(weekReportDO.getId(), ConstantForDevice.WEEK_REPORT_TARGET, newSenderIds[i]);
 				userAssocService.save(userAssocDO);
 			}
 		}
@@ -211,10 +211,10 @@ public class WeekReportServiceImpl implements WeekReportService {
 		Map<String,Object> querys =new HashMap<>();
 		Long[] ids = new Long[1];
 		ids[0] =weekReportDO.getId();
-		contentAssocService.removeByAssocIdAndType(ids, Constant.WEEK_REPORT_APPEARANCE_ATTACHMENT);
+		contentAssocService.removeByAssocIdAndType(ids, ConstantForDevice.WEEK_REPORT_APPEARANCE_ATTACHMENT);
 
 		if (newAttachment.length>0) {
-			contentAssocService.saveList(weekReportDO.getId(), newAttachment, Constant.WEEK_REPORT_APPEARANCE_ATTACHMENT);
+			contentAssocService.saveList(weekReportDO.getId(), newAttachment, ConstantForDevice.WEEK_REPORT_APPEARANCE_ATTACHMENT);
 		}
 
 		//周报明细   新增+修改
@@ -248,10 +248,10 @@ public class WeekReportServiceImpl implements WeekReportService {
 
 			Map<String, Object> query = new HashMap<String, Object>();
 			query.put("assocId",deleIds );
-			query.put("assocType", Constant.WEEK_REPORT_TARGET);
+			query.put("assocType", ConstantForDevice.WEEK_REPORT_TARGET);
 			userAssocService.batchRemoveByAssocIdAadType(query);
 
-			contentAssocService.removeByAssocIdAndType(deleIds, Constant.WEEK_REPORT_APPEARANCE_ATTACHMENT);
+			contentAssocService.removeByAssocIdAndType(deleIds, ConstantForDevice.WEEK_REPORT_APPEARANCE_ATTACHMENT);
 
 			return R.ok();
 		}

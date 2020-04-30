@@ -1,7 +1,7 @@
 package com.ev.system.controller;
 
-import com.ev.framework.annotation.Log;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.common.controller.BaseController;
 import com.ev.common.domain.Tree;
 import com.ev.common.service.DictService;

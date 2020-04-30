@@ -4,6 +4,7 @@ import com.ev.custom.domain.PatrolRecordDO;
 import com.ev.custom.domain.RepairEventDO;
 import com.ev.custom.domain.UpkeepRecordDO;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.R;
 import com.ev.report.dao.DeviceAccountingReportDao;
 import com.ev.report.dao.ManageKanbanServiceDao;
@@ -51,19 +52,19 @@ public class ManageKanbanServiceImpl implements ManageKanbanService {
         // 维修完成数量 已验收
         long eventCompleteCount = repairEventDOS
                 .stream()
-                .filter(e -> Constant.ALREADY_CHECK.equals(e.getStatus()))
+                .filter(e -> ConstantForDevice.ALREADY_CHECK.equals(e.getStatus()))
                 .count();
 
         // 巡检完成数量 已填写或者关闭的
         long patrolCompleteCount = patrolRecordDOS
                 .stream()
-                .filter(e -> Constant.STATE_STOP_OVER.equals(e.getStatus()) || Constant.CLOSE.equals(e.getStatus()))
+                .filter(e -> ConstantForDevice.STATE_STOP_OVER.equals(e.getStatus()) || ConstantForDevice.CLOSE.equals(e.getStatus()))
                 .count();
 
         // 保养完成数量 已验收或者关闭的
         long upkeepCompleteCount = upkeepRecordDOS
                 .stream()
-                .filter(e -> Constant.ALREADY_CHECK.equals(e.getStatus()) || Constant.CLOSE.equals(e.getStatus()))
+                .filter(e -> ConstantForDevice.ALREADY_CHECK.equals(e.getStatus()) || ConstantForDevice.CLOSE.equals(e.getStatus()))
                 .count();
 
         Map<String, Object> result = Maps.newHashMap();

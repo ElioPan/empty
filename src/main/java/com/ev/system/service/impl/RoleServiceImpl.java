@@ -1,6 +1,7 @@
 package com.ev.system.service.impl;
 
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.system.dao.*;
 import com.ev.system.domain.RoleDO;
 import com.ev.system.domain.RoleDataDO;

@@ -2,6 +2,7 @@ package com.ev.apis.controller.custom;
 
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.framework.utils.StringUtils;
@@ -71,13 +72,13 @@ public class OverTimeApplyApiController {
         if(!"".equals(userId)&&!Objects.equals(userId,lowderUserId.toString())){
             params.put("createBy", userId);
             params.put("status", Constant.TS);
-            params.put("statusOther", Constant.APPLY_REJECT);
+            params.put("statusOther", ConstantForDevice.APPLY_REJECT);
         }
 
         if(!"".equals(approveUserId)){
             params.put("assignId", approveUserId);
             params.put("status", Constant.TS);
-            params.put("statusOther", Constant.APPLY_REJECT);
+            params.put("statusOther", ConstantForDevice.APPLY_REJECT);
         }
 
         //所有的中显示退回
@@ -113,7 +114,7 @@ public class OverTimeApplyApiController {
 
         Map<String, Object> params = new HashMap<String, Object>() {{
             put("assignId", approveUserId);
-            put("statusOfCount",Constant.APPLY_APPROVING);  //63审批中 为 待审核状态
+            put("statusOfCount", ConstantForDevice.APPLY_APPROVING);  //63审批中 为 待审核状态
 
         }};
         Map<String, Object> stringObjectMap = this.overTimeApplyService.countForMap(params);
@@ -175,7 +176,7 @@ public class OverTimeApplyApiController {
 
                 OverTimeApplyDO overTimeApplyDoOne = overTimeApplyService.get(overTimeApply.getId());
                 if (overTimeApplyDoOne!=null) {
-                    if (Objects.equals(Constant.TS, overTimeApplyDoOne.getStatus()) || Objects.equals(Constant.APPLY_REJECT, overTimeApplyDoOne.getStatus())) {//146+62
+                    if (Objects.equals(Constant.TS, overTimeApplyDoOne.getStatus()) || Objects.equals(ConstantForDevice.APPLY_REJECT, overTimeApplyDoOne.getStatus())) {//146+62
                         overTimeApplyService.saveChangeAndSbmit(overTimeApply, newApproveList, newImage, 0);
                         return R.ok();
                     }
@@ -200,7 +201,7 @@ public class OverTimeApplyApiController {
             //验证并更新
                 OverTimeApplyDO overTimeApplyDoOne = overTimeApplyService.get(overTimeApply.getId());
                 if (overTimeApplyDoOne != null) {
-                    if (Objects.equals(Constant.TS, overTimeApplyDoOne.getStatus()) || Objects.equals(Constant.APPLY_REJECT, overTimeApplyDoOne.getStatus())) {//146+62
+                    if (Objects.equals(Constant.TS, overTimeApplyDoOne.getStatus()) || Objects.equals(ConstantForDevice.APPLY_REJECT, overTimeApplyDoOne.getStatus())) {//146+62
 
                         overTimeApplyService.saveChangeAndSbmit(overTimeApply, newApproveList,newImage,1);
                         return R.ok();
@@ -218,7 +219,7 @@ public class OverTimeApplyApiController {
     public R remove(@ApiParam(value = "加班申请主键数组", required = true, example = "[1,2,3,4]") @RequestParam(value = "ids[]", defaultValue = "") Long[] ids) {
 
         //146L,//62退回 {Constant.TS,Constant.APPLY_APPROED};
-        long[] status = {Constant.TS, Constant.APPLY_REJECT};
+        long[] status = {Constant.TS, ConstantForDevice.APPLY_REJECT};
 
         Map<String, Object> query = new HashMap<String, Object>();
         query.put("id", ids);

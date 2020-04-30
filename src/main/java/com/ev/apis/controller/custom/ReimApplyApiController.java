@@ -2,6 +2,7 @@ package com.ev.apis.controller.custom;
 
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.framework.utils.StringUtils;
@@ -64,13 +65,13 @@ public class ReimApplyApiController {
         if(!"".equals(userId)&&!Objects.equals(userId,lowderUserId.toString())){
             params.put("createBy", userId);
             params.put("status", Constant.TS);
-            params.put("statusOther", Constant.APPLY_REJECT);
+            params.put("statusOther", ConstantForDevice.APPLY_REJECT);
         }
 
         if(!"".equals(approveUserId)){
             params.put("assignId", approveUserId);
             params.put("status", Constant.TS);
-            params.put("statusOther", Constant.APPLY_REJECT);
+            params.put("statusOther", ConstantForDevice.APPLY_REJECT);
         }
 
         if(idPath!=null){
@@ -106,7 +107,7 @@ public class ReimApplyApiController {
 
         Map<String, Object> params = new HashMap<>();
         params.put("assignId", approveUserId);
-        params.put("statusOfCount",Constant.APPLY_APPROVING);
+        params.put("statusOfCount", ConstantForDevice.APPLY_APPROVING);
 
         Map<String, Object> stringObjectMap = this.reimApplyService.countForMap(params);
         params.remove("assignId");
@@ -191,7 +192,7 @@ public class ReimApplyApiController {
 
             ReimApplyDO reimApplyDoOne = reimApplyService.get(reimApply.getId());
             if (reimApplyDoOne != null) {
-                if (Objects.equals(Constant.TS, reimApplyDoOne.getStatus()) || Objects.equals(Constant.APPLY_REJECT, reimApplyDoOne.getStatus())) {//146暂存 62退回
+                if (Objects.equals(Constant.TS, reimApplyDoOne.getStatus()) || Objects.equals(ConstantForDevice.APPLY_REJECT, reimApplyDoOne.getStatus())) {//146暂存 62退回
                     reimApplyService.saveChangeAndSbmit(reimApply, newReimApplyItems, approveList,  taglocationappearanceImage,deletDetailIds,0);
                     return R.ok();
                 }
@@ -222,7 +223,7 @@ public class ReimApplyApiController {
             //更新+提交
             ReimApplyDO reimApplyDoOne = reimApplyService.get(reimApply.getId());
             if (reimApplyDoOne != null) {
-                if (Objects.equals(Constant.TS, reimApplyDoOne.getStatus()) || Objects.equals(Constant.APPLY_REJECT, reimApplyDoOne.getStatus())) {//146暂存 62退回
+                if (Objects.equals(Constant.TS, reimApplyDoOne.getStatus()) || Objects.equals(ConstantForDevice.APPLY_REJECT, reimApplyDoOne.getStatus())) {//146暂存 62退回
                     reimApplyService.saveChangeAndSbmit(reimApply, newReimApplyItems, approveList, taglocationappearanceImage, deletDetailIds, 1);
                     return R.ok();
                 }

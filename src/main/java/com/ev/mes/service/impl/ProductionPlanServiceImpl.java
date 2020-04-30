@@ -1,45 +1,26 @@
 package com.ev.mes.service.impl;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
+import com.alibaba.fastjson.JSON;
+import com.ev.custom.domain.MaterielDO;
+import com.ev.custom.service.MaterielService;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
+import com.ev.framework.utils.DateFormatUtil;
+import com.ev.framework.utils.R;
+import com.ev.mes.dao.ProductionPlanDao;
+import com.ev.mes.domain.*;
+import com.ev.mes.service.*;
+import com.ev.system.service.DeptService;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.alibaba.fastjson.JSON;
-import com.ev.framework.config.ConstantForMES;
-import com.ev.framework.utils.DateFormatUtil;
-import com.ev.framework.utils.R;
-import com.ev.custom.domain.MaterielDO;
-import com.ev.custom.service.MaterielService;
-import com.ev.mes.dao.ProductionPlanDao;
-import com.ev.mes.domain.BomDetailDO;
-import com.ev.mes.domain.CraftItemDO;
-import com.ev.mes.domain.ProductionFeedingDO;
-import com.ev.mes.domain.ProductionPlanAlterationDO;
-import com.ev.mes.domain.ProductionPlanDO;
-import com.ev.mes.domain.WorkingProcedureDetailDO;
-import com.ev.mes.domain.WorkingProcedurePlanDO;
-import com.ev.mes.service.BomDetailService;
-import com.ev.mes.service.CraftItemService;
-import com.ev.mes.service.DispatchItemService;
-import com.ev.mes.service.ProcessCheckService;
-import com.ev.mes.service.ProductionFeedingService;
-import com.ev.mes.service.ProductionPlanAlterationService;
-import com.ev.mes.service.ProductionPlanService;
-import com.ev.mes.service.WorkingProcedureDetailService;
-import com.ev.mes.service.WorkingProcedurePlanService;
-import com.ev.system.service.DeptService;
-import com.google.common.collect.Maps;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductionPlanServiceImpl implements ProductionPlanService {
@@ -300,7 +281,7 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
             BigDecimal wasteRate = bomDetailDO.getWasteRate();
             BigDecimal standardCount = bomDetailDO.getStandardCount();
             BigDecimal planCount = planDO.getPlanCount();
-            BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP)
+            BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100), Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP)
                     .multiply(planCount);
             feedingDetail.put("planFeeding", planFeeding);
             // 新增字段
@@ -344,7 +325,7 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
         Map<String, Object> param = Maps.newHashMap();
         List<ProductionFeedingDO> feedingList = this.getFeedingList(id, param);
         // 生产投料单存在&&生产投料单不为待审核
-        if (feedingList.size() > 0 && Objects.equals(ConstantForMES.OK_AUDITED, feedingList.get(0).getStatus())) {
+        if (feedingList.size() > 0 && Objects.equals(Constant.OK_AUDITED, feedingList.get(0).getStatus())) {
             return R.error(messageSourceHandler.getMessage("plan.feedingPlan.isAudit", null));
         }
         // 工序计划单存在&&工序计划单不为计划状态
@@ -550,7 +531,7 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
         // 开启投料单设置投料单状态为 ConstantForMES.OK_AUDITED
         if (feedingList.size() > 0) {
             ProductionFeedingDO feedingDO = feedingList.get(0);
-            feedingDO.setStatus(ConstantForMES.OK_AUDITED);
+            feedingDO.setStatus(Constant.OK_AUDITED);
             feedingService.update(feedingDO);
         }
         // 修改生产计划为下达状态

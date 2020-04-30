@@ -1,9 +1,6 @@
 package com.ev.report.service.impl;
 
-import com.ev.framework.config.Constant;
-import com.ev.framework.config.ConstantForGYL;
-import com.ev.framework.config.ConstantForMES;
-import com.ev.framework.config.ConstantForReport;
+import com.ev.framework.config.*;
 import com.ev.framework.utils.BeanUtils;
 import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.R;
@@ -168,14 +165,14 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
             // 合格率(4位小数) 合格率=合格数量/检验数量
             BigDecimal passRate = BigDecimal.ZERO;
             if (checkCount.compareTo(BigDecimal.ZERO) > 0) {
-                passRate = conformityCount.divide(checkCount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+                passRate = conformityCount.divide(checkCount, Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
             }
             map.put("passRate", passRate);
 
             // 完工率(4位小数) 完工率=完工数/计划数
             BigDecimal completionRate = BigDecimal.ZERO;
             if (planCount.compareTo(BigDecimal.ZERO) > 0) {
-                completionRate = completionCount.divide(planCount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+                completionRate = completionCount.divide(planCount, Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
             }
             map.put("completionRate", completionRate.multiply(BigDecimal.valueOf(100L)));
         }
@@ -196,7 +193,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
         // 生产计划下所有的产品检验单
         param.put("inspectionType", ConstantForMES.CPJY);
         param.put("sourceType", ConstantForMES.SCJH);
-        param.put("status", ConstantForMES.OK_AUDITED);
+        param.put("status", Constant.OK_AUDITED);
         List<MaterialInspectionVO> materielInspectionList = reportDao.productionInspection(param);
 
         // 生产计划下所有生产入库单
@@ -341,7 +338,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
             // 合格率(4位小数) 合格率=合格数量/检验数量
             BigDecimal passRate = BigDecimal.ZERO;
             if (checkCount.compareTo(BigDecimal.ZERO) > 0) {
-                passRate = conformityCount.divide(checkCount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+                passRate = conformityCount.divide(checkCount, Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
             }
             map.put("passRate", passRate.multiply(BigDecimal.valueOf(100L)));
 
@@ -352,7 +349,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
             // 完工率(4位小数) 完工率=完工数量/计划生产数量
             BigDecimal completionRate = BigDecimal.ZERO;
             if (completionCount.compareTo(BigDecimal.ZERO) > 0) {
-                completionRate = completionCount.divide(planCount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+                completionRate = completionCount.divide(planCount, Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
             }
             map.put("completionRate", completionRate);
 
@@ -472,7 +469,7 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
         // 查询领料单
         param.put("planId", id);
         param.put("sourceType", ConstantForMES.SCTL);
-        param.put("auditSign", ConstantForMES.OK_AUDITED);
+        param.put("auditSign", Constant.OK_AUDITED);
         List<StockOutItemVO> stockOutItemList = stockDao.stockOutItem(param);
         // 查询入库单
         param.put("sourceType", ConstantForMES.SCJH);

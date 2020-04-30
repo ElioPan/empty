@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.ev.framework.config.Constant;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
@@ -73,21 +74,21 @@ public class MaterialInspectionServiceImpl implements MaterialInspectionService 
 	@Override
 	public boolean isAudit(Long id) {
 		MaterialInspectionDO materialInspectionDO = this.get(id);
-		return Objects.equals(materialInspectionDO.getStatus(), ConstantForMES.OK_AUDITED);
+		return Objects.equals(materialInspectionDO.getStatus(), Constant.OK_AUDITED);
 	}
 
 	@Override
 	public int audit(Long id) {
 		MaterialInspectionDO materialInspectionDO = get(id);
 		materialInspectionDO.setAuditor(ShiroUtils.getUserId());
-		materialInspectionDO.setStatus(ConstantForMES.OK_AUDITED);
+		materialInspectionDO.setStatus(Constant.OK_AUDITED);
 		return this.update(materialInspectionDO);
 	}
 
 	@Override
 	public int reverseAudit(Long id) {
 		MaterialInspectionDO materialInspectionDO = get(id);
-		materialInspectionDO.setStatus(ConstantForMES.WAIT_AUDIT);
+		materialInspectionDO.setStatus(Constant.WAIT_AUDIT);
 		materialInspectionDO.setAuditor(null);
 		return this.updateAll(materialInspectionDO);
 	}
@@ -171,7 +172,7 @@ public class MaterialInspectionServiceImpl implements MaterialInspectionService 
 	public R add(MaterialInspectionDO inspectionDO, String childArray) {
 		List<MaterialInspectionDetailDO> bodys = JSON.parseArray(childArray, MaterialInspectionDetailDO.class);
 		this.setInspectionNo(inspectionDO, inspectionDO.getInspectionType());
-		inspectionDO.setStatus(ConstantForMES.WAIT_AUDIT);
+		inspectionDO.setStatus(Constant.WAIT_AUDIT);
 		int save = this.save(inspectionDO);
 		if (save > 0) {
 			Long headId = inspectionDO.getId();

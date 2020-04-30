@@ -1,6 +1,7 @@
 package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -78,7 +79,7 @@ public class PurchaseExpenseServiceImpl implements PurchaseExpenseService {
 				suffix = list.get(0).getExpenseCode();
 			}
 			purchaseExpenseDO.setExpenseCode(DateFormatUtil.getWorkOrderno(prefix, suffix));
-			purchaseExpenseDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+			purchaseExpenseDO.setAuditSign(Constant.WAIT_AUDIT);
 			int row = purchaseExpenseDao.save(purchaseExpenseDO);
 
 			if (row > 0) {
@@ -121,9 +122,9 @@ public class PurchaseExpenseServiceImpl implements PurchaseExpenseService {
 	public R audit(Long id) {
 		PurchaseExpenseDO purchaseExpenseDO = purchaseExpenseDao.get(id);
 		if(Objects.nonNull(purchaseExpenseDO)){
-			if(Objects.equals(purchaseExpenseDO.getAuditSign(),ConstantForGYL.WAIT_AUDIT)){
+			if(Objects.equals(purchaseExpenseDO.getAuditSign(),Constant.WAIT_AUDIT)){
 				PurchaseExpenseDO pDo=new PurchaseExpenseDO();
-				pDo.setAuditSign(ConstantForGYL.OK_AUDITED);
+				pDo.setAuditSign(Constant.OK_AUDITED);
 				pDo.setAuditor(ShiroUtils.getUserId());
 				pDo.setAuditTime(new Date());
 				pDo.setId(id);
@@ -145,9 +146,9 @@ public class PurchaseExpenseServiceImpl implements PurchaseExpenseService {
 		//此处需要验证是否被采购合同引用了（目前采购必走合同流程）
 		//TODO
 		if(Objects.nonNull(purchaseExpenseDO)){
-			if(Objects.equals(purchaseExpenseDO.getAuditSign(),ConstantForGYL.OK_AUDITED)){
+			if(Objects.equals(purchaseExpenseDO.getAuditSign(),Constant.OK_AUDITED)){
 				PurchaseExpenseDO pDo=new PurchaseExpenseDO();
-				pDo.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+				pDo.setAuditSign(Constant.WAIT_AUDIT);
 				pDo.setAuditor(0L);
 				pDo.setId(id);
 				purchaseExpenseDao.update(pDo);

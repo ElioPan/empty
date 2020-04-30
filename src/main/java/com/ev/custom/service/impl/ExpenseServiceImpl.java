@@ -4,6 +4,7 @@ import com.ev.custom.dao.ExpenseDao;
 import com.ev.custom.domain.ExpenseDO;
 import com.ev.custom.service.ExpenseService;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
@@ -78,7 +79,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 			if (list.size() > 0) {
 				suffix = list.get(0).getCode();
 			}
-			String code= DateFormatUtil.getWorkOrderno(Constant.FY, suffix,4);
+			String code= DateFormatUtil.getWorkOrderno(ConstantForDevice.FY, suffix,4);
 
 			ExpenseDO.setCode(code);
 			ExpenseDO.setAuditSign(Constant.WAIT_AUDIT);
@@ -107,7 +108,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 	public R audit(Long id) {
 		ExpenseDO expenseDO = expenseDao.get(id);
 		if(Objects.nonNull(expenseDO)){
-			if(Objects.equals(expenseDO.getAuditSign(),Constant.WAIT_AUDIT)){
+			if(Objects.equals(expenseDO.getAuditSign(), Constant.WAIT_AUDIT)){
 				ExpenseDO pDo=new ExpenseDO();
 				pDo.setAuditSign(Constant.OK_AUDITED);
 				pDo.setAuditor(ShiroUtils.getUserId());

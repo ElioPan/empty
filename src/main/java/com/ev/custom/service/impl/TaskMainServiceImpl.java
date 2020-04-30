@@ -3,6 +3,7 @@ package com.ev.custom.service.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.DatesUtil;
 import com.ev.framework.utils.R;
@@ -92,21 +93,21 @@ public class TaskMainServiceImpl implements TaskMainService {
 		//获取图片
 		params.clear();
 		params.put("assocId",id);
-		params.put("assocType",Constant.TASK_APPEARANCE_IMAGE);
+		params.put("assocType", ConstantForDevice.TASK_APPEARANCE_IMAGE);
 		List<ContentAssocDO> contentAssocDOS = contentAssocService.list(params);
 		results.put("initFileList", contentAssocDOS);
 		// 获取回复信息
 		Map<String,Object> param = Maps.newHashMapWithExpectedSize(2);
 		param.put("taskId", id);
 		// 回复	Constant.REPLY
-		param.put("replyType", Constant.REPLY);
+		param.put("replyType", ConstantForDevice.REPLY);
 		List<Map<String,Object>> replyList = taskReplyService.listForMap(param);
 		results.put("replyList",replyList);
 		// 获取处理记录
 		param.clear();
 		param.put("taskId", id);
 		//Constant.REPLY_DEAL	处理	reply_deal
-		param.put("replyType", Constant.REPLY_DEAL);
+		param.put("replyType", ConstantForDevice.REPLY_DEAL);
 		List<Map<String, Object>> dealList = taskReplyService.listForMap(param);
 		results.put("dealList", dealList);
 		
@@ -116,7 +117,7 @@ public class TaskMainServiceImpl implements TaskMainService {
 	@Override
 	public List<Map<String, Object>> getTaskReplyInfo(Long id, Long status) {
 		Map<String,Object> params = Maps.newHashMapWithExpectedSize(4);
-		if (Objects.equals(Constant.REPLY_CHECK, status)) {
+		if (Objects.equals(ConstantForDevice.REPLY_CHECK, status)) {
 			params.put("createBy", ShiroUtils.getUserId());
 		}
 		params.put("taskId", id);
@@ -163,7 +164,7 @@ public class TaskMainServiceImpl implements TaskMainService {
 //        results.put("createUserWeekCount", createUserWeekCount);
 //        params.remove("createBy");
         // 若传入为待处理 则获取当前用户待处理的任务数量
-        if (Objects.equals(status, Constant.WAITING_DEAL)) {
+        if (Objects.equals(status, ConstantForDevice.WAITING_DEAL)) {
         	params.put("heldPerson", userId);
         	int createUserCount = this.countBackLog(params);
         	List<Map<String,Object>>createUserWeekCount = this.countWeekBackLog(params);
@@ -171,7 +172,7 @@ public class TaskMainServiceImpl implements TaskMainService {
             results.put("waitingDealWeekListCount", createUserWeekCount);
 		}
         // 若传入为待验收 则获取当前用户待验收的任务数量
-        if (Objects.equals(status, Constant.WAITING_CHECK)) {
+        if (Objects.equals(status, ConstantForDevice.WAITING_CHECK)) {
         	params.put("createBy",userId);
         	int createUserCount = this.countBackLog(params);
         	List<Map<String,Object>>createUserWeekCount = this.countWeekBackLog(params);
@@ -213,17 +214,17 @@ public class TaskMainServiceImpl implements TaskMainService {
 			String[] taglocationappearanceImage) {
 		//抄送人Constant.CC_PERSON
 		for (Long aLong : ccList) {
-			TaskEmployeeDO taskEmployeeDO = new TaskEmployeeDO(taskMainId, aLong, Constant.CC_PERSON, 0L);
+			TaskEmployeeDO taskEmployeeDO = new TaskEmployeeDO(taskMainId, aLong, ConstantForDevice.CC_PERSON, 0L);
 			taskEmployeeService.save(taskEmployeeDO);
 		}
 		//责任人 Constant.HELD_PERSON
-		TaskEmployeeDO heldEmployeeDO = new TaskEmployeeDO(taskMainId,heldPerson,Constant.HELD_PERSON,0L);
+		TaskEmployeeDO heldEmployeeDO = new TaskEmployeeDO(taskMainId,heldPerson, ConstantForDevice.HELD_PERSON,0L);
 		taskEmployeeService.save(heldEmployeeDO);
 		//验收人 Constant.CHECK_PERSON
-		TaskEmployeeDO checkEmployeeDO = new TaskEmployeeDO(taskMainId,checkPerson, Constant.CHECK_PERSON,0L);
+		TaskEmployeeDO checkEmployeeDO = new TaskEmployeeDO(taskMainId,checkPerson, ConstantForDevice.CHECK_PERSON,0L);
 		taskEmployeeService.save(checkEmployeeDO);
 		//保存图片信息
-		contentAssocService.saveList(taskMainId,taglocationappearanceImage,Constant.TASK_APPEARANCE_IMAGE);
+		contentAssocService.saveList(taskMainId,taglocationappearanceImage, ConstantForDevice.TASK_APPEARANCE_IMAGE);
 	}
 	
 	
@@ -262,8 +263,8 @@ public class TaskMainServiceImpl implements TaskMainService {
 			// Constant.HELD_PERSON 责任人 held_person
 			// Constant.CHECK_PERSON 验收人 check_person
 
-			Long[] assocTypes = { Constant.HELD_PERSON, Constant.CC_PERSON, Constant.CHECK_PERSON };
-			this.removeSatellite(taskIds, assocTypes, Constant.TASK_APPEARANCE_IMAGE);
+			Long[] assocTypes = { ConstantForDevice.HELD_PERSON, ConstantForDevice.CC_PERSON, ConstantForDevice.CHECK_PERSON };
+			this.removeSatellite(taskIds, assocTypes, ConstantForDevice.TASK_APPEARANCE_IMAGE);
 		
 			this.add(taskId,ccList,heldPerson,checkPerson,taglocationappearanceImage);
 			 // 发送消息
@@ -281,7 +282,7 @@ public class TaskMainServiceImpl implements TaskMainService {
 	@Override
 	public void dealSave(TaskReplyDO taskReplyDO/* , Long[] ccList */) {
 		//Constant.REPLY_DEAL	处理	reply_deal
-		taskReplyDO.setReplyType(Constant.REPLY_DEAL);
+		taskReplyDO.setReplyType(ConstantForDevice.REPLY_DEAL);
 		int count = saveReplyDO(taskReplyDO);
 		
 		// 新原型任务处理的时候需要填写抄送人
@@ -305,7 +306,7 @@ public class TaskMainServiceImpl implements TaskMainService {
 		if (count>0) {
 			TaskMainDO taskMainDO = get(taskReplyDO.getTaskid());
 			// 将任务状态改为待处理
-			taskMainDO.setStatus(Constant.WAITING_CHECK);
+			taskMainDO.setStatus(ConstantForDevice.WAITING_CHECK);
 			//修改任务单状态
 			update(taskMainDO);
 		}
@@ -314,7 +315,7 @@ public class TaskMainServiceImpl implements TaskMainService {
 	@Override
 	public void checkSave(TaskReplyDO taskReplyDO/* , Long[] ccList */) {
 		// Constant.REPLY_CHECK	验收	reply_check
-		taskReplyDO.setReplyType(Constant.REPLY_CHECK);
+		taskReplyDO.setReplyType(ConstantForDevice.REPLY_CHECK);
 		int count = saveReplyDO(taskReplyDO);
 		/*
 		 * //Constant.CC_PERSON 抄送人 cc_person for(int i=0;i<ccList.length;i++){ TaskEmployeeDO
@@ -334,13 +335,13 @@ public class TaskMainServiceImpl implements TaskMainService {
 			taskReplyService.update(dealReply);
 			// 修改任务单据里的状态
 			TaskMainDO taskMainDO = get(taskReplyDO.getTaskid());	
-			if (Objects.equals(Constant.RESULT_PASS, taskReplyDO.getStatus())) {
+			if (Objects.equals(ConstantForDevice.RESULT_PASS, taskReplyDO.getStatus())) {
 				// 将任务状态改为已验收
-				taskMainDO.setStatus(Constant.ALREADY_CHECK);
+				taskMainDO.setStatus(ConstantForDevice.ALREADY_CHECK);
 			}
-			if (Objects.equals(Constant.RESULT_UNPASS, taskReplyDO.getStatus())) {
+			if (Objects.equals(ConstantForDevice.RESULT_UNPASS, taskReplyDO.getStatus())) {
 				// 将任务状态改为待处理
-				taskMainDO.setStatus(Constant.WAITING_DEAL);
+				taskMainDO.setStatus(ConstantForDevice.WAITING_DEAL);
 			}
 			update(taskMainDO);
 		}
@@ -349,13 +350,13 @@ public class TaskMainServiceImpl implements TaskMainService {
 	@Override
 	public int replySave(TaskReplyDO taskReplyDO, Long[] ccList){
 		//Constant.REPLY	回复	reply
-		taskReplyDO.setReplyType(Constant.REPLY);
+		taskReplyDO.setReplyType(ConstantForDevice.REPLY);
 		
 		int save = taskReplyService.save(taskReplyDO);
 		//Constant.CC_PERSON	抄送人	cc_person
 		if (save>0) {
 			for (Long aLong : ccList) {
-				TaskEmployeeDO taskEmployeeDO = new TaskEmployeeDO(taskReplyDO.getTaskid(), aLong, Constant.CC_PERSON, taskReplyDO.getId());
+				TaskEmployeeDO taskEmployeeDO = new TaskEmployeeDO(taskReplyDO.getTaskid(), aLong, ConstantForDevice.CC_PERSON, taskReplyDO.getId());
 				taskEmployeeService.save(taskEmployeeDO);
 			}
 		}
@@ -383,16 +384,16 @@ public class TaskMainServiceImpl implements TaskMainService {
 	public void edit(TaskMainDO taskMain, Long[] ccList,Long heldPerson, Long checkPerson, String[] taglocationappearanceImage,String[] deleteTagAppearanceImage) {
 		update(taskMain);
 		Long taskMainId = taskMain.getId();
-		contentAssocService.saveList(taskMainId,taglocationappearanceImage,Constant.TASK_APPEARANCE_IMAGE);
+		contentAssocService.saveList(taskMainId,taglocationappearanceImage, ConstantForDevice.TASK_APPEARANCE_IMAGE);
 		contentAssocService.deleteList(deleteTagAppearanceImage);
 		Map<String,Object> params = Maps.newHashMapWithExpectedSize(2);
-		params.put("assocType",Constant.HELD_PERSON);
+		params.put("assocType", ConstantForDevice.HELD_PERSON);
 		params.put("taskId",taskMainId);
 		TaskEmployeeDO taskEmployeeDO = taskEmployeeService.list(params).get(0);
 		taskEmployeeDO.setEmployeeId(heldPerson);
 		taskEmployeeService.update(taskEmployeeDO);
 		
-		params.put("assocType", Constant.CHECK_PERSON);
+		params.put("assocType", ConstantForDevice.CHECK_PERSON);
 		TaskEmployeeDO checkTaskEmployeeDO = taskEmployeeService.list(params).get(0);
 		checkTaskEmployeeDO.setEmployeeId(checkPerson);
 		taskEmployeeService.update(checkTaskEmployeeDO);
@@ -423,29 +424,29 @@ public class TaskMainServiceImpl implements TaskMainService {
 	
 	@Override
 	public boolean nonWaitingDeal(Long status) {
-		return !(Objects.equals(status, Constant.WAITING_DEAL));
+		return !(Objects.equals(status, ConstantForDevice.WAITING_DEAL));
 	}
 	
 	@Override
 	public boolean nonTS(Long status) {
-		return !(status==null||Objects.equals(status,Constant.TS));
+		return !(status==null||Objects.equals(status, Constant.TS));
 	}
 	
 	@Override
 	public boolean nonWaitingCheck(Long status) {
-		return !(Objects.equals(status,Constant.WAITING_CHECK));
+		return !(Objects.equals(status, ConstantForDevice.WAITING_CHECK));
 	}
 	
 	@Override
 	public boolean isAlreadyCheck(Long status) {
-		return Objects.equals(status,Constant.ALREADY_CHECK);
+		return Objects.equals(status, ConstantForDevice.ALREADY_CHECK);
 	}
 	
 	@Override
 	public boolean isDealBy(Long id) {
     	Map<String,Object>params = Maps.newHashMapWithExpectedSize(3);
     	params.put("taskId",id);
-		params.put("assocType",Constant.HELD_PERSON);
+		params.put("assocType", ConstantForDevice.HELD_PERSON);
 		params.put("replyId",0);
 		List<TaskEmployeeDO> heldPerson = taskEmployeeService.list(params);
 		if(heldPerson.size()>0){

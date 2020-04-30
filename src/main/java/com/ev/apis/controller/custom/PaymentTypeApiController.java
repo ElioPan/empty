@@ -4,6 +4,7 @@ import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.domain.PaymentTypeDO;
 import com.ev.custom.service.PaymentTypeService;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
@@ -61,7 +62,7 @@ public class PaymentTypeApiController {
         for(Long id :ids){
             PaymentTypeDO paymentTypeDO= paymentTypeService.get(id);
             paymentTypeDO.setAuditor(ShiroUtils.getUserId());
-            paymentTypeDO.setAuditSign(ConstantForGYL.OK_AUDITED);
+            paymentTypeDO.setAuditSign(Constant.OK_AUDITED);
             paymentTypeDO.setAuditTime(new Date());
             paymentTypeService.updateAll(paymentTypeDO);
         }
@@ -76,7 +77,7 @@ public class PaymentTypeApiController {
         for(Long id :ids){
             PaymentTypeDO paymentTypeDO= paymentTypeService.get(id);
             paymentTypeDO.setAuditor(null);
-            paymentTypeDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+            paymentTypeDO.setAuditSign(Constant.WAIT_AUDIT);
             paymentTypeDO.setAuditTime(null);
             paymentTypeService.updateAll(paymentTypeDO);
         }
@@ -91,7 +92,7 @@ public class PaymentTypeApiController {
         for(Long id :ids){
             PaymentTypeDO paymentTypeDO= paymentTypeService.get(id);
             if(paymentTypeDO!=null){
-                if(paymentTypeDO.getAuditSign().equals(ConstantForGYL.OK_AUDITED)){
+                if(paymentTypeDO.getAuditSign().equals(Constant.OK_AUDITED)){
                     return R.error(messageSourceHandler.getMessage("apis.mes.scrapt.auditOk", null));
                 }
             }

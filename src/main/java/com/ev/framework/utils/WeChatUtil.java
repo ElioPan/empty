@@ -2,11 +2,10 @@ package com.ev.framework.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.ev.custom.domain.NoticeDO;
-import com.ev.custom.vo.WeChatSettingEntity;
 import com.ev.custom.vo.WxDeptEntity;
 import com.ev.custom.vo.WxUserEntity;
 import com.ev.framework.config.Constant;
-import com.ev.framework.config.ConstantForSYS;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.exception.WorkWxException;
 import com.ev.system.domain.DeptDO;
 import com.ev.system.domain.UserDO;
@@ -21,7 +20,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**

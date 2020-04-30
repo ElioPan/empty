@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.ev.custom.domain.ContentAssocDO;
 import com.ev.custom.service.ContentAssocService;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -83,7 +84,7 @@ public class ProcessServiceImpl implements ProcessService {
 
         if (Objects.nonNull(processDO.getId())) {
             //更新
-            processDO.setAuditSign(ConstantForMES.WAIT_AUDIT);
+            processDO.setAuditSign(Constant.WAIT_AUDIT);
             processDao.update(processDO);
 
             //检验项目+设备  --先全删后新增
@@ -115,17 +116,17 @@ public class ProcessServiceImpl implements ProcessService {
             }
             //删除路径
             Long[] ids = {processDO.getId()};
-            contentAssocService.removeByAssocIdAndType(ids, Constant.PROCESS_FILE);
+            contentAssocService.removeByAssocIdAndType(ids, ConstantForDevice.PROCESS_FILE);
 
             // 上传附件
             if (StringUtils.isNoneBlank(uploadAttachment)) {
-                contentAssocService.saveList(processDO.getId(), JSONArray.parseArray(uploadAttachment), Constant.PROCESS_FILE);
+                contentAssocService.saveList(processDO.getId(), JSONArray.parseArray(uploadAttachment), ConstantForDevice.PROCESS_FILE);
             }
 
             return R.ok();
         } else {
             //新增
-            if(StringUtils.isNotEmpty(processDO.getCode())&&!(processDO.getCode().startsWith(Constant.GYS))){
+            if(StringUtils.isNotEmpty(processDO.getCode())&&!(processDO.getCode().startsWith(ConstantForDevice.GYS))){
                 Map<String, Object> params = Maps.newHashMapWithExpectedSize(1);
                 params.put("code",processDO.getCode());
                 if(processDao.checkSave(params)>0){
@@ -146,7 +147,7 @@ public class ProcessServiceImpl implements ProcessService {
                 processDO.setCode(DateFormatUtil.getWorkOrderno(prefix, suffix));
             }
 
-            processDO.setAuditSign(ConstantForMES.WAIT_AUDIT);
+            processDO.setAuditSign(Constant.WAIT_AUDIT);
             processDao.save(processDO);
 
             if (!"".equals(processCheck)) {
@@ -167,7 +168,7 @@ public class ProcessServiceImpl implements ProcessService {
 
             // 上传附件
             if (StringUtils.isNoneBlank(uploadAttachment)) {
-                contentAssocService.saveList(processDO.getId(), JSONArray.parseArray(uploadAttachment), Constant.PROCESS_FILE);
+                contentAssocService.saveList(processDO.getId(), JSONArray.parseArray(uploadAttachment), ConstantForDevice.PROCESS_FILE);
             }
             return R.ok();
         }
@@ -201,7 +202,7 @@ public class ProcessServiceImpl implements ProcessService {
             param.clear();
             // 获取附件信息
             param.put("assocId",id);
-            param.put("assocType",Constant.PROCESS_FILE);
+            param.put("assocType", ConstantForDevice.PROCESS_FILE);
             List<ContentAssocDO> checkResultList = contentAssocService.list(param);
             results.put("fileList", checkResultList);
         }
@@ -213,7 +214,7 @@ public class ProcessServiceImpl implements ProcessService {
         //验证是否已审核
         for(Long id:ids){
              ProcessDO processDO = processDao.get(id);
-            if(Objects.equals(processDO.getAuditSign(),Constant.OK_AUDITED)){
+            if(Objects.equals(processDO.getAuditSign(), Constant.OK_AUDITED)){
                 return R.error(messageSourceHandler.getMessage("apis.mes.scrapt.auditOk",null));
             }
         }

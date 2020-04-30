@@ -1,6 +1,7 @@
 package com.ev.apis.controller.report;
 
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.config.ConstantForReport;
@@ -122,7 +123,7 @@ public class ManageKanbanApiController {
 
         Map<String, Object> param = Maps.newHashMap();
         param.put("year", year);
-        param.put("auditSign", ConstantForMES.OK_AUDITED);
+        param.put("auditSign", Constant.OK_AUDITED);
         param.put("storageType", ConstantForGYL.YDGOODS_WAREHOUSE);
         List<Map<String, Object>> yearData = kanbanService.getProductionStatistics(param);
         // 年产量
@@ -189,7 +190,7 @@ public class ManageKanbanApiController {
                 .collect(Collectors.toList());
 
         Map<String, Object> param = Maps.newHashMap();
-        param.put("status", ConstantForMES.OK_AUDITED);
+        param.put("status", Constant.OK_AUDITED);
         param.put("inspectionType", ConstantForMES.CPJY);
         param.put("startTime", dateTenToString.get(0));
         param.put("endTime", dateTenToString.get(dateTenToString.size() - 1));
@@ -222,7 +223,7 @@ public class ManageKanbanApiController {
                 .collect(Collectors.toList());
 
         Map<String, Object> param = Maps.newHashMap();
-        param.put("status", ConstantForMES.OK_AUDITED);
+        param.put("status", Constant.OK_AUDITED);
         param.put("inspectionType", ConstantForMES.CPJY);
         param.put("startTime", dateTenToString.get(0));
         param.put("endTime", dateTenToString.get(dateTenToString.size() - 1));
@@ -242,7 +243,7 @@ public class ManageKanbanApiController {
     @ApiOperation("生产运营看板-不良原因(不良数量TOP10)")
     public R badReasonsCount() {
         Map<String, Object> param = Maps.newHashMap();
-        param.put("status", ConstantForMES.OK_AUDITED);
+        param.put("status", Constant.OK_AUDITED);
         param.put("inspectionType", ConstantForMES.CPJY);
         param.put("unqualifiedCount", true);
         param.put("poor", true);

@@ -10,6 +10,7 @@ import com.ev.custom.service.FacilityLocationService;
 import com.ev.custom.service.FacilityService;
 import com.ev.custom.service.MaterielService;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.*;
@@ -287,7 +288,7 @@ public class StockServiceImpl implements StockService {
 				stockDO.setCount(count);
 				BigDecimal amount = BigDecimal.valueOf(Double.parseDouble(stockEntity.getAmount()));
 				stockDO.setAmount(amount);
-				stockDO.setUnitPrice(amount.divide(count,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
+				stockDO.setUnitPrice(amount.divide(count, Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
 				stockDO.setDelFlag(0);
 				stockDO.setCreateBy(userId);
 				stockDO.setCreateTime(now);
@@ -389,7 +390,7 @@ public class StockServiceImpl implements StockService {
 							itemDO.setBatch(null);
 						}
 						itemDO.setAvailableCount(count);
-						itemDO.setUnitPrice(amount.divide(count,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
+						itemDO.setUnitPrice(amount.divide(count, Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
 						itemDO.setEnteringTime(now);
 						itemDO.setCreateTime(now);
 						itemDO.setDelFlag(0);
@@ -693,7 +694,7 @@ public class StockServiceImpl implements StockService {
 		// 入库单
 		params.put("createStartTime", DatesUtil.getSupportBeginDayOfMonth(periodTime));
 		params.put("createEndTime", DatesUtil.getSupportEndDayOfMonth(periodTime));
-		params.put("auditSign", ConstantForGYL.OK_AUDITED);
+		params.put("auditSign", Constant.OK_AUDITED);
 		List<Map<String, Object>> stockInList = stockInService.listForMap(params);
 		List<StockOutItemDO> stockOutList = stockOutItemService.list(params);
 
@@ -951,7 +952,7 @@ public class StockServiceImpl implements StockService {
 					totalCountMap.put(materielId,analysisDO.getInitialCount().add(inCount));
 
 					materielInUnitPriceMap.put(materielId
-							, (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
+							, (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
 					continue;
 				}
 				// 计算批次管理出库新入物料成本单价
@@ -966,7 +967,7 @@ public class StockServiceImpl implements StockService {
 					totalCountMap.put(materielIdAndBatch,analysisDO.getInitialCount().add(inCount));
 
 					materielInUnitPriceMap.put(materielIdAndBatch
-							, (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
+							, (analysisDO.getInitialAmount().add(inAmount)).divide(analysisDO.getInitialCount().add(inCount), Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
 					continue;
 				}
 				if (analysisDO.getInitialCount().compareTo(BigDecimal.ZERO)!=0) {
@@ -976,13 +977,13 @@ public class StockServiceImpl implements StockService {
 						totalCountMap.put(materielId,analysisDO.getInitialCount());
 
 						materielInUnitPriceMap.put(materielId
-								, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
+								, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(), Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
 					}else {
 						totalAmountMap.put(materielIdAndBatch,analysisDO.getInitialAmount());
 						totalCountMap.put(materielIdAndBatch,analysisDO.getInitialCount());
 
 						materielInUnitPriceMap.put(materielIdAndBatch
-								, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
+								, analysisDO.getInitialAmount().divide(analysisDO.getInitialCount(), Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP));
 					}
 				}
 
@@ -1004,7 +1005,7 @@ public class StockServiceImpl implements StockService {
 					itemDO.setUnitPrice(unitPrice);
 					BigDecimal count = itemDO.getCount();
 					// 数量比
-					BigDecimal ratio = count.divide(totalCount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+					BigDecimal ratio = count.divide(totalCount, Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
 
 					BigDecimal amount = totalAmount.multiply(ratio);
 					itemDO.setAmount(amount);
@@ -1036,7 +1037,7 @@ public class StockServiceImpl implements StockService {
 					BigDecimal count = itemDO.getCount();
 					// 数量比
 
-					BigDecimal ratio = count.divide(totalCount,Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
+					BigDecimal ratio = count.divide(totalCount, Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP);
 
 					BigDecimal amount = totalAmount.multiply(ratio);
 					itemDO.setAmount(amount);
@@ -1140,7 +1141,7 @@ public class StockServiceImpl implements StockService {
 		// 入库单
 		params.put("createStartTime", DatesUtil.getSupportBeginDayOfMonth(periodTime));
 		params.put("createEndTime", DatesUtil.getSupportEndDayOfMonth(periodTime));
-		params.put("auditSign", ConstantForGYL.OK_AUDITED);
+		params.put("auditSign", Constant.OK_AUDITED);
 		List<Map<String, Object>> stockInList = stockInService.listForMap(params);
 		if (stockInList.size() > 0) {
 			List<String> unitPriceEmpty = stockInList.stream()
@@ -1172,7 +1173,7 @@ public class StockServiceImpl implements StockService {
 		// 入库单
 		params.put("createStartTime", DatesUtil.getSupportBeginDayOfMonth(periodTime));
 		params.put("createEndTime", DatesUtil.getSupportEndDayOfMonth(periodTime));
-		params.put("auditSign", ConstantForGYL.OK_AUDITED);
+		params.put("auditSign", Constant.OK_AUDITED);
 		List<Map<String, Object>> stockInList = stockInService.listForMap(params);
 		List<String> stockInUnitPriceEmpty = stockInList.stream()
 				.filter(stringObjectMap -> MathUtils.getBigDecimal(stringObjectMap.get("unitPrice")).compareTo(BigDecimal.ZERO) == 0)
@@ -1255,7 +1256,7 @@ public class StockServiceImpl implements StockService {
 		// 期末结转
 		params.put("createStartTime", DatesUtil.getSupportBeginDayOfMonth(periodTime));
 		params.put("createEndTime", DatesUtil.getSupportEndDayOfMonth(periodTime));
-		params.put("auditSign", ConstantForGYL.OK_AUDITED);
+		params.put("auditSign", Constant.OK_AUDITED);
 		// 入库单
 		List<Map<String, Object>> stockInList = stockInService.listForMap(params);
 		// 出库单

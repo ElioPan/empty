@@ -5,6 +5,7 @@ import com.ev.custom.service.NoticeService;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.framework.utils.StringUtils;
@@ -73,14 +74,14 @@ public class WeekReportApiController {
         }
         if(!"".equals(userId)&&!Objects.equals(userId,lowderUserId.toString())){
             params.put("createBy", userId);
-            params.put("status", Constant.APPLY_APPROED);
+            params.put("status", ConstantForDevice.APPLY_APPROED);
         }
 
         //发给我的
         if(!"".equals(beSentPeopleId)) {
             // params.put("createBy", userId);
             params.put("beSentPeopleId", beSentPeopleId);
-            params.put("status", Constant.APPLY_APPROED);
+            params.put("status", ConstantForDevice.APPLY_APPROED);
 //            params.put("sign", 1);
 
         }
@@ -88,7 +89,7 @@ public class WeekReportApiController {
         //我的团队
         if(idPath!=null){
             params.put("idPath", idPath);
-            params.put("status", Constant.APPLY_APPROED);
+            params.put("status", ConstantForDevice.APPLY_APPROED);
         }
 
         Map<String, Object> results = Maps.newHashMap();
@@ -157,7 +158,7 @@ public class WeekReportApiController {
 
                 WeekReportDO weekReportDoOne = weekReportService.get(weekReport.getId());
                 if (weekReportDoOne!=null) {
-                    if (!(Objects.equals(Constant.APPLY_APPROED, weekReportDoOne.getStatus()))) {
+                    if (!(Objects.equals(ConstantForDevice.APPLY_APPROED, weekReportDoOne.getStatus()))) {
                         //更新
                         weekReportService.saveWeekChangeAndSbmit(weekReport, newWeekReportItems, targetList,  taglocationappearanceImage,0);
                         return R.ok();
@@ -181,7 +182,7 @@ public class WeekReportApiController {
                             @ApiParam(value = "附件") @RequestParam(value = "taglocationappearanceImage", defaultValue = "", required = false) String[] tagImage) {
         if (!Objects.nonNull(weekReport.getId())) {
             if(weekReportService.duplicateDetectionOrNot(newWeekReportItems)){
-                weekReport.setStatus(Constant.APPLY_APPROED);
+                weekReport.setStatus(ConstantForDevice.APPLY_APPROED);
                 weekReportService.add(weekReport, newWeekReportItems, targetList, tagImage);
                 return R.ok();
             }else{
@@ -192,7 +193,7 @@ public class WeekReportApiController {
         } else {
                 WeekReportDO weekReportDoOne = weekReportService.get(weekReport.getId());
                 if (weekReportDoOne != null) {
-                    if (!(Objects.equals(Constant.APPLY_APPROED, weekReportDoOne.getStatus()))) {
+                    if (!(Objects.equals(ConstantForDevice.APPLY_APPROED, weekReportDoOne.getStatus()))) {
                         //更新
                         weekReportService.saveWeekChangeAndSbmit(weekReport, newWeekReportItems, targetList, tagImage, 1);
                         return R.ok();

@@ -10,6 +10,7 @@ import com.ev.custom.service.DictionaryService;
 import com.ev.custom.service.FacilityLocationService;
 import com.ev.custom.service.FacilityService;
 import com.ev.custom.service.MaterielService;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
@@ -104,13 +105,13 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 	@Override
 	public boolean isNonAudit(Long id) {
 		ProductionFeedingDO feedingDO = this.get(id);
-		return !Objects.equals(feedingDO.getStatus(), ConstantForMES.WAIT_AUDIT);
+		return !Objects.equals(feedingDO.getStatus(), Constant.WAIT_AUDIT);
 	}
 
 	@Override
 	public R audit(Long id) {
         ProductionFeedingDO feedingDO = this.get(id);
-        if (!Objects.equals(feedingDO.getStatus(), ConstantForMES.WAIT_AUDIT)) {
+        if (!Objects.equals(feedingDO.getStatus(), Constant.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("common.duplicate.approved", null));
         }
 //        if (!Objects.equals(ShiroUtils.getUserId(), feedingDO.getAuditor())) {
@@ -123,14 +124,14 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
         ProductionFeedingDO productionFeedingDO = new ProductionFeedingDO();
         productionFeedingDO.setId(id);
         productionFeedingDO.setAuditor(ShiroUtils.getUserId());
-        productionFeedingDO.setStatus(ConstantForMES.OK_AUDITED);
+        productionFeedingDO.setStatus(Constant.OK_AUDITED);
         return this.update(productionFeedingDO) > 0 ? R.ok() : R.error();
 	}
 
 	@Override
 	public R reverseAudit(Long id) {
         ProductionFeedingDO feedingDO = this.get(id);
-        if (!Objects.equals(ConstantForMES.OK_AUDITED, feedingDO.getStatus())) {
+        if (!Objects.equals(Constant.OK_AUDITED, feedingDO.getStatus())) {
             return R.error(messageSourceHandler.getMessage("receipt.reverseAudit.nonWaitingAudit", null));
         }
         // 检查投料单下是否有下游单据
@@ -148,7 +149,7 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 
         ProductionFeedingDO productionFeedingDO = new ProductionFeedingDO();
         productionFeedingDO.setId(id);
-        productionFeedingDO.setStatus(ConstantForMES.WAIT_AUDIT);
+        productionFeedingDO.setStatus(Constant.WAIT_AUDIT);
         return this.update(productionFeedingDO) > 0 ? R.ok() : R.error();
 	}
 
@@ -225,7 +226,7 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 	@Override
 	public R add(ProductionFeedingDO feedingDO, String childArray) {
 		this.setFeedingNo(feedingDO);
-		feedingDO.setStatus(ConstantForMES.WAIT_AUDIT);
+		feedingDO.setStatus(Constant.WAIT_AUDIT);
 		int save = this.save(feedingDO);
         if (StringUtils.isEmpty(childArray)) {
             return save > 0 ? R.ok() : R.error();

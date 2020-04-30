@@ -3,6 +3,7 @@ package com.ev.custom.service.impl;
 import com.ev.custom.dao.MaterielDao;
 import com.ev.custom.domain.MaterielDO;
 import com.ev.custom.service.MaterielService;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
@@ -46,7 +47,7 @@ public class MaterielServiceImpl implements MaterielService {
 	
 	@Override
 	public int save(MaterielDO materiel){
-	    materiel.setAuditSign(ConstantForMES.WAIT_AUDIT);
+	    materiel.setAuditSign(Constant.WAIT_AUDIT);
 		return materielDao.save(materiel);
 	}
 	
@@ -115,7 +116,7 @@ public class MaterielServiceImpl implements MaterielService {
 
 	@Override
 	public R logicRemove(Long id) {
-		if (this.get(id).getAuditSign().equals(ConstantForMES.OK_AUDITED)) {
+		if (this.get(id).getAuditSign().equals(Constant.OK_AUDITED)) {
 			return R.error(messageSourceHandler.getMessage("common.approvedOrChild.delete.disabled", null));
 		}
 		if (this.checkUse(id) > 0) {
@@ -132,7 +133,7 @@ public class MaterielServiceImpl implements MaterielService {
 	public R logicBatchRemove(Long[] ids) {
 		int count = 0;
 		for (Long id : ids) {
-			if (this.get(id).getAuditSign().equals(ConstantForMES.OK_AUDITED)) {
+			if (this.get(id).getAuditSign().equals(Constant.OK_AUDITED)) {
 				return R.error(messageSourceHandler.getMessage("common.approvedOrChild.delete.disabled", null));
 			}
 			if (this.checkUse(id) > 0) {
@@ -153,7 +154,7 @@ public class MaterielServiceImpl implements MaterielService {
     public int audit(Long id) {
         MaterielDO materielDO = new MaterielDO();
         materielDO.setId(id);
-        materielDO.setAuditSign(ConstantForMES.OK_AUDITED);
+        materielDO.setAuditSign(Constant.OK_AUDITED);
         materielDO.setAuditor(ShiroUtils.getUserId());
         return this.update(materielDO);
     }
@@ -162,7 +163,7 @@ public class MaterielServiceImpl implements MaterielService {
     public int reverseAudit(Long id) {
         MaterielDO materielDO = new MaterielDO();
         materielDO.setId(id);
-        materielDO.setAuditSign(ConstantForMES.WAIT_AUDIT);
+        materielDO.setAuditSign(Constant.WAIT_AUDIT);
         return this.update(materielDO);
     }
 

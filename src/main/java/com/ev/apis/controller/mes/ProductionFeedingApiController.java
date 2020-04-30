@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.*;
 import com.ev.mes.service.ProductionFeedingAlterationService;
@@ -216,7 +217,7 @@ public class ProductionFeedingApiController {
 		params.put("endTime", endTime);
 		params.put("headId", headId);
 
-		params.put("auditSign", ConstantForGYL.OK_AUDITED);
+		params.put("auditSign", Constant.OK_AUDITED);
 		params.put("isPlan",1);
 
 		Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);

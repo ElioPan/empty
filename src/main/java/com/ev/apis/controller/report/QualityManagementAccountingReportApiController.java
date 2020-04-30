@@ -5,6 +5,7 @@ import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.R;
 import com.ev.report.service.QualityManagementAccountingReportService;
@@ -269,7 +270,7 @@ public class QualityManagementAccountingReportApiController {
         params.put("startTime", startTime);
         params.put("endTime", endTime);
 
-        params.put("auditSign", ConstantForGYL.OK_AUDITED);
+        params.put("auditSign", Constant.OK_AUDITED);
 
         List<Long> storageTypes =  Lists.newArrayList();
         storageTypes.add(ConstantForGYL.PURCHASE_INSTOCK);
@@ -312,7 +313,7 @@ public class QualityManagementAccountingReportApiController {
         params.put("startTime", startTime);
         params.put("endTime", endTime);
 
-        params.put("auditSign", ConstantForGYL.OK_AUDITED);
+        params.put("auditSign", Constant.OK_AUDITED);
 
         List<Long> storageTypes =  Lists.newArrayList();
         storageTypes.add(ConstantForGYL.PURCHASE_INSTOCK);

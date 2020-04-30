@@ -2,6 +2,7 @@ package com.ev.apis.controller.custom;
 
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.framework.utils.StringUtils;
@@ -57,7 +58,7 @@ public class LeaveApplyApiController {
             //更新
                 LeaveApplyDO leveDoOne = leaveApplyService.get(leaveApply.getId());
                 if (leveDoOne != null) {
-                    if (Objects.equals(Constant.TS, leveDoOne.getStatus()) || Objects.equals(Constant.APPLY_REJECT, leveDoOne.getStatus())) {  //146,62允许修改
+                    if (Objects.equals(Constant.TS, leveDoOne.getStatus()) || Objects.equals(ConstantForDevice.APPLY_REJECT, leveDoOne.getStatus())) {  //146,62允许修改
                         leaveApplyService.saveChangeOfLeaveDetail(leaveApply,approveList,taglocationappearanceImage, 0);
                         return R.ok();
                     }
@@ -85,7 +86,7 @@ public class LeaveApplyApiController {
             //更新
                 LeaveApplyDO leveDoOne = leaveApplyService.get(leaveApply.getId());
                 if (leveDoOne != null) {
-                    if (Objects.equals(Constant.TS, leveDoOne.getStatus()) || Objects.equals(Constant.APPLY_REJECT, leveDoOne.getStatus())) {  //146,62允许修改
+                    if (Objects.equals(Constant.TS, leveDoOne.getStatus()) || Objects.equals(ConstantForDevice.APPLY_REJECT, leveDoOne.getStatus())) {  //146,62允许修改
                         leaveApplyService.saveChangeOfLeaveDetail(leaveApply,approveList,taglocationappearanceImage, 1);
                         return R.ok();
                     }
@@ -131,13 +132,13 @@ public class LeaveApplyApiController {
         if(!"".equals(userId)&&!Objects.equals(userId,lowderUserId.toString())){
             params.put("createBy", userId);
             params.put("status", Constant.TS);//暂存：146
-            params.put("statusOther", Constant.APPLY_REJECT);
+            params.put("statusOther", ConstantForDevice.APPLY_REJECT);
         }
 
         if(!"".equals(approveUserId)){
             params.put("assignId", approveUserId);
             params.put("status", Constant.TS);//暂存：146
-            params.put("statusOther", Constant.APPLY_REJECT);
+            params.put("statusOther", ConstantForDevice.APPLY_REJECT);
         }
 
         if(idPath!=null){
@@ -173,7 +174,7 @@ public class LeaveApplyApiController {
 
         Map<String, Object> params = new HashMap<>();
         params.put("assignId", approveUserId);
-        params.put("statusOfCount",Constant.APPLY_APPROVING);
+        params.put("statusOfCount", ConstantForDevice.APPLY_APPROVING);
         Map<String, Object> stringObjectMap = leaveApplyService.countForMap(params);
         params.remove("assignId");
         params.remove("statusOfCount");
@@ -220,7 +221,7 @@ public class LeaveApplyApiController {
     public R remove(@ApiParam(value = "请假申请主键", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
         LeaveApplyDO applyDO = leaveApplyService.get(id);
         if (applyDO != null) {
-            if (Objects.equals(Constant.TS, applyDO.getStatus())||Objects.equals(Constant.APPLY_REJECT, applyDO.getStatus())) {
+            if (Objects.equals(Constant.TS, applyDO.getStatus())||Objects.equals(ConstantForDevice.APPLY_REJECT, applyDO.getStatus())) {
                 if (leaveApplyService.remove(id) > 0) {
                     return R.ok();
                 }

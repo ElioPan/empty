@@ -6,6 +6,7 @@ import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.utils.MathUtils;
@@ -281,7 +282,7 @@ public class SalesContractApiController {
         map.put("createStartTime", createStartTime);
         map.put("createEndTime", createEndTime);
 
-        map.put("auditSign", ConstantForGYL.OK_AUDITED);
+        map.put("auditSign", Constant.OK_AUDITED);
         map.put("closeStatus", 0);
         map.put("itemCloseStatus",1);
         List<Map<String, Object>> data = salescontractService.listForMap(map);

@@ -6,6 +6,7 @@ import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.config.ConstantForReport;
 import com.ev.framework.utils.BeanUtils;
@@ -510,7 +511,7 @@ public class WarehouseAccountingReportServiceImpl implements WarehouseAccounting
         params.put("endTime", endTime);
         params.put("materielId", materielId);
         params.put("materielType", materielType);
-        params.put("auditSign", ConstantForMES.OK_AUDITED);
+        params.put("auditSign", Constant.OK_AUDITED);
 
         List<StockInItemVO> stockInItemVOS = this.stockInItem(params);
         if (stockInItemVOS.size() > 0) {

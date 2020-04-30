@@ -1,5 +1,6 @@
 package com.ev.report.service.impl;
 
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.config.ConstantForReport;
@@ -77,7 +78,7 @@ public class SalesManagementAccountingReportServiceImpl implements SalesManageme
         params.put("startTime", startTime);
         params.put("endTime", endTime);
 
-        params.put("auditSign", ConstantForMES.OK_AUDITED);
+        params.put("auditSign", Constant.OK_AUDITED);
 
         // 获取销售合同列表
         List<Map<String, Object>> salesContractList = this.salesContractList(params);
@@ -96,7 +97,7 @@ public class SalesManagementAccountingReportServiceImpl implements SalesManageme
             params.clear();
             params.put("sourceIds", itemIds);
             params.put("sourceType", ConstantForGYL.XSHT);
-            params.put("auditSign", ConstantForMES.OK_AUDITED);
+            params.put("auditSign", Constant.OK_AUDITED);
             // 出库表
             List<StockOutItemVO> stockOutItemVOS = stockService.stockOutItem(params);
             params.put("sourceIds", contractIds);
@@ -387,7 +388,7 @@ public class SalesManagementAccountingReportServiceImpl implements SalesManageme
         params.put("startTime", startTime);
         params.put("endTime", endTime);
 
-        params.put("auditSign", ConstantForMES.OK_AUDITED);
+        params.put("auditSign", Constant.OK_AUDITED);
         List<Map<String, Object>> summaryLists = this.summaryList(params);
         if (summaryLists.size() > 0) {
             List<Map<String, Object>> showList = Lists.newArrayList();

@@ -10,8 +10,8 @@ import com.ev.custom.domain.*;
 import com.ev.custom.service.*;
 import com.ev.custom.vo.MaterielEntity;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.config.Constant;
-import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.*;
 import com.google.common.collect.Lists;
@@ -214,7 +214,7 @@ public class MaterielApiController {
     public R audit(
             @ApiParam(value = "物料主键", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
         MaterielDO materielDO = materielService.get(id);
-        if (Objects.equals(materielDO.getAuditSign(), ConstantForMES.OK_AUDITED)) {
+        if (Objects.equals(materielDO.getAuditSign(), Constant.OK_AUDITED)) {
             return R.error(messageSourceHandler.getMessage("common.duplicate.approved", null));
         }
         if (materielService.audit(id) > 0) {
@@ -235,7 +235,7 @@ public class MaterielApiController {
     public R reverseAudit(
             @ApiParam(value = "物料主键", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
         MaterielDO materielDO = materielService.get(id);
-        if (Objects.equals(materielDO.getAuditSign(), ConstantForMES.WAIT_AUDIT)) {
+        if (Objects.equals(materielDO.getAuditSign(), Constant.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("receipt.reverseAudit.nonWaitingAudit", null));
         }
         if (materielService.reverseAudit(id) > 0) {
@@ -430,14 +430,14 @@ public class MaterielApiController {
                 if(Objects.isNull(materielDO)){
                     return R.error(messageSourceHandler.getMessage("common.massge.haveNoThing",null));
                 }
-                if(!Objects.equals(materielDO.getAuditSign(),ConstantForMES.WAIT_AUDIT)){
+                if(!Objects.equals(materielDO.getAuditSign(),Constant.WAIT_AUDIT)){
                     return R.error(messageSourceHandler.getMessage("common.massge.okAudit",null));
                 }
                 materielDOList.add(materielDO);
             }
 
             for (MaterielDO materielDO : materielDOList) {
-                materielDO.setAuditSign(ConstantForMES.OK_AUDITED);
+                materielDO.setAuditSign(Constant.OK_AUDITED);
                 materielDO.setAuditor(userId);
                 materielService.update(materielDO);
             }
@@ -500,25 +500,25 @@ public class MaterielApiController {
             }
 
             Map<String, Object> param = Maps.newHashMap();
-            param.put("maxNo", Constant.WL);
+            param.put("maxNo", ConstantForDevice.WL);
             param.put("offset", 0);
             param.put("limit", 1);
             List<MaterielDO> list = materielService.list(param);
-            String firstCode = DateFormatUtil.getWorkOrderno(Constant.WL, list.size() > 0 ? list.get(0).getSerialNo() : null, 4);
+            String firstCode = DateFormatUtil.getWorkOrderno(ConstantForDevice.WL, list.size() > 0 ? list.get(0).getSerialNo() : null, 4);
 
             List<MaterielEntity> codeEmptyList = materielEntityList.stream()
-                    .filter(materielEntity -> StringUtils.isEmpty(materielEntity.getSerialNo()) || materielEntity.getSerialNo().startsWith(Constant.WL)).collect(Collectors.toList());
+                    .filter(materielEntity -> StringUtils.isEmpty(materielEntity.getSerialNo()) || materielEntity.getSerialNo().startsWith(ConstantForDevice.WL)).collect(Collectors.toList());
             for (MaterielEntity materielEntity : codeEmptyList) {
                 materielEntity.setSerialNo(firstCode);
                 assert firstCode != null;
-                firstCode = Constant.WL + StringUtils.autoGenericCode(firstCode.substring(Constant.WL.length()), 4);
+                firstCode = ConstantForDevice.WL + StringUtils.autoGenericCode(firstCode.substring(ConstantForDevice.WL.length()), 4);
             }
 
             Map<String, Object> emptyMap = Maps.newHashMap();
             List<MaterielTypeDO> typeDOs = materielTypeService.list(emptyMap);
-            List<DictionaryDO> attributeDOs = dictionaryService.listByType(Constant.MATERIAL_TYPE);
-            List<DictionaryDO> unitUomDOs = dictionaryService.listByType(Constant.UOM_TYPE);
-            List<DictionaryDO> valuationMethodDOs = dictionaryService.listByType(Constant.VALUATION_METHOD);
+            List<DictionaryDO> attributeDOs = dictionaryService.listByType(ConstantForDevice.MATERIAL_TYPE);
+            List<DictionaryDO> unitUomDOs = dictionaryService.listByType(ConstantForDevice.UOM_TYPE);
+            List<DictionaryDO> valuationMethodDOs = dictionaryService.listByType(ConstantForDevice.VALUATION_METHOD);
             List<FacilityDO> facilityDOs = facilityService.list(emptyMap);
             List<FacilityLocationDO> locationDOs = facilityLocationService.list(emptyMap);
             List<SupplierDO> supplierDOs = supplierService.list(emptyMap);
@@ -626,7 +626,7 @@ public class MaterielApiController {
                     materielDO.setIsExpire(0);
                 }
 
-                materielDO.setAuditSign(ConstantForMES.WAIT_AUDIT);
+                materielDO.setAuditSign(Constant.WAIT_AUDIT);
                 // 使用状态(1是0否)
                 materielDO.setDelFlag(0);
                 materielDO.setUseStatus(1);

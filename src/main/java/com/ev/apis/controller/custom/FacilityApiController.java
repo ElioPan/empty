@@ -4,7 +4,7 @@ import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.domain.FacilityDO;
 import com.ev.custom.service.FacilityService;
-import com.ev.framework.config.ConstantForMES;
+import com.ev.framework.config.Constant;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
@@ -103,7 +103,7 @@ public class FacilityApiController {
     @ApiOperation("删除仓库信息")
     public R remove(@ApiParam(value = "仓库主键",required = true) @RequestParam(value="id",defaultValue = "") Long id){
         FacilityDO facilityDO = facilityService.get(id);
-        if (Objects.equals(facilityDO.getAuditSign(), ConstantForMES.OK_AUDITED)) {
+        if (Objects.equals(facilityDO.getAuditSign(), Constant.OK_AUDITED)) {
             return R.error(messageSourceHandler.getMessage("common.approved.delete.disabled",null));
         }
         if(facilityService.logicRemove(id)>0){
@@ -118,7 +118,7 @@ public class FacilityApiController {
     public R remove(@ApiParam(value = "仓库主键数组",required = true, example = "[1,2,3,4]") @RequestParam(value="ids",defaultValue = "") Long[] ids){
         for (Long id : ids) {
             FacilityDO facilityDO = facilityService.get(id);
-            if (Objects.equals(facilityDO.getAuditSign(), ConstantForMES.OK_AUDITED)) {
+            if (Objects.equals(facilityDO.getAuditSign(), Constant.OK_AUDITED)) {
                 return R.error(messageSourceHandler.getMessage("common.approved.delete.disabled",null));
             }
         }
@@ -138,7 +138,7 @@ public class FacilityApiController {
     public R audit(
             @ApiParam(value = "仓库主键", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
         FacilityDO facilityDO = facilityService.get(id);
-        if (Objects.equals(facilityDO.getAuditSign(), ConstantForMES.OK_AUDITED)) {
+        if (Objects.equals(facilityDO.getAuditSign(), Constant.OK_AUDITED)) {
             return R.error(messageSourceHandler.getMessage("common.duplicate.approved",null));
         }
         if (facilityService.audit(id) > 0) {
@@ -159,7 +159,7 @@ public class FacilityApiController {
     public R reverseAudit(
             @ApiParam(value = "仓库主键", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
         FacilityDO facilityDO = facilityService.get(id);
-        if (Objects.equals(facilityDO.getAuditSign(), ConstantForMES.WAIT_AUDIT)) {
+        if (Objects.equals(facilityDO.getAuditSign(), Constant.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("receipt.reverseAudit.nonWaitingAudit",null));
         }
         if (facilityService.reverseAudit(id) > 0) {

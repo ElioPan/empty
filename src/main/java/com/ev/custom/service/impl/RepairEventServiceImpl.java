@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.util.*;
 
 import com.ev.custom.service.*;
+import com.ev.framework.config.Constant;
 import com.ev.framework.il8n.MessageSourceHandler;
 import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
@@ -114,14 +115,14 @@ public class RepairEventServiceImpl implements RepairEventService {
 		
 		//获取发起报修事件时的照片
 		params.put("assocId",eventId );
-		params.put("assocType",Constant.REPAIR_EVENT_IMAGE);
+		params.put("assocType", ConstantForDevice.REPAIR_EVENT_IMAGE);
 		List<ContentAssocDO> contentAssocDO = contentAssocService.list(params);
 		results.put("repairEventImage", contentAssocDO);
 		
 		//获取维修事件抄送人
 		params.clear();
 		params.put("taskId",eventId);
-		params.put("assocType",Constant.REPAIR_EVENT_CC_PERSON);
+		params.put("assocType", ConstantForDevice.REPAIR_EVENT_CC_PERSON);
 		params.put("replyId",0);
 		List<TaskEmployeeDO> ccPerson = taskEmployeeService.list(params);
 		JSONArray ccIdList = new JSONArray();
@@ -166,7 +167,7 @@ public class RepairEventServiceImpl implements RepairEventService {
 	@Override
 	public Map<String, Object> getCountBacklog(Long userId, Long deptId) {
 		String idPath = null;
-		Long status = Constant.WAITING_DEAL;
+		Long status = ConstantForDevice.WAITING_DEAL;
         if (Objects.nonNull(deptId)) {
         	idPath = deptService.get(deptId).getIdPath();
 		}
@@ -188,7 +189,7 @@ public class RepairEventServiceImpl implements RepairEventService {
 			results.put("helderWaitingCount", waitingStatusCount);
 		}
         // 若传入为待验收 则获取当前用户待验收的任务数量
-        if (Objects.equals(status, Constant.WAITING_CHECK)) {
+        if (Objects.equals(status, ConstantForDevice.WAITING_CHECK)) {
         	params.put("createBy",userId);
         	int waitingStatusCount = this.countForMap(params);
         	results.put("helderCheckCount", waitingStatusCount);
@@ -212,7 +213,7 @@ public class RepairEventServiceImpl implements RepairEventService {
 			this.saveEvengts(eventId,carbonCopyRecipients);
 		}
 		// 将图片地址和事件ID一起保存至content_assoc
-		contentAssocService.saveList(eventId, taglocationappearanceImage, Constant.REPAIR_EVENT_IMAGE);
+		contentAssocService.saveList(eventId, taglocationappearanceImage, ConstantForDevice.REPAIR_EVENT_IMAGE);
 	}
 	
 	@Override
@@ -220,7 +221,7 @@ public class RepairEventServiceImpl implements RepairEventService {
         //保存抄送人信息
         for(Long id:ids){
         	// 维修事件抄送人	Constant.REPAIR_EVENT_CC_PERSON
-        	TaskEmployeeDO taskEmployeeDO = new TaskEmployeeDO(eventId,id,Constant.REPAIR_EVENT_CC_PERSON,0L);
+        	TaskEmployeeDO taskEmployeeDO = new TaskEmployeeDO(eventId,id, ConstantForDevice.REPAIR_EVENT_CC_PERSON,0L);
         	taskEmployeeService.save(taskEmployeeDO);
 		}
     }
@@ -270,7 +271,7 @@ public class RepairEventServiceImpl implements RepairEventService {
 	@Override
 	public Map<String,Object> addRepairEvent(RepairEventDO event) {
 		Map<String,Object> result = Maps.newHashMap();
-		String maxNo = DateFormatUtil.getWorkOrderno(Constant.GZBX);
+		String maxNo = DateFormatUtil.getWorkOrderno(ConstantForDevice.GZBX);
 		Map<String,Object> param = Maps.newHashMapWithExpectedSize(3);
 		param.put("maxNo", maxNo);
 		param.put("offset", 0);
@@ -373,7 +374,7 @@ public class RepairEventServiceImpl implements RepairEventService {
 	public void removeRecordSatellite(Long recordId) {
 		 Long[] recordIds = {recordId};
 		// 将完工图片删除
-		contentAssocService.removeByAssocIdAndType(recordIds,Constant.REPAIR_EVENT_RECORD_IMAGE);
+		contentAssocService.removeByAssocIdAndType(recordIds, ConstantForDevice.REPAIR_EVENT_RECORD_IMAGE);
 		// 将备件信息删除
 		repairEventPartService.remove(recordId);
 	}
@@ -382,8 +383,8 @@ public class RepairEventServiceImpl implements RepairEventService {
 	public void removeAndSaveEventSatellite(String[] taglocationappearanceImage, Long[] carbonCopyRecipients,
 			Long eventId, Long[] eventIds) {
 		// 删除事件附属信息
-		Long [] assocTypes = {Constant.REPAIR_EVENT_CC_PERSON};
-		taskMainService.removeSatellite(eventIds,assocTypes,Constant.REPAIR_EVENT_IMAGE);
+		Long [] assocTypes = {ConstantForDevice.REPAIR_EVENT_CC_PERSON};
+		taskMainService.removeSatellite(eventIds,assocTypes, ConstantForDevice.REPAIR_EVENT_IMAGE);
 		// 保存事件附属信息
 		this.saveEventSatellite(taglocationappearanceImage, carbonCopyRecipients, eventId);
 	}
@@ -451,7 +452,7 @@ public class RepairEventServiceImpl implements RepairEventService {
 			RepairRecordDO record, RepairEventDO repairEventDO) {
 		Map<String,Object>params = Maps.newHashMapWithExpectedSize(3);
     	params.put("taskId",eventId);
-		params.put("assocType",Constant.REPAIR_EVENT_HELD_PERSON);
+		params.put("assocType", ConstantForDevice.REPAIR_EVENT_HELD_PERSON);
 		params.put("replyId",0);
 		List<TaskEmployeeDO> heldPerson = taskEmployeeService.list(params);
 		if (heldPerson.size()>0) {

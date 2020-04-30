@@ -6,6 +6,7 @@ import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.PageUtils;
@@ -234,7 +235,7 @@ public class ScmPurchaseApiController {
         params.put("general", supplierName);
         params.put("createStartTime", createStartTime);
         params.put("createEndTime", createEndTime);
-        params.put("auditSign", ConstantForGYL.OK_AUDITED);
+        params.put("auditSign", Constant.OK_AUDITED);
 
         List<Map<String, Object>> list = purchaseService.listForMap(params);
         Map<String, Object> countForMaps = purchaseService.countForMap(params);

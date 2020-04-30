@@ -3,7 +3,7 @@ package com.ev.apis.controller.custom;
 import com.alibaba.fastjson.JSONArray;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.framework.utils.StringUtils;
@@ -122,7 +122,7 @@ public class QualityReportApiController {
         	int editReason = qualityReportService.editReason(id,analyzeReason);
         	if (editReason>0) {
         		if (StringUtils.isNoneBlank(uploadAttachment)) {
-        			contentAssocService.saveList(id,JSONArray.parseArray(uploadAttachment),Constant.BD_MAINREASON_FILE);
+        			contentAssocService.saveList(id,JSONArray.parseArray(uploadAttachment), ConstantForDevice.BD_MAINREASON_FILE);
 				}
         		return R.ok();
 			}
@@ -142,7 +142,7 @@ public class QualityReportApiController {
     		int checkSave = qualityReportService.checkSave(id,ShiroUtils.getUserId(),resultContent);
         	if (checkSave>0) {
         		if (StringUtils.isNoneBlank(uploadAttachment)) {
-        			contentAssocService.saveList(id,JSONArray.parseArray(uploadAttachment),Constant.BD_CHECKRESULT_FILE);
+        			contentAssocService.saveList(id,JSONArray.parseArray(uploadAttachment), ConstantForDevice.BD_CHECKRESULT_FILE);
         		}
         		return R.ok();
 			}

@@ -4,6 +4,7 @@ import com.ev.custom.dao.FacilityLocationDao;
 import com.ev.custom.domain.FacilityLocationDO;
 import com.ev.custom.service.FacilityLocationService;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.ShiroUtils;
@@ -50,7 +51,7 @@ public class FacilityLocationServiceImpl implements FacilityLocationService {
 		if (count > 0) {
 			return -1;
 		}
-		facilityLocation.setAuditSign(ConstantForMES.WAIT_AUDIT);
+		facilityLocation.setAuditSign(Constant.WAIT_AUDIT);
 		return facilityLocationDao.save(facilityLocation);
 	}
 
@@ -102,7 +103,7 @@ public class FacilityLocationServiceImpl implements FacilityLocationService {
         FacilityLocationDO facilityLocationDO = new FacilityLocationDO();
         facilityLocationDO.setId(id);
         facilityLocationDO.setAuditor(ShiroUtils.getUserId());
-        facilityLocationDO.setAuditSign(ConstantForMES.OK_AUDITED);
+        facilityLocationDO.setAuditSign(Constant.OK_AUDITED);
         return facilityLocationDao.update(facilityLocationDO);
     }
 
@@ -111,7 +112,7 @@ public class FacilityLocationServiceImpl implements FacilityLocationService {
         FacilityLocationDO facilityLocationDO = new FacilityLocationDO();
         facilityLocationDO.setId(id);
         facilityLocationDO.setAuditor(0L);
-        facilityLocationDO.setAuditSign(ConstantForMES.WAIT_AUDIT);
+        facilityLocationDO.setAuditSign(Constant.WAIT_AUDIT);
         return facilityLocationDao.update(facilityLocationDO);
     }
 
@@ -120,7 +121,7 @@ public class FacilityLocationServiceImpl implements FacilityLocationService {
         Map<String,Object> param = Maps.newHashMapWithExpectedSize(3);
 //        FacilityDO facilityDO = facilityDao.get(facilityId);
 //        String maxNo = new StringBuilder(facilityDO.getSerialNo()).append("-").append(Constant.KW).toString();
-        String maxNo = Constant.KW;
+        String maxNo = ConstantForDevice.KW;
         param.put("maxNo", maxNo);
         param.put("offset", 0);
         param.put("limit", 1);

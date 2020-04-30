@@ -4,6 +4,7 @@ package com.ev.apis.controller.custom;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.custom.domain.*;
@@ -52,7 +53,7 @@ public class RepairApiController {
     public R addRepairEvent(RepairEventDO event,
                             @ApiParam(value = "上传图片") @RequestParam(value = "taglocationappearanceImage", defaultValue = "", required = false) String[] taglocationappearanceImage,
                             @ApiParam(value = "抄送人") @RequestParam(value = "carbonCopyRecipients", defaultValue = "", required = false) Long[] carbonCopyRecipients) throws IOException, ParseException {
-    	event.setStatus(Constant.WAITING_DEAL);
+    	event.setStatus(ConstantForDevice.WAITING_DEAL);
     	return repairEventService.saveRepairInfo(event, taglocationappearanceImage, carbonCopyRecipients);
     }
     
@@ -83,8 +84,8 @@ public class RepairApiController {
     		return R.error(messageSourceHandler.getMessage("repair.status.nonTs",null));
     	}
     	// 将维修记录与维修事件状态都改为待验收
-    	event.setStatus(Constant.WAITING_CHECK);
-    	record.setStatus(Constant.WAITING_CHECK);
+    	event.setStatus(ConstantForDevice.WAITING_CHECK);
+    	record.setStatus(ConstantForDevice.WAITING_CHECK);
     	return repairEventService.saveProactiveRepairInfo(event, record, taglocationappearanceEventImage, carbonCopyRecipients,
 				partIdArray, taglocationappearanceRecordImage);
     }
@@ -119,7 +120,7 @@ public class RepairApiController {
     	if (repairEventService.nonWaitingDeal(repairEventDO.getStatus())) {
 			return R.error(messageSourceHandler.getMessage("repair.status.nonWaitingDeal",null));
 		}
-    	record.setStatus(Constant.WAITING_CHECK);
+    	record.setStatus(ConstantForDevice.WAITING_CHECK);
     	return repairEventService.saveRepairRecord(eventId, partIdArray, taglocationappearanceImage, record, repairEventDO);
     }
 
@@ -259,10 +260,10 @@ public class RepairApiController {
         // singleStatus 匹配不同字段
 		params.put("singleStatus", singleStatus);
 
-		if (Objects.equals(singleStatus, Constant.WAITING_CHECK)) {
+		if (Objects.equals(singleStatus, ConstantForDevice.WAITING_CHECK)) {
 			params.put("createBy", userId);
 		}
-		if (Objects.equals(singleStatus, Constant.WAITING_DEAL)) {
+		if (Objects.equals(singleStatus, ConstantForDevice.WAITING_DEAL)) {
 			params.put("engineerId", userId);
 		}
 		
@@ -350,8 +351,8 @@ public class RepairApiController {
 		}
 		Long[] ids = { id };
     	if(repairEventService.remove(id)>0){
-			Long [] assocTypes = {Constant.REPAIR_EVENT_CC_PERSON};
-    		repairEventService.removeSatellite(ids,assocTypes,Constant.REPAIR_EVENT_IMAGE);
+			Long [] assocTypes = {ConstantForDevice.REPAIR_EVENT_CC_PERSON};
+    		repairEventService.removeSatellite(ids,assocTypes, ConstantForDevice.REPAIR_EVENT_IMAGE);
             return R.ok();
         }
         return R.error();
@@ -372,8 +373,8 @@ public class RepairApiController {
 		}
     	int batchRemove = repairEventService.batchRemove(ids);
     	if (batchRemove==ids.length) {
-			Long [] assocTypes = {Constant.REPAIR_EVENT_CC_PERSON};
-    		repairEventService.removeSatellite(ids,assocTypes,Constant.REPAIR_EVENT_IMAGE);
+			Long [] assocTypes = {ConstantForDevice.REPAIR_EVENT_CC_PERSON};
+    		repairEventService.removeSatellite(ids,assocTypes, ConstantForDevice.REPAIR_EVENT_IMAGE);
     		return R.ok();
 		}
     	return R.error();
@@ -446,10 +447,10 @@ public class RepairApiController {
     			return R.error(messageSourceHandler.getMessage("repair.status.isTs.turnToSend",null));
 			}
 		}
-		TaskEmployeeDO taskEmployeeDO = new TaskEmployeeDO(eventId,userId,Constant.REPAIR_EVENT_HELD_PERSON,0L);
+		TaskEmployeeDO taskEmployeeDO = new TaskEmployeeDO(eventId,userId, ConstantForDevice.REPAIR_EVENT_HELD_PERSON,0L);
 		Map<String,Object>params = Maps.newHashMapWithExpectedSize(3);
     	params.put("taskId",eventId);
-		params.put("assocType",Constant.REPAIR_EVENT_HELD_PERSON);
+		params.put("assocType", ConstantForDevice.REPAIR_EVENT_HELD_PERSON);
 		params.put("replyId",0);
 		List<TaskEmployeeDO> heldPerson = taskEmployeeService.list(params);
 		if (heldPerson.size()>0) {

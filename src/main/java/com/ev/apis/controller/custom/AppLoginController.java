@@ -4,6 +4,7 @@ import com.ev.framework.annotation.EvApi;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.UserResponse;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.MD5Utils;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;

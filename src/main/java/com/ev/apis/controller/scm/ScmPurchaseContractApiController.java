@@ -6,6 +6,7 @@ import cn.afterturn.easypoi.view.PoiBaseView;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.utils.MathUtils;
 import com.ev.framework.utils.PageUtils;
@@ -385,7 +386,7 @@ public class ScmPurchaseContractApiController {
         map.put("endTime", endTime);
         map.put("fuzzyQuery", StringUtils.sqlLike(fuzzyQuery));
         // 高级查询
-        map.put("auditSign", ConstantForGYL.OK_AUDITED);
+        map.put("auditSign", Constant.OK_AUDITED);
         map.put("closeStatus",0);
         map.put("createStartTime", createStartTime);
         map.put("createEndTime", createEndTime);

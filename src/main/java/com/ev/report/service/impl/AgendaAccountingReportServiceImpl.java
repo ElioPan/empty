@@ -3,7 +3,7 @@ package com.ev.report.service.impl;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.domain.DictionaryDO;
 import com.ev.custom.service.DictionaryService;
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.config.ConstantForReport;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.*;
@@ -175,7 +175,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
 
         Map<String, Object> param = Maps.newHashMap();
         param.put("userIds", userIds);
-        param.put("status", Constant.APPLY_APPROED);
+        param.put("status", ConstantForDevice.APPLY_APPROED);
         param.put("startTime", startTime);
         param.put("endTime", endTime);
         param.put("dailyCount", workingNum);
@@ -237,7 +237,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         Map<String, Object> param = Maps.newHashMap();
         String startTime = commonVO.getStartTime();
         String endTime = commonVO.getEndTime();
-        param.put("status", Constant.APPLY_COMPLETED);
+        param.put("status", ConstantForDevice.APPLY_COMPLETED);
         param.put("startTime", startTime);
         param.put("endTime", endTime);
         param.put("userId", userIdInfo);
@@ -301,7 +301,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         Map<String, Object> param = Maps.newHashMap();
         String startTime = commonVO.getStartTime();
         String endTime = commonVO.getEndTime();
-        param.put("status", Constant.APPLY_COMPLETED);
+        param.put("status", ConstantForDevice.APPLY_COMPLETED);
         param.put("startTime", startTime);
         param.put("endTime", endTime);
         param.put("userId", userIdInfo);
@@ -319,7 +319,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
             // 所查询的全部用户
             BigDecimal total = reportDao.leaveItemTotal(param);
 
-            List<DictionaryDO> dictionaryDOS = dictionaryService.listByType(Constant.LEAVE_APPLY_TYPE);
+            List<DictionaryDO> dictionaryDOS = dictionaryService.listByType(ConstantForDevice.LEAVE_APPLY_TYPE);
             Long typeMax = dictionaryDOS
                     .stream()
                     .max(Comparator.comparing(DictionaryDO::getId))
@@ -385,7 +385,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         Map<String, Object> param = Maps.newHashMap();
         String startTime = commonVO.getStartTime();
         String endTime = commonVO.getEndTime();
-        param.put("status", Constant.APPLY_COMPLETED);
+        param.put("status", ConstantForDevice.APPLY_COMPLETED);
         param.put("startTime", startTime);
         param.put("endTime", endTime);
         param.put("userId", userIdInfo);
@@ -403,7 +403,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
             // 所查询的全部用户
             BigDecimal total = reportDao.applyForReimbursementItemTotal(param);
 
-            List<DictionaryDO> dictionaryDOS = dictionaryService.listByType(Constant.REIM_APPLY_TYPE);
+            List<DictionaryDO> dictionaryDOS = dictionaryService.listByType(ConstantForDevice.REIM_APPLY_TYPE);
             Long typeMax = dictionaryDOS
                     .stream()
                     .max(Comparator.comparing(DictionaryDO::getId))
@@ -468,7 +468,7 @@ public class AgendaAccountingReportServiceImpl implements AgendaAccountingReport
         Map<String, Object> param = Maps.newHashMap();
         String startTime = commonVO.getStartTime();
         String endTime = commonVO.getEndTime();
-        param.put("status", Constant.APPLY_COMPLETED);
+        param.put("status", ConstantForDevice.APPLY_COMPLETED);
         param.put("startTime", startTime);
         param.put("endTime", endTime);
         param.put("userId", userIdInfo);

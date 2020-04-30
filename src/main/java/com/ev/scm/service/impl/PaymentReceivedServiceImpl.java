@@ -1,6 +1,7 @@
 package com.ev.scm.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.DateFormatUtil;
@@ -136,7 +137,7 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 			}
 			paymentReceivedDO.setPrCode(DateFormatUtil.getWorkOrderno(maxNo, taskNo));
 
-			paymentReceivedDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+			paymentReceivedDO.setAuditSign(Constant.WAIT_AUDIT);
 			paymentReceivedDO.setSign(sign);
 			int row = paymentReceivedDao.save(paymentReceivedDO);
 			if (row > 0) {
@@ -181,7 +182,7 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 		PaymentReceivedDO paymentReceivedDO = this.get(id);
 
 		if(Objects.nonNull(paymentReceivedDO)){
-			if(!Objects.equals(paymentReceivedDO.getAuditSign(),ConstantForGYL.WAIT_AUDIT)){
+			if(!Objects.equals(paymentReceivedDO.getAuditSign(),Constant.WAIT_AUDIT)){
 				return R.error(messageSourceHandler.getMessage("common.massge.okAudit",null));
 			}
 		}
@@ -208,9 +209,9 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
         }
 
 		if(Objects.nonNull(paymentReceivedDO)){
-			if(Objects.equals(paymentReceivedDO.getAuditSign(),ConstantForGYL.WAIT_AUDIT)){
+			if(Objects.equals(paymentReceivedDO.getAuditSign(), Constant.WAIT_AUDIT)){
 				PaymentReceivedDO payDo = new PaymentReceivedDO();
-				payDo.setAuditSign(ConstantForGYL.OK_AUDITED);
+				payDo.setAuditSign(Constant.OK_AUDITED);
 				payDo.setAuditor(ShiroUtils.getUserId());
 				payDo.setAuditTime(new Date());
 				payDo.setId(id);
@@ -401,13 +402,13 @@ public class PaymentReceivedServiceImpl implements PaymentReceivedService {
 		query.put("payItemId",payItemId);
 
 		if(Objects.nonNull(paymentReceivedDO)){
-			if(Objects.equals(paymentReceivedDO.getAuditSign(),ConstantForGYL.OK_AUDITED)){
+			if(Objects.equals(paymentReceivedDO.getAuditSign(),Constant.OK_AUDITED)){
 				PaymentReceivedDO btDo=this.get(id);
 				btDo.setAuditor(0L);
 				btDo.setId(id);
 				btDo.setSign(sign);
 				btDo.setAuditTime(null);
-				btDo.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+				btDo.setAuditSign(Constant.WAIT_AUDIT);
 				btDo.setUpdateTime(new Date());
 				paymentReceivedDao.updateAll(btDo);
 				this.changeBackAuditContractAmoutn(sign,list,payItemId);

@@ -2,6 +2,7 @@ package com.ev.custom.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.R;
 import com.ev.custom.dao.ReimApplyDao;
 import com.ev.custom.domain.*;
@@ -97,7 +98,7 @@ public class ReimApplyServiceImpl implements ReimApplyService {
 		//获取附件
 		Map<String, Object> contentMap = new HashMap<String, Object>() {{
 			put("assocId", reimApplyDO.getId());
-			put("assocType", Constant.REIM_APPLY_APPEARANCE_ATTACHMENT);
+			put("assocType", ConstantForDevice.REIM_APPLY_APPEARANCE_ATTACHMENT);
 			put("sort","id");
 			put("order","ASC");
 		}};
@@ -106,16 +107,16 @@ public class ReimApplyServiceImpl implements ReimApplyService {
 		//审核人
 		List<Map<String, Object>> approveList = userAssocService.list(new HashMap<String, Object>() {{
 			put("assocId", reimApplyDO.getId());
-			put("assocType", Constant.REIM_APPROVE_TARGET);
+			put("assocType", ConstantForDevice.REIM_APPROVE_TARGET);
 			put("sort","id");
 			put("order","ASC");
 		}});
 		results.put("approveList", approveList);
 		//获取发送对象
-		List<Map<String,Object>> targetList = userAssocService.list(new HashMap<String,Object>(){{put("assocId",reimApplyDO.getId());put("assocType",Constant.REIM_APPLY_TARGET);}});
+		List<Map<String,Object>> targetList = userAssocService.list(new HashMap<String,Object>(){{put("assocId",reimApplyDO.getId());put("assocType", ConstantForDevice.REIM_APPLY_TARGET);}});
 		results.put("targetList", targetList);
 		//获取回复信息
-		Map<String,Object> commentMap = new HashMap<String,Object>(){{put("assocId",id);put("assocType",Constant.REIM_APPLY_COMMENT);}};
+		Map<String,Object> commentMap = new HashMap<String,Object>(){{put("assocId",id);put("assocType", ConstantForDevice.REIM_APPLY_COMMENT);}};
 		List<CommentDO> commentList = commentService.list(commentMap);
 		results.put("commentList", commentList);
 
@@ -132,7 +133,7 @@ public class ReimApplyServiceImpl implements ReimApplyService {
 		//驱动流程
 		String processInstanceId = dingdingService.submitApply(approveList,reimApplyDO.getProcessInstanceId()==null?null:reimApplyDO.getProcessInstanceId().toString());
 		reimApplyDO.setProcessInstanceId(processInstanceId);
-		reimApplyDO.setStatus(Constant.APPLY_APPROVING);
+		reimApplyDO.setStatus(ConstantForDevice.APPLY_APPROVING);
 		saveReimApply(reimApplyDO, reimApplyItems, approveList,  taglocationappearanceImage );
 	}
 
@@ -146,10 +147,10 @@ public class ReimApplyServiceImpl implements ReimApplyService {
 		ReimApplyDO reimApplyDO = get(reimApplyId);
 		String status = dingdingService.completeApprove(reimApplyDO.getProcessInstanceId(),isApproved==1?true:false,reason);
 		if("down".equals(status)){
-			reimApplyDO.setStatus(Constant.APPLY_REJECT);
+			reimApplyDO.setStatus(ConstantForDevice.APPLY_REJECT);
 			update(reimApplyDO);
 		}else if("up".equals(status)){
-			reimApplyDO.setStatus(Constant.APPLY_COMPLETED);
+			reimApplyDO.setStatus(ConstantForDevice.APPLY_COMPLETED);
 			update(reimApplyDO);
 		}else{
 			//TODO
@@ -158,7 +159,7 @@ public class ReimApplyServiceImpl implements ReimApplyService {
 
 	@Override
 	public void commentReimApply(Long reimApplyId, String comment) {
-		CommentDO commentDo = new CommentDO(reimApplyId,Constant.REIM_APPLY_COMMENT,comment);
+		CommentDO commentDo = new CommentDO(reimApplyId, ConstantForDevice.REIM_APPLY_COMMENT,comment);
 		commentService.save(commentDo);
 	}
 
@@ -168,7 +169,7 @@ public class ReimApplyServiceImpl implements ReimApplyService {
 			save(reimApplyDO);
 			//审核人
 			for(int i=0;i<approveList.length;i++){
-				UserAssocDO userAssocDO = new UserAssocDO(reimApplyDO.getId(),Constant.REIM_APPROVE_TARGET,approveList[i]);
+				UserAssocDO userAssocDO = new UserAssocDO(reimApplyDO.getId(), ConstantForDevice.REIM_APPROVE_TARGET,approveList[i]);
 				userAssocService.save(userAssocDO);
 				//抄送给谁
 //			for(int i=0;i<targetList.length;i++){
@@ -181,7 +182,7 @@ public class ReimApplyServiceImpl implements ReimApplyService {
 		}
 		//附件信息操作
 		if(tagLocationAppearanceAttachment!=null&&tagLocationAppearanceAttachment.length>0){
-			contentAssocService.saveList(reimApplyDO.getId(),tagLocationAppearanceAttachment,Constant.REIM_APPLY_APPEARANCE_ATTACHMENT);
+			contentAssocService.saveList(reimApplyDO.getId(),tagLocationAppearanceAttachment, ConstantForDevice.REIM_APPLY_APPEARANCE_ATTACHMENT);
 		}
 //		contentAssocService.saveList(reimApplyDO.getId(),tagLocationAppearanceAttachment,Constant.REIM_APPLY_APPEARANCE_ATTACHMENT);
 		//明细保存
@@ -203,7 +204,7 @@ public class ReimApplyServiceImpl implements ReimApplyService {
 		if (sign == 1) {
 			String processInstanceId = dingdingService.submitApply(newApproveMen,reimApplyDO.getProcessInstanceId()==null?null:reimApplyDO.getProcessInstanceId().toString());
 			reimApplyDO.setProcessInstanceId(processInstanceId);
-			reimApplyDO.setStatus(Constant.APPLY_APPROVING);
+			reimApplyDO.setStatus(ConstantForDevice.APPLY_APPROVING);
 
 		}//审批中状态
 
@@ -214,12 +215,12 @@ public class ReimApplyServiceImpl implements ReimApplyService {
 			Map<String, Object> query = new HashMap<String, Object>();
 			query.put("userId", null);
 			query.put("assocId", reimApplyDO.getId());
-			query.put("assocType", Constant.REIM_APPROVE_TARGET);
+			query.put("assocType", ConstantForDevice.REIM_APPROVE_TARGET);
 			userAssocService.removeByAssocIdAndUserId(query);
 
 		if (newApproveMen.length>0) {
 			for (int i = 0; i < newApproveMen.length; i++) {
-				UserAssocDO userAssocDO = new UserAssocDO(reimApplyDO.getId(), Constant.REIM_APPROVE_TARGET, newApproveMen[i]);
+				UserAssocDO userAssocDO = new UserAssocDO(reimApplyDO.getId(), ConstantForDevice.REIM_APPROVE_TARGET, newApproveMen[i]);
 				userAssocService.save(userAssocDO);
 			}
 		}
@@ -228,10 +229,10 @@ public class ReimApplyServiceImpl implements ReimApplyService {
 		Map<String,Object> querys =new HashMap<>();
 		Long[] ids = new Long[1];
 		ids[0] =reimApplyDO.getId();
-		contentAssocService.removeByAssocIdAndType(ids, Constant.REIM_APPLY_APPEARANCE_ATTACHMENT);
+		contentAssocService.removeByAssocIdAndType(ids, ConstantForDevice.REIM_APPLY_APPEARANCE_ATTACHMENT);
 
 		if (newTaglocatio.length>0) {
-			contentAssocService.saveList(reimApplyDO.getId(), newTaglocatio, Constant.REIM_APPLY_APPEARANCE_ATTACHMENT);
+			contentAssocService.saveList(reimApplyDO.getId(), newTaglocatio, ConstantForDevice.REIM_APPLY_APPEARANCE_ATTACHMENT);
 		}
 
 		//明细保存  新增+修改+删除
@@ -275,7 +276,7 @@ public class ReimApplyServiceImpl implements ReimApplyService {
 		for (int i = 0; i < ids.length; i++) {
 			ReimApplyDO reimApplyDO = reimApplyDao.get(ids[i]);
 			if (reimApplyDO != null) {
-				if (Objects.equals(Constant.TS, reimApplyDO.getStatus()) || Objects.equals(Constant.APPLY_REJECT, reimApplyDO.getStatus())) {
+				if (Objects.equals(Constant.TS, reimApplyDO.getStatus()) || Objects.equals(ConstantForDevice.APPLY_REJECT, reimApplyDO.getStatus())) {
 					logIDs[i] = ids[i];
 				}else {
 					return R.error("单据已提交，不能删除！");

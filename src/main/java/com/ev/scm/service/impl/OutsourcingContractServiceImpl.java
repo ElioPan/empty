@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ev.custom.service.MaterielService;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
@@ -115,7 +116,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         Map<String, Object> result = Maps.newHashMap();
         // 新增
         if (id == null) {
-            outsourcingContract.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+            outsourcingContract.setAuditSign(Constant.WAIT_AUDIT);
             outsourcingContract.setCloseStatus(0);
             outsourcingContract.setContractCode(this.outsourcingContractCode());
             outsourcingContract.setInvoicedAmount(BigDecimal.ZERO);
@@ -125,7 +126,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
             // 修改
             // 验证是否能修改 CloseStatus 0 未关闭 1 关闭
             OutsourcingContractDO outsourcingContractDO = this.get(id);
-            if (!Objects.equals(outsourcingContractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+            if (!Objects.equals(outsourcingContractDO.getAuditSign(), Constant.WAIT_AUDIT)) {
                 return R.error(messageSourceHandler.getMessage("common.approved.update.disabled", null));
             }
             outsourcingContractDao.update(outsourcingContract);
@@ -185,7 +186,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         if (outsourcingContractIds.length > 0) {
             for (Long outsourcingContractId : outsourcingContractIds) {
                 outsourcingContractDO = this.get(outsourcingContractId);
-                if (!Objects.equals(outsourcingContractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+                if (!Objects.equals(outsourcingContractDO.getAuditSign(), Constant.WAIT_AUDIT)) {
                     return R.error(messageSourceHandler.getMessage("common.submit.delete.disabled", null));
                 }
             }
@@ -206,7 +207,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         }
 
         OutsourcingContractDO outsourcingContractDO = this.get(outsourcingContractId);
-        if (Objects.equals(outsourcingContractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+        if (Objects.equals(outsourcingContractDO.getAuditSign(), Constant.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("scm.contract.isUpdate.notAlteration", null));
         }
         if (outsourcingContractDO.getCloseStatus() == 1) {
@@ -420,7 +421,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         if (outsourcingContractDO.getCloseStatus() == 1) {
             return R.error(messageSourceHandler.getMessage("common.contract.isCloseStatus", null));
         }
-        if (Objects.equals(outsourcingContractDO.getAuditSign(), ConstantForGYL.OK_AUDITED)) {
+        if (Objects.equals(outsourcingContractDO.getAuditSign(), Constant.OK_AUDITED)) {
             return R.error(messageSourceHandler.getMessage("common.duplicate.approved", null));
         }
         // 表体中物料有BOM编号审核时调用BOM数据同步生成委外投料单，具体算法同生产投料单。
@@ -436,7 +437,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
             }
         }
         // 修改单据状态
-        outsourcingContractDO.setAuditSign(ConstantForGYL.OK_AUDITED);
+        outsourcingContractDO.setAuditSign(Constant.OK_AUDITED);
         outsourcingContractDO.setAuditTime(new Date());
         outsourcingContractDO.setAuditor(ShiroUtils.getUserId());
         return this.update(outsourcingContractDO) > 0 ? R.ok() : R.error();
@@ -475,7 +476,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
             BigDecimal wasteRate = bomDetailDO.getWasteRate();
             BigDecimal standardCount = bomDetailDO.getStandardCount();
             BigDecimal planCount = itemDO.getCount();
-            BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100),Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP)
+            BigDecimal planFeeding = standardCount.divide(BigDecimal.valueOf(1 - wasteRate.doubleValue() / 100), Constant.BIGDECIMAL_ZERO,BigDecimal.ROUND_HALF_UP)
                     .multiply(planCount);
             feedingDetail.put("planFeeding", planFeeding);
             feedingDetailList.add(feedingDetail);
@@ -489,7 +490,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         if (outsourcingContractDO.getCloseStatus() == 1) {
             return R.error(messageSourceHandler.getMessage("common.contract.isCloseStatus", null));
         }
-        if (!Objects.equals(outsourcingContractDO.getAuditSign(), ConstantForGYL.OK_AUDITED)) {
+        if (!Objects.equals(outsourcingContractDO.getAuditSign(), Constant.OK_AUDITED)) {
             return R.error(messageSourceHandler.getMessage("common.massge.faildRollBackAudit", null));
         }
         int  closingLines= outsourcingContractItemService.lineClosingNumber(id);
@@ -517,7 +518,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
                 ProductionFeedingDO feedingDO = feedingService.getByOutsourcingContractItemId(itemId);
                 if (feedingDO != null) {
                     feedingIdList.add(feedingDO.getId());
-                    if (Objects.equals(feedingDO.getStatus(), ConstantForMES.OK_AUDITED)) {
+                    if (Objects.equals(feedingDO.getStatus(), Constant.OK_AUDITED)) {
                         return R.error(messageSourceHandler.getMessage("plan.feedingPlan.isAudit", null));
                     }
                 }
@@ -529,7 +530,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
         }
 
         // 修改单据状态
-        outsourcingContractDO.setAuditSign(ConstantForGYL.WAIT_AUDIT);
+        outsourcingContractDO.setAuditSign(Constant.WAIT_AUDIT);
         outsourcingContractDO.setAuditor(null);
         outsourcingContractDO.setAuditTime(null);
         return this.updateAll(outsourcingContractDO) > 0 ? R.ok() : R.error();
@@ -538,7 +539,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
     @Override
     public R close(Long id) {
         OutsourcingContractDO outsourcingContractDO = this.get(id);
-        if (Objects.equals(outsourcingContractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+        if (Objects.equals(outsourcingContractDO.getAuditSign(), Constant.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("scm.close.isWaitAudit", null));
         }
         if (outsourcingContractDO.getCloseStatus() == 1) {
@@ -552,7 +553,7 @@ public class OutsourcingContractServiceImpl implements OutsourcingContractServic
     @Override
     public R reverseClose(Long id) {
         OutsourcingContractDO outsourcingContractDO = this.get(id);
-        if (Objects.equals(outsourcingContractDO.getAuditSign(), ConstantForGYL.WAIT_AUDIT)) {
+        if (Objects.equals(outsourcingContractDO.getAuditSign(), Constant.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("scm.close.isWaitAudit", null));
         }
         if (outsourcingContractDO.getCloseStatus() == 0) {

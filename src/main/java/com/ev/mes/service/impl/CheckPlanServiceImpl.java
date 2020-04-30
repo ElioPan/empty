@@ -1,6 +1,7 @@
 package com.ev.mes.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
@@ -73,7 +74,7 @@ public class CheckPlanServiceImpl implements CheckPlanService {
         if (Objects.nonNull(checkPlanDO.getId())) {
 
             CheckPlanDO planDO = checkPlanDao.get(checkPlanDO.getId());
-            if(Objects.equals(ConstantForMES.OK_AUDITED,planDO.getAuditSign())){
+            if(Objects.equals(Constant.OK_AUDITED,planDO.getAuditSign())){
                 //"方案已审核不允许修改！"
                 return R.error(messageSourceHandler.getMessage("common.approved.update.disabled",null));
             }
@@ -109,7 +110,7 @@ public class CheckPlanServiceImpl implements CheckPlanService {
                 suffix = list.get(0).getCode();
             }
             checkPlanDO.setCode(DateFormatUtil.getWorkOrderno(prefix, suffix));
-            checkPlanDO.setAuditSign(ConstantForMES.WAIT_AUDIT);
+            checkPlanDO.setAuditSign(Constant.WAIT_AUDIT);
 
             checkPlanDao.save(checkPlanDO);
 
@@ -127,13 +128,13 @@ public class CheckPlanServiceImpl implements CheckPlanService {
     @Override
     public R auditPlanOfCheck(Long id,Long auditId){
         CheckPlanDO planDO = checkPlanDao.get(id);
-        if(Objects.equals(ConstantForMES.OK_AUDITED,planDO.getAuditSign())){
+        if(Objects.equals(Constant.OK_AUDITED,planDO.getAuditSign())){
             //"已审核请勿重复操作！"
             return R.error(messageSourceHandler.getMessage("common.massge.okAudit",null));
         }else{
 
             CheckPlanDO checkPlanDO =new CheckPlanDO();
-            checkPlanDO.setAuditSign(ConstantForMES.OK_AUDITED);
+            checkPlanDO.setAuditSign(Constant.OK_AUDITED);
             checkPlanDO.setId(id);
 //            checkPlanDO.setAuditId(auditId);
             checkPlanDO.setAuditId(ShiroUtils.getUserId());
@@ -146,12 +147,12 @@ public class CheckPlanServiceImpl implements CheckPlanService {
     public R opposeAuditCheckPlan(Long id ){
 
         CheckPlanDO planDO = checkPlanDao.get(id);
-        if(Objects.equals(ConstantForMES.WAIT_AUDIT,planDO.getAuditSign())){
+        if(Objects.equals(Constant.WAIT_AUDIT,planDO.getAuditSign())){
             //"已为待审核请勿重复操作！"
             return R.error(messageSourceHandler.getMessage("common.massge.okWaitAudit",null));
         }else{
             CheckPlanDO checkPlanDO =new CheckPlanDO();
-            checkPlanDO.setAuditSign(ConstantForMES.WAIT_AUDIT);
+            checkPlanDO.setAuditSign(Constant.WAIT_AUDIT);
             checkPlanDO.setId(id);
             checkPlanDO.setAuditId(0L);
             checkPlanDao.update(checkPlanDO);

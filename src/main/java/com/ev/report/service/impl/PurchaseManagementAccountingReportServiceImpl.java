@@ -1,6 +1,7 @@
 package com.ev.report.service.impl;
 
 import com.ev.apis.model.DsResultResponse;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForReport;
 import com.ev.framework.utils.MathUtils;
@@ -89,7 +90,7 @@ public class PurchaseManagementAccountingReportServiceImpl implements PurchaseMa
                             , (v1, v2) -> v1));
 
             Map<String, Object> peramy = new HashMap<>();
-            peramy.put("auditSign", ConstantForGYL.OK_AUDITED);
+            peramy.put("auditSign", Constant.OK_AUDITED);
             peramy.put("storageType", ConstantForGYL.PURCHASE_INSTOCK);
             peramy.put("sourceId", sourceIds);
 

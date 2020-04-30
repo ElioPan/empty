@@ -3,7 +3,7 @@ package com.ev.mes.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.ev.custom.domain.ContentAssocDO;
 import com.ev.custom.service.ContentAssocService;
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.*;
@@ -485,7 +485,7 @@ public class DispatchItemServiceImpl implements DispatchItemService {
         DatesUtil datesUtil=new DatesUtil();
         Date dateBefor = datesUtil.getDateBefor(new Date(), 6);
         Map<String,Object>  map= new HashMap<>();
-        map.put("status",Constant.APPLY_APPROED);
+        map.put("status", ConstantForDevice.APPLY_APPROED);
         map.put("createTimes",formatter.format(dateBefor));
         List<Map<String, Object>> mapList = processReportService.listForMap(map);
         map.clear();
@@ -526,7 +526,7 @@ public class DispatchItemServiceImpl implements DispatchItemService {
         DatesUtil datesUtil=new DatesUtil();
         Date yesterday = datesUtil.getDateBefor(new Date(), 6);
         Map<String,Object>  map= new HashMap<>();
-        map.put("status",Constant.APPLY_APPROED);
+        map.put("status", ConstantForDevice.APPLY_APPROED);
         map.put("createTimes",formatter.format(yesterday));
         //派工时未选设备的工单去掉
         map.put("deviceIdIsNull",1);

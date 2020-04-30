@@ -2,6 +2,7 @@ package com.ev.apis.controller.custom;
 
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import io.swagger.annotations.Api;

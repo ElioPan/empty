@@ -15,6 +15,7 @@ import com.ev.custom.service.DictionaryService;
 import com.ev.custom.vo.ClientEntity;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.config.ConstantForGYL;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
@@ -112,7 +113,7 @@ public class ClientApiController {
             return  R.error(messageSourceHandler.getMessage("common.massge.haveNoId",null));
         }
 
-        clientDo.setStatus(ConstantForGYL.WAIT_AUDIT);
+        clientDo.setStatus(Constant.WAIT_AUDIT);
         clientDo.setName(clientDo.getName().trim());
 
         int rows = clientService.update(clientDo);
@@ -143,16 +144,16 @@ public class ClientApiController {
             return  R.error(messageSourceHandler.getMessage("apis.mes.clientSupplier.duplicationOfName",null));
         }
 
-        if(StringUtils.isEmpty(clientDo.getCode()) || clientDo.getCode().startsWith(Constant.KH)){
+        if(StringUtils.isEmpty(clientDo.getCode()) || clientDo.getCode().startsWith(ConstantForDevice.KH)){
             Map<String,Object> map = Maps.newHashMap();
-            map.put("maxNo",Constant.KH);
+            map.put("maxNo", ConstantForDevice.KH);
             map.put("offset", 0);
             map.put("limit", 1);
             List<ClientDO> list = clientService.list(map);
-            clientDo.setCode(DateFormatUtil.getWorkOrderno(Constant.KH,list.size()>0?list.get(0).getCode():null,4));
+            clientDo.setCode(DateFormatUtil.getWorkOrderno(ConstantForDevice.KH,list.size()>0?list.get(0).getCode():null,4));
         }
 
-        if(StringUtils.isNotEmpty(clientDo.getCode())&&!(clientDo.getCode().startsWith(Constant.KH))){
+        if(StringUtils.isNotEmpty(clientDo.getCode())&&!(clientDo.getCode().startsWith(ConstantForDevice.KH))){
             paramy.clear();
             paramy.put("code",clientDo.getCode());
             if(clientService.checkSave(paramy)>0){
@@ -161,7 +162,7 @@ public class ClientApiController {
         }
 
         ClientLinkmanDO clientLinkmanDO = new ClientLinkmanDO();
-        clientDo.setStatus(ConstantForGYL.WAIT_AUDIT);
+        clientDo.setStatus(Constant.WAIT_AUDIT);
         clientDo.setName(clientDo.getName().trim());
         int rows = clientService.save(clientDo);
         if (rows > 0) {
@@ -182,8 +183,8 @@ public class ClientApiController {
     public R submitClient(@ApiParam(value = "客户id", required = true) @RequestParam(value = "id", defaultValue = "", required = true)Long id ){
         ClientDO clientDO = clientService.get(id);
         if(Objects.nonNull(clientDO)){
-            if(Objects.equals(clientDO.getStatus(),ConstantForGYL.WAIT_AUDIT)){
-                clientDO.setStatus(ConstantForGYL.OK_AUDITED);
+            if(Objects.equals(clientDO.getStatus(),Constant.WAIT_AUDIT)){
+                clientDO.setStatus(Constant.OK_AUDITED);
                 clientDO.setAuditId(ShiroUtils.getUserId());
                 clientService.update(clientDO);
                 return R.ok();
@@ -201,8 +202,8 @@ public class ClientApiController {
     public R goBackSubmitClient(@ApiParam(value = "客户id", required = true) @RequestParam(value = "id", defaultValue = "", required = true)Long id ){
         ClientDO clientDO = clientService.get(id);
         if(Objects.nonNull(clientDO)){
-            if(Objects.equals(clientDO.getStatus(),ConstantForGYL.OK_AUDITED)){
-                clientDO.setStatus(ConstantForGYL.WAIT_AUDIT);
+            if(Objects.equals(clientDO.getStatus(),Constant.OK_AUDITED)){
+                clientDO.setStatus(Constant.WAIT_AUDIT);
                 clientDO.setAuditId(0L);
                 clientService.update(clientDO);
                 return R.ok();
@@ -286,14 +287,14 @@ public class ClientApiController {
                 if(Objects.isNull(clientDO)){
                     return R.error(messageSourceHandler.getMessage("common.massge.haveNoThing",null));
                 }
-                if(!Objects.equals(clientDO.getStatus(),ConstantForMES.WAIT_AUDIT)){
+                if(!Objects.equals(clientDO.getStatus(),Constant.WAIT_AUDIT)){
                     return R.error(messageSourceHandler.getMessage("common.massge.okAudit",null));
                 }
                 clientDOList.add(clientDO);
             }
 
             for (ClientDO clientDO : clientDOList) {
-                clientDO.setStatus(ConstantForMES.OK_AUDITED);
+                clientDO.setStatus(Constant.OK_AUDITED);
                 clientDO.setAuditId(userId);
                clientService.update(clientDO);
             }
@@ -357,23 +358,23 @@ public class ClientApiController {
             }
 
             Map<String, Object> param = Maps.newHashMap();
-            param.put("maxNo", Constant.KH);
+            param.put("maxNo", ConstantForDevice.KH);
             param.put("offset", 0);
             param.put("limit", 1);
             List<ClientDO> list = clientService.list(param);
-            String firstCode = DateFormatUtil.getWorkOrderno(Constant.KH, list.size() > 0 ? list.get(0).getCode() : null, 4);
+            String firstCode = DateFormatUtil.getWorkOrderno(ConstantForDevice.KH, list.size() > 0 ? list.get(0).getCode() : null, 4);
 
             List<ClientEntity> codeEmptyList = clientEntityList.stream()
-                    .filter(clientEntity -> StringUtils.isEmpty(clientEntity.getCode()) || clientEntity.getCode().startsWith(Constant.KH))
+                    .filter(clientEntity -> StringUtils.isEmpty(clientEntity.getCode()) || clientEntity.getCode().startsWith(ConstantForDevice.KH))
                     .collect(Collectors.toList());
             for (ClientEntity clientEntity : codeEmptyList) {
                 clientEntity.setCode(firstCode);
                 assert firstCode != null;
-                firstCode = Constant.KH + StringUtils.autoGenericCode(firstCode.substring(Constant.KH.length()), 4);
+                firstCode = ConstantForDevice.KH + StringUtils.autoGenericCode(firstCode.substring(ConstantForDevice.KH.length()), 4);
             }
 
             Map<String,Object> emptyMap = Maps.newHashMap();
-            List<DictionaryDO> clientTypeDOs = dictionaryService.listByType(Constant.CLIENT_TYPE);
+            List<DictionaryDO> clientTypeDOs = dictionaryService.listByType(ConstantForDevice.CLIENT_TYPE);
             List<DeptDO> deptDOs = deptService.list(emptyMap);
             List<UserDO> userDOs = userService.list(emptyMap);
 
@@ -420,7 +421,7 @@ public class ClientApiController {
                     }
                 }
 
-                clientDO.setStatus(ConstantForMES.WAIT_AUDIT);
+                clientDO.setStatus(Constant.WAIT_AUDIT);
                 // 使用状态(1是0否)
                 clientDO.setDelFlag(0);
                 clientDO.setUseStatus(1);

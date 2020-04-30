@@ -6,6 +6,7 @@ import cn.afterturn.easypoi.view.PoiBaseView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.StringUtils;
@@ -66,7 +67,7 @@ public class PurchaseManagementAccountingReportApiController {
         params.put("userId", userId);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
-        params.put("auditSign", ConstantForMES.OK_AUDITED);
+        params.put("auditSign", Constant.OK_AUDITED);
 
        return  reportService.disposeTracking(params,showItem, showUser);
     }
@@ -96,7 +97,7 @@ public class PurchaseManagementAccountingReportApiController {
         params.put("contractCode", contractCode);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
-        params.put("auditSign", ConstantForMES.OK_AUDITED);
+        params.put("auditSign", Constant.OK_AUDITED);
         R r = reportService.disposeTracking(params, showItem, showUser);
         if(!r.containsKey("data")){
             return;
@@ -250,7 +251,7 @@ public class PurchaseManagementAccountingReportApiController {
         params.put("materielId", materielId);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
-        params.put("auditSign", ConstantForMES.OK_AUDITED);
+        params.put("auditSign", Constant.OK_AUDITED);
 
         return reportService.disposePriceAnalysis(params,pageno,pagesize);
     }
@@ -274,7 +275,7 @@ public class PurchaseManagementAccountingReportApiController {
         params.put("materielId", materielId);
         params.put("startTime", startTime);
         params.put("endTime", endTime);
-        params.put("auditSign", ConstantForMES.OK_AUDITED);
+        params.put("auditSign", Constant.OK_AUDITED);
         R r =  reportService.disposePriceAnalysis(params,pageno,pagesize);
 
         Object dateList;

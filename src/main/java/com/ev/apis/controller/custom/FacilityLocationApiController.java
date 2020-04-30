@@ -4,6 +4,7 @@ import com.ev.apis.model.DsResultResponse;
 import com.ev.custom.domain.FacilityLocationDO;
 import com.ev.custom.service.FacilityLocationService;
 import com.ev.framework.annotation.EvApiByToken;
+import com.ev.framework.config.Constant;
 import com.ev.framework.config.ConstantForMES;
 import com.ev.framework.il8n.MessageSourceHandler;
 import com.ev.framework.utils.R;
@@ -108,7 +109,7 @@ public class FacilityLocationApiController {
     public R remove(@ApiParam(value = "库位主键",required = true) @RequestParam(value="id",defaultValue = "") Long id){
         FacilityLocationDO facilityLocationDO = facilityLocationService.get(id);
         if (facilityLocationDO != null) {
-            if(Objects.equals(facilityLocationDO.getAuditSign(),ConstantForMES.OK_AUDITED)){
+            if(Objects.equals(facilityLocationDO.getAuditSign(),Constant.OK_AUDITED)){
                 return R.error(messageSourceHandler.getMessage("common.approved.delete.disabled", null));
             }
             if(facilityLocationService.logicRemove(id)>0){
@@ -127,7 +128,7 @@ public class FacilityLocationApiController {
             if(facilityLocationDO == null){
                 return R.error();
             }
-            if (Objects.equals(facilityLocationDO.getAuditSign(), ConstantForMES.OK_AUDITED)) {
+            if (Objects.equals(facilityLocationDO.getAuditSign(), Constant.OK_AUDITED)) {
                 return R.error(messageSourceHandler.getMessage("common.approved.delete.disabled", null));
             }
         }
@@ -147,7 +148,7 @@ public class FacilityLocationApiController {
     public R audit(
             @ApiParam(value = "库位主键", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
         FacilityLocationDO facilityLocationDO = facilityLocationService.get(id);
-        if (Objects.equals(facilityLocationDO.getAuditSign(), ConstantForMES.OK_AUDITED)) {
+        if (Objects.equals(facilityLocationDO.getAuditSign(), Constant.OK_AUDITED)) {
             return R.error(messageSourceHandler.getMessage("common.duplicate.approved",null));
         }
         if (facilityLocationService.audit(id) > 0) {
@@ -168,7 +169,7 @@ public class FacilityLocationApiController {
     public R reverseAudit(
             @ApiParam(value = "库位主键", required = true) @RequestParam(value = "id", defaultValue = "") Long id) {
         FacilityLocationDO facilityLocationDO = facilityLocationService.get(id);
-        if (Objects.equals(facilityLocationDO.getAuditSign(), ConstantForMES.WAIT_AUDIT)) {
+        if (Objects.equals(facilityLocationDO.getAuditSign(), Constant.WAIT_AUDIT)) {
             return R.error(messageSourceHandler.getMessage("receipt.reverseAudit.nonWaitingAudit",null));
         }
         if (facilityLocationService.reverseAudit(id) > 0) {

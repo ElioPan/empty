@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.DatesUtil;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
@@ -118,7 +119,7 @@ public class PatrolApiController {
     public R addPlan(PatrolPlanDO plan,
                      @ApiParam(value = "巡检明细数组，如[{\"deviceId\":3,\"projectId\":[4,5]},{\"deviceId\":4,\"projectId\":[7,8]}]") @RequestParam(value = "detailArray",defaultValue = "",required = false)  String detailArray){
     	// 创建新的计划设置计划为启动状态 Constant.STATE_START 
-		plan.setStatus(Constant.STATE_START);
+		plan.setStatus(ConstantForDevice.STATE_START);
 		Map<String, Object> result = this.patrolPlanService.addPlan(plan, detailArray);
 		if (result.size()>0) {
 			return R.ok();
@@ -223,7 +224,7 @@ public class PatrolApiController {
 //			return R.error("用户错误");
 //		}
         //将任务设置为已完成
-        record.setStatus(Constant.STATE_STOP_OVER);
+        record.setStatus(ConstantForDevice.STATE_STOP_OVER);
         JSONArray jsonArray = JSON.parseArray(detailArray);
         for(int j = 0; j < jsonArray.size(); j ++) {
         	JSONObject jsonObject = jsonArray.getJSONObject(j);
@@ -424,7 +425,7 @@ public class PatrolApiController {
 			}
 		}
         //设置任务状态为已完成
-        record.setStatus(Constant.STATE_STOP_OVER);
+        record.setStatus(ConstantForDevice.STATE_STOP_OVER);
         return R.ok( this.patrolRecordService.saveHandleRecord(content, detailArray, signInImage, taglocationappearanceImage, record));
     }
     
@@ -444,7 +445,7 @@ public class PatrolApiController {
             return R.error(messageSourceHandler.getMessage("patrol.nonHeldPerson.patrol",null));
 		}
         //设置任务状态为暂存
-        record.setStatus(Constant.WAITING_DEAL);
+        record.setStatus(ConstantForDevice.WAITING_DEAL);
         return R.ok( this.patrolRecordService.saveHandleRecord(content, detailArray, signInImage, taglocationappearanceImage, record));
     }
 
@@ -523,7 +524,7 @@ public class PatrolApiController {
         params.put("startTime",startTime);
         params.put("endTime",endTime);
         params.put("result",result);
-        params.put("recordStatus",Constant.STATE_STOP_OVER);
+        params.put("recordStatus", ConstantForDevice.STATE_STOP_OVER);
         params.put("offset", (pageno - 1) * pagesize);
 		params.put("limit", pagesize);
 		List<Map<String,Object>> datas=this.patrolDetailService.devicePatrolListForMap(params);

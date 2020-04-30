@@ -1,6 +1,6 @@
 package com.ev.custom.service.impl;
 
-import com.ev.framework.config.Constant;
+import com.ev.framework.config.ConstantForDevice;
 import com.ev.framework.utils.R;
 import com.ev.framework.utils.ShiroUtils;
 import com.ev.custom.dao.DailyReportDao;
@@ -106,7 +106,7 @@ public class DailyReportServiceImpl implements DailyReportService {
 		//获取附件
 		Map<String, Object> contentMap = new HashMap<String, Object>() {{
 			put("assocId", dailyReport.getId());
-			put("assocType", Constant.DAILY_REPORT_APPEARANCE_ATTACHMENT);
+			put("assocType", ConstantForDevice.DAILY_REPORT_APPEARANCE_ATTACHMENT);
 			put("sort","id");
 			put("order","ASC");
 		}};
@@ -116,7 +116,7 @@ public class DailyReportServiceImpl implements DailyReportService {
 		//获取发送对象
 		List<Map<String, Object>> targetList = userAssocService.list(new HashMap<String, Object>() {{
 			put("assocId", dailyReport.getId());
-			put("assocType", Constant.DAILY_REPORT_TARGET);
+			put("assocType", ConstantForDevice.DAILY_REPORT_TARGET);
 			put("sort","id");
 			put("order","ASC");
 		}});
@@ -124,7 +124,7 @@ public class DailyReportServiceImpl implements DailyReportService {
 		//获取回复信息
 		Map<String, Object> commentMap = new HashMap<String, Object>() {{
 			put("assocId", id);
-			put("assocType", Constant.DAILY_REPORT_COMMENT);
+			put("assocType", ConstantForDevice.DAILY_REPORT_COMMENT);
 		}};
 //		List<CommentDO> commentList = commentService.list(commentMap);
 		List<Map<String, Object>> commentList =commentService.listOfDetail(commentMap);
@@ -144,7 +144,7 @@ public class DailyReportServiceImpl implements DailyReportService {
 
 	@Override
 	public void commentDailyReport(Long dailyReportId, String comment) {
-		CommentDO commentDo = new CommentDO(dailyReportId,Constant.DAILY_REPORT_COMMENT,comment);
+		CommentDO commentDo = new CommentDO(dailyReportId, ConstantForDevice.DAILY_REPORT_COMMENT,comment);
 		commentService.save(commentDo);
 	}
 
@@ -153,13 +153,13 @@ public class DailyReportServiceImpl implements DailyReportService {
 			dailyReportDao.save(dailyReportDO);
 
 			for(int i=0;i<targetList.length;i++){
-				UserAssocDO userAssocDO = new UserAssocDO(dailyReportDO.getId(),Constant.DAILY_REPORT_TARGET,targetList[i]);
+				UserAssocDO userAssocDO = new UserAssocDO(dailyReportDO.getId(), ConstantForDevice.DAILY_REPORT_TARGET,targetList[i]);
 				userAssocService.save(userAssocDO);
 			}
 		}else{
 			dailyReportDao.update(dailyReportDO);
 		}
-		contentAssocService.saveList(dailyReportDO.getId(),tagLocationAppearanceAttachment,Constant.DAILY_REPORT_APPEARANCE_ATTACHMENT);
+		contentAssocService.saveList(dailyReportDO.getId(),tagLocationAppearanceAttachment, ConstantForDevice.DAILY_REPORT_APPEARANCE_ATTACHMENT);
 		contentAssocService.deleteList(deleteTagAppearanceAttachment);
 	}
 
@@ -169,7 +169,7 @@ public class DailyReportServiceImpl implements DailyReportService {
 
 		if(sign==1){
 			//使用情况：修改后直接提交
-			dailyReportDO.setStatus(Constant.APPLY_APPROED); //148 已提交
+			dailyReportDO.setStatus(ConstantForDevice.APPLY_APPROED); //148 已提交
 		}
 		    //更新日志信息
 			update(dailyReportDO);
@@ -179,21 +179,21 @@ public class DailyReportServiceImpl implements DailyReportService {
 			Map<String, Object> query = new HashMap<String, Object>();
 			query.put("userId", deletTargetList);
 			query.put("assocId", dailyReportDO.getId());
-			query.put("assocType", Constant.DAILY_REPORT_TARGET);
+			query.put("assocType", ConstantForDevice.DAILY_REPORT_TARGET);
 			userAssocService.removeByAssocIdAndUserId(query);
 		}
 			//保存新增发送人
 		if(newTargetList.length>0){
 
 			for(int i=0;i<newTargetList.length;i++){
-				UserAssocDO userAssocDO = new UserAssocDO(dailyReportDO.getId(),Constant.DAILY_REPORT_TARGET,newTargetList[i]);
+				UserAssocDO userAssocDO = new UserAssocDO(dailyReportDO.getId(), ConstantForDevice.DAILY_REPORT_TARGET,newTargetList[i]);
 				userAssocService.save(userAssocDO);
 			}
 		}
 
 		   //删除路径 +增加路径保存
 		if(newAttachment.length>0){
-			contentAssocService.saveList(dailyReportDO.getId(),newAttachment,Constant.DAILY_REPORT_APPEARANCE_ATTACHMENT);
+			contentAssocService.saveList(dailyReportDO.getId(),newAttachment, ConstantForDevice.DAILY_REPORT_APPEARANCE_ATTACHMENT);
 		}
 		if(deleteAttachment.length>0){
 			contentAssocService.deleteList(deleteAttachment);
@@ -203,7 +203,7 @@ public class DailyReportServiceImpl implements DailyReportService {
 	@Override
 	public void allPowerfulMelthod(DailyReportDO dailyReportDO,  Long[] targetList,String[] taglocationappearanceImage,int sign){
 
-		if(sign==1){dailyReportDO.setStatus(Constant.APPLY_APPROED);} //148 已提交
+		if(sign==1){dailyReportDO.setStatus(ConstantForDevice.APPLY_APPROED);} //148 已提交
 
 		Long id=dailyReportDO.getId();
 		dailyReportDao.update(dailyReportDO);
@@ -212,13 +212,13 @@ public class DailyReportServiceImpl implements DailyReportService {
 			Map<String, Object> query = new HashMap<String, Object>();
 			query.put("userId", null);
 			query.put("assocId", dailyReportDO.getId());
-			query.put("assocType", Constant.DAILY_REPORT_TARGET);
+			query.put("assocType", ConstantForDevice.DAILY_REPORT_TARGET);
 			userAssocService.removeByAssocIdAndUserId(query);
 
 			//保存新增发送人
 		if(targetList.length>0){
 			for(int i=0;i<targetList.length;i++){
-				UserAssocDO userAssocDO = new UserAssocDO(id,Constant.DAILY_REPORT_TARGET,targetList[i]);
+				UserAssocDO userAssocDO = new UserAssocDO(id, ConstantForDevice.DAILY_REPORT_TARGET,targetList[i]);
 				userAssocService.save(userAssocDO);
 			}
 		}
@@ -226,10 +226,10 @@ public class DailyReportServiceImpl implements DailyReportService {
 		Map<String,Object> querys =new HashMap<>();
 		Long[] ids = new Long[1];
 			ids[0] =id;
-		contentAssocService.removeByAssocIdAndType(ids, Constant.DAILY_REPORT_APPEARANCE_ATTACHMENT);
+		contentAssocService.removeByAssocIdAndType(ids, ConstantForDevice.DAILY_REPORT_APPEARANCE_ATTACHMENT);
 
 		if(taglocationappearanceImage.length>0){
-			contentAssocService.saveList(id,taglocationappearanceImage,Constant.DAILY_REPORT_APPEARANCE_ATTACHMENT);
+			contentAssocService.saveList(id,taglocationappearanceImage, ConstantForDevice.DAILY_REPORT_APPEARANCE_ATTACHMENT);
 		}
 
 	}
@@ -254,10 +254,10 @@ public class DailyReportServiceImpl implements DailyReportService {
 
 			Map<String, Object> query = new HashMap<String, Object>();
 			query.put("assocId",deleIds );
-			query.put("assocType", Constant.DAILY_REPORT_TARGET);
+			query.put("assocType", ConstantForDevice.DAILY_REPORT_TARGET);
 			userAssocService.batchRemoveByAssocIdAadType(query);
 
-			contentAssocService.removeByAssocIdAndType(deleIds, Constant.DAILY_REPORT_APPEARANCE_ATTACHMENT);
+			contentAssocService.removeByAssocIdAndType(deleIds, ConstantForDevice.DAILY_REPORT_APPEARANCE_ATTACHMENT);
 
 			return R.ok();
 		}
