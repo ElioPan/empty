@@ -99,6 +99,22 @@ public class Swagger2Config {
                 ;
     }
 
+    @Bean("HR人力资源")
+    public Docket createRestHRApi() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .groupName("HR")
+                .ignoredParameterTypes(ApiIgnore.class)
+                .apiInfo(apiInfo())
+                .directModelSubstitute(LocalDate.class, java.sql.Date.class)
+                .directModelSubstitute(LocalDateTime.class, java.util.Date.class)
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.ev.apis.controller.hr"))
+                .paths(PathSelectors.any())
+                .build()
+                .enable(true)
+                ;
+    }
+
     //构建 api文档的详细信息函数
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
