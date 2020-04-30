@@ -117,8 +117,8 @@
 	
 	<delete id="batchRemove">
         DELETE FROM cus_notice_assoc WHERE id IN
-		<foreach item="noticeId" collection="array" open="(" separator="," close=")">
-			#{ids}
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
 		</foreach>
 	</delete>
 	
