@@ -38,9 +38,9 @@ public class MesMaterialsScrapApiController {
     @EvApiByToken(value = "/apis/mes/materialsScrap/addAndChange", method = RequestMethod.POST, apiTitle = "保存/修改保存")
     @ApiOperation("保存/修改保存")
     @Transactional(rollbackFor = Exception.class)
-    public R saveAddAndChange(@ApiParam(value = "报废单头部[{\"id\":\"主单主键(更新时传且必传)\",\"foreignId\":\"生产投料单主键\",\"deptId\":\"生产部门\",\"createBy\":\"制单人\"}]", required = true) @RequestParam(value = "scrapDetail", required = true) String  scrapDetail,
-                              @ApiParam(value = "报废单明细[{\"id\":\"明细主键(更新时传且必传)\",\"materialId\":\"物料id\",\"batch\":\"批号\",\"scrapReason\":\"报废原因\",\"scrapCount\":\"报废数量\",\"remark\":\"备注\"}]", required = true) @RequestParam(value = "scrapItemDetail", required = true) String  scrapItemDetail,
-                              @ApiParam(value = "删除的明细Id", required = false) @RequestParam(value = "itemIds", required = false) Long[]  itemIds) {
+    public R saveAddAndChange(@ApiParam(value = "报废单头部[{\"id\":\"主单主键(更新时传且必传)\",\"foreignId\":\"生产投料单主键\",\"deptId\":\"生产部门\",\"createBy\":\"制单人\"}]", required = true) @RequestParam(value = "scrapDetail") String  scrapDetail,
+                              @ApiParam(value = "报废单明细[{\"id\":\"明细主键(更新时传且必传)\",\"materialId\":\"物料id\",\"batch\":\"批号\",\"scrapReason\":\"报废原因\",\"scrapCount\":\"报废数量\",\"remark\":\"备注\"}]", required = true) @RequestParam(value = "scrapItemDetail") String  scrapItemDetail,
+                              @ApiParam(value = "删除的明细Id") @RequestParam(value = "itemIds", required = false) Long[]  itemIds) {
 
         //返回报废单主键供审核使用
         return materialsScrapService.saveChangeScrap(scrapDetail, scrapItemDetail,itemIds);
@@ -50,15 +50,15 @@ public class MesMaterialsScrapApiController {
     @EvApiByToken(value = "/apis/mes/materialsScrap/submitOfScrap", method = RequestMethod.POST, apiTitle = "保存/修改保存")
     @ApiOperation("审核")
     @Transactional(rollbackFor = Exception.class)
-    public R submitScrap(@ApiParam(value = "用料报废单Id", required = true) @RequestParam(value = "scrapId", required = true) Long scrapId,
-                              @ApiParam(value = "审核人", required = true) @RequestParam(value = "auditId", required = true) Long  auditId) {
+    public R submitScrap(@ApiParam(value = "用料报废单Id", required = true) @RequestParam(value = "scrapId") Long scrapId,
+                              @ApiParam(value = "审核人", required = true) @RequestParam(value = "auditId") Long  auditId) {
         //先保存后审核
         return materialsScrapService.submit(scrapId,auditId);
     }
 
     @EvApiByToken(value = "/apis/mes/materialsScrap/detail", method = RequestMethod.POST, apiTitle = "用料报废单详情")
     @ApiOperation("用料报废单详情")
-    public R detailOfScrap(@ApiParam(value = "用料报废单Id", required = true) @RequestParam(value = "scrapId", required = true) Long  scrapId) {
+    public R detailOfScrap(@ApiParam(value = "用料报废单Id", required = true) @RequestParam(value = "scrapId") Long  scrapId) {
 
         return materialsScrapService.getDetailOfScrap(scrapId);
     }
@@ -67,7 +67,7 @@ public class MesMaterialsScrapApiController {
     @EvApiByToken(value = "/apis/mes/materialsScrap/reversAudit", method = RequestMethod.POST, apiTitle = "反审核")
     @ApiOperation("反审核")
     @Transactional(rollbackFor = Exception.class)
-    public R rollbackOfAudit(@ApiParam(value = "用料报废单Id", required = true) @RequestParam(value = "scrapId", required = true) Long scrapId) {
+    public R rollbackOfAudit(@ApiParam(value = "用料报废单Id", required = true) @RequestParam(value = "scrapId") Long scrapId) {
 
         return  materialsScrapService.reversAuditScrap(scrapId);
     }
@@ -75,15 +75,15 @@ public class MesMaterialsScrapApiController {
 
     @EvApiByToken(value = "/apis/mes/materialsScrap/listOfScrap", method = RequestMethod.POST, apiTitle = "用料报废列表")
     @ApiOperation("用料报废列表")
-    public R scrapOfList(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1", required = true) int pageno,
-                           @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20", required = true) int pagesize,
-                           @ApiParam(value = "用料报废单号", required = false) @RequestParam(value = "scrapCode", defaultValue = "", required = false) String scrapCode,
-                         @ApiParam(value = "物料id", required = false) @RequestParam(value = "materialId", defaultValue = "", required = false) Long  materialId,
-                         @ApiParam(value = "物料名字", required = false) @RequestParam(value = "materialName", defaultValue = "", required = false) String  materialName,
-                         @ApiParam(value = "物料代码", required = false) @RequestParam(value = "serialNo", defaultValue = "", required = false) String  serialNo,
-                         @ApiParam(value = "制单开始日期", required = false) @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
-                         @ApiParam(value = "制单截止日期", required = false) @RequestParam(value = "endTimes", defaultValue = "", required = false) String endTime,
-                         @ApiParam(value = "制单日期", required = false) @RequestParam(value = "endTimes", defaultValue = "", required = false) String createTime,
+    public R scrapOfList(@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
+                           @ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+                           @ApiParam(value = "用料报废单号") @RequestParam(value = "scrapCode", defaultValue = "", required = false) String scrapCode,
+                         @ApiParam(value = "物料id") @RequestParam(value = "materialId", defaultValue = "", required = false) Long  materialId,
+                         @ApiParam(value = "物料名字") @RequestParam(value = "materialName", defaultValue = "", required = false) String  materialName,
+                         @ApiParam(value = "物料代码") @RequestParam(value = "serialNo", defaultValue = "", required = false) String  serialNo,
+                         @ApiParam(value = "制单开始日期") @RequestParam(value = "startTime", defaultValue = "", required = false) String startTime,
+                         @ApiParam(value = "制单截止日期") @RequestParam(value = "endTimes", defaultValue = "", required = false) String endTime,
+                         @ApiParam(value = "制单日期") @RequestParam(value = "endTimes", defaultValue = "", required = false) String createTime,
                          @ApiParam(value = "需排序字段（制单日期createTime）") @RequestParam(value = "sort",defaultValue = "",required = false)  String sort,
                          @ApiParam(value = "升（asc）降(desc)序") @RequestParam(value = "order",defaultValue = "",required = false)  String order) {
 
@@ -130,7 +130,7 @@ public class MesMaterialsScrapApiController {
     @EvApiByToken(value = "/apis/mes/materialsScrap/deletScraps", method = RequestMethod.POST, apiTitle = "删除用料报废")
     @ApiOperation("删除用料报废")
     @Transactional(rollbackFor = Exception.class)
-    public R removeBatch(@ApiParam(value = "用料报废单Id", required = true) @RequestParam(value = "scrapIds", required = true) Long[]  scrapIds) {
+    public R removeBatch(@ApiParam(value = "用料报废单Id", required = true) @RequestParam(value = "scrapIds") Long[]  scrapIds) {
 
         return materialsScrapService.deletScrap(scrapIds);
     }

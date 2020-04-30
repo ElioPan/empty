@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.hr.dao.PostInfoDao">
+
+	<select id="get" resultType="com.ev.hr.domain.PostInfoDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM hr_post_info 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.hr.domain.PostInfoDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM hr_post_info
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+			<otherwise>
+                ORDER BY id DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+        SELECT COUNT(*) FROM hr_post_info
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`company_id`,`dept_id`,`post_code`,`post_name`,`post_level`,`post_nature`,`post_index`,`post_coefficient`,`salary_level`,`is_authorized`,`authorized_total`,`authorized_counts`,`post_state`,`job_requirements`,`responsibilities`,`operation_flag`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> AND id = #{id} </if>
+                            <if test="companyId != null and companyId != ''"> AND company_id = #{companyId} </if>
+                            <if test="deptId != null and deptId != ''"> AND dept_id = #{deptId} </if>
+                            <if test="postCode != null and postCode != ''"> AND post_code = #{postCode} </if>
+                            <if test="postName != null and postName != ''"> AND post_name = #{postName} </if>
+                            <if test="postLevel != null and postLevel != ''"> AND post_level = #{postLevel} </if>
+                            <if test="postNature != null and postNature != ''"> AND post_nature = #{postNature} </if>
+                            <if test="postIndex != null and postIndex != ''"> AND post_index = #{postIndex} </if>
+                            <if test="postCoefficient != null and postCoefficient != ''"> AND post_coefficient = #{postCoefficient} </if>
+                            <if test="salaryLevel != null and salaryLevel != ''"> AND salary_level = #{salaryLevel} </if>
+                            <if test="isAuthorized != null and isAuthorized != ''"> AND is_authorized = #{isAuthorized} </if>
+                            <if test="authorizedTotal != null and authorizedTotal != ''"> AND authorized_total = #{authorizedTotal} </if>
+                            <if test="authorizedCounts != null and authorizedCounts != ''"> AND authorized_counts = #{authorizedCounts} </if>
+                            <if test="postState != null and postState != ''"> AND post_state = #{postState} </if>
+                            <if test="jobRequirements != null and jobRequirements != ''"> AND job_requirements = #{jobRequirements} </if>
+                            <if test="responsibilities != null and responsibilities != ''"> AND responsibilities = #{responsibilities} </if>
+                            <if test="operationFlag != null and operationFlag != ''"> AND operation_flag = #{operationFlag} </if>
+                            <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+                            <if test="createTime != null and createTime != ''"> AND create_time = #{createTime} </if>
+                            <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+                            <if test="updateTime != null and updateTime != ''"> AND update_time = #{updateTime} </if>
+                            <if test="delFlag != null and delFlag != ''"> AND del_flag = #{delFlag} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.hr.domain.PostInfoDO" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO hr_post_info
+		(
+			`company_id`, 
+			`dept_id`, 
+			`post_code`, 
+			`post_name`, 
+			`post_level`, 
+			`post_nature`, 
+			`post_index`, 
+			`post_coefficient`, 
+			`salary_level`, 
+			`is_authorized`, 
+			`authorized_total`, 
+			`authorized_counts`, 
+			`post_state`, 
+			`job_requirements`, 
+			`responsibilities`, 
+			`operation_flag`, 
+			`create_by`, 
+			`create_time`, 
+			`update_by`, 
+			`update_time`, 
+			`del_flag`
+		)
+		VALUES
+		(
+			#{companyId}, 
+			#{deptId}, 
+			#{postCode}, 
+			#{postName}, 
+			#{postLevel}, 
+			#{postNature}, 
+			#{postIndex}, 
+			#{postCoefficient}, 
+			#{salaryLevel}, 
+			#{isAuthorized}, 
+			#{authorizedTotal}, 
+			#{authorizedCounts}, 
+			#{postState}, 
+			#{jobRequirements}, 
+			#{responsibilities}, 
+			#{operationFlag}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{updateBy}, 
+			#{updateTime}, 
+			#{delFlag}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.hr.domain.PostInfoDO">
+		UPDATE hr_post_info
+		<set>
+			<if test="companyId != null">`company_id` = #{companyId}, </if>
+			<if test="deptId != null">`dept_id` = #{deptId}, </if>
+			<if test="postCode != null">`post_code` = #{postCode}, </if>
+			<if test="postName != null">`post_name` = #{postName}, </if>
+			<if test="postLevel != null">`post_level` = #{postLevel}, </if>
+			<if test="postNature != null">`post_nature` = #{postNature}, </if>
+			<if test="postIndex != null">`post_index` = #{postIndex}, </if>
+			<if test="postCoefficient != null">`post_coefficient` = #{postCoefficient}, </if>
+			<if test="salaryLevel != null">`salary_level` = #{salaryLevel}, </if>
+			<if test="isAuthorized != null">`is_authorized` = #{isAuthorized}, </if>
+			<if test="authorizedTotal != null">`authorized_total` = #{authorizedTotal}, </if>
+			<if test="authorizedCounts != null">`authorized_counts` = #{authorizedCounts}, </if>
+			<if test="postState != null">`post_state` = #{postState}, </if>
+			<if test="jobRequirements != null">`job_requirements` = #{jobRequirements}, </if>
+			<if test="responsibilities != null">`responsibilities` = #{responsibilities}, </if>
+			<if test="operationFlag != null">`operation_flag` = #{operationFlag}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}, </if>
+			<if test="delFlag != null">`del_flag` = #{delFlag}</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<update id="batchUpdate" parameterType="List">
+		UPDATE hr_post_info
+		<trim prefix="set" suffixOverrides=",">
+				<trim prefix="company_id =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.companyId!=null">
+							when id=#{item.id} then #{item.company_id}
+						</if>
+						<if test="item.companyId==null">
+							when id=#{item.id} then hr_post_info.company_id
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="dept_id =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.deptId!=null">
+							when id=#{item.id} then #{item.dept_id}
+						</if>
+						<if test="item.deptId==null">
+							when id=#{item.id} then hr_post_info.dept_id
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="post_code =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.postCode!=null">
+							when id=#{item.id} then #{item.post_code}
+						</if>
+						<if test="item.postCode==null">
+							when id=#{item.id} then hr_post_info.post_code
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="post_name =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.postName!=null">
+							when id=#{item.id} then #{item.post_name}
+						</if>
+						<if test="item.postName==null">
+							when id=#{item.id} then hr_post_info.post_name
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="post_level =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.postLevel!=null">
+							when id=#{item.id} then #{item.post_level}
+						</if>
+						<if test="item.postLevel==null">
+							when id=#{item.id} then hr_post_info.post_level
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="post_nature =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.postNature!=null">
+							when id=#{item.id} then #{item.post_nature}
+						</if>
+						<if test="item.postNature==null">
+							when id=#{item.id} then hr_post_info.post_nature
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="post_index =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.postIndex!=null">
+							when id=#{item.id} then #{item.post_index}
+						</if>
+						<if test="item.postIndex==null">
+							when id=#{item.id} then hr_post_info.post_index
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="post_coefficient =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.postCoefficient!=null">
+							when id=#{item.id} then #{item.post_coefficient}
+						</if>
+						<if test="item.postCoefficient==null">
+							when id=#{item.id} then hr_post_info.post_coefficient
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="salary_level =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.salaryLevel!=null">
+							when id=#{item.id} then #{item.salary_level}
+						</if>
+						<if test="item.salaryLevel==null">
+							when id=#{item.id} then hr_post_info.salary_level
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="is_authorized =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.isAuthorized!=null">
+							when id=#{item.id} then #{item.is_authorized}
+						</if>
+						<if test="item.isAuthorized==null">
+							when id=#{item.id} then hr_post_info.is_authorized
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="authorized_total =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.authorizedTotal!=null">
+							when id=#{item.id} then #{item.authorized_total}
+						</if>
+						<if test="item.authorizedTotal==null">
+							when id=#{item.id} then hr_post_info.authorized_total
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="authorized_counts =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.authorizedCounts!=null">
+							when id=#{item.id} then #{item.authorized_counts}
+						</if>
+						<if test="item.authorizedCounts==null">
+							when id=#{item.id} then hr_post_info.authorized_counts
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="post_state =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.postState!=null">
+							when id=#{item.id} then #{item.post_state}
+						</if>
+						<if test="item.postState==null">
+							when id=#{item.id} then hr_post_info.post_state
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="job_requirements =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.jobRequirements!=null">
+							when id=#{item.id} then #{item.job_requirements}
+						</if>
+						<if test="item.jobRequirements==null">
+							when id=#{item.id} then hr_post_info.job_requirements
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="responsibilities =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.responsibilities!=null">
+							when id=#{item.id} then #{item.responsibilities}
+						</if>
+						<if test="item.responsibilities==null">
+							when id=#{item.id} then hr_post_info.responsibilities
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="operation_flag =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.operationFlag!=null">
+							when id=#{item.id} then #{item.operation_flag}
+						</if>
+						<if test="item.operationFlag==null">
+							when id=#{item.id} then hr_post_info.operation_flag
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="create_by =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.createBy!=null">
+							when id=#{item.id} then #{item.create_by}
+						</if>
+						<if test="item.createBy==null">
+							when id=#{item.id} then hr_post_info.create_by
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="create_time =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.createTime!=null">
+							when id=#{item.id} then #{item.create_time}
+						</if>
+						<if test="item.createTime==null">
+							when id=#{item.id} then hr_post_info.create_time
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="update_by =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.updateBy!=null">
+							when id=#{item.id} then #{item.update_by}
+						</if>
+						<if test="item.updateBy==null">
+							when id=#{item.id} then hr_post_info.update_by
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="update_time =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.updateTime!=null">
+							when id=#{item.id} then #{item.update_time}
+						</if>
+						<if test="item.updateTime==null">
+							when id=#{item.id} then hr_post_info.update_time
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="del_flag =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.delFlag!=null">
+							when id=#{item.id} then #{item.del_flag}
+						</if>
+						<if test="item.delFlag==null">
+							when id=#{item.id} then hr_post_info.del_flag
+						</if>
+					</foreach>
+				</trim>
+		</trim>
+		WHERE id IN
+		<foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+			#{item.id}
+		</foreach>
+	</update>
+
+	<update id="updateAll" parameterType="com.ev.hr.domain.PostInfoDO">
+		UPDATE hr_post_info SET
+			`company_id` = #{companyId}, 
+			`dept_id` = #{deptId}, 
+			`post_code` = #{postCode}, 
+			`post_name` = #{postName}, 
+			`post_level` = #{postLevel}, 
+			`post_nature` = #{postNature}, 
+			`post_index` = #{postIndex}, 
+			`post_coefficient` = #{postCoefficient}, 
+			`salary_level` = #{salaryLevel}, 
+			`is_authorized` = #{isAuthorized}, 
+			`authorized_total` = #{authorizedTotal}, 
+			`authorized_counts` = #{authorizedCounts}, 
+			`post_state` = #{postState}, 
+			`job_requirements` = #{jobRequirements}, 
+			`responsibilities` = #{responsibilities}, 
+			`operation_flag` = #{operationFlag}, 
+			`create_by` = #{createBy}, 
+			`create_time` = #{createTime}, 
+			`update_by` = #{updateBy}, 
+			`update_time` = #{updateTime}, 
+			`del_flag` = #{delFlag}
+		WHERE id = #{id}
+	</update>
+
+	
+	<delete id="remove">
+		DELETE FROM hr_post_info WHERE id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+        DELETE FROM hr_post_info WHERE id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+</mapper>

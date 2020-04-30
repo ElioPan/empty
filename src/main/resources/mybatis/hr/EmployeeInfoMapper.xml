@@ -1,0 +1,825 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ev.hr.dao.EmployeeInfoDao">
+
+	<select id="get" resultType="com.ev.hr.domain.EmployeeInfoDO">
+		SELECT 
+		<include refid="sql_column_list"/>  
+		FROM hr_employee_info 
+		WHERE id = #{value}
+	</select>
+
+	<select id="list" resultType="com.ev.hr.domain.EmployeeInfoDO">
+		SELECT 
+		<include refid="sql_column_list"/>
+		FROM hr_employee_info
+		<include refid="sql_condition"/>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                ORDER BY ${sort} ${order}
+            </when>
+			<otherwise>
+                ORDER BY id DESC
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+        SELECT COUNT(*) FROM hr_employee_info
+		<include refid="sql_condition"/>
+	</select>
+
+    <sql id="sql_column_list">
+		`id`,`employee_code`,`employee_name`,`dept_id`,`employee_post`,`employment_state`,`employment_type`,`id_number`,`employee_title`,`employee_level`,`moblie_phone`,`employee_birthday`,`employee_gender`,`highest_education`,`graduate_chool`,`major_studied`,`employee_nation`,`marital_status`,`registered_type`,`registered_address`,`nativ_place`,`political_outlook`,`joining_party_date`,`social_number`,`provident_account`,`salary_card`,`subsidy_account`,`signing_unit`,`head_portrait`,
+		`position_description`,`office_phone`,`email`,`postal_code`,`address`,`communication_address`,`wechat_number`,`entry_sourse`,`entry_date`,`probation_period`,`formal_date`,`retire_date`,`quit_reason`,`quit_date`,`company_service_year`,`joining_work_date`,`service_age`,`create_by`,`create_date`,`update_by`,`update_date`
+	</sql>
+
+    <sql id="sql_condition">
+        <where>
+                            <if test="id != null and id != ''"> AND id = #{id} </if>
+                            <if test="employeeCode != null and employeeCode != ''"> AND employee_code = #{employeeCode} </if>
+                            <if test="employeeName != null and employeeName != ''"> AND employee_name = #{employeeName} </if>
+                            <if test="deptId != null and deptId != ''"> AND dept_id = #{deptId} </if>
+                            <if test="employeePost != null and employeePost != ''"> AND employee_post = #{employeePost} </if>
+                            <if test="employmentState != null and employmentState != ''"> AND employment_state = #{employmentState} </if>
+                            <if test="employmentType != null and employmentType != ''"> AND employment_type = #{employmentType} </if>
+                            <if test="idNumber != null and idNumber != ''"> AND id_number = #{idNumber} </if>
+                            <if test="employeeTitle != null and employeeTitle != ''"> AND employee_title = #{employeeTitle} </if>
+                            <if test="employeeLevel != null and employeeLevel != ''"> AND employee_level = #{employeeLevel} </if>
+                            <if test="mobliePhone != null and mobliePhone != ''"> AND moblie_phone = #{mobliePhone} </if>
+                            <if test="employeeBirthday != null and employeeBirthday != ''"> AND employee_birthday = #{employeeBirthday} </if>
+                            <if test="employeeGender != null and employeeGender != ''"> AND employee_gender = #{employeeGender} </if>
+                            <if test="highestEducation != null and highestEducation != ''"> AND highest_education = #{highestEducation} </if>
+                            <if test="graduateChool != null and graduateChool != ''"> AND graduate_chool = #{graduateChool} </if>
+                            <if test="majorStudied != null and majorStudied != ''"> AND major_studied = #{majorStudied} </if>
+                            <if test="employeeNation != null and employeeNation != ''"> AND employee_nation = #{employeeNation} </if>
+                            <if test="maritalStatus != null and maritalStatus != ''"> AND marital_status = #{maritalStatus} </if>
+                            <if test="registeredType != null and registeredType != ''"> AND registered_type = #{registeredType} </if>
+                            <if test="registeredAddress != null and registeredAddress != ''"> AND registered_address = #{registeredAddress} </if>
+                            <if test="nativPlace != null and nativPlace != ''"> AND nativ_place = #{nativPlace} </if>
+                            <if test="politicalOutlook != null and politicalOutlook != ''"> AND political_outlook = #{politicalOutlook} </if>
+                            <if test="joiningPartyDate != null and joiningPartyDate != ''"> AND joining_party_date = #{joiningPartyDate} </if>
+                            <if test="socialNumber != null and socialNumber != ''"> AND social_number = #{socialNumber} </if>
+                            <if test="providentAccount != null and providentAccount != ''"> AND provident_account = #{providentAccount} </if>
+                            <if test="salaryCard != null and salaryCard != ''"> AND salary_card = #{salaryCard} </if>
+                            <if test="subsidyAccount != null and subsidyAccount != ''"> AND subsidy_account = #{subsidyAccount} </if>
+                            <if test="signingUnit != null and signingUnit != ''"> AND signing_unit = #{signingUnit} </if>
+                            <if test="headPortrait != null and headPortrait != ''"> AND head_portrait = #{headPortrait} </if>
+                            <if test="positionDescription != null and positionDescription != ''"> AND position_description = #{positionDescription} </if>
+                            <if test="officePhone != null and officePhone != ''"> AND office_phone = #{officePhone} </if>
+                            <if test="email != null and email != ''"> AND email = #{email} </if>
+                            <if test="postalCode != null and postalCode != ''"> AND postal_code = #{postalCode} </if>
+                            <if test="address != null and address != ''"> AND address = #{address} </if>
+                            <if test="communicationAddress != null and communicationAddress != ''"> AND communication_address = #{communicationAddress} </if>
+                            <if test="wechatNumber != null and wechatNumber != ''"> AND wechat_number = #{wechatNumber} </if>
+                            <if test="entrySourse != null and entrySourse != ''"> AND entry_sourse = #{entrySourse} </if>
+                            <if test="entryDate != null and entryDate != ''"> AND entry_date = #{entryDate} </if>
+                            <if test="probationPeriod != null and probationPeriod != ''"> AND probation_period = #{probationPeriod} </if>
+                            <if test="formalDate != null and formalDate != ''"> AND formal_date = #{formalDate} </if>
+                            <if test="retireDate != null and retireDate != ''"> AND retire_date = #{retireDate} </if>
+                            <if test="quitReason != null and quitReason != ''"> AND quit_reason = #{quitReason} </if>
+                            <if test="quitDate != null and quitDate != ''"> AND quit_date = #{quitDate} </if>
+                            <if test="companyServiceYear != null and companyServiceYear != ''"> AND company_service_year = #{companyServiceYear} </if>
+                            <if test="joiningWorkDate != null and joiningWorkDate != ''"> AND joining_work_date = #{joiningWorkDate} </if>
+                            <if test="serviceAge != null and serviceAge != ''"> AND service_age = #{serviceAge} </if>
+                            <if test="createBy != null and createBy != ''"> AND create_by = #{createBy} </if>
+                            <if test="createDate != null and createDate != ''"> AND create_date = #{createDate} </if>
+                            <if test="updateBy != null and updateBy != ''"> AND update_by = #{updateBy} </if>
+                            <if test="updateDate != null and updateDate != ''"> AND update_date = #{updateDate} </if>
+                    </where>
+    </sql>
+	 
+	<insert id="save" parameterType="com.ev.hr.domain.EmployeeInfoDO" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO hr_employee_info
+		(
+			`employee_code`, 
+			`employee_name`, 
+			`dept_id`, 
+			`employee_post`, 
+			`employment_state`, 
+			`employment_type`, 
+			`id_number`, 
+			`employee_title`, 
+			`employee_level`, 
+			`moblie_phone`, 
+			`employee_birthday`, 
+			`employee_gender`, 
+			`highest_education`, 
+			`graduate_chool`, 
+			`major_studied`, 
+			`employee_nation`, 
+			`marital_status`, 
+			`registered_type`, 
+			`registered_address`, 
+			`nativ_place`, 
+			`political_outlook`, 
+			`joining_party_date`, 
+			`social_number`, 
+			`provident_account`, 
+			`salary_card`, 
+			`subsidy_account`, 
+			`signing_unit`, 
+			`head_portrait`, 
+			`position_description`,
+			`office_phone`, 
+			`email`, 
+			`postal_code`, 
+			`address`, 
+			`communication_address`, 
+			`wechat_number`, 
+			`entry_sourse`, 
+			`entry_date`, 
+			`probation_period`, 
+			`formal_date`, 
+			`retire_date`, 
+			`quit_reason`, 
+			`quit_date`, 
+			`company_service_year`, 
+			`joining_work_date`, 
+			`service_age`, 
+			`create_by`, 
+			`create_date`, 
+			`update_by`, 
+			`update_date`
+		)
+		VALUES
+		(
+			#{employeeCode}, 
+			#{employeeName}, 
+			#{deptId}, 
+			#{employeePost}, 
+			#{employmentState}, 
+			#{employmentType}, 
+			#{idNumber}, 
+			#{employeeTitle}, 
+			#{employeeLevel}, 
+			#{mobliePhone}, 
+			#{employeeBirthday}, 
+			#{employeeGender}, 
+			#{highestEducation}, 
+			#{graduateChool}, 
+			#{majorStudied}, 
+			#{employeeNation}, 
+			#{maritalStatus}, 
+			#{registeredType}, 
+			#{registeredAddress}, 
+			#{nativPlace}, 
+			#{politicalOutlook}, 
+			#{joiningPartyDate}, 
+			#{socialNumber}, 
+			#{providentAccount}, 
+			#{salaryCard}, 
+			#{subsidyAccount}, 
+			#{signingUnit}, 
+			#{headPortrait}, 
+			#{positionDescription},
+			#{officePhone}, 
+			#{email}, 
+			#{postalCode}, 
+			#{address}, 
+			#{communicationAddress}, 
+			#{wechatNumber}, 
+			#{entrySourse}, 
+			#{entryDate}, 
+			#{probationPeriod}, 
+			#{formalDate}, 
+			#{retireDate}, 
+			#{quitReason}, 
+			#{quitDate}, 
+			#{companyServiceYear}, 
+			#{joiningWorkDate}, 
+			#{serviceAge}, 
+			#{createBy}, 
+			#{createDate}, 
+			#{updateBy}, 
+			#{updateDate}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ev.hr.domain.EmployeeInfoDO">
+		UPDATE hr_employee_info
+		<set>
+			<if test="employeeCode != null">`employee_code` = #{employeeCode}, </if>
+			<if test="employeeName != null">`employee_name` = #{employeeName}, </if>
+			<if test="deptId != null">`dept_id` = #{deptId}, </if>
+			<if test="employeePost != null">`employee_post` = #{employeePost}, </if>
+			<if test="employmentState != null">`employment_state` = #{employmentState}, </if>
+			<if test="employmentType != null">`employment_type` = #{employmentType}, </if>
+			<if test="idNumber != null">`id_number` = #{idNumber}, </if>
+			<if test="employeeTitle != null">`employee_title` = #{employeeTitle}, </if>
+			<if test="employeeLevel != null">`employee_level` = #{employeeLevel}, </if>
+			<if test="mobliePhone != null">`moblie_phone` = #{mobliePhone}, </if>
+			<if test="employeeBirthday != null">`employee_birthday` = #{employeeBirthday}, </if>
+			<if test="employeeGender != null">`employee_gender` = #{employeeGender}, </if>
+			<if test="highestEducation != null">`highest_education` = #{highestEducation}, </if>
+			<if test="graduateChool != null">`graduate_chool` = #{graduateChool}, </if>
+			<if test="majorStudied != null">`major_studied` = #{majorStudied}, </if>
+			<if test="employeeNation != null">`employee_nation` = #{employeeNation}, </if>
+			<if test="maritalStatus != null">`marital_status` = #{maritalStatus}, </if>
+			<if test="registeredType != null">`registered_type` = #{registeredType}, </if>
+			<if test="registeredAddress != null">`registered_address` = #{registeredAddress}, </if>
+			<if test="nativPlace != null">`nativ_place` = #{nativPlace}, </if>
+			<if test="politicalOutlook != null">`political_outlook` = #{politicalOutlook}, </if>
+			<if test="joiningPartyDate != null">`joining_party_date` = #{joiningPartyDate}, </if>
+			<if test="socialNumber != null">`social_number` = #{socialNumber}, </if>
+			<if test="providentAccount != null">`provident_account` = #{providentAccount}, </if>
+			<if test="salaryCard != null">`salary_card` = #{salaryCard}, </if>
+			<if test="subsidyAccount != null">`subsidy_account` = #{subsidyAccount}, </if>
+			<if test="signingUnit != null">`signing_unit` = #{signingUnit}, </if>
+			<if test="headPortrait != null">`head_portrait` = #{headPortrait}, </if>
+			<if test="positionDescription != null">`position_description` = #{positionDescription}, </if>
+			<if test="officePhone != null">`office_phone` = #{officePhone}, </if>
+			<if test="email != null">`email` = #{email}, </if>
+			<if test="postalCode != null">`postal_code` = #{postalCode}, </if>
+			<if test="address != null">`address` = #{address}, </if>
+			<if test="communicationAddress != null">`communication_address` = #{communicationAddress}, </if>
+			<if test="wechatNumber != null">`wechat_number` = #{wechatNumber}, </if>
+			<if test="entrySourse != null">`entry_sourse` = #{entrySourse}, </if>
+			<if test="entryDate != null">`entry_date` = #{entryDate}, </if>
+			<if test="probationPeriod != null">`probation_period` = #{probationPeriod}, </if>
+			<if test="formalDate != null">`formal_date` = #{formalDate}, </if>
+			<if test="retireDate != null">`retire_date` = #{retireDate}, </if>
+			<if test="quitReason != null">`quit_reason` = #{quitReason}, </if>
+			<if test="quitDate != null">`quit_date` = #{quitDate}, </if>
+			<if test="companyServiceYear != null">`company_service_year` = #{companyServiceYear}, </if>
+			<if test="joiningWorkDate != null">`joining_work_date` = #{joiningWorkDate}, </if>
+			<if test="serviceAge != null">`service_age` = #{serviceAge}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createDate != null">`create_date` = #{createDate}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateDate != null">`update_date` = #{updateDate}</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<update id="batchUpdate" parameterType="List">
+		UPDATE hr_employee_info
+		<trim prefix="set" suffixOverrides=",">
+				<trim prefix="employee_code =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.employeeCode!=null">
+							when id=#{item.id} then #{item.employee_code}
+						</if>
+						<if test="item.employeeCode==null">
+							when id=#{item.id} then hr_employee_info.employee_code
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="employee_name =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.employeeName!=null">
+							when id=#{item.id} then #{item.employee_name}
+						</if>
+						<if test="item.employeeName==null">
+							when id=#{item.id} then hr_employee_info.employee_name
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="dept_id =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.deptId!=null">
+							when id=#{item.id} then #{item.dept_id}
+						</if>
+						<if test="item.deptId==null">
+							when id=#{item.id} then hr_employee_info.dept_id
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="employee_post =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.employeePost!=null">
+							when id=#{item.id} then #{item.employee_post}
+						</if>
+						<if test="item.employeePost==null">
+							when id=#{item.id} then hr_employee_info.employee_post
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="employment_state =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.employmentState!=null">
+							when id=#{item.id} then #{item.employment_state}
+						</if>
+						<if test="item.employmentState==null">
+							when id=#{item.id} then hr_employee_info.employment_state
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="employment_type =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.employmentType!=null">
+							when id=#{item.id} then #{item.employment_type}
+						</if>
+						<if test="item.employmentType==null">
+							when id=#{item.id} then hr_employee_info.employment_type
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="id_number =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.idNumber!=null">
+							when id=#{item.id} then #{item.id_number}
+						</if>
+						<if test="item.idNumber==null">
+							when id=#{item.id} then hr_employee_info.id_number
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="employee_title =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.employeeTitle!=null">
+							when id=#{item.id} then #{item.employee_title}
+						</if>
+						<if test="item.employeeTitle==null">
+							when id=#{item.id} then hr_employee_info.employee_title
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="employee_level =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.employeeLevel!=null">
+							when id=#{item.id} then #{item.employee_level}
+						</if>
+						<if test="item.employeeLevel==null">
+							when id=#{item.id} then hr_employee_info.employee_level
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="moblie_phone =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.mobliePhone!=null">
+							when id=#{item.id} then #{item.moblie_phone}
+						</if>
+						<if test="item.mobliePhone==null">
+							when id=#{item.id} then hr_employee_info.moblie_phone
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="employee_birthday =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.employeeBirthday!=null">
+							when id=#{item.id} then #{item.employee_birthday}
+						</if>
+						<if test="item.employeeBirthday==null">
+							when id=#{item.id} then hr_employee_info.employee_birthday
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="employee_gender =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.employeeGender!=null">
+							when id=#{item.id} then #{item.employee_gender}
+						</if>
+						<if test="item.employeeGender==null">
+							when id=#{item.id} then hr_employee_info.employee_gender
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="highest_education =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.highestEducation!=null">
+							when id=#{item.id} then #{item.highest_education}
+						</if>
+						<if test="item.highestEducation==null">
+							when id=#{item.id} then hr_employee_info.highest_education
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="graduate_chool =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.graduateChool!=null">
+							when id=#{item.id} then #{item.graduate_chool}
+						</if>
+						<if test="item.graduateChool==null">
+							when id=#{item.id} then hr_employee_info.graduate_chool
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="major_studied =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.majorStudied!=null">
+							when id=#{item.id} then #{item.major_studied}
+						</if>
+						<if test="item.majorStudied==null">
+							when id=#{item.id} then hr_employee_info.major_studied
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="employee_nation =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.employeeNation!=null">
+							when id=#{item.id} then #{item.employee_nation}
+						</if>
+						<if test="item.employeeNation==null">
+							when id=#{item.id} then hr_employee_info.employee_nation
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="marital_status =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.maritalStatus!=null">
+							when id=#{item.id} then #{item.marital_status}
+						</if>
+						<if test="item.maritalStatus==null">
+							when id=#{item.id} then hr_employee_info.marital_status
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="registered_type =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.registeredType!=null">
+							when id=#{item.id} then #{item.registered_type}
+						</if>
+						<if test="item.registeredType==null">
+							when id=#{item.id} then hr_employee_info.registered_type
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="registered_address =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.registeredAddress!=null">
+							when id=#{item.id} then #{item.registered_address}
+						</if>
+						<if test="item.registeredAddress==null">
+							when id=#{item.id} then hr_employee_info.registered_address
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="nativ_place =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.nativPlace!=null">
+							when id=#{item.id} then #{item.nativ_place}
+						</if>
+						<if test="item.nativPlace==null">
+							when id=#{item.id} then hr_employee_info.nativ_place
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="political_outlook =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.politicalOutlook!=null">
+							when id=#{item.id} then #{item.political_outlook}
+						</if>
+						<if test="item.politicalOutlook==null">
+							when id=#{item.id} then hr_employee_info.political_outlook
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="joining_party_date =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.joiningPartyDate!=null">
+							when id=#{item.id} then #{item.joining_party_date}
+						</if>
+						<if test="item.joiningPartyDate==null">
+							when id=#{item.id} then hr_employee_info.joining_party_date
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="social_number =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.socialNumber!=null">
+							when id=#{item.id} then #{item.social_number}
+						</if>
+						<if test="item.socialNumber==null">
+							when id=#{item.id} then hr_employee_info.social_number
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="provident_account =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.providentAccount!=null">
+							when id=#{item.id} then #{item.provident_account}
+						</if>
+						<if test="item.providentAccount==null">
+							when id=#{item.id} then hr_employee_info.provident_account
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="salary_card =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.salaryCard!=null">
+							when id=#{item.id} then #{item.salary_card}
+						</if>
+						<if test="item.salaryCard==null">
+							when id=#{item.id} then hr_employee_info.salary_card
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="subsidy_account =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.subsidyAccount!=null">
+							when id=#{item.id} then #{item.subsidy_account}
+						</if>
+						<if test="item.subsidyAccount==null">
+							when id=#{item.id} then hr_employee_info.subsidy_account
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="signing_unit =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.signingUnit!=null">
+							when id=#{item.id} then #{item.signing_unit}
+						</if>
+						<if test="item.signingUnit==null">
+							when id=#{item.id} then hr_employee_info.signing_unit
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="head_portrait =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.headPortrait!=null">
+							when id=#{item.id} then #{item.head_portrait}
+						</if>
+						<if test="item.headPortrait==null">
+							when id=#{item.id} then hr_employee_info.head_portrait
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="position_description =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.positionDescription!=null">
+							when id=#{item.id} then #{item.position_description}
+						</if>
+						<if test="item.positionDescription==null">
+							when id=#{item.id} then hr_employee_info.position_description
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="office_phone =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.officePhone!=null">
+							when id=#{item.id} then #{item.office_phone}
+						</if>
+						<if test="item.officePhone==null">
+							when id=#{item.id} then hr_employee_info.office_phone
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="email =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.email!=null">
+							when id=#{item.id} then #{item.email}
+						</if>
+						<if test="item.email==null">
+							when id=#{item.id} then hr_employee_info.email
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="postal_code =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.postalCode!=null">
+							when id=#{item.id} then #{item.postal_code}
+						</if>
+						<if test="item.postalCode==null">
+							when id=#{item.id} then hr_employee_info.postal_code
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="address =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.address!=null">
+							when id=#{item.id} then #{item.address}
+						</if>
+						<if test="item.address==null">
+							when id=#{item.id} then hr_employee_info.address
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="communication_address =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.communicationAddress!=null">
+							when id=#{item.id} then #{item.communication_address}
+						</if>
+						<if test="item.communicationAddress==null">
+							when id=#{item.id} then hr_employee_info.communication_address
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="wechat_number =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.wechatNumber!=null">
+							when id=#{item.id} then #{item.wechat_number}
+						</if>
+						<if test="item.wechatNumber==null">
+							when id=#{item.id} then hr_employee_info.wechat_number
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="entry_sourse =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.entrySourse!=null">
+							when id=#{item.id} then #{item.entry_sourse}
+						</if>
+						<if test="item.entrySourse==null">
+							when id=#{item.id} then hr_employee_info.entry_sourse
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="entry_date =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.entryDate!=null">
+							when id=#{item.id} then #{item.entry_date}
+						</if>
+						<if test="item.entryDate==null">
+							when id=#{item.id} then hr_employee_info.entry_date
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="probation_period =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.probationPeriod!=null">
+							when id=#{item.id} then #{item.probation_period}
+						</if>
+						<if test="item.probationPeriod==null">
+							when id=#{item.id} then hr_employee_info.probation_period
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="formal_date =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.formalDate!=null">
+							when id=#{item.id} then #{item.formal_date}
+						</if>
+						<if test="item.formalDate==null">
+							when id=#{item.id} then hr_employee_info.formal_date
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="retire_date =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.retireDate!=null">
+							when id=#{item.id} then #{item.retire_date}
+						</if>
+						<if test="item.retireDate==null">
+							when id=#{item.id} then hr_employee_info.retire_date
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="quit_reason =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.quitReason!=null">
+							when id=#{item.id} then #{item.quit_reason}
+						</if>
+						<if test="item.quitReason==null">
+							when id=#{item.id} then hr_employee_info.quit_reason
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="quit_date =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.quitDate!=null">
+							when id=#{item.id} then #{item.quit_date}
+						</if>
+						<if test="item.quitDate==null">
+							when id=#{item.id} then hr_employee_info.quit_date
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="company_service_year =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.companyServiceYear!=null">
+							when id=#{item.id} then #{item.company_service_year}
+						</if>
+						<if test="item.companyServiceYear==null">
+							when id=#{item.id} then hr_employee_info.company_service_year
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="joining_work_date =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.joiningWorkDate!=null">
+							when id=#{item.id} then #{item.joining_work_date}
+						</if>
+						<if test="item.joiningWorkDate==null">
+							when id=#{item.id} then hr_employee_info.joining_work_date
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="service_age =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.serviceAge!=null">
+							when id=#{item.id} then #{item.service_age}
+						</if>
+						<if test="item.serviceAge==null">
+							when id=#{item.id} then hr_employee_info.service_age
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="create_by =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.createBy!=null">
+							when id=#{item.id} then #{item.create_by}
+						</if>
+						<if test="item.createBy==null">
+							when id=#{item.id} then hr_employee_info.create_by
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="create_date =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.createDate!=null">
+							when id=#{item.id} then #{item.create_date}
+						</if>
+						<if test="item.createDate==null">
+							when id=#{item.id} then hr_employee_info.create_date
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="update_by =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.updateBy!=null">
+							when id=#{item.id} then #{item.update_by}
+						</if>
+						<if test="item.updateBy==null">
+							when id=#{item.id} then hr_employee_info.update_by
+						</if>
+					</foreach>
+				</trim>
+				<trim prefix="update_date =case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.updateDate!=null">
+							when id=#{item.id} then #{item.update_date}
+						</if>
+						<if test="item.updateDate==null">
+							when id=#{item.id} then hr_employee_info.update_date
+						</if>
+					</foreach>
+				</trim>
+		</trim>
+		WHERE id IN
+		<foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+			#{item.id}
+		</foreach>
+	</update>
+
+	<update id="updateAll" parameterType="com.ev.hr.domain.EmployeeInfoDO">
+		UPDATE hr_employee_info SET
+			`employee_code` = #{employeeCode}, 
+			`employee_name` = #{employeeName}, 
+			`dept_id` = #{deptId}, 
+			`employee_post` = #{employeePost}, 
+			`employment_state` = #{employmentState}, 
+			`employment_type` = #{employmentType}, 
+			`id_number` = #{idNumber}, 
+			`employee_title` = #{employeeTitle}, 
+			`employee_level` = #{employeeLevel}, 
+			`moblie_phone` = #{mobliePhone}, 
+			`employee_birthday` = #{employeeBirthday}, 
+			`employee_gender` = #{employeeGender}, 
+			`highest_education` = #{highestEducation}, 
+			`graduate_chool` = #{graduateChool}, 
+			`major_studied` = #{majorStudied}, 
+			`employee_nation` = #{employeeNation}, 
+			`marital_status` = #{maritalStatus}, 
+			`registered_type` = #{registeredType}, 
+			`registered_address` = #{registeredAddress}, 
+			`nativ_place` = #{nativPlace}, 
+			`political_outlook` = #{politicalOutlook}, 
+			`joining_party_date` = #{joiningPartyDate}, 
+			`social_number` = #{socialNumber}, 
+			`provident_account` = #{providentAccount}, 
+			`salary_card` = #{salaryCard}, 
+			`subsidy_account` = #{subsidyAccount}, 
+			`signing_unit` = #{signingUnit}, 
+			`head_portrait` = #{headPortrait}, 
+			`position_description` = #{positionDescription},
+			`office_phone` = #{officePhone}, 
+			`email` = #{email}, 
+			`postal_code` = #{postalCode}, 
+			`address` = #{address}, 
+			`communication_address` = #{communicationAddress}, 
+			`wechat_number` = #{wechatNumber}, 
+			`entry_sourse` = #{entrySourse}, 
+			`entry_date` = #{entryDate}, 
+			`probation_period` = #{probationPeriod}, 
+			`formal_date` = #{formalDate}, 
+			`retire_date` = #{retireDate}, 
+			`quit_reason` = #{quitReason}, 
+			`quit_date` = #{quitDate}, 
+			`company_service_year` = #{companyServiceYear}, 
+			`joining_work_date` = #{joiningWorkDate}, 
+			`service_age` = #{serviceAge}, 
+			`create_by` = #{createBy}, 
+			`create_date` = #{createDate}, 
+			`update_by` = #{updateBy}, 
+			`update_date` = #{updateDate}
+		WHERE id = #{id}
+	</update>
+
+	
+	<delete id="remove">
+		DELETE FROM hr_employee_info WHERE id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+        DELETE FROM hr_employee_info WHERE id IN
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+</mapper>
