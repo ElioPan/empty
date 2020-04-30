@@ -2,6 +2,8 @@ package com.ev.hr.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -45,13 +47,13 @@ public class SalaryProjectDO implements Serializable {
     @ApiModelProperty(value = "创建人")
 	private Long createBy;
 	//创建时间
-    @ApiModelProperty(value = "创建时间")
+	@ApiModelProperty(value = "创建时间", example = "2000-01-01 00:00:01")
 	private Date createTime;
 	//修改人
     @ApiModelProperty(value = "修改人")
 	private Long updateBy;
 	//修改时间
-    @ApiModelProperty(value = "修改时间")
+	@ApiModelProperty(value = "修改时间", example = "2000-01-01 00:00:01")
 	private Date updateTime;
 	//删除状态
     @ApiModelProperty(value = "删除状态")

@@ -25,7 +25,7 @@ public class ${className}DO implements Serializable {
 	
 #foreach ($column in $columns)
 	//$column.comments
-    @ApiModelProperty(value = "$column.comments")
+    @ApiModelProperty(value = "$column.comments" #if(${hasDate}), example = "2000-01-01 00:00:01"#end)
 	private $column.attrType $column.attrname;
 #end
 

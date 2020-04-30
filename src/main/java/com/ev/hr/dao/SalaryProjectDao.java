@@ -5,6 +5,7 @@ import com.ev.hr.domain.SalaryProjectDO;
 import java.util.List;
 import java.util.Map;
 
+import com.ev.hr.vo.SalaryProjectPageParam;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -33,4 +34,12 @@ public interface SalaryProjectDao {
 	int batchRemove(Long[] ids);
 
 	int batchUpdate(List<SalaryProjectDO> param);
+
+    Map<String, Object> getById(Long id);
+
+	List<Map<String,Object>> pageList(SalaryProjectPageParam pageParam);
+
+	int pageCount(SalaryProjectPageParam pageParam);
+
+	int checkRepeat(SalaryProjectDO saveParam);
 }

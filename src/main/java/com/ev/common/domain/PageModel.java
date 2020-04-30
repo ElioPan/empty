@@ -7,7 +7,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 文件名称： com.socks.zhhc.core.common.page.PageModel.java</br>
+ * 文件名称： com.ev.common.domain.PageModel.java</br>
  * 初始作者： Mark.Yao</br>
  * 创建日期： 2019年9月10日</br>
  * 功能说明： 分页公共实体 <br/>
@@ -31,12 +31,16 @@ public class PageModel implements Serializable {
      * 当前页
      */
     @ApiModelProperty(value = "当前页", example = "1")
-    private Integer currentPage = 1;
+    private Integer pageno = 1;
 
     /**
      * 每页条数
      */
-    @ApiModelProperty(value = "每页条数", example = "10")
-    private Integer pageSize = 10;
+    @ApiModelProperty(value = "每页条数", example = "20")
+    private Integer pagesize = 20;
+
+    private Integer offset = (pageno - 1) * pagesize;
+
+    private Integer limit = pagesize;
 
 }

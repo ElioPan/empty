@@ -1,6 +1,8 @@
 package com.ev.hr.service;
 
+import com.ev.framework.utils.R;
 import com.ev.hr.domain.SalaryProjectDO;
+import com.ev.hr.vo.SalaryProjectPageParam;
 
 import java.util.List;
 import java.util.Map;
@@ -29,4 +31,14 @@ public interface SalaryProjectService {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+	Map<String, Object> pageList(SalaryProjectPageParam pageParam);
+
+	Map<String, Object> getById(Long id);
+
+	R delete(List<Long> ids);
+
+	R saveAndVerify(SalaryProjectDO saveParam);
+
+	Map<String, Object> getListByType(String type);
 }

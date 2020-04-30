@@ -57,6 +57,7 @@ public class GenUtils {
         //配置信息
         Configuration config = getConfig();
         boolean hasBigDecimal = false;
+        boolean hasDate = false;
         //表信息
         TableDO tableDO = new TableDO();
         tableDO.setTableName(table.get("tableName"));
@@ -85,6 +86,9 @@ public class GenUtils {
             columnDO.setAttrType(attrType);
             if (!hasBigDecimal && attrType.equals("BigDecimal" )) {
                 hasBigDecimal = true;
+            }
+            if (!hasDate && attrType.equals("Date" )) {
+                hasDate = true;
             }
 
             //是否主键
@@ -119,6 +123,7 @@ public class GenUtils {
         map.put("author", config.getString("author"));
         map.put("email", config.getString("email"));
         map.put("hasBigDecimal", hasBigDecimal);
+        map.put("hasDate", hasDate);
         map.put("datetime", DateUtils.format(new Date(), DateUtils.DATE_TIME_PATTERN));
         VelocityContext context = new VelocityContext(map);
 

@@ -9,6 +9,25 @@
 		FROM hr_salary_project 
 		WHERE id = #{value}
 	</select>
+	<select id="getById" resultType="java.util.Map">
+		SELECT
+			p.`id`,
+			p.`salary_item_name` AS salaryItemName,
+			p.`attribute`,
+		    ca.`name` AS attributeName,
+			p.`data_attribute` AS dataAttribute,
+		    cda.`name` AS dataAttributeName,
+			p.`is_show_salary_accounting` AS isShowSalaryAccounting,
+			p.`sort_of_salary_accounting_items` AS sortOfSalaryAccountingItems,
+			p.`instruction`
+		FROM
+			hr_salary_project p
+		LEFT JOIN cus_dictionary cda ON p.data_attribute = cda.id
+		LEFT JOIN cus_dictionary ca ON p.attribute = ca.id
+		WHERE p.id = #{value}
+	</select>
+
+
 
 	<select id="list" resultType="com.ev.hr.domain.SalaryProjectDO">
 		SELECT 
@@ -32,8 +51,48 @@
         SELECT COUNT(*) FROM hr_salary_project
 		<include refid="sql_condition"/>
 	</select>
+	<select id="pageList" resultType="java.util.Map">
+		SELECT
+			p.`id`,
+			p.`salary_item_name` AS salaryItemName,
+			p.`attribute`,
+			ca.`name` AS attributeName,
+			p.`data_attribute` AS dataAttribute,
+			cda.`name` AS dataAttributeName,
+			p.`is_show_salary_accounting` AS isShowSalaryAccounting,
+			p.`sort_of_salary_accounting_items` AS sortOfSalaryAccountingItems,
+			p.`instruction`
+		FROM
+			hr_salary_project p
+				LEFT JOIN cus_dictionary cda ON p.data_attribute = cda.id
+				LEFT JOIN cus_dictionary ca ON p.attribute = ca.id
+		<where>
+			<if test="salaryItemName != null and salaryItemName != ''"> AND p.salary_item_name LIKE #{salaryItemName} </if>
+		</where>
+	</select>
+	<select id="pageCount" resultType="java.lang.Integer">
+		SELECT
+			COUNT(*)
+		FROM
+			hr_salary_project p
+				LEFT JOIN cus_dictionary cda ON p.data_attribute = cda.id
+				LEFT JOIN cus_dictionary ca ON p.attribute = ca.id
+		<where>
+			<if test="salaryItemName != null and salaryItemName != ''"> AND p.salary_item_name LIKE #{salaryItemName} </if>
+		</where>
+	</select>
+	<select id="checkRepeat" resultType="java.lang.Integer">
+		SELECT
+		       COUNT(*)
+		FROM
+		     hr_salary_project
+		<where>
+			<if test="salaryItemName != null and salaryItemName != ''"> AND salary_item_name = #{salaryItemName} </if>
+			<if test="id != null and id != ''"> AND id <![CDATA[<>]]> #{id} </if>
+		</where>
+	</select>
 
-    <sql id="sql_column_list">
+	<sql id="sql_column_list">
 		`id`,`salary_item_name`,`attribute`,`data_attribute`,`is_show_salary_accounting`,`sort_of_salary_accounting_items`,`instruction`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 	</sql>
 
