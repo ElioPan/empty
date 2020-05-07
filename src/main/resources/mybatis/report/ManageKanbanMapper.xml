@@ -14,12 +14,20 @@
         unituom.name AS unitUomName,
         IFNULL(detail.`plan_feeding`,0) AS planCount,
         IFNULL(detail.`out_count`,0) AS outCount,
-        IFNULL(detail.`plan_feeding`,0)-IFNULL(detail.`out_count`,0) AS pendingCount
+        IFNULL(detail.`plan_feeding`,0)-IFNULL(detail.`out_count`,0) AS pendingCount,
+        facility.name as defaultFacilityName,
+        location.name as defaultLocationName,
+        pro.name as processName,
+        station.name as stationName
         FROM mes_production_feeding_detail detail
         LEFT JOIN mes_production_feeding feeding ON feeding.id= detail.`head_id`
         LEFT JOIN mes_production_plan plan ON plan.id= feeding.production_plan_id
         LEFT JOIN cus_materiel material ON material.`id` = detail.`materiel_id`
         LEFT JOIN cus_dictionary unituom ON unituom.id = material.unit_uom
+        LEFT JOIN cus_facility facility ON facility.id = detail.facility_id
+        LEFT JOIN cus_facility_location location ON location.id = detail.location_id
+        LEFT JOIN mes_process pro ON pro.id = detail.process_id
+        LEFT JOIN mes_station station ON station.id = detail.station_id
         WHERE feeding.`production_plan_id` IS NOT NULL
         AND IFNULL(detail.`plan_feeding`,0) &gt; IFNULL(detail.`out_count`,0)
         AND feeding.status = 179
