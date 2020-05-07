@@ -377,9 +377,11 @@ public class OutsourcingContractApiController {
         map.put("contractId", contractId);
         List<Map<String, Object>> data = productionFeedingService.listForMapToOutsourcingContract(map);
         Map<String, Object> result = Maps.newHashMap();
-        int total = productionFeedingService.countForMapToOutsourcingContract(map);
+        Map<String, Object> totalMap = productionFeedingService.countForMapToOutsourcingContract(map);
+        int total = Integer.parseInt(totalMap.get("total").toString());
         if (data.size() > 0) {
             result.put("data", new DsResultResponse(pageno,pagesize,total,data));
+            result.put("total", totalMap);
         }
         return R.ok(result);
     }

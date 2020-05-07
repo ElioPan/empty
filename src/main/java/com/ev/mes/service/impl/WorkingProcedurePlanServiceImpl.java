@@ -796,7 +796,7 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 	}
 
 	@Override
-	public int countForMap(Map<String, Object> params) {
+	public Map<String, Object> countForMap(Map<String, Object> params) {
 		return workingProcedurePlanDao.countForMap(params);
 	}
 

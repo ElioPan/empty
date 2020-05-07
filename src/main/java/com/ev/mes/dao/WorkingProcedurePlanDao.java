@@ -33,7 +33,7 @@ public interface WorkingProcedurePlanDao {
 
 	Map<String, Object> getDetail(Long id);
 
-	int countForMap(Map<String, Object> params);
+	Map<String, Object> countForMap(Map<String, Object> params);
 
 	List<Map<String, Object>> listForMap(Map<String, Object> params);
 

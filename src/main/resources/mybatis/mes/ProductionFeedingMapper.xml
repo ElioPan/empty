@@ -192,8 +192,10 @@
 		</if>
 	</select>
 
-	<select id="countForMap" resultType="int">
-		SELECT COUNT(*)
+	<select id="countForMap" resultType="map">
+		SELECT
+		COUNT(*) AS total,
+		SUM(feeding.`plan_count`) AS planCountTotal
 		<include refid="sql_map_condition"/>
 	</select>
 	
@@ -262,8 +264,10 @@
 		</if>
 	</select>
 
-	<select id="countForMapToOutsourcingContract" resultType="int">
-		SELECT COUNT(*)
+	<select id="countForMapToOutsourcingContract" resultType="map">
+		SELECT
+		COUNT(*) AS total,
+		SUM(feeding.`plan_count`) AS planCountTotal
 		<include refid="sql_contract_condition"/>
 	</select>
 

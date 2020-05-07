@@ -38,13 +38,13 @@ public interface ProductionFeedingDao {
 	/**
 	 * 获取生产投料计划总数
 	 */
-	int countForMap(Map<String, Object> params);
+	Map<String, Object> countForMap(Map<String, Object> params);
 
 	ProductionFeedingDO getByOutsourcingContractItemId(Long id);
 
     List<Map<String, Object>> listForMapToOutsourcingContract(Map<String, Object> map);
 
-	int countForMapToOutsourcingContract(Map<String, Object> map);
+	Map<String,Object> countForMapToOutsourcingContract(Map<String, Object> map);
 
 	int countBySource(Map<String, Object> map);
 

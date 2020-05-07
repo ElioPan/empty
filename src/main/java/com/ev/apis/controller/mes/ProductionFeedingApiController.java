@@ -107,7 +107,8 @@ public class ProductionFeedingApiController {
 		params.put("isPlan",1);
 		Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
 		List<Map<String, Object>> data = productionFeedingService.listForMap(params);
-		int total = productionFeedingService.countForMap(params);
+		Map<String, Object> totalMap = productionFeedingService.countForMap(params);
+		int total = Integer.parseInt(totalMap.get("total").toString());
 		if (data != null && data.size() > 0) {
 			DsResultResponse dsRet = new DsResultResponse();
 			dsRet.setDatas(data);
@@ -116,6 +117,7 @@ public class ProductionFeedingApiController {
 			dsRet.setTotalRows(total);
 			dsRet.setTotalPages((total + pagesize - 1) / pagesize);
 			results.put("data", dsRet);
+			results.put("total", totalMap);
 		}
 		return R.ok(results);
 	}

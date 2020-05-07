@@ -82,9 +82,10 @@
 		  		</where>
 	</sql>
 	
-	<select id="countForMap" resultType="int">
-		SELECT 
-		COUNT(*)
+	<select id="countForMap" resultType="map">
+		SELECT
+		COUNT(*) AS total,
+		SUM(proplan.`plan_count`) AS planCountTotal
 		<include refid="sql_map_condition"/>
 	</select>
 	

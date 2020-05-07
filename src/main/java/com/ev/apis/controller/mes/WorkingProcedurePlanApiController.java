@@ -88,7 +88,8 @@ public class WorkingProcedurePlanApiController {
 		params.put("limit", pagesize);
 		Map<String, Object> results = Maps.newHashMap();
 		List<Map<String, Object>> data = planService.listForMap(params);
-		int total = planService.countForMap(params);
+		Map<String, Object> totalMap = planService.countForMap(params);
+		int total = Integer.parseInt(totalMap.get("total").toString());
 		if (data.size() > 0) {
 			DsResultResponse dsRet = new DsResultResponse();
 			dsRet.setDatas(data);
@@ -97,6 +98,7 @@ public class WorkingProcedurePlanApiController {
 			dsRet.setTotalRows(total);
 			dsRet.setTotalPages((total + pagesize - 1) / pagesize);
 			results.put("data", dsRet);
+			results.put("total", totalMap);
 		}
 		return R.ok(results);
 	}

@@ -108,7 +108,7 @@ public interface WorkingProcedurePlanService {
 
 	List<Map<String, Object>> listForMap(Map<String, Object> params);
 
-	int countForMap(Map<String, Object> params);
+	Map<String,Object> countForMap(Map<String, Object> params);
 
 	/**
 	  *  获取需要合并工序计划的列表

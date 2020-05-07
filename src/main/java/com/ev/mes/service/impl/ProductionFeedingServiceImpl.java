@@ -98,7 +98,7 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 	}
 
 	@Override
-	public int countForMap(Map<String, Object> params) {
+	public Map<String, Object> countForMap(Map<String, Object> params) {
 		return productionFeedingDao.countForMap(params);
 	}
 
@@ -176,7 +176,7 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 	}
 
 	@Override
-	public int countForMapToOutsourcingContract(Map<String, Object> map) {
+	public Map<String, Object> countForMapToOutsourcingContract(Map<String, Object> map) {
 		return productionFeedingDao.countForMapToOutsourcingContract(map);
 	}
 

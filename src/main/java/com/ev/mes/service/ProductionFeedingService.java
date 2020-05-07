@@ -37,7 +37,7 @@ public interface ProductionFeedingService {
 	/**
 	 * 获得生产投料单的
 	 */
-	int countForMap(Map<String, Object> params);
+	Map<String,Object> countForMap(Map<String, Object> params);
 
 	/**
 	 * 是否审核状态
@@ -93,7 +93,7 @@ public interface ProductionFeedingService {
 
     List<Map<String, Object>> listForMapToOutsourcingContract(Map<String, Object> map);
 
-	int countForMapToOutsourcingContract(Map<String, Object> map);
+	Map<String,Object> countForMapToOutsourcingContract(Map<String, Object> map);
 
 	int countBySource(Map<String, Object> map);
 
