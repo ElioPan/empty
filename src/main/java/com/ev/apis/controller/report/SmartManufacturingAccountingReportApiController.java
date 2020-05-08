@@ -155,8 +155,6 @@ public class SmartManufacturingAccountingReportApiController {
         // 统计合计数量
         List<Map<String, Object>> totalData = reportService.processPlanList(params);
 
-        params.put("offset", (pageno - 1) * pagesize);
-        params.put("limit", pagesize);
         Map<String, Object> results = Maps.newHashMap();
         List<Map<String, Object>> data = reportService.processPlanList(params);
         int total = reportService.processPlanCount(params);

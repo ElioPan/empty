@@ -105,15 +105,6 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                     .orElse(BigDecimal.ZERO);
             totalMap.put("totalConformityCount", totalConformityCount);
 
-            // 不合格数量合计（若检验数量为0用完工数量相减） 不合格数量合计= 检验数量合计-合格数量合计
-            BigDecimal totalUnConformityCount;
-            if(totalCheckCount.compareTo(BigDecimal.ZERO)==0){
-                totalUnConformityCount = totalCompletionCount.subtract(totalConformityCount);
-            }else {
-               totalUnConformityCount = totalCheckCount.subtract(totalConformityCount);
-            }
-            totalMap.put("totalUnConformityCount", totalUnConformityCount);
-
             // 返工数量合计
             BigDecimal totalReworkCount = reworkCountMap
                     .values()
@@ -129,10 +120,8 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
             totalMap.put("totalScrapCount", totalScrapCount);
-
-            return Pair.of(data, totalMap);
         }
-
+        BigDecimal totalUnConformityCount = BigDecimal.ZERO;
         for (Map<String, Object> map : data) {
             Long planId = Long.parseLong(map.get("id").toString());
 
@@ -164,6 +153,9 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
             }
             map.put("unConformityCount", unConformityCount);
 
+            // 不合格数量合计
+            totalUnConformityCount = totalUnConformityCount.add(unConformityCount);
+
             // 返工数量（工序检验内的返工数量）
             BigDecimal reworkCount = reworkCountMap.getOrDefault(planId, BigDecimal.ZERO);
             map.put("reworkCount", reworkCount);
@@ -186,6 +178,8 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
             }
             map.put("completionRate", completionRate.multiply(BigDecimal.valueOf(100L)));
         }
+        // 不合格数量合计
+        totalMap.put("totalUnConformityCount", totalUnConformityCount);
         return Pair.of(data, totalMap);
     }
 
