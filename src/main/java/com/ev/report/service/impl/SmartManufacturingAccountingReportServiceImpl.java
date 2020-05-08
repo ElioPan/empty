@@ -105,8 +105,13 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
                     .orElse(BigDecimal.ZERO);
             totalMap.put("totalConformityCount", totalConformityCount);
 
-            // 不合格数量合计 不合格数量合计= 检验数量合计-合格数量合计
-            BigDecimal totalUnConformityCount = totalCheckCount.subtract(totalConformityCount);
+            // 不合格数量合计（若检验数量为0用完工数量相减） 不合格数量合计= 检验数量合计-合格数量合计
+            BigDecimal totalUnConformityCount;
+            if(totalCheckCount.compareTo(BigDecimal.ZERO)==0){
+                totalUnConformityCount = totalCompletionCount.subtract(totalConformityCount);
+            }else {
+               totalUnConformityCount = totalCheckCount.subtract(totalConformityCount);
+            }
             totalMap.put("totalUnConformityCount", totalUnConformityCount);
 
             // 返工数量合计
@@ -150,8 +155,13 @@ public class SmartManufacturingAccountingReportServiceImpl implements SmartManuf
             BigDecimal conformityCount = conformityCountMap.getOrDefault(planId, BigDecimal.ZERO);
             map.put("conformityCount", conformityCount);
 
-            // 不合格数量 不合格数量= 检验数量-合格数量
-            BigDecimal unConformityCount = checkCount.subtract(conformityCount);
+            // 不合格数量（若检验数量为0用完工数量相减） 不合格数量= 检验数量-合格数量
+            BigDecimal unConformityCount;
+            if(checkCount.compareTo(BigDecimal.ZERO)==0){
+                unConformityCount = completionCount.subtract(conformityCount);
+            }else {
+                unConformityCount = checkCount.subtract(conformityCount);
+            }
             map.put("unConformityCount", unConformityCount);
 
             // 返工数量（工序检验内的返工数量）
