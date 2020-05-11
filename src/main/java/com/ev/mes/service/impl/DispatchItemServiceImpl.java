@@ -11,6 +11,7 @@ import com.ev.mes.dao.DispatchItemDao;
 import com.ev.mes.domain.DispatchItemDO;
 import com.ev.mes.domain.DispatchWorkingHungDO;
 import com.ev.mes.domain.WorkingProcedureDetailDO;
+import com.ev.mes.enums.ProductionTypeDict;
 import com.ev.mes.service.DispatchItemService;
 import com.ev.mes.service.DispatchWorkingHungService;
 import com.ev.mes.service.ProcessReportService;
@@ -274,6 +275,37 @@ public class DispatchItemServiceImpl implements DispatchItemService {
 
         Map<String, Object> statusOfPAndD = dispatchItemDao.getStatusOfPlanAndDisp(dispatchId);
         if (Objects.nonNull(statusOfPAndD)) {
+
+            // 若是工序跟踪则需验证上道工序是否已存在报工单 （2020-5-11 新增需求）
+            if (Long.parseLong(statusOfPAndD.get("type").toString()) == ProductionTypeDict.PROCESS_TRACKING.getId()) {
+                long planId = Long.parseLong(statusOfPAndD.get("planId").toString());
+                int serialNumber = Integer.parseInt(statusOfPAndD.get("serialNumber").toString());
+                Map<String, Object> param = Maps.newHashMap();
+                param.put("planId", planId);
+                List<WorkingProcedureDetailDO> procedureDetailList = workingProcedureDetailService.list(param);
+                procedureDetailList.sort(Comparator.comparing(WorkingProcedureDetailDO::getSerialNumber));
+                // 若不是第一道工序则需要查出它上道工序是否存在报工单或者检验单
+                int size = procedureDetailList.size();
+                if (size > 0) {
+                    if (serialNumber != procedureDetailList.get(0).getSerialNumber()) {
+                        for (int i = 1; i < size; i++) {
+                            if (serialNumber == procedureDetailList.get(i).getSerialNumber()) {
+                                WorkingProcedureDetailDO workingProcedureDetailDO = procedureDetailList.get(i - 1);
+                                param.clear();
+                                param.put("planDetailId", workingProcedureDetailDO.getId());
+                                List<Map<String, Object>> processReportList = processReportService.listForMap(param);
+                                // XXX 这里可能还需验证本道工序数量不能大于上道工序的数量
+                                if (processReportList.size() == 0) {
+                                    return R.error(messageSourceHandler.getMessage("apis.mes.dispatch.isReportEmpty", null));
+                                }
+                                break;
+                            }
+
+                        }
+                    }
+                }
+            }
+
             // dispatchStatus, planStatus
             //ISSUED = 232;下达  ++++  CLOSE_CASE = 234;结案   ++++  PUT_UP = 233;挂起    +++START_WORK 开工
             if (Objects.equals(ConstantForMES.ISSUED, Long.parseLong(statusOfPAndD.get("planStatus").toString()))) {
