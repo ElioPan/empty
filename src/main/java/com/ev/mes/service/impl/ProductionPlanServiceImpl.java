@@ -10,6 +10,7 @@ import com.ev.framework.utils.DateFormatUtil;
 import com.ev.framework.utils.R;
 import com.ev.mes.dao.ProductionPlanDao;
 import com.ev.mes.domain.*;
+import com.ev.mes.enums.ProductionTypeDict;
 import com.ev.mes.service.*;
 import com.ev.system.service.DeptService;
 import com.google.common.collect.Lists;
@@ -158,19 +159,23 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
     @Override
     public R issuedPlan(Long id) {
         ProductionPlanDO planDO = this.get(id);
+
         if (!this.isPlan(planDO)) {
             return R.error(messageSourceHandler.getMessage("plan.status.nonPlan", null));
         }
-//        if (this.isBomEmpty(planDO)) {
-//            return R.error(messageSourceHandler.getMessage("plan.bom.isEmpty", null));
-//        }
+
+        if (this.isBomEmpty(planDO)) {
+            return R.error(messageSourceHandler.getMessage("plan.bom.isEmpty", null));
+        }
         if (this.isTecRouteEmpty(planDO)) {
             return R.error(messageSourceHandler.getMessage("plan.tecRoute.isEmpty", null));
         }
 //		if (this.isInspectionEmpty(planDO)) {
 //			return R.error("请选择检验方案");
 //		}
-        if (!this.isBomEmpty(planDO)) {
+        Long type = planDO.getType();
+        // 项目制造与工序跟踪下可以生成BOM
+        if (type != ProductionTypeDict.ORDINARY_ORDER.getId() && planDO.getBomId() != null) {
             feedingService.add(this.getFeedingDO(planDO), this.getFeedingChildArray(planDO));
         }
         planDO.setStatus(ConstantForMES.ISSUED);
@@ -181,16 +186,19 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
 
     @Override
     public boolean isTecRouteEmpty(ProductionPlanDO planDO) {
-        // 检查生产类型是否为工序跟踪
-        if (!Objects.equals(planDO.getType(), ConstantForMES.PROCESS_TRACKING)) {
+        Long type = planDO.getType();
+        // 检查生产类型是否为工序跟踪 或者 项目制造
+        if (type == ProductionTypeDict.ORDINARY_ORDER.getId()) {
             return false;
         }
-        // 检查工艺路线是否为空
-        if (Objects.isNull(planDO.getTecRouteId())) {
+        // 检查工序跟踪下 工艺路线是否为空
+        if (type == ProductionTypeDict.PROCESS_TRACKING.getId() && Objects.isNull(planDO.getTecRouteId())) {
             return true;
         }
-        workingProcedurePlanService.add(this.getWorkingProcedurePlanDO(planDO),
-                this.gettWorkingProcedureChildArray(planDO),null);
+        if (Objects.nonNull(planDO.getTecRouteId())) {
+            workingProcedurePlanService.add(this.getWorkingProcedurePlanDO(planDO),
+                    this.gettWorkingProcedureChildArray(planDO), null);
+        }
         return false;
     }
 
@@ -245,7 +253,8 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
 
     @Override
     public boolean isBomEmpty(ProductionPlanDO planDO) {
-        return Objects.isNull(planDO.getBomId());
+        // 是工序跟踪必须存在BOM
+        return planDO.getType()==ProductionTypeDict.PROCESS_TRACKING.getId()&&Objects.isNull(planDO.getBomId());
     }
 
     /**
