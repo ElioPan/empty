@@ -450,7 +450,10 @@
 	<select id="getStatusOfPlanAndDisp" resultType="map">
 		SELECT
 		a.status as dispatchStatus,
-		c.status as planStatus
+		c.status as planStatus,
+		IFNULL(c.`type`,0) AS `type`,
+		c.`id` AS planId,
+		b.`serial_number` AS serialNumber
 		FROM
 		mes_dispatch_item   a
 		LEFT JOIN mes_working_procedure_detail b  on a.foriegn_id=b.id
