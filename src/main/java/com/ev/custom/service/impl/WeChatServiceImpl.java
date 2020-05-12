@@ -124,7 +124,7 @@ public class WeChatServiceImpl implements WeChatService {
             e.printStackTrace();
         }
         JSONObject results = new JSONObject();
-        results.put("appId",setting.getCorpId());
+        results.put("corpId",setting.getCorpId());
         results.put("timestamp",now.getTime());
         results.put("nonceStr",noncestr);
         results.put("signature",signature);
