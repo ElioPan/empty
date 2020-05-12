@@ -59,7 +59,8 @@
 			<!--跟踪记录使用  -->
 			detail.`reality_end_time` AS realityEndTime,
 			detail.`reality_start_time` AS realityStartTime,
-			detail.serial_number as serialNumber
+			detail.serial_number as serialNumber,
+			mwpp.work_order_no AS planCode
 			<!-- ,
 			workingplan.`source_id` AS sourceId, 
 			workingplan.`source_no` AS sourceNo,
@@ -93,6 +94,7 @@
 	<sql id="sql_map_condition">
 		FROM mes_working_procedure_detail detail
 		LEFT JOIN mes_process process ON process.`id` = detail.`process_id`
+		LEFT JOIN mes_working_procedure_plan mwpp ON mwpp.`id` = detail.`plan_id`
 		LEFT JOIN cus_dictionary  dictds ON dictds.`id` = detail.`is_dispatching`
 		<!-- LEFT JOIN cus_client client ON client.`id`=workingplan.`client_id` -->
 		<!-- LEFT JOIN cus_materiel material ON material.`id`= workingplan.`materiel_id`
@@ -101,6 +103,8 @@
 		LEFT JOIN view_mes_report_count reportcount ON reportcount.`id` =  detail.`id`
 		<where>  
 		  	<if test="planId != null and planId != ''"> and detail.plan_id = #{planId} </if>
+			<if test="planCode != null and planCode != ''"> and mwpp.work_order_no = #{planCode} </if>
+			<if test="processCode != null and processCode != ''"> and process.`code` = #{processCode} </if>
 		</where>
 	</sql>
 	
