@@ -15,6 +15,7 @@ import com.ev.mes.domain.ProcessCheckDO;
 import com.ev.mes.domain.ReworkRepairMiddleDO;
 import com.ev.mes.domain.WorkingProcedureDetailDO;
 import com.ev.mes.domain.WorkingProcedurePlanDO;
+import com.ev.mes.enums.ProductionTypeDict;
 import com.ev.mes.service.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -83,6 +84,15 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 		if (StringUtils.isEmpty(childArray)) {
 			return R.error();
 		}
+
+		// 生产类型若是为项目制造
+		Long type = planDO.getType();
+		boolean isProjectMan = false;
+		if(type!=null){
+			long projectManufacturingId = ProductionTypeDict.PROJECT_MANUFACTURING.getId();
+			isProjectMan = projectManufacturingId==type;
+		}
+
 		planDO.setStatus(ConstantForMES.PLAN);
 		this.setWorkOrderNo(planDO);
 		int save = this.save(planDO);
@@ -98,6 +108,9 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
             ProcessCheckDO checkDO;
 			for (int i = 0; i < detailArray.size(); i++) {
 				WorkingProcedureDetailDO detailDO = detailArray.get(i);
+				if(isProjectMan){
+					detailDO.setSerialNumber(0);
+				}
 				detailDO.setPlanId(planId);
 				detailDO.setIsDispatching(ConstantForMES.PLAN);
 				detailDO.setAlreadyCount(BigDecimal.ZERO);
@@ -268,7 +281,7 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 //			for (Map<String, Object> map : plan) {
 //				Integer isAuto = map.containsKey("isAuto") ? (Integer) map.get("isAuto") : null;
 //				if (isAuto == 1) {
-//					// TODO 自动生成派工单（没有配置需要派的人员信息） 暂无此功能
+//					// XXX 自动生成派工单（没有配置需要派的人员信息） 暂无此功能
 //				}
 //			}
 //		}

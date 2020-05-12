@@ -126,7 +126,7 @@ public class DeviceServiceImpl implements DeviceService {
 		params.put("name",name);
 		params.put("type",type);
 //		params.put("deptId",deptId);
-		params.put("offset",pageno-1);
+		params.put("offset",(pageno-1)*pagesize);
 		params.put("limit",pagesize);
 //		List<DeviceDO> devices = deviceDao.list(params);
 

@@ -240,7 +240,8 @@
 		b.plan_count as planCount,<!--工单中指派给个人的计划数量-->
 		IFNULL(d.labour_price,0) AS labourPrice,
 		IFNULL(d.labour_price,0)* IF(a.id=mn.viewProcessReportId,mn.viewConformityCount,a.conformity_count) AS salary,
-		d.is_examine as isExamine
+		d.is_examine as isExamine,
+		d.`id` AS planDetailId
 		from
 		mes_process_report  a
 		LEFT JOIN  mes_dispatch_item   b ON a.dispatch_item_id =b.id
@@ -260,6 +261,7 @@
 		<where>
 			<if test="operator != null and operator != ''"> and operator = #{operator}</if>
 			<if test="deviceId != null and deviceId != ''"> and deviceId = #{deviceId} </if>
+			<if test="planDetailId != null and planDetailId != ''"> and planDetailId = #{planDetailId} </if>
 			<if test="processId != null and processId != ''"> and processId = #{processId} </if>
 			<if test="materialId != null and materialId != ''"> and materialId = #{materialId} </if>
 			<if test="code != null and code != ''"> and code like CONCAT('%', #{code},'%') </if>
@@ -333,7 +335,8 @@
 		b.start_time as startTime,
 		b.end_time as  endTime,
 		b.plan_count as planCount,<!--工单中指派给个人的计划数量-->
-		d.is_examine as isExamine
+		d.is_examine as isExamine,
+		d.`id` AS planDetailId
 		from
 		mes_process_report  a
 		LEFT JOIN  mes_dispatch_item   b ON a.dispatch_item_id =b.id
@@ -353,6 +356,7 @@
 		<where>
 			<if test="operator != null and operator != ''"> and operator = #{operator}</if>
 			<if test="deviceId != null and deviceId != ''"> and deviceId = #{deviceId} </if>
+			<if test="planDetailId != null and planDetailId != ''"> and planDetailId = #{planDetailId} </if>
 			<if test="processId != null and processId != ''"> and processId = #{processId} </if>
 			<if test="materialId != null and materialId != ''"> and materialId = #{materialId} </if>
 			<if test="code != null and code != ''"> and code like CONCAT('%', #{code},'%') </if>

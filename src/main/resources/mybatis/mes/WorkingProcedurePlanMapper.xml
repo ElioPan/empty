@@ -129,9 +129,12 @@
 			workingplan.`source_id` AS sourceId, 
 			workingplan.`source_no` AS sourceNo,
 			workingplan.`source_type` AS sourceType,
-			dictst.`name` AS sourceTypeName
+			dictst.`name` AS sourceTypeName,
+			dictt.`id` AS typeId,
+			dictt.`name` AS typeName
 			FROM mes_working_procedure_plan  workingplan
 		LEFT JOIN cus_dictionary  dicts ON dicts.`id` = workingplan.`status`
+		LEFT JOIN cus_dictionary  dictt ON dictt.`id` = workingplan.`type`
 		LEFT JOIN cus_client client ON client.`id`=workingplan.`client_id`
 		LEFT JOIN cus_materiel material ON material.`id`= workingplan.`materiel_id`
 		LEFT JOIN cus_dictionary unituom ON unituom.id = material.`unit_uom`

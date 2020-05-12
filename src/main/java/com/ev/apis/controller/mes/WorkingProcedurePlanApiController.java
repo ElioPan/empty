@@ -47,7 +47,6 @@ public class WorkingProcedurePlanApiController {
 	 * 工序计划列表(上表)
 	 * 说明:
 	 * 上表选中下表动态显示工序明细数据，工序计划单号链接详情查看页面
-	 * @see #childList(int, int, Long)
 	 *
 	 * @date 2019-11-29 
 	 * @author gumingjie
@@ -116,13 +115,17 @@ public class WorkingProcedurePlanApiController {
 	public R childList(
 			@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1") int pageno,
 			@ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
-			@ApiParam(value = "工序计划ID", required = true) @RequestParam(value = "planId", defaultValue = "") Long planId
-			
+			@ApiParam(value = "工序计划ID") @RequestParam(value = "planId", defaultValue = "", required = false) Long planId,
+			@ApiParam(value = "工序计划单号") @RequestParam(value = "planCode", defaultValue = "", required = false) String planCode,
+			@ApiParam(value = "工序编码") @RequestParam(value = "processCode", defaultValue = "", required = false) String processCode
 	) {
 		// 查询列表数据
 		Map<String, Object> params = Maps.newHashMapWithExpectedSize(10);
 		
 		params.put("planId", planId);
+		params.put("planCode", planCode);
+		params.put("processCode", processCode);
+
 
 		params.put("offset", (pageno - 1) * pagesize);
 		params.put("limit", pagesize);
