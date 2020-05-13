@@ -60,6 +60,7 @@
 			detail.`reality_end_time` AS realityEndTime,
 			detail.`reality_start_time` AS realityStartTime,
 			detail.serial_number as serialNumber,
+		detail.is_examine AS isExamine,
 			mwpp.work_order_no AS planCode
 			<!-- ,
 			workingplan.`source_id` AS sourceId, 
