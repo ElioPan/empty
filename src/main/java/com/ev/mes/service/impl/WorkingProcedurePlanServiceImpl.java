@@ -273,6 +273,12 @@ public class WorkingProcedurePlanServiceImpl implements WorkingProcedurePlanServ
 		if (deptEmpty > 0) {
 			return R.error(messageSourceHandler.getMessage("plan.dept.isEmpty",null));
 		}
+		long timeEmpty = itemList.stream()
+				.filter(e -> e.getPlanStartTime() == null || e.getPlanEndTime() == null)
+				.count();
+		if (timeEmpty > 0) {
+			return R.error(messageSourceHandler.getMessage("plan.time.isEmpty", null));
+		}
 		
 
 		// 查看是否需要自动派工的工序
