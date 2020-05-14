@@ -58,6 +58,9 @@ public class MeasurePointDO implements Serializable {
 	@ApiModelProperty(value = "排序号", hidden = true)
 	private Long sortNo;
 	//
+	@ApiModelProperty(value = "网关ID", required = true)
+	private Long gatewayId;
+	//
 	@ApiModelProperty(value = "设备ID", required = true)
 	private Long deviceId;
 	// 创建人

@@ -45,7 +45,10 @@
 		dim.`name` AS impowerTypeName,
 		dfo.`id` AS formatTypeId,
 		point.`sort_no` AS sortNo,
-		dfo.`name` AS formatTypeName
+		dfo.`name` AS formatTypeName,
+		gateway.id as gatewayId,
+		gateway.`name` as gatewayName,
+		gateway.serial_no as gatewayNo
 		<include refid="sql_condition_formap"/>
 		<choose>
 	            <when test="sort != null and sort.trim() != ''">
@@ -118,7 +121,8 @@
 			`impower`, 
 			`format`, 
 			`sort_no`, 
-			`device_id`, 
+			`device_id`,
+			`gateway_id`,
 			`create_by`, 
 			`create_time`, 
 			`update_by`, 
@@ -139,7 +143,8 @@
 			#{impower}, 
 			#{format}, 
 			#{sortNo}, 
-			#{deviceId}, 
+			#{deviceId},
+			#{gatewayId},
 			#{createBy}, 
 			#{createTime}, 
 			#{updateBy}, 
@@ -164,6 +169,7 @@
 			<if test="format != null">`format` = #{format}, </if>
 			<if test="sortNo != null">`sort_no` = #{sortNo}, </if>
 			<if test="deviceId != null">`device_id` = #{deviceId}, </if>
+			<if test="gatewayId != null">`gateway_id` = #{gatewayId}, </if>
 			<if test="createBy != null">`create_by` = #{createBy}, </if>
 			<if test="createTime != null">`create_time` = #{createTime}, </if>
 			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
@@ -185,7 +191,7 @@
 	</delete>
 	
 	<!-- 批量修改测点数据-->
-	<update id="batchEdit" parameterType="List">
+	<update id="batchEdit" parameterType="list">
 		   UPDATE cus_measure_point
             <trim prefix="set" suffixOverrides=",">
             
@@ -289,6 +295,16 @@
                          </if>
                  </foreach>
               </trim>
+				<trim prefix="gateway_id=case" suffix="end,">
+					<foreach collection="list" item="item" index="index">
+						<if test="item.gatewayId!=null">
+							when id=#{item.id} then #{item.gatewayId}
+						</if>
+						<if test="item.serialNo==null">
+							when id=#{item.id} then cus_measure_point.gateway_id
+						</if>
+					</foreach>
+				</trim>
                <trim prefix="update_by =case" suffix="end,">
                  <foreach collection="list" item="item" index="index">
                          <if test="item.updateBy!=null">
@@ -317,7 +333,7 @@
 	</update>	
 	
 	<sql id="sql_column_list">
-		`id`,`serial_no`,`name`,`rw_type`,`child_type`,`uom`,`use_type`,`is_manual_input`,`is_virtual_point`,`expression`,`impower`,`format`,`sort_no`,`device_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`	
+		`id`,`serial_no`,`name`,`rw_type`,`child_type`,`uom`,`use_type`,`is_manual_input`,`is_virtual_point`,`expression`,`impower`,`format`,`sort_no`,`device_id`,`gateway_id`,`create_by`,`create_time`,`update_by`,`update_time`,`del_flag`
 	</sql>
 	
 	<sql id="sql_condition">
@@ -336,6 +352,7 @@
 		  		  <if test="format != null and format != ''"> and format = #{format} </if>
 		  		  <if test="sortNo != null and sortNo != ''"> and sort_no = #{sortNo} </if>
 		  		  <if test="deviceId != null and deviceId != ''"> and device_id = #{deviceId} </if>
+			      <if test="gatewayId != null and gatewayId != ''"> and gateway_id = #{gatewayId} </if>
 		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
 		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
 		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
@@ -356,6 +373,7 @@
 		LEFT JOIN cus_dictionary dfo ON dfo.id = point.`format`
 		LEFT JOIN cus_uom uom ON uom.id = point.`uom`
 		LEFT JOIN cus_measure_point_type mpt ON mpt.id = point.`child_type`
+		LEFT JOIN cus_gateway as gateway ON gateway.id = point.gateway_id
 		<where>  
 		  		  <if test="id != null and id != ''"> and point.id = #{id} </if>
 		  		  <if test="serialNo != null and serialNo != ''"> and point.serial_no LIKE CONCAT(#{serialNo},'%')</if>
