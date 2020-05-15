@@ -70,7 +70,7 @@
 	</select>
 	
 	<!-- 批量保存规则明细 -->
-	<insert id="batchSave" parameterType="List" useGeneratedKeys="true" keyProperty="id">
+	<insert id="batchSave" parameterType="list" useGeneratedKeys="true" keyProperty="id">
 		insert into cus_alarm_rule
 		(
 			`name`,

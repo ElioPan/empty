@@ -2,7 +2,6 @@ package com.ev.custom.service;
 
 import com.ev.custom.domain.MeasurePointDO;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

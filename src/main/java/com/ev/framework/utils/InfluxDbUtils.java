@@ -102,14 +102,27 @@ public class InfluxDbUtils {
     }
 
     /**
-     * 构建Point
+     * 构建Point(系统时间)
+     * @param measurement
+     * @param tags
+     * @param fields
+     * @param time
+     * @return
+     */
+    public Point pointBuilder(String measurement, Map<String, String> tags, Map<String, Object> fields,String time) {
+        Point point = Point.measurement(measurement).time(Long.parseLong(time),TimeUnit.MILLISECONDS).tag(tags).fields(fields).build();
+        return point;
+    }
+
+    /**
+     * 构建Point(指定时间)
      *
      * @param measurement
      * @param fields
      * @return
      */
     public Point pointBuilder(String measurement, Map<String, String> tags, Map<String, Object> fields) {
-        Point point = Point.measurement(measurement).tag(tags).fields(fields).build();
+        Point point = Point.measurement(measurement).time(System.currentTimeMillis(),TimeUnit.MILLISECONDS).tag(tags).fields(fields).build();
         return point;
     }
 }

@@ -3,6 +3,7 @@ package com.ev.apis.controller.custom;
 import java.util.List;
 import java.util.Map;
 
+import com.ev.custom.domain.MeasurePointDO;
 import com.ev.framework.il8n.MessageSourceHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ev.framework.annotation.EvApiByToken;
 import com.ev.apis.model.DsResultResponse;
 import com.ev.framework.utils.R;
-import com.ev.custom.domain.MeasurePointDO;
 import com.ev.custom.domain.MeasurePointTypeDO;
 import com.ev.custom.domain.UomDO;
 import com.ev.custom.service.MeasurePointService;
@@ -120,8 +120,8 @@ public class MeasurePointApiController {
 	@EvApiByToken(value = "/apis/measurePoint/update", method = RequestMethod.POST, apiTitle = "修改测点信息")
 	@ApiOperation("修改测点信息")
 	public R update(MeasurePointDO measurePoint,
-			@ApiParam(value = "子类型", required = true) @RequestParam(value = "childTypeName", defaultValue = "") String childTypeName,
-			@ApiParam(value = "单位", required = true) @RequestParam(value = "uomName", defaultValue = "") String uomName) {
+					@ApiParam(value = "子类型", required = true) @RequestParam(value = "childTypeName", defaultValue = "") String childTypeName,
+					@ApiParam(value = "单位", required = true) @RequestParam(value = "uomName", defaultValue = "") String uomName) {
 		MeasurePointDO param = new MeasurePointDO();
 		param.setDeviceId(measurePoint.getId());
 		param.setSerialNo(measurePoint.getSerialNo());

@@ -1,11 +1,10 @@
 package com.ev.custom.dao;
 
 import com.ev.custom.domain.MeasurePointDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 import java.util.Map;
-
-import org.apache.ibatis.annotations.Mapper;
 
 /**
  * 

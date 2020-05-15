@@ -3,6 +3,7 @@ package com.ev.custom.controller;
 import java.util.List;
 import java.util.Map;
 
+import com.ev.custom.domain.MeasurePointDO;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.ev.custom.domain.MeasurePointDO;
 import com.ev.custom.service.MeasurePointService;
 import com.ev.framework.utils.PageUtils;
 import com.ev.framework.utils.Query;

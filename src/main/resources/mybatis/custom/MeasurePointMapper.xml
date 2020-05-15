@@ -352,7 +352,7 @@
 		  		  <if test="format != null and format != ''"> and format = #{format} </if>
 		  		  <if test="sortNo != null and sortNo != ''"> and sort_no = #{sortNo} </if>
 		  		  <if test="deviceId != null and deviceId != ''"> and device_id = #{deviceId} </if>
-			      <if test="gatewayId != null and gatewayId != ''"> and gateway_id = #{gatewayId} </if>
+			      <if test="gatewayNo != null and gatewayNo != ''"> and gateway.serial_no = #{gatewayNo} </if>
 		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
 		  		  <if test="createTime != null and createTime != ''"> and create_time = #{createTime} </if>
 		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
@@ -389,6 +389,7 @@
 		  		  <if test="format != null and format != ''"> and point.format = #{format} </if>
 		  		  <if test="sortNo != null and sortNo != ''"> and point.sort_no = #{sortNo} </if>
 		  		  <if test="deviceId != null and deviceId != ''"> and point.device_id = #{deviceId} </if>
+			      <if test="gateWayNo != null and gateWayNo != ''"> and point.device_id = #{deviceId} </if>
 		  		  <if test="createBy != null and createBy != ''"> and point.create_by = #{createBy} </if>
 		  		  <if test="createTime != null and createTime != ''"> and point.create_time = #{createTime} </if>
 		  		  <if test="updateBy != null and updateBy != ''"> and point.update_by = #{updateBy} </if>
