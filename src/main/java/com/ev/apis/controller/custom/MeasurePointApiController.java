@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.ev.custom.domain.MeasurePointDO;
+import com.ev.framework.annotation.EvApi;
 import com.ev.framework.il8n.MessageSourceHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -44,11 +45,9 @@ public class MeasurePointApiController {
 	@Autowired
 	private MessageSourceHandler messageSourceHandler;
 
-	@EvApiByToken(value = "/apis/measurePoint/list", method = RequestMethod.POST, apiTitle = "获取测点列表信息")
+	@EvApi(value = "/apis/measurePoint/list", method = RequestMethod.POST, apiTitle = "获取测点列表信息")
 	@ApiOperation("获取测点列表信息")
 	public R list(
-//			@ApiParam(value = "当前第几页", required = true) @RequestParam(value = "pageno", defaultValue = "1", required = true) int pageno,
-//			@ApiParam(value = "一页多少条", required = true) @RequestParam(value = "pagesize", defaultValue = "20", required = true) int pagesize,
 			@ApiParam(value = "测点子类型") @RequestParam(value = "childType", defaultValue = "", required = false) Long childType,
 			@ApiParam(value = "测点编码") @RequestParam(value = "serialNo", defaultValue = "", required = false) String serialNo,
 			@ApiParam(value = "测点名称") @RequestParam(value = "name", defaultValue = "", required = false) String name,
@@ -59,18 +58,13 @@ public class MeasurePointApiController {
 		params.put("serialNo", serialNo);
 		params.put("name", name);
 		params.put("deviceId", deviceId);
-//		params.put("offset", (pageno - 1) * pagesize);
-//		params.put("limit", pagesize);
 		Map<String, Object> results = Maps.newHashMapWithExpectedSize(1);
 		List<Map<String, Object>> data = measurePointService.listForMap(params);
 		int total = measurePointService.countForMap(params);
 		if (data != null && data.size() > 0) {
 			DsResultResponse dsRet = new DsResultResponse();
 			dsRet.setDatas(data);
-//			dsRet.setPageno(pageno);
-//			dsRet.setPagesize(pagesize);
 			dsRet.setTotalRows(total);
-//			dsRet.setTotalPages((int) (total + pagesize - 1) / pagesize);
 			results.put("data", dsRet);
 		}
 		return R.ok(results);
