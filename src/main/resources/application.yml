@@ -17,7 +17,7 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
     default-property-inclusion: non_null
   profiles:
-    active: ${profile:dev}
+    active: ${profile:vthree}
   http:
     multipart:
       max-file-size: 100Mb
@@ -49,15 +49,6 @@ spring:
       config: config/ehcache.xml
   messages:
     basename: il8n/messages
-  mqtt:
-    username: admin
-    password: password
-    #MQTT-服务器连接地址，如果有多个，用逗号隔开，如：tcp://127.0.0.1:61613，tcp://192.168.2.133:61613
-    url: tcp://120.132.17.220:61613
-    client:
-      id: mqttId
-    topic: v10/devices/me/telemetry
-    completionTimeout: 3000
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
