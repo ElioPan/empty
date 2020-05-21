@@ -1,10 +1,21 @@
 package com.ev.framework.socket;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.ev.custom.domain.DeviceDataDO;
 import com.ev.framework.config.ApplicationContextRegister;
 import com.ev.common.service.SocketService;
+import org.jsoup.select.Evaluator;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 
 public class ServerThread extends Thread {
@@ -31,7 +42,11 @@ public class ServerThread extends Thread {
             while ((info = br.readLine()) != null) {//循环读取客户端的信息
                 SocketService socketService = ApplicationContextRegister.getBean(SocketService.class);
                 socketService.receiveMessage(info);
-                CusWebSocket.sendInfo(info);
+                System.out.println(info);
+                JSONArray datas = (JSONArray) JSON.parseObject(info).get("datas");
+                List<DeviceDataDO> listInfluxData = JSONObject.parseArray(datas.toJSONString(),DeviceDataDO.class);
+                List<DeviceDataDO> filterList = listInfluxData.stream().filter(distinctByKey(b -> b.getPointId())).collect(Collectors.toList());
+                CusWebSocket.sendInfo("{\"datas\":"+ JSON.toJSONString(filterList) +"}");
             }
             socket.shutdownInput();//关闭输入流
             //获取输出流，响应客户端的请求
@@ -67,5 +82,10 @@ public class ServerThread extends Thread {
                 e.printStackTrace();
             }
         }
+    }
+
+    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Map<Object,Boolean> seen = new ConcurrentHashMap<>();
+        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 }
