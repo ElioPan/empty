@@ -114,7 +114,8 @@ public class FileUploadApiController {
     public void download(@ApiParam(value = "路径", required = true) @RequestParam("filePath") String filePath,
                       @ApiParam(value = "文件名", required = true) @RequestParam("fileName") String fileName, HttpServletResponse response) throws IOException {
         response.setContentType("text/xml");
-        response.setHeader("Content-Disposition", "attachment;filename="+fileName);
+        response.addHeader("Content-Disposition", "attachment; filename="
+                + new String(fileName.getBytes("UTF8"), "ISO8859-1"));
         InputStream is = ftpService.downFile(filePath,fileName);
         OutputStream os = response.getOutputStream();
         byte[] buffer = new byte[1024];
