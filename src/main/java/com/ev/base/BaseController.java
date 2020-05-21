@@ -17,7 +17,7 @@ import java.util.List;
  * @Date 2020/4/26 15:00
  * @Description
  */
-public abstract class GyhlBaseController<T extends Serializable> {
+public abstract class BaseController<T extends Serializable> {
     @Autowired
     public abstract IService<T> getService();
 
