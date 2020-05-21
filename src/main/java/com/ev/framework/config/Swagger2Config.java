@@ -19,6 +19,25 @@ import java.time.LocalDateTime;
 @EnableSwagger2
 @Configuration
 public class Swagger2Config {
+    @Bean("wms")
+    public Docket createRestWmsApi() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .groupName("WMS")
+                .ignoredParameterTypes(ApiIgnore.class)
+                .apiInfo(apiInfo())
+                .directModelSubstitute(LocalDate.class, java.sql.Date.class)
+                .directModelSubstitute(LocalDateTime.class, java.util.Date.class)
+                .select()
+                .apis(requestHandler -> {
+                    String packageName = requestHandler.getHandlerMethod().getMethod()
+                            .getDeclaringClass().getPackage().getName();
+                    return packageName.startsWith("com.ev.wms.controller");
+                })
+                .paths(PathSelectors.any())
+                .build()
+                .enable(true)
+                ;
+    }
 
     @Bean("设备管理")
     public Docket createRestApi() {

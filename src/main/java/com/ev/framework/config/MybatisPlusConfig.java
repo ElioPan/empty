@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 /**
- * 文件名称： com.ev.framework.config.MybatisPlusConfig.java</br>
+ * 文件名称： com.socks.zhhc.core.common.config.MybatisPlusConfig.java</br>
  * 初始作者： Mark.Yao</br>
  * 创建日期： 2019年9月6日</br>
  * 功能说明： mybatis插件配置类 <br/>
@@ -72,7 +72,7 @@ public class MybatisPlusConfig {
      * @return PerformanceInterceptor
      */
     @Bean
-    @Profile({"dev"})
+    @Profile({"dev", "uat"})
     public PerformanceInterceptor performanceInterceptor() {
         return new PerformanceInterceptor();
     }

@@ -17,7 +17,7 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
     default-property-inclusion: non_null
   profiles:
-    active: ${profile:vthree}
+    active: ${profile:dev}
   http:
     multipart:
       max-file-size: 100Mb

@@ -3,10 +3,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.ev</groupId>
-    <artifactId>xinsoft-gyhl</artifactId>
+    <artifactId>ncw-web</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>xinsoft-gyhl</name>
+    <name>ncw-web</name>
     <description>芯软工业互联网平台</description>
 
     <parent>
@@ -267,11 +267,11 @@
         </dependency>
         <!--MybatisPlus 多租户架构-->
         <!--mybatisplus,加入该jar后，就不再需要mybatis-xxx.jar,mybatis-spring-xxx.jar了，它们会以依赖包的形式被自动维护-->
-<!--        <dependency>
+        <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
             <version>3.0.5</version>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus</artifactId>
@@ -383,7 +383,7 @@
         </dependencies>
     </dependencyManagement>
     <build>
-        <finalName>xinsoft-gyhl</finalName>
+        <finalName>ncw-web</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

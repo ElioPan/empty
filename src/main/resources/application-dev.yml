@@ -10,7 +10,7 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://120.132.17.220:3306/xinsoft-gyhl?useUnicode=true&characterEncoding=utf8
+    url: jdbc:mysql://120.132.17.220:3306/ncw?useUnicode=true&characterEncoding=utf8
     username: xinsoft
     password: xinsoft411
     initialSize: 1
@@ -36,9 +36,9 @@ spring:
     # 合并多个DruidDataSource的监控数据
     #useGlobalDataSourceStat: true
   redis:
-    host: localhost
-    port: 6379
+    host: 192.168.1.36
     password:
+    port: 6379
     # 连接超时时间（毫秒）
     timeout: 10000
     pool:
