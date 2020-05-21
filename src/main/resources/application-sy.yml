@@ -10,7 +10,7 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://120.132.17.220:3306/xinsoft-gyhl?useUnicode=true&characterEncoding=utf8
+    url: jdbc:mysql://120.132.17.109:3306/xinsoft-gyhl?useUnicode=true&characterEncoding=utf8
     username: xinsoft
     password: xinsoft411
     initialSize: 1
@@ -36,9 +36,9 @@ spring:
     # 合并多个DruidDataSource的监控数据
     #useGlobalDataSourceStat: true
   redis:
-    host: localhost
+    host: 120.132.17.109
     port: 6379
-    password:
+    password: 1q2w3e4r!@#$
     # 连接超时时间（毫秒）
     timeout: 10000
     pool:
@@ -50,11 +50,36 @@ spring:
       max-active: 100
       # 连接池最大阻塞等待时间（使用负值表示没有限制）
       max-wait: -1
-
+  influx:
+    url: http://120.132.17.220:8086
+    user: xinsoft
+    password: xinsoft
+    database: sentinel_log
+    rabbitmq:
+      host: 120.132.17.220
+      port: 5672
+      username: admin
+      password: admin
+      listener:
+        simple:
+          #acknowledge-mode: auto
+          concurrency: 10
+          max-concurrency: 50
+          retry:
+            enabled: true
+          prefetch: 5
 feign:
   hystrix:
     enabled: false
 
+org:
+  ftp:
+    address: 120.132.17.109
+    port: 21
+    userName: ftpuser
+    password: 1q2w3e4r!@
+    basePath: gyhl-file
+    localPath: /data/ftp
 
 hystrix:
   command:
@@ -77,18 +102,8 @@ upload:
   config:
     path: D:/Program Files/jenkins/workspace/gyhl-local-zd/target/classes/fdfs_client.conf
 wechat:
-  agentid: 1000002
-  corpid: wwd5b516fea1402b36
-  corpsecret: vkYNZGHLSccDUTm5pD1GJD04PwmXcS_TfluwmT8i8aY
-  mobilesecret: UdsiLfdVT3OVmuo94IbTqZv8BVGkJ2iuyQZCDAi3ELI
+  agentid: 1000003
+  corpid: wx6188bd4995b3f83b
+  corpsecret: WqJxg35Q8majBsLJ6DliY9y-EkKw6qrQZAyV4axjGxQ
+  mobilesecret: YGxHqgfLHvTx4FnbCl6ko9t2Wj2phmFJWJyEhqMjeaE
   appurl: http://120.132.17.220:18090/gyhl-app/#/pages
-
-
-#数据库备份java类读取字段
-backups:
-  db:
-    dbUrl: 120.132.17.220
-    dbName: xinsoft-gyhl
-    dbUsername: xinsoft
-    dbPassword: xinsoft411
-    filePath: D:\db_backups

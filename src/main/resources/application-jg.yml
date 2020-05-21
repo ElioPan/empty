@@ -1,3 +1,10 @@
+server:
+  session-timeout: 28800
+  #    tomcat:
+  #        max-threads: 1000
+  #        min-spare-threads: 30
+  port: ${sport:8895}
+
 ev:
   uploadPath: D:/var/uploaded_files/
   excelPath: D:/var/excel_files/
@@ -5,12 +12,11 @@ logging:
   level:
     root: info
     com.bootdo: debug
-
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://120.132.17.220:3306/xinsoft-gyhl?useUnicode=true&characterEncoding=utf8
+    url: jdbc:mysql://120.132.17.220:3306/xinsoft-jg?useUnicode=true&characterEncoding=utf8
     username: xinsoft
     password: xinsoft411
     initialSize: 1
@@ -37,8 +43,8 @@ spring:
     #useGlobalDataSourceStat: true
   redis:
     host: localhost
-    port: 6379
-    password:
+    port: 6381
+    password: 1q2w3e4r!@#$
     # 连接超时时间（毫秒）
     timeout: 10000
     pool:
@@ -75,20 +81,10 @@ ribbon:
   MaxAutoRetriesNextServer: 0 #对切换实例的重试次数，默认1
 upload:
   config:
-    path: D:/Program Files/jenkins/workspace/gyhl-local-zd/target/classes/fdfs_client.conf
+    path: C:/java/project/fdfs_client.conf
 wechat:
-  agentid: 1000002
-  corpid: wwd5b516fea1402b36
-  corpsecret: vkYNZGHLSccDUTm5pD1GJD04PwmXcS_TfluwmT8i8aY
-  mobilesecret: UdsiLfdVT3OVmuo94IbTqZv8BVGkJ2iuyQZCDAi3ELI
-  appurl: http://120.132.17.220:18090/gyhl-app/#/pages
-
-
-#数据库备份java类读取字段
-backups:
-  db:
-    dbUrl: 120.132.17.220
-    dbName: xinsoft-gyhl
-    dbUsername: xinsoft
-    dbPassword: xinsoft411
-    filePath: D:\db_backups
+  agentid: 1000003
+  corpid: wx6188bd4995b3f83b
+  corpsecret: WqJxg35Q8majBsLJ6DliY9y-EkKw6qrQZAyV4axjGxQ
+  mobilesecret: YGxHqgfLHvTx4FnbCl6ko9t2Wj2phmFJWJyEhqMjeaE
+  appurl: http://120.132.17.220:18095/gyhl-app/#/pages

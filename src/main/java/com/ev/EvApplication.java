@@ -20,7 +20,7 @@ import javax.annotation.Resource;
 
 @EnableTransactionManagement
 @ServletComponentScan
-@MapperScan("com.ev.**.dao")
+@MapperScan("com.ev.*.dao")
 @EnableFeignClients(basePackages = "com.ev.**.gateway")
 @SpringBootApplication
 @EnableCaching
