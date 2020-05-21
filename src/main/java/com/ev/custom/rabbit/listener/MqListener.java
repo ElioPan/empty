@@ -15,6 +15,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -50,14 +51,21 @@ public class MqListener {
         InfluxDbUtils influxDB = InfluxDbUtils.setUp();
         List<String> records = new ArrayList<String>();
         for(LinkedHashMap dataMap : deviceDatas){
-            Map<String, String> tags = new HashMap<String, String>();
-            tags.put("point", dataMap.get("pointId").toString());
-            Map<String, Object> values = new HashMap<String, Object>();
-            values.put("value", Double.parseDouble(dataMap.get("value").toString()));
-            Point point = influxDB.pointBuilder(measurement, tags, values,dataMap.get("time").toString());
-            BatchPoints batchPoint = BatchPoints.database(measurement).consistency(InfluxDB.ConsistencyLevel.ALL).build();
-            batchPoint.point(point);
-            records.add(batchPoint.lineProtocol());
+            if(!StringUtils.isEmpty(dataMap.get("value").toString().trim())){
+                try{
+                    Map<String, String> tags = new HashMap<String, String>();
+                    tags.put("point", dataMap.get("pointId").toString());
+                    Map<String, Object> values = new HashMap<String, Object>();
+                    values.put("value", Double.parseDouble(dataMap.get("value").toString().trim()));
+                    Point point = influxDB.pointBuilder(measurement, tags, values,dataMap.get("time").toString());
+                    BatchPoints batchPoint = BatchPoints.database(measurement).consistency(InfluxDB.ConsistencyLevel.ALL).build();
+                    batchPoint.point(point);
+                    records.add(batchPoint.lineProtocol());
+                }catch (Exception e){
+                    continue;
+                }
+            }
+
         }
         // 将两条数据批量插入到数据库中
         influxDB.batchInsert("sentinel_log", null, InfluxDB.ConsistencyLevel.ALL, records);
