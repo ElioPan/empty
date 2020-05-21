@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ev.framework.config.ApplicationContextRegister;
 import com.ev.framework.config.ConstantForDevice;
+import com.ev.framework.config.RabbitmqConfig;
 import com.ev.framework.utils.DateFormatUtil;
 import com.ev.common.vo.PlanVo;
 import com.ev.custom.domain.PatrolPlanDO;
@@ -15,6 +16,8 @@ import com.ev.custom.service.UpkeepPlanService;
 import com.ev.custom.service.UpkeepRecordService;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +31,7 @@ import java.util.*;
  */
 @Component
 public class NoticeJob{
+    private static final Logger log= LoggerFactory.getLogger(NoticeJob.class);
 
     @Scheduled(cron="0 50 23 * * ? ")
     private void executeInternal() {
@@ -58,6 +62,10 @@ public class NoticeJob{
         Map<String,Object> map = new HashMap<String,Object>(){{put("beginTime",tomrrowStr);put("endTime",tomrrowStr);put("status","state_start");}};
         List<PlanVo> patrolPlanList = patrolPlanService.getPlanView(map);
         for(PlanVo planVo : patrolPlanList){
+            if(Objects.equals(planVo.getFrequency(),0)){
+                log.error(ConstantForDevice.PATRAL_PLAN.equals(planVo.getPlanType())?"巡检计划"+planVo.getPlanNo()+"时间间隔不能为0":"保养计划"+planVo.getPlanNo()+"时间间隔不能为0");
+                continue;
+            }
             JSONArray array = new JSONArray();
             Map<String,Object> conditionMap = new HashMap<String, Object>();
             conditionMap.put("planId",planVo.getId());
