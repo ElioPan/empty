@@ -57,6 +57,7 @@ public class MqListener {
                     tags.put("point", dataMap.get("pointId").toString());
                     Map<String, Object> values = new HashMap<String, Object>();
                     values.put("value", Double.parseDouble(dataMap.get("value").toString().trim()));
+                    values.put("valueRecord", Double.parseDouble(dataMap.get("valueRecord").toString().trim()));
                     Point point = influxDB.pointBuilder(measurement, tags, values,dataMap.get("time").toString());
                     BatchPoints batchPoint = BatchPoints.database(measurement).consistency(InfluxDB.ConsistencyLevel.ALL).build();
                     batchPoint.point(point);

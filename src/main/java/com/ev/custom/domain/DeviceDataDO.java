@@ -11,6 +11,8 @@ public class DeviceDataDO implements Serializable {
 
     private String value;
 
+    private String valueRecord;
+
     public String getTime() {
         return time;
     }
@@ -33,5 +35,13 @@ public class DeviceDataDO implements Serializable {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public String getValueRecord() {
+        return valueRecord;
+    }
+
+    public void setValueRecord(String valueRecord) {
+        this.valueRecord = valueRecord;
     }
 }
