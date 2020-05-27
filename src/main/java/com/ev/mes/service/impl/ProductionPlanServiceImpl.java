@@ -278,7 +278,7 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
                 .collect(Collectors.toMap(MaterielDO::getId, v->v.getDefaultFacility()==null?0:v.getDefaultFacility()));
         Map<Long, Long> locationMap = materielDOList
                 .stream()
-                .collect(Collectors.toMap(MaterielDO::getId, v->v.getDefaultFacility()==null?0:v.getDefaultLocation()));
+                .collect(Collectors.toMap(MaterielDO::getId, v->v.getDefaultLocation()==null?0:v.getDefaultLocation()));
 
         List<Map<String, Object>> feedingDetailList = new ArrayList<>();
         Map<String, Object> feedingDetail;
