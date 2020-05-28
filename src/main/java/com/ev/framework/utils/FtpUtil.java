@@ -82,8 +82,9 @@ public class FtpUtil {
             ftp.changeWorkingDirectory(path);
             FTPFile[] ftpFiles = ftp.listFiles();
             for(FTPFile file : ftpFiles){
-                if(name.equalsIgnoreCase(file.getName())){
-                    in = ftp.retrieveFileStream(name);
+                String nameF = new String(file.getName().getBytes("iso-8859-1"),"GBK");
+                if(name.equalsIgnoreCase(nameF)){
+                    in = ftp.retrieveFileStream(file.getName());
                 }
             }
             ftp.logout();
