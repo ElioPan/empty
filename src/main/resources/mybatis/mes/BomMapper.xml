@@ -210,6 +210,13 @@
 		<where>  
 		  		  <if test="id != null and id != ''"> and id = #{id} </if>
             <if test="maxNo != null and maxNo != ''"> and LEFT(serialno,CHAR_LENGTH(#{maxNo})) = #{maxNo} </if>
+			<if test="codes != null and codes.size()>0"> and `serialno` IN
+				<foreach item="item" collection="codes" open="(" separator="," close=")" index="index">
+					<if test="item!=null">
+						#{item}
+					</if>
+				</foreach>
+			</if>
 		  		  <if test="serialno != null and serialno != ''"> and serialno = #{serialno} </if>
 		  		  <if test="name != null and name != ''"> and name = #{name} </if>
 		  		  <if test="type != null and type != ''"> and type = #{type} </if>
