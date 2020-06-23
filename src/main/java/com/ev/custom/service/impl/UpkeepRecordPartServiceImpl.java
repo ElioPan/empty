@@ -9,6 +9,8 @@ import com.ev.custom.domain.UpkeepRecordProjectDO;
 import com.ev.custom.service.MaterielService;
 import com.ev.custom.service.UpkeepRecordPartService;
 import com.ev.custom.service.UpkeepRecordService;
+import com.ev.framework.utils.StringUtils;
+import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,35 +128,34 @@ public class UpkeepRecordPartServiceImpl implements UpkeepRecordPartService {
 		//保存工单下保养项目
 		this.doSaveAndChangePro(project,recordId,planId);
 
-		//{"dataList":[{"partId":3,"spart_amount":5,"spartPrice":10.5,"spart_sum":1000},{"partId":3,"spart_amount":5,"spart_sum":1000}]}
-		JSONObject jsonObject = JSONObject.fromObject(sparts);
-		JSONArray jsonArray = JSONArray.fromObject(jsonObject.get("dataList"));
+		JSONObject jsonObject;
+		if(StringUtils.isNotEmpty(sparts)){
+			jsonObject = null;
+		}else{
+			jsonObject = JSONObject.fromObject(sparts);
+		}
+		JSONArray jsonArray;
+		if(jsonObject == null){
+			jsonArray= new JSONArray();
+		}else{
+			jsonArray = JSONArray.fromObject(jsonObject.get("dataList"));
+		}
 
 		//将所有工单下备件全部删除+保存
 		upkeepRecordPartDao.removeByRecordId(recordId);
-
-//		Double spart_sum = 0.0; //统计配件总金额即为工单的coast(成本)
 		for (int i = 0; i < jsonArray.size(); i++) {
 			Map<String, Object> mapsDetail = (Map<String, Object>) jsonArray.get(i);
-//			spart_sum += Double.parseDouble(mapsDetail.containsKey("spart_sum")?mapsDetail.get("spart_sum").toString():null);
-
 			UpkeepRecordPartDO upkeepRecordPartDO = new UpkeepRecordPartDO();
 			upkeepRecordPartDO.setPlanId(planId);
 			upkeepRecordPartDO.setRecordId(recordId);
-
-//			mapsDetail.containsKey("remark")?mapsDetail.get("remark").toString():null
-
 			upkeepRecordPartDO.setPartId(Long.parseLong(mapsDetail.containsKey("partId")?mapsDetail.get("partId").toString():null));
 			upkeepRecordPartDO.setSpartAmount(mapsDetail.containsKey("spart_amount")?mapsDetail.get("spart_amount").toString():"0");
 			upkeepRecordPartDO.setSpartSum(Double.parseDouble(mapsDetail.containsKey("spart_sum")?mapsDetail.get("spart_sum").toString():"0"));
 			upkeepRecordPartDO.setRemark(mapsDetail.containsKey("remark")?mapsDetail.get("remark").toString():"");
 			upkeepRecordPartDO.setSpartPrice(mapsDetail.containsKey("spartPrice")?Double.parseDouble(mapsDetail.get("spartPrice").toString()):0.0);
-
-			 upkeepRecordPartDao.save(upkeepRecordPartDO);
+			upkeepRecordPartDao.save(upkeepRecordPartDO);
 		}
-//			upkeepRecordDO.setCost(BigDecimal.valueOf(spart_sum));
-			upkeepRecordService.update(upkeepRecordDO);
-
+		upkeepRecordService.update(upkeepRecordDO);
 	}
 
 	@Override
