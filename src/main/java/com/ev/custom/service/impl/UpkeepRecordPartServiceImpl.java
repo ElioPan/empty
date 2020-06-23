@@ -129,7 +129,7 @@ public class UpkeepRecordPartServiceImpl implements UpkeepRecordPartService {
 		this.doSaveAndChangePro(project,recordId,planId);
 
 		JSONObject jsonObject;
-		if(StringUtils.isNotEmpty(sparts)){
+		if(StringUtils.isEmpty(sparts)){
 			jsonObject = null;
 		}else{
 			jsonObject = JSONObject.fromObject(sparts);
