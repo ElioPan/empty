@@ -183,7 +183,6 @@ public class UpkeepRecordPartServiceImpl implements UpkeepRecordPartService {
 	   JSONArray jsonArray = JSONArray.fromObject(jsonObject.get("dataList"));
 	   for (int i = 0; i < jsonArray.size(); i++) {
 		   Map<String, Object> mapsDetail = (Map<String, Object>) jsonArray.get(i);
-
 		   UpkeepRecordProjectDO uRPDo = new UpkeepRecordProjectDO();
 		   uRPDo.setPlanId(planId);
 		   uRPDo.setRecordId(recoldId);
@@ -192,7 +191,6 @@ public class UpkeepRecordPartServiceImpl implements UpkeepRecordPartService {
 		   uRPDo.setResult(Integer.parseInt(mapsDetail.containsKey("result")?mapsDetail.get("result").toString():null));
 		   uRPDo.setRemark(mapsDetail.containsKey("remark")?mapsDetail.get("remark").toString():"");
 		   uRPDo.setManHourCost(mapsDetail.containsKey("manHourCost")?new BigDecimal(Double.parseDouble(mapsDetail.get("manHourCost").toString())):new BigDecimal(0));
-
 		   upkeepRecordProjectDao.save(uRPDo);
 	   }
 
