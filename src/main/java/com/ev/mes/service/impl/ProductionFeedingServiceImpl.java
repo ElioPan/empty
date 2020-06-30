@@ -28,6 +28,7 @@ import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -157,8 +158,9 @@ public class ProductionFeedingServiceImpl implements ProductionFeedingService {
 	public boolean isCited(Long id) {
 		List<ProductionFeedingDetailDO> feedingDetailList = this.getFeedingDetailList(id);
 		for (ProductionFeedingDetailDO productionFeedingDetailDO : feedingDetailList) {
-			if (Objects.nonNull(productionFeedingDetailDO.getScrapCount())
-					|| Objects.nonNull(productionFeedingDetailDO.getOutCount())) {
+			//如果报废数量大于0或者出库数量大于0，则说明已经产生下游单据
+			if ((Objects.nonNull(productionFeedingDetailDO.getScrapCount()) && productionFeedingDetailDO.getScrapCount().compareTo(BigDecimal.ZERO)>0)
+					|| (Objects.nonNull(productionFeedingDetailDO.getOutCount()) && productionFeedingDetailDO.getOutCount().compareTo(BigDecimal.ZERO)>0)) {
 				return true;
 			}
 		}
