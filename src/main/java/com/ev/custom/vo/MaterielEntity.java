@@ -75,4 +75,10 @@ public class MaterielEntity implements Serializable {
     //保质期
     @Excel(name = "保质期",type = 10)
     private Integer expireDays;
+    //单价精度
+    @Excel(name = "单价精度")
+    private BigDecimal priceAccuracy;
+    //数量精度
+    @Excel(name = "数量精度")
+    private BigDecimal quantityAccuracy;
 }
